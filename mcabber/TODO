@@ -16,6 +16,7 @@
 * Command line history (^P/^N)
 * External commands for events
 * Multi-lines
+* Handle window resize
 * Command line completion
 * Scroll back history
 * Save history 

@@ -415,37 +415,39 @@ void packethandler(jconn conn, jpacket packet)
 
   switch (packet->type) {
     case JPACKET_MESSAGE:
-        x = xmlnode_get_tag(packet->x, "body");
-        p = xmlnode_get_data(x); if (p) body = p;
-        char *tmp = NULL;
+        {
+          char *tmp = NULL;
+          x = xmlnode_get_tag(packet->x, "body");
+          p = xmlnode_get_data(x); if (p) body = p;
 
-        if ((x = xmlnode_get_tag(packet->x, "subject")) != NULL)
-          if ((p = xmlnode_get_data(x)) != NULL) {
-            tmp = malloc(strlen(body)+strlen(p)+3);
-            *tmp = '[';
-            strcpy(tmp+1, p);
-            strcat(tmp, "]\n");
-            strcat(tmp, body);
-            body = tmp;
+          if ((x = xmlnode_get_tag(packet->x, "subject")) != NULL)
+            if ((p = xmlnode_get_data(x)) != NULL) {
+              tmp = malloc(strlen(body)+strlen(p)+3);
+              *tmp = '[';
+              strcpy(tmp+1, p);
+              strcat(tmp, "]\n");
+              strcat(tmp, body);
+              body = tmp;
+            }
+
+          /* there can be multiple <x> tags. we're looking for one with
+             xmlns = jabber:x:encrypted */
+
+          for (x = xmlnode_get_firstchild(packet->x); x; x = xmlnode_get_nextsibling(x)) {
+            if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
+              if ((p = xmlnode_get_attrib(x, "xmlns")) &&
+                      !strcasecmp(p, "jabber:x:encrypted"))
+                if ((p = xmlnode_get_data(x)) != NULL) {
+                  enc = p;
+                  break;
+                }
           }
 
-        /* there can be multiple <x> tags. we're looking for one with
-           xmlns = jabber:x:encrypted */
-
-        for (x = xmlnode_get_firstchild(packet->x); x; x = xmlnode_get_nextsibling(x)) {
-          if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
-            if ((p = xmlnode_get_attrib(x, "xmlns")) &&
-                !strcasecmp(p, "jabber:x:encrypted"))
-              if ((p = xmlnode_get_data(x)) != NULL) {
-                enc = p;
-                break;
-              }
+          if (body)
+            gotmessage(type, from, body, enc);
+          if (tmp)
+            free(tmp);
         }
-
-        if (body)
-          gotmessage(type, from, body, enc);
-        if (tmp)
-          free(tmp);
         break;
 
     case JPACKET_IQ:
@@ -559,7 +561,7 @@ void packethandler(jconn conn, jpacket packet)
         } else if (!strcmp(type, "set")) {
         } else if (!strcmp(type, "error")) {
           char *name=NULL, *desc=NULL;
-          int code;
+          int code = 0;
 
           x = xmlnode_get_tag(packet->x, "error");
           p = xmlnode_get_attrib(x, "code"); if (p) code = atoi(p);

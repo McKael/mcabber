@@ -5,6 +5,7 @@
 #include <panel.h>
 #include <time.h>
 #include <ctype.h>
+#include <locale.h>
 
 #include "screen.h"
 #include "utils.h"
@@ -29,8 +30,9 @@ static window_entry_t *currentWindow;
 static int chatmode;
 int update_roaster;
 
-static char inputLine[INPUTLINE_LENGTH];
+static char inputLine[INPUTLINE_LENGTH+1];
 static char *ptr_inputline;
+static short int inputline_offset;
 
 
 /* Funciones */
@@ -455,6 +457,8 @@ void scr_InitCurses(void)
   inputLine[0] = 0;
   ptr_inputline = inputLine;
 
+  //setlocale(LC_CTYPE, "");
+
   return;
 }
 
@@ -517,7 +521,7 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text)
   int n, i;
   char *buffer = (char *) malloc(5 + strlen(text));
 
-  sprintf(buffer, "<-- %s", text);
+  sprintf(buffer, "<== %s", text);
 
   submsgs =
       ut_SplitMessage(buffer, &n, maxX - scr_WindowHeight(rosterWnd) - 20);
@@ -683,18 +687,48 @@ int process_line(char *line, int sock)
   return 0;
 }
 
+//  check_offset(int direction)
+// Check inputline_offset value, and make sure the cursor is inside the
+// screen.
+inline void check_offset(int direction)
+{
+  // Left side
+  if (inputline_offset && direction <= 0) {
+    while (ptr_inputline <= (char*)&inputLine + inputline_offset) {
+      if (inputline_offset) {
+        inputline_offset -= 5;
+        if (inputline_offset < 0)
+          inputline_offset = 0;
+      }
+    }
+  }
+  // Right side
+  if (direction >= 0) {
+    while (ptr_inputline >= inputline_offset + (char*)&inputLine + maxX)
+      inputline_offset += 5;
+  }
+}
+
 int process_key(int key, int sock)
 {
   if (isprint(key)) {
-    char tmpLine[INPUTLINE_LENGTH];
+    char tmpLine[INPUTLINE_LENGTH+1];
+
+    // Check the line isn't too long
+    if (strlen(inputLine) >= INPUTLINE_LENGTH)
+      return 0;
+
+    // Insert char
     strcpy(tmpLine, ptr_inputline);
     *ptr_inputline++ = key;
     strcpy(ptr_inputline, tmpLine);
+    check_offset(1);
   } else {
     switch(key) {
       case KEY_BACKSPACE:
           if (ptr_inputline != (char*)&inputLine) {
             *--ptr_inputline = 0;
+            check_offset(-1);
           }
           break;
       case KEY_DC:
@@ -704,11 +738,13 @@ int process_key(int key, int sock)
       case KEY_LEFT:
           if (ptr_inputline != (char*)&inputLine) {
             ptr_inputline--;
+            check_offset(-1);
           }
           break;
       case KEY_RIGHT:
           if (*ptr_inputline)
             ptr_inputline++;
+            check_offset(1);
           break;
       case 9:     // Tab
           scr_LogPrint("I'm unable to complete yet");
@@ -724,6 +760,7 @@ int process_key(int key, int sock)
             return 255;
           ptr_inputline = inputLine;
           *ptr_inputline = 0;
+          inputline_offset = 0;
           break;
       case KEY_UP:
           bud_RosterUp();
@@ -744,18 +781,27 @@ int process_key(int key, int sock)
       case KEY_HOME:
       case 1:
           ptr_inputline = inputLine;
+          inputline_offset = 0;
           break;
       case KEY_END:
       case 5:
           for (; *ptr_inputline; ptr_inputline++) ;
+          check_offset(1);
           break;
       case 21:  // Ctrl-u
           strcpy(inputLine, ptr_inputline);
           ptr_inputline = inputLine;
+          inputline_offset = 0;
           break;
       case KEY_EOL:
       case 11:  // Ctrl-k
           *ptr_inputline = 0;
+          break;
+      case 16:  // Ctrl-p
+          scr_LogPrint("Ctrl-p not yet implemented");
+          break;
+      case 14:  // Ctrl-n
+          scr_LogPrint("Ctrl-n not yet implemented");
           break;
       case 27:  // ESC
           currentWindow = NULL;
@@ -764,14 +810,14 @@ int process_key(int key, int sock)
           top_panel(inputPanel);
           break;
       default:
-          scr_LogPrint("Unkown key=%o", key);
+          scr_LogPrint("Unkown key=%d", key);
     }
     //scr_LogPrint("[%02x]", key);
   }
-  mvwprintw(inputWnd, 0,0, "%s", inputLine);
+  mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
   wclrtoeol(inputWnd);
   if (*ptr_inputline) {
-    wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine);
+    wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine - inputline_offset);
   }
   update_panels();
   doupdate();

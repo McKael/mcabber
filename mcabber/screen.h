@@ -10,6 +10,11 @@
 #define COLOR_BD_DESSEL 6
 #define COLOR_BD_DES    7
 
+#define LOG_WIN_HEIGHT  (5+2)
+#define CHAT_WIN_HEIGHT (maxY-1-LOG_WIN_HEIGHT)
+
+#define INPUTLINE_LENGTH  1024
+
 void scr_InitCurses(void);
 void scr_DrawMainWindow(void);
 void scr_TerminateCurses(void);
@@ -26,5 +31,6 @@ WINDOW *scr_GetStatusWindow(void);
 
 int scr_Getch(void);
 
+int process_key(int);
 
 #endif

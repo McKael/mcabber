@@ -30,10 +30,15 @@ typedef struct _window_entry_t {
 LIST_HEAD(window_list);
 
 /* Variables globales a SCREEN.C */
-WINDOW *rosterWnd, *chatWnd;
-PANEL *rosterPanel, *chatPanel;
+WINDOW *rosterWnd, *chatWnd, *inputWnd;
+WINDOW *logWnd, *logWnd_border;
+PANEL *rosterPanel, *chatPanel, *inputPanel;
+PANEL *logPanel, *logPanel_border;
 int maxY, maxX;
 window_entry_t *ventanaActual;
+
+char inputLine[INPUTLINE_LENGTH];
+char *ptr_inputline;
 
 
 /* Funciones */
@@ -45,9 +50,8 @@ int scr_WindowHeight(WINDOW * win)
   return x;
 }
 
-void
-scr_draw_box(WINDOW * win, int y, int x, int height, int width, int Color,
-	     chtype box, chtype border)
+void scr_draw_box(WINDOW * win, int y, int x, int height, int width,
+                  int Color, chtype box, chtype border)
 {
   int i, j;
 
@@ -173,9 +177,8 @@ window_entry_t *scr_CreatePanel(char *title, int x, int y, int lines,
 }
 
 
-void
-scr_CreatePopup(char *title, char *texto, int corte, int type,
-		char *returnstring)
+void scr_CreatePopup(char *title, char *texto, int corte, int type,
+                     char *returnstring)
 {
   WINDOW *popupWin;
   PANEL *popupPanel;
@@ -336,7 +339,7 @@ void scr_ShowWindow(char *nombreVentana)
 	waddch(tmp->win, ' ');
       mvwprintw(tmp->win, n + 1, 1, "%s", tmp->texto[n]);
     }
-    move(maxY - 2, maxX - 1);
+    move(CHAT_WIN_HEIGHT - 1, maxX - 1);
     update_panels();
     doupdate();
   }
@@ -360,9 +363,9 @@ void scr_WriteInWindow(char *nombreVentana, char *texto, int TimeStamp)
 
   tmp = scr_SearchWindow(nombreVentana);
   if (tmp == NULL) {
-    tmp = scr_CreatePanel(nombreVentana, 20, 0, maxY-1, maxX - 20);
-    tmp->texto = (char **) calloc(maxY * 3, sizeof(char *));
-    for (n = 0; n < (maxY-1) * 3; n++)
+    tmp = scr_CreatePanel(nombreVentana, 20, 0, CHAT_WIN_HEIGHT, maxX - 20);
+    tmp->texto = (char **) calloc((CHAT_WIN_HEIGHT+1) * 3, sizeof(char *));
+    for (n = 0; n < CHAT_WIN_HEIGHT * 3; n++)
       tmp->texto[n] = (char *) calloc(1, 1024);
 
     if (TimeStamp) {
@@ -375,7 +378,7 @@ void scr_WriteInWindow(char *nombreVentana, char *texto, int TimeStamp)
     }
     tmp->nlines++;
   } else {
-    if (tmp->nlines < maxY - 3) {
+    if (tmp->nlines < CHAT_WIN_HEIGHT - 2) {
       if (TimeStamp) {
 	ahora = time(NULL);
 	strftime(tmp->texto[tmp->nlines], 1024,
@@ -425,28 +428,49 @@ void scr_InitCurses(void)
   ParseColors();
 
   getmaxyx(stdscr, maxY, maxX);
+  inputLine[0] = 0;
+  ptr_inputline = inputLine;
 
   return;
 }
 
 void scr_DrawMainWindow(void)
 {
-  /* Dibujamos los paneles principales */
+  /* Draw main panels */
   rosterWnd = newwin(maxY-1, 20, 0, 0);
   rosterPanel = new_panel(rosterWnd);
   scr_draw_box(rosterWnd, 0, 0, maxY-1, 20, COLOR_GENERAL, 0, 0);
   mvwprintw(rosterWnd, 0, (20 - strlen(i18n("Roster"))) / 2,
 	    i18n("Roster"));
 
-  chatWnd = newwin(maxY-1, maxX - 20, 0, 20);
+  chatWnd = newwin(CHAT_WIN_HEIGHT, maxX - 20, 0, 20);
   chatPanel = new_panel(chatWnd);
-  scr_draw_box(chatWnd, 0, 0, maxY-1, maxX - 20, COLOR_GENERAL, 0, 0);
+  scr_draw_box(chatWnd, 0, 0, CHAT_WIN_HEIGHT, maxX - 20, COLOR_GENERAL, 0, 0);
   mvwprintw(chatWnd, 0,
 	    ((maxX - 20) - strlen(i18n("Status Window"))) / 2,
 	    i18n("Status Window"));
 
-  bud_DrawRoster(rosterWnd);
+  logWnd_border = newwin(LOG_WIN_HEIGHT, maxX - 20, CHAT_WIN_HEIGHT, 20);
+  logPanel_border = new_panel(logWnd_border);
+  scr_draw_box(logWnd_border, 0, 0, LOG_WIN_HEIGHT, maxX - 20, COLOR_GENERAL, 0, 0);
+//  mvwprintw(logWnd_border, 0,
+//	    ((maxX - 20) - strlen(i18n("Log Window"))) / 2,
+//	    i18n("Log Window"));
+  //logWnd = newwin(LOG_WIN_HEIGHT - 2, maxX-20 - 2, CHAT_WIN_HEIGHT+1, 20+1);
+  logWnd = derwin(logWnd_border, LOG_WIN_HEIGHT-2, maxX-20-2, 1, 1);
+  logPanel = new_panel(logWnd);
+  wbkgd(logWnd, COLOR_PAIR(COLOR_GENERAL));
+  //wattrset(logWnd, COLOR_PAIR(COLOR_GENERAL));
+  wprintw(logWnd, "Here we are\n");
 
+  scrollok(logWnd,TRUE);
+  idlok(logWnd,TRUE);  // XXX Necessary?
+
+  inputWnd = newwin(1, maxX, maxY-1, 0);
+  inputPanel = new_panel(inputWnd);
+  //wbkgd(inputWnd, COLOR_PAIR(COLOR_GENERAL));
+
+  bud_DrawRoster(rosterWnd);
   update_panels();
   doupdate();
   return;
@@ -517,7 +541,7 @@ void scr_WriteMessage(int sock)
       free(submsgs[i]);
     free(submsgs);
 
-    move(maxY - 2, maxX - 1);
+    move(CHAT_WIN_HEIGHT - 1, maxX - 1);
     refresh();
     sprintf(buffer2, "%s@%s/%s", cfg_read("username"),
 	    cfg_read("server"), cfg_read("resource"));
@@ -543,4 +567,57 @@ WINDOW *scr_GetRosterWindow(void)
 WINDOW *scr_GetStatusWindow(void)
 {
   return chatWnd;
+}
+
+int process_key(int key)
+{
+  if (isprint(key)) {
+    char tmpLine[INPUTLINE_LENGTH];
+    strcpy(tmpLine, ptr_inputline);
+    *ptr_inputline++ = key;
+    strcpy(ptr_inputline, tmpLine);
+  } else {
+    switch(key) {
+      case KEY_BACKSPACE:
+          if (ptr_inputline != (char*)&inputLine) {
+            *--ptr_inputline = 0;
+          }
+          break;
+      case KEY_LEFT:
+          if (ptr_inputline != (char*)&inputLine) {
+            ptr_inputline--;
+          }
+          break;
+      case KEY_RIGHT:
+          if (*ptr_inputline)
+            ptr_inputline++;
+          break;
+      case 9:     // Tab
+          wprintw(logWnd, "\nI'm unable to complete yet");
+          break;
+      case '\n':  // Enter
+          // XXX Test:
+          if (!strcasecmp(inputLine, "/quit")) {
+            return 255;
+          }
+          // TODO processing
+          ptr_inputline = inputLine;
+          *ptr_inputline = 0;
+          break;
+      case KEY_UP:
+          bud_RosterUp();
+          break;
+      case KEY_DOWN:
+          bud_RosterDown();
+          break;
+    }
+  }
+  mvwprintw(inputWnd, 0,0, "%s", inputLine);
+  wclrtoeol(inputWnd);
+  if (*ptr_inputline) {
+    wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine);
+  }
+  update_panels();
+  doupdate();
+  return 0;
 }

@@ -77,6 +77,7 @@ int main(int argc, char **argv)
   int key;
   unsigned int port;
   unsigned int ping;
+  int ret = 0;
 
 
   credits();
@@ -187,8 +188,8 @@ int main(int argc, char **argv)
 
   ut_WriteLog("Entering into main loop...\n\n");
   ut_WriteLog("Ready to send/receive messages...\n");
-  key = 0;
-  while (key != 'x') {
+
+  while (ret != 255) {
     int x;
     alarm(ping);
     x = check_io(sock, 0);
@@ -214,6 +215,8 @@ int main(int argc, char **argv)
     if ((x & 2) == 2) {
       keypad(scr_GetRosterWindow(), TRUE);
       key = scr_Getch();
+      ret = process_key(key);
+      /*
       switch (key) {
       case KEY_IC:
 	bud_AddBuddy(sock);
@@ -275,6 +278,7 @@ int main(int argc, char **argv)
 	scr_ShowBuddyWindow();
 	break;
       }
+      */
     }
   }
 

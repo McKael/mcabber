@@ -37,8 +37,8 @@ static PANEL *logPanel, *logPanel_border;
 static int maxY, maxX;
 static window_entry_t *currentWindow;
 
-char inputLine[INPUTLINE_LENGTH];
-char *ptr_inputline;
+static char inputLine[INPUTLINE_LENGTH];
+static char *ptr_inputline;
 
 
 /* Funciones */
@@ -169,8 +169,8 @@ window_entry_t *scr_CreatePanel(char *title, int x, int y, int lines,
   strncpy(tmp->name, title, 1024);
 
   scr_draw_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL, 0, 0);
-  mvwprintw(tmp->win, 0, (cols - (2 + strlen(title))) / 2, " %s ", title);
-  if (!dont_show) {
+  //mvwprintw(tmp->win, 0, (cols - (2 + strlen(title))) / 2, " %s ", title);
+  if ((!dont_show)) {
     currentWindow = tmp;
   } else {
     if (currentWindow)
@@ -352,6 +352,9 @@ void scr_ShowWindow(char *winId)
     //move(CHAT_WIN_HEIGHT - 1, maxX - 1);
     update_panels();
     doupdate();
+  } else {
+    top_panel(chatPanel);
+    currentWindow = tmp;
   }
 }
 
@@ -360,10 +363,11 @@ void scr_ShowBuddyWindow(void)
   buddy_entry_t *tmp = bud_SelectedInfo();
   if (tmp->jid != NULL)
     scr_ShowWindow(tmp->jid);
+  top_panel(inputPanel);
 }
 
 
-void scr_WriteInWindow(char *winId, char *texto, int TimeStamp)
+void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
 {
   time_t ahora;
   int n;
@@ -375,7 +379,7 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp)
 
   tmp = scr_SearchWindow(winId);
 
-  if (!currentWindow || (currentWindow != tmp))
+  if ((!force_show) && ((!currentWindow || (currentWindow != tmp))))
     dont_show = TRUE;
   scr_LogPrint("dont_show=%d", dont_show);
 
@@ -466,9 +470,9 @@ void scr_DrawMainWindow(void)
   chatWnd = newwin(CHAT_WIN_HEIGHT, maxX - 20, 0, 20);
   chatPanel = new_panel(chatWnd);
   scr_draw_box(chatWnd, 0, 0, CHAT_WIN_HEIGHT, maxX - 20, COLOR_GENERAL, 0, 0);
-  mvwprintw(chatWnd, 0,
-	    ((maxX - 20) - strlen(i18n("Status Window"))) / 2,
-	    i18n("Status Window"));
+  //mvwprintw(chatWnd, 0,
+	//    ((maxX - 20) - strlen(i18n("Status Window"))) / 2,
+	//    i18n("Status Window"));
   //wbkgd(chatWnd, COLOR_PAIR(COLOR_GENERAL));
 
   logWnd_border = newwin(LOG_WIN_HEIGHT, maxX - 20, CHAT_WIN_HEIGHT, 20);
@@ -519,9 +523,9 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text)
 
   for (i = 0; i < n; i++) {
     if (i == 0)
-      scr_WriteInWindow(jidfrom, submsgs[i], TRUE);
+      scr_WriteInWindow(jidfrom, submsgs[i], TRUE, FALSE);
     else
-      scr_WriteInWindow(jidfrom, submsgs[i], FALSE);
+      scr_WriteInWindow(jidfrom, submsgs[i], FALSE, FALSE);
   }
 
   for (i = 0; i < n; i++)
@@ -558,9 +562,9 @@ void scr_WriteMessage(int sock)
 			maxX - scr_WindowHeight(rosterWnd) - 20);
     for (i = 0; i < n; i++) {
       if (i == 0)
-	scr_WriteInWindow(tmp->jid, submsgs[i], TRUE);
+	scr_WriteInWindow(tmp->jid, submsgs[i], TRUE, TRUE);
       else
-	scr_WriteInWindow(tmp->jid, submsgs[i], FALSE);
+	scr_WriteInWindow(tmp->jid, submsgs[i], FALSE, TRUE);
     }
 
     for (i = 0; i < n; i++)
@@ -618,6 +622,9 @@ void scr_LogPrint(const char *fmt, ...)
 
   wprintw(logWnd, "%s", buffer);
   free(buffer);
+
+  update_panels();
+  doupdate();
 }
 
 
@@ -638,9 +645,9 @@ void send_message(int sock, char *msg)
 			maxX - scr_WindowHeight(rosterWnd) - 20);
   for (i = 0; i < n; i++) {
     if (i == 0)
-      scr_WriteInWindow(tmp->jid, submsgs[i], TRUE);
+      scr_WriteInWindow(tmp->jid, submsgs[i], TRUE, TRUE);
     else
-      scr_WriteInWindow(tmp->jid, submsgs[i], FALSE);
+      scr_WriteInWindow(tmp->jid, submsgs[i], FALSE, TRUE);
   }
 
   for (i = 0; i < n; i++)
@@ -717,12 +724,10 @@ int process_key(int key, int sock)
       case KEY_UP:
           bud_RosterUp();
           scr_ShowBuddyWindow();
-          top_panel(inputPanel);
           break;
       case KEY_DOWN:
           bud_RosterDown();
           scr_ShowBuddyWindow();
-          top_panel(inputPanel);
           break;
       case KEY_PPAGE:
           scr_LogPrint("PageUp??");

@@ -30,12 +30,12 @@ typedef struct _window_entry_t {
 LIST_HEAD(window_list);
 
 /* Variables globales a SCREEN.C */
-WINDOW *rosterWnd, *chatWnd, *inputWnd;
-WINDOW *logWnd, *logWnd_border;
-PANEL *rosterPanel, *chatPanel, *inputPanel;
+static WINDOW *rosterWnd, *chatWnd, *inputWnd;
+static WINDOW *logWnd, *logWnd_border;
+static PANEL *rosterPanel, *chatPanel, *inputPanel;
 static PANEL *logPanel, *logPanel_border;
-int maxY, maxX;
-window_entry_t *ventanaActual;
+static int maxY, maxX;
+static window_entry_t *currentWindow;
 
 char inputLine[INPUTLINE_LENGTH];
 char *ptr_inputline;
@@ -159,7 +159,7 @@ void ParseColors(void)
 
 
 window_entry_t *scr_CreatePanel(char *title, int x, int y, int lines,
-				int cols)
+				int cols, int dont_show)
 {
   window_entry_t *tmp = calloc(1, sizeof(window_entry_t));
 
@@ -167,9 +167,22 @@ window_entry_t *scr_CreatePanel(char *title, int x, int y, int lines,
   tmp->panel = new_panel(tmp->win);
   tmp->name = (char *) calloc(1, 1024);
   strncpy(tmp->name, title, 1024);
+  /*
+  if (!dont_show) {
+    currentWindow = tmp;
+    scr_draw_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL, 0, 0);
+    mvwprintw(tmp->win, 0, (cols - (2 + strlen(title))) / 2, " %s ", title);
+  }
+  */
+  // ***
   scr_draw_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL, 0, 0);
   mvwprintw(tmp->win, 0, (cols - (2 + strlen(title))) / 2, " %s ", title);
-
+  if (!dont_show) {
+    currentWindow = tmp;
+  } else {
+    top_panel(currentWindow->panel);
+  }
+  // ***
   list_add_tail(&tmp->list, &window_list);
   update_panels();
 
@@ -310,7 +323,7 @@ void scr_RoolWindow(void)
 {
 }
 
-window_entry_t *scr_SearchWindow(char *nombreVentana)
+window_entry_t *scr_SearchWindow(char *winId)
 {
   struct list_head *pos, *n;
   window_entry_t *search_entry = NULL;
@@ -318,7 +331,7 @@ window_entry_t *scr_SearchWindow(char *nombreVentana)
   list_for_each_safe(pos, n, &window_list) {
     search_entry = window_entry(pos);
     if (search_entry->name) {
-      if (!strcasecmp(search_entry->name, nombreVentana)) {
+      if (!strcasecmp(search_entry->name, winId)) {
 	return search_entry;
       }
     }
@@ -326,12 +339,13 @@ window_entry_t *scr_SearchWindow(char *nombreVentana)
   return NULL;
 }
 
-void scr_ShowWindow(char *nombreVentana)
+void scr_ShowWindow(char *winId)
 {
   int n, width, i;
-  window_entry_t *tmp = scr_SearchWindow(nombreVentana);
+  window_entry_t *tmp = scr_SearchWindow(winId);
   if (tmp != NULL) {
     top_panel(tmp->panel);
+    currentWindow = tmp;
     width = scr_WindowHeight(tmp->win);
     for (n = 0; n < tmp->nlines; n++) {
       mvwprintw(tmp->win, n + 1, 1, "");
@@ -353,17 +367,23 @@ void scr_ShowBuddyWindow(void)
 }
 
 
-void scr_WriteInWindow(char *nombreVentana, char *texto, int TimeStamp)
+void scr_WriteInWindow(char *winId, char *texto, int TimeStamp)
 {
   time_t ahora;
   int n;
   int i;
   int width;
   window_entry_t *tmp;
+  int dont_show = 0;
 
-  tmp = scr_SearchWindow(nombreVentana);
+
+  tmp = scr_SearchWindow(winId);
+
+  if ((currentWindow) && (currentWindow != tmp))
+    dont_show = 1;
+
   if (tmp == NULL) {
-    tmp = scr_CreatePanel(nombreVentana, 20, 0, CHAT_WIN_HEIGHT, maxX - 20);
+    tmp = scr_CreatePanel(winId, 20, 0, CHAT_WIN_HEIGHT, maxX - 20, dont_show);
     tmp->texto = (char **) calloc((CHAT_WIN_HEIGHT+1) * 3, sizeof(char *));
     for (n = 0; n < CHAT_WIN_HEIGHT * 3; n++)
       tmp->texto[n] = (char *) calloc(1, 1024);
@@ -404,17 +424,19 @@ void scr_WriteInWindow(char *nombreVentana, char *texto, int TimeStamp)
     }
   }
 
-  top_panel(tmp->panel);
-  width = scr_WindowHeight(tmp->win);
-  for (n = 0; n < tmp->nlines; n++) {
-    mvwprintw(tmp->win, n + 1, 1, "");
-    for (i = 0; i < width - 2; i++)
-      waddch(tmp->win, ' ');
-    mvwprintw(tmp->win, n + 1, 1, "%s", tmp->texto[n]);
-  }
+  if (!dont_show) {
+    top_panel(tmp->panel);
+    width = scr_WindowHeight(tmp->win);
+    for (n = 0; n < tmp->nlines; n++) {
+      mvwprintw(tmp->win, n + 1, 1, "");
+      for (i = 0; i < width - 2; i++)
+        waddch(tmp->win, ' ');
+      mvwprintw(tmp->win, n + 1, 1, "%s", tmp->texto[n]);
+    }
 
-  update_panels();
-  doupdate();
+    update_panels();
+    doupdate();
+  }
 }
 
 void scr_InitCurses(void)
@@ -609,7 +631,7 @@ void send_message(int sock, char *msg)
   refresh();
   sprintf(buffer2, "%s@%s/%s", cfg_read("username"),
           cfg_read("server"), cfg_read("resource"));
-  srv_sendtext(sock, tmp->jid, buffer, buffer2);
+  srv_sendtext(sock, tmp->jid, msg, buffer2);
   free(buffer);
   free(buffer2);
 

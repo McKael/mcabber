@@ -41,18 +41,14 @@ char *utf8_decode(const char *src)
 char *utf8_encode(const char *src)
 {
   char *ret = calloc(1, (strlen(src) * 2) + 1);
-  unsigned char *aux = ret;
+  unsigned char *aux = (unsigned char*)ret;
 
   while (*src) {
     unsigned char ch = *src++;
     if (ch < 0x80U) {
       *aux++ = ch;
-    } else if (ch < 0x800U) {			/* if (ch < 0x800) { */
+    } else {  /* if (ch < 0x800U) { */
       *aux++ = 0xc0 | (ch >> 6);
-      *aux++ = 0x80 | (ch & 0x3f);
-    } else {
-      *aux++ = 0xe0 | (ch >> 12);
-      *aux++ = 0x80 | ((ch >> 6) & 0x3f);
       *aux++ = 0x80 | (ch & 0x3f);
     }
   }

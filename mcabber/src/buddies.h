@@ -21,6 +21,7 @@ void bud_RosterUp(void);
 void bud_TerminateBuddies(void);
 int  bud_BuddyCount(void);
 void bud_SetBuddyStatus(char *jidfrom, enum imstatus status);
+void bud_SortRoster(void);
 buddy_entry_t *bud_SelectedInfo(void);
 
 buddy_entry_t *bud_AddBuddy(const char *bjid, const char *bname);

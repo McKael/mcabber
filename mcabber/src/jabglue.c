@@ -25,6 +25,7 @@
 #include "jabglue.h"
 #include "screen.h"
 #include "utils.h"
+#include "buddies.h"
 
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
@@ -108,7 +109,7 @@ jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass)
   if (jc)
     free(jc);
 
-  jc = jab_new(jid, pass, port, ssl);
+  jc = jab_new((char*)jid, (char*)pass, port, ssl);
 
   jab_logger(jc, file_logger);
   jab_packet_handler(jc, &packethandler);
@@ -206,6 +207,9 @@ void setjabberstatus(enum imstatus st, char *msg)
     case invisible:
         xmlnode_put_attrib(x, "type", "invisible");
         break;
+
+    default:
+        break;
   }
 
   /* TODO
@@ -215,7 +219,7 @@ void setjabberstatus(enum imstatus st, char *msg)
   */
 
   if (!msg || !*msg) {
-    msg  = "unknownStatus"; // FIXME
+    msg  = ""; // FIXME
     //msg = imstatus2str(st);
   }
 
@@ -232,7 +236,7 @@ void setjabberstatus(enum imstatus st, char *msg)
 
 void jb_send_msg(const char *jid, const char *text)
 {
-  xmlnode x = jutil_msgnew(TMSG_CHAT, jid, 0, text);
+  xmlnode x = jutil_msgnew(TMSG_CHAT, (char*)jid, 0, (char*)text);
   jab_send(jc, x);
   xmlnode_free(x);
 }
@@ -309,7 +313,7 @@ void gotroster(xmlnode x)
 
   for (y = xmlnode_get_tag(x, "item"); y; y = xmlnode_get_nextsibling(y)) {
     const char *alias = xmlnode_get_attrib(y, "jid");
-    const char *sub = xmlnode_get_attrib(y, "subscription");
+    //const char *sub = xmlnode_get_attrib(y, "subscription"); // TODO Not used
     const char *name = xmlnode_get_attrib(y, "name");
     const char *group = 0;
 
@@ -319,7 +323,7 @@ void gotroster(xmlnode x)
     if (alias) {
       char *buddyname;
       if (name)
-        buddyname = name;
+        buddyname = (char*)name;
       else
         buddyname = jidtodisp(alias);
 
@@ -413,15 +417,16 @@ void packethandler(jconn conn, jpacket packet)
     case JPACKET_MESSAGE:
         x = xmlnode_get_tag(packet->x, "body");
         p = xmlnode_get_data(x); if (p) body = p;
+        char *tmp = NULL;
 
         if ((x = xmlnode_get_tag(packet->x, "subject")) != NULL)
           if ((p = xmlnode_get_data(x)) != NULL) {
-            char *tmp = malloc(strlen(body)+strlen(p)+3);
+            tmp = malloc(strlen(body)+strlen(p)+3);
             *tmp = '[';
             strcpy(tmp+1, p);
             strcat(tmp, "]\n");
             strcat(tmp, body);
-            body = tmp; // XXX we should free it later...
+            body = tmp;
           }
 
         /* there can be multiple <x> tags. we're looking for one with
@@ -437,22 +442,23 @@ void packethandler(jconn conn, jpacket packet)
               }
         }
 
-        if (body) {
+        if (body)
           gotmessage(type, from, body, enc);
-        }
+        if (tmp)
+          free(tmp);
         break;
 
     case JPACKET_IQ:
         if (!strcmp(type, "result")) {
 
-          if (p = xmlnode_get_attrib(packet->x, "id")) {
+          if ((p = xmlnode_get_attrib(packet->x, "id")) != NULL) {
             int iid = atoi(p);
 
             ut_WriteLog("iid = %d\n", iid);
             if (iid == s_id) {
               if (!regmode) {
                 if (jstate == STATE_GETAUTH) {
-                  if (x = xmlnode_get_tag(packet->x, "query"))
+                  if ((x = xmlnode_get_tag(packet->x, "query")) != NULL)
                     if (!xmlnode_get_tag(x, "digest")) {
                       jc->sid = 0;
                     }
@@ -483,7 +489,7 @@ void packethandler(jconn conn, jpacket packet)
             }
           }
 
-          if (x = xmlnode_get_tag(packet->x, "query")) {
+          if ((x = xmlnode_get_tag(packet->x, "query")) != NULL) {
             p = xmlnode_get_attrib(x, "xmlns"); if (p) ns = p;
 
             if (!strcmp(ns, NS_ROSTER)) {
@@ -495,7 +501,7 @@ void packethandler(jconn conn, jpacket packet)
                 if (alias) {
                   const char *name = xmlnode_get_tag_data(y, "name");
                   const char *desc = xmlnode_get_tag_data(y, "description");
-                  const char *service = xmlnode_get_tag_data(y, "service");
+                  // const char *service = xmlnode_get_tag_data(y, "service"); TODO
                   enum agtype atype = unknown;
 
                   if (xmlnode_get_tag(y, "groupchat")) atype = groupchat; else

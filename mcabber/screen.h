@@ -28,9 +28,10 @@ void scr_ShowBuddyWindow(void);
 
 WINDOW *scr_GetRosterWindow(void);
 WINDOW *scr_GetStatusWindow(void);
+WINDOW *scr_GetInputWindow(void);
 
 int scr_Getch(void);
 
-int process_key(int);
+int process_key(int, int sock);
 
 #endif

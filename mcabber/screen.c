@@ -33,7 +33,7 @@ LIST_HEAD(window_list);
 WINDOW *rosterWnd, *chatWnd, *inputWnd;
 WINDOW *logWnd, *logWnd_border;
 PANEL *rosterPanel, *chatPanel, *inputPanel;
-PANEL *logPanel, *logPanel_border;
+static PANEL *logPanel, *logPanel_border;
 int maxY, maxX;
 window_entry_t *ventanaActual;
 
@@ -301,7 +301,7 @@ void scr_CreatePopup(char *title, char *texto, int corte, int type,
   update_panels();
   doupdate();
   free(instr);
-  keypad(rosterWnd, TRUE);
+  keypad(inputWnd, TRUE);
 }
 
 
@@ -422,6 +422,7 @@ void scr_InitCurses(void)
   initscr();
   noecho();
   raw();
+  //cbreak();
   start_color();
   use_default_colors();
 
@@ -508,6 +509,10 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text)
   free(submsgs);
   free(buffer);
 
+  top_panel(inputPanel);
+  //wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine);
+  update_panels();
+  doupdate();
 }
 
 void scr_WriteMessage(int sock)
@@ -554,8 +559,8 @@ void scr_WriteMessage(int sock)
 int scr_Getch(void)
 {
   int ch;
-  keypad(rosterWnd, TRUE);
-  ch = wgetch(rosterWnd);
+  // keypad(inputWnd, TRUE);
+  ch = wgetch(inputWnd);
   return ch;
 }
 
@@ -569,7 +574,67 @@ WINDOW *scr_GetStatusWindow(void)
   return chatWnd;
 }
 
-int process_key(int key)
+WINDOW *scr_GetInputWindow(void)
+{
+  return inputWnd;
+}
+
+void send_message(int sock, char *msg)
+{
+  char **submsgs;
+  char *buffer = (char *) calloc(1, 24+strlen(msg));
+  char *buffer2 = (char *) calloc(1, 1024);
+  int n, i;
+  buddy_entry_t *tmp = bud_SelectedInfo();
+
+  scr_ShowWindow(tmp->jid);
+
+  sprintf(buffer, ">>> %s", msg);
+
+  submsgs =
+	ut_SplitMessage(buffer, &n,
+			maxX - scr_WindowHeight(rosterWnd) - 20);
+  for (i = 0; i < n; i++) {
+    if (i == 0)
+      scr_WriteInWindow(tmp->jid, submsgs[i], TRUE);
+    else
+      scr_WriteInWindow(tmp->jid, submsgs[i], FALSE);
+  }
+
+  for (i = 0; i < n; i++)
+    free(submsgs[i]);
+  free(submsgs);
+
+  //move(CHAT_WIN_HEIGHT - 1, maxX - 1);
+  refresh();
+  sprintf(buffer2, "%s@%s/%s", cfg_read("username"),
+          cfg_read("server"), cfg_read("resource"));
+  srv_sendtext(sock, tmp->jid, buffer, buffer2);
+  free(buffer);
+  free(buffer2);
+
+  top_panel(inputPanel);
+}
+
+int process_line(char *line, int sock)
+{
+  if (*line == 0)      // XXX Simple checks should maybe be in process_key()
+    return 0;
+  if (*line != '/') {
+    send_message(sock, line);
+    return 0;
+  }
+  if (!strcasecmp(line, "/quit")) {
+    return 255;
+  }
+  // Commands handling
+  // TODO
+  // say...
+  wprintw(logWnd, "\nUnrecognised command, sorry.");
+  return 0;
+}
+
+int process_key(int key, int sock)
 {
   if (isprint(key)) {
     char tmpLine[INPUTLINE_LENGTH];
@@ -582,6 +647,10 @@ int process_key(int key)
           if (ptr_inputline != (char*)&inputLine) {
             *--ptr_inputline = 0;
           }
+          break;
+      case KEY_DC:
+          if (*ptr_inputline)
+            strcpy(ptr_inputline, ptr_inputline+1);
           break;
       case KEY_LEFT:
           if (ptr_inputline != (char*)&inputLine) {
@@ -597,20 +666,45 @@ int process_key(int key)
           break;
       case '\n':  // Enter
           // XXX Test:
-          if (!strcasecmp(inputLine, "/quit")) {
+          if (process_line(inputLine, sock))
             return 255;
-          }
-          // TODO processing
           ptr_inputline = inputLine;
           *ptr_inputline = 0;
           break;
       case KEY_UP:
           bud_RosterUp();
+          scr_ShowBuddyWindow();
           break;
       case KEY_DOWN:
           bud_RosterDown();
+          scr_ShowBuddyWindow();
           break;
+      case KEY_PPAGE:
+          wprintw(logWnd, "\nPageUp??");
+          break;
+      case KEY_NPAGE:
+          wprintw(logWnd, "\nPageDown??");
+          break;
+      case KEY_HOME:
+      case 1:
+          ptr_inputline = inputLine;
+          break;
+      case KEY_END:
+      case 5:
+          for (; *ptr_inputline; ptr_inputline++) ;
+          break;
+      case 21:   // Ctrl-u
+          strcpy(inputLine, ptr_inputline);
+          ptr_inputline = inputLine;
+          break;
+      case KEY_EOL:
+      case 11:   // Ctrl-k
+          *ptr_inputline = 0;
+          break;
+      default:
+          wprintw(logWnd, "\nUnkown key=%o", key);
     }
+    //wprintw(logWnd, "\n[%02x]", key);
   }
   mvwprintw(inputWnd, 0,0, "%s", inputLine);
   wclrtoeol(inputWnd);

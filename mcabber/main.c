@@ -66,10 +66,10 @@ void credits(void)
 
 int main(int argc, char **argv)
 {
-  int i;
+  //int i;
   char configFile[4096];
-  char *buffer;
-  char *secbuffer;
+  //char *buffer;
+  //char *secbuffer;
   char *username, *password, *resource;
   char *servername;
   char *idsession;
@@ -213,9 +213,9 @@ int main(int argc, char **argv)
       free(incoming);
     }
     if ((x & 2) == 2) {
-      keypad(scr_GetRosterWindow(), TRUE);
+      keypad(scr_GetInputWindow(), TRUE);
       key = scr_Getch();
-      ret = process_key(key);
+      ret = process_key(key, sock);
       /*
       switch (key) {
       case KEY_IC:
@@ -231,21 +231,11 @@ int main(int argc, char **argv)
 	bud_RosterUp();
 	break;
 
-      case 0x19a:
+      case KEY_RESIZE:
 	endwin();
 	printf("\nRedimensionado no implementado\n");
 	printf("Reinicie Cabber.\n\n\n");
 	exit(EXIT_FAILURE);
-	break;
-
-      case KEY_NPAGE:
-	for (i = 0; i < 10; i++)
-	  bud_RosterDown();
-	break;
-
-      case KEY_PPAGE:
-	for (i = 0; i < 10; i++)
-	  bud_RosterUp();
 	break;
 
       case 'z':

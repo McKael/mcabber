@@ -11,6 +11,7 @@
   - /status (and common shortcuts: /away, /online, /busy, /dnd)
 * Buddies status
 * Better command line (wider than 80 chars)
+* External commands for events
 * Multi-lines
 * Command line completion
 * Scroll back history

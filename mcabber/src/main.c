@@ -55,7 +55,7 @@ ssize_t my_getpass (char **passstr, size_t *n)
   /* Restore terminal. */
   (void) tcsetattr(fileno (stdin), TCSAFLUSH, &orig);
 
-  return nread;
+  return (ssize_t)nread;
 }
 
 void credits(void)
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 
   /* Connect to server */
   portstring = cfg_read("port");
-  port = (portstring != NULL) ? atoi(portstring) : -1;
+  port = (portstring != NULL) ? (unsigned int) atoi(portstring) : -1U;
 
   ut_WriteLog("Connecting to server: %s:%d\n", servername, port);
   if ((sock = srv_connect(servername, port)) < 0) {
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
 
   ping = 15;
   if (cfg_read("pinginterval"))
-    ping = atoi(cfg_read("pinginterval"));
+    ping = (unsigned int) atoi(cfg_read("pinginterval"));
 
   ut_WriteLog("Ping interval stablished: %d secs\n", ping);
 

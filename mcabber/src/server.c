@@ -50,10 +50,10 @@ char *srv_poll(int sock)
  */
 static u_long srv_resolve(const char *host)
 {
-  long i;
+  in_addr_t i;
   struct hostent *he;
 
-  if ((i = inet_addr(host)) == -1) {
+  if ((i = inet_addr(host)) == INADDR_NONE) {
     if (!(he = gethostbyname(host)))
       return 0;
     else
@@ -157,7 +157,7 @@ char *srv_login(int sock, const char *server, const char *user,
     free(stringtosend);
     return NULL;
   }
-  strncpy(idsession, aux, pos);
+  strncpy(idsession, aux, (size_t)pos);
 
   free(response);
 
@@ -274,7 +274,7 @@ srv_sendtext(int sock, const char *to, const char *text, const char *from)
   char *utf8inputline = utf8_encode(text);
 
   sprintf(stringtosend,
-	  "<message from='%s' to='%s' type='chat'><body>%s</body></message>",
+	  "<message from='%s' to='%s' type='chat'><body>%.1536s</body></message>",
 	  from, to, utf8inputline);
   if (!sk_send(sock, stringtosend)) {
     perror("senddata (server.c:247)");

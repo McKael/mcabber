@@ -612,7 +612,7 @@ int scr_IsHiddenMessage(char *jid) {
   return FALSE;
 }
 
-void send_message(int sock, char *msg)
+void send_message(char *msg)
 {
   char **submsgs;
   char *buffer = (char *) calloc(1, 24+strlen(msg));
@@ -642,17 +642,17 @@ void send_message(int sock, char *msg)
   refresh();
   sprintf(buffer2, "%s@%s/%s", cfg_read("username"),
           cfg_read("server"), cfg_read("resource"));
-  srv_sendtext(sock, tmp->jid, msg, buffer2);
+  // FIXME srv_sendtext(sock, tmp->jid, msg, buffer2);
   free(buffer);
   free(buffer2);
 
   top_panel(inputPanel);
 }
 
-int process_line(char *line, int sock)
+int process_line(char *line)
 {
   if (*line != '/') {
-    send_message(sock, line);
+    // FIXME send_message(sock, line);
     return 0;
   }
   if (!strcasecmp(line, "/quit")) {
@@ -688,7 +688,7 @@ inline void check_offset(int direction)
   }
 }
 
-int process_key(int key, int sock)
+int process_key(int key)
 {
   if (isprint(key)) {
     char tmpLine[INPUTLINE_LENGTH+1];
@@ -735,7 +735,7 @@ int process_key(int key, int sock)
             scr_ShowBuddyWindow();
             break;
           }
-          if (process_line(inputLine, sock))
+          if (process_line(inputLine))
             return 255;
           ptr_inputline = inputLine;
           *ptr_inputline = 0;

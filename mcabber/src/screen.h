@@ -37,6 +37,6 @@ WINDOW *scr_GetInputWindow(void);
 
 int scr_Getch(void);
 
-int process_key(int, int sock);
+int process_key(int);
 
 #endif

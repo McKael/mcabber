@@ -14,21 +14,22 @@
 #include "server.h"
 #include "harddefines.h"
 #include "socket.h"
+#include "jabglue.h"
 
-int sock;
+//int sock;
 
 void sig_handler(int signum)
 {
   switch (signum) {
   case SIGALRM:
-    sk_send(sock, " ");
+    jb_keepalive();
     break;
 
   case SIGTERM:
     bud_TerminateBuddies();
     scr_TerminateCurses();
-    srv_setpresence(sock, "unavailable");
-    close(sock);
+    // TODO srv_setpresence(sock, "unavailable");
+    // TODO close(sock);
     printf("Killed by SIGTERM\nBye!\n");
     exit(EXIT_SUCCESS);
     break;
@@ -70,7 +71,7 @@ int main(int argc, char **argv)
   char configFile[4096];
   char *username, *password, *resource;
   char *servername;
-  char *idsession;
+  //char *idsession;
   char *portstring;
   int key;
   unsigned int port;
@@ -144,39 +145,29 @@ int main(int argc, char **argv)
   ut_WriteLog("Initializing N-Curses...\n");
   scr_InitCurses();
 
+  ut_WriteLog("Drawing main window...\n");
+  scr_DrawMainWindow();
+
   /* Connect to server */
   portstring = cfg_read("port");
   port = (portstring != NULL) ? (unsigned int) atoi(portstring) : -1U;
 
   ut_WriteLog("Connecting to server: %s:%d\n", servername, port);
-  if ((sock = srv_connect(servername, port)) < 0) {
+  scr_LogPrint("Connecting to server: %s:%d", servername, port);
+  jc = jb_connect(servername, port, 0, username, password, resource);
+  if (!jc) {
     ut_WriteLog("\terror!!!\n");
     fprintf(stderr, "Error connecting to (%s)\n", servername);
     scr_TerminateCurses();
     return -2;
   }
 
-  ut_WriteLog("Sending login string...\n");
-  if ((idsession = srv_login(sock, servername, username, password, 
-                             resource)) == NULL) {
-
-    ut_WriteLog("\terror!!!\n");
-    fprintf(stderr, "Error sending login string...\n");
-    scr_TerminateCurses();
-    return -3;
-  }
-  ut_WriteLog("Connected to %.48s: %s\n", servername, idsession);
-  free(idsession);
-
-  ut_WriteLog("Requesting roster...\n");
-  bud_InitBuddies(sock);
+  /*
+  bud_InitBuddies(sock); // TODO
 
   ut_WriteLog("Sending presence...\n");
   srv_setpresence(sock, "Online!");
-
-
-  ut_WriteLog("Drawing main window...\n");
-  scr_DrawMainWindow();
+  */
 
   ping = 15;
   if (cfg_read("pinginterval"))
@@ -187,10 +178,21 @@ int main(int argc, char **argv)
   ut_WriteLog("Entering into main loop...\n\n");
   ut_WriteLog("Ready to send/receive messages...\n");
 
+  sleep(1);
+  jb_main();
+  sleep(1);
+  jb_main();
+  sleep(2);
+  jb_disconnect();
+  sleep(1);
+  jb_main();
+  scr_TerminateCurses(); exit(0); // XXX
   while (ret != 255) {
     int x;
     alarm(ping);
-    x = check_io(sock, 0);
+    //x = check_io(sock, 0);
+    x = check_io(0, 0); // FIXME
+    /*
     if ((x & 1) == 1) {
       srv_msg *incoming = readserver(sock);
 
@@ -211,9 +213,11 @@ int main(int argc, char **argv)
       free(incoming);
     }
     if ((x & 2) == 2) {
+    */
+    if (x) {
       keypad(scr_GetInputWindow(), TRUE);
       key = scr_Getch();
-      ret = process_key(key, sock);
+      ret = process_key(key);
       /*
       switch (key) {
       case KEY_IC:
@@ -241,9 +245,8 @@ int main(int argc, char **argv)
   bud_TerminateBuddies();
   scr_TerminateCurses();
 
-  srv_setpresence(sock, "unavailable");
-
-  close(sock);
+  //srv_setpresence(sock, "unavailable");
+  //close(sock);
 
   printf("\n\nHave a nice day!\nBye!\n");
 

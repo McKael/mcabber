@@ -27,10 +27,10 @@ void ut_WriteLog(const char *fmt, ...)
 
   if (DebugEnabled) {
     fp = fopen("/tmp/mcabberlog", "a+");
-    buffer = (char *) calloc(1, 8192);
+    buffer = (char *) calloc(1, 64);
 
     ahora = time(NULL);
-    strftime(buffer, 1024, "[%H:%M:%S] ", localtime(&ahora));
+    strftime(buffer, 64, "[%H:%M:%S] ", localtime(&ahora));
     fprintf(fp, "%s", buffer);
 
     va_start(ap, fmt);
@@ -42,11 +42,11 @@ void ut_WriteLog(const char *fmt, ...)
   }
 }
 
-char **ut_SplitMessage(char *mensaje, int *nsubmsgs, unsigned int maxlong)
+char **ut_SplitMessage(char *message, int *nsubmsgs, unsigned int maxlong)
 {
   /* BUGs:    recorta la palabra si la longitud maxlong es menor que la palabra
      //  maxlong = 4
-     // mensaje = "peaso bug!"
+     // message = "peaso bug!"
      // submsgs[0] = "peas"
      // submsgs[1] = "bug!"
      // por lo demas, rula de arte. De todos modos, podrias verificarla ???
@@ -55,29 +55,38 @@ char **ut_SplitMessage(char *mensaje, int *nsubmsgs, unsigned int maxlong)
   char *aux;
   char *aux2;
   char **submsgs;
-  char *buffer = (char *) malloc(strlen(mensaje) * 2);
+  char *buffer = (char *) malloc(strlen(message) * 2);
   int i = 0;
 
   submsgs = (char **) malloc(50 * sizeof(char *));	/* limitamos, a priori, el maximo de lineas devueltas... */
 
-  running = strdup(mensaje);	/* duplicamos mensaje */
-  aux2 = strdup(mensaje);	/* hacemos otra copia */
-  while (strlen(aux2) > maxlong) {	/* mintras quede texto... */
-    memset(buffer, 0, strlen(mensaje) * 2);	/* borramos el buffer */
-    running[maxlong] = '\0';	/* cortamos la cadena a la maxima longitud */
-    aux = rindex(running, ' ');	/* posicion del ultimo blanco */
-    if (aux != NULL)		/* hay blanco! */
+  running = strdup(message);
+  aux2 = strdup(message);
+
+  aux = index(running, '\n');     /* is there a CR? */
+
+  while ((strlen(aux2) > maxlong) || (aux)) {
+    memset(buffer, 0, strlen(message) * 2);
+    running[maxlong] = '\0';	    /* cut at $maxlong chars */
+
+    if (aux != NULL) {              /* there is a CR */
       strncpy(buffer, running, strlen(running) - strlen(aux));
-    else
-      strcpy(buffer, running);	/* se supone que esto es pa evitar  el bug explicado arriba, pero no rula */
+    } else {
+      aux = rindex(running, ' ');   /* look for last blank */
+      if (aux != NULL)		    /* hay blanco! */
+        strncpy(buffer, running, strlen(running) - strlen(aux));
+      else
+        strcpy(buffer, running);    /* se supone que esto es pa evitar  el bug explicado arriba, pero no rula */
+    }
 
     submsgs[i] = (char *) malloc(strlen(buffer) + 1);	/*reservamos memoria */
     strcpy(submsgs[i], buffer);	/*copiamos el buffer de arriba */
     i++;			/*aumentamos numero de mensajillos */
     aux2 += strlen(buffer) + 1;	/*eliminamos texto particionado */
     sprintf(running, "%s", aux2);	/*y lo copiamos de nuevo a la string de "curro" */
+    aux = index(running, '\n');     /* is there is a CR now? */
   }
-  /* la ultima parte del mensaje, si la hay ;-) */
+  /* last part of the message */
   if (strlen(aux2) > 0) {
     submsgs[i] = (char *) malloc(strlen(aux2) + 1);
     strcpy(submsgs[i], aux2);

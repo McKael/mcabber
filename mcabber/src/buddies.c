@@ -32,7 +32,7 @@ void bud_SetBuddyStatus(char *jidfrom, enum imstatus status)
   list_for_each_safe(pos, n, &buddy_list) {
     tmp = buddy_entry(pos);
     if (!strcasecmp(tmp->jid, jidfrom)) {
-      if (tmp->flags != status) {
+      if ((unsigned)tmp->flags != status) {
         oldstatus = tmp->flags;
 	tmp->flags = status;
 	changed = 1;

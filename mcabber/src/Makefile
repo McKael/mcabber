@@ -50,6 +50,7 @@ CP = cp -f
 
 SOURCES = \
     main.c \
+    commands.c \
     screen.c \
     utils.c \
     buddies.c \

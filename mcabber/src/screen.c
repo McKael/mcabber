@@ -9,10 +9,12 @@
 
 #include "screen.h"
 #include "utils.h"
+#include "commands.h"
 #include "buddies.h"
 #include "parsecfg.h"
 #include "lang.h"
 #include "list.h"
+#include "utf8.h"
 
 #define window_entry(n) list_entry(n, window_entry_t, list)
 
@@ -383,34 +385,51 @@ void scr_TerminateCurses(void)
   return;
 }
 
-void scr_WriteIncomingMessage(char *jidfrom, char *text)
+void scr_WriteMessage(char *jid, char *text, char *prefix)
 {
   char **submsgs;
   int n, i;
-  char *buffer = (char *) malloc(5 + strlen(text));
+  char *buffer = (char *) malloc(strlen(text) + strlen(text));
 
-  sprintf(buffer, "<== %s", utf8_decode(text));
+  if (prefix)
+    strcpy(buffer, prefix);
+  else
+    *buffer = 0;
+
+  strcat(buffer, text);
 
   submsgs =
       ut_SplitMessage(buffer, &n, maxX - scr_WindowHeight(rosterWnd) - 14);
 
   for (i = 0; i < n; i++) {
     if (i == 0)
-      scr_WriteInWindow(jidfrom, submsgs[i], TRUE, FALSE);
+      scr_WriteInWindow(jid, submsgs[i], TRUE, FALSE);
     else
-      scr_WriteInWindow(jidfrom, submsgs[i], FALSE, FALSE);
+      scr_WriteInWindow(jid, submsgs[i], FALSE, FALSE);
   }
 
   for (i = 0; i < n; i++)
     free(submsgs[i]);
-
   free(submsgs);
   free(buffer);
 
   top_panel(inputPanel);
-  //wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine);
+}
+
+void scr_WriteIncomingMessage(char *jidfrom, char *text)
+{
+  char *buffer = utf8_decode(text);
+  scr_WriteMessage(jidfrom, buffer, "<== ");
+  free(buffer);
   update_panels();
   doupdate();
+}
+
+void scr_WriteOutgoingMessage(char *jidto, char *text)
+{
+  scr_ShowWindow(jidto);
+  scr_WriteMessage(jidto, text, "--> ");
+  //refresh(); // XXX ?
 }
 
 int scr_Getch(void)
@@ -472,65 +491,6 @@ int scr_IsHiddenMessage(char *jid) {
     return TRUE;
 
   return FALSE;
-}
-
-//  send_message(msg)
-// Write the message in the buddy's window and send the message on
-// the network.
-void send_message(char *msg)
-{
-  char **submsgs;
-  char *buffer = (char *) calloc(1, 24+strlen(msg));
-  char *buffer2 = (char *) calloc(1, 1024);
-  int n, i;
-  buddy_entry_t *tmp = bud_SelectedInfo();
-
-  scr_ShowWindow(tmp->jid);
-
-  sprintf(buffer, "--> %s", msg);
-
-  submsgs =
-	ut_SplitMessage(buffer, &n,
-			maxX - scr_WindowHeight(rosterWnd) - 14);
-  for (i = 0; i < n; i++) {
-    if (i == 0)
-      scr_WriteInWindow(tmp->jid, submsgs[i], TRUE, TRUE);
-    else
-      scr_WriteInWindow(tmp->jid, submsgs[i], FALSE, TRUE);
-  }
-
-  for (i = 0; i < n; i++)
-    free(submsgs[i]);
-  free(submsgs);
-
-  refresh();
-  sprintf(buffer2, "%s@%s/%s", cfg_read("username"),
-          cfg_read("server"), cfg_read("resource"));
-  jb_send_msg(tmp->jid, utf8_encode(msg));
-  free(buffer);
-  free(buffer2);
-
-  top_panel(inputPanel);
-}
-
-//  process_line(line)
-// Process the line *line.  Note: if this isn't a command, this is a message
-// and it is sent to the current buddy.
-int process_line(char *line)
-{
-  if (*line != '/') {
-    send_message(line);
-    return 0;
-  }
-  if (!strcasecmp(line, "/quit")) {
-    return 255;
-  }
-  // Commands handling
-  // TODO
-  // say, send_raw...
-
-  scr_LogPrint("Unrecognised command, sorry.");
-  return 0;
 }
 
 //  check_offset(int direction)

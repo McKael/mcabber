@@ -42,6 +42,7 @@ int sk_conn(struct sockaddr *name)
  */
 int sk_send(int sock, char *buffer)
 {
+  //ut_WriteLog("Sending:%s\n", buffer);
   if ((send(sock, buffer, strlen(buffer), 0)) == -1)
     return 0;
   else

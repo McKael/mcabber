@@ -189,134 +189,6 @@ window_entry_t *scr_CreatePanel(char *title, int x, int y, int lines,
   return tmp;
 }
 
-
-void scr_CreatePopup(char *title, char *texto, int corte, int type,
-                     char *returnstring)
-{
-  WINDOW *popupWin;
-  PANEL *popupPanel;
-
-  int lineas = 0;
-  int cols = 0;
-
-  char **submsgs;
-  int n = 0;
-  int i;
-
-  char *instr = (char *) calloc(1, 1024);
-
-  /* fprintf(stderr, "\r\n%d", lineas); */
-
-  submsgs = ut_SplitMessage(texto, &n, corte);
-
-  switch (type) {
-  case 1:
-  case 0:
-    lineas = n + 4;
-    break;
-  }
-
-  cols = corte + 3;
-  popupWin = newwin(lineas, cols, (maxY - lineas) / 2, (maxX - cols) / 2);
-  popupPanel = new_panel(popupWin);
-
-  /*ATENCION!!! Colorear el popup ??
-     / box (popupWin, 0, 0); */
-  scr_draw_box(popupWin, 0, 0, lineas, cols, COLOR_POPUP, 0, 0);
-  mvwprintw(popupWin, 0, (cols - (2 + strlen(title))) / 2, " %s ", title);
-
-  for (i = 0; i < n; i++)
-    mvwprintw(popupWin, i + 1, 2, "%s", submsgs[i]);
-
-
-  for (i = 0; i < n; i++)
-    free(submsgs[i]);
-  free(submsgs);
-
-  switch (type) {
-  case 0:
-    mvwprintw(popupWin, n + 2,
-	      (cols - (2 + strlen(i18n("Press any key")))) / 2,
-	      i18n("Press any key"));
-    update_panels();
-    doupdate();
-    getch();
-    break;
-  case 1:
-    {
-      char ch;
-      int scroll = 0;
-      int input_x = 0;
-
-      wmove(popupWin, 3, 1);
-      wrefresh(popupWin);
-      keypad(popupWin, TRUE);
-      while ((ch = getch()) != '\n') {
-	switch (ch) {
-	case 0x09:
-	case KEY_UP:
-	case KEY_DOWN:
-	  break;
-	case KEY_RIGHT:
-	case KEY_LEFT:
-	  break;
-	case KEY_BACKSPACE:
-	case 127:
-	  if (input_x || scroll) {
-	    /* wattrset (popupWin, 0); */
-	    if (!input_x) {
-	      scroll = scroll < cols - 3 ? 0 : scroll - (cols - 3);
-	      wmove(popupWin, 3, 1);
-	      for (i = 0; i < cols; i++)
-		waddch
-		    (popupWin,
-		     instr
-		     [scroll
-		      + input_x + i] ? instr[scroll + input_x + i] : ' ');
-	      input_x = strlen(instr) - scroll;
-	    } else
-	      input_x--;
-	    instr[scroll + input_x] = '\0';
-	    mvwaddch(popupWin, 3, input_x + 1, ' ');
-	    wmove(popupWin, 3, input_x + 1);
-	    wrefresh(popupWin);
-	  }
-	default:
-	  if ( /*ch<0x100 && */ isprint(ch) || ch == 'ñ'
-	      || ch == 'Ñ') {
-	    if (scroll + input_x < 1024) {
-	      instr[scroll + input_x] = ch;
-	      instr[scroll + input_x + 1] = '\0';
-	      if (input_x == cols - 3) {
-		scroll++;
-		wmove(popupWin, 3, 1);
-		for (i = 0; i < cols - 3; i++)
-		  waddch(popupWin, instr[scroll + i]);
-	      } else {
-		wmove(popupWin, 3, 1 + input_x++);
-		waddch(popupWin, ch);
-	      }
-	      wrefresh(popupWin);
-	    } else {
-	      flash();
-	    }
-	  }
-	}
-      }
-    }
-    if (returnstring != NULL)
-      strcpy(returnstring, instr);
-    break;
-  }
-
-  del_panel(popupPanel);
-  delwin(popupWin);
-  update_panels();
-  doupdate();
-  free(instr);
-  keypad(inputWnd, TRUE);
-}
-
 void scr_RoolWindow(void)
 {
 }
@@ -381,14 +253,12 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
   window_entry_t *tmp;
   int dont_show = FALSE;
 
-
   tmp = scr_SearchWindow(winId);
 
   if (!chatmode)
     dont_show = TRUE;
   else if ((!force_show) && ((!currentWindow || (currentWindow != tmp))))
     dont_show = TRUE;
-  // scr_LogPrint("dont_show=%d", dont_show);
 
   if (tmp == NULL) {
     tmp = scr_CreatePanel(winId, ROSTER_WEIGHT, 0, CHAT_WIN_HEIGHT,
@@ -476,37 +346,28 @@ void scr_DrawMainWindow(void)
   /* Draw main panels */
   rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WEIGHT, 0, 0);
   rosterPanel = new_panel(rosterWnd);
-  scr_draw_box(rosterWnd, 0, 0, CHAT_WIN_HEIGHT, ROSTER_WEIGHT, COLOR_GENERAL, 0, 0);
+  scr_draw_box(rosterWnd, 0, 0, CHAT_WIN_HEIGHT, ROSTER_WEIGHT,
+               COLOR_GENERAL, 0, 0);
   mvwprintw(rosterWnd, 0, (ROSTER_WEIGHT - strlen(i18n("Roster"))) / 2,
 	    i18n("Roster"));
 
   chatWnd = newwin(CHAT_WIN_HEIGHT, maxX - ROSTER_WEIGHT, 0, ROSTER_WEIGHT);
   chatPanel = new_panel(chatWnd);
-  scr_draw_box(chatWnd, 0, 0, CHAT_WIN_HEIGHT, maxX - ROSTER_WEIGHT, COLOR_GENERAL, 0, 0);
-  //mvwprintw(chatWnd, 0,
-	//    ((maxX - 20) - strlen(i18n("Status Window"))) / 2,
-	//    i18n("Status Window"));
-  //wbkgd(chatWnd, COLOR_PAIR(COLOR_GENERAL));
+  scr_draw_box(chatWnd, 0, 0, CHAT_WIN_HEIGHT, maxX - ROSTER_WEIGHT,
+               COLOR_GENERAL, 0, 0);
   mvwprintw(chatWnd, 1, 1, "This is the status window");
 
   logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
   logPanel_border = new_panel(logWnd_border);
   scr_draw_box(logWnd_border, 0, 0, LOG_WIN_HEIGHT, maxX, COLOR_GENERAL, 0, 0);
-//  mvwprintw(logWnd_border, 0,
-//	    ((maxX - 20) - strlen(i18n("Log Window"))) / 2,
-//	    i18n("Log Window"));
-  //logWnd = newwin(LOG_WIN_HEIGHT - 2, maxX-20 - 2, CHAT_WIN_HEIGHT+1, 20+1);
   logWnd = derwin(logWnd_border, LOG_WIN_HEIGHT-2, maxX-2, 1, 1);
   logPanel = new_panel(logWnd);
   wbkgd(logWnd, COLOR_PAIR(COLOR_GENERAL));
-  //wattrset(logWnd, COLOR_PAIR(COLOR_GENERAL));
 
   scrollok(logWnd,TRUE);
-  //idlok(logWnd,TRUE);  // XXX Necessary?
 
   inputWnd = newwin(1, maxX, maxY-1, 0);
   inputPanel = new_panel(inputWnd);
-  //wbkgd(inputWnd, COLOR_PAIR(COLOR_GENERAL));
 
   bud_DrawRoster(rosterWnd);
   update_panels();
@@ -531,7 +392,7 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text)
   sprintf(buffer, "<== %s", utf8_decode(text));
 
   submsgs =
-      ut_SplitMessage(buffer, &n, maxX - scr_WindowHeight(rosterWnd) - ROSTER_WEIGHT);
+      ut_SplitMessage(buffer, &n, maxX - scr_WindowHeight(rosterWnd) - 14);
 
   for (i = 0; i < n; i++) {
     if (i == 0)
@@ -575,6 +436,8 @@ WINDOW *scr_GetInputWindow(void)
   return inputWnd;
 }
 
+//  scr_LogPrint(...)
+// Display a message in the log window.
 void scr_LogPrint(const char *fmt, ...)
 {
   time_t timestamp;
@@ -611,6 +474,9 @@ int scr_IsHiddenMessage(char *jid) {
   return FALSE;
 }
 
+//  send_message(msg)
+// Write the message in the buddy's window and send the message on
+// the network.
 void send_message(char *msg)
 {
   char **submsgs;
@@ -625,7 +491,7 @@ void send_message(char *msg)
 
   submsgs =
 	ut_SplitMessage(buffer, &n,
-			maxX - scr_WindowHeight(rosterWnd) - ROSTER_WEIGHT);
+			maxX - scr_WindowHeight(rosterWnd) - 14);
   for (i = 0; i < n; i++) {
     if (i == 0)
       scr_WriteInWindow(tmp->jid, submsgs[i], TRUE, TRUE);
@@ -637,7 +503,6 @@ void send_message(char *msg)
     free(submsgs[i]);
   free(submsgs);
 
-  //move(CHAT_WIN_HEIGHT - 1, maxX - 1);
   refresh();
   sprintf(buffer2, "%s@%s/%s", cfg_read("username"),
           cfg_read("server"), cfg_read("resource"));
@@ -648,6 +513,9 @@ void send_message(char *msg)
   top_panel(inputPanel);
 }
 
+//  process_line(line)
+// Process the line *line.  Note: if this isn't a command, this is a message
+// and it is sent to the current buddy.
 int process_line(char *line)
 {
   if (*line != '/') {
@@ -687,6 +555,8 @@ inline void check_offset(int direction)
   }
 }
 
+//  process_key(key)
+// Handle the pressed key, in the command line (bottom).
 int process_key(int key)
 {
   if (isprint(key)) {
@@ -730,7 +600,6 @@ int process_key(int key)
           scr_LogPrint("I'm unable to complete yet");
           break;
       case '\n':  // Enter
-          // XXX Test:
           chatmode = TRUE;
           if (inputLine[0] == 0) {
             scr_ShowBuddyWindow();
@@ -792,7 +661,6 @@ int process_key(int key)
       default:
           scr_LogPrint("Unkown key=%d", key);
     }
-    //scr_LogPrint("[%02x]", key);
   }
   mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
   wclrtoeol(inputWnd);

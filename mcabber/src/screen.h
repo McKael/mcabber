@@ -21,8 +21,6 @@ extern int update_roster;
 void scr_InitCurses(void);
 void scr_DrawMainWindow(void);
 void scr_TerminateCurses(void);
-void scr_CreatePopup(char *title, char *texto, int corte, int type,
-		     char *returnstring);
 void scr_WriteInWindow(char *nombreVentana, char *texto, int TimeStamp,
                        int force_show);
 void scr_WriteIncomingMessage(char *jidfrom, char *text);

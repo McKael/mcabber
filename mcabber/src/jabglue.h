@@ -21,12 +21,10 @@ static char imstatus2char[imstatus_size] = {
     '_', 'o', 'i', 'f', 'd', 'c', 'n', 'a'
 };
 
-jconn jb_connect(const char *servername, unsigned int port, int ssl,
-                 const char *jid, const char *pass,
-                 const char *resource);
+jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass);
 void jb_disconnect(void);
 void jb_keepalive();
 void jb_main();
-//int  jb_status();
+void jb_send_msg(const char *, const char *);
 
 #endif /* __JABGLUE_H__ */

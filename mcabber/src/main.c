@@ -11,9 +11,7 @@
 #include "buddies.h"
 #include "parsecfg.h"
 #include "lang.h"
-#include "server.h"
 #include "harddefines.h"
-#include "socket.h"
 #include "jabglue.h"
 
 //int sock;
@@ -28,8 +26,7 @@ void sig_handler(int signum)
   case SIGTERM:
     bud_TerminateBuddies();
     scr_TerminateCurses();
-    // TODO srv_setpresence(sock, "unavailable");
-    // TODO close(sock);
+    jb_disconnect();
     printf("Killed by SIGTERM\nBye!\n");
     exit(EXIT_SUCCESS);
     break;
@@ -60,6 +57,18 @@ ssize_t my_getpass (char **passstr, size_t *n)
   return (ssize_t)nread;
 }
 
+char *compose_jid(const char *username, const char *servername,
+        const char *resource)
+{
+  char *jid = malloc(strlen(username)+strlen(servername)+strlen(resource)+3);
+  strcpy(jid, username);
+  strcat(jid, "@");
+  strcat(jid, servername);
+  strcat(jid, "/");
+  strcat(jid, resource);
+  return jid;
+}
+
 void credits(void)
 {
   printf(VERSION "\n");
@@ -71,7 +80,7 @@ int main(int argc, char **argv)
   char configFile[4096];
   char *username, *password, *resource;
   char *servername;
-  //char *idsession;
+  char *jid;
   char *portstring;
   int key;
   unsigned int port;
@@ -148,13 +157,16 @@ int main(int argc, char **argv)
   ut_WriteLog("Drawing main window...\n");
   scr_DrawMainWindow();
 
-  /* Connect to server */
   portstring = cfg_read("port");
   port = (portstring != NULL) ? (unsigned int) atoi(portstring) : -1U;
 
+  /* Connect to server */
   ut_WriteLog("Connecting to server: %s:%d\n", servername, port);
   scr_LogPrint("Connecting to server: %s:%d", servername, port);
-  jc = jb_connect(servername, port, 0, username, password, resource);
+
+  jid = compose_jid(username, servername, resource);
+  jc = jb_connect(jid, port, 0, password);
+  free(jid);
   if (!jc) {
     ut_WriteLog("\terror!!!\n");
     fprintf(stderr, "Error connecting to (%s)\n", servername);
@@ -178,70 +190,20 @@ int main(int argc, char **argv)
   ut_WriteLog("Entering into main loop...\n\n");
   ut_WriteLog("Ready to send/receive messages...\n");
 
-  sleep(1);
-  jb_main();
-  sleep(1);
-  jb_main();
-  sleep(2);
-  jb_disconnect();
-  sleep(1);
-  jb_main();
-  scr_TerminateCurses(); exit(0); // XXX
   while (ret != 255) {
-    int x;
     alarm(ping);
-    //x = check_io(sock, 0);
-    x = check_io(0, 0); // FIXME
-    /*
-    if ((x & 1) == 1) {
-      srv_msg *incoming = readserver(sock);
-
-      switch (incoming->m) {
-      case SM_PRESENCE:
-	bud_SetBuddyStatus(incoming->from, incoming->connected);
-	break;
-
-      case SM_MESSAGE:
-	scr_WriteIncomingMessage(incoming->from, incoming->body);
-	free(incoming->body);
-	free(incoming->from);
-	break;
-
-      case SM_UNHANDLED:
-	break;
-      }
-      free(incoming);
-    }
-    if ((x & 2) == 2) {
-    */
-    if (x) {
-      keypad(scr_GetInputWindow(), TRUE);
-      key = scr_Getch();
+    keypad(scr_GetInputWindow(), TRUE);
+    key = scr_Getch();
+    if (key != ERR)
       ret = process_key(key);
-      /*
-      switch (key) {
-      case KEY_IC:
-	bud_AddBuddy(sock);
-	break;
-      case KEY_DC:
-	bud_DeleteBuddy(sock);
-	break;
-
-      case KEY_RESIZE:
-	endwin();
-	printf("\nRedimensionado no implementado\n");
-	printf("Reinicie Cabber.\n\n\n");
-	exit(EXIT_FAILURE);
-	break;
-      }
-      */
-    }
+    jb_main();
     if (update_roster) {
       // scr_LogPrint("Update roster");
       bud_DrawRoster(scr_GetRosterWindow());
     }
   }
 
+  jb_disconnect();
   bud_TerminateBuddies();
   scr_TerminateCurses();
 

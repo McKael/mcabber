@@ -12,7 +12,6 @@
 #include "buddies.h"
 #include "parsecfg.h"
 #include "lang.h"
-#include "server.h"
 #include "list.h"
 
 #define window_entry(n) list_entry(n, window_entry_t, list)
@@ -456,7 +455,7 @@ void scr_InitCurses(void)
   initscr();
   noecho();
   raw();
-  //cbreak();
+  halfdelay(5);
   start_color();
   use_default_colors();
 
@@ -466,7 +465,7 @@ void scr_InitCurses(void)
   inputLine[0] = 0;
   ptr_inputline = inputLine;
 
-  //setlocale(LC_CTYPE, "");
+  setlocale(LC_CTYPE, "");
 
   return;
 }
@@ -500,7 +499,6 @@ void scr_DrawMainWindow(void)
   logPanel = new_panel(logWnd);
   wbkgd(logWnd, COLOR_PAIR(COLOR_GENERAL));
   //wattrset(logWnd, COLOR_PAIR(COLOR_GENERAL));
-  scr_LogPrint("Start up.");
 
   scrollok(logWnd,TRUE);
   //idlok(logWnd,TRUE);  // XXX Necessary?
@@ -529,7 +527,7 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text)
   int n, i;
   char *buffer = (char *) malloc(5 + strlen(text));
 
-  sprintf(buffer, "<== %s", text);
+  sprintf(buffer, "<== %s", utf8_decode(text));
 
   submsgs =
       ut_SplitMessage(buffer, &n, maxX - scr_WindowHeight(rosterWnd) - 20);
@@ -642,7 +640,7 @@ void send_message(char *msg)
   refresh();
   sprintf(buffer2, "%s@%s/%s", cfg_read("username"),
           cfg_read("server"), cfg_read("resource"));
-  // FIXME srv_sendtext(sock, tmp->jid, msg, buffer2);
+  jb_send_msg(tmp->jid, utf8_encode(msg));
   free(buffer);
   free(buffer2);
 
@@ -652,7 +650,7 @@ void send_message(char *msg)
 int process_line(char *line)
 {
   if (*line != '/') {
-    // FIXME send_message(sock, line);
+    send_message(line);
     return 0;
   }
   if (!strcasecmp(line, "/quit")) {
@@ -660,7 +658,7 @@ int process_line(char *line)
   }
   // Commands handling
   // TODO
-  // say...
+  // say, send_raw...
 
   scr_LogPrint("Unrecognised command, sorry.");
   return 0;

@@ -2,6 +2,7 @@
 #define __BUDDIES_H__ 1
 
 #include <ncurses.h>
+#include "jabglue.h"
 #include "list.h"
 
 /* Definición de tipos */
@@ -17,13 +18,12 @@ typedef struct _buddy_entry_t {
 void bud_DrawRoster(WINDOW * win);
 void bud_RosterDown(void);
 void bud_RosterUp(void);
-void bud_InitBuddies(int sock);
 void bud_TerminateBuddies(void);
-int bud_BuddyCount(void);
-void bud_SetBuddyStatus(char *jidfrom, int status);
-void bud_ParseBuddies(char *roster);
-void bud_AddBuddy(int sock);
-void bud_DeleteBuddy(int sock);
+int  bud_BuddyCount(void);
+void bud_SetBuddyStatus(char *jidfrom, enum imstatus status);
 buddy_entry_t *bud_SelectedInfo(void);
+
+buddy_entry_t *bud_AddBuddy(const char *bjid, const char *bname);
+void           bud_DeleteBuddy(buddy_entry_t *buddy);
 
 #endif

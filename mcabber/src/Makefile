@@ -33,7 +33,7 @@ CC = gcc
 endif
 CFLAGS = -Wall -W -pedantic
 LD = $(CC)
-LDLIBS = -lncurses -lpanel -L../libjabber -L../connwrap -llibjabber -lconnwrap -lssl
+LDLIBS = -lncurses -lpanel -lssl -L../libjabber -L../connwrap -llibjabber -lconnwrap
 
 ifeq ($(DEBUG),1)
 CFLAGS += -O0 -g -DDEBUG=1
@@ -55,8 +55,6 @@ SOURCES = \
     buddies.c \
     parsecfg.c \
     jabglue.c \
-    server.c \
-    socket.c \
     lang.c \
     utf8.c
 

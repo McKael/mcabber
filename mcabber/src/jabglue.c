@@ -92,9 +92,7 @@ char *jidtodisp(const char *jid)
   return alias;
 }
 
-jconn jb_connect(const char *servername, unsigned int port, int ssl,
-                  const char *jid, const char *pass,
-                  const char *resource)
+jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass)
 {
   if (!port) {
     if (ssl)
@@ -106,16 +104,14 @@ jconn jb_connect(const char *servername, unsigned int port, int ssl,
   if (jc)
     free(jc);
 
-  //jc = jab_new(jid, pass, port, ssl);
-  jc = jab_new("mctest@lilotux.net/mcabber", (char*)pass, (int)port, ssl);
+  jc = jab_new(jid, pass, port, ssl);
 
-  jab_logger(jc, big_logger);
+  jab_logger(jc, file_logger);
   jab_packet_handler(jc, &packethandler);
   jab_state_handler(jc, &statehandler);
 
   if (jc->user) {
     //fonline = TRUE;
-    scr_LogPrint("+ State_Connecting");
     jstate = STATE_CONNECTING;
     statehandler(0, -1);
     jab_start(jc);
@@ -215,7 +211,7 @@ void setjabberstatus(enum imstatus st, char *msg)
   */
 
   if (!msg || !*msg) {
-    msg  = "unknownStatus";
+    msg  = "unknownStatus"; // FIXME
     //msg = imstatus2str(st);
   }
 
@@ -230,6 +226,13 @@ void setjabberstatus(enum imstatus st, char *msg)
   // XXX logger.putourstatus(proto, getstatus(), ourstatus = st);
 }
 
+void jb_send_msg(const char *jid, const char *text)
+{
+  xmlnode x = jutil_msgnew(TMSG_CHAT, jid, 0, text);
+  jab_send(jc, x);
+  xmlnode_free(x);
+}
+
 void postlogin()
 {
   //int i;
@@ -239,6 +242,7 @@ void postlogin()
 
   //setautostatus(jhook.manualstatus);
 
+  setjabberstatus(1, "I'm here!");
   /*
   for (i = 0; i < clist.count; i++) {
     c = (icqcontact *) clist.at(i);
@@ -309,14 +313,20 @@ void gotroster(xmlnode x)
     if (z) group = xmlnode_get_data(z);
 
     if (alias) {
-      char *buddyname = jidtodisp(alias);
-      if (buddyname) {
-        scr_LogPrint("New buddy: %s", buddyname);
+      char *buddyname;
+      if (name)
+        buddyname = name;
+      else
+        buddyname = jidtodisp(alias);
+
+      //scr_LogPrint("New buddy: %s", buddyname);
+      bud_AddBuddy(alias, buddyname);
+      if (!name)
         free(buddyname);
-      }
     }
   }
 
+  bud_SortRoster();
   postlogin();
 }
 
@@ -326,20 +336,25 @@ void gotmessage(char *type, const char *from, const char *body,
   char *u, *h, *r;
 
   jidsplit(from, &u, &h, &r);
-  if (*r)
-    scr_LogPrint("There is an extra part in message: %s", *r);
-  scr_WriteIncomingMessage(from, body);
+  /*
+  // Maybe we should remember the resource?
+  if (r)
+    scr_LogPrint("There is an extra part in message (resource?): %s", r);
+  */
+
+  scr_LogPrint("Msg from <%s>, type=%s", jidtodisp(from), type);
+  scr_WriteIncomingMessage(jidtodisp(from), body);
 }
 
 void statehandler(jconn conn, int state)
 {
   static int previous_state = -1;
 
-  scr_LogPrint("StateHandler called (%d).\n", state);
-  ut_WriteLog("StateHandler called (%d).\n", state);
+  ut_WriteLog("StateHandler called (state=%d).\n", state);
 
   switch(state) {
     case JCONN_STATE_OFF:
+        scr_LogPrint("+ JCONN_STATE_OFF");
         /*
            jhook.flogged = jhook.fonline = FALSE;
 
@@ -348,20 +363,25 @@ void statehandler(jconn conn, int state)
            jhook.log(logDisconnected);
            jhook.roster.clear();
            jhook.agents.clear();
-           clist.setoffline(jhook.proto);
-           face.update();
            }
            */
         break;
 
     case JCONN_STATE_CONNECTED:
+        scr_LogPrint("+ JCONN_STATE_CONNECTED");
         break;
 
     case JCONN_STATE_AUTH:
+        scr_LogPrint("+ JCONN_STATE_AUTH");
         break;
 
     case JCONN_STATE_ON:
+        scr_LogPrint("+ JCONN_STATE_ON");
         // if (regmode) jhook.fonline = TRUE;
+        break;
+
+    case JCONN_STATE_CONNECTING:
+        scr_LogPrint("+ JCONN_STATE_CONNECTING");
         break;
 
     default:
@@ -378,12 +398,9 @@ void packethandler(jconn conn, jpacket packet)
   char *from=NULL, *type=NULL, *body=NULL, *enc=NULL;
   char *ns=NULL;
   char *id=NULL;
-  // imstatus ust;
+  enum imstatus ust;
   // int npos;
   // bool isagent;
-
-  scr_LogPrint("Received a packet");
-  ut_WriteLog("Received a packet\n");
 
   jpacket_reset(packet);
 
@@ -417,19 +434,13 @@ void packethandler(jconn conn, jpacket packet)
               }
         }
 
-        // FIXME:
         if (body) {
-          scr_LogPrint("Message received");
-          scr_LogPrint("Type: %s", type);
           gotmessage(type, from, body, enc);
         }
-
         break;
 
     case JPACKET_IQ:
         if (!strcmp(type, "result")) {
-          scr_LogPrint("Received a result packet");
-          ut_WriteLog("Received a result packet\n");
 
           if (p = xmlnode_get_attrib(packet->x, "id")) {
             int iid = atoi(p);
@@ -588,68 +599,30 @@ void packethandler(jconn conn, jpacket packet)
 
     case JPACKET_PRESENCE:
         x = xmlnode_get_tag(packet->x, "show");
-        //ust = available;
+        ust = available;
 
         if (x) {
           p = xmlnode_get_data(x); if (p) ns = p;
 
           if (ns) {
-            scr_LogPrint("New status: %s", ns);
-            /*
-            if (ns == "away") ust = away; else
-              if (ns == "dnd") ust = dontdisturb; else
-                if (ns == "xa") ust = notavail; else
-                  if (ns == "chat") ust = freeforchat;
-            */
+            scr_LogPrint("New status: %s (%s)", ns, from);
+            if (!strcmp(ns, "away"))      ust = away;
+            else if (!strcmp(ns, "dnd"))  ust = dontdisturb;
+            else if (!strcmp(ns, "xa"))   ust = notavail;
+            else if (!strcmp(ns, "chat")) ust = freeforchat;
           }
         }
 
-        if (!strcmp(type, "unavailable")) {
+        if (type && !strcmp(type, "unavailable")) {
           scr_LogPrint("New status: unavailable/offline");
-          // XXX
-          //  ust = offline;
+          ust = offline;
         }
 
+        bud_SetBuddyStatus(jidtodisp(from), ust);
         /*
-        jidsplit(from, u, h, s);
-        id = u + "@" + h;
-
-        if (clist.get(imcontact((string) "#" + id, jhook.proto))) {
-          if (ust == offline) {
-            vector<string>::iterator im = find(jhook.chatmembers[id].begin(), jhook.chatmembers[id].end(), s);
-            if (im != jhook.chatmembers[id].end())
-              jhook.chatmembers[id].erase(im);
-
-          } else {
-            jhook.chatmembers[id].push_back(s);
-
-          }
-
-        } else {
-          icqcontact *c = clist.get(ic);
-
-          if (c)
-            if (c->getstatus() != ust) {
-              if (c->getstatus() == offline)
-                jhook.awaymsgs[ic.nickname] = "";
-
-              logger.putonline(c, c->getstatus(), ust);
-              c->setstatus(ust);
-
-              if (x = xmlnode_get_tag(packet->x, "status"))
-                if (p = xmlnode_get_data(x))
-                  jhook.awaymsgs[ic.nickname] = p;
-
-#ifdef HAVE_GPGME
-              if (x = xmlnode_get_tag(packet->x, "x"))
-                if (p = xmlnode_get_attrib(x, "xmlns"))
-                  if ((string) p == "jabber:x:signed")
-                    if (p = xmlnode_get_data(x))
-                      c->setpgpkey(pgp.verify(p, jhook.awaymsgs[ic.nickname]));
-#endif
-
-            }
-        }
+        if (x = xmlnode_get_tag(packet->x, "status"))
+          if (p = xmlnode_get_data(x))
+            scr_LogPrint("Away msg: %s", p);
         */
         break;
 

@@ -8,9 +8,9 @@
 
 #include "lang.h"
 #include "utils.h"
-#include "server.h"
 #include "list.h"
-#include "harddefines.h"
+
+#define STR_EMPTY(s) ((s)[0] == '\0')
 
 /* global vars for BUDDIES.C */
 int buddySelected = 1;		/* Hold the selected Buddy  */
@@ -22,17 +22,18 @@ static LIST_HEAD(sorted_buddies);
 #define buddy_entry(n) list_entry(n, buddy_entry_t, list)
 
 
-void bud_SetBuddyStatus(char *jidfrom, int status)
+void bud_SetBuddyStatus(char *jidfrom, enum imstatus status)
 {
   struct list_head *pos, *n;
   buddy_entry_t *tmp;
+  enum imstatus oldstatus;
   int changed = 0;
-  char *buffer = (char *) malloc(4096);
 
   list_for_each_safe(pos, n, &buddy_list) {
     tmp = buddy_entry(pos);
     if (!strcmp(tmp->jid, jidfrom)) {
       if (tmp->flags != status) {
+        oldstatus = tmp->flags;
 	tmp->flags = status;
 	changed = 1;
       }
@@ -41,18 +42,9 @@ void bud_SetBuddyStatus(char *jidfrom, int status)
   }
   if (changed) {
     bud_DrawRoster(scr_GetRosterWindow());
-    switch (status) {
-    case FLAG_BUDDY_DISCONNECTED:
-      sprintf(buffer, "--> %s %s!", jidfrom, i18n("disconected"));
-      break;
-
-    case FLAG_BUDDY_CONNECTED:
-      sprintf(buffer, "--> %s %s!", jidfrom, i18n("connected"));
-      break;
-    }
-    scr_LogPrint("%s", buffer);
+    scr_LogPrint("<%s> status has changed: %c -> %c", jidfrom,
+            imstatus2char[oldstatus], imstatus2char[status]);
   }
-  free(buffer);
 }
 
 int compara(buddy_entry_t * t1, buddy_entry_t * t2)
@@ -86,91 +78,8 @@ void bud_SortRoster(void)
     list_move_tail(&indice->list, &sorted_buddies);
   }
   list_splice(&sorted_buddies, &buddy_list);
-}
 
-void bud_ParseBuddies(char *roster)
-{
-  buddy_entry_t *tmp = NULL;
-  char *aux;
-  char *p, *str;
-
-  ut_WriteLog("[roster]: %s\n\n", roster);
-
-  while ((aux = ut_strrstr(roster, "<item")) != NULL) {
-    char *jid = getattr(aux, "jid='");
-    char *name = getattr(aux, "name='");
-    char *group = gettag(aux, "group='");
-
-    *aux = '\0';
-
-    tmp = (buddy_entry_t *) calloc(1, sizeof(buddy_entry_t));
-
-    tmp->flags = FLAG_BUDDY_DISCONNECTED;
-
-    if (strncmp(jid, "UNK", 3)) {
-      char *res = strstr(jid, "/");
-      if (res)
-	*res = '\0';
-
-      tmp->jid = (char *) malloc(strlen(jid) + 1);
-      strcpy(tmp->jid, jid);
-      free(jid);
-    }
-
-    if (strncmp(name, "UNK", 3)) {
-      tmp->name = (char *) calloc(1, strlen(name) + 1);
-      strcpy(tmp->name, name);
-      free(name);
-    } else {
-      tmp->name = (char *) calloc(1, strlen(tmp->jid) + 1);
-      str = strdup(tmp->jid);
-      p = strstr(str, "@");
-      if (p) {
-	*p = '\0';
-      }
-      strncpy(tmp->name, str, 18);
-      free(str);
-    }
-
-    if (strncmp(group, "UNK", 3)) {
-      tmp->group = (char *) malloc(strlen(group) + 1);
-      strcpy(tmp->group, group);
-      free(group);
-    }
-
-    if (!strncmp(tmp->jid, "msn.", 4)) {
-      sprintf(tmp->name, "%c MSN %c", 254, 254);
-    }
-
-    if (!STR_EMPTY(tmp->jid)) {
-      list_add_tail(&tmp->list, &buddy_list);
-    } else {
-      if (tmp->jid)
-	free(tmp->jid);
-      if (tmp->name)
-	free(tmp->name);
-      if (tmp->group)
-	free(tmp->group);
-      free(tmp);
-    }
-  }
-  free(roster);
-
-  bud_SortRoster();
-}
-
-/* Desc: Initialize buddy list
- * 
- * In : none
- * Out: none
- *
- * Note: none
- */
-void bud_InitBuddies(int sock)
-{
-  char *roster;
-  roster = srv_getroster(sock);
-  bud_ParseBuddies(roster);
+  update_roster = TRUE;
 }
 
 /* Desc: Destroy (and free) buddy list
@@ -245,13 +154,15 @@ void bud_DrawRoster(WINDOW * win)
       pending = '#';
     }
 
-    if ((tmp->flags && FLAG_BUDDY_CONNECTED) == 1) {
-      status = 'o';
+    if (tmp->flags >= 0 && tmp->flags < imstatus_size) {
+      status = imstatus2char[tmp->flags];
+    }
+    /*{
       if (i == (buddySelected - buddyOffset))
 	wattrset(win, COLOR_PAIR(COLOR_BD_CONSEL));
       else
 	wattrset(win, COLOR_PAIR(COLOR_BD_CON));
-    } else {
+    } else*/ {
       if (i == (buddySelected - buddyOffset))
 	wattrset(win, COLOR_PAIR(COLOR_BD_DESSEL));
       else
@@ -334,43 +245,33 @@ buddy_entry_t *bud_SelectedInfo(void)
   return NULL;
 }
 
-void bud_AddBuddy(int sock)
+buddy_entry_t *bud_AddBuddy(const char *bjid, const char *bname)
 {
-  char *buffer = (char *) calloc(1, 1024);
-  char *buffer2 = (char *) calloc(1, 1024);
   char *p, *str;
   buddy_entry_t *tmp;
 
-  ut_CenterMessage(i18n("write jid here"), 60, buffer2);
-  scr_CreatePopup(i18n("Add jid"), buffer2, 60, 1, buffer);
+  tmp = calloc(1, sizeof(buddy_entry_t));
+  tmp->jid = strdup(bjid);
 
-  if (!STR_EMPTY(buffer)) {
-    tmp = (buddy_entry_t *) calloc(1, sizeof(buddy_entry_t));
-    tmp->jid = (char *) malloc(strlen(buffer) + 1);
-    strcpy(tmp->jid, buffer);
-    tmp->name = (char *) malloc(strlen(buffer) + 1);
-
-    str = strdup(buffer);
-    p = strstr(str, "@");
-    if (p) {
-      *p = '\0';
-    }
-    strcpy(tmp->name, str);
+  if (bname) {
+    tmp->name = strdup(bname);
+  } else {
+    str = strdup(bjid);
+    p = strstr(str, "/");
+    if (p)  *p = '\0';
+    tmp->name = strdup(str);
     free(str);
-
-    list_add_tail(&tmp->list, &buddy_list);
-    buddySelected = 1;
-    bud_DrawRoster(scr_GetRosterWindow());
-    srv_AddBuddy(sock, tmp->jid);
   }
-  free(buffer);
+
+  list_add_tail(&tmp->list, &buddy_list);
+  bud_DrawRoster(scr_GetRosterWindow());
+
+  return tmp;
 }
 
-void bud_DeleteBuddy(int sock)
+void bud_DeleteBuddy(buddy_entry_t *buddy)
 {
-  buddy_entry_t *tmp = bud_SelectedInfo();
-  srv_DelBuddy(sock, tmp->jid);
-  list_del(&tmp->list);
+  list_del(&buddy->list);
   buddySelected = 1;
   bud_DrawRoster(scr_GetRosterWindow());
 }

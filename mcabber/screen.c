@@ -24,6 +24,7 @@ typedef struct _window_entry_t {
   char *name;
   int nlines;
   char **texto;
+  int pending_msg;
   struct list_head list;
 } window_entry_t;
 
@@ -36,6 +37,8 @@ static PANEL *rosterPanel, *chatPanel, *inputPanel;
 static PANEL *logPanel, *logPanel_border;
 static int maxY, maxX;
 static window_entry_t *currentWindow;
+
+static int chatmode;
 
 static char inputLine[INPUTLINE_LENGTH];
 static char *ptr_inputline;
@@ -342,6 +345,8 @@ void scr_ShowWindow(char *winId)
   if (tmp != NULL) {
     top_panel(tmp->panel);
     currentWindow = tmp;
+    chatmode = TRUE;
+    tmp->pending_msg = FALSE;
     width = scr_WindowHeight(tmp->win);
     for (n = 0; n < tmp->nlines; n++) {
       mvwprintw(tmp->win, n + 1, 1, "");
@@ -379,7 +384,9 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
 
   tmp = scr_SearchWindow(winId);
 
-  if ((!force_show) && ((!currentWindow || (currentWindow != tmp))))
+  if (!chatmode)
+    dont_show = TRUE;
+  else if ((!force_show) && ((!currentWindow || (currentWindow != tmp))))
     dont_show = TRUE;
   scr_LogPrint("dont_show=%d", dont_show);
 
@@ -427,6 +434,7 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
 
   if (!dont_show) {
     top_panel(tmp->panel);
+    tmp->pending_msg = TRUE;
     width = scr_WindowHeight(tmp->win);
     for (n = 0; n < tmp->nlines; n++) {
       mvwprintw(tmp->win, n + 1, 1, "");
@@ -461,9 +469,9 @@ void scr_InitCurses(void)
 void scr_DrawMainWindow(void)
 {
   /* Draw main panels */
-  rosterWnd = newwin(maxY-1, 20, 0, 0);
+  rosterWnd = newwin(CHAT_WIN_HEIGHT, 20, 0, 0);
   rosterPanel = new_panel(rosterWnd);
-  scr_draw_box(rosterWnd, 0, 0, maxY-1, 20, COLOR_GENERAL, 0, 0);
+  scr_draw_box(rosterWnd, 0, 0, CHAT_WIN_HEIGHT, 20, COLOR_GENERAL, 0, 0);
   mvwprintw(rosterWnd, 0, (20 - strlen(i18n("Roster"))) / 2,
 	    i18n("Roster"));
 
@@ -475,14 +483,14 @@ void scr_DrawMainWindow(void)
 	//    i18n("Status Window"));
   //wbkgd(chatWnd, COLOR_PAIR(COLOR_GENERAL));
 
-  logWnd_border = newwin(LOG_WIN_HEIGHT, maxX - 20, CHAT_WIN_HEIGHT, 20);
+  logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
   logPanel_border = new_panel(logWnd_border);
-  scr_draw_box(logWnd_border, 0, 0, LOG_WIN_HEIGHT, maxX - 20, COLOR_GENERAL, 0, 0);
+  scr_draw_box(logWnd_border, 0, 0, LOG_WIN_HEIGHT, maxX, COLOR_GENERAL, 0, 0);
 //  mvwprintw(logWnd_border, 0,
 //	    ((maxX - 20) - strlen(i18n("Log Window"))) / 2,
 //	    i18n("Log Window"));
   //logWnd = newwin(LOG_WIN_HEIGHT - 2, maxX-20 - 2, CHAT_WIN_HEIGHT+1, 20+1);
-  logWnd = derwin(logWnd_border, LOG_WIN_HEIGHT-2, maxX-20-2, 1, 1);
+  logWnd = derwin(logWnd_border, LOG_WIN_HEIGHT-2, maxX-2, 1, 1);
   logPanel = new_panel(logWnd);
   wbkgd(logWnd, COLOR_PAIR(COLOR_GENERAL));
   //wattrset(logWnd, COLOR_PAIR(COLOR_GENERAL));
@@ -667,8 +675,6 @@ void send_message(int sock, char *msg)
 
 int process_line(char *line, int sock)
 {
-  if (*line == 0)      // XXX Simple checks should maybe be in process_key()
-    return 0;
   if (*line != '/') {
     send_message(sock, line);
     return 0;
@@ -716,6 +722,11 @@ int process_key(int key, int sock)
           break;
       case '\n':  // Enter
           // XXX Test:
+          chatmode = TRUE;
+          if (inputLine[0] == 0) {
+            scr_ShowBuddyWindow();
+            break;
+          }
           if (process_line(inputLine, sock))
             return 255;
           ptr_inputline = inputLine;
@@ -743,13 +754,19 @@ int process_key(int key, int sock)
       case 5:
           for (; *ptr_inputline; ptr_inputline++) ;
           break;
-      case 21:   // Ctrl-u
+      case 21:  // Ctrl-u
           strcpy(inputLine, ptr_inputline);
           ptr_inputline = inputLine;
           break;
       case KEY_EOL:
-      case 11:   // Ctrl-k
+      case 11:  // Ctrl-k
           *ptr_inputline = 0;
+          break;
+      case 27:  // ESC
+          currentWindow = NULL;
+          chatmode = FALSE;
+          top_panel(chatPanel);
+          top_panel(inputPanel);
           break;
       default:
           scr_LogPrint("Unkown key=%o", key);

@@ -164,8 +164,8 @@ void ParseColors(void)
 }
 
 
-window_entry_t *scr_CreatePanel(char *title, int x, int y, int lines,
-				int cols, int dont_show)
+window_entry_t *scr_CreatePanel(const char *title, int x, int y,
+                                int lines, int cols, int dont_show)
 {
   window_entry_t *tmp = calloc(1, sizeof(window_entry_t));
 
@@ -195,7 +195,7 @@ void scr_RoolWindow(void)
 {
 }
 
-window_entry_t *scr_SearchWindow(char *winId)
+window_entry_t *scr_SearchWindow(const char *winId)
 {
   struct list_head *pos, *n;
   window_entry_t *search_entry = NULL;
@@ -211,7 +211,7 @@ window_entry_t *scr_SearchWindow(char *winId)
   return NULL;
 }
 
-void scr_ShowWindow(char *winId)
+void scr_ShowWindow(const char *winId)
 {
   int n, width, i;
   window_entry_t *tmp = scr_SearchWindow(winId);
@@ -246,7 +246,7 @@ void scr_ShowBuddyWindow(void)
 }
 
 
-void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
+void scr_WriteInWindow(const char *winId, char *texto, int TimeStamp, int force_show)
 {
   time_t ahora;
   int n;
@@ -385,7 +385,7 @@ void scr_TerminateCurses(void)
   return;
 }
 
-void scr_WriteMessage(char *jid, char *text, char *prefix)
+void scr_WriteMessage(const char *jid, const char *text, char *prefix)
 {
   char **submsgs;
   int n, i;
@@ -416,7 +416,7 @@ void scr_WriteMessage(char *jid, char *text, char *prefix)
   top_panel(inputPanel);
 }
 
-void scr_WriteIncomingMessage(char *jidfrom, char *text)
+void scr_WriteIncomingMessage(const char *jidfrom, const char *text)
 {
   char *buffer = utf8_decode(text);
   scr_WriteMessage(jidfrom, buffer, "<== ");
@@ -425,7 +425,7 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text)
   doupdate();
 }
 
-void scr_WriteOutgoingMessage(char *jidto, char *text)
+void scr_WriteOutgoingMessage(const char *jidto, const char *text)
 {
   scr_ShowWindow(jidto);
   scr_WriteMessage(jidto, text, "--> ");
@@ -483,7 +483,7 @@ void scr_LogPrint(const char *fmt, ...)
 //  scr_IsHiddenMessage(jid)
 // Returns TRUE if there is a hidden message in the window
 // for the jid contact.
-int scr_IsHiddenMessage(char *jid) {
+int scr_IsHiddenMessage(const char *jid) {
   window_entry_t *wintmp;
 
   wintmp = scr_SearchWindow(jid);

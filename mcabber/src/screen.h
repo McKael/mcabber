@@ -21,15 +21,13 @@ extern int update_roster;
 void scr_InitCurses(void);
 void scr_DrawMainWindow(void);
 void scr_TerminateCurses(void);
-// void scr_WriteInWindow(char *nombreVentana, char *texto, int TimeStamp,
-//                       int force_show);
-void scr_WriteIncomingMessage(char *jidfrom, char *text);
-void scr_WriteOutgoingMessage(char *jidto,   char *text);
+void scr_WriteIncomingMessage(const char *jidfrom, const char *text);
+void scr_WriteOutgoingMessage(const char *jidto,   const char *text);
 void scr_RoolWindow(void);
 void scr_ShowBuddyWindow(void);
 void scr_LogPrint(const char *fmt, ...);
 
-int scr_IsHiddenMessage(char *jid);
+int scr_IsHiddenMessage(const char *jid);
 
 WINDOW *scr_GetRosterWindow(void);
 WINDOW *scr_GetStatusWindow(void);

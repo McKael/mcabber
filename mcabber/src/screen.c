@@ -15,7 +15,6 @@
 #include "server.h"
 #include "list.h"
 
-/* Definicion de tipos */
 #define window_entry(n) list_entry(n, window_entry_t, list)
 
 LIST_HEAD(window_list);

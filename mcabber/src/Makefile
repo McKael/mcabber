@@ -11,6 +11,8 @@
 #			default = pentium
 #	DEBUG=1		disable optimizations and build for debug
 #			default = no
+#	GNU99=1		use GNU99 extensions
+#			default = no
 #
 #    Targets:
 #	all:		build executable
@@ -26,10 +28,11 @@
 
 CPU ?= i386
 JCLIENT = mcabber
-
+ifndef CC
 CC = gcc
+endif
 CFLAGS = -Wall -W -pedantic
-LD = gcc
+LD = $(CC)
 LDLIBS = -lncurses -lpanel
 
 ifeq ($(DEBUG),1)
@@ -37,6 +40,10 @@ CFLAGS += -O0 -g -DDEBUG=1
 else
 CFLAGS += -O2 -mcpu=$(CPU)
 LDFLAGS = -s
+endif
+
+ifeq ($(GNU99),1)
+CFLAGS += -std=gnu99 -D_GNU_SOURCE
 endif
 
 CP = cp -f
@@ -72,7 +79,7 @@ realclean: clean
 	-$(RM) $(JCLIENT)
 
 install: all
-	$(CP) $(JCLIENT) /usr/bin/$(JCLIENT)
+	$(CP) $(JCLIENT) /usr/local/bin/$(JCLIENT)
 
 #dep: $(SOURCES)
 #	makedepend -f- -Ylydialog -- $(CFLAGS) -- $(SOURCES) > depend

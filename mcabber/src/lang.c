@@ -4,7 +4,6 @@
 #include <string.h>
 #include <ctype.h>
 
-
 #include "utils.h"
 
 char Lang[100];

@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/poll.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/select.h>
 
 #include "list.h"
 #include "parsecfg.h"
@@ -16,7 +19,6 @@
 #include "buddies.h"
 
 #define JABBERPORT 5222
-
 
 /* Desc: poll data from server
  * 

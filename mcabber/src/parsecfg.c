@@ -4,10 +4,8 @@
 #include <ctype.h>
 #include <string.h>
 
-
 #include "list.h"
 
-/* Definicion de tipos */
 #define MAX_LENGHT_INPUT 1024
 #define cfg_entry(n) list_entry(n, cfg_entry_t, list)
 

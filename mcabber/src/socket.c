@@ -3,12 +3,11 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "utils.h"
-
-#include "socket.h"
 #include <signal.h>
 
-#include "screen.h" // FIXME to be removed
+#include "utils.h"
+#include "socket.h"
+#include "screen.h"
 
 /* Desc: create socket connection
  * 

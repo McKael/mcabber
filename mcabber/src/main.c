@@ -4,6 +4,7 @@
 #include <string.h>
 #include <signal.h>
 #include <termios.h>
+#include <getopt.h>
 
 #include "utils.h"
 #include "screen.h"
@@ -42,18 +43,18 @@ ssize_t my_getpass (char **passstr, size_t *n)
   int nread;
 
   /* Turn echoing off and fail if we can't. */
-  if (tcgetattr(fileno (stdin), &orig) != 0)
+  if (tcgetattr(fileno(stdin), &orig) != 0)
       return -1;
   new = orig;
   new.c_lflag &= ~ECHO;
-  if (tcsetattr(fileno (stdin), TCSAFLUSH, &new) != 0)
+  if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0)
       return -1;
 
   /* Read the password. */
   nread = getline(passstr, n, stdin);
 
   /* Restore terminal. */
-  (void) tcsetattr(fileno (stdin), TCSAFLUSH, &orig);
+  (void) tcsetattr(fileno(stdin), TCSAFLUSH, &orig);
 
   return (ssize_t)nread;
 }

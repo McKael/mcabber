@@ -84,7 +84,8 @@ __list_del(struct list_head *prev, struct list_head *next)
 /**
  * list_del - deletes entry from list.
  * @entry: the element to delete from the list.
- * Note: list_empty on entry does not return true after this, the entry is in an undefined state.
+ * Note: list_empty on entry does not return true after this, the entry is
+ *       in an undefined state.
  */
 static inline void list_del(struct list_head *entry)
 {
@@ -128,7 +129,7 @@ list_move_tail(struct list_head *list, struct list_head *head)
 }
 
 /**
- * list_empty - tests whether a list is empty
+ * list_empty - test whether a list is empty
  * @head: the list to test.
  */
 static inline int list_empty(struct list_head *head)
@@ -188,7 +189,7 @@ list_splice_init(struct list_head *list, struct list_head *head)
 	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
 
 /**
- * list_for_each_safe	-	iterate over a list safe against removal of list entry
+ * list_for_each_safe - iterate over a list safe against removal of list entry
  * @pos:	the &struct list_head to use as a loop counter.
  * @n:		another &struct list_head to use as temporary storage
  * @head:	the head for your list.
@@ -198,7 +199,8 @@ list_splice_init(struct list_head *list, struct list_head *head)
 		pos = n, n = pos->next)
 
 /**
- * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
+ * list_for_each_entry_safe - iterate over list of given type safe against
+ *                            removal of list entry
  * @pos:	the type * to use as a loop counter.
  * @n:		another type * to use as temporary storage
  * @head:	the head for your list.

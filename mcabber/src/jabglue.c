@@ -297,16 +297,16 @@ void gotloggedin(void)
 
 void gotroster(xmlnode x)
 {
-  xmlnode y; // z;
+  xmlnode y, z;
 
   for (y = xmlnode_get_tag(x, "item"); y; y = xmlnode_get_nextsibling(y)) {
     const char *alias = xmlnode_get_attrib(y, "jid");
     const char *sub = xmlnode_get_attrib(y, "subscription");
     const char *name = xmlnode_get_attrib(y, "name");
-    //const char *group = 0;
+    const char *group = 0;
 
-    //z = xmlnode_get_tag(y, "group");
-    //if (z) group = xmlnode_get_data(z);
+    z = xmlnode_get_tag(y, "group");
+    if (z) group = xmlnode_get_data(z);
 
     if (alias) {
       char *buddyname = jidtodisp(alias);

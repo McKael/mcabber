@@ -38,7 +38,7 @@
 #include <time.h>
 
 #include "libxode.h"
-#include "connwrap.h"
+#include "../connwrap/connwrap.h"
 
 #ifndef INCL_JABBER_H
 #define INCL_JABBER_H
@@ -267,21 +267,21 @@ char*   jutil_regkey(char *key, char *seed);             /* pass a seed to gener
 typedef struct jconn_struct
 {
     /* Core structure */
-    pool        p;             /* Memory allocation pool */
-    int         state;     /* Connection state flag */
-    int         cw_state;     /* Low level connection state flag */
-    int         fd;            /* Connection file descriptor */
+    pool        p;          /* Memory allocation pool */
+    int         state;      /* Connection state flag */
+    int         cw_state;   /* Low level connection state flag */
+    int         fd;         /* Connection file descriptor */
     int         port;
     int         ssl;
-    jid         user;      /* User info */
-    char        *pass;     /* User passwd */
+    jid         user;       /* User info */
+    char        *pass;      /* User passwd */
 
     /* Stream stuff */
-    int         id;        /* id counter for jab_getid() function */
-    char        idbuf[9];  /* temporary storage for jab_getid() */
-    char        *sid;      /* stream id from server, for digest auth */
-    XML_Parser  parser;    /* Parser instance */
-    xmlnode     current;   /* Current node in parsing instance.. */
+    int         id;         /* id counter for jab_getid() function */
+    char        idbuf[9];   /* temporary storage for jab_getid() */
+    char        *sid;       /* stream id from server, for digest auth */
+    XML_Parser  parser;     /* Parser instance */
+    xmlnode     current;    /* Current node in parsing instance.. */
 
     /* Event callback ptrs */
     void (*on_state)(struct jconn_struct *j, int state);

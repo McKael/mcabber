@@ -14,7 +14,7 @@
 char *utf8_decode(const char *src)
 {
   char *ret = calloc(1, strlen(src) + 1);
-  char *aux = ret;
+  unsigned char *aux = (unsigned char*)ret;
 
   while (*src) {
     unsigned char lead = *src++;

@@ -11,15 +11,14 @@
   - /request_auth (??)
   - /status (and common shortcuts: /away, /online, /busy, /dnd)
 * Buddies status
-* Better command line (wider than 80 chars)
 * Command line history (^P/^N)
 * External commands for events
 * Multi-lines
-* Handle window resize
+* Handle window resize (will be hard with current implementation...)
 * Command line completion
 * Scroll back history
 * Save history
 * Shortcut to jump to next message received (shift-tab?)
 * File transfer? :)
-* Conferences :)
+* Conferences :))
 

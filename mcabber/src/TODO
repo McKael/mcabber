@@ -1,7 +1,7 @@
 
-* pending message not displayed if buddy outside Contact window
+* Pending message not displayed if buddy outside Contact window
+* Hide offline buddies
 
-* Use libjabber
 * Commands! :-)
   - /say
   - /add
@@ -10,7 +10,7 @@
   - /info
   - /request_auth (??)
   - /status (and common shortcuts: /away, /online, /busy, /dnd)
-* Buddies status
+  - /rawxml
 * Command line history (^P/^N)
 * External commands for events
 * Multi-lines

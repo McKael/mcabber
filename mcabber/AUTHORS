@@ -1,0 +1,27 @@
+McAbber is maintained by Mikael Berthe <bmikael@lists.lilotux.net>
+
+Parts come from differents projects (the origin is mentioned in
+the source headers, usually).
+
+Thanks to the libjabber, cabber and centericq projects authors!
+
+
+=====
+Here is the original acknowledgement from the cabber project:
+
+    Special Thanks to:
+        Daniel Borca   (http://www.geocities.com/dborca).
+                       Many of the new code is his own work!!!
+                       Thanks Daniel!!!
+
+    Thanks to:
+        Abrililla	   (???)
+        Gabber	   (http://gabber.sourceforge.net)
+        Manolo Romero  (cobreti@mundivia.es)    
+        NexusX	   (nexusx666@ajmacias.com)
+        Pablo2000	   (josepablosc@wanadoo.es)
+        Pras           (???)
+        Ted		   (ted@php.net)
+        Thomas Fischer (th.fischer@gmx.net)
+        _Yed_	   (#linux at irc-hispano)
+        ZJoyKiller 	   (#linux at irc-hispano)

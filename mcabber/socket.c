@@ -8,6 +8,8 @@
 #include "socket.h"
 #include <signal.h>
 
+#include "screen.h" // FIXME to be removed
+
 /* Desc: create socket connection
  * 
  * In  : servername, port
@@ -60,7 +62,7 @@ char *sk_recv(int sock)
 {
   int i = 1;
   int tambuffer = 128;
-  char mtag[16];
+  char mtag[16];    // For tag name
 
   char *buffer = malloc(tambuffer);
   char *retval = malloc(tambuffer + 1);
@@ -70,7 +72,13 @@ char *sk_recv(int sock)
 
   while (1) {
     char *p1;
-    recv(sock, buffer, tambuffer, 0);
+    int n = recv(sock, buffer, tambuffer, 0);
+    if (n == -1) {
+      // Error
+      free(buffer);
+      retval[0] = 0;
+      return retval;
+    }
 
     if (i == 1) {
       char *p2;
@@ -82,6 +90,9 @@ char *sk_recv(int sock)
       *p2++ = '>'; *p2++ = 0;
       //fprintf(stderr, "TAG=\"%s\"\n", mtag);
     } else {
+      scr_LogPrint("Realloc %d [%d]", i-1, n);
+      if (!n)
+        break;
       retval = realloc(retval, (tambuffer * i) + 1);
       strncat(retval, buffer, tambuffer + 1);
     }

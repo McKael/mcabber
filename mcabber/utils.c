@@ -13,7 +13,7 @@ void ut_InitDebug(int level)
   FILE *fp = fopen("/tmp/mcabberlog", "w");
 
   DebugEnabled = level;
-  fprintf(fp, "Debug inicializado...\n"
+  fprintf(fp, "Debugging mode started...\n"
 	  "-----------------------------------\n");
   fclose(fp);
 }

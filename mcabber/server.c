@@ -94,7 +94,7 @@ int srv_connect(const char *server, unsigned int port)
   }
 
   if ((sock = sk_conn((struct sockaddr *) &name)) < 0) {
-    fprintf(stderr, "Cant connect to \"%s:%u\"\n", server, port);
+    fprintf(stderr, "Can't connect to \"%s:%u\"\n", server, port);
     return -1;
   }
 
@@ -132,8 +132,7 @@ char *srv_login(int sock, const char *server, const char *user,
   if (strstr(response, "error")) {
     /* fprintf(stderr, "Response not valid:\n%s\n\n", response); */
     scr_CreatePopup("Error",
-		    "El servidor no esta respondiendo correctamente",
-		    60, 0, NULL);
+		    "Bad answer from the server", 60, 0, NULL);
     return NULL;
   }
   aux = response;
@@ -167,10 +166,11 @@ char *srv_login(int sock, const char *server, const char *user,
   if (strstr(response, "error")) {
 /*	fprintf(stderr, "Response not valid:\n%s\n\n", response);*/
     scr_CreatePopup("Error",
-		    "Cuenta no creada o contraseña incorrecta", 60, 0,
+		    "Account doesn't exist, or bad password", 60, 0,
 		    NULL);
-    scr_CreatePopup("Info", "Intentando crear la cuenta...", 60, 0, NULL);
 
+    /*
+    scr_CreatePopup("Info", "Trying to create the account...", 60, 0, NULL);
 
     strcpy(stringtosend, "<iq type='set' id='reg' to='");
     strcat(stringtosend, server);
@@ -188,6 +188,7 @@ char *srv_login(int sock, const char *server, const char *user,
     }
 
     response = sk_recv(sock);
+    */
     scr_TerminateCurses();
     printf("Reinicie cabber!\n\n");
     return NULL;
@@ -322,11 +323,11 @@ srv_msg *readserver(int sock)
     memset(line, 0, 1024);
 
     /* scan for buffer */
-    if (!strncmp(buffer, "<message", 8)) {	/* manage messages */
+    if (!strncmp(buffer, "<message", 8)) {		/* manage messages */
       msg->m = SM_MESSAGE;
     } else if (!strncmp(buffer, "<presence", 9)) {	/* manage presences */
       msg->m = SM_PRESENCE;
-      if (!strncmp(type, "UNK", 3)) {	/* assume online */
+      if (!strncmp(type, "UNK", 3)) {			/* assume online */
 	msg->connected = FLAG_BUDDY_CONNECTED;
       } else if (!strncmp(type, "unavailable", 11)) {	/* offline */
 	msg->connected = 0;

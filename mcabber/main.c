@@ -66,10 +66,7 @@ void credits(void)
 
 int main(int argc, char **argv)
 {
-  //int i;
   char configFile[4096];
-  //char *buffer;
-  //char *secbuffer;
   char *username, *password, *resource;
   char *servername;
   char *idsession;
@@ -224,12 +221,6 @@ int main(int argc, char **argv)
       case KEY_DC:
 	bud_DeleteBuddy(sock);
 	break;
-      case KEY_DOWN:
-	bud_RosterDown();
-	break;
-      case KEY_UP:
-	bud_RosterUp();
-	break;
 
       case KEY_RESIZE:
 	endwin();
@@ -237,41 +228,11 @@ int main(int argc, char **argv)
 	printf("Reinicie Cabber.\n\n\n");
 	exit(EXIT_FAILURE);
 	break;
-
-      case 'z':
-      case KEY_F(1):
-	buffer = (char *) calloc(1, 4096);
-	secbuffer = (char *) calloc(1, 4096);
-
-	sprintf(secbuffer, "INS   = %s ", i18n("Add contact"));
-	i = strlen(secbuffer);
-	strcpy(buffer, secbuffer);
-	sprintf(secbuffer, "DEL   = %s ", i18n("Delete contact"));
-	strcat(buffer, secbuffer);
-	sprintf(secbuffer, "SPACE = %s ", i18n("View buddy window"));
-	strcat(buffer, secbuffer);
-	sprintf(secbuffer, "INTRO = %s ", i18n("Send message"));
-	strcat(buffer, secbuffer);
-	sprintf(secbuffer, "ESC   = %s ", i18n("Exit"));
-	strcat(buffer, secbuffer);
-
-	scr_CreatePopup(i18n("help"), buffer, i, 0, NULL);
-	free(buffer);
-	free(secbuffer);
-	break;
-
-      case '\n':
-	scr_WriteMessage(sock);
-	break;
-
-      case ' ':
-	scr_ShowBuddyWindow();
-	break;
       }
       */
     }
     if (update_roaster) {
-      scr_LogPrint("Update roaster");
+      // scr_LogPrint("Update roaster");
       bud_DrawRoster(scr_GetRosterWindow());
     }
   }

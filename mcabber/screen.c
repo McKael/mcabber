@@ -307,8 +307,6 @@ void scr_CreatePopup(char *title, char *texto, int corte, int type,
   keypad(inputWnd, TRUE);
 }
 
-
-
 void scr_RoolWindow(void)
 {
 }
@@ -380,7 +378,7 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
     dont_show = TRUE;
   else if ((!force_show) && ((!currentWindow || (currentWindow != tmp))))
     dont_show = TRUE;
-  scr_LogPrint("dont_show=%d", dont_show);
+  // scr_LogPrint("dont_show=%d", dont_show);
 
   if (tmp == NULL) {
     tmp = scr_CreatePanel(winId, 20, 0, CHAT_WIN_HEIGHT, maxX - 20, dont_show);
@@ -491,11 +489,10 @@ void scr_DrawMainWindow(void)
   logPanel = new_panel(logWnd);
   wbkgd(logWnd, COLOR_PAIR(COLOR_GENERAL));
   //wattrset(logWnd, COLOR_PAIR(COLOR_GENERAL));
-  wprintw(logWnd, "Here we are\n");
-  scr_LogPrint("Here we are :-)");
+  scr_LogPrint("Start up.");
 
   scrollok(logWnd,TRUE);
-  idlok(logWnd,TRUE);  // XXX Necessary?
+  //idlok(logWnd,TRUE);  // XXX Necessary?
 
   inputWnd = newwin(1, maxX, maxY-1, 0);
   inputPanel = new_panel(inputWnd);
@@ -543,47 +540,6 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text)
   //wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine);
   update_panels();
   doupdate();
-}
-
-void scr_WriteMessage(int sock)
-{
-  char **submsgs;
-  int n, i;
-  char *buffer = (char *) calloc(1, 1024);
-  char *buffer2 = (char *) calloc(1, 1024);
-  buddy_entry_t *tmp = bud_SelectedInfo();
-
-  scr_ShowWindow(tmp->jid);
-
-  ut_CenterMessage(i18n("write your message here"), 60, buffer2);
-
-  scr_CreatePopup(tmp->jid, buffer2, 60, 1, buffer);
-
-  if (strlen(buffer)) {
-    sprintf(buffer2, "--> %s", buffer);
-
-    submsgs =
-	ut_SplitMessage(buffer2, &n,
-			maxX - scr_WindowHeight(rosterWnd) - 20);
-    for (i = 0; i < n; i++) {
-      if (i == 0)
-	scr_WriteInWindow(tmp->jid, submsgs[i], TRUE, TRUE);
-      else
-	scr_WriteInWindow(tmp->jid, submsgs[i], FALSE, TRUE);
-    }
-
-    for (i = 0; i < n; i++)
-      free(submsgs[i]);
-    free(submsgs);
-
-    move(CHAT_WIN_HEIGHT - 1, maxX - 1);
-    refresh();
-    sprintf(buffer2, "%s@%s/%s", cfg_read("username"),
-	    cfg_read("server"), cfg_read("resource"));
-    srv_sendtext(sock, tmp->jid, buffer, buffer2);
-  }
-  free(buffer);
-  free(buffer2);
 }
 
 int scr_Getch(void)

@@ -167,22 +167,18 @@ window_entry_t *scr_CreatePanel(char *title, int x, int y, int lines,
   tmp->panel = new_panel(tmp->win);
   tmp->name = (char *) calloc(1, 1024);
   strncpy(tmp->name, title, 1024);
-  /*
-  if (!dont_show) {
-    currentWindow = tmp;
-    scr_draw_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL, 0, 0);
-    mvwprintw(tmp->win, 0, (cols - (2 + strlen(title))) / 2, " %s ", title);
-  }
-  */
-  // ***
+
   scr_draw_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL, 0, 0);
   mvwprintw(tmp->win, 0, (cols - (2 + strlen(title))) / 2, " %s ", title);
   if (!dont_show) {
     currentWindow = tmp;
   } else {
-    top_panel(currentWindow->panel);
+    if (currentWindow)
+      top_panel(currentWindow->panel);
+    else
+      top_panel(chatPanel);
   }
-  // ***
+
   list_add_tail(&tmp->list, &window_list);
   update_panels();
 
@@ -353,7 +349,7 @@ void scr_ShowWindow(char *winId)
 	waddch(tmp->win, ' ');
       mvwprintw(tmp->win, n + 1, 1, "%s", tmp->texto[n]);
     }
-    move(CHAT_WIN_HEIGHT - 1, maxX - 1);
+    //move(CHAT_WIN_HEIGHT - 1, maxX - 1);
     update_panels();
     doupdate();
   }
@@ -374,13 +370,14 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp)
   int i;
   int width;
   window_entry_t *tmp;
-  int dont_show = 0;
+  int dont_show = FALSE;
 
 
   tmp = scr_SearchWindow(winId);
 
-  if ((currentWindow) && (currentWindow != tmp))
-    dont_show = 1;
+  if (!currentWindow || (currentWindow != tmp))
+    dont_show = TRUE;
+  scr_LogPrint("dont_show=%d", dont_show);
 
   if (tmp == NULL) {
     tmp = scr_CreatePanel(winId, 20, 0, CHAT_WIN_HEIGHT, maxX - 20, dont_show);
@@ -720,10 +717,12 @@ int process_key(int key, int sock)
       case KEY_UP:
           bud_RosterUp();
           scr_ShowBuddyWindow();
+          top_panel(inputPanel);
           break;
       case KEY_DOWN:
           bud_RosterDown();
           scr_ShowBuddyWindow();
+          top_panel(inputPanel);
           break;
       case KEY_PPAGE:
           scr_LogPrint("PageUp??");

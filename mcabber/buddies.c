@@ -49,7 +49,8 @@ void bud_SetBuddyStatus(char *jidfrom, int status)
       sprintf(buffer, "--> %s %s!", jidfrom, i18n("connected"));
       break;
     }
-    scr_WriteInWindow(i18n("status window"), buffer, TRUE);
+    //scr_WriteInWindow(i18n("status window"), buffer, TRUE);
+    scr_LogPrint("%s", buffer);
   }
   free(buffer);
 }

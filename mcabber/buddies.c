@@ -217,7 +217,6 @@ void bud_DrawRoster(WINDOW * win)
   int n;
   int maxx, maxy;
   int fakeOffset = buddyOffset;
-  window_entry_t *wintmp;
 
   getmaxyx(win, maxy, maxx);
 
@@ -242,16 +241,7 @@ void bud_DrawRoster(WINDOW * win)
     }
 
     tmp = buddy_entry(pos);
-    // FIXME: we should create a function instead of exporting this! :-(
-    // Cf. revision ~28
-    wintmp = scr_SearchWindow(tmp->jid);
-    /*
-    if (wintmp)
-      scr_LogPrint("wintmp != NULL");
-    else
-      scr_LogPrint("wintmp == NULL");
-    */
-    if ((wintmp) && (wintmp->hidden_msg)) {
+    if (scr_IsHiddenMessage(tmp->jid)) {
       pending = '#';
     }
 

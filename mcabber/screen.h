@@ -2,9 +2,6 @@
 #define __SCREEN_H__ 1
 
 #include <ncurses.h>
-#include <panel.h>
-
-#include "list.h"
 
 #define COLOR_POPUP     1
 #define COLOR_GENERAL   3
@@ -17,17 +14,6 @@
 #define CHAT_WIN_HEIGHT (maxY-1-LOG_WIN_HEIGHT)
 
 #define INPUTLINE_LENGTH  1024
-
-
-typedef struct _window_entry_t {
-  WINDOW *win;
-  PANEL *panel;
-  char *name;
-  int nlines;
-  char **texto;
-  int hidden_msg;
-  struct list_head list;
-} window_entry_t;
 
 extern int update_roaster;
 
@@ -42,7 +28,8 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text);
 void scr_RoolWindow(void);
 void scr_ShowBuddyWindow(void);
 void scr_LogPrint(const char *fmt, ...);
-window_entry_t *scr_SearchWindow(char *winId);
+
+int scr_IsHiddenMessage(char *jid);
 
 WINDOW *scr_GetRosterWindow(void);
 WINDOW *scr_GetStatusWindow(void);

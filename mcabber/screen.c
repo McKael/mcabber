@@ -13,11 +13,23 @@
 #include "parsecfg.h"
 #include "lang.h"
 #include "server.h"
+#include "list.h"
 
 /* Definicion de tipos */
 #define window_entry(n) list_entry(n, window_entry_t, list)
 
 LIST_HEAD(window_list);
+
+typedef struct _window_entry_t {
+  WINDOW *win;
+  PANEL *panel;
+  char *name;
+  int nlines;
+  char **texto;
+  int hidden_msg;
+  struct list_head list;
+} window_entry_t;
+
 
 /* Variables globales a SCREEN.C */
 static WINDOW *rosterWnd, *chatWnd, *inputWnd;
@@ -588,6 +600,18 @@ void scr_LogPrint(const char *fmt, ...)
   doupdate();
 }
 
+//  scr_IsHiddenMessage(jid)
+// Returns TRUE if there is a hidden message in the window
+// for the jid contact.
+int scr_IsHiddenMessage(char *jid) {
+  window_entry_t *wintmp;
+
+  wintmp = scr_SearchWindow(jid);
+  if ((wintmp) && (wintmp->hidden_msg))
+    return TRUE;
+
+  return FALSE;
+}
 
 void send_message(int sock, char *msg)
 {

@@ -1,5 +1,4 @@
 
-* un-export window internal structure, use a public function
 * pending message not displayed if buddy outside Contact window
 
 * Use libjabber
@@ -19,7 +18,7 @@
 * Handle window resize
 * Command line completion
 * Scroll back history
-* Save history 
+* Save history
 * Shortcut to jump to next message received (shift-tab?)
 * File transfer? :)
 * Conferences :)

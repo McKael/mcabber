@@ -33,6 +33,10 @@ jconn jc;
 static int s_id = 1;  // FIXME which use??
 static int regmode, regdone;
 
+char imstatus2char[imstatus_size] = {
+    '_', 'o', 'i', 'f', 'd', 'c', 'n', 'a'
+};
+
 static enum {
   STATE_CONNECTING,
   STATE_GETAUTH,

@@ -5,6 +5,9 @@
 
 extern jconn jc;
 
+extern char imstatus2char[];
+// Status chars: '_', 'o', 'i', 'f', 'd', 'c', 'n', 'a'
+
 enum imstatus {
     offline,
     available,
@@ -22,10 +25,6 @@ enum agtype {
     groupchat,
     transport,
     search
-};
-
-static char imstatus2char[imstatus_size] = {
-    '_', 'o', 'i', 'f', 'd', 'c', 'n', 'a'
 };
 
 jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass);

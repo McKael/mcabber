@@ -6,7 +6,7 @@
 extern jconn jc;
 
 enum imstatus {
-    offline = 0,
+    offline,
     available,
     invisible,
     freeforchat,

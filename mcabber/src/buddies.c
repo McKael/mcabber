@@ -31,7 +31,7 @@ void bud_SetBuddyStatus(char *jidfrom, enum imstatus status)
 
   list_for_each_safe(pos, n, &buddy_list) {
     tmp = buddy_entry(pos);
-    if (!strcmp(tmp->jid, jidfrom)) {
+    if (!strcasecmp(tmp->jid, jidfrom)) {
       if (tmp->flags != status) {
         oldstatus = tmp->flags;
 	tmp->flags = status;
@@ -42,8 +42,8 @@ void bud_SetBuddyStatus(char *jidfrom, enum imstatus status)
   }
   if (changed) {
     bud_DrawRoster(scr_GetRosterWindow());
-    scr_LogPrint("<%s> status has changed: [%c>%c]", jidfrom,
-            imstatus2char[oldstatus], imstatus2char[status]);
+    scr_LogPrint("Buddy status has changed: [%c>%c] <%s>",
+            imstatus2char[oldstatus], imstatus2char[status], jidfrom);
   }
 }
 
@@ -263,6 +263,8 @@ buddy_entry_t *bud_AddBuddy(const char *bjid, const char *bname)
     tmp->name = strdup(str);
     free(str);
   }
+
+  ut_WriteLog("Adding buddy: %s <%s>\n", tmp->name, tmp->jid);
 
   list_add_tail(&tmp->list, &buddy_list);
   bud_DrawRoster(scr_GetRosterWindow());

@@ -25,6 +25,7 @@ void scr_WriteMessage(int sock);
 void scr_WriteIncomingMessage(char *jidfrom, char *text);
 void scr_RoolWindow(void);
 void scr_ShowBuddyWindow(void);
+void scr_LogPrint(const char *fmt, ...);
 
 WINDOW *scr_GetRosterWindow(void);
 WINDOW *scr_GetStatusWindow(void);

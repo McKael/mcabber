@@ -472,6 +472,7 @@ void scr_DrawMainWindow(void)
   mvwprintw(chatWnd, 0,
 	    ((maxX - 20) - strlen(i18n("Status Window"))) / 2,
 	    i18n("Status Window"));
+  //wbkgd(chatWnd, COLOR_PAIR(COLOR_GENERAL));
 
   logWnd_border = newwin(LOG_WIN_HEIGHT, maxX - 20, CHAT_WIN_HEIGHT, 20);
   logPanel_border = new_panel(logWnd_border);
@@ -485,6 +486,7 @@ void scr_DrawMainWindow(void)
   wbkgd(logWnd, COLOR_PAIR(COLOR_GENERAL));
   //wattrset(logWnd, COLOR_PAIR(COLOR_GENERAL));
   wprintw(logWnd, "Here we are\n");
+  scr_LogPrint("Here we are :-)");
 
   scrollok(logWnd,TRUE);
   idlok(logWnd,TRUE);  // XXX Necessary?
@@ -601,6 +603,27 @@ WINDOW *scr_GetInputWindow(void)
   return inputWnd;
 }
 
+void scr_LogPrint(const char *fmt, ...)
+{
+  time_t timestamp;
+  char *buffer;
+  va_list ap;
+
+  buffer = (char *) calloc(1, 4096);
+
+  timestamp = time(NULL);
+  strftime(buffer, 64, "[%H:%M:%S] ", localtime(&timestamp));
+  wprintw(logWnd, "\n%s", buffer);
+
+  va_start(ap, fmt);
+  vsnprintf(buffer, 4096, fmt, ap);
+  va_end(ap);
+
+  wprintw(logWnd, "%s", buffer);
+  free(buffer);
+}
+
+
 void send_message(int sock, char *msg)
 {
   char **submsgs;
@@ -652,7 +675,8 @@ int process_line(char *line, int sock)
   // Commands handling
   // TODO
   // say...
-  wprintw(logWnd, "\nUnrecognised command, sorry.");
+
+  scr_LogPrint("Unrecognised command, sorry.");
   return 0;
 }
 
@@ -684,7 +708,7 @@ int process_key(int key, int sock)
             ptr_inputline++;
           break;
       case 9:     // Tab
-          wprintw(logWnd, "\nI'm unable to complete yet");
+          scr_LogPrint("I'm unable to complete yet");
           break;
       case '\n':  // Enter
           // XXX Test:
@@ -702,10 +726,10 @@ int process_key(int key, int sock)
           scr_ShowBuddyWindow();
           break;
       case KEY_PPAGE:
-          wprintw(logWnd, "\nPageUp??");
+          scr_LogPrint("PageUp??");
           break;
       case KEY_NPAGE:
-          wprintw(logWnd, "\nPageDown??");
+          scr_LogPrint("PageDown??");
           break;
       case KEY_HOME:
       case 1:
@@ -724,9 +748,9 @@ int process_key(int key, int sock)
           *ptr_inputline = 0;
           break;
       default:
-          wprintw(logWnd, "\nUnkown key=%o", key);
+          scr_LogPrint("Unkown key=%o", key);
     }
-    //wprintw(logWnd, "\n[%02x]", key);
+    //scr_LogPrint("[%02x]", key);
   }
   mvwprintw(inputWnd, 0,0, "%s", inputLine);
   wclrtoeol(inputWnd);

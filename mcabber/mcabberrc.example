@@ -1,0 +1,23 @@
+# Sample .mcabberrc file
+
+# The jid will be the following: username@server/resource
+
+username = yourusername
+password = yourpassword
+server = your.jabber.server
+port = 5222
+resource = yourresource
+
+
+#  The colors
+# Note: the following settings may or may not be used currently... :)
+
+# Colors are: black, red, green, yellow, blue, magenta, cyan, white
+color_background = blue
+color_backselected = cyan
+color_borderlines = white
+color_jidonlineselected = black
+color_jidonline = green
+color_jidofflineselected = red
+color_jidoffline = red
+color_text = white

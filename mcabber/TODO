@@ -1,7 +1,21 @@
-A "few" things :-)
 
-    * write XML code to add/delete buddies (the code is primitive)
-    * add control over delete buddies
-    * ...
-    * ...
-    * and many many things!!! :-)
+* Use libjabber
+* Update roaster when somebody talks to us
+* Commands! :-)
+  - /say
+  - /add
+  - /del
+  - /rename
+  - /info
+  - /request_auth (??)
+  - /status (and common shortcuts: /away, /online, /busy, /dnd)
+* Buddies status
+* Better command line (wider than 80 chars)
+* Multi-lines
+* Command line completion
+* Scroll back history
+* Save history 
+* Shortcut to jump to next message received (shift-tab?)
+* File transfer? :)
+* Conferences :)
+

@@ -474,6 +474,7 @@ void scr_DrawMainWindow(void)
 	//    ((maxX - 20) - strlen(i18n("Status Window"))) / 2,
 	//    i18n("Status Window"));
   //wbkgd(chatWnd, COLOR_PAIR(COLOR_GENERAL));
+  mvwprintw(chatWnd, 1, 1, "This is the status window");
 
   logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
   logPanel_border = new_panel(logWnd_border);
@@ -516,7 +517,7 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text)
   int n, i;
   char *buffer = (char *) malloc(5 + strlen(text));
 
-  sprintf(buffer, "<<< %s", text);
+  sprintf(buffer, "<-- %s", text);
 
   submsgs =
       ut_SplitMessage(buffer, &n, maxX - scr_WindowHeight(rosterWnd) - 20);
@@ -555,7 +556,7 @@ void scr_WriteMessage(int sock)
   scr_CreatePopup(tmp->jid, buffer2, 60, 1, buffer);
 
   if (strlen(buffer)) {
-    sprintf(buffer2, ">>> %s", buffer);
+    sprintf(buffer2, "--> %s", buffer);
 
     submsgs =
 	ut_SplitMessage(buffer2, &n,
@@ -638,7 +639,7 @@ void send_message(int sock, char *msg)
 
   scr_ShowWindow(tmp->jid);
 
-  sprintf(buffer, ">>> %s", msg);
+  sprintf(buffer, "--> %s", msg);
 
   submsgs =
 	ut_SplitMessage(buffer, &n,
@@ -726,11 +727,13 @@ int process_key(int key, int sock)
           break;
       case KEY_UP:
           bud_RosterUp();
-          scr_ShowBuddyWindow();
+          if (chatmode)
+            scr_ShowBuddyWindow();
           break;
       case KEY_DOWN:
           bud_RosterDown();
-          scr_ShowBuddyWindow();
+          if (chatmode)
+            scr_ShowBuddyWindow();
           break;
       case KEY_PPAGE:
           scr_LogPrint("PageUp??");

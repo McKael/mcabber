@@ -1,5 +1,4 @@
 
-* chatmode seems buggy
 * un-export window internal structure, use a public function
 * pending message not displayed if buddy outside Contact window
 
@@ -14,6 +13,7 @@
   - /status (and common shortcuts: /away, /online, /busy, /dnd)
 * Buddies status
 * Better command line (wider than 80 chars)
+* Command line history (^P/^N)
 * External commands for events
 * Multi-lines
 * Command line completion

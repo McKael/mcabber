@@ -126,9 +126,10 @@ void bud_DrawRoster(WINDOW * win)
   int n;
   int maxx, maxy;
   int fakeOffset = buddyOffset;
+  char name[ROSTER_WEIGHT];
 
   getmaxyx(win, maxy, maxx);
-
+  name[ROSTER_WEIGHT-8] = 0;
 
   /* cleanup of roster window */
   wattrset(win, COLOR_PAIR(COLOR_GENERAL));
@@ -171,8 +172,8 @@ void bud_DrawRoster(WINDOW * win)
     mvwprintw(win, i, 1, "");
     for (n = 2; n < maxx; n++)
       waddch(win, ' ');
-    //mvwprintw(win, i, (maxx - strlen(tmp->name)) / 2, "%s", tmp->name);
-    mvwprintw(win, i, 1, " %c[%c] %.12s", pending, status, tmp->name);
+    strncpy(name, tmp->name, ROSTER_WEIGHT-8);
+    mvwprintw(win, i, 1, " %c[%c] %s", pending, status, name);
     i++;
     if (i >= maxy - 1)
       break;

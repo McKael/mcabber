@@ -391,7 +391,8 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
   // scr_LogPrint("dont_show=%d", dont_show);
 
   if (tmp == NULL) {
-    tmp = scr_CreatePanel(winId, 20, 0, CHAT_WIN_HEIGHT, maxX - 20, dont_show);
+    tmp = scr_CreatePanel(winId, ROSTER_WEIGHT, 0, CHAT_WIN_HEIGHT,
+                          maxX - ROSTER_WEIGHT, dont_show);
     tmp->texto = (char **) calloc((CHAT_WIN_HEIGHT+1) * 3, sizeof(char *));
     for (n = 0; n < CHAT_WIN_HEIGHT * 3; n++)
       tmp->texto[n] = (char *) calloc(1, 1024);
@@ -473,15 +474,15 @@ void scr_InitCurses(void)
 void scr_DrawMainWindow(void)
 {
   /* Draw main panels */
-  rosterWnd = newwin(CHAT_WIN_HEIGHT, 20, 0, 0);
+  rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WEIGHT, 0, 0);
   rosterPanel = new_panel(rosterWnd);
-  scr_draw_box(rosterWnd, 0, 0, CHAT_WIN_HEIGHT, 20, COLOR_GENERAL, 0, 0);
-  mvwprintw(rosterWnd, 0, (20 - strlen(i18n("Roster"))) / 2,
+  scr_draw_box(rosterWnd, 0, 0, CHAT_WIN_HEIGHT, ROSTER_WEIGHT, COLOR_GENERAL, 0, 0);
+  mvwprintw(rosterWnd, 0, (ROSTER_WEIGHT - strlen(i18n("Roster"))) / 2,
 	    i18n("Roster"));
 
-  chatWnd = newwin(CHAT_WIN_HEIGHT, maxX - 20, 0, 20);
+  chatWnd = newwin(CHAT_WIN_HEIGHT, maxX - ROSTER_WEIGHT, 0, ROSTER_WEIGHT);
   chatPanel = new_panel(chatWnd);
-  scr_draw_box(chatWnd, 0, 0, CHAT_WIN_HEIGHT, maxX - 20, COLOR_GENERAL, 0, 0);
+  scr_draw_box(chatWnd, 0, 0, CHAT_WIN_HEIGHT, maxX - ROSTER_WEIGHT, COLOR_GENERAL, 0, 0);
   //mvwprintw(chatWnd, 0,
 	//    ((maxX - 20) - strlen(i18n("Status Window"))) / 2,
 	//    i18n("Status Window"));
@@ -530,7 +531,7 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text)
   sprintf(buffer, "<== %s", utf8_decode(text));
 
   submsgs =
-      ut_SplitMessage(buffer, &n, maxX - scr_WindowHeight(rosterWnd) - 20);
+      ut_SplitMessage(buffer, &n, maxX - scr_WindowHeight(rosterWnd) - ROSTER_WEIGHT);
 
   for (i = 0; i < n; i++) {
     if (i == 0)
@@ -624,7 +625,7 @@ void send_message(char *msg)
 
   submsgs =
 	ut_SplitMessage(buffer, &n,
-			maxX - scr_WindowHeight(rosterWnd) - 20);
+			maxX - scr_WindowHeight(rosterWnd) - ROSTER_WEIGHT);
   for (i = 0; i < n; i++) {
     if (i == 0)
       scr_WriteInWindow(tmp->jid, submsgs[i], TRUE, TRUE);

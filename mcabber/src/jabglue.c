@@ -319,7 +319,6 @@ void gotroster(xmlnode x)
       else
         buddyname = jidtodisp(alias);
 
-      //scr_LogPrint("New buddy: %s", buddyname);
       bud_AddBuddy(alias, buddyname);
       if (!name)
         free(buddyname);
@@ -354,17 +353,16 @@ void statehandler(jconn conn, int state)
 
   switch(state) {
     case JCONN_STATE_OFF:
-        scr_LogPrint("+ JCONN_STATE_OFF");
-        /*
-           jhook.flogged = jhook.fonline = FALSE;
 
-           if (previous_state != JCONN_STATE_OFF) {
-           logger.putourstatus(jhook.proto, jhook.getstatus(), jhook.ourstatus = offline);
-           jhook.log(logDisconnected);
+        /* jhook.flogged = jhook.fonline = FALSE; */
+
+        if (previous_state != JCONN_STATE_OFF) {
+          scr_LogPrint("+ JCONN_STATE_OFF");
+          /*
            jhook.roster.clear();
            jhook.agents.clear();
-           }
-           */
+          */
+        }
         break;
 
     case JCONN_STATE_CONNECTED:
@@ -393,7 +391,7 @@ void statehandler(jconn conn, int state)
 void packethandler(jconn conn, jpacket packet)
 {
   char *p;
-  xmlnode x; // , y;
+  xmlnode x, y;
   // string from, type, body, enc, ns, id, u, h, s;
   char *from=NULL, *type=NULL, *body=NULL, *enc=NULL;
   char *ns=NULL;
@@ -406,7 +404,6 @@ void packethandler(jconn conn, jpacket packet)
 
   p = xmlnode_get_attrib(packet->x, "from"); if (p) from = p;
   p = xmlnode_get_attrib(packet->x, "type"); if (p) type = p;
-  //imcontact ic(jidtodisp(from), jhook.proto);
 
   switch (packet->type) {
     case JPACKET_MESSAGE:
@@ -419,7 +416,7 @@ void packethandler(jconn conn, jpacket packet)
             strcpy(tmp, p);
             strcat(tmp, ": ");
             strcat(tmp, body);
-            body = tmp; // XXX check it is free'd later...
+            body = tmp; // XXX we should free it later...
           }
 
         /* there can be multiple <x> tags. we're looking for one with
@@ -427,7 +424,8 @@ void packethandler(jconn conn, jpacket packet)
 
         for (x = xmlnode_get_firstchild(packet->x); x; x = xmlnode_get_nextsibling(x)) {
           if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
-            if ((p = xmlnode_get_attrib(x, "xmlns")) && !strcasecmp(p, "jabber:x:encrypted"))
+            if ((p = xmlnode_get_attrib(x, "xmlns")) &&
+                !strcasecmp(p, "jabber:x:encrypted"))
               if ((p = xmlnode_get_data(x)) != NULL) {
                 enc = p;
                 break;
@@ -486,7 +484,6 @@ void packethandler(jconn conn, jpacket packet)
             if (!strcmp(ns, NS_ROSTER)) {
               gotroster(x);
             } else if (!strcmp(ns, NS_AGENTS)) {
-              /* TODO...
               for (y = xmlnode_get_tag(x, "agent"); y; y = xmlnode_get_nextsibling(y)) {
                 const char *alias = xmlnode_get_attrib(y, "jid");
 
@@ -494,16 +491,17 @@ void packethandler(jconn conn, jpacket packet)
                   const char *name = xmlnode_get_tag_data(y, "name");
                   const char *desc = xmlnode_get_tag_data(y, "description");
                   const char *service = xmlnode_get_tag_data(y, "service");
-                  agent::agent_type atype = agent::atUnknown;
+                  enum agtype atype = unknown;
 
-                  if (xmlnode_get_tag(y, "groupchat")) atype = agent::atGroupchat; else
-                    if (xmlnode_get_tag(y, "transport")) atype = agent::atTransport; else
-                      if (xmlnode_get_tag(y, "search")) atype = agent::atSearch;
+                  if (xmlnode_get_tag(y, "groupchat")) atype = groupchat; else
+                    if (xmlnode_get_tag(y, "transport")) atype = transport; else
+                      if (xmlnode_get_tag(y, "search")) atype = search;
 
                   if (alias && name && desc) {
-                    jhook.agents.push_back(agent(alias, name, desc, atype));
+                    scr_LogPrint("Agent: %s / %s / %s / type=%d",
+                                 alias, name, desc, atype);
 
-                    if (atype == agent::atSearch) {
+                    if (atype == search) {
                       x = jutil_iqnew (JPACKET__GET, NS_SEARCH);
                       xmlnode_put_attrib(x, "to", alias);
                       xmlnode_put_attrib(x, "id", "Agent info");
@@ -522,6 +520,7 @@ void packethandler(jconn conn, jpacket packet)
                 }
               }
 
+              /*
               if (find(jhook.agents.begin(), jhook.agents.end(), DEFAULT_CONFSERV) == jhook.agents.end())
                 jhook.agents.insert(jhook.agents.begin(), agent(DEFAULT_CONFSERV, DEFAULT_CONFSERV,
                             _("Default Jabber conference server"), agent::atGroupchat));

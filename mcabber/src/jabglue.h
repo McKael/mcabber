@@ -17,6 +17,13 @@ enum imstatus {
     imstatus_size
 };
 
+enum agtype {
+    unknown,
+    groupchat,
+    transport,
+    search
+};
+
 static char imstatus2char[imstatus_size] = {
     '_', 'o', 'i', 'f', 'd', 'c', 'n', 'a'
 };

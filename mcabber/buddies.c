@@ -245,11 +245,13 @@ void bud_DrawRoster(WINDOW * win)
     // FIXME: we should create a function instead of exporting this! :-(
     // Cf. revision ~28
     wintmp = scr_SearchWindow(tmp->jid);
+    /*
     if (wintmp)
       scr_LogPrint("wintmp != NULL");
     else
       scr_LogPrint("wintmp == NULL");
-    if ((wintmp) && (wintmp->pending_msg)) {
+    */
+    if ((wintmp) && (wintmp->hidden_msg)) {
       pending = '#';
     }
 

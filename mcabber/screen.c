@@ -335,7 +335,7 @@ void scr_ShowWindow(char *winId)
     top_panel(tmp->panel);
     currentWindow = tmp;
     chatmode = TRUE;
-    tmp->pending_msg = FALSE;
+    tmp->hidden_msg = FALSE;
     update_roaster = TRUE;
     width = scr_WindowHeight(tmp->win);
     for (n = 0; n < tmp->nlines; n++) {
@@ -435,7 +435,7 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
     update_panels();
     doupdate();
   } else {
-    tmp->pending_msg = TRUE;
+    tmp->hidden_msg = TRUE;
     update_roaster = TRUE;
   }
 }

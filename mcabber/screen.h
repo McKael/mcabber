@@ -25,7 +25,7 @@ typedef struct _window_entry_t {
   char *name;
   int nlines;
   char **texto;
-  int pending_msg;
+  int hidden_msg;
   struct list_head list;
 } window_entry_t;
 

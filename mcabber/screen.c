@@ -13,20 +13,8 @@
 #include "lang.h"
 #include "server.h"
 
-#include "list.h"
-
 /* Definicion de tipos */
 #define window_entry(n) list_entry(n, window_entry_t, list)
-
-typedef struct _window_entry_t {
-  WINDOW *win;
-  PANEL *panel;
-  char *name;
-  int nlines;
-  char **texto;
-  int pending_msg;
-  struct list_head list;
-} window_entry_t;
 
 LIST_HEAD(window_list);
 
@@ -434,7 +422,6 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
 
   if (!dont_show) {
     top_panel(tmp->panel);
-    tmp->pending_msg = TRUE;
     width = scr_WindowHeight(tmp->win);
     for (n = 0; n < tmp->nlines; n++) {
       mvwprintw(tmp->win, n + 1, 1, "");
@@ -445,6 +432,8 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
 
     update_panels();
     doupdate();
+  } else {
+    tmp->pending_msg = TRUE;
   }
 }
 

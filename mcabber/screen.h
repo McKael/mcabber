@@ -2,6 +2,9 @@
 #define __SCREEN_H__ 1
 
 #include <ncurses.h>
+#include <panel.h>
+
+#include "list.h"
 
 #define COLOR_POPUP     1
 #define COLOR_GENERAL   3
@@ -15,6 +18,17 @@
 
 #define INPUTLINE_LENGTH  1024
 
+
+typedef struct _window_entry_t {
+  WINDOW *win;
+  PANEL *panel;
+  char *name;
+  int nlines;
+  char **texto;
+  int pending_msg;
+  struct list_head list;
+} window_entry_t;
+
 void scr_InitCurses(void);
 void scr_DrawMainWindow(void);
 void scr_TerminateCurses(void);
@@ -27,6 +41,7 @@ void scr_WriteIncomingMessage(char *jidfrom, char *text);
 void scr_RoolWindow(void);
 void scr_ShowBuddyWindow(void);
 void scr_LogPrint(const char *fmt, ...);
+window_entry_t *scr_SearchWindow(char *winId);
 
 WINDOW *scr_GetRosterWindow(void);
 WINDOW *scr_GetStatusWindow(void);

@@ -18,6 +18,7 @@ int buddyOffset = 0;		/* Hold the roster offset   */
 
 static LIST_HEAD(buddy_list);
 static LIST_HEAD(sorted_buddies);
+
 #define buddy_entry(n) list_entry(n, buddy_entry_t, list)
 
 
@@ -49,7 +50,6 @@ void bud_SetBuddyStatus(char *jidfrom, int status)
       sprintf(buffer, "--> %s %s!", jidfrom, i18n("connected"));
       break;
     }
-    //scr_WriteInWindow(i18n("status window"), buffer, TRUE);
     scr_LogPrint("%s", buffer);
   }
   free(buffer);
@@ -217,6 +217,7 @@ void bud_DrawRoster(WINDOW * win)
   int n;
   int maxx, maxy;
   int fakeOffset = buddyOffset;
+  window_entry_t *wintmp;
 
   getmaxyx(win, maxy, maxx);
 
@@ -233,6 +234,7 @@ void bud_DrawRoster(WINDOW * win)
   list_for_each_safe(pos, nn, &buddy_list) {
 
     char status = '?';
+    char pending = ' ';
 
     if (fakeOffset > 0) {
       fakeOffset--;
@@ -240,6 +242,16 @@ void bud_DrawRoster(WINDOW * win)
     }
 
     tmp = buddy_entry(pos);
+    // FIXME: we should create a function instead of exporting this! :-(
+    // Cf. revision ~27
+    wintmp = scr_SearchWindow(tmp->jid);
+    if (wintmp)
+      scr_LogPrint("wintmp != NULL");
+    else
+      scr_LogPrint("wintmp == NULL");
+    if ((wintmp) && (wintmp->pending_msg)) {
+      pending = '#';
+    }
 
     if ((tmp->flags && FLAG_BUDDY_CONNECTED) == 1) {
       status = 'o';
@@ -257,7 +269,7 @@ void bud_DrawRoster(WINDOW * win)
     for (n = 2; n < maxx; n++)
       waddch(win, ' ');
     //mvwprintw(win, i, (maxx - strlen(tmp->name)) / 2, "%s", tmp->name);
-    mvwprintw(win, i, 1, " .[%c] %.12s", status, tmp->name);
+    mvwprintw(win, i, 1, " %c[%c] %.12s", pending, status, tmp->name);
     i++;
     if (i >= maxy - 1)
       break;

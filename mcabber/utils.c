@@ -56,9 +56,10 @@ char **ut_SplitMessage(char *message, int *nsubmsgs, unsigned int maxlong)
   char *aux2;
   char **submsgs;
   char *buffer = (char *) malloc(strlen(message) * 2);
+  int maxnlines = 50;
   int i = 0;
 
-  submsgs = (char **) malloc(50 * sizeof(char *));	/* limitamos, a priori, el maximo de lineas devueltas... */
+  submsgs = (char **) malloc(maxnlines * sizeof(char *));
 
   running = strdup(message);
   aux2 = strdup(message);
@@ -84,6 +85,12 @@ char **ut_SplitMessage(char *message, int *nsubmsgs, unsigned int maxlong)
     i++;			/*aumentamos numero de mensajillos */
     aux2 += strlen(buffer) + 1;	/*eliminamos texto particionado */
     sprintf(running, "%s", aux2);	/*y lo copiamos de nuevo a la string de "curro" */
+
+    // Check if we have allocated enough space
+    if (i >= maxnlines) {
+      maxnlines += 50;
+      submsgs = (char **) realloc(submsgs, maxnlines * sizeof(char *));
+    }
     aux = index(running, '\n');     /* is there is a CR now? */
   }
   /* last part of the message */

@@ -46,12 +46,12 @@ void packethandler(jconn, jpacket);
 
 void screen_logger(jconn j, int io, const char *buf)
 {
-  scr_LogPrint("%.03s: %s", ((io == 0) ? "OUT" : "IN"), buf);
+  scr_LogPrint("%03s: %s", ((io == 0) ? "OUT" : "IN"), buf);
 }
 
 void file_logger(jconn j, int io, const char *buf)
 {
-  ut_WriteLog("%.03s: %s\n", ((io == 0) ? "OUT" : "IN"), buf);
+  ut_WriteLog("%03s: %s\n", ((io == 0) ? "OUT" : "IN"), buf);
 }
 
 void big_logger(jconn j, int io, const char *buf)

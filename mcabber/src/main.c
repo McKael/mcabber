@@ -14,7 +14,6 @@
 #include "harddefines.h"
 #include "jabglue.h"
 
-//int sock;
 
 void sig_handler(int signum)
 {
@@ -174,14 +173,7 @@ int main(int argc, char **argv)
     return -2;
   }
 
-  /*
-  bud_InitBuddies(sock); // TODO
-
-  ut_WriteLog("Sending presence...\n");
-  srv_setpresence(sock, "Online!");
-  */
-
-  ping = 15;
+  ping = 20;
   if (cfg_read("pinginterval"))
     ping = (unsigned int) atoi(cfg_read("pinginterval"));
 
@@ -197,18 +189,13 @@ int main(int argc, char **argv)
     if (key != ERR)
       ret = process_key(key);
     jb_main();
-    if (update_roster) {
-      // scr_LogPrint("Update roster");
+    if (update_roster)
       bud_DrawRoster(scr_GetRosterWindow());
-    }
   }
 
   jb_disconnect();
   bud_TerminateBuddies();
   scr_TerminateCurses();
-
-  //srv_setpresence(sock, "unavailable");
-  //close(sock);
 
   printf("\n\nHave a nice day!\nBye!\n");
 

@@ -64,11 +64,8 @@ char *sk_recv(int sock)
   int tambuffer = 128;
   char mtag[16];    // For tag name
 
-  char *buffer = malloc(tambuffer);
-  char *retval = malloc(tambuffer + 1);
-
-  memset(retval, 0, tambuffer);
-  memset(buffer, 0, tambuffer + 1);
+  char *buffer = calloc(1, tambuffer);
+  char *retval = calloc(1, tambuffer + 1);
 
   while (1) {
     char *p1;
@@ -82,7 +79,7 @@ char *sk_recv(int sock)
 
     if (i == 1) {
       char *p2;
-      strcpy(retval, buffer);
+      strncpy(retval, buffer, tambuffer);
       p1 = retval+1;
       p2 = mtag;
       while (('a' <= *p1) && (*p1 <= 'z') && (p2-mtag < 14))
@@ -90,11 +87,18 @@ char *sk_recv(int sock)
       *p2++ = '>'; *p2++ = 0;
       //fprintf(stderr, "TAG=\"%s\"\n", mtag);
     } else {
+      char *old_retval = retval;
       scr_LogPrint("Realloc %d [%d]", i-1, n);
       if (!n)
         break;
       retval = realloc(retval, (tambuffer * i) + 1);
-      strncat(retval, buffer, tambuffer + 1);
+      if (!retval) {
+        scr_LogPrint("Memory allocation failure!!");
+        ut_WriteLog("Memory allocation failure in sk_recv()\n", retval);
+        free(buffer);
+        return old_retval;
+      }
+      strncat(retval, buffer, tambuffer);
     }
     i++;
     p1 = retval + strlen(retval) - strlen(mtag);

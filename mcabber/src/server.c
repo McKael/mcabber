@@ -29,7 +29,7 @@ char *srv_poll(int sock)
 {
   struct pollfd sock_p;
   sock_p.fd = sock;
-  sock_p.events = POLLIN | POLLPRI;
+  sock_p.events = (short int) (POLLIN | POLLPRI);
   sock_p.revents = 0;
   poll(&sock_p, 1, 0);
 
@@ -57,10 +57,10 @@ static u_long srv_resolve(const char *host)
     if (!(he = gethostbyname(host)))
       return 0;
     else
-      return (*(u_long *) he->h_addr);
+      return (*(u_long *) he->h_addr); // XXX Memory leak
   }
 
-  return i;
+  return (u_long) i;
 }
 
 
@@ -114,7 +114,7 @@ char *srv_login(int sock, const char *server, const char *user,
 {
   char *stringtosend = malloc(2048);
   char *response, *aux;
-  char *idsession = malloc(128);
+  char *idsession = calloc(64, sizeof(char));
   int pos = 0;
 
   memset(stringtosend, 0, 2048);
@@ -126,6 +126,8 @@ char *srv_login(int sock, const char *server, const char *user,
 
   if (!sk_send(sock, stringtosend)) {
     perror("senddata (server.c:132)");
+    free(stringtosend);
+    free(idsession);
     return NULL;
   }
   response = sk_recv(sock);
@@ -133,6 +135,9 @@ char *srv_login(int sock, const char *server, const char *user,
     /* fprintf(stderr, "Response not valid:\n%s\n\n", response); */
     scr_CreatePopup("Error",
 		    "Bad answer from the server", 60, 0, NULL);
+    free(response);
+    free(idsession);
+    free(stringtosend);
     return NULL;
   }
   aux = response;
@@ -145,6 +150,13 @@ char *srv_login(int sock, const char *server, const char *user,
     pos++;
   }
   aux -= pos;
+  if (pos > 64-1) {
+    ut_WriteLog("Bad session ID!\n");
+    free(response);
+    free(idsession);
+    free(stringtosend);
+    return NULL;
+  }
   strncpy(idsession, aux, pos);
 
   free(response);
@@ -190,7 +202,9 @@ char *srv_login(int sock, const char *server, const char *user,
     response = sk_recv(sock);
     */
     scr_TerminateCurses();
-    printf("Reinicie cabber!\n\n");
+    /* printf("Reinicie cabber!\n\n"); */
+    free(idsession);
+    free(stringtosend);
     return NULL;
   }
   free(response);
@@ -212,7 +226,7 @@ int srv_setpresence(int sock, const char *type)
   int rv;
   char *str = malloc(1024);
 
-  sprintf(str, "<presence><status>%s</status></presence>", type);
+  sprintf(str, "<presence><status>%.512s</status></presence>", type);
   if (!(rv = sk_send(sock, str))) {
     perror("senddata (server.c:199)");
   }
@@ -237,6 +251,7 @@ char *srv_getroster(int sock)
   strcat(str, "jabber:iq:roster'/></iq>\n");
   if (!sk_send(sock, str)) {
     perror("senddata (server.c:222)");
+    free(str);
     return NULL;
   }
   free(str);
@@ -263,6 +278,8 @@ srv_sendtext(int sock, const char *to, const char *text, const char *from)
 	  from, to, utf8inputline);
   if (!sk_send(sock, stringtosend)) {
     perror("senddata (server.c:247)");
+    free(stringtosend);
+    free(utf8inputline);
     return -1;
   }
 

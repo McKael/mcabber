@@ -164,7 +164,7 @@ int main(int argc, char **argv)
     scr_TerminateCurses();
     return -3;
   }
-  ut_WriteLog("Connected to %s: %s\n", servername, idsession);
+  ut_WriteLog("Connected to %.48s: %s\n", servername, idsession);
   free(idsession);
 
   ut_WriteLog("Requesting roster...\n");

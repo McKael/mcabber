@@ -218,7 +218,6 @@ void bud_DrawRoster(WINDOW * win)
   int maxx, maxy;
   int fakeOffset = buddyOffset;
 
-  keypad(win, TRUE);
   getmaxyx(win, maxy, maxx);
 
 
@@ -233,6 +232,8 @@ void bud_DrawRoster(WINDOW * win)
   i = 1;
   list_for_each_safe(pos, nn, &buddy_list) {
 
+    char status = '?';
+
     if (fakeOffset > 0) {
       fakeOffset--;
       continue;
@@ -241,6 +242,7 @@ void bud_DrawRoster(WINDOW * win)
     tmp = buddy_entry(pos);
 
     if ((tmp->flags && FLAG_BUDDY_CONNECTED) == 1) {
+      status = 'o';
       if (i == (buddySelected - buddyOffset))
 	wattrset(win, COLOR_PAIR(COLOR_BD_CONSEL));
       else
@@ -254,7 +256,8 @@ void bud_DrawRoster(WINDOW * win)
     mvwprintw(win, i, 1, "");
     for (n = 2; n < maxx; n++)
       waddch(win, ' ');
-    mvwprintw(win, i, (maxx - strlen(tmp->name)) / 2, "%s", tmp->name);
+    //mvwprintw(win, i, (maxx - strlen(tmp->name)) / 2, "%s", tmp->name);
+    mvwprintw(win, i, 1, " .[%c] %.12s", status, tmp->name);
     i++;
     if (i >= maxy - 1)
       break;

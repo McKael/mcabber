@@ -27,6 +27,7 @@ static int maxY, maxX;
 static window_entry_t *currentWindow;
 
 static int chatmode;
+int update_roaster;
 
 static char inputLine[INPUTLINE_LENGTH];
 static char *ptr_inputline;
@@ -335,6 +336,7 @@ void scr_ShowWindow(char *winId)
     currentWindow = tmp;
     chatmode = TRUE;
     tmp->pending_msg = FALSE;
+    update_roaster = TRUE;
     width = scr_WindowHeight(tmp->win);
     for (n = 0; n < tmp->nlines; n++) {
       mvwprintw(tmp->win, n + 1, 1, "");
@@ -434,6 +436,7 @@ void scr_WriteInWindow(char *winId, char *texto, int TimeStamp, int force_show)
     doupdate();
   } else {
     tmp->pending_msg = TRUE;
+    update_roaster = TRUE;
   }
 }
 

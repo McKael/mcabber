@@ -29,6 +29,8 @@ typedef struct _window_entry_t {
   struct list_head list;
 } window_entry_t;
 
+extern int update_roaster;
+
 void scr_InitCurses(void);
 void scr_DrawMainWindow(void);
 void scr_TerminateCurses(void);

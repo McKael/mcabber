@@ -1,6 +1,9 @@
 
+* chatmode seems buggy
+* un-export window internal structure, use a public function
+* pending message not displayed if buddy outside Contact window
+
 * Use libjabber
-* Update roaster when somebody talks to us
 * Commands! :-)
   - /say
   - /add

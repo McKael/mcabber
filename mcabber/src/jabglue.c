@@ -604,7 +604,7 @@ void packethandler(jconn conn, jpacket packet)
           p = xmlnode_get_data(x); if (p) ns = p;
 
           if (ns) {
-            scr_LogPrint("New status: %s (%s)", ns, from);
+            //scr_LogPrint("New status: %s (%s)", ns, from);
             if (!strcmp(ns, "away"))      ust = away;
             else if (!strcmp(ns, "dnd"))  ust = dontdisturb;
             else if (!strcmp(ns, "xa"))   ust = notavail;
@@ -613,7 +613,7 @@ void packethandler(jconn conn, jpacket packet)
         }
 
         if (type && !strcmp(type, "unavailable")) {
-          scr_LogPrint("New status: unavailable/offline");
+          //scr_LogPrint("New status: unavailable/offline");
           ust = offline;
         }
 

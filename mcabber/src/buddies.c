@@ -42,7 +42,7 @@ void bud_SetBuddyStatus(char *jidfrom, enum imstatus status)
   }
   if (changed) {
     bud_DrawRoster(scr_GetRosterWindow());
-    scr_LogPrint("<%s> status has changed: %c -> %c", jidfrom,
+    scr_LogPrint("<%s> status has changed: [%c>%c]", jidfrom,
             imstatus2char[oldstatus], imstatus2char[status]);
   }
 }

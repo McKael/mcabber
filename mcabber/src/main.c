@@ -70,7 +70,7 @@ char *compose_jid(const char *username, const char *servername,
 
 void credits(void)
 {
-  printf(VERSION "\n");
+  printf(MCABBER_VERSION "\n");
   printf(EMAIL "\n");
 }
 

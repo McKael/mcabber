@@ -705,7 +705,9 @@ int process_key(int key)
     switch(key) {
       case KEY_BACKSPACE:
           if (ptr_inputline != (char*)&inputLine) {
-            *--ptr_inputline = 0;
+            char *c = --ptr_inputline;
+            for ( ; *c ; c++)
+              *c = *(c+1);
             check_offset(-1);
           }
           break;

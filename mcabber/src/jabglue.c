@@ -341,7 +341,7 @@ void gotmessage(char *type, const char *from, const char *body,
     scr_LogPrint("There is an extra part in message (resource?): %s", r);
   */
 
-  scr_LogPrint("Msg from <%s>, type=%s", jidtodisp(from), type);
+  //scr_LogPrint("Msg from <%s>, type=%s", jidtodisp(from), type);
   scr_WriteIncomingMessage(jidtodisp(from), body);
 }
 
@@ -413,8 +413,9 @@ void packethandler(jconn conn, jpacket packet)
         if ((x = xmlnode_get_tag(packet->x, "subject")) != NULL)
           if ((p = xmlnode_get_data(x)) != NULL) {
             char *tmp = malloc(strlen(body)+strlen(p)+3);
-            strcpy(tmp, p);
-            strcat(tmp, ": ");
+            *tmp = '[';
+            strcpy(tmp+1, p);
+            strcat(tmp, "]\n");
             strcat(tmp, body);
             body = tmp; // XXX we should free it later...
           }
@@ -626,31 +627,24 @@ void packethandler(jconn conn, jpacket packet)
 
     case JPACKET_S10N:
         scr_LogPrint("Received subscription packet");
-        /*
-        isagent = find(jhook.agents.begin(), jhook.agents.end(), from) != jhook.agents.end();
+        if (type) scr_LogPrint("Type=%s", type);
 
-        if (type == "subscribe") {
-          if (!isagent) {
-            em.store(imauthorization(ic, imevent::incoming,
-                        imauthorization::Request, _("The user wants to subscribe to your network presence updates")));
-
-          } else {
+        if (!strcmp(type, "subscribe")) {
+          // if (!isagent) {
+            scr_LogPrint("<%s> wants to subscribe "
+                         "to your network presence updates", from);
+          /*} else {
             auto_ptr<char> cfrom(strdup(from.c_str()));
             x = jutil_presnew(JPACKET__SUBSCRIBED, cfrom.get(), 0);
             jab_send(jc, x);
             xmlnode_free(x);
-          }
-
-        } else if (type == "unsubscribe") {
-          auto_ptr<char> cfrom(strdup(from.c_str()));
-          x = jutil_presnew(JPACKET__UNSUBSCRIBED, cfrom.get(), 0);
+          }*/
+        } else if (!strcmp(type, "unsubscribe")) {
+          x = jutil_presnew(JPACKET__UNSUBSCRIBED, from, 0);
           jab_send(jc, x);
           xmlnode_free(x);
-          em.store(imnotification(ic, _("The user has removed you from his contact list (unsubscribed you, using the Jabber language)")));
-
+          scr_LogPrint("<%s> has unsubscribed to your presence updates", from);
         }
-        */
-
         break;
 
     default:

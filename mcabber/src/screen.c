@@ -412,8 +412,6 @@ void scr_WriteMessage(const char *jid, const char *text, char *prefix)
     free(submsgs[i]);
   free(submsgs);
   free(buffer);
-
-  top_panel(inputPanel);
 }
 
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text)
@@ -421,14 +419,16 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text)
   char *buffer = utf8_decode(text);
   scr_WriteMessage(jidfrom, buffer, "<== ");
   free(buffer);
+  top_panel(inputPanel);
   update_panels();
   doupdate();
 }
 
 void scr_WriteOutgoingMessage(const char *jidto, const char *text)
 {
-  scr_ShowWindow(jidto);
   scr_WriteMessage(jidto, text, "--> ");
+  scr_ShowWindow(jidto);
+  top_panel(inputPanel);
   //refresh(); // XXX ?
 }
 

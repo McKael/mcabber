@@ -269,7 +269,7 @@ void bud_DrawRoster(WINDOW * win)
   update_panels();
   doupdate();
 
-  update_roaster = FALSE;
+  update_roster = FALSE;
 }
 
 /* Desc: Change selected buddy (one position down)

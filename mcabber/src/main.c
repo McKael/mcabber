@@ -236,8 +236,8 @@ int main(int argc, char **argv)
       }
       */
     }
-    if (update_roaster) {
-      // scr_LogPrint("Update roaster");
+    if (update_roster) {
+      // scr_LogPrint("Update roster");
       bud_DrawRoster(scr_GetRosterWindow());
     }
   }

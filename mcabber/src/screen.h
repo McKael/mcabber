@@ -15,7 +15,7 @@
 
 #define INPUTLINE_LENGTH  1024
 
-extern int update_roaster;
+extern int update_roster;
 
 void scr_InitCurses(void);
 void scr_DrawMainWindow(void);

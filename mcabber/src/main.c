@@ -80,12 +80,12 @@ int main(int argc, char **argv)
   char *username, *password, *resource;
   char *servername;
   char *jid;
-  char *portstring;
+  char *portstring, *sslstring;
   int key;
   unsigned int port;
   unsigned int ping;
+  int ssl;
   int ret = 0;
-
 
   credits();
 
@@ -156,15 +156,19 @@ int main(int argc, char **argv)
   ut_WriteLog("Drawing main window...\n");
   scr_DrawMainWindow();
 
+  ssl = 0;
+  sslstring = cfg_read("ssl");
+  if (sslstring && (atoi(sslstring) > 0))
+    ssl = 1;
   portstring = cfg_read("port");
-  port = (portstring != NULL) ? (unsigned int) atoi(portstring) : -1U;
+  port = (portstring != NULL) ? (unsigned int) atoi(portstring) : 0;
 
   /* Connect to server */
   ut_WriteLog("Connecting to server: %s:%d\n", servername, port);
   scr_LogPrint("Connecting to server: %s:%d", servername, port);
 
   jid = compose_jid(username, servername, resource);
-  jc = jb_connect(jid, port, 0, password);
+  jc = jb_connect(jid, port, ssl, password);
   free(jid);
   if (!jc) {
     ut_WriteLog("\terror!!!\n");

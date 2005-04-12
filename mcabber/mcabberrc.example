@@ -1,12 +1,14 @@
 # Sample .mcabberrc file
 
 # The jid will be the following: username@server/resource
+# Use ssl = 1 to enable SSL
 
 username = yourusername
 password = yourpassword
 server = your.jabber.server
 port = 5222
 resource = yourresource
+ssl = 0
 
 
 #  The colors

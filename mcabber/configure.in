@@ -9,21 +9,23 @@ AM_CONFIG_HEADER(config.h)
 
 AC_PROG_RANLIB
 
+CFLAGS="$CFLAGS -Wall"
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
 
 # Checks for libraries.
-AC_CHECK_LIB([connwrap], [cw_nb_connect])
-AC_CHECK_LIB([libjabber], [jab_new])
+#AC_CHECK_LIB([connwrap], [cw_nb_connect])
+#AC_CHECK_LIB([libjabber], [jab_new])
 AC_CHECK_LIB([ncurses], [initscr])
 AC_CHECK_LIB([panel], [new_panel])
 AC_CHECK_LIB([ssl], [SSL_new])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h stdlib.h string.h strings.h sys/socket.h sys/time.h syslog.h termios.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h stdlib.h string.h strings.h sys/socket.h sys/time.h syslog.h termios.h unistd.h ncurses.h panel.h getopt.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL

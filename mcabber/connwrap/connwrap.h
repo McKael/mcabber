@@ -1,6 +1,10 @@
 #ifndef __CONNWRAP_H__
 #define __CONNWRAP_H__
 
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

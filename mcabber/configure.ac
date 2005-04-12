@@ -5,7 +5,7 @@ AC_PREREQ(2.59)
 AC_INIT(mcabber, 0.6.0-dev, bmikael@lists.lilotux.net)
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src])
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADER(config.h)
 
 AC_PROG_RANLIB
 
@@ -17,11 +17,8 @@ AC_PROG_CC
 AC_PROG_INSTALL
 
 # Checks for libraries.
-#AC_CHECK_LIB([connwrap], [cw_nb_connect])
-#AC_CHECK_LIB([libjabber], [jab_new])
 AC_CHECK_LIB([ncurses], [initscr])
 AC_CHECK_LIB([panel], [new_panel])
-AC_CHECK_LIB([ssl], [SSL_new])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -45,6 +42,49 @@ AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm bzero gethostbyname gethostname inet_ntoa isascii memmove memset modf select setlocale socket strcasecmp strchr strdup strncasecmp strrchr strstr])
+
+AC_ARG_WITH(ssl, [  --with-ssl              enable SSL secured connections using either OpenSSL
+			  or GnuTLS],
+	[with_ssl=$withval])
+
+if test "$with_ssl" != "no"; then
+    AC_ARG_WITH(openssl,
+	[  --with-openssl=[DIR]      enable SSL secured connections using the OpenSSL
+			  library in DIR (optional)],
+	[with_openssl=$withval])
+
+    if test -z "$with_openssl"; then
+	for ac_dir in /usr/local /usr; do
+	    if test -f "$ac_dir/include/openssl/ssl.h"; then
+		with_openssl=$ac_dir
+		break;
+	    fi
+	done
+    fi
+
+    AC_MSG_CHECKING(for OpenSSL)
+
+    if test -n "$with_openssl" -a "$with_openssl" != "no"; then
+	if test "$with_openssl" = "yes"; then with_openssl="/usr"; fi
+	CFLAGS="$CFLAGS -I${with_openssl}"
+	AC_DEFINE([HAVE_OPENSSL], [], [OpenSSL])
+	AC_MSG_RESULT([found in $with_openssl])
+	AC_CHECK_LIB(crypto, main, [
+		AC_CHECK_LIB(crypto, SSLeay_add_all_algorithms, [
+		    AC_DEFINE([HAVE_SSLEAY], [], [SSLeay])
+		])
+	    ])
+	AC_CHECK_LIB(ssl, main)
+    else
+	AC_MSG_RESULT([not found or disabled])
+
+	AM_PATH_LIBGNUTLS_EXTRA(0.0.1, [
+	    CXXFLAGS="$CXXFLAGS $LIBGNUTLS_CFLAGS"
+	    LIBS="$LIBS $LIBGNUTLS_LIBS -lgnutls-extra"
+	    AC_DEFINE([HAVE_GNUTLS], [], [GNU TLS])
+	])
+    fi
+fi
 
 AC_DEFINE(BUILD_JABBER, 1, [build with jabber support])
 

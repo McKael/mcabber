@@ -13,7 +13,7 @@
 #define STR_EMPTY(s) ((s)[0] == '\0')
 
 /* global vars for BUDDIES.C */
-int buddySelected = 1;		/* Hold the selected Buddy  */
+int buddySelected = 0;		/* Hold the selected Buddy  */
 int buddyOffset = 0;		/* Hold the roster offset   */
 
 static LIST_HEAD(buddy_list);
@@ -126,20 +126,21 @@ void bud_DrawRoster(WINDOW * win)
   int n;
   int maxx, maxy;
   int fakeOffset = buddyOffset;
-  char name[ROSTER_WEIGHT];
+  char name[ROSTER_WIDTH];
 
   getmaxyx(win, maxy, maxx);
-  name[ROSTER_WEIGHT-8] = 0;
+  maxx --;  // last char is for vertical border
+  name[ROSTER_WIDTH-8] = 0;
 
   /* cleanup of roster window */
   wattrset(win, COLOR_PAIR(COLOR_GENERAL));
-  for (i = 1; i < maxy - 1; i++) {
-    mvwprintw(win, i, 1, "");
-    for (n = 2; n < maxx; n++)
+  for (i = 0; i < maxy; i++) {
+    mvwprintw(win, i, 0, "");
+    for (n = 0; n < maxx; n++)
       waddch(win, ' ');
   }
 
-  i = 1;
+  i = 0;
   list_for_each_safe(pos, nn, &buddy_list) {
 
     char status = '?';
@@ -169,11 +170,11 @@ void bud_DrawRoster(WINDOW * win)
       else
 	wattrset(win, COLOR_PAIR(COLOR_BD_DES));
     }
-    mvwprintw(win, i, 1, "");
+    mvwprintw(win, i, 0, "");
     for (n = 2; n < maxx; n++)
       waddch(win, ' ');
-    strncpy(name, tmp->name, ROSTER_WEIGHT-8);
-    mvwprintw(win, i, 1, " %c[%c] %s", pending, status, name);
+    strncpy(name, tmp->name, ROSTER_WIDTH-8);
+    mvwprintw(win, i, 0, " %c[%c] %s", pending, status, name);
     i++;
     if (i >= maxy - 1)
       break;
@@ -195,9 +196,8 @@ void bud_RosterDown(void)
 {
   int x, y;
   getmaxyx(scr_GetRosterWindow(), y, x);
-  y -= 2;
 
-  if (buddySelected < bud_BuddyCount()) {
+  if (buddySelected+1 < bud_BuddyCount()) {
     buddySelected++;
     if (buddySelected > y)
       buddyOffset++;
@@ -214,9 +214,9 @@ void bud_RosterDown(void)
  */
 void bud_RosterUp(void)
 {
-  if (buddySelected > 1) {
+  if (buddySelected > 0) {
     buddySelected--;
-    if (buddySelected - buddyOffset < 1)
+    if (buddySelected < buddyOffset)
       buddyOffset--;
     bud_DrawRoster(scr_GetRosterWindow());
   }
@@ -238,7 +238,7 @@ buddy_entry_t *bud_SelectedInfo(void)
 
   list_for_each_safe(pos, n, &buddy_list) {
     tmp = buddy_entry(pos);
-    if (i == buddySelected - 1) {
+    if (i == buddySelected) {
       return tmp;
     }
     i++;

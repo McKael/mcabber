@@ -11,7 +11,7 @@
 #define COLOR_BD_DES    7
 
 #define LOG_WIN_HEIGHT  (5+2)
-#define ROSTER_WEIGHT   24
+#define ROSTER_WIDTH    24
 #define CHAT_WIN_HEIGHT (maxY-1-LOG_WIN_HEIGHT)
 
 #define INPUTLINE_LENGTH  1024

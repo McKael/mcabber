@@ -15,6 +15,7 @@
 #include "lang.h"
 #include "list.h"
 #include "utf8.h"
+#include "hbuf.h"
 
 #define window_entry(n) list_entry(n, window_entry_t, list)
 
@@ -24,8 +25,7 @@ typedef struct _window_entry_t {
   WINDOW *win;
   PANEL *panel;
   char *name;
-  int nlines;
-  char **texto;
+  GList *hbuf;
   int hidden_msg;
   struct list_head list;
 } window_entry_t;
@@ -49,11 +49,23 @@ static short int inputline_offset;
 
 /* Funciones */
 
-int scr_WindowHeight(WINDOW * win)
+int scr_WindowWidth(WINDOW * win)
 {
   int x, y;
   getmaxyx(win, y, x);
   return x;
+}
+
+void scr_clear_box(WINDOW *win, int y, int x, int height, int width, int Color)
+{
+  int i, j;
+
+  wattrset(win, COLOR_PAIR(Color));
+  for (i = 0; i < height; i++) {
+    wmove(win, y + i, x);
+    for (j = 0; j < width; j++)
+      wprintw(win, " ");
+  }
 }
 
 void scr_draw_box(WINDOW * win, int y, int x, int height, int width,
@@ -174,7 +186,8 @@ window_entry_t *scr_CreatePanel(const char *title, int x, int y,
   tmp->name = (char *) calloc(1, 1024);
   strncpy(tmp->name, title, 1024);
 
-  scr_draw_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL, 0, 0);
+  //scr_draw_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL, 0, 0);
+  scr_clear_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL);
   //mvwprintw(tmp->win, 0, (cols - (2 + strlen(title))) / 2, " %s ", title);
   if ((!dont_show)) {
     currentWindow = tmp;
@@ -211,29 +224,61 @@ window_entry_t *scr_SearchWindow(const char *winId)
   return NULL;
 }
 
+void scr_UpdateWindow(window_entry_t *win_entry)
+{
+  int n;
+  int width;
+  char **lines;
+  GList *hbuf_head;
+
+  // We will show the last CHAT_WIN_HEIGHT lines.
+  // Let's find out where it begins.
+  win_entry->hbuf = g_list_last(win_entry->hbuf);
+  hbuf_head = win_entry->hbuf;
+  for (n=0; hbuf_head && n<(CHAT_WIN_HEIGHT-1) && g_list_previous(hbuf_head); n++)
+    hbuf_head = g_list_previous(hbuf_head);
+
+  // Get the last CHAT_WIN_HEIGHT lines.
+  lines = hbuf_get_lines(hbuf_head, CHAT_WIN_HEIGHT);
+
+  // Display these lines
+  width = scr_WindowWidth(win_entry->win);
+  wmove(win_entry->win, 0, 0);
+  for (n = 0; n < CHAT_WIN_HEIGHT; n++) {
+    int r = width;
+    if (*(lines+n)) {
+      wprintw(win_entry->win, "%s", *(lines+n));
+      r -= strlen(*(lines+n));
+    }// else
+    //  wmove(win_entry->win, n, 0);
+    for ( ; r>0 ; r--) {
+      wprintw(win_entry->win, " ");
+    }
+    //// wclrtoeol(win_entry->win);  does not work :(
+  }
+  g_free(lines);
+}
+
 void scr_ShowWindow(const char *winId)
 {
-  int n, width, i;
-  window_entry_t *tmp = scr_SearchWindow(winId);
-  if (tmp != NULL) {
-    top_panel(tmp->panel);
-    currentWindow = tmp;
+  window_entry_t *win_entry = scr_SearchWindow(winId);
+
+  if (win_entry != NULL) {
+    top_panel(win_entry->panel);
+    currentWindow = win_entry;
     chatmode = TRUE;
-    tmp->hidden_msg = FALSE;
+    win_entry->hidden_msg = FALSE;
     update_roster = TRUE;
-    width = scr_WindowHeight(tmp->win);
-    for (n = 0; n < tmp->nlines; n++) {
-      mvwprintw(tmp->win, n + 1, 1, "");
-      for (i = 0; i < width - 2; i++)
-	waddch(tmp->win, ' ');
-      mvwprintw(tmp->win, n + 1, 1, "%s", tmp->texto[n]);
-    }
-    //move(CHAT_WIN_HEIGHT - 1, maxX - 1);
+
+    // Refresh the window entry
+    scr_UpdateWindow(win_entry);
+
+    // Finished :)
     update_panels();
     doupdate();
   } else {
     top_panel(chatPanel);
-    currentWindow = tmp;
+    currentWindow = win_entry;  // == NULL  (current window empty)
   }
 }
 
@@ -246,79 +291,53 @@ void scr_ShowBuddyWindow(void)
 }
 
 
-void scr_WriteInWindow(const char *winId, char *texto, int TimeStamp, int force_show)
+void scr_WriteInWindow(const char *winId, char *text, int TimeStamp,
+        int force_show)
 {
-  time_t ahora;
-  int n;
-  int i;
-  int width;
-  window_entry_t *tmp;
+  char *line;
+  window_entry_t *win_entry;
   int dont_show = FALSE;
 
-  tmp = scr_SearchWindow(winId);
+  line = calloc(1, strlen(text)+16);
 
+  // Prepare line (timestamp + text)
+  // FIXME: actually timestamp and text should not be merged, there is a prefix
+  //        field in the hbuf_block structure just for that.
+  if (TimeStamp) {
+    time_t now = time(NULL);
+    strftime(line, 12, "[%H:%M] ", localtime(&now));
+  } else {
+    strcpy(line, "            ");
+  }
+  strcat(line, text);
+
+  // Look for the window entry.
+  win_entry = scr_SearchWindow(winId);
+
+  // Do we have to really show the window?
   if (!chatmode)
     dont_show = TRUE;
-  else if ((!force_show) && ((!currentWindow || (currentWindow != tmp))))
+  else if ((!force_show) && ((!currentWindow || (currentWindow != win_entry))))
     dont_show = TRUE;
 
-  if (tmp == NULL) {
-    tmp = scr_CreatePanel(winId, ROSTER_WEIGHT, 0, CHAT_WIN_HEIGHT,
-                          maxX - ROSTER_WEIGHT, dont_show);
-    tmp->texto = (char **) calloc((CHAT_WIN_HEIGHT+1) * 3, sizeof(char *));
-    for (n = 0; n < CHAT_WIN_HEIGHT * 3; n++)
-      tmp->texto[n] = (char *) calloc(1, 1024);
-
-    if (TimeStamp) {
-      ahora = time(NULL);
-      strftime(tmp->texto[tmp->nlines], 1024, "[%H:%M] ",
-	       localtime(&ahora));
-      strcat(tmp->texto[tmp->nlines], texto);
-    } else {
-      sprintf(tmp->texto[tmp->nlines], "            %s", texto);
-    }
-    tmp->nlines++;
-  } else {
-    if (tmp->nlines < CHAT_WIN_HEIGHT - 2) {
-      if (TimeStamp) {
-	ahora = time(NULL);
-	strftime(tmp->texto[tmp->nlines], 1024,
-		 "[%H:%M] ", localtime(&ahora));
-	strcat(tmp->texto[tmp->nlines], texto);
-      } else {
-	sprintf(tmp->texto[tmp->nlines], "            %s", texto);
-      }
-      tmp->nlines++;
-    } else {
-      for (n = 0; n < tmp->nlines; n++) {
-	memset(tmp->texto[n], 0, 1024);
-	strncpy(tmp->texto[n], tmp->texto[n + 1], 1024);
-      }
-      if (TimeStamp) {
-	ahora = time(NULL);
-	strftime(tmp->texto[tmp->nlines - 1], 1024,
-		 "[%H:%M] ", localtime(&ahora));
-	strcat(tmp->texto[tmp->nlines - 1], texto);
-      } else {
-	sprintf(tmp->texto[tmp->nlines - 1], "            %s", texto);
-      }
-    }
+  // If the window entry doesn't exist yet, let's create it.
+  if (win_entry == NULL) {
+    win_entry = scr_CreatePanel(winId, ROSTER_WIDTH, 0, CHAT_WIN_HEIGHT,
+                          maxX - ROSTER_WIDTH, dont_show);
   }
 
-  if (!dont_show) {
-    top_panel(tmp->panel);
-    width = scr_WindowHeight(tmp->win);
-    for (n = 0; n < tmp->nlines; n++) {
-      mvwprintw(tmp->win, n + 1, 1, "");
-      for (i = 0; i < width - 2; i++)
-        waddch(tmp->win, ' ');
-      mvwprintw(tmp->win, n + 1, 1, "%s", tmp->texto[n]);
-    }
+  hbuf_add_line(&win_entry->hbuf, line,
+                maxX - scr_WindowWidth(rosterWnd) - 14);
+  free(line);
 
+  if (!dont_show) {
+    // Show and refresh the window
+    top_panel(win_entry->panel);
+    scr_UpdateWindow(win_entry);
     update_panels();
     doupdate();
   } else {
-    tmp->hidden_msg = TRUE;
+    win_entry->hidden_msg = TRUE;
     update_roster = TRUE;
   }
 }
@@ -345,19 +364,22 @@ void scr_InitCurses(void)
 
 void scr_DrawMainWindow(void)
 {
-  /* Draw main panels */
-  rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WEIGHT, 0, 0);
-  rosterPanel = new_panel(rosterWnd);
-  scr_draw_box(rosterWnd, 0, 0, CHAT_WIN_HEIGHT, ROSTER_WEIGHT,
-               COLOR_GENERAL, 0, 0);
-  mvwprintw(rosterWnd, 0, (ROSTER_WEIGHT - strlen(i18n("Roster"))) / 2,
-	    i18n("Roster"));
+  int l;
 
-  chatWnd = newwin(CHAT_WIN_HEIGHT, maxX - ROSTER_WEIGHT, 0, ROSTER_WEIGHT);
+  /* Draw main panels */
+  rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WIDTH, 0, 0);
+  rosterPanel = new_panel(rosterWnd);
+  scr_clear_box(rosterWnd, 0, 0, CHAT_WIN_HEIGHT, ROSTER_WIDTH,
+                COLOR_GENERAL);
+  for (l=0 ; l < CHAT_WIN_HEIGHT ; l++)
+    mvwaddch(rosterWnd, l, ROSTER_WIDTH-1, ACS_VLINE);
+
+  chatWnd = newwin(CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH, 0, ROSTER_WIDTH);
   chatPanel = new_panel(chatWnd);
-  scr_draw_box(chatWnd, 0, 0, CHAT_WIN_HEIGHT, maxX - ROSTER_WEIGHT,
-               COLOR_GENERAL, 0, 0);
-  mvwprintw(chatWnd, 1, 1, "This is the status window");
+  scr_clear_box(chatWnd, 0, 0, CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH,
+                COLOR_GENERAL);
+  scrollok(chatWnd, TRUE);
+  mvwprintw(chatWnd, 0, 0, "This is the status window");
 
   logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
   logPanel_border = new_panel(logWnd_border);
@@ -366,7 +388,7 @@ void scr_DrawMainWindow(void)
   logPanel = new_panel(logWnd);
   wbkgd(logWnd, COLOR_PAIR(COLOR_GENERAL));
 
-  scrollok(logWnd,TRUE);
+  scrollok(logWnd, TRUE);
 
   inputWnd = newwin(1, maxX, maxY-1, 0);
   inputPanel = new_panel(inputWnd);
@@ -385,11 +407,11 @@ void scr_TerminateCurses(void)
   return;
 }
 
+// XXX This function is almost useless now.  Once we handle properly
+// the prefix in scr_WriteInWindow(), we can remove it...
 void scr_WriteMessage(const char *jid, const char *text, char *prefix)
 {
-  char **submsgs;
-  int n, i;
-  char *buffer = (char *) malloc(strlen(text) + strlen(text));
+  char *buffer = (char *) malloc(strlen(prefix) + strlen(text) + 1);
 
   if (prefix)
     strcpy(buffer, prefix);
@@ -398,25 +420,15 @@ void scr_WriteMessage(const char *jid, const char *text, char *prefix)
 
   strcat(buffer, text);
 
-  submsgs =
-      ut_SplitMessage(buffer, &n, maxX - scr_WindowHeight(rosterWnd) - 14);
+  scr_WriteInWindow(jid, buffer, TRUE, FALSE);
 
-  for (i = 0; i < n; i++) {
-    if (i == 0)
-      scr_WriteInWindow(jid, submsgs[i], TRUE, FALSE);
-    else
-      scr_WriteInWindow(jid, submsgs[i], FALSE, FALSE);
-  }
-
-  for (i = 0; i < n; i++)
-    free(submsgs[i]);
-  free(submsgs);
   free(buffer);
 }
 
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text)
 {
   char *buffer = utf8_decode(text);
+  // FIXME expand tabs...
   scr_WriteMessage(jidfrom, buffer, "<== ");
   free(buffer);
   top_panel(inputPanel);

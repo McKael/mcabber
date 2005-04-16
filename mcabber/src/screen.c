@@ -246,11 +246,17 @@ void scr_UpdateWindow(window_entry_t *win_entry)
   wmove(win_entry->win, 0, 0);
   for (n = 0; n < CHAT_WIN_HEIGHT; n++) {
     int r = width;
-    if (*(lines+n)) {
-      wprintw(win_entry->win, "%s", *(lines+n));
-      r -= strlen(*(lines+n));
-    }// else
-    //  wmove(win_entry->win, n, 0);
+    if (*(lines+2*n)) {
+      if (**(lines+2*n))
+        wprintw(win_entry->win, "%s", *(lines+2*n));      // prefix
+      else {
+        wprintw(win_entry->win, "            ");
+        r -= 12;
+      }
+      wprintw(win_entry->win, "%s", *(lines+2*n+1));      // line
+      // Calculate the number of blank characters to empty the line
+      r -= strlen(*(lines+2*n)) + strlen(*(lines+2*n+1));
+    }
     for ( ; r>0 ; r--) {
       wprintw(win_entry->win, " ");
     }
@@ -291,25 +297,25 @@ void scr_ShowBuddyWindow(void)
 }
 
 
-void scr_WriteInWindow(const char *winId, char *text, int TimeStamp,
-        int force_show)
+void scr_WriteInWindow(const char *winId, const char *text, int TimeStamp,
+        const char *prefix, int force_show)
 {
-  char *line;
+  char *fullprefix = NULL;
   window_entry_t *win_entry;
   int dont_show = FALSE;
 
-  line = calloc(1, strlen(text)+16);
-
-  // Prepare line (timestamp + text)
-  // FIXME: actually timestamp and text should not be merged, there is a prefix
-  //        field in the hbuf_block structure just for that.
-  if (TimeStamp) {
-    time_t now = time(NULL);
-    strftime(line, 12, "[%H:%M] ", localtime(&now));
-  } else {
-    strcpy(line, "            ");
+  // Prepare the prefix
+  if (prefix || TimeStamp) {
+    if (!prefix)  prefix = "";
+    fullprefix = calloc(1, strlen(prefix)+16);
+    if (TimeStamp) {
+      time_t now = time(NULL);
+      strftime(fullprefix, 12, "[%H:%M] ", localtime(&now));
+    } else {
+      strcpy(fullprefix, "            ");
+    }
+    strcat(fullprefix, prefix);
   }
-  strcat(line, text);
 
   // Look for the window entry.
   win_entry = scr_SearchWindow(winId);
@@ -326,9 +332,9 @@ void scr_WriteInWindow(const char *winId, char *text, int TimeStamp,
                           maxX - ROSTER_WIDTH, dont_show);
   }
 
-  hbuf_add_line(&win_entry->hbuf, line,
+  hbuf_add_line(&win_entry->hbuf, text, fullprefix,
                 maxX - scr_WindowWidth(rosterWnd) - 14);
-  free(line);
+  free(fullprefix);
 
   if (!dont_show) {
     // Show and refresh the window
@@ -407,28 +413,15 @@ void scr_TerminateCurses(void)
   return;
 }
 
-// XXX This function is almost useless now.  Once we handle properly
-// the prefix in scr_WriteInWindow(), we can remove it...
 void scr_WriteMessage(const char *jid, const char *text, char *prefix)
 {
-  char *buffer = (char *) malloc(strlen(prefix) + strlen(text) + 1);
-
-  if (prefix)
-    strcpy(buffer, prefix);
-  else
-    *buffer = 0;
-
-  strcat(buffer, text);
-
-  scr_WriteInWindow(jid, buffer, TRUE, FALSE);
-
-  free(buffer);
+  scr_WriteInWindow(jid, text, TRUE, prefix, FALSE);
 }
 
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text)
 {
   char *buffer = utf8_decode(text);
-  // FIXME expand tabs...
+  // FIXME expand tabs / filter out special chars...
   scr_WriteMessage(jidfrom, buffer, "<== ");
   free(buffer);
   top_panel(inputPanel);
@@ -441,7 +434,6 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text)
   scr_WriteMessage(jidto, text, "--> ");
   scr_ShowWindow(jidto);
   top_panel(inputPanel);
-  //refresh(); // XXX ?
 }
 
 int scr_Getch(void)

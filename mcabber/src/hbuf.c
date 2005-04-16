@@ -26,6 +26,7 @@
 
 /* This is a private structure type */
 
+#define PREFIX_LENGTH 32
 typedef struct {
   char *ptr;
   char *ptr_end;
@@ -35,19 +36,20 @@ typedef struct {
   // (for ex. when HBB_FLAG_PERSISTENT is set).
   struct { // hbuf_line_info
     char *ptr_end_alloc;
-    char prefix[32];
+    char prefix[PREFIX_LENGTH];
   } persist;
 } hbuf_block;
 
 
-//  hbuf_add_line(p_hbuf, text, width)
+//  hbuf_add_line(p_hbuf, text, prefix, width)
 // Add a line to the given buffer.  If width is not null, then lines are
 // wrapped at this length.
 //
 // Note 1: Splitting according to width won't work if there are tabs; they
 //         should be expanded before.
 // Note 2: width does not include the ending \0.
-void hbuf_add_line(GList **p_hbuf, char *text, unsigned int width)
+void hbuf_add_line(GList **p_hbuf, const char *text, const char *prefix,
+        unsigned int width)
 {
   GList *hbuf = *p_hbuf;
   char *line, *cr, *end;
@@ -55,6 +57,8 @@ void hbuf_add_line(GList **p_hbuf, char *text, unsigned int width)
   if (!text) return;
 
   hbuf_block *hbuf_block_elt = g_new0(hbuf_block, 1);
+  if (prefix)
+    strncpy(hbuf_block_elt->persist.prefix, prefix, PREFIX_LENGTH-1);
   if (!hbuf) {
     hbuf_block_elt->ptr    = g_new(char, HBB_BLOCKSIZE);
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
@@ -216,14 +220,15 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
 }
 
 //  hbuf_get_lines(hbuf, n, where)
-// Returns an array of n pointers (for n lines from hbuf)
+// Returns an array of 2*n pointers (for n prefixes + n lines from hbuf)
+// (prefix line 1, line 1, prefix line 2, line 2, etc.)
 // (The first line will be the line currently pointed by hbuf)
 // Note:The caller should free the array after use.
 char **hbuf_get_lines(GList *hbuf, unsigned int n)
 {
   unsigned int i;
 
-  char **array = g_new0(char*, n);
+  char **array = g_new0(char*, n*2);
   char **array_elt = array;
 
   for (i=0 ; i < n ; i++) {
@@ -231,6 +236,7 @@ char **hbuf_get_lines(GList *hbuf, unsigned int n)
       hbuf_block *blk = (hbuf_block*)(hbuf->data);
       int maxlen;
       maxlen = blk->ptr_end - blk->ptr;
+      *array_elt++ = blk->persist.prefix;
       *array_elt++ = g_strndup(blk->ptr, maxlen);
       hbuf = g_list_next(hbuf);
     } else

@@ -12,7 +12,8 @@
 #define HBB_FLAG_PERSISTENT 2
 // #define HBB_FLAG_FREE       4
 
-void hbuf_add_line(GList **p_hbuf, char *text, unsigned int width);
+void hbuf_add_line(GList **p_hbuf, const char *text, const char *prefix,
+        unsigned int width);
 void hbuf_free(GList **p_hbuf);
 void hbuf_rebuild(GList **p_hbuf, unsigned int width);
 

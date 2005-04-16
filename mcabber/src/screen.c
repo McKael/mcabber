@@ -185,10 +185,8 @@ window_entry_t *scr_CreatePanel(const char *title, int x, int y,
   tmp->panel = new_panel(tmp->win);
   tmp->name = (char *) calloc(1, 1024);
   strncpy(tmp->name, title, 1024);
-
-  //scr_draw_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL, 0, 0);
   scr_clear_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL);
-  //mvwprintw(tmp->win, 0, (cols - (2 + strlen(title))) / 2, " %s ", title);
+
   if ((!dont_show)) {
     currentWindow = tmp;
   } else {

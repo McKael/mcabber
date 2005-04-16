@@ -4,7 +4,6 @@
 #include <stdarg.h>
 #include <time.h>
 
-/* Variables globales a UTILS.C */
 static int DebugEnabled;
 static char *FName;
 

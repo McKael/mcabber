@@ -23,9 +23,9 @@
 
 #include "../libjabber/jabber.h"
 #include "jabglue.h"
+#include "roster.h"
 #include "screen.h"
 #include "utils.h"
-#include "buddies.h"
 
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
@@ -251,6 +251,7 @@ void postlogin()
   //setautostatus(jhook.manualstatus);
 
   setjabberstatus(1, "I'm here!");
+  buddylist_build();
   /*
   for (i = 0; i < clist.count; i++) {
     c = (icqcontact *) clist.at(i);
@@ -315,7 +316,7 @@ void gotroster(xmlnode x)
     const char *alias = xmlnode_get_attrib(y, "jid");
     //const char *sub = xmlnode_get_attrib(y, "subscription"); // TODO Not used
     const char *name = xmlnode_get_attrib(y, "name");
-    const char *group = 0;
+    const char *group = NULL;
 
     z = xmlnode_get_tag(y, "group");
     if (z) group = xmlnode_get_data(z);
@@ -327,13 +328,12 @@ void gotroster(xmlnode x)
       else
         buddyname = jidtodisp(alias);
 
-      bud_AddBuddy(alias, buddyname);
+      roster_add_user(alias, buddyname, group, ROSTER_TYPE_USER);
       if (!name)
         free(buddyname);
     }
   }
 
-  bud_SortRoster();
   postlogin();
 }
 
@@ -627,9 +627,11 @@ void packethandler(jconn conn, jpacket packet)
         if (type && !strcmp(type, "unavailable")) {
           ust = offline;
         }
-        //scr_LogPrint("New status: ust=%d (%s)", ust, from);
+        // scr_LogPrint("New status: ust=%d (%s)", ust, from);
 
-        bud_SetBuddyStatus(jidtodisp(from), ust);
+        roster_setstatus(jidtodisp(from), ust); // XXX memory leak
+        buddylist_build();
+        scr_DrawRoster();
         /*
         if (x = xmlnode_get_tag(packet->x, "status"))
           if (p = xmlnode_get_data(x))

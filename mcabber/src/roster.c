@@ -247,7 +247,13 @@ void buddylist_build(void)
 {
   GSList *sl_roster_elt = groups;
   roster *roster_elt;
+  roster *roster_current_buddy = NULL;
   int pending_group;
+
+  // We need to remember which buddy is selected.
+  if (current_buddy)
+    roster_current_buddy = BUDDATA(current_buddy);
+  current_buddy = NULL;
 
   // Destroy old buddylist
   if (buddylist) {
@@ -296,9 +302,12 @@ void buddylist_build(void)
     sl_roster_elt = g_slist_next(sl_roster_elt);
   }
 
+  // Check if we can find our saved current_buddy...
+  if (roster_current_buddy)
+    current_buddy = g_list_find(buddylist, roster_current_buddy);
   // current_buddy initialization
   if (!current_buddy || (g_list_position(buddylist, current_buddy) == -1))
-    current_buddy = buddylist;
+    current_buddy = g_list_first(buddylist);
 }
 
 //  buddy_hide_group(roster, hide)

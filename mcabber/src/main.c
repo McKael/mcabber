@@ -6,13 +6,12 @@
 #include <termios.h>
 #include <getopt.h>
 
-#include "utils.h"
+#include "jabglue.h"
 #include "screen.h"
-#include "buddies.h"
 #include "parsecfg.h"
 #include "lang.h"
+#include "utils.h"
 #include "harddefines.h"
-#include "jabglue.h"
 
 
 void sig_handler(int signum)
@@ -23,7 +22,7 @@ void sig_handler(int signum)
     break;
 
   case SIGTERM:
-    bud_TerminateBuddies();
+    // bud_TerminateBuddies();
     scr_TerminateCurses();
     jb_disconnect();
     printf("Killed by SIGTERM\nBye!\n");
@@ -186,19 +185,19 @@ int main(int argc, char **argv)
   ut_WriteLog("Entering into main loop...\n\n");
   ut_WriteLog("Ready to send/receive messages...\n");
 
+  keypad(scr_GetInputWindow(), TRUE);
   while (ret != 255) {
     alarm(ping);
-    keypad(scr_GetInputWindow(), TRUE);
     key = scr_Getch();
     if (key != ERR)
       ret = process_key(key);
     jb_main();
     if (update_roster)
-      bud_DrawRoster(scr_GetRosterWindow());
+      scr_DrawRoster();
   }
 
   jb_disconnect();
-  bud_TerminateBuddies();
+  //bud_TerminateBuddies();
   scr_TerminateCurses();
 
   printf("\n\nHave a nice day!\nBye!\n");

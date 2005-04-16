@@ -8,14 +8,14 @@
 #include <locale.h>
 
 #include "screen.h"
-#include "utils.h"
+#include "hbuf.h"
 #include "commands.h"
-#include "buddies.h"
+#include "roster.h"
 #include "parsecfg.h"
 #include "lang.h"
-#include "list.h"
 #include "utf8.h"
-#include "hbuf.h"
+#include "utils.h"
+#include "list.h"
 
 #define window_entry(n) list_entry(n, window_entry_t, list)
 
@@ -26,7 +26,6 @@ typedef struct _window_entry_t {
   PANEL *panel;
   char *name;
   GList *hbuf;
-  int hidden_msg;
   struct list_head list;
 } window_entry_t;
 
@@ -202,10 +201,6 @@ window_entry_t *scr_CreatePanel(const char *title, int x, int y,
   return tmp;
 }
 
-void scr_RoolWindow(void)
-{
-}
-
 window_entry_t *scr_SearchWindow(const char *winId)
 {
   struct list_head *pos, *n;
@@ -271,7 +266,7 @@ void scr_ShowWindow(const char *winId)
     top_panel(win_entry->panel);
     currentWindow = win_entry;
     chatmode = TRUE;
-    win_entry->hidden_msg = FALSE;
+    roster_setflags(winId, ROSTER_FLAG_MSG, FALSE);
     update_roster = TRUE;
 
     // Refresh the window entry
@@ -288,9 +283,9 @@ void scr_ShowWindow(const char *winId)
 
 void scr_ShowBuddyWindow(void)
 {
-  buddy_entry_t *tmp = bud_SelectedInfo();
-  if (tmp->jid != NULL)
-    scr_ShowWindow(tmp->jid);
+  const gchar *jid = CURRENT_JID;
+  if (jid != NULL)
+    scr_ShowWindow(jid);
   top_panel(inputPanel);
 }
 
@@ -341,7 +336,7 @@ void scr_WriteInWindow(const char *winId, const char *text, int TimeStamp,
     update_panels();
     doupdate();
   } else {
-    win_entry->hidden_msg = TRUE;
+    roster_setflags(winId, ROSTER_FLAG_MSG, TRUE);
     update_roster = TRUE;
   }
 }
@@ -363,6 +358,14 @@ void scr_InitCurses(void)
 
   setlocale(LC_CTYPE, "");
 
+  return;
+}
+
+void scr_TerminateCurses(void)
+{
+  clear();
+  refresh();
+  endwin();
   return;
 }
 
@@ -397,18 +400,81 @@ void scr_DrawMainWindow(void)
   inputWnd = newwin(1, maxX, maxY-1, 0);
   inputPanel = new_panel(inputWnd);
 
-  bud_DrawRoster(rosterWnd);
+  scr_DrawRoster();
   update_panels();
   doupdate();
   return;
 }
 
-void scr_TerminateCurses(void)
+void scr_DrawRoster(void)
 {
-  clear();
-  refresh();
-  endwin();
-  return;
+  static guint offset = 0;
+  char name[ROSTER_WIDTH];
+  int maxx, maxy;
+  GList *buddy;
+  int i, n;
+  int rOffset;
+
+  getmaxyx(rosterWnd, maxy, maxx);
+  maxx --;  // last char is for vertical border
+  name[ROSTER_WIDTH-7] = 0;
+
+  // cleanup of roster window
+  wattrset(rosterWnd, COLOR_PAIR(COLOR_GENERAL));
+  for (i = 0; i < maxy; i++) {
+    mvwprintw(rosterWnd, i, 0, "");
+    for (n = 0; n < maxx; n++)
+      waddch(rosterWnd, ' ');
+  }
+
+  // Leave now if buddylist is empty
+  if (!buddylist) {
+    offset = 0;
+    return;
+  }
+
+  // TODO: update offset if necessary
+
+  buddy = buddylist;
+  rOffset = offset;
+
+  for (i=0; i<maxy && buddy; i++, buddy = g_list_next(buddy)) {
+
+    char status = '?';
+    char pending = ' ';
+    enum imstatus budstate;
+
+    if (rOffset > 0) {
+      rOffset--;
+      continue;
+    }
+
+    if (buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_MSG) {
+      pending = '#';
+    }
+
+    budstate = buddy_getstatus(BUDDATA(buddy));
+    if (budstate >= 0 && budstate < imstatus_size)
+      status = imstatus2char[budstate];
+    if (buddy == current_buddy) {
+      wattrset(rosterWnd, COLOR_PAIR(COLOR_BD_DESSEL));
+      // The 3 following lines aim to color the whole line
+      wmove(rosterWnd, i, 0);
+      for (n = 0; n < maxx; n++)
+        waddch(rosterWnd, ' ');
+    } else {
+      wattrset(rosterWnd, COLOR_PAIR(COLOR_BD_DES));
+    }
+
+    strncpy(name, buddy_getname(BUDDATA(buddy)), ROSTER_WIDTH-7);
+    // TODO: status is meaningless for groups:
+    if (buddy_gettype(BUDDATA(buddy)) & ROSTER_TYPE_GROUP) status='G';
+    mvwprintw(rosterWnd, i, 0, " %c[%c] %s", pending, status, name);
+  }
+
+  update_panels();
+  doupdate();
+  update_roster = FALSE;
 }
 
 void scr_WriteMessage(const char *jid, const char *text, char *prefix)
@@ -457,6 +523,28 @@ WINDOW *scr_GetInputWindow(void)
   return inputWnd;
 }
 
+void scr_RosterUp()
+{
+  if (current_buddy) {
+    if (g_list_previous(current_buddy)) {
+      current_buddy = g_list_previous(current_buddy);
+      scr_DrawRoster();
+    }
+  }
+  // XXX We should rebuild the buddylist but perhaps not everytime?
+}
+
+void scr_RosterDown()
+{
+  if (current_buddy) {
+    if (g_list_next(current_buddy)) {
+      current_buddy = g_list_next(current_buddy);
+      scr_DrawRoster();
+    }
+  }
+  // XXX We should rebuild the buddylist but perhaps not everytime?
+}
+
 //  scr_LogPrint(...)
 // Display a message in the log window.
 void scr_LogPrint(const char *fmt, ...)
@@ -480,19 +568,6 @@ void scr_LogPrint(const char *fmt, ...)
 
   update_panels();
   doupdate();
-}
-
-//  scr_IsHiddenMessage(jid)
-// Returns TRUE if there is a hidden message in the window
-// for the jid contact.
-int scr_IsHiddenMessage(const char *jid) {
-  window_entry_t *wintmp;
-
-  wintmp = scr_SearchWindow(jid);
-  if ((wintmp) && (wintmp->hidden_msg))
-    return TRUE;
-
-  return FALSE;
 }
 
 //  check_offset(int direction)
@@ -574,12 +649,12 @@ int process_key(int key)
           inputline_offset = 0;
           break;
       case KEY_UP:
-          bud_RosterUp();
+          scr_RosterUp();
           if (chatmode)
             scr_ShowBuddyWindow();
           break;
       case KEY_DOWN:
-          bud_RosterDown();
+          scr_RosterDown();
           if (chatmode)
             scr_ShowBuddyWindow();
           break;

@@ -21,10 +21,10 @@
 
 #include "commands.h"
 #include "jabglue.h"
+#include "roster.h"
 #include "screen.h"
-#include "utils.h"
-#include "buddies.h"
 #include "utf8.h"
+#include "utils.h"
 
 
 //  send_message(msg)
@@ -33,14 +33,25 @@
 void send_message(char *msg)
 {
   char *buffer;
-  buddy_entry_t *tmp = bud_SelectedInfo();
+  const char *jid;
+      
+  if (!current_buddy) {
+    scr_LogPrint("No buddy currently selected.");
+    return;
+  }
+
+  jid = CURRENT_JID;
+  if (!jid) {
+    scr_LogPrint("No buddy currently selected.");
+    return;
+  }
 
   // UI part
-  scr_WriteOutgoingMessage(tmp->jid, msg);
+  scr_WriteOutgoingMessage(jid, msg);
 
   // Network part
   buffer = utf8_encode(msg);
-  jb_send_msg(tmp->jid, buffer);
+  jb_send_msg(jid, buffer);
   free(buffer);
 }
 

@@ -148,7 +148,7 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
     roster_usr->name  = g_strdup(name);
   } else {
     gchar *p, *str = g_strdup(jid);
-    p = g_strstr(str, "/");
+    p = strstr(str, "/");
     if (p)  *p = '\0';
     roster_usr->name = g_strdup(str);
     g_free(str);
@@ -204,7 +204,7 @@ void roster_setstatus(const char *jid, enum imstatus bstat)
 
 //  roster_setflags()
 // Set one or several flags to value (TRUE/FALSE)
-void roster_setflags(char *jid, guint flags, guint value)
+void roster_setflags(const char *jid, guint flags, guint value)
 {
   GSList *sl_user;
   roster *roster_usr;

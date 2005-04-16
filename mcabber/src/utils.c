@@ -1,17 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
 #include <time.h>
 
 /* Variables globales a UTILS.C */
 static int DebugEnabled;
+static char *FName;
 
 void ut_InitDebug(int level)
 {
-  FILE *fp = fopen("/tmp/mcabberlog", "w");
+  FILE *fp;
+
+  FName = getenv("HOME");
+  if (!FName)
+    FName = "/tmp/mcabberlog";
+  else {
+    char *tmpname = malloc(strlen(FName) + 12);
+    strcpy(tmpname, FName);
+    strcat(tmpname, "/mcabberlog");
+    FName = tmpname;
+  }
 
   DebugEnabled = level;
 
+  fp = fopen(FName, "w");
   if (!fp) return;
   fprintf(fp, "Debugging mode started...\n"
 	  "-----------------------------------\n");
@@ -26,7 +39,7 @@ void ut_WriteLog(const char *fmt, ...)
   char *buffer = NULL;
 
   if (DebugEnabled) {
-    fp = fopen("/tmp/mcabberlog", "a+");
+    fp = fopen(FName, "a+");
     if (!fp) return;
     buffer = (char *) calloc(1, 64);
 

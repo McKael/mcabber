@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 
   sprintf(configFile, "%s/.mcabberrc", getenv("HOME"));
 
-  /* Proceso opciones de usuario */
+  /* Parse command line options */
   while (1) {
     int c = getopt(argc, argv, "hf:");
     if (c == -1) {

@@ -26,12 +26,18 @@ enum findwhat {
 // ROSTER_FLAG_LOCAL   8   // Buddy not on server's roster  (??)
 
 extern GList *buddylist;
+extern GList *current_buddy;
 
-// prototypes...
-GSList *roster_add_group(char *name);
-GSList *roster_add_user(char *jid, char *name, char *group, guint type);
-void    roster_del_user(char *jid);
-void    roster_setstatus(char *jid, enum imstatus bstat);
+// Macros...
+
+#define CURRENT_JID     buddy_getjid(current_buddy->data)
+
+// Prototypes...
+GSList *roster_add_group(const char *name);
+GSList *roster_add_user(const char *jid, const char *name, const char *group,
+        guint type);
+void    roster_del_user(const char *jid);
+void    roster_setstatus(const char *jid, enum imstatus bstat);
 
 void buddylist_hide_offline_buddies(int hide);
 void buddy_hide_group(gpointer rosterdata, int hide);

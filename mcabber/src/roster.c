@@ -27,8 +27,8 @@
 /* This is a private structure type for the roster */
 
 typedef struct {
-  char *name;
-  char *jid;
+  const char *name;
+  const char *jid;
   guint type;
   enum imstatus status;
   guint flags;
@@ -42,6 +42,7 @@ typedef struct {
 static int hide_offline_buddies;
 static GSList *groups;
 GList *buddylist;
+GList *current_buddy;
 
 #ifdef MCABBER_TESTUNIT
 // Export groups for testing routines
@@ -65,7 +66,7 @@ gint roster_compare_name(roster *a, roster *b) {
 
 // Finds a roster element (user, group, agent...), by jid or name
 // Returns the roster GSList element, or NULL if jid/name not found
-GSList *roster_find(char *jidname, enum findwhat type, guint roster_type)
+GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
 {
   GSList *sl_roster_elt = groups;
   GSList *res;
@@ -101,7 +102,7 @@ GSList *roster_find(char *jidname, enum findwhat type, guint roster_type)
 }
 
 // Returns pointer to new group, or existing group with that name
-GSList *roster_add_group(char *name)
+GSList *roster_add_group(const char *name)
 {
   roster *roster_grp;
   // #1 Check name doesn't already exist
@@ -118,7 +119,8 @@ GSList *roster_add_group(char *name)
 }
 
 // Returns a pointer to the new user, or existing user with that name
-GSList *roster_add_user(char *jid, char *name, char *group, guint type)
+GSList *roster_add_user(const char *jid, const char *name, const char *group,
+        guint type)
 {
   roster *roster_usr;
   roster *my_group;
@@ -128,6 +130,9 @@ GSList *roster_add_user(char *jid, char *name, char *group, guint type)
     // XXX Error message?
     return NULL;
   }
+
+  // Let's be arbitrary: default group has an empty name ("").
+  if (!group)  group = "";
 
   // #1 Check this user doesn't already exist
   if ((slist = roster_find(jid, jidsearch, type)) != NULL)
@@ -139,7 +144,15 @@ GSList *roster_add_user(char *jid, char *name, char *group, guint type)
   // #3 Create user node
   roster_usr = g_new0(roster, 1);
   roster_usr->jid   = g_strdup(jid);
-  roster_usr->name  = g_strdup(name);
+  if (name) {
+    roster_usr->name  = g_strdup(name);
+  } else {
+    gchar *p, *str = g_strdup(jid);
+    p = g_strstr(str, "/");
+    if (p)  *p = '\0';
+    roster_usr->name = g_strdup(str);
+    g_free(str);
+  }
   roster_usr->type  = type; //ROSTER_TYPE_USER;
   roster_usr->list  = slist;    // (my_group SList element)
   // #4 Insert node (sorted)
@@ -149,7 +162,7 @@ GSList *roster_add_user(char *jid, char *name, char *group, guint type)
 }
 
 // Removes user (jid) from roster, frees allocated memory
-void roster_del_user(char *jid)
+void roster_del_user(const char *jid)
 {
   GSList *sl_user, *sl_group;
   GSList **sl_group_listptr;
@@ -160,17 +173,24 @@ void roster_del_user(char *jid)
   // Let's free memory (jid, name)
   roster_usr = (roster*)sl_user->data;
   if (roster_usr->jid)
-    g_free(roster_usr->jid);
+    g_free((gchar*)roster_usr->jid);
   if (roster_usr->name)
-    g_free(roster_usr->name);
+    g_free((gchar*)roster_usr->name);
 
   // That's a little complex, we need to dereference twice
   sl_group = ((roster*)sl_user->data)->list;
   sl_group_listptr = &((roster*)(sl_group->data))->list;
   *sl_group_listptr = g_slist_delete_link(*sl_group_listptr, sl_user);
+
+  // We need to rebuild the list
+  if (current_buddy)
+    buddylist_build();
+  // TODO What we should do, too, is to check if the deleted node is
+  // current_buddy, in which case we could move current_buddy to the
+  // previous (or next) node.
 }
 
-void roster_setstatus(char *jid, enum imstatus bstat)
+void roster_setstatus(const char *jid, enum imstatus bstat)
 {
   GSList *sl_user;
   roster *roster_usr;
@@ -182,10 +202,27 @@ void roster_setstatus(char *jid, enum imstatus bstat)
   roster_usr->status = bstat;
 }
 
+//  roster_setflags()
+// Set one or several flags to value (TRUE/FALSE)
+void roster_setflags(char *jid, guint flags, guint value)
+{
+  GSList *sl_user;
+  roster *roster_usr;
+
+  if ((sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER)) == NULL)
+    return;
+
+  roster_usr = (roster*)sl_user->data;
+  if (value)
+    roster_usr->flags |= flags;
+  else
+    roster_usr->flags &= ~flags;
+}
+    
 // char *roster_getgroup(...)   / Or *GSList?  Which use??
 // ... setgroup(char*) ??
 // guint  roster_gettype(...)   / settype
-// guchar roster_getflags(...)  / setflags
+// guchar roster_getflags(...)
 // guchar roster_getname(...)   / setname ??
 // roster_del_group?
 
@@ -258,6 +295,10 @@ void buddylist_build(void)
     }
     sl_roster_elt = g_slist_next(sl_roster_elt);
   }
+
+  // current_buddy initialization
+  if (!current_buddy || (g_list_position(buddylist, current_buddy) == -1))
+    current_buddy = buddylist;
 }
 
 //  buddy_hide_group(roster, hide)

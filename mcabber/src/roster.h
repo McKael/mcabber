@@ -30,7 +30,8 @@ extern GList *current_buddy;
 
 // Macros...
 
-#define CURRENT_JID     buddy_getjid(current_buddy->data)
+#define BUDDATA(glist_node) ((glist_node)->data)
+#define CURRENT_JID         buddy_getjid(BUDDATA(current_buddy))
 
 // Prototypes...
 GSList *roster_add_group(const char *name);
@@ -38,6 +39,7 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
         guint type);
 void    roster_del_user(const char *jid);
 void    roster_setstatus(const char *jid, enum imstatus bstat);
+void    roster_setflags(char *jid, guint flags, guint value);
 
 void buddylist_hide_offline_buddies(int hide);
 void buddy_hide_group(gpointer rosterdata, int hide);

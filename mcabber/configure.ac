@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(mcabber, 0.6.0-dev, bmikael@lists.lilotux.net)
+AC_INIT([mcabber],[0.6.0-dev],[bmikael@lists.lilotux.net])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADER(config.h)
@@ -42,6 +42,9 @@ AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm bzero gethostbyname gethostname inet_ntoa isascii memmove memset modf select setlocale socket strcasecmp strchr strdup strncasecmp strrchr strstr])
+
+# Check for glib
+AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),[g_list_append])
 
 AC_ARG_WITH(ssl, [  --with-ssl              enable SSL secured connections using either OpenSSL
 			  or GnuTLS],

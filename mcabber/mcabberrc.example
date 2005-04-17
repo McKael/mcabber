@@ -1,18 +1,20 @@
-# Sample .mcabberrc file
+# Sample ~/.mcabberrc file
 
 # The jid will be the following: username@server/resource
+# If password is not given, it will be interactively asked for.
+# If port is not given, default Jabber port will be used.
 # Use ssl = 1 to enable SSL
 
 username = yourusername
-password = yourpassword
+#password = yourpassword
 server = your.jabber.server
-port = 5222
+#port = 5222
 resource = yourresource
 ssl = 0
 
 
 #  The colors
-# Note: the following settings may or may not be used currently... :)
+# NOTE: the following settings may or may not be used currently... :)
 
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white
 color_background = blue

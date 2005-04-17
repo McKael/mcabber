@@ -53,10 +53,11 @@ void hbuf_add_line(GList **p_hbuf, const char *text, const char *prefix,
 {
   GList *hbuf = *p_hbuf;
   char *line, *cr, *end;
+  hbuf_block *hbuf_block_elt;
 
   if (!text) return;
 
-  hbuf_block *hbuf_block_elt = g_new0(hbuf_block, 1);
+  hbuf_block_elt = g_new0(hbuf_block, 1);
   if (prefix)
     strncpy(hbuf_block_elt->persist.prefix, prefix, PREFIX_LENGTH-1);
   if (!hbuf) {

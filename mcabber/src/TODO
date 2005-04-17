@@ -1,20 +1,35 @@
 
+BUGS:
+
+* Should not stay on buddy buffer when one moves to a group
 * Pending message not displayed if buddy outside Contact window
-* Hide offline buddies
+
+
+TODO:
+
+* Jabber agents support
+* Display status
+* show (how?) we can scroll in roster if not all buddies are displayed
 
 * Commands! :-)
-  - /say
-  - /add
-  - /del
-  - /rename
-  - /info
-  - /request_auth (??)
-  - /status (and common shortcuts: /away, /online, /busy, /dnd)
-  - /rawxml
+  - /roster <hide_offline|show_offline|top|bottom>
+  - /group <expand|shrink>
+  - /say blabla
+  - /say_to <jid> blabla
+  - /add <jid> [Name]
+  - /del [jid]
+  - /move [\<jid\>] <group>
+  - /rename [\<jid\>] Name
+  - /info [jid]
+  - /request_auth [jid]
+  - /send_auth [jid]
+  - /status [online|avail|invisible|free|dnd|busy|notavail|away]
+    (and common shortcuts: /away, /online, /busy, /dnd)
+  - /rawxml...
 * Command line history (^P/^N)
 * External commands for events
 * Multi-lines
-* Handle window resize (will be hard with current implementation...)
+* Handle window resize
 * Command line completion
 * Scroll back history
 * Save history

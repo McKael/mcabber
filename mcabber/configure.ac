@@ -5,7 +5,7 @@ AC_PREREQ(2.59)
 AC_INIT([mcabber],[0.6.0-dev],[bmikael@lists.lilotux.net])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src])
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 
 AC_PROG_RANLIB
 

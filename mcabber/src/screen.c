@@ -433,12 +433,21 @@ void scr_DrawRoster(void)
     return;
   }
 
-  // TODO: update offset if necessary
+  // Update offset if necessary
+  i = g_list_position(buddylist, current_buddy);
+  if (i == -1) { // This is bad
+    scr_LogPrint("Doh! Can't find current selected buddy!!");
+    return;
+  } else if (i < offset) {
+    offset = i;
+  } else if (i+1 > offset + maxy) {
+    offset = i + 1 - maxy;
+  }
 
   buddy = buddylist;
   rOffset = offset;
 
-  for (i=0; i<maxy && buddy; i++, buddy = g_list_next(buddy)) {
+  for (i=0; i<maxy && buddy; buddy = g_list_next(buddy)) {
 
     char status = '?';
     char pending = ' ';
@@ -470,6 +479,8 @@ void scr_DrawRoster(void)
     // TODO: status is meaningless for groups:
     if (buddy_gettype(BUDDATA(buddy)) & ROSTER_TYPE_GROUP) status='G';
     mvwprintw(rosterWnd, i, 0, " %c[%c] %s", pending, status, name);
+
+    i++;
   }
 
   update_panels();

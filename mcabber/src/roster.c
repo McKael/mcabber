@@ -54,7 +54,7 @@ GSList **pgroups = &groups;
 
 // Comparison function used to search in the roster (compares jids and types)
 gint roster_compare_jid_type(roster *a, roster *b) {
-  if (a->type != b->type)
+  if (! (a->type & b->type))
     return -1; // arbitrary (but should be != , of course)
   return strcasecmp(a->jid, b->jid);
 }
@@ -65,6 +65,7 @@ gint roster_compare_name(roster *a, roster *b) {
 }
 
 // Finds a roster element (user, group, agent...), by jid or name
+// If roster_type is 0, returns match of any type.
 // Returns the roster GSList element, or NULL if jid/name not found
 GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
 {
@@ -75,6 +76,9 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
 
   if (!jidname)
     return NULL;    // should not happen
+
+  if (!roster_type)
+    roster_type = ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_GROUP;
 
   sample.type = roster_type;
   if (type == jidsearch) {
@@ -168,7 +172,8 @@ void roster_del_user(const char *jid)
   GSList **sl_group_listptr;
   roster *roster_usr;
 
-  if ((sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER)) == NULL)
+  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  if (sl_user == NULL)
     return;
   // Let's free memory (jid, name)
   roster_usr = (roster*)sl_user->data;
@@ -195,7 +200,8 @@ void roster_setstatus(const char *jid, enum imstatus bstat)
   GSList *sl_user;
   roster *roster_usr;
 
-  if ((sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER)) == NULL)
+  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  if (sl_user == NULL)
     return;
 
   roster_usr = (roster*)sl_user->data;
@@ -209,7 +215,8 @@ void roster_setflags(const char *jid, guint flags, guint value)
   GSList *sl_user;
   roster *roster_usr;
 
-  if ((sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER)) == NULL)
+  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  if (sl_user == NULL)
     return;
 
   roster_usr = (roster*)sl_user->data;
@@ -219,9 +226,32 @@ void roster_setflags(const char *jid, guint flags, guint value)
     roster_usr->flags &= ~flags;
 }
     
+void roster_settype(const char *jid, guint type)
+{
+  GSList *sl_user;
+  roster *roster_usr;
+
+  if ((sl_user = roster_find(jid, jidsearch, 0)) == NULL)
+    return;
+
+  roster_usr = (roster*)sl_user->data;
+  roster_usr->type = type;
+}
+
+guint roster_gettype(const char *jid)
+{
+  GSList *sl_user;
+  roster *roster_usr;
+
+  if ((sl_user = roster_find(jid, jidsearch, 0)) == NULL)
+    return 0;
+
+  roster_usr = (roster*)sl_user->data;
+  return roster_usr->type;
+}
+
 // char *roster_getgroup(...)   / Or *GSList?  Which use??
 // ... setgroup(char*) ??
-// guint  roster_gettype(...)   / settype
 // guchar roster_getflags(...)
 // guchar roster_getname(...)   / setname ??
 // roster_del_group?

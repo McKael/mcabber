@@ -26,6 +26,7 @@ TODO:
     (and common shortcuts: /away, /online, /busy, /dnd)
   - /rawxml...
   - /search <\<jid\>|name>
+  - /clear
 * Command line history (^P/^N)
 * External commands for events
 * Multi-lines

@@ -7,7 +7,6 @@ BUGS:
 
 TODO:
 
-* Jabber agents support
 * Display status
 * show (how?) we can scroll in roster if not all buddies are displayed
 
@@ -26,6 +25,7 @@ TODO:
   - /status [online|avail|invisible|free|dnd|busy|notavail|away]
     (and common shortcuts: /away, /online, /busy, /dnd)
   - /rawxml...
+  - /search <\<jid\>|name>
 * Command line history (^P/^N)
 * External commands for events
 * Multi-lines
@@ -36,4 +36,6 @@ TODO:
 * Shortcut to jump to next message received (shift-tab?)
 * File transfer? :)
 * Conferences :))
+* Show status changes in buddy window (if open)?  Could be great!
+* Auto away
 

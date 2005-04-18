@@ -398,7 +398,7 @@ void statehandler(jconn conn, int state)
 
 void packethandler(jconn conn, jpacket packet)
 {
-  char *p;
+  char *p, *r;
   xmlnode x, y;
   // string from, type, body, enc, ns, id, u, h, s;
   char *from=NULL, *type=NULL, *body=NULL, *enc=NULL;
@@ -406,7 +406,6 @@ void packethandler(jconn conn, jpacket packet)
   char *id=NULL;
   enum imstatus ust;
   // int npos;
-  // bool isagent;
 
   jpacket_reset(packet);
 
@@ -627,9 +626,13 @@ void packethandler(jconn conn, jpacket packet)
         if (type && !strcmp(type, "unavailable")) {
           ust = offline;
         }
-        // scr_LogPrint("New status: ust=%d (%s)", ust, from);
 
-        roster_setstatus(jidtodisp(from), ust); // XXX memory leak
+        r = jidtodisp(from);
+        if (ust != roster_getstatus(r))
+          scr_LogPrint("Buddy status has changed: [%c>%c] <%s>",
+                  imstatus2char[roster_getstatus(r)], imstatus2char[ust], r);
+        roster_setstatus(r, ust);
+        free(r);
         buddylist_build();
         scr_DrawRoster();
         /*
@@ -644,15 +647,19 @@ void packethandler(jconn conn, jpacket packet)
         if (type) scr_LogPrint("Type=%s", type);
 
         if (!strcmp(type, "subscribe")) {
-          // if (!isagent) {
+          int isagent;
+          r = jidtodisp(from);
+          isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
+          free(r);
+          scr_LogPrint("isagent=%d", isagent); // XXX DBG
+          if (!isagent) {
             scr_LogPrint("<%s> wants to subscribe "
                          "to your network presence updates", from);
-          /*} else {
-            auto_ptr<char> cfrom(strdup(from.c_str()));
-            x = jutil_presnew(JPACKET__SUBSCRIBED, cfrom.get(), 0);
+          } else {
+            x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
             jab_send(jc, x);
             xmlnode_free(x);
-          }*/
+          }
         } else if (!strcmp(type, "unsubscribe")) {
           x = jutil_presnew(JPACKET__UNSUBSCRIBED, from, 0);
           jab_send(jc, x);

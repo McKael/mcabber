@@ -9,6 +9,7 @@
 #include "jabglue.h"
 #include "screen.h"
 #include "parsecfg.h"
+#include "roster.h"
 #include "lang.h"
 #include "utils.h"
 #include "harddefines.h"
@@ -97,7 +98,6 @@ int main(int argc, char **argv)
   signal(SIGTERM, sig_handler);
   signal(SIGALRM, sig_handler);
 
-
   sprintf(configFile, "%s/.mcabberrc", getenv("HOME"));
 
   /* Parse command line options */
@@ -184,6 +184,10 @@ int main(int argc, char **argv)
 
   ut_WriteLog("Entering into main loop...\n\n");
   ut_WriteLog("Ready to send/receive messages...\n");
+
+  if (cfg_read("hide_offline_buddies") &&
+      (atoi(cfg_read("hide_offline_buddies")) > 0))
+    buddylist_hide_offline_buddies(TRUE);
 
   keypad(scr_GetInputWindow(), TRUE);
   while (ret != 255) {

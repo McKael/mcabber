@@ -12,6 +12,9 @@ server = your.jabber.server
 resource = yourresource
 ssl = 0
 
+# Set hide_offline_buddies to 1 to display only connected buddies
+# in the roster.
+#hide_offline_buddies = 0
 
 #  The colors
 # NOTE: the following settings may or may not be used currently... :)

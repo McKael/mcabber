@@ -201,8 +201,9 @@ void roster_setstatus(const char *jid, enum imstatus bstat)
   roster *roster_usr;
 
   sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  // If we can't find it, we add it
   if (sl_user == NULL)
-    return;
+    sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER);
 
   roster_usr = (roster*)sl_user->data;
   roster_usr->status = bstat;

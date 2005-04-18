@@ -78,9 +78,9 @@ int main(int argc, char **argv)
 {
   char configFile[4096];
   char *username, *password, *resource;
-  char *servername;
+  char *servername, *portstring;
   char *jid;
-  char *portstring, *sslstring;
+  char *optstring;
   int key;
   unsigned int port;
   unsigned int ping;
@@ -156,8 +156,8 @@ int main(int argc, char **argv)
   scr_DrawMainWindow();
 
   ssl = 0;
-  sslstring = cfg_read("ssl");
-  if (sslstring && (atoi(sslstring) > 0))
+  optstring = cfg_read("ssl");
+  if (optstring && (atoi(optstring) > 0))
     ssl = 1;
   portstring = cfg_read("port");
   port = (portstring != NULL) ? (unsigned int) atoi(portstring) : 0;
@@ -185,8 +185,8 @@ int main(int argc, char **argv)
   ut_WriteLog("Entering into main loop...\n\n");
   ut_WriteLog("Ready to send/receive messages...\n");
 
-  if (cfg_read("hide_offline_buddies") &&
-      (atoi(cfg_read("hide_offline_buddies")) > 0))
+  optstring = cfg_read("hide_offline_buddies");
+  if (optstring && (atoi(optstring) > 0))
     buddylist_hide_offline_buddies(TRUE);
 
   keypad(scr_GetInputWindow(), TRUE);

@@ -41,6 +41,7 @@ void    roster_del_user(const char *jid);
 void    roster_setstatus(const char *jid, enum imstatus bstat);
 void    roster_setflags(const char *jid, guint flags, guint value);
 void    roster_settype(const char *jid, guint type);
+enum imstatus roster_getstatus(const char *jid);
 guint   roster_gettype(const char *jid);
 
 void buddylist_hide_offline_buddies(int hide);

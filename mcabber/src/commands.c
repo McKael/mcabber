@@ -27,6 +27,15 @@
 #include "utils.h"
 
 
+// Command structure
+typedef struct {
+  char name[32];
+  char *help;       // ?
+  guint completion_flags;
+  void *(*func)();
+} cmd;
+
+
 //  send_message(msg)
 // Write the message in the buddy's window and send the message on
 // the network.

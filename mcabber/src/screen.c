@@ -45,6 +45,7 @@ int update_roster;
 static char inputLine[INPUTLINE_LENGTH+1];
 static char *ptr_inputline;
 static short int inputline_offset;
+static int  completion_started;
 
 
 /* Funciones */
@@ -582,6 +583,109 @@ void scr_LogPrint(const char *fmt, ...)
   doupdate();
 }
 
+//  which_row()
+// Tells which row our cursor is in, in the command line.
+// -1 -> normal text
+//  0 -> command
+//  1 -> parameter 1 (etc.)
+int which_row(void)
+{
+  int row = -1;
+  char *p;
+  int quote = FALSE;
+
+  // Not a command?
+  if ((ptr_inputline == inputLine) || (inputLine[0] != '/'))
+    return -1;
+
+  // This is a command
+  row = 0;
+  for (p = inputLine ; p < ptr_inputline ; p++) {
+    if (quote) {
+      if (*p == '"' && *(p-1) != '\\')
+        quote = FALSE;
+      continue;
+    }
+    if (*p == '"' && *(p-1) != '\\') {
+      quote = TRUE;
+    } else if (*p == ' ' && *(p-1) != ' ')
+      row++;
+  }
+  return row;
+}
+
+void scr_insert_text(const char *text)
+{
+  char tmpLine[INPUTLINE_LENGTH+1];
+  int len = strlen(text);
+  // Check the line isn't too long
+  if (strlen(inputLine) + len >= INPUTLINE_LENGTH) {
+    scr_LogPrint("Cannot insert text, line too long.");
+    return;
+  }
+
+  strcpy(tmpLine, ptr_inputline);
+  strcpy(ptr_inputline, text);    ptr_inputline += len;
+  strcpy(ptr_inputline, tmpLine);
+}
+
+void scr_handle_tab(void)
+{
+  int row;
+  row = which_row();
+
+  if (row == -1) return;    // No completion if no leading slash
+
+  if (row == 0) {   // Command completion
+    if (!completion_started) {
+      GSList *list = compl_get_category_list(COMPL_CMD);
+      if (list) {
+        const char *cchar;
+        char *prefix = g_strndup(&inputLine[1], ptr_inputline-inputLine);
+        new_completion(prefix, list);
+        cchar = complete();
+        if (cchar)
+          scr_insert_text(cchar);
+        g_free(prefix);
+        completion_started = TRUE;
+      }
+    } else {
+      char *c;
+      const char *cchar;
+      guint back = cancel_completion();
+      // Remove $back chars
+      ptr_inputline -= back;
+      c = ptr_inputline;
+      for ( ; *c ; c++)
+        *c = *(c+back);
+      // Now complete again
+      cchar = complete();
+      if (cchar)
+        scr_insert_text(cchar);
+    }
+    return;
+  }
+  scr_LogPrint("I'm unable to complete that yet");
+}
+
+void scr_cancel_current_completion(void)
+{
+  char *c;
+  guint back = cancel_completion();
+  // Remove $back chars
+  ptr_inputline -= back;
+  c = ptr_inputline;
+  for ( ; *c ; c++)
+    *c = *(c+back);
+}
+
+void scr_end_current_completion(void)
+{
+  done_completion();
+  completion_started = FALSE;
+  scr_LogPrint("Freeing completion data");
+}
+
 //  check_offset(int direction)
 // Check inputline_offset value, and make sure the cursor is inside the
 // screen.
@@ -645,8 +749,14 @@ int process_key(int key)
             ptr_inputline++;
             check_offset(1);
           break;
+      case 7:     // Ctrl-g
+          scr_cancel_current_completion();
+          scr_end_current_completion();
+          check_offset(-1);
+          break;
       case 9:     // Tab
-          scr_LogPrint("I'm unable to complete yet");
+          scr_handle_tab();
+          check_offset(0);
           break;
       case '\n':  // Enter
           chatmode = TRUE;
@@ -711,6 +821,8 @@ int process_key(int key)
           scr_LogPrint("Unkown key=%d", key);
     }
   }
+  if (completion_started && key != 9)
+    scr_end_current_completion();
   mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
   wclrtoeol(inputWnd);
   if (*ptr_inputline) {

@@ -79,7 +79,8 @@ void new_completion(char *prefix, GSList *compl_cat)
   for (sl_cat=compl_cat; sl_cat; sl_cat = g_slist_next(sl_cat)) {
     char *word = sl_cat->data;
     if (!strncmp(prefix, word, len)) {
-      c->list = g_slist_append(c->list, g_strdup(word+len)); // TODO sort
+      if (strlen(word) != len)
+        c->list = g_slist_append(c->list, g_strdup(word+len)); // TODO sort
     }
   }
   c->next = c->list;
@@ -89,6 +90,8 @@ void new_completion(char *prefix, GSList *compl_cat)
 //  done_completion();
 void done_completion(void)
 {
+  if (!InputCompl)  return;
+
   // TODO free everything
   g_slist_free(InputCompl->list);
   g_free(InputCompl);
@@ -100,6 +103,7 @@ void done_completion(void)
 //guint cancel_completion(compl *c)
 guint cancel_completion(void)
 {
+  if (!InputCompl)  return 0;
   return InputCompl->len_compl;
 }
 
@@ -108,6 +112,9 @@ const char *complete()
 {
   compl* c = InputCompl;
   char *r;
+
+  if (!InputCompl)  return NULL;
+
   if (!c->next) {
     c->next = c->list;  // back to the beginning
     c->len_compl = 0;

@@ -121,7 +121,7 @@ void send_message(char *msg)
 int process_line(char *line)
 {
   if (*line != '/') {
-    send_message(line);
+    send_message(line); // FIXME: are we talking to a _buddy_?
     return 0;
   }
   if (!strcasecmp(line, "/quit")) {

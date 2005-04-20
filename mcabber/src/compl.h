@@ -10,11 +10,12 @@
 #define COMPL_STATUS    16      // Not implemented yet
 #define COMPL_FILENAME  32      // Not implemented yet
 
-void compl_add_category_word(guint, const char *command);
+void    compl_add_category_word(guint, const char *command);
+GSList *compl_get_category_list(guint cat_flags);
 
-void new_completion(char *prefix, GSList *compl_cat);
-void done_completion(void);
-guint cancel_completion(void);
+void    new_completion(char *prefix, GSList *compl_cat);
+void    done_completion(void);
+guint   cancel_completion(void);
 const char *complete(void);
 
 #endif /* __COMPL_H__ */

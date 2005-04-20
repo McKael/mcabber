@@ -3,7 +3,8 @@
 
 #include <glib.h>
 
-int process_line(char *line);
+void cmd_init(void);
+int  process_line(char *line);
 
 #endif /* __COMMANDS_H__ */
 

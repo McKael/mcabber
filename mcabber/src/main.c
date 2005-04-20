@@ -9,7 +9,8 @@
 #include "jabglue.h"
 #include "screen.h"
 #include "parsecfg.h"
-#include "roster.h"
+//#include "roster.h"
+#include "commands.h"
 #include "lang.h"
 #include "utils.h"
 #include "harddefines.h"
@@ -188,6 +189,9 @@ int main(int argc, char **argv)
   optstring = cfg_read("hide_offline_buddies");
   if (optstring && (atoi(optstring) > 0))
     buddylist_hide_offline_buddies(TRUE);
+
+  /* Initialize commands system */
+  cmd_init();
 
   keypad(scr_GetInputWindow(), TRUE);
   while (ret != 255) {

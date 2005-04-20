@@ -60,8 +60,6 @@ void cmd_add(const char *name, const char *help,
 // ...
 void cmd_init(void)
 {
-  guint cflags[4];
-
   //cmd_add("add");
   //cmd_add("clear");
   //cmd_add("del");

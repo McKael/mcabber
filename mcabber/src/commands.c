@@ -19,10 +19,13 @@
  * USA
  */
 
+#include <string.h>
+
 #include "commands.h"
 #include "jabglue.h"
 #include "roster.h"
 #include "screen.h"
+#include "compl.h"
 #include "utf8.h"
 #include "utils.h"
 
@@ -30,11 +33,60 @@
 // Command structure
 typedef struct {
   char name[32];
-  char *help;       // ?
-  guint completion_flags;
+  const char *help;
+  guint completion_flags[2];
   void *(*func)();
 } cmd;
 
+static GSList *Commands;
+
+//  cmd_add()
+// Adds a command to the commands list and to the CMD completion list
+void cmd_add(const char *name, const char *help,
+        guint flags_row1, guint flags_row2, void *(*f)())
+{
+  cmd *n_cmd = g_new0(cmd, 1);
+  strncpy(n_cmd->name, name, 32-1);
+  n_cmd->help = help;
+  n_cmd->completion_flags[0] = flags_row1;
+  n_cmd->completion_flags[1] = flags_row2;
+  n_cmd->func = f;
+  g_slist_append(Commands, n_cmd);
+  // Add to completion CMD category
+  compl_add_category_word(COMPL_CMD, name);
+}
+
+//  cmd_init()
+// ...
+void cmd_init(void)
+{
+  guint cflags[4];
+
+  //cmd_add("add");
+  //cmd_add("clear");
+  //cmd_add("del");
+  //cmd_add("group");
+  //cmd_add("info");
+  //cmd_add("move");
+  //cmd_add("nick");
+  cmd_add("quit", "Exit the software", 0, 0, NULL);
+  //cmd_add("rename");
+  //cmd_add("request_auth");
+  cmd_add("say", "Say something to the selected buddy", 0, 0, NULL);
+  //cmd_add("search");
+  //cmd_add("send_auth");
+  cmd_add("status", "Show or set your status", COMPL_STATUS, 0, NULL);
+
+  // Status category
+  compl_add_category_word(COMPL_STATUS, "online");
+  compl_add_category_word(COMPL_STATUS, "avail");
+  compl_add_category_word(COMPL_STATUS, "invisible");
+  compl_add_category_word(COMPL_STATUS, "free");
+  compl_add_category_word(COMPL_STATUS, "dnd");
+  compl_add_category_word(COMPL_STATUS, "busy");
+  compl_add_category_word(COMPL_STATUS, "notavail");
+  compl_add_category_word(COMPL_STATUS, "away");
+}
 
 //  send_message(msg)
 // Write the message in the buddy's window and send the message on

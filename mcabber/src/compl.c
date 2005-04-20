@@ -122,9 +122,9 @@ const char *complete()
 
 /* Categories functions */
 
-//  compl_add_category_command(categ, command)
-// Adds command as a possible completion in category categ.
-void compl_add_category_command(guint categ, char *command)
+//  compl_add_category_word(categ, command)
+// Adds a keyword as a possible completion in category categ.
+void compl_add_category_word(guint categ, const char *word)
 {
   GSList *sl_cat;
   category *cat;
@@ -141,9 +141,11 @@ void compl_add_category_command(guint categ, char *command)
     cat = (category*)sl_cat->data;
 
   // TODO Check word does not already exist
-  cat->words = g_slist_append(cat->words, g_strdup(command)); // TODO sort
+  cat->words = g_slist_append(cat->words, g_strdup(word)); // TODO sort
 }
 
+//  compl_get_category_list()
+// Returns a slist of all words in the categories specified by the given flags
 GSList *compl_get_category_list(guint cat_flags)
 {
   GSList *sl_cat;
@@ -198,36 +200,5 @@ void test_comp(guint cat_flags, char *prefix)
     printf("Back: %d\n", back);
     done_completion();
   }
-}
-
-int main()
-{
-  compl_add_category_command(COMPL_CMD, "add");
-  compl_add_category_command(COMPL_CMD, "clear");
-  compl_add_category_command(COMPL_CMD, "del");
-  compl_add_category_command(COMPL_CMD, "group");
-  compl_add_category_command(COMPL_CMD, "info");
-  compl_add_category_command(COMPL_CMD, "move");
-  compl_add_category_command(COMPL_CMD, "rename");
-  compl_add_category_command(COMPL_CMD, "request_auth");
-  compl_add_category_command(COMPL_CMD, "say");
-  compl_add_category_command(COMPL_CMD, "search");
-  compl_add_category_command(COMPL_CMD, "send_auth");
-  compl_add_category_command(COMPL_CMD, "status");
-  compl_add_category_command(COMPL_STATUS, "online");
-  compl_add_category_command(COMPL_STATUS, "avail");
-  compl_add_category_command(COMPL_STATUS, "invisible");
-  compl_add_category_command(COMPL_STATUS, "free");
-  compl_add_category_command(COMPL_STATUS, "dnd");
-  compl_add_category_command(COMPL_STATUS, "busy");
-  compl_add_category_command(COMPL_STATUS, "notavail");
-  compl_add_category_command(COMPL_STATUS, "away");
-
-  //test_dump_categories();
-
-  test_comp(COMPL_STATUS, "d");
-  test_comp(COMPL_CMD, "s");
-
-  return 0;
 }
 */

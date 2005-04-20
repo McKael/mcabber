@@ -10,6 +10,7 @@
 #include "screen.h"
 #include "hbuf.h"
 #include "commands.h"
+#include "compl.h"
 #include "roster.h"
 #include "parsecfg.h"
 #include "lang.h"

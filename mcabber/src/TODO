@@ -18,6 +18,7 @@ TODO:
   - /add <jid> [Name]
   - /del [jid]
   - /move [\<jid\>] <group>
+  - /nick (== rename <me> $@)
   - /rename [\<jid\>] Name
   - /info [jid]
   - /request_auth [jid]

@@ -535,6 +535,22 @@ WINDOW *scr_GetInputWindow(void)
   return inputWnd;
 }
 
+void scr_RosterTop()
+{
+  current_buddy = buddylist;
+  // XXX We should rebuild the buddylist but perhaps not everytime?
+  if (chatmode)
+    scr_ShowBuddyWindow();
+}
+
+void scr_RosterBottom()
+{
+  current_buddy = g_list_last(buddylist);
+  // XXX We should rebuild the buddylist but perhaps not everytime?
+  if (chatmode)
+    scr_ShowBuddyWindow();
+}
+
 void scr_RosterUp()
 {
   if (current_buddy) {
@@ -544,6 +560,9 @@ void scr_RosterUp()
     }
   }
   // XXX We should rebuild the buddylist but perhaps not everytime?
+
+  if (chatmode)
+    scr_ShowBuddyWindow();
 }
 
 void scr_RosterDown()
@@ -555,6 +574,9 @@ void scr_RosterDown()
     }
   }
   // XXX We should rebuild the buddylist but perhaps not everytime?
+
+  if (chatmode)
+    scr_ShowBuddyWindow();
 }
 
 //  scr_LogPrint(...)
@@ -787,13 +809,9 @@ int process_key(int key)
           break;
       case KEY_UP:
           scr_RosterUp();
-          if (chatmode)
-            scr_ShowBuddyWindow();
           break;
       case KEY_DOWN:
           scr_RosterDown();
-          if (chatmode)
-            scr_ShowBuddyWindow();
           break;
       case KEY_PPAGE:
           scr_LogPrint("PageUp??");

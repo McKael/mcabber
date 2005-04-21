@@ -29,13 +29,17 @@
 #include "utf8.h"
 #include "utils.h"
 
+// Commands callbacks
+void do_roster(char *arg);
 
+// Global variable for the commands list
 static GSList *Commands;
+
 
 //  cmd_add()
 // Adds a command to the commands list and to the CMD completion list
 void cmd_add(const char *name, const char *help,
-        guint flags_row1, guint flags_row2, void *(*f)())
+        guint flags_row1, guint flags_row2, void (*f)())
 {
   cmd *n_cmd = g_new0(cmd, 1);
   strncpy(n_cmd->name, name, 32-1);
@@ -62,7 +66,7 @@ void cmd_init(void)
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   //cmd_add("rename");
   //cmd_add("request_auth");
-  cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0, NULL);
+  cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0, &do_roster);
   cmd_add("say", "Say something to the selected buddy", 0, 0, NULL);
   //cmd_add("search");
   //cmd_add("send_auth");
@@ -149,6 +153,8 @@ void send_message(char *msg)
 int process_line(char *line)
 {
   char *p;
+  cmd *curcmd;
+
   if (*line != '/') {
     send_message(line); // FIXME: are we talking to a _buddy_?
     return 0;
@@ -165,11 +171,49 @@ int process_line(char *line)
   if (!strcasecmp(line, "/quit")) {
     return 255;
   }
-  // Commands handling
-  // TODO
-  // say, send_raw...
 
-  scr_LogPrint("Unrecognised command, sorry.");
+  // Commands handling
+  curcmd = cmd_get(line);
+
+  if (!curcmd) {
+    scr_LogPrint("Unrecognized command, sorry.");
+    return 0;
+  }
+  if (!curcmd->func) {
+    scr_LogPrint("Not yet implemented, sorry.");
+    return 0;
+  }
+  // Lets go to the command parameters
+  for (line++; *line && (*line != ' ') ; line++)
+    ;
+  // Skip spaces
+  while (*line && (*line == ' '))
+    line++;
+  // Call command-specific function
+  (*curcmd->func)(line);
   return 0;
 }
 
+/* Commands callback functions */
+
+void do_roster(char *arg)
+{
+  if (!strcasecmp(arg, "top")) {
+    scr_RosterTop();
+    scr_DrawRoster();
+  } else if (!strcasecmp(arg, "bottom")) {
+    scr_RosterBottom();
+    scr_DrawRoster();
+  } else if (!strcasecmp(arg, "hide_offline")) {
+    buddylist_hide_offline_buddies(TRUE);
+    if (current_buddy)
+      buddylist_build();
+    scr_DrawRoster();
+  } else if (!strcasecmp(arg, "show_offline")) {
+    buddylist_hide_offline_buddies(FALSE);
+    if (current_buddy)
+      buddylist_build();
+    scr_DrawRoster();
+  } else
+    scr_LogPrint("Unrecognized parameter!");
+}

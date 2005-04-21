@@ -78,7 +78,7 @@ void new_completion(char *prefix, GSList *compl_cat)
   // Build the list of matches
   for (sl_cat=compl_cat; sl_cat; sl_cat = g_slist_next(sl_cat)) {
     char *word = sl_cat->data;
-    if (!strncmp(prefix, word, len)) {
+    if (!strncasecmp(prefix, word, len)) {
       if (strlen(word) != len)
         c->list = g_slist_append(c->list, g_strdup(word+len)); // TODO sort
     }

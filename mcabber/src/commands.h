@@ -8,7 +8,7 @@ typedef struct {
   char name[32];
   const char *help;
   guint completion_flags[2];
-  void *(*func)();
+  void (*func)();
 } cmd;
 
 void cmd_init(void);

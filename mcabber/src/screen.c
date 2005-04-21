@@ -636,8 +636,8 @@ void scr_handle_tab(void)
   if (row == -1) return;    // No completion if no leading slash
 
   if (row == 0) {   // Command completion
+    const char *cchar;
     if (!completion_started) {
-      const char *cchar;
       GSList *list = compl_get_category_list(COMPL_CMD);
       if (list) {
         char *prefix = g_strndup(&inputLine[1], ptr_inputline-inputLine-1);

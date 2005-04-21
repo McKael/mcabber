@@ -120,10 +120,20 @@ void send_message(char *msg)
 // currently selected buddy.
 int process_line(char *line)
 {
+  char *p;
   if (*line != '/') {
     send_message(line); // FIXME: are we talking to a _buddy_?
     return 0;
   }
+
+  /* It is a command */
+  // Remove trailing spaces:
+  for (p=line ; *p ; p++)
+    ;
+  for (p-- ; p>line && (*p == ' ') ; p--)
+    *p = 0;
+
+  // Command "quit"?
   if (!strcasecmp(line, "/quit")) {
     return 255;
   }

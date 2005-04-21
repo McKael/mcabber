@@ -31,7 +31,6 @@ typedef struct _window_entry_t {
 } window_entry_t;
 
 
-/* Variables globales a SCREEN.C */
 static WINDOW *rosterWnd, *chatWnd, *inputWnd;
 static WINDOW *logWnd, *logWnd_border;
 static PANEL *rosterPanel, *chatPanel, *inputPanel;
@@ -48,7 +47,7 @@ static short int inputline_offset;
 static int  completion_started;
 
 
-/* Funciones */
+/* Functions */
 
 int scr_WindowWidth(WINDOW * win)
 {
@@ -641,7 +640,7 @@ void scr_handle_tab(void)
       GSList *list = compl_get_category_list(COMPL_CMD);
       if (list) {
         const char *cchar;
-        char *prefix = g_strndup(&inputLine[1], ptr_inputline-inputLine);
+        char *prefix = g_strndup(&inputLine[1], ptr_inputline-inputLine-1);
         new_completion(prefix, list);
         cchar = complete();
         if (cchar)

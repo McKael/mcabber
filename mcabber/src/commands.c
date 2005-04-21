@@ -30,14 +30,6 @@
 #include "utils.h"
 
 
-// Command structure
-typedef struct {
-  char name[32];
-  const char *help;
-  guint completion_flags[2];
-  void *(*func)();
-} cmd;
-
 static GSList *Commands;
 
 //  cmd_add()
@@ -51,7 +43,7 @@ void cmd_add(const char *name, const char *help,
   n_cmd->completion_flags[0] = flags_row1;
   n_cmd->completion_flags[1] = flags_row2;
   n_cmd->func = f;
-  g_slist_append(Commands, n_cmd);
+  Commands = g_slist_append(Commands, n_cmd);
   // Add to completion CMD category
   compl_add_category_word(COMPL_CMD, name);
 }
@@ -84,6 +76,35 @@ void cmd_init(void)
   compl_add_category_word(COMPL_STATUS, "busy");
   compl_add_category_word(COMPL_STATUS, "notavail");
   compl_add_category_word(COMPL_STATUS, "away");
+}
+
+//  cmd_get
+// Finds command in the command list structure.
+// Returns a pointer to the cmd entry, or NULL if command not found.
+cmd *cmd_get(char *command)
+{
+  char *p1, *p2;
+  char *com;
+  GSList *sl_com;
+  // Ignore leading '/'
+  for (p1 = command ; *p1 == '/' ; p1++)
+    ;
+  // Locate the end of the command
+  for (p2 = p1 ; *p2 && (*p2 != ' ') ; p2++)
+    ;
+  // Copy the clean command
+  com = g_strndup(p1, p2-p1);
+
+  // Look for command in the list
+  for (sl_com=Commands; sl_com; sl_com = g_slist_next(sl_com)) {
+    if (!strcasecmp(com, ((cmd*)sl_com->data)->name))
+      break;
+  }
+  g_free(com);
+
+  if (sl_com)       // Command has been found.
+    return (cmd*)sl_com->data;
+  return NULL;
 }
 
 //  send_message(msg)

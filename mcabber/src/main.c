@@ -9,7 +9,7 @@
 #include "jabglue.h"
 #include "screen.h"
 #include "parsecfg.h"
-//#include "roster.h"
+#include "roster.h"
 #include "commands.h"
 #include "lang.h"
 #include "utils.h"

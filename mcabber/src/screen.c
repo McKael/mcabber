@@ -587,7 +587,8 @@ void scr_LogPrint(const char *fmt, ...)
 // -1 -> normal text
 //  0 -> command
 //  1 -> parameter 1 (etc.)
-int which_row(void)
+//  If > 0, then *p_row is set to the beginning of the row
+int which_row(char **p_row)
 {
   int row = -1;
   char *p;
@@ -607,8 +608,10 @@ int which_row(void)
     }
     if (*p == '"' && *(p-1) != '\\') {
       quote = TRUE;
-    } else if (*p == ' ' && *(p-1) != ' ')
+    } else if (*p == ' ' && *(p-1) != ' ') {
       row++;
+      *p_row = p+1;
+    }
   }
   return row;
 }
@@ -630,13 +633,16 @@ void scr_insert_text(const char *text)
 
 void scr_handle_tab(void)
 {
-  int row;
-  row = which_row();
+  int nrow;
+  cmd *com;
+  char *row;
+  const char *cchar;
 
-  if (row == -1) return;    // No completion if no leading slash
+  nrow = which_row(&row);
 
-  if (row == 0) {   // Command completion
-    const char *cchar;
+  if (nrow == -1) return;   // No completion if no leading slash
+
+  if (nrow == 0) {          // Command completion
     if (!completion_started) {
       GSList *list = compl_get_category_list(COMPL_CMD);
       if (list) {
@@ -650,7 +656,7 @@ void scr_handle_tab(void)
           scr_insert_text(cchar);
         completion_started = TRUE;
       }
-    } else {
+    } else {    // Completion already initialized
       char *c;
       guint back = cancel_completion();
       // Remove $back chars
@@ -667,7 +673,45 @@ void scr_handle_tab(void)
   }
 
   // Other completion, depending on the command
-  scr_LogPrint("I'm unable to complete that yet");
+  com = cmd_get(inputLine);
+  if (!com) {
+    scr_LogPrint("I cannot complete for this command");
+    return;
+  }
+  // Now we have the command and the column.
+  scr_LogPrint("CMD_FLAGR1=%d COL=%d row=[%s]", com->completion_flags[0], nrow, row);
+
+  // We can't have more than 2 parameters (we use 2 flags)
+  if (nrow > 2)
+    return;
+
+  // Dirty copy & paste
+    if (!completion_started) {
+      GSList *list = compl_get_category_list(com->completion_flags[nrow-1]);
+      if (list) {
+        char *prefix = g_strndup(row, ptr_inputline-row);
+        // Init completion
+        new_completion(prefix, list);
+        g_free(prefix);
+        // Now complete
+        cchar = complete();
+        if (cchar)
+          scr_insert_text(cchar);
+        completion_started = TRUE;
+      }
+    } else {    // Completion already initialized
+      char *c;
+      guint back = cancel_completion();
+      // Remove $back chars
+      ptr_inputline -= back;
+      c = ptr_inputline;
+      for ( ; *c ; c++)
+        *c = *(c+back);
+      // Now complete again
+      cchar = complete();
+      if (cchar)
+        scr_insert_text(cchar);
+    }
 }
 
 void scr_cancel_current_completion(void)

@@ -3,8 +3,6 @@ BUGS:
 
 * Should not stay on buddy buffer when one moves to a group
 * Pending message not displayed if buddy outside Contact window
-* Command not recognised if there is a trailing space! ("/quit ")
-* Completion is buggy when we're not at the EOL...
 
 
 TODO:
@@ -34,7 +32,6 @@ TODO:
 * External commands for events
 * Multi-lines
 * Handle window resize
-* Command line completion
 * Scroll back history
 * Save history
 * Shortcut to jump to next message received (shift-tab?)

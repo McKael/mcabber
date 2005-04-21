@@ -634,84 +634,54 @@ void scr_insert_text(const char *text)
 void scr_handle_tab(void)
 {
   int nrow;
-  cmd *com;
   char *row;
   const char *cchar;
+  guint compl_categ;
 
   nrow = which_row(&row);
 
-  if (nrow == -1) return;   // No completion if no leading slash
+  // a) No completion if no leading slash ('cause not a command)
+  // b) We can't have more than 2 parameters (we use 2 flags)
+  if (nrow < 0 || nrow > 2) return;
 
-  if (nrow == 0) {          // Command completion
-    if (!completion_started) {
-      GSList *list = compl_get_category_list(COMPL_CMD);
-      if (list) {
-        char *prefix = g_strndup(&inputLine[1], ptr_inputline-inputLine-1);
-        // Init completion
-        new_completion(prefix, list);
-        g_free(prefix);
-        // Now complete
-        cchar = complete();
-        if (cchar)
-          scr_insert_text(cchar);
-        completion_started = TRUE;
-      }
-    } else {    // Completion already initialized
-      char *c;
-      guint back = cancel_completion();
-      // Remove $back chars
-      ptr_inputline -= back;
-      c = ptr_inputline;
-      for ( ; *c ; c++)
-        *c = *(c+back);
-      // Now complete again
+  if (nrow == 0) {      // Command completion
+    row = &inputLine[1];
+    compl_categ = COMPL_CMD;
+  } else {              // Other completion, depending on the command
+    cmd *com = cmd_get(inputLine);
+    if (!com || !row) {
+      scr_LogPrint("I cannot complete that...");
+      return;
+    }
+    compl_categ = com->completion_flags[nrow-1];
+  }
+
+  if (!completion_started) {
+    GSList *list = compl_get_category_list(compl_categ);
+    if (list) {
+      char *prefix = g_strndup(row, ptr_inputline-row);
+      // Init completion
+      new_completion(prefix, list);
+      g_free(prefix);
+      // Now complete
       cchar = complete();
       if (cchar)
         scr_insert_text(cchar);
+      completion_started = TRUE;
     }
-    return;
+  } else {      // Completion already initialized
+    char *c;
+    guint back = cancel_completion();
+    // Remove $back chars
+    ptr_inputline -= back;
+    c = ptr_inputline;
+    for ( ; *c ; c++)
+      *c = *(c+back);
+    // Now complete again
+    cchar = complete();
+    if (cchar)
+      scr_insert_text(cchar);
   }
-
-  // Other completion, depending on the command
-  com = cmd_get(inputLine);
-  if (!com) {
-    scr_LogPrint("I cannot complete for this command");
-    return;
-  }
-  // Now we have the command and the column.
-  scr_LogPrint("CMD_FLAGR1=%d COL=%d row=[%s]", com->completion_flags[0], nrow, row);
-
-  // We can't have more than 2 parameters (we use 2 flags)
-  if (nrow > 2)
-    return;
-
-  // Dirty copy & paste
-    if (!completion_started) {
-      GSList *list = compl_get_category_list(com->completion_flags[nrow-1]);
-      if (list) {
-        char *prefix = g_strndup(row, ptr_inputline-row);
-        // Init completion
-        new_completion(prefix, list);
-        g_free(prefix);
-        // Now complete
-        cchar = complete();
-        if (cchar)
-          scr_insert_text(cchar);
-        completion_started = TRUE;
-      }
-    } else {    // Completion already initialized
-      char *c;
-      guint back = cancel_completion();
-      // Remove $back chars
-      ptr_inputline -= back;
-      c = ptr_inputline;
-      for ( ; *c ; c++)
-        *c = *(c+back);
-      // Now complete again
-      cchar = complete();
-      if (cchar)
-        scr_insert_text(cchar);
-    }
 }
 
 void scr_cancel_current_completion(void)

@@ -62,6 +62,7 @@ void cmd_init(void)
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   //cmd_add("rename");
   //cmd_add("request_auth");
+  cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0, NULL);
   cmd_add("say", "Say something to the selected buddy", 0, 0, NULL);
   //cmd_add("search");
   //cmd_add("send_auth");
@@ -76,6 +77,12 @@ void cmd_init(void)
   compl_add_category_word(COMPL_STATUS, "busy");
   compl_add_category_word(COMPL_STATUS, "notavail");
   compl_add_category_word(COMPL_STATUS, "away");
+
+  // Roster category
+  compl_add_category_word(COMPL_ROSTER, "bottom");
+  compl_add_category_word(COMPL_ROSTER, "hide_offline");
+  compl_add_category_word(COMPL_ROSTER, "show_offline");
+  compl_add_category_word(COMPL_ROSTER, "top");
 }
 
 //  cmd_get

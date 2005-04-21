@@ -637,20 +637,21 @@ void scr_handle_tab(void)
 
   if (row == 0) {   // Command completion
     if (!completion_started) {
+      const char *cchar;
       GSList *list = compl_get_category_list(COMPL_CMD);
       if (list) {
-        const char *cchar;
         char *prefix = g_strndup(&inputLine[1], ptr_inputline-inputLine-1);
+        // Init completion
         new_completion(prefix, list);
+        g_free(prefix);
+        // Now complete
         cchar = complete();
         if (cchar)
           scr_insert_text(cchar);
-        g_free(prefix);
         completion_started = TRUE;
       }
     } else {
       char *c;
-      const char *cchar;
       guint back = cancel_completion();
       // Remove $back chars
       ptr_inputline -= back;
@@ -664,6 +665,8 @@ void scr_handle_tab(void)
     }
     return;
   }
+
+  // Other completion, depending on the command
   scr_LogPrint("I'm unable to complete that yet");
 }
 
@@ -682,7 +685,6 @@ void scr_end_current_completion(void)
 {
   done_completion();
   completion_started = FALSE;
-  scr_LogPrint("Freeing completion data");
 }
 
 //  check_offset(int direction)

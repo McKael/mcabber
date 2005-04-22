@@ -3,7 +3,9 @@
 
 #include <glib.h>
 
-#define HBB_BLOCKSIZE   1024    // > 20 please
+// With current implementation a message must fit in a hbuf block,
+// so we shouldn't choose a too small size.
+#define HBB_BLOCKSIZE   2048    // > 20 please
 
 // Flags:
 // - ALLOC: the ptr data has been allocated, it can be freed

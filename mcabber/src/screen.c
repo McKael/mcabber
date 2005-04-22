@@ -27,6 +27,7 @@ typedef struct _window_entry_t {
   PANEL *panel;
   char *name;
   GList *hbuf;
+  GList *top; // If top is not specified (NULL), we'll display the last lines
   struct list_head list;
 } window_entry_t;
 
@@ -225,12 +226,24 @@ void scr_UpdateWindow(window_entry_t *win_entry)
   char **lines;
   GList *hbuf_head;
 
+  // win_entry->top is the top message of the screen.  If it set to NULL, we
+  // are displaying the last messages.
+
   // We will show the last CHAT_WIN_HEIGHT lines.
   // Let's find out where it begins.
-  win_entry->hbuf = g_list_last(win_entry->hbuf);
-  hbuf_head = win_entry->hbuf;
-  for (n=0; hbuf_head && n<(CHAT_WIN_HEIGHT-1) && g_list_previous(hbuf_head); n++)
-    hbuf_head = g_list_previous(hbuf_head);
+  if (!win_entry->top ||
+      (g_list_position(g_list_first(win_entry->hbuf), win_entry->top) == -1)) {
+    // Move up CHAT_WIN_HEIGHT lines
+    win_entry->hbuf = g_list_last(win_entry->hbuf);
+    hbuf_head = win_entry->hbuf;
+    win_entry->top = NULL; // (Just to make sure)
+    n = 0;
+    while (hbuf_head && (n < CHAT_WIN_HEIGHT-1) && g_list_previous(hbuf_head)) {
+      hbuf_head = g_list_previous(hbuf_head);
+      n++;
+    }
+  } else
+    hbuf_head = win_entry->top;
 
   // Get the last CHAT_WIN_HEIGHT lines.
   lines = hbuf_get_lines(hbuf_head, CHAT_WIN_HEIGHT);
@@ -270,7 +283,7 @@ void scr_ShowWindow(const char *winId)
     roster_setflags(winId, ROSTER_FLAG_MSG, FALSE);
     update_roster = TRUE;
 
-    // Refresh the window entry
+    // Refresh the window
     scr_UpdateWindow(win_entry);
 
     // Finished :)
@@ -284,9 +297,13 @@ void scr_ShowWindow(const char *winId)
 
 void scr_ShowBuddyWindow(void)
 {
-  const gchar *jid = CURRENT_JID;
-  if (jid != NULL)
-    scr_ShowWindow(jid);
+  const gchar *jid;
+  if (!current_buddy)
+    return;
+  jid = CURRENT_JID;
+  if (!jid)
+    return;
+  scr_ShowWindow(jid);
   top_panel(inputPanel);
 }
 
@@ -535,7 +552,7 @@ WINDOW *scr_GetInputWindow(void)
   return inputWnd;
 }
 
-void scr_RosterTop()
+void scr_RosterTop(void)
 {
   current_buddy = buddylist;
   // XXX We should rebuild the buddylist but perhaps not everytime?
@@ -543,7 +560,7 @@ void scr_RosterTop()
     scr_ShowBuddyWindow();
 }
 
-void scr_RosterBottom()
+void scr_RosterBottom(void)
 {
   current_buddy = g_list_last(buddylist);
   // XXX We should rebuild the buddylist but perhaps not everytime?
@@ -551,7 +568,7 @@ void scr_RosterBottom()
     scr_ShowBuddyWindow();
 }
 
-void scr_RosterUp()
+void scr_RosterUp(void)
 {
   if (current_buddy) {
     if (g_list_previous(current_buddy)) {
@@ -565,7 +582,7 @@ void scr_RosterUp()
     scr_ShowBuddyWindow();
 }
 
-void scr_RosterDown()
+void scr_RosterDown(void)
 {
   if (current_buddy) {
     if (g_list_next(current_buddy)) {
@@ -577,6 +594,84 @@ void scr_RosterDown()
 
   if (chatmode)
     scr_ShowBuddyWindow();
+}
+
+void scr_ScrollUp(void)
+{
+  const gchar *jid;
+  window_entry_t *win_entry;
+  int n, nblines;
+  GList *hbuf_top;
+
+  // Get win_entry
+  if (!current_buddy)
+    return;
+  jid = CURRENT_JID;
+  if (!jid)
+    return;
+  win_entry  = scr_SearchWindow(jid);
+  if (!win_entry)
+    return;
+
+  // Scroll up half a screen (or less)
+  nblines = CHAT_WIN_HEIGHT/2-1;
+  hbuf_top = win_entry->top;
+  if (!hbuf_top) {
+    hbuf_top = g_list_last(win_entry->hbuf);
+    nblines *= 3;
+  }
+
+  n = 0;
+  while (hbuf_top && n < nblines && g_list_previous(hbuf_top)) {
+    hbuf_top = g_list_previous(hbuf_top);
+    n++;
+  }
+  win_entry->top = hbuf_top;
+
+  // Refresh the window
+  scr_UpdateWindow(win_entry);
+
+  // Finished :)
+  update_panels();
+  doupdate();
+}
+
+void scr_ScrollDown(void)
+{
+  const gchar *jid;
+  window_entry_t *win_entry;
+  int n, nblines;
+  GList *hbuf_top;
+
+  // Get win_entry
+  if (!current_buddy)
+    return;
+  jid = CURRENT_JID;
+  if (!jid)
+    return;
+  win_entry  = scr_SearchWindow(jid);
+  if (!win_entry)
+    return;
+
+  // Scroll down half a screen (or less)
+  nblines = CHAT_WIN_HEIGHT/2-1;
+  hbuf_top = win_entry->top;
+
+  for (n=0 ; hbuf_top && n < nblines ; n++)
+    hbuf_top = g_list_next(hbuf_top);
+  win_entry->top = hbuf_top;
+  // Check if we are at the bottom
+  for (n=0 ; hbuf_top && n < CHAT_WIN_HEIGHT-1 ; n++)
+    hbuf_top = g_list_next(hbuf_top);
+  if (!hbuf_top)
+    win_entry->top = NULL; // End reached
+
+  // Refresh the window
+  scr_UpdateWindow(win_entry);
+
+  // Finished :)
+  update_panels();
+  doupdate();
 }
 
 //  scr_LogPrint(...)
@@ -814,10 +909,10 @@ int process_key(int key)
           scr_RosterDown();
           break;
       case KEY_PPAGE:
-          scr_LogPrint("PageUp??");
+          scr_ScrollUp();
           break;
       case KEY_NPAGE:
-          scr_LogPrint("PageDown??");
+          scr_ScrollDown();
           break;
       case KEY_HOME:
       case 1:

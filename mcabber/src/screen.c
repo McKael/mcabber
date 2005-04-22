@@ -24,10 +24,11 @@ LIST_HEAD(window_list);
 
 typedef struct _window_entry_t {
   WINDOW *win;
-  PANEL *panel;
-  char *name;
-  GList *hbuf;
-  GList *top; // If top is not specified (NULL), we'll display the last lines
+  PANEL  *panel;
+  char   *name;
+  GList  *hbuf;
+  GList  *top; // If top is not specified (NULL), we'll display the last lines
+  char    cleared; // For ex, user has issued a /clear command...
   struct list_head list;
 } window_entry_t;
 
@@ -226,6 +227,14 @@ void scr_UpdateWindow(window_entry_t *win_entry)
   char **lines;
   GList *hbuf_head;
 
+  width = scr_WindowWidth(win_entry->win);
+
+  // Should the window be empty?
+  if (win_entry->cleared) {
+    scr_clear_box(win_entry->win, 0, 0, CHAT_WIN_HEIGHT, width, COLOR_GENERAL);
+    return;
+  }
+
   // win_entry->top is the top message of the screen.  If it set to NULL, we
   // are displaying the last messages.
 
@@ -249,7 +258,6 @@ void scr_UpdateWindow(window_entry_t *win_entry)
   lines = hbuf_get_lines(hbuf_head, CHAT_WIN_HEIGHT);
 
   // Display these lines
-  width = scr_WindowWidth(win_entry->win);
   wmove(win_entry->win, 0, 0);
   for (n = 0; n < CHAT_WIN_HEIGHT; n++) {
     int r = width;
@@ -346,6 +354,11 @@ void scr_WriteInWindow(const char *winId, const char *text, int TimeStamp,
   hbuf_add_line(&win_entry->hbuf, text, fullprefix,
                 maxX - scr_WindowWidth(rosterWnd) - 14);
   free(fullprefix);
+
+  if (win_entry->cleared) {
+    win_entry->cleared = 0; // The message must be displayed
+    win_entry->top = g_list_last(win_entry->hbuf);
+  }
 
   if (!dont_show) {
     // Show and refresh the window
@@ -665,6 +678,31 @@ void scr_ScrollDown(void)
     hbuf_top = g_list_next(hbuf_top);
   if (!hbuf_top)
     win_entry->top = NULL; // End reached
+
+  // Refresh the window
+  scr_UpdateWindow(win_entry);
+
+  // Finished :)
+  update_panels();
+  doupdate();
+}
+
+void scr_Clear(void)
+{
+  const gchar *jid;
+  window_entry_t *win_entry;
+
+  // Get win_entry
+  if (!current_buddy)
+    return;
+  jid = CURRENT_JID;
+  if (!jid)
+    return;
+  win_entry  = scr_SearchWindow(jid);
+  if (!win_entry)
+    return;
+
+  win_entry->cleared = TRUE;
 
   // Refresh the window
   scr_UpdateWindow(win_entry);

@@ -34,7 +34,8 @@ int scr_Getch(void);
 int process_key(int);
 
 // For commands...
-void scr_RosterTop();
-void scr_RosterBottom();
+void scr_RosterTop(void);
+void scr_RosterBottom(void);
+void scr_Clear(void);
 
 #endif

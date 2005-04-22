@@ -31,6 +31,7 @@
 
 // Commands callbacks
 void do_roster(char *arg);
+void do_clear(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -57,9 +58,10 @@ void cmd_add(const char *name, const char *help,
 void cmd_init(void)
 {
   //cmd_add("add");
-  //cmd_add("clear");
+  cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
   //cmd_add("del");
   //cmd_add("group");
+  //cmd_add("help");
   //cmd_add("info");
   //cmd_add("move");
   //cmd_add("nick");
@@ -217,3 +219,9 @@ void do_roster(char *arg)
   } else
     scr_LogPrint("Unrecognized parameter!");
 }
+
+void do_clear(char *arg)
+{
+  scr_Clear();
+}
+

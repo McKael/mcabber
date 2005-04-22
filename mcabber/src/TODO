@@ -28,11 +28,11 @@ TODO:
   - /rawxml...
   - /search <\<jid\>|name>
   - /clear
+  - /help
 * Command line history (^P/^N)
 * External commands for events
 * Multi-lines
 * Handle window resize
-* Scroll back history
 * Save history
 * Shortcut to jump to next message received (shift-tab?)
 * File transfer? :)

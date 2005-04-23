@@ -33,7 +33,7 @@ static char *RootDir;
 //  user_histo_file()
 // Returns history filename for the given jid
 // Note: the caller *must* free the filename after use (if not null).
-char *user_histo_file(const char *jid)
+static char *user_histo_file(const char *jid)
 {
   char *filename;
   if (!UseFileLogging)
@@ -47,8 +47,8 @@ char *user_histo_file(const char *jid)
 
 //  write()
 // Adds a history (multi-)line to the jid's history logfile
-void write(const char *jid,
-           time_t timestamp, guchar type, guchar info, char *data)
+static void write(const char *jid,
+        time_t timestamp, guchar type, guchar info, char *data)
 {
   guint len = 0;
   time_t ts;

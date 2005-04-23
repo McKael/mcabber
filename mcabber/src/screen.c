@@ -631,7 +631,10 @@ void scr_ScrollUp(void)
   hbuf_top = win_entry->top;
   if (!hbuf_top) {
     hbuf_top = g_list_last(win_entry->hbuf);
-    nblines *= 3;
+    if (!win_entry->cleared)
+      nblines *= 3;
+    else
+      win_entry->cleared = FALSE;
   }
 
   n = 0;
@@ -703,6 +706,7 @@ void scr_Clear(void)
     return;
 
   win_entry->cleared = TRUE;
+  win_entry->top = NULL;
 
   // Refresh the window
   scr_UpdateWindow(win_entry);

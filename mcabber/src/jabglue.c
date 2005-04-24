@@ -25,6 +25,7 @@
 #include "jabglue.h"
 #include "roster.h"
 #include "screen.h"
+#include "hooks.h"
 #include "utils.h"
 
 #define JABBERPORT      5222
@@ -68,6 +69,7 @@ void big_logger(jconn j, int io, const char *buf)
   file_logger(j, io, buf);
 }
 
+/*
 static void jidsplit(const char *jid, char **user, char **host,
         char **res)
 {
@@ -89,6 +91,7 @@ static void jidsplit(const char *jid, char **user, char **host,
   *user = strdup(tmp);
   free(tmp);
 }
+*/
 
 char *jidtodisp(const char *jid)
 {
@@ -140,11 +143,8 @@ inline void jb_reset_keepalive()
 
 void jb_keepalive()
 {
-  if (jc) {
-    // XXX Only if connected...
+  if (jc && online)
     jab_send_raw(jc, "  \t  ");
-    scr_LogPrint("Sent keepalive");
-  }
   jb_reset_keepalive();
 }
 
@@ -365,17 +365,20 @@ void gotroster(xmlnode x)
 void gotmessage(char *type, const char *from, const char *body,
         const char *enc)
 {
-  char *u, *h, *r;
+  char *jid;
 
-  jidsplit(from, &u, &h, &r);
   /*
+  //char *u, *h, *r;
+  //jidsplit(from, &u, &h, &r);
   // Maybe we should remember the resource?
   if (r)
     scr_LogPrint("There is an extra part in message (resource?): %s", r);
+  //scr_LogPrint("Msg from <%s>, type=%s", jidtodisp(from), type);
   */
 
-  //scr_LogPrint("Msg from <%s>, type=%s", jidtodisp(from), type);
-  scr_WriteIncomingMessage(jidtodisp(from), body);
+  jid = jidtodisp(from);
+  hk_message_in(jid, 0, body);
+  free(jid);
 }
 
 void statehandler(jconn conn, int state)
@@ -654,10 +657,14 @@ void packethandler(jconn conn, jpacket packet)
         }
 
         r = jidtodisp(from);
+        /*
         if (ust != roster_getstatus(r))
           scr_LogPrint("Buddy status has changed: [%c>%c] <%s>",
                   imstatus2char[roster_getstatus(r)], imstatus2char[ust], r);
         roster_setstatus(r, ust);
+        */
+        if (ust != roster_getstatus(r))
+          hk_statuschange(r, 0, ust);
         free(r);
         buddylist_build();
         scr_DrawRoster();

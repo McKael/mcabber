@@ -26,6 +26,7 @@
 #include "roster.h"
 #include "screen.h"
 #include "compl.h"
+#include "hooks.h"
 #include "utf8.h"
 #include "utils.h"
 
@@ -139,8 +140,8 @@ void send_message(char *msg)
     return;
   }
 
-  // UI part
-  scr_WriteOutgoingMessage(jid, msg);
+  // local part (UI, logging, etc.)
+  hk_message_out(jid, 0, msg);
 
   // Network part
   buffer = utf8_encode(msg);

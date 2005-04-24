@@ -11,6 +11,7 @@
 #include "parsecfg.h"
 #include "roster.h"
 #include "commands.h"
+#include "histolog.h"
 #include "lang.h"
 #include "utils.h"
 #include "harddefines.h"
@@ -148,6 +149,10 @@ int main(int argc, char **argv)
 
   ut_WriteLog("Drawing main window...\n");
   scr_DrawMainWindow();
+
+  optstring = cfg_read("logging");
+  if (optstring && (atoi(optstring) > 0))
+    hlog_enable(TRUE, cfg_read("logging_dir"));
 
   ssl = 0;
   optstring = cfg_read("ssl");

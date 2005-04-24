@@ -22,8 +22,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "histolog.h"
+#include "jabglue.h"
 #include "screen.h"
 
 static guint UseFileLogging;
@@ -47,12 +52,13 @@ static char *user_histo_file(const char *jid)
 
 //  write()
 // Adds a history (multi-)line to the jid's history logfile
-static void write(const char *jid,
-        time_t timestamp, guchar type, guchar info, char *data)
+static void write_histo_line(const char *jid,
+        time_t timestamp, guchar type, guchar info, const char *data)
 {
   guint len = 0;
+  FILE *fp;
   time_t ts;
-  char *p;
+  const char *p;
   char *filename = user_histo_file(jid);
 
   if (!filename)
@@ -80,8 +86,11 @@ static void write(const char *jid,
    * We don't check them, we'll trust the caller.
    */
 
-  scr_LogPrint("Log to [%s]:", filename);
-  scr_LogPrint("%c %c %10d %03d %s", type, info, ts, len, data);
+  fp = fopen(filename, "a");
+  if (!fp)
+    return;
+  fprintf(fp, "%c %c %10u %03d %s\n", type, info, (unsigned int)ts, len, data);
+  fclose(fp);
 }
 
 //  hlog_enable()
@@ -119,5 +128,20 @@ void hlog_enable(guint enable, char *root_dir)
     if (RootDir) {
     g_free(RootDir);
   }
+}
+
+inline void hlog_write_message(const char *jid, time_t timestamp, int sent,
+        const char *msg)
+{
+  write_histo_line(jid, timestamp, 'M', ((sent) ? 'S' : 'R'), msg);
+}
+
+inline void hlog_write_status(const char *jid, time_t timestamp,
+        enum imstatus status)
+{
+  // #1 XXX Check status value?
+  // #2 We could add a user-readable comment
+  write_histo_line(jid, timestamp, 'S', toupper(imstatus2char[status]),
+          NULL);
 }
 

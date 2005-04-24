@@ -12,9 +12,23 @@ server = your.jabber.server
 resource = yourresource
 ssl = 0
 
+# Keepalive
+# If you need a ping/keepalive to leave your connection open, you
+# can use the pinginterval.  Setting this option to 0 disables the ping.
+# Default value is 40 seconds.
+#pinginterval = 40
+pinginterval = 0
+
 # Set hide_offline_buddies to 1 to display only connected buddies
 # in the roster.
 #hide_offline_buddies = 0
+
+# History logging
+# You can save the messages history: set logging = 1
+# Default logging directory (logging_dir) is $HOME/.mcabber/
+logging = 1
+# logging_dir = /home/mikael/.mcabber/
+
 
 #  The colors
 # NOTE: the following settings may or may not be used currently... :)

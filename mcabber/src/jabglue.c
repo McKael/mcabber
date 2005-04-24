@@ -264,6 +264,7 @@ void jb_send_msg(const char *jid, const char *text)
   xmlnode x = jutil_msgnew(TMSG_CHAT, (char*)jid, 0, (char*)text);
   jab_send(jc, x);
   xmlnode_free(x);
+  jb_reset_keepalive();
 }
 
 void postlogin()

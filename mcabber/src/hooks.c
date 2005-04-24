@@ -24,12 +24,16 @@
 #include "hooks.h"
 #include "roster.h"
 #include "histolog.h"
+#include "utf8.h"
 
 
 inline void hk_message_in(const char *jid, time_t timestamp, const char *msg)
 {
-  scr_WriteIncomingMessage(jid, msg);
-  hlog_write_message(jid, timestamp, FALSE, msg);
+  char *buffer = utf8_decode(msg);
+  // XXX Maybe filter out special chars?
+  scr_WriteIncomingMessage(jid, buffer);
+  hlog_write_message(jid, timestamp, FALSE, buffer);
+  free(buffer);
 }
 
 inline void hk_message_out(const char *jid, time_t timestamp, const char *msg)

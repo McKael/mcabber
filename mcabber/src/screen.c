@@ -14,7 +14,6 @@
 #include "roster.h"
 #include "parsecfg.h"
 #include "lang.h"
-#include "utf8.h"
 #include "utils.h"
 #include "list.h"
 
@@ -526,10 +525,8 @@ void scr_WriteMessage(const char *jid, const char *text, char *prefix)
 
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text)
 {
-  char *buffer = utf8_decode(text);
   // FIXME expand tabs / filter out special chars...
-  scr_WriteMessage(jidfrom, buffer, "<== ");
-  free(buffer);
+  scr_WriteMessage(jidfrom, text, "<== ");
   top_panel(inputPanel);
   update_panels();
   doupdate();

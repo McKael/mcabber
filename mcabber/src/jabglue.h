@@ -29,8 +29,10 @@ enum agtype {
 
 jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass);
 void jb_disconnect(void);
-void jb_keepalive();
 void jb_main();
 void jb_send_msg(const char *, const char *);
+void jb_keepalive();
+inline void jb_reset_keepalive();
+void jb_set_keepalive_delay(unsigned int delay);
 
 #endif /* __JABGLUE_H__ */

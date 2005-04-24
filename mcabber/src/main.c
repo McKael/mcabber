@@ -18,21 +18,14 @@
 
 void sig_handler(int signum)
 {
-  switch (signum) {
-  case SIGALRM:
-    jb_keepalive();
-    break;
-
-  case SIGTERM:
+  if (signum == SIGTERM) {
     // bud_TerminateBuddies();
     scr_TerminateCurses();
     jb_disconnect();
     printf("Killed by SIGTERM\nBye!\n");
     exit(EXIT_SUCCESS);
-    break;
-
   }
-  signal(SIGALRM, sig_handler);
+  ut_WriteLog("Caught signal: %d\n", signum);
 }
 
 ssize_t my_getpass (char **passstr, size_t *n)
@@ -177,14 +170,11 @@ int main(int argc, char **argv)
     return -2;
   }
 
-  ping = 20;
+  ping = 40;
   if (cfg_read("pinginterval"))
     ping = (unsigned int) atoi(cfg_read("pinginterval"));
-
+  jb_set_keepalive_delay(ping);
   ut_WriteLog("Ping interval stablished: %d secs\n", ping);
-
-  ut_WriteLog("Entering into main loop...\n\n");
-  ut_WriteLog("Ready to send/receive messages...\n");
 
   optstring = cfg_read("hide_offline_buddies");
   if (optstring && (atoi(optstring) > 0))
@@ -193,9 +183,12 @@ int main(int argc, char **argv)
   /* Initialize commands system */
   cmd_init();
 
+  ut_WriteLog("Entering into main loop...\n\n");
+  ut_WriteLog("Ready to send/receive messages...\n");
+
+  jb_reset_keepalive();
   keypad(scr_GetInputWindow(), TRUE);
   while (ret != 255) {
-    alarm(ping);
     key = scr_Getch();
     if (key != ERR)
       ret = process_key(key);

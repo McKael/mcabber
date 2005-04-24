@@ -3,6 +3,7 @@ BUGS:
 
 * Should not stay on buddy buffer when one moves to a group
 * Pending message not displayed if buddy outside Contact window
+* Check keepalive
 
 
 TODO:

@@ -31,8 +31,11 @@
 #define JABBERSSLPORT   5223
 
 jconn jc;
+time_t LastPingTime;
+unsigned int KeepaliveDelay;
 static int s_id = 1;  // FIXME which use??
 static int regmode, regdone;
+unsigned char online;
 
 char imstatus2char[imstatus_size] = {
     '_', 'o', 'i', 'f', 'd', 'c', 'n', 'a'
@@ -116,7 +119,7 @@ jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass)
   jab_state_handler(jc, &statehandler);
 
   if (jc->user) {
-    //fonline = TRUE;
+    online = TRUE;
     jstate = STATE_CONNECTING;
     statehandler(0, -1);
     jab_start(jc);
@@ -130,12 +133,24 @@ void jb_disconnect(void)
   statehandler(jc, JCONN_STATE_OFF);
 }
 
+inline void jb_reset_keepalive()
+{
+  time(&LastPingTime);
+}
+
 void jb_keepalive()
 {
   if (jc) {
     // XXX Only if connected...
-    jab_send_raw(jc, " ");
+    jab_send_raw(jc, "  \t  ");
+    scr_LogPrint("Sent keepalive");
   }
+  jb_reset_keepalive();
+}
+
+void jb_set_keepalive_delay(unsigned int delay)
+{
+  KeepaliveDelay = delay;
 }
 
 void jb_main()
@@ -143,6 +158,8 @@ void jb_main()
   xmlnode x, z;
   char *cid;
 
+  if (!online)
+    return;
   if (jc && jc->state == JCONN_STATE_CONNECTING) {
     jab_start(jc);
     return;
@@ -167,7 +184,7 @@ void jb_main()
 
     if (!jc || jc->state == JCONN_STATE_OFF) {
       scr_LogPrint("Unable to connect to the server");
-      // fonline = FALSE;
+      online = FALSE;
     }
   }
 
@@ -175,6 +192,14 @@ void jb_main()
     statehandler(jc, JCONN_STATE_OFF);
   } else if (jc->state == JCONN_STATE_OFF || jc->fd == -1) {
     statehandler(jc, JCONN_STATE_OFF);
+  }
+
+  // Keepalive
+  if (KeepaliveDelay) {
+    time_t now;
+    time(&now);
+    if (now > LastPingTime + KeepaliveDelay)
+      jb_keepalive();
   }
 }
 
@@ -362,7 +387,7 @@ void statehandler(jconn conn, int state)
   switch(state) {
     case JCONN_STATE_OFF:
 
-        /* jhook.flogged = jhook.fonline = FALSE; */
+        online = FALSE;
 
         if (previous_state != JCONN_STATE_OFF) {
           scr_LogPrint("+ JCONN_STATE_OFF");
@@ -383,7 +408,7 @@ void statehandler(jconn conn, int state)
 
     case JCONN_STATE_ON:
         scr_LogPrint("+ JCONN_STATE_ON");
-        // if (regmode) jhook.fonline = TRUE;
+        online = TRUE;
         break;
 
     case JCONN_STATE_CONNECTING:
@@ -407,6 +432,7 @@ void packethandler(jconn conn, jpacket packet)
   enum imstatus ust;
   // int npos;
 
+  jb_reset_keepalive(); // reset keepalive delay
   jpacket_reset(packet);
 
   p = xmlnode_get_attrib(packet->x, "from"); if (p) from = p;

@@ -209,12 +209,12 @@ void do_roster(char *arg)
     scr_RosterBottom();
     scr_DrawRoster();
   } else if (!strcasecmp(arg, "hide_offline")) {
-    buddylist_hide_offline_buddies(TRUE);
+    buddylist_set_hide_offline_buddies(TRUE);
     if (current_buddy)
       buddylist_build();
     scr_DrawRoster();
   } else if (!strcasecmp(arg, "show_offline")) {
-    buddylist_hide_offline_buddies(FALSE);
+    buddylist_set_hide_offline_buddies(FALSE);
     if (current_buddy)
       buddylist_build();
     scr_DrawRoster();

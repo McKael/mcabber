@@ -273,9 +273,9 @@ guint roster_gettype(const char *jid)
 
 /* ### BuddyList functions ### */
 
-//  buddylist_hide_offline_buddies(hide)
+//  buddylist_set_hide_offline_buddies(hide)
 // "hide" values: 1=hide 0=show_all -1=invert
-void buddylist_hide_offline_buddies(int hide)
+void buddylist_set_hide_offline_buddies(int hide)
 {
   if (hide < 0)                     // NEG   (invert)
     hide_offline_buddies = !hide_offline_buddies;
@@ -283,6 +283,11 @@ void buddylist_hide_offline_buddies(int hide)
     hide_offline_buddies = 0;
   else                              // TRUE  (hide)
     hide_offline_buddies = 1;
+}
+
+inline int buddylist_get_hide_offline_buddies(void)
+{
+  return hide_offline_buddies;
 }
 
 //  buddylist_build()

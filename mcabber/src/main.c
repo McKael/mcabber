@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 
   optstring = cfg_read("hide_offline_buddies");
   if (optstring && (atoi(optstring) > 0))
-    buddylist_hide_offline_buddies(TRUE);
+    buddylist_set_hide_offline_buddies(TRUE);
 
   /* Initialize commands system */
   cmd_init();

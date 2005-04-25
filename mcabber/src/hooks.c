@@ -48,6 +48,8 @@ inline void hk_statuschange(const char *jid, time_t timestamp,
   scr_LogPrint("Buddy status has changed: [%c>%c] <%s>",
           imstatus2char[roster_getstatus(jid)], imstatus2char[status], jid);
   roster_setstatus(jid, status);
+  buddylist_build();
+  scr_DrawRoster();
   hlog_write_status(jid, 0, status);
 }
 

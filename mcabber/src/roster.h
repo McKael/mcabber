@@ -44,7 +44,8 @@ void    roster_settype(const char *jid, guint type);
 enum imstatus roster_getstatus(const char *jid);
 guint   roster_gettype(const char *jid);
 
-void buddylist_hide_offline_buddies(int hide);
+void buddylist_set_hide_offline_buddies(int hide);
+inline int buddylist_get_hide_offline_buddies(void);
 void buddy_hide_group(gpointer rosterdata, int hide);
 void buddylist_build(void);
 const char *buddy_getjid(gpointer rosterdata);

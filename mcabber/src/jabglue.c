@@ -677,8 +677,6 @@ void packethandler(jconn conn, jpacket packet)
         if (ust != roster_getstatus(r))
           hk_statuschange(r, 0, ust);
         free(r);
-        buddylist_build();
-        scr_DrawRoster();
         /*
         if (x = xmlnode_get_tag(packet->x, "status"))
           if (p = xmlnode_get_data(x))

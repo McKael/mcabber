@@ -577,7 +577,8 @@ void scr_RosterTop(void)
     buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
 
   // We should rebuild the buddylist but not everytime
-  if (current_buddy && prev_st == offline)
+  if (current_buddy && prev_st == offline &&
+          buddylist_get_hide_offline_buddies())
     buddylist_build();
   if (chatmode)
     scr_ShowBuddyWindow();
@@ -597,7 +598,8 @@ void scr_RosterBottom(void)
     buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
 
   // We should rebuild the buddylist but not everytime
-  if (current_buddy && prev_st == offline)
+  if (current_buddy && prev_st == offline &&
+          buddylist_get_hide_offline_buddies())
     buddylist_build();
   if (chatmode)
     scr_ShowBuddyWindow();
@@ -608,14 +610,14 @@ void scr_RosterUp(void)
   enum imstatus prev_st;
 
   if (current_buddy) {
-    prev_st = buddy_getstatus(BUDDATA(current_buddy));
     if (g_list_previous(current_buddy)) {
+      prev_st = buddy_getstatus(BUDDATA(current_buddy));
       buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
       current_buddy = g_list_previous(current_buddy);
       if (chatmode)
         buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
       // We should rebuild the buddylist but not everytime
-      if (prev_st == offline)
+      if (prev_st == offline && buddylist_get_hide_offline_buddies())
         buddylist_build();
       scr_DrawRoster();
     }
@@ -630,14 +632,14 @@ void scr_RosterDown(void)
   enum imstatus prev_st;
 
   if (current_buddy) {
-    prev_st = buddy_getstatus(BUDDATA(current_buddy));
     if (g_list_next(current_buddy)) {
+      prev_st = buddy_getstatus(BUDDATA(current_buddy));
       buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
       current_buddy = g_list_next(current_buddy);
       if (chatmode)
         buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
       // We should rebuild the buddylist but not everytime
-      if (prev_st == offline)
+      if (prev_st == offline && buddylist_get_hide_offline_buddies())
         buddylist_build();
       scr_DrawRoster();
     }

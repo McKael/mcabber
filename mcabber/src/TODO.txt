@@ -3,12 +3,14 @@ BUGS:
 
 * Should not stay on buddy buffer when one moves to a group
 * Pending message not displayed if buddy outside Contact window
+* Current buddy should not be removed from the buddylist
 
 
 TODO:
 
 * Display status
 * show (how?) we can scroll in roster if not all buddies are displayed
+* Get timestamp for offline messages
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>
@@ -33,7 +35,7 @@ TODO:
 * External commands for events
 * Multi-lines
 * Handle window resize
-* Save history
+* Read history
 * Shortcut to jump to next message received (shift-tab?)
 * File transfer? :)
 * Conferences :))

@@ -77,8 +77,8 @@ static void write_histo_line(const char *jid,
   for (p=data ; *p ; p++)
     if (*p == '\n') len++;
 
-  /* Line format: "T I DDDDDDDDDD LLL [data]"
-   * T=Type, I=Info, D=date, LLL=0-padded-len
+  /* Line format: "TI DDDDDDDDDD LLL [data]"
+   * T=Type, I=Info, DDDDDDDDDD=date, LLL=0-padded-len
    *
    * Types:
    * - M message    Info: S (send) R (receive)
@@ -89,7 +89,7 @@ static void write_histo_line(const char *jid,
   fp = fopen(filename, "a");
   if (!fp)
     return;
-  fprintf(fp, "%c %c %10u %03d %s\n", type, info, (unsigned int)ts, len, data);
+  fprintf(fp, "%c%c %10u %03d %s\n", type, info, (unsigned int)ts, len, data);
   fclose(fp);
 }
 

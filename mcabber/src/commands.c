@@ -246,7 +246,6 @@ void do_status(char *arg)
   else if (!strcmp(arg, "notavail"))  st = notavail;
   else if (!strcmp(arg, "free"))      st = freeforchat;
   else {
-    // XXX TODO no parameter == status request
     scr_LogPrint("Unrecognized parameter!");
     return;
   }

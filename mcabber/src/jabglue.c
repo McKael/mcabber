@@ -244,6 +244,10 @@ void jb_setstatus(enum imstatus st, char *msg)
         xmlnode_put_attrib(x, "type", "invisible");
         break;
 
+    case offline:
+        xmlnode_put_attrib(x, "type", "unavailable");
+        break;
+
     default:
         break;
   }

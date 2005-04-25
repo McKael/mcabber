@@ -674,12 +674,6 @@ void packethandler(jconn conn, jpacket packet)
         }
 
         r = jidtodisp(from);
-        /*
-        if (ust != roster_getstatus(r))
-          scr_LogPrint("Buddy status has changed: [%c>%c] <%s>",
-                  imstatus2char[roster_getstatus(r)], imstatus2char[ust], r);
-        roster_setstatus(r, ust);
-        */
         if (ust != roster_getstatus(r))
           hk_statuschange(r, 0, ust);
         free(r);

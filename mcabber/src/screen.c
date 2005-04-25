@@ -288,6 +288,7 @@ void scr_ShowWindow(const char *winId)
     currentWindow = win_entry;
     chatmode = TRUE;
     roster_setflags(winId, ROSTER_FLAG_MSG, FALSE);
+    roster_setflags(winId, ROSTER_FLAG_LOCK, TRUE);
     update_roster = TRUE;
 
     // Refresh the window
@@ -564,29 +565,61 @@ WINDOW *scr_GetInputWindow(void)
 
 void scr_RosterTop(void)
 {
+  enum imstatus prev_st;
+
+  if (current_buddy) {
+    prev_st = buddy_getstatus(BUDDATA(current_buddy));
+    if (chatmode)
+      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+  }
   current_buddy = buddylist;
-  // XXX We should rebuild the buddylist but perhaps not everytime?
+  if (chatmode && current_buddy)
+    buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
+
+  // We should rebuild the buddylist but not everytime
+  if (current_buddy && prev_st == offline)
+    buddylist_build();
   if (chatmode)
     scr_ShowBuddyWindow();
 }
 
 void scr_RosterBottom(void)
 {
+  enum imstatus prev_st;
+
+  if (current_buddy) {
+    prev_st = buddy_getstatus(BUDDATA(current_buddy));
+    if (chatmode)
+      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+  }
   current_buddy = g_list_last(buddylist);
-  // XXX We should rebuild the buddylist but perhaps not everytime?
+  if (chatmode && current_buddy)
+    buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
+
+  // We should rebuild the buddylist but not everytime
+  if (current_buddy && prev_st == offline)
+    buddylist_build();
   if (chatmode)
     scr_ShowBuddyWindow();
 }
 
 void scr_RosterUp(void)
 {
+  enum imstatus prev_st;
+
   if (current_buddy) {
+    prev_st = buddy_getstatus(BUDDATA(current_buddy));
     if (g_list_previous(current_buddy)) {
+      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
       current_buddy = g_list_previous(current_buddy);
+      if (chatmode)
+        buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
+      // We should rebuild the buddylist but not everytime
+      if (prev_st == offline)
+        buddylist_build();
       scr_DrawRoster();
     }
   }
-  // XXX We should rebuild the buddylist but perhaps not everytime?
 
   if (chatmode)
     scr_ShowBuddyWindow();
@@ -594,13 +627,21 @@ void scr_RosterUp(void)
 
 void scr_RosterDown(void)
 {
+  enum imstatus prev_st;
+
   if (current_buddy) {
+    prev_st = buddy_getstatus(BUDDATA(current_buddy));
     if (g_list_next(current_buddy)) {
+      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
       current_buddy = g_list_next(current_buddy);
+      if (chatmode)
+        buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
+      // We should rebuild the buddylist but not everytime
+      if (prev_st == offline)
+        buddylist_build();
       scr_DrawRoster();
     }
   }
-  // XXX We should rebuild the buddylist but perhaps not everytime?
 
   if (chatmode)
     scr_ShowBuddyWindow();
@@ -931,6 +972,8 @@ int process_key(int key)
           break;
       case '\n':  // Enter
           chatmode = TRUE;
+          if (current_buddy)
+            buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
           if (inputLine[0] == 0) {
             scr_ShowBuddyWindow();
             break;
@@ -981,6 +1024,8 @@ int process_key(int key)
       case 27:  // ESC
           currentWindow = NULL;
           chatmode = FALSE;
+          if (current_buddy)
+            buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
           top_panel(chatPanel);
           top_panel(inputPanel);
           break;

@@ -391,6 +391,17 @@ enum imstatus buddy_getstatus(gpointer rosterdata)
   return roster->status;
 }
 
+//  buddy_setflags()
+// Set one or several flags to value (TRUE/FALSE)
+void buddy_setflags(gpointer rosterdata, guint flags, guint value)
+{
+  roster *roster = rosterdata;
+  if (value)
+    roster->flags |= flags;
+  else
+    roster->flags &= ~flags;
+}
+
 guint buddy_getflags(gpointer rosterdata)
 {
   roster *roster = rosterdata;

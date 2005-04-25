@@ -51,6 +51,7 @@ const char *buddy_getjid(gpointer rosterdata);
 const char *buddy_getname(gpointer rosterdata);
 guint buddy_gettype(gpointer rosterdata);
 enum imstatus buddy_getstatus(gpointer rosterdata);
+void buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint buddy_getflags(gpointer rosterdata);
 
 #endif /* __ROSTER_H__ */

@@ -51,3 +51,18 @@ inline void hk_statuschange(const char *jid, time_t timestamp,
   hlog_write_status(jid, 0, status);
 }
 
+// XXX Maybe we should get the old status as a parameter and request the
+// current status to jabglue?  Or get both statuses?
+inline void hk_mystatuschange(time_t timestamp,
+        enum imstatus old_status, enum imstatus new_status)
+{
+  if (old_status == new_status)
+    return;
+
+  scr_LogPrint("Your status has changed: [%c>%c]",
+          imstatus2char[old_status], imstatus2char[new_status]);
+  //roster_setstatus(jid, status);
+  //hlog_write_status(NULL, 0, status);
+
+}
+

@@ -36,6 +36,7 @@ time_t LastPingTime;
 unsigned int KeepaliveDelay;
 static int s_id = 1;  // FIXME which use??
 static int regmode, regdone;
+static enum imstatus mystatus = offline;
 unsigned char online;
 
 char imstatus2char[imstatus_size] = {
@@ -203,9 +204,19 @@ void jb_main()
   }
 }
 
-void setjabberstatus(enum imstatus st, char *msg)
+inline enum imstatus jb_getstatus()
 {
-  xmlnode x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
+  return mystatus;
+}
+
+void jb_setstatus(enum imstatus st, char *msg)
+{
+  xmlnode x;
+
+  if (!online)
+    return;
+
+  x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
 
   switch(st) {
     case away:
@@ -243,7 +254,7 @@ void setjabberstatus(enum imstatus st, char *msg)
             add["prio"].c_str(), (unsigned) -1);
   */
 
-  if (!msg || !*msg) {
+  if (!msg) {
     msg  = ""; // FIXME
     //msg = imstatus2str(st);
   }
@@ -254,9 +265,10 @@ void setjabberstatus(enum imstatus st, char *msg)
   jab_send(jc, x);
   xmlnode_free(x);
 
-  //sendvisibility();
+  //sendvisibility();   ???
 
-  // XXX logger.putourstatus(proto, getstatus(), ourstatus = st);
+  hk_mystatuschange(0, mystatus, st);
+  mystatus = st;
 }
 
 void jb_send_msg(const char *jid, const char *text)
@@ -276,7 +288,7 @@ void postlogin()
 
   //setautostatus(jhook.manualstatus);
 
-  setjabberstatus(1, "I'm here!");
+  jb_setstatus(available, "I'm here!"); // XXX not always "available"...
   buddylist_build();
   /*
   for (i = 0; i < clist.count; i++) {

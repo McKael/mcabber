@@ -33,6 +33,7 @@
 // Commands callbacks
 void do_roster(char *arg);
 void do_clear(char *arg);
+void do_status(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -73,7 +74,7 @@ void cmd_init(void)
   cmd_add("say", "Say something to the selected buddy", 0, 0, NULL);
   //cmd_add("search");
   //cmd_add("send_auth");
-  cmd_add("status", "Show or set your status", COMPL_STATUS, 0, NULL);
+  cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status);
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");
@@ -171,9 +172,9 @@ int process_line(char *line)
     *p = 0;
 
   // Command "quit"?
-  if (!strcasecmp(line, "/quit")) {
-    return 255;
-  }
+  if (!strncasecmp(line, "/quit", 5))
+    if (!line[5] || line[5] == ' ')
+      return 255;
 
   // Commands handling
   curcmd = cmd_get(line);
@@ -224,5 +225,33 @@ void do_roster(char *arg)
 void do_clear(char *arg)
 {
   scr_Clear();
+}
+
+void do_status(char *arg)
+{
+  enum imstatus st;
+
+  if (!arg || (*arg == 0)) {
+    scr_LogPrint("Your status is: %c", imstatus2char[jb_getstatus()]);
+    return;
+  }
+
+  if (!strcmp(arg, "offline"))        st = offline;
+  else if (!strcmp(arg, "online"))    st = available;
+  else if (!strcmp(arg, "avail"))     st = available;
+  else if (!strcmp(arg, "away"))      st = away;
+  else if (!strcmp(arg, "invisible")) st = invisible;
+  else if (!strcmp(arg, "dnd"))       st = dontdisturb;
+  else if (!strcmp(arg, "busy"))      st = occupied;
+  else if (!strcmp(arg, "notavail"))  st = notavail;
+  else if (!strcmp(arg, "free"))      st = freeforchat;
+  else {
+    // XXX TODO no parameter == status request
+    scr_LogPrint("Unrecognized parameter!");
+    return;
+  }
+
+  // XXX special case if offline??
+  jb_setstatus(st, NULL);  // TODO handle message (instead of NULL)
 }
 

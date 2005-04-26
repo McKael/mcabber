@@ -135,6 +135,7 @@ void compl_add_category_word(guint categ, const char *word)
 {
   GSList *sl_cat;
   category *cat;
+  char *nword;
   // Look for category
   for (sl_cat=Categories; sl_cat; sl_cat = g_slist_next(sl_cat)) {
     if (categ == ((category*)sl_cat->data)->flag)
@@ -147,8 +148,20 @@ void compl_add_category_word(guint categ, const char *word)
   } else
     cat = (category*)sl_cat->data;
 
+  // If word is not space-terminated, we add one trailing space
+  for (nword = (char*)word; *nword; nword++)
+    ;
+  if (nword > word) nword--;
+  if (*nword != ' ') {  // Add a space
+    nword = g_new(char, strlen(word)+2);
+    strcpy(nword, word);
+    strcat(nword, " ");
+  } else {              // word is fine
+    nword = g_strdup(word);
+  }
+
   // TODO Check word does not already exist
-  cat->words = g_slist_append(cat->words, g_strdup(word)); // TODO sort
+  cat->words = g_slist_append(cat->words, nword); // TODO sort
 }
 
 //  compl_get_category_list()

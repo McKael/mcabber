@@ -807,8 +807,9 @@ int which_row(char **p_row)
     }
     if (*p == '"' && *(p-1) != '\\') {
       quote = TRUE;
-    } else if (*p == ' ' && *(p-1) != ' ') {
-      row++;
+    } else if (*p == ' ') {
+      if (*(p-1) != ' ')
+        row++;
       *p_row = p+1;
     }
   }

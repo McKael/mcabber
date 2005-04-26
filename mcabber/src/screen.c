@@ -446,6 +446,9 @@ void scr_DrawRoster(void)
   int i, n;
   int rOffset;
 
+  // We can reset update_roster
+  update_roster = FALSE;
+
   getmaxyx(rosterWnd, maxy, maxx);
   maxx --;  // last char is for vertical border
   name[ROSTER_WIDTH-7] = 0;
@@ -461,6 +464,8 @@ void scr_DrawRoster(void)
   // Leave now if buddylist is empty
   if (!buddylist) {
     offset = 0;
+    update_panels();
+    doupdate();
     return;
   }
 
@@ -468,6 +473,8 @@ void scr_DrawRoster(void)
   i = g_list_position(buddylist, current_buddy);
   if (i == -1) { // This is bad
     scr_LogPrint("Doh! Can't find current selected buddy!!");
+    update_panels();
+    doupdate();
     return;
   } else if (i < offset) {
     offset = i;
@@ -516,7 +523,6 @@ void scr_DrawRoster(void)
 
   update_panels();
   doupdate();
-  update_roster = FALSE;
 }
 
 void scr_WriteMessage(const char *jid, const char *text, char *prefix)

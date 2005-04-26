@@ -5,6 +5,8 @@ BUGS:
 * Pending message not displayed if buddy outside Contact window
 * We should rebuild the buddy list when receiving a message from an offline
   buddy.
+* Bad display when there is only one buddy connected and hide_offline is set
+  and this buddy goes offline.
 
 
 TODO:

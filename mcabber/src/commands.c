@@ -34,6 +34,7 @@
 void do_roster(char *arg);
 void do_clear(char *arg);
 void do_status(char *arg);
+void do_add(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -59,7 +60,7 @@ void cmd_add(const char *name, const char *help,
 // ...
 void cmd_init(void)
 {
-  //cmd_add("add");
+  cmd_add("add", "Add a jabber user", COMPL_JID, 0, &do_add);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
   //cmd_add("del");
   //cmd_add("group");
@@ -215,8 +216,7 @@ void do_roster(char *arg)
     scr_DrawRoster();
   } else if (!strcasecmp(arg, "show_offline")) {
     buddylist_set_hide_offline_buddies(FALSE);
-    if (current_buddy)
-      buddylist_build();
+    buddylist_build();
     scr_DrawRoster();
   } else
     scr_LogPrint("Unrecognized parameter!");
@@ -254,3 +254,14 @@ void do_status(char *arg)
   jb_setstatus(st, NULL);  // TODO handle message (instead of NULL)
 }
 
+void do_add(char *arg)
+{
+  if (!arg || (*arg == 0)) {
+    scr_LogPrint("Wrong usage");
+    return;
+  }
+
+  // FIXME check arg =~ jabber id
+  // 2nd parameter = optional nickname (XXX NULL for now...)
+  jb_addbuddy(arg, NULL);
+}

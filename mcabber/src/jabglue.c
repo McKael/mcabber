@@ -283,6 +283,40 @@ void jb_send_msg(const char *jid, const char *text)
   jb_reset_keepalive();
 }
 
+void jb_addbuddy(const char *jid, const char *group)
+{
+  xmlnode x, y, z;
+
+  // XXX Check jid (but perhaps caller should do it)
+
+  // We don't check if the jabber user already exists in the roster,
+  // because it allows to re-ask for notification.
+
+  //x = jutil_presnew(JPACKET__SUBSCRIBE, jid, NULL);
+  x = jutil_presnew(JPACKET__SUBSCRIBE, jid, "online");
+  jab_send(jc, x);
+  xmlnode_free(x);
+
+  x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
+  y = xmlnode_get_tag(x, "query");
+  z = xmlnode_insert_tag(y, "item");
+  xmlnode_put_attrib(z, "jid", jid);
+
+  if (group) {
+    z = xmlnode_insert_tag(z, "group");
+    xmlnode_insert_cdata(z, group, (unsigned) -1);
+  }
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+
+  roster_add_user(jid, NULL, group, ROSTER_TYPE_USER);
+  buddylist_build();
+
+  // maybe not needed: if user appears his status will change
+  //update_roster = TRUE;
+}
+
 void postlogin()
 {
   //int i;

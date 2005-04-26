@@ -5,6 +5,7 @@ BUGS:
 * Pending message not displayed if buddy outside Contact window
 * We should rebuild the buddy list when receiving a message from an offline
   buddy (or invisible/just hidden).
+* When adding a user, we do not sent to him any presence notification...
 
 
 TODO:

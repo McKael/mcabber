@@ -293,7 +293,7 @@ void jb_addbuddy(const char *jid, const char *group)
   // because it allows to re-ask for notification.
 
   //x = jutil_presnew(JPACKET__SUBSCRIBE, jid, NULL);
-  x = jutil_presnew(JPACKET__SUBSCRIBE, jid, "online");
+  x = jutil_presnew(JPACKET__SUBSCRIBE, (char*)jid, "online");
   jab_send(jc, x);
   xmlnode_free(x);
 
@@ -731,6 +731,10 @@ void packethandler(jconn conn, jpacket packet)
           if (!isagent) {
             scr_LogPrint("<%s> wants to subscribe "
                          "to your network presence updates", from);
+            // FIXME we accept everybody...
+            x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
+            jab_send(jc, x);
+            xmlnode_free(x);
           } else {
             x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
             jab_send(jc, x);

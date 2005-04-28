@@ -7,18 +7,28 @@
 static int DebugEnabled;
 static char *FName;
 
-void ut_InitDebug(int level)
+void ut_InitDebug(unsigned int level, char *filename)
 {
   FILE *fp;
 
-  FName = getenv("HOME");
-  if (!FName)
-    FName = "/tmp/mcabberlog";
+  if (!level) {
+    DebugEnabled = 0;
+    FName = NULL;
+    return;
+  }
+
+  if (filename)
+    FName = strdup(filename);
   else {
-    char *tmpname = malloc(strlen(FName) + 12);
-    strcpy(tmpname, FName);
-    strcat(tmpname, "/mcabberlog");
-    FName = tmpname;
+    FName = getenv("HOME");
+    if (!FName)
+      FName = "/tmp/mcabberlog";
+    else {
+      char *tmpname = malloc(strlen(FName) + 12);
+      strcpy(tmpname, FName);
+      strcat(tmpname, "/mcabberlog");
+      FName = tmpname;
+    }
   }
 
   DebugEnabled = level;
@@ -37,7 +47,7 @@ void ut_WriteLog(const char *fmt, ...)
   va_list ap;
   char *buffer = NULL;
 
-  if (DebugEnabled) {
+  if (DebugEnabled && FName) {
     fp = fopen(FName, "a+");
     if (!fp) return;
     buffer = (char *) calloc(1, 64);

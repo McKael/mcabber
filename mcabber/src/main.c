@@ -84,7 +84,7 @@ int main(int argc, char **argv)
   credits();
 
   /* SET THIS >0 TO ENABLE LOG */
-  ut_InitDebug(1);
+  ut_InitDebug(0, NULL);
 
   ut_WriteLog("Setting signals handlers...\n");
   signal(SIGTERM, sig_handler);
@@ -115,6 +115,10 @@ int main(int argc, char **argv)
   /* Parsing config file... */
   ut_WriteLog("Parsing config file...\n");
   cfg_file(configFile);
+
+  optstring = cfg_read("debug");
+  if (optstring)
+    ut_InitDebug(1, optstring);
 
   servername = cfg_read("server");
   username = cfg_read("username");

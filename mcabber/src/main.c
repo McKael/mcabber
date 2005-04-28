@@ -12,7 +12,6 @@
 #include "roster.h"
 #include "commands.h"
 #include "histolog.h"
-#include "lang.h"
 #include "utils.h"
 #include "harddefines.h"
 
@@ -86,8 +85,6 @@ int main(int argc, char **argv)
 
   /* SET THIS >0 TO ENABLE LOG */
   ut_InitDebug(1);
-
-  lng_InitLanguage();
 
   ut_WriteLog("Setting signals handlers...\n");
   signal(SIGTERM, sig_handler);

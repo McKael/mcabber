@@ -13,7 +13,6 @@
 #include "compl.h"
 #include "roster.h"
 #include "parsecfg.h"
-#include "lang.h"
 #include "utils.h"
 #include "list.h"
 

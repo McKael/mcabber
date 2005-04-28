@@ -1,0 +1,52 @@
+
+BUGS:
+
+* Should not stay on buddy buffer when one moves to a group
+* Pending message not displayed if buddy outside Contact window
+* We should rebuild the buddy list when receiving a message from an offline
+  buddy (or invisible/just hidden).
+* Presence notification is always accepted.
+* Messages in hidden (shrunk) groups are not visible.
+  Maybe we should create "*_msg_[gs]etflag()" functions, which
+  would update groups message flags too. (?)
+* Disable dev logging (use a config. option)
+
+
+TODO:
+
+* Display status
+* show (how?) we can scroll in roster if not all buddies are displayed
+* Get timestamp for offline messages
+* /connect /disconnect ?
+
+* Commands! :-)
+  - /roster <hide_offline|show_offline|top|bottom>
+  - /group <expand|shrink|toggle>
+  - /say blabla
+  - /say_to <jid> blabla
+  - /add <jid> [Name]
+  - /del [jid]
+  - /move [\<jid\>] <group>
+  - /nick (== rename <me> $@)
+  - /rename [\<jid\>] Name
+  - /info [jid]
+  - /request_auth [jid]
+  - /send_auth [jid]
+  - /status [online|avail|invisible|free|dnd|busy|notavail|away]
+    (and common shortcuts: /away, /online, /busy, /dnd)
+  - /rawxml...
+  - /search <\<jid\>|name>
+  - /clear
+  - /help
+* Command line history (^P/^N)
+* External commands for events
+* Multi-lines
+* Handle message type "error"
+* Handle window resize
+* Read history
+* Shortcut to jump to next message received (shift-tab?)
+* File transfer? :)
+* Conferences :))
+* Show status changes in buddy window (if open)?  Could be great!
+* Auto away
+

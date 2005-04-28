@@ -305,11 +305,18 @@ void scr_ShowWindow(const char *winId)
 void scr_ShowBuddyWindow(void)
 {
   const gchar *jid;
+
   if (!current_buddy)
+    jid = NULL;
+  else
+    jid = CURRENT_JID;
+
+  if (!jid) {
+    top_panel(chatPanel);
+    currentWindow = NULL;
     return;
-  jid = CURRENT_JID;
-  if (!jid)
-    return;
+  }
+
   scr_ShowWindow(jid);
   top_panel(inputPanel);
 }

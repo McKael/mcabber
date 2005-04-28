@@ -1,8 +1,6 @@
 
 BUGS:
 
-* Should not stay on buddy buffer when one moves to a group
-* Pending message not displayed if buddy outside Contact window
 * We should rebuild the buddy list when receiving a message from an offline
   buddy (or invisible/just hidden).
 * Presence notification is always accepted.
@@ -18,6 +16,8 @@ TODO:
 * Get timestamp for offline messages
 * /connect /disconnect ?
 * Key bindings (ex: F5 <-> /group toggle)
+* Pending message not displayed if buddy outside Contact window,
+  maybe we could show it someway (maybe just a flag?).
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>

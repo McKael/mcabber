@@ -127,8 +127,8 @@ void ParseColors(void)
   char *colors[11] = {
     "", "",
     "borderlines",
-    "jidonlineselected",
     "jidonline",
+    "newmsg",
     "jidofflineselected",
     "jidoffline",
     "text",
@@ -509,7 +509,10 @@ void scr_DrawRoster(void)
       for (n = 0; n < maxx; n++)
         waddch(rosterWnd, ' ');
     } else {
-      wattrset(rosterWnd, COLOR_PAIR(COLOR_BD_DES));
+      if (buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_MSG)
+        wattrset(rosterWnd, COLOR_PAIR(COLOR_NMSG));
+      else
+        wattrset(rosterWnd, COLOR_PAIR(COLOR_BD_DES));
     }
 
     strncpy(name, buddy_getname(BUDDATA(buddy)), ROSTER_WIDTH-7);

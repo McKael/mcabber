@@ -35,6 +35,7 @@ void do_roster(char *arg);
 void do_clear(char *arg);
 void do_status(char *arg);
 void do_add(char *arg);
+void do_group(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -63,7 +64,7 @@ void cmd_init(void)
   cmd_add("add", "Add a jabber user", COMPL_JID, 0, &do_add);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
   //cmd_add("del");
-  cmd_add("group", "Change group display settings", COMPL_GROUP, 0, NULL);
+  cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
   cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
   //cmd_add("info");
   //cmd_add("move");
@@ -71,7 +72,8 @@ void cmd_init(void)
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   //cmd_add("rename");
   //cmd_add("request_auth");
-  cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0, &do_roster);
+  cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0,
+          &do_roster);
   cmd_add("say", "Say something to the selected buddy", 0, 0, NULL);
   //cmd_add("search");
   //cmd_add("send_auth");
@@ -209,19 +211,19 @@ void do_roster(char *arg)
 {
   if (!strcasecmp(arg, "top")) {
     scr_RosterTop();
-    scr_DrawRoster();
+    update_roster = TRUE;
   } else if (!strcasecmp(arg, "bottom")) {
     scr_RosterBottom();
-    scr_DrawRoster();
+    update_roster = TRUE;
   } else if (!strcasecmp(arg, "hide_offline")) {
     buddylist_set_hide_offline_buddies(TRUE);
     if (current_buddy)
       buddylist_build();
-    scr_DrawRoster();
+    update_roster = TRUE;
   } else if (!strcasecmp(arg, "show_offline")) {
     buddylist_set_hide_offline_buddies(FALSE);
     buddylist_build();
-    scr_DrawRoster();
+    update_roster = TRUE;
   } else
     scr_LogPrint("Unrecognized parameter!");
 }
@@ -269,3 +271,35 @@ void do_add(char *arg)
   // 2nd parameter = optional nickname (XXX NULL for now...)
   jb_addbuddy(arg, NULL);
 }
+
+void do_group(char *arg)
+{
+  gpointer group;
+
+  if (!arg || (*arg == 0)) {
+    scr_LogPrint("Missing parameter");
+    return;
+  }
+
+  if (!current_buddy)
+    return;
+
+  group = BUDDATA(current_buddy);
+  if (!(buddy_gettype(group) & ROSTER_TYPE_GROUP)) {
+    scr_LogPrint("For now you need to select a group "
+                 "before using /group");
+    return;
+  }
+  if (!strcmp(arg, "expand")) {
+    buddy_setflags(group, ROSTER_FLAG_HIDE, FALSE);
+  } else if (!strcmp(arg, "shrink")) {
+    buddy_setflags(group, ROSTER_FLAG_HIDE, TRUE);
+  } else {
+    scr_LogPrint("Unrecognized parameter!");
+    return;
+  }
+
+  buddylist_build();
+  update_roster = TRUE;
+}
+

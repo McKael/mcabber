@@ -298,6 +298,7 @@ void buddylist_build(void)
   roster *roster_elt;
   roster *roster_current_buddy = NULL;
   int pending_group;
+  int shrunk_group;
 
   // We need to remember which buddy is selected.
   if (current_buddy)
@@ -323,6 +324,8 @@ void buddylist_build(void)
     else
        pending_group = TRUE;
 
+    shrunk_group = roster_elt->flags & ROSTER_FLAG_HIDE;
+
     sl_roster_usrelt = roster_elt->list;
     while (sl_roster_usrelt) {
       roster_usrelt = (roster*) sl_roster_usrelt->data;
@@ -332,6 +335,7 @@ void buddylist_build(void)
       // - buddy is not offline
       // - buddy has a lock (for example the buddy window is currently open)
       // - buddy has a pending (non-read) message
+      // - group isn't hidden (shrunk)
       if (!hide_offline_buddies ||
           (buddy_getstatus((gpointer)roster_usrelt) != offline) ||
           (buddy_getflags((gpointer)roster_usrelt) &
@@ -343,7 +347,11 @@ void buddylist_build(void)
           pending_group = FALSE;
         }
         // Add user
-        buddylist = g_list_append(buddylist, roster_usrelt);
+        // XXX Should we add the user if there is a message and
+        //     the group is shrunk? If so, we'd need to check LOCK flag too,
+        //     perhaps...
+        if (!shrunk_group)
+          buddylist = g_list_append(buddylist, roster_usrelt);
       }
 
       sl_roster_usrelt = g_slist_next(sl_roster_usrelt);
@@ -357,6 +365,7 @@ void buddylist_build(void)
   // current_buddy initialization
   if (!current_buddy || (g_list_position(buddylist, current_buddy) == -1))
     current_buddy = g_list_first(buddylist);
+  // XXX Maybe we should set update_roster to TRUE there?
 }
 
 //  buddy_hide_group(roster, hide)

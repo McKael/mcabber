@@ -166,8 +166,16 @@ int process_line(char *line)
   char *p;
   cmd *curcmd;
 
-  if (*line != '/') {
-    send_message(line); // FIXME: are we talking to a _buddy_?
+  if (*line == 0 || *line != '/') {
+    scr_set_chatmode(TRUE);
+    if (current_buddy) {
+      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
+
+      if (!*line)
+        scr_ShowBuddyWindow();
+      else
+        send_message(line); // FIXME: are we talking to a _buddy_?
+    }
     return 0;
   }
 

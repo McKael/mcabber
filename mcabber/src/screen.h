@@ -26,6 +26,7 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text);
 void scr_WriteOutgoingMessage(const char *jidto,   const char *text);
 void scr_ShowBuddyWindow(void);
 void scr_LogPrint(const char *fmt, ...);
+inline void scr_set_chatmode(int enable);
 
 WINDOW *scr_GetInputWindow(void);
 

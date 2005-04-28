@@ -789,6 +789,11 @@ void scr_LogPrint(const char *fmt, ...)
   doupdate();
 }
 
+inline void scr_set_chatmode(int enable)
+{
+  chatmode = enable;
+}
+
 //  which_row()
 // Tells which row our cursor is in, in the command line.
 // -1 -> normal text
@@ -982,13 +987,6 @@ int process_key(int key)
           check_offset(0);
           break;
       case '\n':  // Enter
-          chatmode = TRUE;
-          if (current_buddy)
-            buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
-          if (inputLine[0] == 0) {
-            scr_ShowBuddyWindow();
-            break;
-          }
           if (process_line(inputLine))
             return 255;
           ptr_inputline = inputLine;

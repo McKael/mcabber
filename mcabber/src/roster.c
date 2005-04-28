@@ -264,6 +264,14 @@ guint roster_gettype(const char *jid)
   return roster_usr->type;
 }
 
+inline guint roster_exists(const char *jidname, enum findwhat type,
+        guint roster_type)
+{
+  if (roster_find(jidname, type, roster_type))
+    return TRUE;
+  return FALSE;
+}
+
 // char *roster_getgroup(...)   / Or *GSList?  Which use??
 // ... setgroup(char*) ??
 // guchar roster_getflags(...)

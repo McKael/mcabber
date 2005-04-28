@@ -43,6 +43,8 @@ void    roster_setflags(const char *jid, guint flags, guint value);
 void    roster_settype(const char *jid, guint type);
 enum imstatus roster_getstatus(const char *jid);
 guint   roster_gettype(const char *jid);
+inline guint roster_exists(const char *jidname, enum findwhat type,
+        guint roster_type);
 
 void buddylist_set_hide_offline_buddies(int hide);
 inline int buddylist_get_hide_offline_buddies(void);

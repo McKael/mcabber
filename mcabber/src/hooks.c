@@ -30,10 +30,21 @@
 inline void hk_message_in(const char *jid, time_t timestamp, const char *msg)
 {
   char *buffer = utf8_decode(msg);
-  // XXX Maybe filter out special chars?
+  int new_guy = FALSE;
+
+  // If this user isn't in the roster, we add it
+  if (!roster_exists(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT)) {
+    roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER);
+    new_guy = TRUE;
+  }
+
   scr_WriteIncomingMessage(jid, buffer);
   hlog_write_message(jid, timestamp, FALSE, buffer);
   free(buffer);
+  if (new_guy) {
+    buddylist_build();
+    update_roster = TRUE;
+  }
 }
 
 inline void hk_message_out(const char *jid, time_t timestamp, const char *msg)

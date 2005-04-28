@@ -1,8 +1,6 @@
 
 BUGS:
 
-* We should rebuild the buddy list when receiving a message from an offline
-  buddy (or invisible/just hidden).
 * Presence notification is always accepted.
 * Messages in hidden (shrunk) groups are not visible.
   Maybe we should create "*_msg_[gs]etflag()" functions, which

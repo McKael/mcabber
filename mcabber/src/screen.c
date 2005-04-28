@@ -515,8 +515,10 @@ void scr_DrawRoster(void)
 
     strncpy(name, buddy_getname(BUDDATA(buddy)), ROSTER_WIDTH-7);
     // TODO: status is meaningless for groups:
-    if (buddy_gettype(BUDDATA(buddy)) & ROSTER_TYPE_GROUP) status='G';
-    mvwprintw(rosterWnd, i, 0, " %c[%c] %s", pending, status, name);
+    if (buddy_gettype(BUDDATA(buddy)) & ROSTER_TYPE_GROUP)
+      mvwprintw(rosterWnd, i, 0, " %c--- %s", pending, name);
+    else
+      mvwprintw(rosterWnd, i, 0, " %c[%c] %s", pending, status, name);
 
     i++;
   }

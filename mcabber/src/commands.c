@@ -63,8 +63,8 @@ void cmd_init(void)
   cmd_add("add", "Add a jabber user", COMPL_JID, 0, &do_add);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
   //cmd_add("del");
-  //cmd_add("group");
-  //cmd_add("help");
+  cmd_add("group", "Change group display settings", COMPL_GROUP, 0, NULL);
+  cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
   //cmd_add("info");
   //cmd_add("move");
   //cmd_add("nick");
@@ -92,6 +92,10 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "hide_offline");
   compl_add_category_word(COMPL_ROSTER, "show_offline");
   compl_add_category_word(COMPL_ROSTER, "top");
+
+  // Group category
+  compl_add_category_word(COMPL_GROUP, "expand");
+  compl_add_category_word(COMPL_GROUP, "shrink");
 }
 
 //  cmd_get

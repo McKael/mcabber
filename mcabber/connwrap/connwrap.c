@@ -18,11 +18,11 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-#elif HAVE_GNUTLS
-
-#include <gnutls/openssl.h>
-#define HAVE_OPENSSL
-
+#else
+# ifdef HAVE_GNUTLS
+# include <gnutls/openssl.h>
+# define HAVE_OPENSSL
+# endif
 #endif
 
 static int in_http_connect = 0;
@@ -62,7 +62,8 @@ static sslsock *addsock(int fd) {
 	OpenSSL_add_all_algorithms();
 #endif
 
-	ctx = SSL_CTX_new(SSLv23_method());
+	//ctx = SSL_CTX_new(SSLv23_method());
+	ctx = SSL_CTX_new(SSLv23_client_method());
     }
 
     p->ssl = SSL_new(ctx);

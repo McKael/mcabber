@@ -98,6 +98,7 @@ void cmd_init(void)
   // Group category
   compl_add_category_word(COMPL_GROUP, "expand");
   compl_add_category_word(COMPL_GROUP, "shrink");
+  compl_add_category_word(COMPL_GROUP, "toggle");
 }
 
 //  cmd_get
@@ -250,15 +251,15 @@ void do_status(char *arg)
     return;
   }
 
-  if (!strcmp(arg, "offline"))        st = offline;
-  else if (!strcmp(arg, "online"))    st = available;
-  else if (!strcmp(arg, "avail"))     st = available;
-  else if (!strcmp(arg, "away"))      st = away;
-  else if (!strcmp(arg, "invisible")) st = invisible;
-  else if (!strcmp(arg, "dnd"))       st = dontdisturb;
-  else if (!strcmp(arg, "busy"))      st = occupied;
-  else if (!strcmp(arg, "notavail"))  st = notavail;
-  else if (!strcmp(arg, "free"))      st = freeforchat;
+  if (!strcasecmp(arg, "offline"))        st = offline;
+  else if (!strcasecmp(arg, "online"))    st = available;
+  else if (!strcasecmp(arg, "avail"))     st = available;
+  else if (!strcasecmp(arg, "away"))      st = away;
+  else if (!strcasecmp(arg, "invisible")) st = invisible;
+  else if (!strcasecmp(arg, "dnd"))       st = dontdisturb;
+  else if (!strcasecmp(arg, "busy"))      st = occupied;
+  else if (!strcasecmp(arg, "notavail"))  st = notavail;
+  else if (!strcasecmp(arg, "free"))      st = freeforchat;
   else {
     scr_LogPrint("Unrecognized parameter!");
     return;
@@ -298,10 +299,13 @@ void do_group(char *arg)
                  "before using /group");
     return;
   }
-  if (!strcmp(arg, "expand")) {
+  if (!strcasecmp(arg, "expand")) {
     buddy_setflags(group, ROSTER_FLAG_HIDE, FALSE);
-  } else if (!strcmp(arg, "shrink")) {
+  } else if (!strcasecmp(arg, "shrink")) {
     buddy_setflags(group, ROSTER_FLAG_HIDE, TRUE);
+  } else if (!strcasecmp(arg, "toggle")) {
+    buddy_setflags(group, ROSTER_FLAG_HIDE,
+            !(buddy_getflags(group) & ROSTER_FLAG_HIDE));
   } else {
     scr_LogPrint("Unrecognized parameter!");
     return;

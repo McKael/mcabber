@@ -19,7 +19,7 @@ TODO:
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>
-  - /group <expand|shrink>
+  - /group <expand|shrink|toggle>
   - /say blabla
   - /say_to <jid> blabla
   - /add <jid> [Name]

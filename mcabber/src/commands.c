@@ -36,6 +36,7 @@ void do_clear(char *arg);
 void do_status(char *arg);
 void do_add(char *arg);
 void do_group(char *arg);
+void do_say(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -74,7 +75,7 @@ void cmd_init(void)
   //cmd_add("request_auth");
   cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0,
           &do_roster);
-  cmd_add("say", "Say something to the selected buddy", 0, 0, NULL);
+  cmd_add("say", "Say something to the selected buddy", 0, 0, &do_say);
   //cmd_add("search");
   //cmd_add("send_auth");
   cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status);
@@ -167,16 +168,17 @@ int process_line(char *line)
   char *p;
   cmd *curcmd;
 
-  if (*line == 0 || *line != '/') {
-    scr_set_chatmode(TRUE);
+  if (!*line) { // User only pressed enter
     if (current_buddy) {
+      scr_set_chatmode(TRUE);
       buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
-
-      if (!*line)
-        scr_ShowBuddyWindow();
-      else
-        send_message(line); // FIXME: are we talking to a _buddy_?
+      scr_ShowBuddyWindow();
     }
+    return 0;
+  }
+
+  if (*line != '/') {
+    do_say(line);
     return 0;
   }
 
@@ -313,5 +315,22 @@ void do_group(char *arg)
 
   buddylist_build();
   update_roster = TRUE;
+}
+
+void do_say(char *arg)
+{
+  gpointer bud = BUDDATA(current_buddy);
+
+  scr_set_chatmode(TRUE);
+  if (current_buddy) {
+    if (!(buddy_gettype(bud) & ROSTER_TYPE_USER)) {
+      scr_LogPrint("This is not a user");
+      return;
+    }
+    buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
+    send_message(arg);
+  } else {
+    scr_LogPrint("Who are you talking to??");
+  }
 }
 

@@ -9,6 +9,7 @@ BUGS:
 * Messages in hidden (shrunk) groups are not visible.
   Maybe we should create "*_msg_[gs]etflag()" functions, which
   would update groups message flags too. (?)
+* Disable dev logging (use a config. option)
 
 
 TODO:
@@ -16,6 +17,7 @@ TODO:
 * Display status
 * show (how?) we can scroll in roster if not all buddies are displayed
 * Get timestamp for offline messages
+* /connect /disconnect ?
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>
@@ -39,6 +41,7 @@ TODO:
 * Command line history (^P/^N)
 * External commands for events
 * Multi-lines
+* Handle message type "error"
 * Handle window resize
 * Read history
 * Shortcut to jump to next message received (shift-tab?)

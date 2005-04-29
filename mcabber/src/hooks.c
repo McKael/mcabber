@@ -41,7 +41,11 @@ inline void hk_message_in(const char *jid, time_t timestamp, const char *msg)
   scr_WriteIncomingMessage(jid, buffer);
   hlog_write_message(jid, timestamp, FALSE, buffer);
   free(buffer);
-  if (new_guy) {
+  // We need to rebuild the list if the sender is unknown or
+  // if the sender is offline/invisible and hide_offline_buddies is set
+  if (new_guy ||
+     (roster_getstatus(jid) == offline && buddylist_get_hide_offline_buddies()))
+  {
     buddylist_build();
     update_roster = TRUE;
   }

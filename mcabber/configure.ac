@@ -5,7 +5,7 @@ AC_PREREQ(2.59)
 AC_INIT([mcabber],[0.6.0-dev],[bmikael@lists.lilotux.net])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src])
-AC_CONFIG_HEADERS(config.h)
+AM_CONFIG_HEADER(config.h)
 
 AC_PROG_RANLIB
 
@@ -83,7 +83,7 @@ if test "$with_ssl" != "no"; then
 
 	AM_PATH_LIBGNUTLS_EXTRA(0.0.1, [
 	    CXXFLAGS="$CXXFLAGS $LIBGNUTLS_CFLAGS"
-	    LIBS="$LIBS $LIBGNUTLS_LIBS -lgnutls-extra"
+	    LIBS="$LIBS $LIBGNUTLS_LIBS -lgnutls-extra -lgnutls-openssl"
 	    AC_DEFINE([HAVE_GNUTLS], [], [GNU TLS])
 	])
     fi

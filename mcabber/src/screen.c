@@ -187,7 +187,7 @@ window_entry_t *scr_CreatePanel(const char *title, int x, int y,
   strncpy(tmp->name, title, 1024);
   scr_clear_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL);
 
-  if ((!dont_show)) {
+  if (!dont_show) {
     currentWindow = tmp;
   } else {
     if (currentWindow)
@@ -195,9 +195,9 @@ window_entry_t *scr_CreatePanel(const char *title, int x, int y,
     else
       top_panel(chatPanel);
   }
+  update_panels();
 
   list_add_tail(&tmp->list, &window_list);
-  update_panels();
 
   return tmp;
 }
@@ -218,6 +218,8 @@ window_entry_t *scr_SearchWindow(const char *winId)
   return NULL;
 }
 
+//  scr_UpdateWindow()
+// (Re-)Display the given chat window.
 void scr_UpdateWindow(window_entry_t *win_entry)
 {
   int n;
@@ -278,6 +280,8 @@ void scr_UpdateWindow(window_entry_t *win_entry)
   g_free(lines);
 }
 
+//  scr_ShowWindow()
+// Display the chat window with the given identifier.
 void scr_ShowWindow(const char *winId)
 {
   window_entry_t *win_entry = scr_SearchWindow(winId);
@@ -304,6 +308,8 @@ void scr_ShowWindow(const char *winId)
   top_panel(inputPanel);
 }
 
+//  scr_ShowBuddyWindow()
+// Display the chat window buffer for the current buddy.
 void scr_ShowBuddyWindow(void)
 {
   const gchar *jid;
@@ -315,6 +321,7 @@ void scr_ShowBuddyWindow(void)
 
   if (!jid) {
     top_panel(chatPanel);
+    top_panel(inputPanel);
     currentWindow = NULL;
     return;
   }
@@ -323,6 +330,10 @@ void scr_ShowBuddyWindow(void)
 }
 
 
+//  scr_WriteInWindow()
+// Write some text in the winId window (this usually is a jid).
+// Lines are splitted when they are too long to fit in the chat window.
+// If this window doesn't exist, it is created.
 void scr_WriteInWindow(const char *winId, const char *text, int TimeStamp,
         const char *prefix, int force_show)
 {
@@ -443,6 +454,8 @@ void scr_DrawMainWindow(void)
   return;
 }
 
+//  scr_DrawRoster()
+// Actually, display the buddylist on the screen.
 void scr_DrawRoster(void)
 {
   static guint offset = 0;
@@ -564,7 +577,6 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text)
 int scr_Getch(void)
 {
   int ch;
-  // keypad(inputWnd, TRUE);
   ch = wgetch(inputWnd);
   return ch;
 }
@@ -584,9 +596,11 @@ WINDOW *scr_GetInputWindow(void)
   return inputWnd;
 }
 
+//  scr_RosterTop()
+// Go to the first buddy in the buddylist
 void scr_RosterTop(void)
 {
-  enum imstatus prev_st;
+  enum imstatus prev_st = imstatus_size; // undef
 
   if (current_buddy) {
     prev_st = buddy_getstatus(BUDDATA(current_buddy));
@@ -598,16 +612,21 @@ void scr_RosterTop(void)
     buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
 
   // We should rebuild the buddylist but not everytime
+  // Here we check if we were locking a buddy who is actually offline,
+  // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
   if (current_buddy && prev_st == offline &&
           buddylist_get_hide_offline_buddies())
     buddylist_build();
   if (chatmode)
     scr_ShowBuddyWindow();
+  update_roster = TRUE;
 }
 
+//  scr_RosterBottom()
+// Go to the last buddy in the buddylist
 void scr_RosterBottom(void)
 {
-  enum imstatus prev_st;
+  enum imstatus prev_st = imstatus_size; // undef
 
   if (current_buddy) {
     prev_st = buddy_getstatus(BUDDATA(current_buddy));
@@ -615,32 +634,42 @@ void scr_RosterBottom(void)
       buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
   }
   current_buddy = g_list_last(buddylist);
+  // Lock the buddy in the buddylist if we're in chat mode
   if (chatmode && current_buddy)
     buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
 
   // We should rebuild the buddylist but not everytime
+  // Here we check if we were locking a buddy who is actually offline,
+  // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
   if (current_buddy && prev_st == offline &&
           buddylist_get_hide_offline_buddies())
     buddylist_build();
+
   if (chatmode)
     scr_ShowBuddyWindow();
+  update_roster = TRUE;
 }
 
+//  scr_RosterUp()
+// Go to the previous buddy in the buddylist
 void scr_RosterUp(void)
 {
-  enum imstatus prev_st;
+  enum imstatus prev_st = imstatus_size; // undef
 
   if (current_buddy) {
     if (g_list_previous(current_buddy)) {
       prev_st = buddy_getstatus(BUDDATA(current_buddy));
       buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
       current_buddy = g_list_previous(current_buddy);
+      // Lock the buddy in the buddylist if we're in chat mode
       if (chatmode)
         buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
       // We should rebuild the buddylist but not everytime
+      // Here we check if we were locking a buddy who is actually offline,
+      // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
       if (prev_st == offline && buddylist_get_hide_offline_buddies())
         buddylist_build();
-      scr_DrawRoster();
+      update_roster = TRUE;
     }
   }
 
@@ -648,9 +677,11 @@ void scr_RosterUp(void)
     scr_ShowBuddyWindow();
 }
 
+//  scr_RosterDown()
+// Go to the next buddy in the buddylist
 void scr_RosterDown(void)
 {
-  enum imstatus prev_st;
+  enum imstatus prev_st = imstatus_size; // undef
 
   if (current_buddy) {
     if (g_list_next(current_buddy)) {
@@ -660,9 +691,11 @@ void scr_RosterDown(void)
       if (chatmode)
         buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
       // We should rebuild the buddylist but not everytime
+      // Here we check if we were locking a buddy who is actually offline,
+      // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
       if (prev_st == offline && buddylist_get_hide_offline_buddies())
         buddylist_build();
-      scr_DrawRoster();
+      update_roster = TRUE;
     }
   }
 
@@ -670,6 +703,8 @@ void scr_RosterDown(void)
     scr_ShowBuddyWindow();
 }
 
+//  scr_ScrollUp()
+// Scroll up the current buddy window, half a screen.
 void scr_ScrollUp(void)
 {
   const gchar *jid;
@@ -713,6 +748,8 @@ void scr_ScrollUp(void)
   doupdate();
 }
 
+//  scr_ScrollDown()
+// Scroll down the current buddy window, half a screen.
 void scr_ScrollDown(void)
 {
   const gchar *jid;
@@ -751,6 +788,8 @@ void scr_ScrollDown(void)
   doupdate();
 }
 
+//  scr_Clear()
+// Clear the current buddy window (used for the /clear command)
 void scr_Clear(void)
 {
   const gchar *jid;
@@ -802,6 +841,8 @@ void scr_LogPrint(const char *fmt, ...)
   doupdate();
 }
 
+//  scr_set_chatmode()
+// Public fonction to (un)set chatmode...
 inline void scr_set_chatmode(int enable)
 {
   chatmode = enable;
@@ -842,6 +883,10 @@ int which_row(char **p_row)
   return row;
 }
 
+//  scr_insert_text()
+// Insert the given text at the current cursor position.
+// The cursor is moved.  We don't check if the cursor still is in the screen
+// after, the caller should do that.
 void scr_insert_text(const char *text)
 {
   char tmpLine[INPUTLINE_LENGTH+1];
@@ -857,6 +902,9 @@ void scr_insert_text(const char *text)
   strcpy(ptr_inputline, tmpLine);
 }
 
+//  scr_handle_tab()
+// Function called when tab is pressed.
+// Initiate or continue a completion...
 void scr_handle_tab(void)
 {
   int nrow;

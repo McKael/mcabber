@@ -305,7 +305,6 @@ void buddylist_build(void)
   GSList *sl_roster_elt = groups;
   roster *roster_elt;
   roster *roster_current_buddy = NULL;
-  int pending_group;
   int shrunk_group;
 
   // We need to remember which buddy is selected.
@@ -323,14 +322,16 @@ void buddylist_build(void)
   while (sl_roster_elt) {
     GSList *sl_roster_usrelt;
     roster *roster_usrelt;
+    guint pending_group = FALSE;
     roster_elt = (roster*) sl_roster_elt->data;
 
     // Add the group now unless hide_offline_buddies is set,
     // in which case we'll add it only if an online buddy belongs to it.
-    if (!hide_offline_buddies)
+    // We take care to keep the current_buddy in the list, too.
+    if (!hide_offline_buddies || roster_elt == roster_current_buddy)
       buddylist = g_list_append(buddylist, roster_elt);
     else
-       pending_group = TRUE;
+      pending_group = TRUE;
 
     shrunk_group = roster_elt->flags & ROSTER_FLAG_HIDE;
 
@@ -344,12 +345,14 @@ void buddylist_build(void)
       // - buddy has a lock (for example the buddy window is currently open)
       // - buddy has a pending (non-read) message
       // - group isn't hidden (shrunk)
-      if (!hide_offline_buddies ||
+      // - this is the current_buddy
+      if (!hide_offline_buddies || roster_usrelt == roster_current_buddy ||
           (buddy_getstatus((gpointer)roster_usrelt) != offline) ||
           (buddy_getflags((gpointer)roster_usrelt) &
                (ROSTER_FLAG_LOCK | ROSTER_FLAG_MSG))) {
         // This user should be added.  Maybe the group hasn't been added yet?
-        if (hide_offline_buddies && pending_group) {
+        if (pending_group &&
+            (hide_offline_buddies || roster_usrelt == roster_current_buddy)) {
           // It hasn't been done yet
           buddylist = g_list_append(buddylist, roster_elt);
           pending_group = FALSE;

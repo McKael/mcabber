@@ -3,11 +3,7 @@
 
 #include <glib.h>
 
-#ifdef MCABBER_TESTUNIT
-# include "test_roster_main.h"
-#else
 # include "jabglue.h"
-#endif
 
 enum findwhat {
   jidsearch,

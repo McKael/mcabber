@@ -5,12 +5,6 @@ BUGS:
 * Messages in hidden (shrunk) groups are not visible.
   Maybe we should create "*_msg_[gs]etflag()" functions, which
   would update groups message flags too. (?)
-* Small but perhaps annoying: when we are on a group entry, w/
-  offline buddies hidden and this group is removed from the list.
-  Then the cursor goes back to the first item of the buddylist.
-* We should lock the current buddy even not when being in chat mode.
-  For example, if you're writing to s.o. and he leaves just before you
-  press enter, you write to the wrong buddy.  Baad.
 
 
 TODO:

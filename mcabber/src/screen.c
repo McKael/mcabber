@@ -300,6 +300,8 @@ void scr_ShowWindow(const char *winId)
     top_panel(chatPanel);
     currentWindow = win_entry;  // == NULL  (current window empty)
   }
+
+  top_panel(inputPanel);
 }
 
 void scr_ShowBuddyWindow(void)
@@ -318,7 +320,6 @@ void scr_ShowBuddyWindow(void)
   }
 
   scr_ShowWindow(jid);
-  top_panel(inputPanel);
 }
 
 
@@ -370,6 +371,7 @@ void scr_WriteInWindow(const char *winId, const char *text, int TimeStamp,
     // Show and refresh the window
     top_panel(win_entry->panel);
     scr_UpdateWindow(win_entry);
+    top_panel(inputPanel);
     update_panels();
     doupdate();
   } else {
@@ -438,8 +440,6 @@ void scr_DrawMainWindow(void)
   inputPanel = new_panel(inputWnd);
 
   scr_DrawRoster();
-  update_panels();
-  doupdate();
   return;
 }
 
@@ -537,6 +537,7 @@ void scr_DrawRoster(void)
     i++;
   }
 
+  top_panel(inputPanel);
   update_panels();
   doupdate();
 }
@@ -550,7 +551,6 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text)
 {
   // FIXME expand tabs / filter out special chars...
   scr_WriteMessage(jidfrom, text, "<== ");
-  top_panel(inputPanel);
   update_panels();
   doupdate();
 }
@@ -559,7 +559,6 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text)
 {
   scr_WriteMessage(jidto, text, "--> ");
   scr_ShowWindow(jidto);
-  top_panel(inputPanel);
 }
 
 int scr_Getch(void)

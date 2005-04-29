@@ -5,6 +5,10 @@ BUGS:
 * Messages in hidden (shrunk) groups are not visible.
   Maybe we should create "*_msg_[gs]etflag()" functions, which
   would update groups message flags too. (?)
+* Small but perhaps annoying: when we are on a group entry, w/
+  offline buddies hidden and this group is removed from the list.
+  Then the cursor goes back to the first item of the buddylist.
+* We should check all top_panel etc. for cursor problems...
 
 
 TODO:

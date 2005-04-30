@@ -290,7 +290,7 @@ void scr_ShowWindow(const char *winId)
     top_panel(win_entry->panel);
     currentWindow = win_entry;
     chatmode = TRUE;
-    roster_setflags(winId, ROSTER_FLAG_MSG, FALSE);
+    roster_msg_setflag(winId, FALSE);
     roster_setflags(winId, ROSTER_FLAG_LOCK, TRUE);
     update_roster = TRUE;
 
@@ -386,7 +386,7 @@ void scr_WriteInWindow(const char *winId, const char *text, int TimeStamp,
     update_panels();
     doupdate();
   } else {
-    roster_setflags(winId, ROSTER_FLAG_MSG, TRUE);
+    roster_msg_setflag(winId, TRUE);
     update_roster = TRUE;
   }
 }

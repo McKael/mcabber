@@ -226,7 +226,52 @@ void roster_setflags(const char *jid, guint flags, guint value)
   else
     roster_usr->flags &= ~flags;
 }
-    
+
+//  roster_msg_setflag()
+// Set the ROSTER_FLAG_MSG to the given value for the given jid.
+// It will update the buddy's group message flag.
+void roster_msg_setflag(const char *jid, guint value)
+{
+  GSList *sl_user;
+  roster *roster_usr, *roster_grp;
+
+  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  if (sl_user == NULL)
+    return;
+
+  roster_usr = (roster*)sl_user->data;
+  roster_grp = (roster*)roster_usr->list->data;
+  if (value) {
+    // Message flag is TRUE.  This is easy, we just have to set both flags
+    // to TRUE...
+    roster_usr->flags |= ROSTER_FLAG_MSG;
+    roster_grp->flags |= ROSTER_FLAG_MSG; // group
+  } else {
+    // Message flag is FALSE.
+    guint msg = FALSE;
+    roster_usr->flags &= ~ROSTER_FLAG_MSG;
+    // For the group value we need to watch all buddies in this group;
+    // if one is flagged, then the group will be flagged.
+    // I will re-use sl_user and roster_usr here, as they aren't used
+    // anymore.
+    sl_user = roster_grp->list;
+    while (sl_user) {
+      roster_usr = (roster*)sl_user->data;
+      if (roster_usr->flags & ROSTER_FLAG_MSG) {
+        msg = TRUE;
+        break;
+      }
+      sl_user = g_slist_next(sl_user);
+    }
+    if (!msg)
+      roster_grp->flags &= ~ROSTER_FLAG_MSG;
+    else
+      roster_grp->flags |= ROSTER_FLAG_MSG;
+      // Actually the "else" part is useless, because the group
+      // ROSTER_FLAG_MSG should already be set...
+  }
+}
+
 void roster_settype(const char *jid, guint type)
 {
   GSList *sl_user;
@@ -271,12 +316,6 @@ inline guint roster_exists(const char *jidname, enum findwhat type,
     return TRUE;
   return FALSE;
 }
-
-// char *roster_getgroup(...)   / Or *GSList?  Which use??
-// ... setgroup(char*) ??
-// guchar roster_getflags(...)
-// guchar roster_getname(...)   / setname ??
-// roster_del_group?
 
 
 /* ### BuddyList functions ### */

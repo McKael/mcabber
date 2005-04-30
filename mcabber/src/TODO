@@ -2,9 +2,9 @@
 BUGS:
 
 * Presence notification is always accepted.
-* Messages in hidden (shrunk) groups are not visible.
-  Maybe we should create "*_msg_[gs]etflag()" functions, which
-  would update groups message flags too. (?)
+* Do not show message flag for unfolded groups.
+* Resize not handled.
+* I have seen a segfault, but don't know how to reproduce it...
 
 
 TODO:

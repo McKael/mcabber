@@ -2,7 +2,6 @@
 BUGS:
 
 * Presence notification is always accepted.
-* Do not show message flag for unfolded groups.
 * Resize not handled.
 * I have seen a segfault, but don't know how to reproduce it...
 

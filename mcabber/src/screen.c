@@ -450,7 +450,7 @@ void scr_DrawMainWindow(void)
   inputWnd = newwin(1, maxX, maxY-1, 0);
   inputPanel = new_panel(inputWnd);
 
-  scr_DrawRoster();
+  update_roster = TRUE;
   return;
 }
 
@@ -509,13 +509,18 @@ void scr_DrawRoster(void)
     char status = '?';
     char pending = ' ';
     enum imstatus budstate;
+    unsigned short ismsg = buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_MSG;
+    unsigned short isgrp = buddy_gettype(BUDDATA(buddy)) & ROSTER_TYPE_GROUP;
+    unsigned short ishid = buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_HIDE;
 
     if (rOffset > 0) {
       rOffset--;
       continue;
     }
 
-    if (buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_MSG) {
+    // Display message notice if there is a message flag, but not
+    // for unfolded groups.
+    if (ismsg && (!isgrp || ishid)) {
       pending = '#';
     }
 
@@ -529,16 +534,16 @@ void scr_DrawRoster(void)
       for (n = 0; n < maxx; n++)
         waddch(rosterWnd, ' ');
     } else {
-      if (buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_MSG)
+      if (pending == '#')
         wattrset(rosterWnd, COLOR_PAIR(COLOR_NMSG));
       else
         wattrset(rosterWnd, COLOR_PAIR(COLOR_BD_DES));
     }
 
     strncpy(name, buddy_getname(BUDDATA(buddy)), ROSTER_WIDTH-7);
-    if (buddy_gettype(BUDDATA(buddy)) & ROSTER_TYPE_GROUP) {
+    if (isgrp) {
       char *sep;
-      if (buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_HIDE)
+      if (ishid)
         sep = "+++";
       else
         sep = "---";

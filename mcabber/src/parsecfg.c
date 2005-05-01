@@ -75,6 +75,7 @@ int cfg_file(char *filename)
     }
     fprintf(stderr, "CFG: orphaned line \"%s\"\n", line);
   }
+  free(buf);
   return 1;
 }
 

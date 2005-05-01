@@ -87,6 +87,7 @@ static void write_histo_line(const char *jid,
    */
 
   fp = fopen(filename, "a");
+  g_free(filename);
   if (!fp)
     return;
   fprintf(fp, "%c%c %10u %03d %s\n", type, info, (unsigned int)ts, len, data);

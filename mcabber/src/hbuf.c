@@ -61,7 +61,9 @@ void hbuf_add_line(GList **p_hbuf, const char *text, const char *prefix,
   if (prefix)
     strncpy(hbuf_block_elt->persist.prefix, prefix, PREFIX_LENGTH-1);
   if (!hbuf) {
-    hbuf_block_elt->ptr    = g_new(char, HBB_BLOCKSIZE);
+    do {
+      hbuf_block_elt->ptr  = g_new(char, HBB_BLOCKSIZE);
+    } while (!hbuf_block_elt->ptr);
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
     hbuf_block_elt->persist.ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
     *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
@@ -79,7 +81,9 @@ void hbuf_add_line(GList **p_hbuf, const char *text, const char *prefix,
   }
   if (hbuf_block_elt->ptr + strlen(text) >= hbuf_block_elt->persist.ptr_end_alloc) {
     // Too long for the current allocated bloc, we need another one
-    hbuf_block_elt->ptr    = g_new0(char, HBB_BLOCKSIZE);
+    do {
+      hbuf_block_elt->ptr  = g_new0(char, HBB_BLOCKSIZE);
+    } while (!hbuf_block_elt->ptr);
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
     hbuf_block_elt->persist.ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
   }

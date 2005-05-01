@@ -184,7 +184,11 @@ window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   int y;
   int lines;
   int cols;
-  window_entry_t *tmp = calloc(1, sizeof(window_entry_t));
+  window_entry_t *tmp;
+  
+  do {
+    tmp = calloc(1, sizeof(window_entry_t));
+  } while (!tmp);
 
   // Dimensions
   x = ROSTER_WIDTH;
@@ -194,8 +198,8 @@ window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
 
   tmp->win = newwin(lines, cols, y, x);
   tmp->panel = new_panel(tmp->win);
-  tmp->name = (char *) calloc(1, 1024);
-  strncpy(tmp->name, title, 1024);
+  tmp->name = (char *) calloc(1, 96);
+  strncpy(tmp->name, title, 96);
   scr_clear_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL);
 
   if (!dont_show) {
@@ -928,14 +932,16 @@ void scr_LogPrint(const char *fmt, ...)
   char *buffer;
   va_list ap;
 
-  buffer = (char *) calloc(1, 4096);
+  do {
+  buffer = (char *) calloc(1, 1024);
+  } while (!buffer);
 
   timestamp = time(NULL);
   strftime(buffer, 64, "[%H:%M:%S] ", localtime(&timestamp));
   wprintw(logWnd, "\n%s", buffer);
 
   va_start(ap, fmt);
-  vsnprintf(buffer, 4096, fmt, ap);
+  vsnprintf(buffer, 1024, fmt, ap);
   va_end(ap);
 
   wprintw(logWnd, "%s", buffer);

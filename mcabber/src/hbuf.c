@@ -159,7 +159,8 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
   GList *first_elt, *curr_elt, *next_elt;
   hbuf_block *hbuf_b_curr, *hbuf_b_next;
 
-  first_elt = g_list_first(*p_hbuf);
+  // *p_hbuf needs to be the head of the list
+  first_elt = *p_hbuf = g_list_first(*p_hbuf);
 
   // #1 Remove non-persistent blocks (ptr_end should be updated!)
   curr_elt = first_elt;
@@ -174,7 +175,6 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
     if (!(hbuf_b_next->flags & HBB_FLAG_PERSISTENT)) {
       hbuf_b_curr->ptr_end = hbuf_b_next->ptr_end;
       g_list_delete_link(curr_elt, next_elt);
-      next_elt = g_list_next(curr_elt);
     } else 
       curr_elt = next_elt;
   }
@@ -205,15 +205,8 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
         hbuf_b_curr->ptr_end  = end;
         hbuf_b_curr->flags    = 0;
         hbuf_b_curr->persist.ptr_end_alloc = hbuf_b_prev->persist.ptr_end_alloc;
-        /*
-        // Is there a better way?
-        if (g_list_next(curr_elt))
-          g_list_insert_before(*p_hbuf, curr_elt->next, hbuf_b_curr);
-        else
-          *p_hbuf = g_list_append(*p_hbuf, hbuf_b_curr);
-        */
-        // This is OK because insert_before(NULL) <==> append()
-        g_list_insert_before(*p_hbuf, curr_elt->next, hbuf_b_curr);
+        // This is OK because insert_before(NULL) == append():
+        *p_hbuf = g_list_insert_before(*p_hbuf, curr_elt->next, hbuf_b_curr);
       }
       curr_elt = g_list_next(curr_elt);
     }

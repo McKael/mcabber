@@ -81,6 +81,7 @@ int main(int argc, char **argv)
   unsigned int ping;
   int ssl;
   int ret = 0;
+  unsigned int refresh = 0;
 
   credits();
 
@@ -150,7 +151,7 @@ int main(int argc, char **argv)
   scr_InitCurses();
 
   ut_WriteLog("Drawing main window...\n");
-  scr_DrawMainWindow();
+  scr_DrawMainWindow(TRUE);
 
   optstring = cfg_read("logging");
   if (optstring && (atoi(optstring) > 0))
@@ -194,11 +195,17 @@ int main(int argc, char **argv)
   ut_WriteLog("Ready to send/receive messages...\n");
 
   jb_reset_keepalive();
-  keypad(scr_GetInputWindow(), TRUE);
   while (ret != 255) {
     key = scr_Getch();
+
+    // The refresh is really an ugly hack, but we need to call doupdate()
+    // from time to time to catch the RESIZE events, because getch keep
+    // returning ERR until a real key is pressed :-(
     if (key != ERR)
       ret = process_key(key);
+    else if (++refresh % 2)
+      doupdate();
+
     jb_main();
     if (update_roster)
       scr_DrawRoster();

@@ -18,6 +18,8 @@
 
 #define window_entry(n) list_entry(n, window_entry_t, list)
 
+inline void check_offset(int);
+
 LIST_HEAD(window_list);
 
 typedef struct _window_entry_t {
@@ -176,10 +178,19 @@ void ParseColors(void)
 }
 
 
-window_entry_t *scr_CreatePanel(const char *title, int x, int y,
-                                int lines, int cols, int dont_show)
+window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
 {
+  int x;
+  int y;
+  int lines;
+  int cols;
   window_entry_t *tmp = calloc(1, sizeof(window_entry_t));
+
+  // Dimensions
+  x = ROSTER_WIDTH;
+  y = 0;
+  lines = CHAT_WIN_HEIGHT;
+  cols = maxX - ROSTER_WIDTH;
 
   tmp->win = newwin(lines, cols, y, x);
   tmp->panel = new_panel(tmp->win);
@@ -365,8 +376,7 @@ void scr_WriteInWindow(const char *winId, const char *text, int TimeStamp,
 
   // If the window entry doesn't exist yet, let's create it.
   if (win_entry == NULL) {
-    win_entry = scr_CreatePanel(winId, ROSTER_WIDTH, 0, CHAT_WIN_HEIGHT,
-                          maxX - ROSTER_WIDTH, dont_show);
+    win_entry = scr_CreateBuddyPanel(winId, dont_show);
   }
 
   hbuf_add_line(&win_entry->hbuf, text, fullprefix,
@@ -419,39 +429,128 @@ void scr_TerminateCurses(void)
   return;
 }
 
-void scr_DrawMainWindow(void)
+//  scr_DrawMainWindow()
+// Set fullinit to TRUE to also create panels
+//
+// I think it could be improved a _lot_ but I'm really not an ncurses
+// expert... :-\   Mikael.
+//
+void scr_DrawMainWindow(unsigned int fullinit)
 {
   int l;
 
-  /* Draw main panels */
+  /* Create windows */
   rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WIDTH, 0, 0);
-  rosterPanel = new_panel(rosterWnd);
+  chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH, 0, ROSTER_WIDTH);
+  logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
+  logWnd    = derwin(logWnd_border, LOG_WIN_HEIGHT-2, maxX-2, 1, 1);
+  inputWnd  = newwin(1, maxX, maxY-1, 0);
+
+  /* Draw/init windows */
+
+  // - Clear roster and draw vertical line
   scr_clear_box(rosterWnd, 0, 0, CHAT_WIN_HEIGHT, ROSTER_WIDTH,
                 COLOR_GENERAL);
   for (l=0 ; l < CHAT_WIN_HEIGHT ; l++)
     mvwaddch(rosterWnd, l, ROSTER_WIDTH-1, ACS_VLINE);
 
-  chatWnd = newwin(CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH, 0, ROSTER_WIDTH);
-  chatPanel = new_panel(chatWnd);
+  // - Clear chat window
   scr_clear_box(chatWnd, 0, 0, CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH,
                 COLOR_GENERAL);
-  scrollok(chatWnd, TRUE);
   mvwprintw(chatWnd, 0, 0, "This is the status window");
 
-  logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
-  logPanel_border = new_panel(logWnd_border);
+  // - Draw/clear the log window
   scr_draw_box(logWnd_border, 0, 0, LOG_WIN_HEIGHT, maxX, COLOR_GENERAL, 0, 0);
-  logWnd = derwin(logWnd_border, LOG_WIN_HEIGHT-2, maxX-2, 1, 1);
-  logPanel = new_panel(logWnd);
   wbkgd(logWnd, COLOR_PAIR(COLOR_GENERAL));
-
   scrollok(logWnd, TRUE);
 
-  inputWnd = newwin(1, maxX, maxY-1, 0);
-  inputPanel = new_panel(inputWnd);
+  // Enable keypad (+ special keys)
+  keypad(inputWnd, TRUE);
 
+  if (fullinit) {
+    // Create panels
+    rosterPanel = new_panel(rosterWnd);
+    chatPanel   = new_panel(chatWnd);
+    logPanel_border = new_panel(logWnd_border);
+    logPanel    = new_panel(logWnd);
+    inputPanel  = new_panel(inputWnd);
+  }
+
+  // We'll need to redraw the roster
   update_roster = TRUE;
   return;
+}
+
+//  scr_Resize()
+// Function called when the window is resized.
+// - Recreate windows
+// - Update panels
+// - Rewrap lines in each buddy buffer
+void scr_Resize()
+{
+  WINDOW *w_roster, *w_chat, *w_log, *w_log_bord, *w_input;
+
+  struct list_head *pos, *n;
+  window_entry_t *search_entry;
+  int x, y, lines, cols;
+
+  // First, update the global variables
+  getmaxyx(stdscr, maxY, maxX);
+  // Make sure the cursor stays inside the window
+  check_offset(0);
+
+  // Backup pointers
+  w_roster    = rosterWnd;
+  w_chat      = chatWnd;
+  w_log       = logWnd;
+  w_log_bord  = logWnd_border;
+  w_input     = inputWnd;
+
+  // Recreate windows
+  scr_DrawMainWindow(FALSE);
+
+  // Replace windows for panels
+  replace_panel(rosterPanel, rosterWnd);
+  replace_panel(chatPanel, chatWnd);
+  replace_panel(logPanel, logWnd);
+  replace_panel(logPanel_border, logWnd_border);
+  replace_panel(inputPanel, inputWnd);
+
+  // Destroy old windows
+  delwin(w_roster);
+  delwin(w_chat);
+  delwin(w_log);
+  delwin(w_log_bord);
+  delwin(w_input);
+
+  // Resize all buddy windows
+  x = ROSTER_WIDTH;
+  y = 0;
+  lines = CHAT_WIN_HEIGHT;
+  cols = maxX - ROSTER_WIDTH;
+
+  list_for_each_safe(pos, n, &window_list) {
+    search_entry = window_entry(pos);
+    if (search_entry->win) {
+      WINDOW *w_buddy = search_entry->win;
+      // Create new window
+      search_entry->win = newwin(lines, cols, y, x);
+      scr_clear_box(search_entry->win, 0, 0, lines, cols, COLOR_GENERAL);
+      // If a panel exists, replace the old window with the new
+      if (search_entry->panel) {
+        replace_panel(search_entry->panel, search_entry->win);
+      }
+      // Redo line wrapping
+      hbuf_rebuild(&search_entry->hbuf,
+              maxX - scr_WindowWidth(rosterWnd) - 14);
+      // Delete old buddy window
+      delwin(w_buddy);
+    }
+  }
+
+  // Refresh current buddy window
+  if (chatmode)
+    scr_ShowBuddyWindow();
 }
 
 //  scr_DrawRoster()
@@ -1103,6 +1202,10 @@ int process_key(int key)
             buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
           top_panel(chatPanel);
           top_panel(inputPanel);
+          break;
+      case 12:  // Ctrl-l
+      case KEY_RESIZE:
+          scr_Resize();
           break;
       default:
           scr_LogPrint("Unkown key=%d", key);

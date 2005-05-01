@@ -19,7 +19,7 @@
 extern int update_roster;
 
 void scr_InitCurses(void);
-void scr_DrawMainWindow(void);
+void scr_DrawMainWindow(unsigned int fullinit);
 void scr_DrawRoster(void);
 void scr_TerminateCurses(void);
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text);

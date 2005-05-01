@@ -203,10 +203,13 @@ int main(int argc, char **argv)
     // returning ERR until a real key is pressed :-(
     if (key != ERR)
       ret = process_key(key);
-    else if (++refresh % 2)
+    else if (refresh++ > 1) {
       doupdate();
+      refresh = 0;
+    }
 
-    jb_main();
+    if (key != KEY_RESIZE)
+      jb_main();
     if (update_roster)
       scr_DrawRoster();
   }

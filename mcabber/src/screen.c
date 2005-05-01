@@ -318,7 +318,7 @@ void scr_ShowWindow(const char *winId)
 
     // Finished :)
     update_panels();
-    doupdate();
+    // doupdate();    (update_roster should be enough?)
   } else {
     top_panel(chatPanel);
     currentWindow = win_entry;  // == NULL  (current window empty)
@@ -438,7 +438,7 @@ void scr_TerminateCurses(void)
 }
 
 //  scr_DrawMainWindow()
-// Set fullinit to TRUE to also create panels
+// Set fullinit to TRUE to also create panels.  Set it to FALSE for a resize.
 //
 // I think it could be improved a _lot_ but I'm really not an ncurses
 // expert... :-\   Mikael.
@@ -447,12 +447,26 @@ void scr_DrawMainWindow(unsigned int fullinit)
 {
   int l;
 
-  /* Create windows */
-  rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WIDTH, 0, 0);
-  chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH, 0, ROSTER_WIDTH);
-  logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
-  logWnd    = derwin(logWnd_border, LOG_WIN_HEIGHT-2, maxX-2, 1, 1);
-  inputWnd  = newwin(1, maxX, maxY-1, 0);
+  if (fullinit) {
+    /* Create windows */
+    rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WIDTH, 0, 0);
+    chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH, 0, ROSTER_WIDTH);
+    logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
+    logWnd    = newwin(LOG_WIN_HEIGHT-2, maxX-2, CHAT_WIN_HEIGHT+1, 1);
+    inputWnd  = newwin(1, maxX, maxY-1, 0);
+  } else {
+    /* Resize windows */
+    wresize(rosterWnd, CHAT_WIN_HEIGHT, ROSTER_WIDTH);
+    wresize(chatWnd, CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH);
+
+    wresize(logWnd_border, LOG_WIN_HEIGHT, maxX);
+    wresize(logWnd, LOG_WIN_HEIGHT-2, maxX-2);
+    mvwin(logWnd_border, CHAT_WIN_HEIGHT, 0);
+    mvwin(logWnd, CHAT_WIN_HEIGHT+1, 1);
+
+    wresize(inputWnd, 1, maxX);
+    mvwin(inputWnd, maxY-1, 0);
+  }
 
   /* Draw/init windows */
 
@@ -470,18 +484,28 @@ void scr_DrawMainWindow(unsigned int fullinit)
   // - Draw/clear the log window
   scr_draw_box(logWnd_border, 0, 0, LOG_WIN_HEIGHT, maxX, COLOR_GENERAL, 0, 0);
   wbkgd(logWnd, COLOR_PAIR(COLOR_GENERAL));
+  // Auto-scrolling in log window
   scrollok(logWnd, TRUE);
 
-  // Enable keypad (+ special keys)
-  keypad(inputWnd, TRUE);
 
   if (fullinit) {
+    // Enable keypad (+ special keys)
+    keypad(inputWnd, TRUE);
+
     // Create panels
     rosterPanel = new_panel(rosterWnd);
     chatPanel   = new_panel(chatWnd);
     logPanel_border = new_panel(logWnd_border);
     logPanel    = new_panel(logWnd);
     inputPanel  = new_panel(inputWnd);
+  } else {
+    // Update panels
+    replace_panel(rosterPanel, rosterWnd);
+    replace_panel(chatPanel, chatWnd);
+    replace_panel(logPanel, logWnd);
+    replace_panel(logPanel_border, logWnd_border);
+    replace_panel(inputPanel, inputWnd);
+    wprintw(logWnd, "This is a test\n");
   }
 
   // We'll need to redraw the roster
@@ -491,13 +515,10 @@ void scr_DrawMainWindow(unsigned int fullinit)
 
 //  scr_Resize()
 // Function called when the window is resized.
-// - Recreate windows
-// - Update panels
+// - Resize windows
 // - Rewrap lines in each buddy buffer
 void scr_Resize()
 {
-  WINDOW *w_roster, *w_chat, *w_log, *w_log_bord, *w_input;
-
   struct list_head *pos, *n;
   window_entry_t *search_entry;
   int x, y, lines, cols;
@@ -507,29 +528,8 @@ void scr_Resize()
   // Make sure the cursor stays inside the window
   check_offset(0);
 
-  // Backup pointers
-  w_roster    = rosterWnd;
-  w_chat      = chatWnd;
-  w_log       = logWnd;
-  w_log_bord  = logWnd_border;
-  w_input     = inputWnd;
-
-  // Recreate windows
+  // Resize windows and update panels
   scr_DrawMainWindow(FALSE);
-
-  // Replace windows for panels
-  replace_panel(rosterPanel, rosterWnd);
-  replace_panel(chatPanel, chatWnd);
-  replace_panel(logPanel, logWnd);
-  replace_panel(logPanel_border, logWnd_border);
-  replace_panel(inputPanel, inputWnd);
-
-  // Destroy old windows
-  delwin(w_roster);
-  delwin(w_chat);
-  delwin(w_log);
-  delwin(w_log_bord);
-  delwin(w_input);
 
   // Resize all buddy windows
   x = ROSTER_WIDTH;
@@ -540,9 +540,8 @@ void scr_Resize()
   list_for_each_safe(pos, n, &window_list) {
     search_entry = window_entry(pos);
     if (search_entry->win) {
-      WINDOW *w_buddy = search_entry->win;
-      // Create new window
-      search_entry->win = newwin(lines, cols, y, x);
+      // Resize buddy window (no need to move it)
+      wresize(search_entry->win, lines, cols);
       scr_clear_box(search_entry->win, 0, 0, lines, cols, COLOR_GENERAL);
       // If a panel exists, replace the old window with the new
       if (search_entry->panel) {
@@ -551,19 +550,12 @@ void scr_Resize()
       // Redo line wrapping
       hbuf_rebuild(&search_entry->hbuf,
               maxX - scr_WindowWidth(rosterWnd) - 14);
-      // Delete old buddy window
-      delwin(w_buddy);
     }
   }
 
   // Refresh current buddy window
-  if (chatmode) {
-    usleep(100);
+  if (chatmode)
     scr_ShowBuddyWindow();
-  }
-  // NCurses is very bad wrt memory (can lead to segfaults) so let's slow
-  // things down...
-  usleep(200);
 }
 
 //  scr_DrawRoster()
@@ -942,7 +934,7 @@ void scr_LogPrint(const char *fmt, ...)
   va_list ap;
 
   do {
-  buffer = (char *) calloc(1, 1024);
+    buffer = (char *) calloc(1, 1024);
   } while (!buffer);
 
   timestamp = time(NULL);
@@ -1217,6 +1209,7 @@ int process_key(int key)
             buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
           top_panel(chatPanel);
           top_panel(inputPanel);
+          update_panels();
           break;
       case 12:  // Ctrl-l
       case KEY_RESIZE:
@@ -1226,14 +1219,16 @@ int process_key(int key)
           scr_LogPrint("Unkown key=%d", key);
     }
   }
-  if (completion_started && key != 9)
+  if (completion_started && key != 9 && key != KEY_RESIZE)
     scr_end_current_completion();
   mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
   wclrtoeol(inputWnd);
   if (*ptr_inputline) {
     wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine - inputline_offset);
   }
-  update_panels();
-  doupdate();
+  if (!update_roster) {
+    //update_panels();
+    doupdate();
+  }
   return 0;
 }

@@ -4,10 +4,15 @@ BUGS:
 * Presence notification is always accepted.
 * I have seen a segfault, but don't know how to reproduce it...
   Seems to be due to a disconnection from the server.
+* Check with strdup and efence (jabglue). J'me comprends...
+* Check if it crashes when resized too small...
 
 
 TODO:
 
+* Command line history (^P/^N)
+* External commands for events
+* Read history
 * Display status
 * show (how?) we can scroll in roster if not all buddies are displayed
 * Get timestamp for offline messages
@@ -16,10 +21,11 @@ TODO:
 * Pending message not displayed if buddy outside Contact window,
   maybe we could show it someway (maybe just a flag?).
 * Add a function in hbuf ~previous_persistent(hbuf *top) (to avoid loosing the
-  top variable).
+  top variable on a resize).
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>
+    + next_message (Ctrl-q?)
   - /group <expand|shrink|toggle>
   - /say blabla
   - /say_to <jid> blabla
@@ -37,11 +43,8 @@ TODO:
   - /search <\<jid\>|name>
   - /clear
   - /help
-* Command line history (^P/^N)
-* External commands for events
 * Multi-lines
 * Handle message type "error"
-* Read history
 * Shortcut to jump to next message received (shift-tab?)
 * File transfer? :)
 * Conferences :))

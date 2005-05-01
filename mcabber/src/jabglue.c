@@ -97,7 +97,7 @@ static void jidsplit(const char *jid, char **user, char **host,
 char *jidtodisp(const char *jid)
 {
   char *ptr;
-  char *alias = strdup(jid);
+  char *alias = g_strdup(jid);
   if ((ptr = strchr(alias, '/')) != NULL) {
     *ptr = 0;
   }

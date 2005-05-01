@@ -197,6 +197,10 @@ window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   cols = maxX - ROSTER_WIDTH;
 
   tmp->win = newwin(lines, cols, y, x);
+  while (!tmp->win) {
+    usleep(250);
+    tmp->win = newwin(lines, cols, y, x);
+  }
   tmp->panel = new_panel(tmp->win);
   tmp->name = (char *) calloc(1, 96);
   strncpy(tmp->name, title, 96);
@@ -553,8 +557,13 @@ void scr_Resize()
   }
 
   // Refresh current buddy window
-  if (chatmode)
+  if (chatmode) {
+    usleep(100);
     scr_ShowBuddyWindow();
+  }
+  // NCurses is very bad wrt memory (can lead to segfaults) so let's slow
+  // things down...
+  usleep(200);
 }
 
 //  scr_DrawRoster()

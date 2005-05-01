@@ -201,9 +201,10 @@ int main(int argc, char **argv)
     // The refresh is really an ugly hack, but we need to call doupdate()
     // from time to time to catch the RESIZE events, because getch keep
     // returning ERR until a real key is pressed :-(
-    if (key != ERR)
+    if (key != ERR) {
       ret = process_key(key);
-    else if (refresh++ > 1) {
+      refresh = 0;
+    } else if (refresh++ > 1) {
       doupdate();
       refresh = 0;
     }

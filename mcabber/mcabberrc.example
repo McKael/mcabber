@@ -39,7 +39,7 @@ logging = 1
 # Debug logging
 # If you want advanced debug, please specify a file here.
 # You can enable debug in main.c before compiling mcabber, too.
-# debug = /home/mikael/mcabber.log
+#debug = /home/mikael/mcabber.log
 
 #  The colors
 # NOTE: the following settings may or may not be used currently... :)

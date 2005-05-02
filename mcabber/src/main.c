@@ -6,6 +6,8 @@
 #include <signal.h>
 #include <termios.h>
 #include <getopt.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "jabglue.h"
 #include "screen.h"
@@ -13,13 +15,23 @@
 #include "roster.h"
 #include "commands.h"
 #include "histolog.h"
+#include "hooks.h"
 #include "utils.h"
 #include "harddefines.h"
 
 
 void sig_handler(int signum)
 {
-  if (signum == SIGTERM) {
+  if (signum == SIGCHLD) {
+    int status;
+    pid_t pid;
+    do {
+      pid = waitpid (WAIT_ANY, &status, WNOHANG);
+    } while (pid > 0);
+    if (pid < 0)
+      ut_WriteLog("Error in waitpid: errno=%d\n", errno);
+    signal(SIGCHLD, sig_handler);
+  } else if (signum == SIGTERM) {
     // bud_TerminateBuddies();
     scr_TerminateCurses();
     jb_disconnect();
@@ -90,7 +102,7 @@ int main(int argc, char **argv)
 
   ut_WriteLog("Setting signals handlers...\n");
   signal(SIGTERM, sig_handler);
-  signal(SIGALRM, sig_handler);
+  signal(SIGCHLD, sig_handler);
 
   sprintf(configFile, "%s/.mcabberrc", getenv("HOME"));
 

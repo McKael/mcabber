@@ -1,18 +1,18 @@
 
 BUGS:
 
-* Presence notification is always accepted.
 * Empty roster when disconnecting from the server / going offline.
-* Check if it crashes when resized too small...
-* See if we can use wbkgndset()
+* Check if it crashes when resized too small...  Can we have a minimum size?
 
 
 TODO:
 
+* Presence notification is always accepted.  We should ask...
+* See if we can use wbkgndset()
 * Command line history (^P/^N)
 * Read history
+* Try $HOME/.mcabber/mcabberrc before $HOME/.mcabberrc
 * Display status
-* show (how?) we can scroll in roster if not all buddies are displayed
 * Get timestamp for offline messages
 * /connect /disconnect ?
 * Key bindings (ex: F5 <-> /group toggle)
@@ -21,6 +21,7 @@ TODO:
 * Add a function in hbuf ~previous_persistent(hbuf *top) (to avoid loosing the
   top variable on a resize).
 * Show number of online contacts in folded groups
+* show (how?) we can scroll in roster if not all buddies are displayed
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>

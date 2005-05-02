@@ -27,7 +27,14 @@ pinginterval = 0
 # You can save the messages history: set logging = 1
 # Default logging directory (logging_dir) is $HOME/.mcabber/
 logging = 1
-# logging_dir = /home/mikael/.mcabber/
+#logging_dir = /home/mikael/.mcabber/
+
+# External command for events
+# You can specify a script or process to be launched when an event occurs.
+# For now it is called the following way:
+#   $events_command MSG IN jabber@id
+# ... when receiving a message.
+#events_command = /home/mikael/.mcabber/eventcmd
 
 # Debug logging
 # If you want advanced debug, please specify a file here.
@@ -46,3 +53,4 @@ color_newmsg = red
 color_jidofflineselected = red
 color_jidoffline = red
 color_text = white
+

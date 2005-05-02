@@ -157,6 +157,9 @@ int main(int argc, char **argv)
   if (optstring && (atoi(optstring) > 0))
     hlog_enable(TRUE, cfg_read("logging_dir"));
 
+  if ((optstring = cfg_read("events_command")) != NULL)
+    hk_ext_cmd_init(optstring);
+
   ssl = 0;
   optstring = cfg_read("ssl");
   if (optstring && (atoi(optstring) > 0))

@@ -2,9 +2,7 @@
 BUGS:
 
 * Presence notification is always accepted.
-* I have seen a segfault, but don't know how to reproduce it...
-  Seems to be due to a disconnection from the server.
-* Check with strdup and efence (jabglue). J'me comprends...
+* Empty roster when disconnecting from the server / going offline.
 * Check if it crashes when resized too small...
 * See if we can use wbkgndset()
 
@@ -12,7 +10,6 @@ BUGS:
 TODO:
 
 * Command line history (^P/^N)
-* External commands for events
 * Read history
 * Display status
 * show (how?) we can scroll in roster if not all buddies are displayed

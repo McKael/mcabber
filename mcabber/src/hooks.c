@@ -19,6 +19,8 @@
  * USA
  */
 
+#include <sys/types.h>
+#include <unistd.h>
 #include <screen.h>
 
 #include "hooks.h"
@@ -26,6 +28,7 @@
 #include "histolog.h"
 #include "utf8.h"
 
+static char *extcommand;
 
 inline void hk_message_in(const char *jid, time_t timestamp, const char *msg)
 {
@@ -40,6 +43,7 @@ inline void hk_message_in(const char *jid, time_t timestamp, const char *msg)
 
   scr_WriteIncomingMessage(jid, buffer);
   hlog_write_message(jid, timestamp, FALSE, buffer);
+  hk_ext_cmd(jid, 'M', 'R', NULL);
   free(buffer);
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set
@@ -77,5 +81,48 @@ inline void hk_mystatuschange(time_t timestamp,
   scr_LogPrint("Your status has changed:  [%c>%c]",
           imstatus2char[old_status], imstatus2char[new_status]);
   //hlog_write_status(NULL, 0, status);
+}
+
+
+/* External commands */
+
+//  hk_ext_cmd_init()
+// Initialize external command variable.
+// Can be called with parameter NULL to reset and free memory.
+void hk_ext_cmd_init(char *command)
+{
+  if (extcommand) {
+    g_free(extcommand);
+    extcommand = NULL;
+  }
+  if (command)
+    extcommand = g_strdup(command);
+}
+
+//  hk_ext_cmd()
+// Launch an external command (process) for the given event.
+// For now, data should be NULL.
+void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
+{
+  pid_t pid;
+
+  if (!extcommand) return;
+
+  // For now we'll only handle incoming messages
+  if (type != 'M') return;
+  if (info != 'R') return;
+
+  if ((pid=fork()) == -1) {
+    scr_LogPrint("Fork error, cannot launch external command.");
+    return;
+  }
+
+  // I don't remember what I should do with the parent process...
+  if (pid == 0) { // child
+    if (execl(extcommand, extcommand, "MSG", "IN", jid, NULL) == -1) {
+      // ut_WriteLog("Cannot execute external command.\n");
+      exit(1);
+    }
+  }
 }
 

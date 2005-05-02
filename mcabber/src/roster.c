@@ -195,6 +195,45 @@ void roster_del_user(const char *jid)
   // previous (or next) node.
 }
 
+// Free all roster data.  Call buddylist_build() to free the buddylist.
+void roster_free(void)
+{
+  GSList *sl_grp = groups;
+
+  // Walk through groups
+  while (sl_grp) {
+    roster *roster_grp = (roster*)sl_grp->data;
+    GSList *sl_usr = roster_grp->list;
+    // Walk through this group users
+    while (sl_usr) {
+      roster *roster_usr = (roster*)sl_usr->data;
+      // Free name and jid
+      if (roster_usr->jid)
+        g_free((gchar*)roster_usr->jid);
+      if (roster_usr->name)
+        g_free((gchar*)roster_usr->name);
+      sl_usr = g_slist_next(sl_usr);
+    }
+    // Free group's users list
+    if (roster_grp->list)
+      g_slist_free(roster_grp->list);
+    // Free group's name and jid
+    if (roster_grp->jid)
+      g_free((gchar*)roster_grp->jid);
+    if (roster_grp->name)
+      g_free((gchar*)roster_grp->name);
+    sl_grp = g_slist_next(sl_grp);
+  }
+  // Free groups list
+  if (groups) {
+    g_slist_free(groups);
+    groups = NULL;
+    // Update (i.e. free) buddylist
+    if (buddylist)
+      buddylist_build();
+  }
+}
+
 void roster_setstatus(const char *jid, enum imstatus bstat)
 {
   GSList *sl_user;

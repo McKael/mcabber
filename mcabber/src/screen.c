@@ -567,6 +567,7 @@ void scr_DrawRoster(void)
   GList *buddy;
   int i, n;
   int rOffset;
+  enum imstatus currentstatus = jb_getstatus();
 
   // We can reset update_roster
   update_roster = FALSE;
@@ -628,7 +629,7 @@ void scr_DrawRoster(void)
     }
 
     budstate = buddy_getstatus(BUDDATA(buddy));
-    if (budstate >= 0 && budstate < imstatus_size)
+    if (budstate >= 0 && budstate < imstatus_size && currentstatus != offline)
       status = imstatus2char[budstate];
     if (buddy == current_buddy) {
       wattrset(rosterWnd, COLOR_PAIR(COLOR_BD_DESSEL));

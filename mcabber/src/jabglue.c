@@ -159,8 +159,8 @@ void jb_main()
   xmlnode x, z;
   char *cid;
 
-  if (!online)
-    return;
+  if (!online) return;
+
   if (jc && jc->state == JCONN_STATE_CONNECTING) {
     jab_start(jc);
     return;
@@ -213,8 +213,7 @@ void jb_setstatus(enum imstatus st, char *msg)
 {
   xmlnode x;
 
-  if (!online)
-    return;
+  if (!online) return;
 
   x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
 
@@ -270,6 +269,11 @@ void jb_setstatus(enum imstatus st, char *msg)
   xmlnode_free(x);
 
   //sendvisibility();   ???
+
+  // We'll need to update the roster if we switch to/from offline because
+  // we don't know the presences of buddies when offline...
+  if (mystatus == offline || st == offline)
+    update_roster = TRUE;
 
   hk_mystatuschange(0, mystatus, st);
   mystatus = st;
@@ -443,6 +447,8 @@ void statehandler(jconn conn, int state)
 
         online = FALSE;
         mystatus = offline;
+        roster_free();
+        update_roster = TRUE;
 
         if (previous_state != JCONN_STATE_OFF) {
           scr_LogPrint("+ JCONN_STATE_OFF");

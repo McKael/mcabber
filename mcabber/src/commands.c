@@ -319,18 +319,22 @@ void do_group(char *arg)
 
 void do_say(char *arg)
 {
-  gpointer bud = BUDDATA(current_buddy);
+  gpointer bud;
 
   scr_set_chatmode(TRUE);
-  if (current_buddy) {
-    if (!(buddy_gettype(bud) & ROSTER_TYPE_USER)) {
-      scr_LogPrint("This is not a user");
-      return;
-    }
-    buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
-    send_message(arg);
-  } else {
+
+  if (!current_buddy) {
     scr_LogPrint("Who are you talking to??");
+    return;
   }
+
+  bud = BUDDATA(current_buddy);
+  if (!(buddy_gettype(bud) & ROSTER_TYPE_USER)) {
+    scr_LogPrint("This is not a user");
+    return;
+  }
+
+  buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
+  send_message(arg);
 }
 

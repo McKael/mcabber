@@ -1,7 +1,6 @@
 
 BUGS:
 
-* Empty roster when disconnecting from the server / going offline.
 * Check if it crashes when resized too small...  Can we have a minimum size?
 
 

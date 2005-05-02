@@ -505,7 +505,6 @@ void scr_DrawMainWindow(unsigned int fullinit)
     replace_panel(logPanel, logWnd);
     replace_panel(logPanel_border, logWnd_border);
     replace_panel(inputPanel, inputWnd);
-    wprintw(logWnd, "This is a test\n");
   }
 
   // We'll need to redraw the roster

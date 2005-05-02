@@ -1,6 +1,8 @@
 #ifndef __JABGLUE_H__
 #define __JABGLUE_H__ 1
 
+#include <glib.h>
+
 #include "../libjabber/jabber.h"
 
 extern jconn jc;

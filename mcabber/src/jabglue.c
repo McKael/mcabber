@@ -442,6 +442,7 @@ void statehandler(jconn conn, int state)
     case JCONN_STATE_OFF:
 
         online = FALSE;
+        mystatus = offline;
 
         if (previous_state != JCONN_STATE_OFF) {
           scr_LogPrint("+ JCONN_STATE_OFF");
@@ -501,7 +502,7 @@ void packethandler(jconn conn, jpacket packet)
 
           if ((x = xmlnode_get_tag(packet->x, "subject")) != NULL)
             if ((p = xmlnode_get_data(x)) != NULL) {
-              tmp = malloc(strlen(body)+strlen(p)+3);
+              tmp = g_new(char, strlen(body)+strlen(p)+3);
               *tmp = '[';
               strcpy(tmp+1, p);
               strcat(tmp, "]\n");
@@ -525,7 +526,7 @@ void packethandler(jconn conn, jpacket packet)
           if (body)
             gotmessage(type, from, body, enc);
           if (tmp)
-            free(tmp);
+            g_free(tmp);
         }
         break;
 
@@ -710,7 +711,7 @@ void packethandler(jconn conn, jpacket packet)
         r = jidtodisp(from);
         if (ust != roster_getstatus(r))
           hk_statuschange(r, 0, ust);
-        free(r);
+        g_free(r);
         /*
         if (x = xmlnode_get_tag(packet->x, "status"))
           if (p = xmlnode_get_data(x))
@@ -726,7 +727,7 @@ void packethandler(jconn conn, jpacket packet)
           int isagent;
           r = jidtodisp(from);
           isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
-          free(r);
+          g_free(r);
           scr_LogPrint("isagent=%d", isagent); // XXX DBG
           if (!isagent) {
             scr_LogPrint("<%s> wants to subscribe "

@@ -201,10 +201,10 @@ window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
     usleep(250);
     tmp->win = newwin(lines, cols, y, x);
   }
+  wbkgd(tmp->win, COLOR_PAIR(COLOR_GENERAL));
   tmp->panel = new_panel(tmp->win);
   tmp->name = (char *) calloc(1, 96);
   strncpy(tmp->name, title, 96);
-  scr_clear_box(tmp->win, 0, 0, lines, cols, COLOR_GENERAL);
 
   if (!dont_show) {
     currentWindow = tmp;
@@ -250,7 +250,7 @@ void scr_UpdateWindow(window_entry_t *win_entry)
 
   // Should the window be empty?
   if (win_entry->cleared) {
-    scr_clear_box(win_entry->win, 0, 0, CHAT_WIN_HEIGHT, width, COLOR_GENERAL);
+    werase(win_entry->win);
     return;
   }
 
@@ -277,24 +277,20 @@ void scr_UpdateWindow(window_entry_t *win_entry)
   lines = hbuf_get_lines(hbuf_head, CHAT_WIN_HEIGHT);
 
   // Display these lines
-  wmove(win_entry->win, 0, 0);
   for (n = 0; n < CHAT_WIN_HEIGHT; n++) {
-    int r = width;
+    wmove(win_entry->win, n, 0);
     if (*(lines+2*n)) {
       if (**(lines+2*n))
         wprintw(win_entry->win, "%s", *(lines+2*n));      // prefix
       else {
         wprintw(win_entry->win, "            ");
-        r -= 12;
       }
       wprintw(win_entry->win, "%s", *(lines+2*n+1));      // line
-      // Calculate the number of blank characters to empty the line
-      r -= strlen(*(lines+2*n)) + strlen(*(lines+2*n+1));
+      wclrtoeol(win_entry->win);
+    } else {
+      wclrtobot(win_entry->win);
+      break;
     }
-    for ( ; r>0 ; r--) {
-      wprintw(win_entry->win, " ");
-    }
-    //// wclrtoeol(win_entry->win);  does not work :(
   }
   g_free(lines);
 }
@@ -447,8 +443,6 @@ void scr_TerminateCurses(void)
 //
 void scr_DrawMainWindow(unsigned int fullinit)
 {
-  int l;
-
   if (fullinit) {
     /* Create windows */
     rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WIDTH, 0, 0);
@@ -456,6 +450,10 @@ void scr_DrawMainWindow(unsigned int fullinit)
     logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
     logWnd    = newwin(LOG_WIN_HEIGHT-2, maxX-2, CHAT_WIN_HEIGHT+1, 1);
     inputWnd  = newwin(1, maxX, maxY-1, 0);
+    wbkgd(rosterWnd,      COLOR_PAIR(COLOR_GENERAL));
+    wbkgd(chatWnd,        COLOR_PAIR(COLOR_GENERAL));
+    wbkgd(logWnd_border,  COLOR_PAIR(COLOR_GENERAL));
+    wbkgd(logWnd,         COLOR_PAIR(COLOR_GENERAL));
   } else {
     /* Resize windows */
     wresize(rosterWnd, CHAT_WIN_HEIGHT, ROSTER_WIDTH);
@@ -468,24 +466,16 @@ void scr_DrawMainWindow(unsigned int fullinit)
 
     wresize(inputWnd, 1, maxX);
     mvwin(inputWnd, maxY-1, 0);
+
+    werase(chatWnd);
   }
 
   /* Draw/init windows */
 
-  // - Clear roster and draw vertical line
-  scr_clear_box(rosterWnd, 0, 0, CHAT_WIN_HEIGHT, ROSTER_WIDTH,
-                COLOR_GENERAL);
-  for (l=0 ; l < CHAT_WIN_HEIGHT ; l++)
-    mvwaddch(rosterWnd, l, ROSTER_WIDTH-1, ACS_VLINE);
-
-  // - Clear chat window
-  scr_clear_box(chatWnd, 0, 0, CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH,
-                COLOR_GENERAL);
   mvwprintw(chatWnd, 0, 0, "This is the status window");
 
   // - Draw/clear the log window
   scr_draw_box(logWnd_border, 0, 0, LOG_WIN_HEIGHT, maxX, COLOR_GENERAL, 0, 0);
-  wbkgd(logWnd, COLOR_PAIR(COLOR_GENERAL));
   // Auto-scrolling in log window
   scrollok(logWnd, TRUE);
 
@@ -545,7 +535,7 @@ void scr_Resize()
     if (search_entry->win) {
       // Resize buddy window (no need to move it)
       wresize(search_entry->win, lines, cols);
-      scr_clear_box(search_entry->win, 0, 0, lines, cols, COLOR_GENERAL);
+      werase(search_entry->win);
       // If a panel exists, replace the old window with the new
       if (search_entry->panel) {
         replace_panel(search_entry->panel, search_entry->win);
@@ -581,12 +571,11 @@ void scr_DrawRoster(void)
   name[ROSTER_WIDTH-7] = 0;
 
   // cleanup of roster window
+  werase(rosterWnd);
+  // Redraw the vertical line (not very good...)
   wattrset(rosterWnd, COLOR_PAIR(COLOR_GENERAL));
-  for (i = 0; i < maxy; i++) {
-    mvwprintw(rosterWnd, i, 0, "");
-    for (n = 0; n < maxx; n++)
-      waddch(rosterWnd, ' ');
-  }
+  for (i=0 ; i < CHAT_WIN_HEIGHT ; i++)
+    mvwaddch(rosterWnd, i, ROSTER_WIDTH-1, ACS_VLINE);
 
   // Leave now if buddylist is empty
   if (!buddylist) {

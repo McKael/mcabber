@@ -7,7 +7,6 @@ BUGS:
 TODO:
 
 * Presence notification is always accepted.  We should ask...
-* See if we can use wbkgndset()
 * Command line history (^P/^N)
 * Read history
 * Try $HOME/.mcabber/mcabberrc before $HOME/.mcabberrc

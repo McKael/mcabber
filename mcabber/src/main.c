@@ -68,7 +68,8 @@ ssize_t my_getpass (char **passstr, size_t *n)
 char *compose_jid(const char *username, const char *servername,
         const char *resource)
 {
-  char *jid = g_new(strlen(username)+strlen(servername)+strlen(resource)+3);
+  char *jid = g_new(char, 
+          strlen(username)+strlen(servername)+strlen(resource)+3);
   strcpy(jid, username);
   strcat(jid, "@");
   strcat(jid, servername);

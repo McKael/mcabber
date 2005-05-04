@@ -6,6 +6,7 @@
 #include <glib.h>
 
 #include "list.h"
+#include "utils.h"
 
 #define MAX_LENGHT_INPUT 1024
 #define cfg_entry(n) list_entry(n, cfg_entry_t, list)
@@ -21,10 +22,10 @@ static LIST_HEAD(cfg_list);
 
 void push_in_list(char *key, char *value)
 {
-  cfg_entry_t *new_entry = g_new0(1, sizeof(cfg_entry_t));
+  cfg_entry_t *new_entry  = (cfg_entry_t*)g_new0(char, sizeof(cfg_entry_t));
 
-  new_entry->key = (char *) g_new0(1, strlen(key) + 1);
-  new_entry->value = (char *) g_new0(1, strlen(value) + 1);
+  new_entry->key          = g_new0(char, strlen(key) + 1);
+  new_entry->value        = g_new0(char, strlen(value) + 1);
 
   strcpy(new_entry->key, key);
   strcpy(new_entry->value, value);
@@ -63,9 +64,9 @@ int cfg_file(char *filename)
     exit(EXIT_FAILURE);
   }
 
-  buf = g_new(255);
+  buf = g_new(char, 256);
 
-  while (fgets(buf, 255, fp) != NULL) {
+  while (fgets(buf, 256, fp) != NULL) {
     line = buf;
 
     while (isspace((int) *line))

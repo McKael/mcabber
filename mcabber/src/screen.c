@@ -47,6 +47,8 @@ static char inputLine[INPUTLINE_LENGTH+1];
 static char *ptr_inputline;
 static short int inputline_offset;
 static int  completion_started;
+static GList *cmdhisto;
+static GList *cmdhisto_cur;
 
 
 /* Functions */
@@ -952,6 +954,52 @@ inline void scr_set_chatmode(int enable)
   chatmode = enable;
 }
 
+//  scr_cmdhisto_addline()
+// Add a line to the inputLine history
+inline void scr_cmdhisto_addline(char *line)
+{
+  if (!line || !*line) return;
+
+  cmdhisto = g_list_append(cmdhisto, g_strdup(line));
+}
+
+//  scr_cmdhisto_prev()
+// Look for previous line beginning w/ the given mask in the inputLine history
+const char *scr_cmdhisto_prev(char *mask, guint len)
+{
+  GList *hl;
+  if (!cmdhisto_cur) {
+    hl = g_list_last(cmdhisto);
+  } else {
+    hl = g_list_previous(cmdhisto_cur);
+  }
+  while (hl) {
+    if (!strncmp((char*)hl->data, mask, len)) {
+      // Found a match
+      cmdhisto_cur = hl;
+      return (const char*)hl->data;
+    }
+    hl = g_list_previous(hl);
+  }
+  return NULL;
+}
+
+//  scr_cmdhisto_next()
+// Look for next line beginning w/ the given mask in the inputLine history
+const char *scr_cmdhisto_next(char *mask, guint len)
+{
+  GList *hl;
+  if (!cmdhisto_cur) return NULL;
+  hl = cmdhisto_cur;
+  while ((hl = g_list_next(hl)) != NULL)
+    if (!strncmp((char*)hl->data, mask, len)) {
+      // Found a match
+      cmdhisto_cur = hl;
+      return (const char*)hl->data;
+    }
+  return NULL;
+}
+
 //  which_row()
 // Tells which row our cursor is in, in the command line.
 // -1 -> normal text
@@ -1154,6 +1202,10 @@ int process_key(int key)
       case '\n':  // Enter
           if (process_line(inputLine))
             return 255;
+          // Add line to history
+          scr_cmdhisto_addline(inputLine);
+          cmdhisto_cur = NULL;
+          // Reset the line
           ptr_inputline = inputLine;
           *ptr_inputline = 0;
           inputline_offset = 0;
@@ -1190,10 +1242,22 @@ int process_key(int key)
           *ptr_inputline = 0;
           break;
       case 16:  // Ctrl-p
-          scr_LogPrint("Ctrl-p not yet implemented");
+          {
+            const char *l = scr_cmdhisto_prev(inputLine,
+                    ptr_inputline-inputLine);
+            if (l) {
+              strcpy(inputLine, l);
+            }
+          }
           break;
       case 14:  // Ctrl-n
-          scr_LogPrint("Ctrl-n not yet implemented");
+          {
+            const char *l = scr_cmdhisto_next(inputLine,
+                    ptr_inputline-inputLine);
+            if (l) {
+              strcpy(inputLine, l);
+            }
+          }
           break;
       case 27:  // ESC
           currentWindow = NULL;

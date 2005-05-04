@@ -7,7 +7,6 @@ BUGS:
 TODO:
 
 * Presence notification is always accepted.  We should ask...
-* Command line history (^P/^N)
 * Read history
 * Display status
 * Get timestamp for offline messages
@@ -18,7 +17,6 @@ TODO:
 * Add a function in hbuf ~previous_persistent(hbuf *top) (to avoid loosing the
   top variable on a resize).
 * Show number of online contacts in folded groups
-* show (how?) we can scroll in roster if not all buddies are displayed
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>

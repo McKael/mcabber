@@ -2,6 +2,7 @@
 #define __SCREEN_H__ 1
 
 #include <ncurses.h>
+#include <glib.h>
 
 //#define COLOR_NMSG      1
 #define COLOR_GENERAL   3

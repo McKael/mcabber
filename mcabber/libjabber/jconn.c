@@ -365,6 +365,9 @@ void jab_poll(jconn j, int timeout)
 	jab_recv(j);
 
     } else if(r) {
+        /* Don't disconnect for interrupted system call */
+        if(errno == EINTR) return;
+
 	STATE_EVT(JCONN_STATE_OFF);
 	jab_stop(j);
 

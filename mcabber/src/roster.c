@@ -482,6 +482,19 @@ const char *buddy_getname(gpointer rosterdata)
   return roster->name;
 }
 
+//  buddy_getgroup()
+// Returns a pointer on buddy's group.
+gpointer buddy_getgroup(gpointer rosterdata)
+{
+  roster *roster = rosterdata;
+
+  if (roster->type & ROSTER_TYPE_GROUP)
+    return rosterdata;
+
+  // This is a user
+  return (gpointer)((GSList*)roster->list)->data;
+}
+
 guint buddy_gettype(gpointer rosterdata)
 {
   roster *roster = rosterdata;

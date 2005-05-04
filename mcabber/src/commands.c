@@ -286,24 +286,26 @@ void do_add(char *arg)
 void do_group(char *arg)
 {
   gpointer group;
+  guint leave_windowbuddy;
 
   if (!arg || (*arg == 0)) {
     scr_LogPrint("Missing parameter");
     return;
   }
 
-  if (!current_buddy)
-    return;
+  if (!current_buddy) return;
 
-  group = BUDDATA(current_buddy);
+  group = buddy_getgroup(BUDDATA(current_buddy));
+  leave_windowbuddy = (group != BUDDATA(current_buddy));
+
   if (!(buddy_gettype(group) & ROSTER_TYPE_GROUP)) {
-    scr_LogPrint("For now you need to select a group "
-                 "before using /group");
+    scr_LogPrint("You need to select a group");
     return;
   }
-  if (!strcasecmp(arg, "expand")) {
+
+  if (!strcasecmp(arg, "expand") || !strcasecmp(arg, "unfold")) {
     buddy_setflags(group, ROSTER_FLAG_HIDE, FALSE);
-  } else if (!strcasecmp(arg, "shrink")) {
+  } else if (!strcasecmp(arg, "shrink") || !strcasecmp(arg, "fold")) {
     buddy_setflags(group, ROSTER_FLAG_HIDE, TRUE);
   } else if (!strcasecmp(arg, "toggle")) {
     buddy_setflags(group, ROSTER_FLAG_HIDE,
@@ -315,6 +317,7 @@ void do_group(char *arg)
 
   buddylist_build();
   update_roster = TRUE;
+  if (leave_windowbuddy) scr_ShowBuddyWindow();
 }
 
 void do_say(char *arg)

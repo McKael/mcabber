@@ -28,8 +28,8 @@ void sig_handler(int signum)
     do {
       pid = waitpid (WAIT_ANY, &status, WNOHANG);
     } while (pid > 0);
-    if (pid < 0)
-      ut_WriteLog("Error in waitpid: errno=%d\n", errno);
+    //if (pid < 0)
+    //  ut_WriteLog("Error in waitpid: errno=%d\n", errno);
     signal(SIGCHLD, sig_handler);
   } else if (signum == SIGTERM) {
     // bud_TerminateBuddies();
@@ -37,8 +37,9 @@ void sig_handler(int signum)
     jb_disconnect();
     printf("Killed by SIGTERM\nBye!\n");
     exit(EXIT_SUCCESS);
+  } else {
+    ut_WriteLog("Caught signal: %d\n", signum);
   }
-  ut_WriteLog("Caught signal: %d\n", signum);
 }
 
 ssize_t my_getpass (char **passstr, size_t *n)

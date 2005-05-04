@@ -2,6 +2,7 @@
 BUGS:
 
 * Check if it crashes when resized too small...  Can we have a minimum size?
+* Colors are misnamed
 
 
 TODO:

@@ -97,7 +97,11 @@ static void jidsplit(const char *jid, char **user, char **host,
 char *jidtodisp(const char *jid)
 {
   char *ptr;
-  char *alias = g_strdup(jid);
+  char *alias;
+
+  while ((alias = g_strdup(jid)) == NULL)
+    usleep(100);
+
   if ((ptr = strchr(alias, '/')) != NULL) {
     *ptr = 0;
   }
@@ -486,7 +490,6 @@ void packethandler(jconn conn, jpacket packet)
 {
   char *p, *r;
   xmlnode x, y;
-  // string from, type, body, enc, ns, id, u, h, s;
   char *from=NULL, *type=NULL, *body=NULL, *enc=NULL;
   char *ns=NULL;
   char *id=NULL;
@@ -508,7 +511,7 @@ void packethandler(jconn conn, jpacket packet)
 
           if ((x = xmlnode_get_tag(packet->x, "subject")) != NULL)
             if ((p = xmlnode_get_data(x)) != NULL) {
-              tmp = g_new(char, strlen(body)+strlen(p)+3);
+              tmp = g_new(char, strlen(body)+strlen(p)+4);
               *tmp = '[';
               strcpy(tmp+1, p);
               strcat(tmp, "]\n");
@@ -529,7 +532,7 @@ void packethandler(jconn conn, jpacket packet)
                 }
           }
 
-          if (body)
+          if (from && body)
             gotmessage(type, from, body, enc);
           if (tmp)
             g_free(tmp);

@@ -8,6 +8,7 @@
 #include <getopt.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <glib.h>
 
 #include "jabglue.h"
 #include "screen.h"
@@ -67,7 +68,7 @@ ssize_t my_getpass (char **passstr, size_t *n)
 char *compose_jid(const char *username, const char *servername,
         const char *resource)
 {
-  char *jid = malloc(strlen(username)+strlen(servername)+strlen(resource)+3);
+  char *jid = g_new(strlen(username)+strlen(servername)+strlen(resource)+3);
   strcpy(jid, username);
   strcat(jid, "@");
   strcat(jid, servername);
@@ -84,7 +85,7 @@ void credits(void)
 
 int main(int argc, char **argv)
 {
-  char configFile[4096];
+  char *configFile = NULL;
   char *username, *password, *resource;
   char *servername, *portstring;
   char *jid;
@@ -105,8 +106,6 @@ int main(int argc, char **argv)
   signal(SIGTERM, sig_handler);
   signal(SIGCHLD, sig_handler);
 
-  sprintf(configFile, "%s/.mcabberrc", getenv("HOME"));
-
   /* Parse command line options */
   while (1) {
     int c = getopt(argc, argv, "hf:");
@@ -119,17 +118,18 @@ int main(int argc, char **argv)
         printf("Thanks to AjMacias for cabber!\n\n");
 	return 0;
       case 'f':
-	strncpy(configFile, optarg, 1024);
+	configFile = g_strdup(optarg);
 	break;
       }
   }
 
-  ut_WriteLog("Setting config file: %s\n", configFile);
-
+  if (configFile)
+    ut_WriteLog("Setting config file: %s\n", configFile);
 
   /* Parsing config file... */
   ut_WriteLog("Parsing config file...\n");
   cfg_file(configFile);
+  if (configFile) g_free(configFile);
 
   optstring = cfg_read("debug");
   if (optstring)
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
 
   jid = compose_jid(username, servername, resource);
   jc = jb_connect(jid, port, ssl, password);
-  free(jid);
+  g_free(jid);
   if (!jc) {
     ut_WriteLog("\terror!!!\n");
     fprintf(stderr, "Error connecting to (%s)\n", servername);

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <string.h>
+#include <glib.h>
 
 #include "list.h"
 
@@ -20,10 +21,10 @@ static LIST_HEAD(cfg_list);
 
 void push_in_list(char *key, char *value)
 {
-  cfg_entry_t *new_entry = calloc(1, sizeof(cfg_entry_t));
+  cfg_entry_t *new_entry = g_new0(1, sizeof(cfg_entry_t));
 
-  new_entry->key = (char *) calloc(1, strlen(key) + 1);
-  new_entry->value = (char *) calloc(1, strlen(value) + 1);
+  new_entry->key = (char *) g_new0(1, strlen(key) + 1);
+  new_entry->value = (char *) g_new0(1, strlen(value) + 1);
 
   strcpy(new_entry->key, key);
   strcpy(new_entry->value, value);
@@ -38,12 +39,31 @@ int cfg_file(char *filename)
   char *line;
   char *value;
 
-  buf = malloc(255);
-
-  if ((fp = fopen(filename, "r")) == NULL) {
+  if (!filename) {
+    // Use default config file locations
+    char *home = getenv("HOME");
+    if (!home) {
+      ut_WriteLog("Can't find home dir!\n");
+      exit(EXIT_FAILURE);
+    }
+    filename = g_new(char, strlen(home)+24);
+    sprintf(filename, "%s/.mcabber/mcabberrc", home);
+    if ((fp = fopen(filename, "r")) == NULL) {
+      // 2nd try...
+      sprintf(filename, "%s/.mcabberrc", home);
+      if ((fp = fopen(filename, "r")) == NULL) {
+        fprintf(stderr, "Cannot open config file!\n");
+        exit(EXIT_FAILURE);
+      }
+    }
+    g_free(filename);
+  }
+  else if ((fp = fopen(filename, "r")) == NULL) {
     perror("fopen (parsecfg.c:46)");
     exit(EXIT_FAILURE);
   }
+
+  buf = g_new(255);
 
   while (fgets(buf, 255, fp) != NULL) {
     line = buf;
@@ -75,7 +95,7 @@ int cfg_file(char *filename)
     }
     fprintf(stderr, "CFG: orphaned line \"%s\"\n", line);
   }
-  free(buf);
+  g_free(buf);
   return 1;
 }
 

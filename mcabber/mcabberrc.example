@@ -1,4 +1,4 @@
-# Sample ~/.mcabberrc file
+# Sample ~/.mcabber/mcabberrc file
 
 # The jid will be the following: username@server/resource
 # If password is not given, it will be interactively asked for.
@@ -25,9 +25,9 @@ pinginterval = 0
 
 # History logging
 # You can save the messages history: set logging = 1
-# Default logging directory (logging_dir) is $HOME/.mcabber/
+# Default logging directory (logging_dir) is $HOME/.mcabber/histo/
 logging = 1
-#logging_dir = /home/mikael/.mcabber/
+#logging_dir = /home/mikael/.mcabber/histo/
 
 # External command for events
 # You can specify a script or process to be launched when an event occurs.

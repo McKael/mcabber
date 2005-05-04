@@ -9,8 +9,6 @@ TODO:
 * Presence notification is always accepted.  We should ask...
 * Command line history (^P/^N)
 * Read history
-* Try $HOME/.mcabber/mcabberrc before $HOME/.mcabberrc
-* Use $HOME/.mcabber/histo for default buddies logdir
 * Display status
 * Get timestamp for offline messages
 * /connect /disconnect ?

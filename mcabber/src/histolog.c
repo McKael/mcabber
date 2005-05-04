@@ -118,7 +118,7 @@ void hlog_enable(guint enable, char *root_dir)
       }
     } else {
       char *home = getenv("HOME");
-      char *dir = "/.mcabber/";
+      char *dir = "/.mcabber/histo/";
       RootDir = g_new(char, strlen(home) + strlen(dir) + 1);
       strcpy(RootDir, home);
       strcat(RootDir, dir);

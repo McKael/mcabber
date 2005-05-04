@@ -421,6 +421,8 @@ void scr_InitCurses(void)
   ParseColors();
 
   getmaxyx(stdscr, maxY, maxX);
+  if (maxY < LOG_WIN_HEIGHT+2)
+    maxY = LOG_WIN_HEIGHT+2;
   inputLine[0] = 0;
   ptr_inputline = inputLine;
 
@@ -524,6 +526,8 @@ void scr_Resize()
 
   // First, update the global variables
   getmaxyx(stdscr, maxY, maxX);
+  if (maxY < LOG_WIN_HEIGHT+2)
+    maxY = LOG_WIN_HEIGHT+2;
   // Make sure the cursor stays inside the window
   check_offset(0);
 

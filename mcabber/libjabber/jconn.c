@@ -20,6 +20,8 @@
 #include "jabber.h"
 #include "connwrap.h"
 
+#include "../src/utils.h"
+
 /* local macros for launching event handlers */
 #define STATE_EVT(arg) if(j->on_state) { (j->on_state)(j, (arg) ); }
 
@@ -368,6 +370,7 @@ void jab_poll(jconn j, int timeout)
 	/* Don't disconnect for interrupted system call */
 	if(errno == EINTR) return;
 
+	ut_WriteLog("jab_poll: select returned errno=%d\n", errno);
 	STATE_EVT(JCONN_STATE_OFF);
 	jab_stop(j);
 
@@ -438,7 +441,7 @@ char *jab_auth(jconn j)
 char *jab_reg(jconn j)
 {
     xmlnode x,y,z;
-    char *hash, *user, *id;
+    char *user, *id;
 
     if (!j) return(NULL);
 

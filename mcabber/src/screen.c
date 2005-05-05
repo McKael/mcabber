@@ -43,12 +43,13 @@ static window_entry_t *currentWindow;
 static int chatmode;
 int update_roster;
 
-static char inputLine[INPUTLINE_LENGTH+1];
-static char *ptr_inputline;
-static short int inputline_offset;
-static int  completion_started;
+static char       inputLine[INPUTLINE_LENGTH+1];
+static char      *ptr_inputline;
+static short int  inputline_offset;
+static int    completion_started;
 static GList *cmdhisto;
 static GList *cmdhisto_cur;
+static char   cmdhisto_backup[INPUTLINE_LENGTH+1];
 
 
 /* Functions */
@@ -970,6 +971,9 @@ const char *scr_cmdhisto_prev(char *mask, guint len)
   GList *hl;
   if (!cmdhisto_cur) {
     hl = g_list_last(cmdhisto);
+    if (hl) { // backup current line
+      strncpy(cmdhisto_backup, mask, INPUTLINE_LENGTH);
+    }
   } else {
     hl = g_list_previous(cmdhisto_cur);
   }
@@ -997,7 +1001,10 @@ const char *scr_cmdhisto_next(char *mask, guint len)
       cmdhisto_cur = hl;
       return (const char*)hl->data;
     }
-  return NULL;
+  if (strncmp(cmdhisto_backup, mask, len))
+    return NULL;
+  cmdhisto_cur = NULL;
+  return cmdhisto_backup;
 }
 
 //  which_row()

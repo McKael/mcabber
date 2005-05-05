@@ -221,7 +221,7 @@ window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   update_panels();
 
   // Load buddy history from file (if enabled)
-  hlog_read_history(title, &tmp->hbuf, maxX - scr_WindowWidth(rosterWnd) - 14);
+  hlog_read_history(title, &tmp->hbuf, maxX - ROSTER_WIDTH - PREFIX_WIDTH);
 
   list_add_tail(&tmp->list, &window_list);
 
@@ -288,17 +288,19 @@ void scr_UpdateWindow(window_entry_t *win_entry)
   for (n = 0; n < CHAT_WIN_HEIGHT; n++) {
     wmove(win_entry->win, n, 0);
     line = *(lines+n);
+    // NOTE: update PREFIX_WIDTH if you change the date format!!
+    // You need to set it to the whole prefix length + 1
     if (line) {
       if (line->timestamp) {
-        strftime(date, 35, "%H:%M", localtime(&line->timestamp));
+        strftime(date, 35, "%m-%d %H:%M", localtime(&line->timestamp));
       } else
-        strcpy(date, "     ");
+        strcpy(date, "           ");
       if (line->flags & HBB_PREFIX_IN)
-        wprintw(win_entry->win, "[%.5s] <== ", date);
+        wprintw(win_entry->win, "%.11s <== ", date);
       else if (line->flags & HBB_PREFIX_OUT)
-        wprintw(win_entry->win, "[%.5s] --> ", date);
+        wprintw(win_entry->win, "%.11s --> ", date);
       else {
-        wprintw(win_entry->win, "            ");
+        wprintw(win_entry->win, "%.11s     ", date);
       }
       wprintw(win_entry->win, "%s", line->text);      // line
       wclrtoeol(win_entry->win);
@@ -383,7 +385,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   }
 
   hbuf_add_line(&win_entry->hbuf, text, timestamp, prefix_flags,
-                maxX - scr_WindowWidth(rosterWnd) - 14);
+                maxX - ROSTER_WIDTH - PREFIX_WIDTH);
 
   if (win_entry->cleared) {
     win_entry->cleared = 0; // The message must be displayed
@@ -540,7 +542,7 @@ void scr_Resize()
       }
       // Redo line wrapping
       hbuf_rebuild(&search_entry->hbuf,
-              maxX - scr_WindowWidth(rosterWnd) - 14);
+              maxX - ROSTER_WIDTH - PREFIX_WIDTH);
     }
   }
 

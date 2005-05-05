@@ -13,6 +13,7 @@
 
 #define LOG_WIN_HEIGHT  (5+2)
 #define ROSTER_WIDTH    24
+#define PREFIX_WIDTH    17
 #define CHAT_WIN_HEIGHT (maxY-1-LOG_WIN_HEIGHT)
 
 #define INPUTLINE_LENGTH  1024

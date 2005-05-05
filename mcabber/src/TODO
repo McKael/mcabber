@@ -7,7 +7,6 @@ BUGS:
 TODO:
 
 * Presence notification is always accepted.  We should ask...
-* Read history
 * Display status
 * Get timestamp for offline messages
 * /connect /disconnect ?

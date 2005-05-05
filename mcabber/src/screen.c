@@ -12,6 +12,7 @@
 #include "commands.h"
 #include "compl.h"
 #include "roster.h"
+#include "histolog.h"
 #include "parsecfg.h"
 #include "utils.h"
 #include "list.h"
@@ -305,24 +306,22 @@ void scr_ShowWindow(const char *winId)
 {
   window_entry_t *win_entry = scr_SearchWindow(winId);
 
-  if (win_entry != NULL) {
-    top_panel(win_entry->panel);
-    currentWindow = win_entry;
-    chatmode = TRUE;
-    roster_msg_setflag(winId, FALSE);
-    roster_setflags(winId, ROSTER_FLAG_LOCK, TRUE);
-    update_roster = TRUE;
-
-    // Refresh the window
-    scr_UpdateWindow(win_entry);
-
-    // Finished :)
-    update_panels();
-    // doupdate();    (update_roster should be enough?)
-  } else {
-    top_panel(chatPanel);
-    currentWindow = win_entry;  // == NULL  (current window empty)
+  if (!win_entry) {
+    win_entry = scr_CreateBuddyPanel(winId, FALSE);
   }
+
+  top_panel(win_entry->panel);
+  currentWindow = win_entry;
+  chatmode = TRUE;
+  roster_msg_setflag(winId, FALSE);
+  roster_setflags(winId, ROSTER_FLAG_LOCK, TRUE);
+  update_roster = TRUE;
+
+  // Refresh the window
+  scr_UpdateWindow(win_entry);
+
+  // Finished :)
+  update_panels();
 
   top_panel(inputPanel);
 }

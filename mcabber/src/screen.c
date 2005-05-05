@@ -966,6 +966,7 @@ inline void scr_cmdhisto_addline(char *line)
 
 //  scr_cmdhisto_prev()
 // Look for previous line beginning w/ the given mask in the inputLine history
+// Returns NULL if none found
 const char *scr_cmdhisto_prev(char *mask, guint len)
 {
   GList *hl;
@@ -990,6 +991,7 @@ const char *scr_cmdhisto_prev(char *mask, guint len)
 
 //  scr_cmdhisto_next()
 // Look for next line beginning w/ the given mask in the inputLine history
+// Returns NULL if none found
 const char *scr_cmdhisto_next(char *mask, guint len)
 {
   GList *hl;
@@ -1001,8 +1003,8 @@ const char *scr_cmdhisto_next(char *mask, guint len)
       cmdhisto_cur = hl;
       return (const char*)hl->data;
     }
-  if (strncmp(cmdhisto_backup, mask, len))
-    return NULL;
+  // If the "backuped" line matches, we'll use it
+  if (strncmp(cmdhisto_backup, mask, len)) return NULL; // No match
   cmdhisto_cur = NULL;
   return cmdhisto_backup;
 }
@@ -1218,16 +1220,28 @@ int process_key(int key)
           inputline_offset = 0;
           break;
       case KEY_UP:
-          scr_RosterUp();
+          {
+            const char *l = scr_cmdhisto_prev(inputLine,
+                    ptr_inputline-inputLine);
+            if (l) {
+              strcpy(inputLine, l);
+            }
+          }
           break;
       case KEY_DOWN:
-          scr_RosterDown();
+          {
+            const char *l = scr_cmdhisto_next(inputLine,
+                    ptr_inputline-inputLine);
+            if (l) {
+              strcpy(inputLine, l);
+            }
+          }
           break;
       case KEY_PPAGE:
-          scr_ScrollUp();
+          scr_RosterUp();
           break;
       case KEY_NPAGE:
-          scr_ScrollDown();
+          scr_RosterDown();
           break;
       case KEY_HOME:
       case 1:
@@ -1249,22 +1263,10 @@ int process_key(int key)
           *ptr_inputline = 0;
           break;
       case 16:  // Ctrl-p
-          {
-            const char *l = scr_cmdhisto_prev(inputLine,
-                    ptr_inputline-inputLine);
-            if (l) {
-              strcpy(inputLine, l);
-            }
-          }
+          scr_ScrollUp();
           break;
       case 14:  // Ctrl-n
-          {
-            const char *l = scr_cmdhisto_next(inputLine,
-                    ptr_inputline-inputLine);
-            if (l) {
-              strcpy(inputLine, l);
-            }
-          }
+          scr_ScrollDown();
           break;
       case 27:  // ESC
           currentWindow = NULL;

@@ -90,7 +90,8 @@ int main(int argc, char **argv)
   char *username, *password, *resource;
   char *servername, *portstring;
   char *jid;
-  char *optstring;
+  char *optstring, *optstring2;
+  int optval, optval2;
   int key;
   unsigned int port;
   unsigned int ping;
@@ -167,9 +168,12 @@ int main(int argc, char **argv)
   ut_WriteLog("Drawing main window...\n");
   scr_DrawMainWindow(TRUE);
 
-  optstring = cfg_read("logging");
-  if (optstring && (atoi(optstring) > 0))
-    hlog_enable(TRUE, cfg_read("logging_dir"));
+  optstring  = cfg_read("logging");
+  optstring2 = cfg_read("load_logs");
+  optval     = (optstring && (atoi(optstring) > 0));
+  optval2    = (optstring2 && (atoi(optstring2) > 0));
+  if (optval || optval2)
+    hlog_enable(optval, cfg_read("logging_dir"), optval2);
 
   if ((optstring = cfg_read("events_command")) != NULL)
     hk_ext_cmd_init(optstring);

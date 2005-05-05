@@ -5,7 +5,7 @@
 
 #include "jabglue.h"
 
-void hlog_enable(guint enable, char *root_dir);
+void hlog_enable(guint enable, char *root_dir, guint loadfile);
 inline void hlog_write_message(const char *jid, time_t timestamp, int sent,
         const char *msg);
 inline void hlog_write_status(const char *jid, time_t timestamp,

@@ -32,6 +32,7 @@
 #include "screen.h"
 
 static guint UseFileLogging;
+static guint FileLoadLogs;
 static char *RootDir;
 
 
@@ -96,11 +97,13 @@ static void write_histo_line(const char *jid,
 
 //  hlog_enable()
 // Enable logging to files.  If root_dir is NULL, then $HOME/.mcabber is used.
-void hlog_enable(guint enable, char *root_dir)
+// If loadfiles is TRUE, we will try to load buddies history logs from file.
+void hlog_enable(guint enable, char *root_dir, guint loadfiles)
 {
   UseFileLogging = enable;
+  FileLoadLogs = loadfiles;
 
-  if (enable) {
+  if (enable || loadfiles) {
     if (root_dir) {
       int l = strlen(root_dir);
       if (l < 1) {

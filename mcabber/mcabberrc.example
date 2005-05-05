@@ -25,8 +25,10 @@ pinginterval = 0
 
 # History logging
 # You can save the messages history: set logging = 1
+# You can load (read) the messages history: set load_logs = 1
 # Default logging directory (logging_dir) is $HOME/.mcabber/histo/
 logging = 1
+#load_logs = 1
 #logging_dir = /home/mikael/.mcabber/histo/
 
 # External command for events

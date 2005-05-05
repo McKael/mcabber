@@ -28,8 +28,8 @@ typedef struct _window_entry_t {
   PANEL  *panel;
   char   *name;
   GList  *hbuf;
-  GList  *top; // If top is not specified (NULL), we'll display the last lines
-  char    cleared; // For ex, user has issued a /clear command...
+  GList  *top;      // If top is NULL, we'll display the last lines
+  char    cleared;  // For ex, user has issued a /clear command...
   struct list_head list;
 } window_entry_t;
 
@@ -220,7 +220,9 @@ window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   }
   update_panels();
 
+  // Load buddy history from file (if enabled)
   hlog_read_history(title, &tmp->hbuf, maxX - scr_WindowWidth(rosterWnd) - 14);
+
   list_add_tail(&tmp->list, &window_list);
 
   return tmp;
@@ -306,9 +308,8 @@ void scr_ShowWindow(const char *winId)
 {
   window_entry_t *win_entry = scr_SearchWindow(winId);
 
-  if (!win_entry) {
+  if (!win_entry)
     win_entry = scr_CreateBuddyPanel(winId, FALSE);
-  }
 
   top_panel(win_entry->panel);
   currentWindow = win_entry;

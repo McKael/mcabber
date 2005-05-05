@@ -29,13 +29,13 @@
 #define PREFIX_LENGTH 32
 typedef struct {
   char *ptr;
-  char *ptr_end;
+  char *ptr_end;        // beginning of the block
+  char *ptr_end_alloc;  // end of the current persistent block
   guchar flags;
 
   // XXX This should certainly be a pointer, and be allocated only when needed
   // (for ex. when HBB_FLAG_PERSISTENT is set).
   struct { // hbuf_line_info
-    char *ptr_end_alloc;
     char prefix[PREFIX_LENGTH];
   } persist;
 } hbuf_block;
@@ -65,13 +65,13 @@ void hbuf_add_line(GList **p_hbuf, const char *text, const char *prefix,
       hbuf_block_elt->ptr  = g_new(char, HBB_BLOCKSIZE);
     } while (!hbuf_block_elt->ptr);
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
-    hbuf_block_elt->persist.ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
+    hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
     *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
   } else {
     hbuf_block *hbuf_b_prev = g_list_last(hbuf)->data;
     hbuf_block_elt->ptr    = hbuf_b_prev->ptr_end;
     hbuf_block_elt->flags  = HBB_FLAG_PERSISTENT;
-    hbuf_block_elt->persist.ptr_end_alloc = hbuf_b_prev->persist.ptr_end_alloc;
+    hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
     *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
   }
 
@@ -79,13 +79,13 @@ void hbuf_add_line(GList **p_hbuf, const char *text, const char *prefix,
     // Too long
     text = "[ERR:LINE_TOO_LONG]";
   }
-  if (hbuf_block_elt->ptr + strlen(text) >= hbuf_block_elt->persist.ptr_end_alloc) {
+  if (hbuf_block_elt->ptr + strlen(text) >= hbuf_block_elt->ptr_end_alloc) {
     // Too long for the current allocated bloc, we need another one
     do {
       hbuf_block_elt->ptr  = g_new0(char, HBB_BLOCKSIZE);
     } while (!hbuf_block_elt->ptr);
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
-    hbuf_block_elt->persist.ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
+    hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
   }
 
   line = hbuf_block_elt->ptr;
@@ -110,7 +110,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, const char *prefix,
       hbuf_block_elt->ptr      = hbuf_b_prev->ptr_end + 1; // == cr+1
       hbuf_block_elt->ptr_end  = end;
       hbuf_block_elt->flags    = HBB_FLAG_PERSISTENT;
-      hbuf_block_elt->persist.ptr_end_alloc = hbuf_b_prev->persist.ptr_end_alloc;
+      hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
       *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
       line = hbuf_block_elt->ptr;
     } else {
@@ -128,7 +128,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, const char *prefix,
       hbuf_block_elt->ptr      = hbuf_b_prev->ptr_end; // == br
       hbuf_block_elt->ptr_end  = end;
       hbuf_block_elt->flags    = 0;
-      hbuf_block_elt->persist.ptr_end_alloc = hbuf_b_prev->persist.ptr_end_alloc;
+      hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
       *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
       line = hbuf_block_elt->ptr;
     }
@@ -208,7 +208,7 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
         hbuf_b_curr->ptr      = hbuf_b_prev->ptr_end; // == br
         hbuf_b_curr->ptr_end  = end;
         hbuf_b_curr->flags    = 0;
-        hbuf_b_curr->persist.ptr_end_alloc = hbuf_b_prev->persist.ptr_end_alloc;
+        hbuf_b_curr->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
         // This is OK because insert_before(NULL) == append():
         *p_hbuf = g_list_insert_before(*p_hbuf, curr_elt->next, hbuf_b_curr);
       }

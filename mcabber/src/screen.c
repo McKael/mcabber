@@ -219,6 +219,7 @@ window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   }
   update_panels();
 
+  hlog_read_history(title, &tmp->hbuf, maxX - scr_WindowWidth(rosterWnd) - 14);
   list_add_tail(&tmp->list, &window_list);
 
   return tmp;

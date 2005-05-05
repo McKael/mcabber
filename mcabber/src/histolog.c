@@ -28,6 +28,7 @@
 #include <fcntl.h>
 
 #include "histolog.h"
+#include "hbuf.h"
 #include "jabglue.h"
 #include "screen.h"
 
@@ -42,8 +43,7 @@ static char *RootDir;
 static char *user_histo_file(const char *jid)
 {
   char *filename;
-  if (!UseFileLogging)
-    return NULL;
+  if (!UseFileLogging && !FileLoadLogs) return NULL;
 
   filename = g_new(char, strlen(RootDir) + strlen(jid) + 1);
   strcpy(filename, RootDir);
@@ -51,7 +51,7 @@ static char *user_histo_file(const char *jid)
   return filename;
 }
 
-//  write()
+//  write_histo_line()
 // Adds a history (multi-)line to the jid's history logfile
 static void write_histo_line(const char *jid,
         time_t timestamp, guchar type, guchar info, const char *data)
@@ -60,10 +60,11 @@ static void write_histo_line(const char *jid,
   FILE *fp;
   time_t ts;
   const char *p;
-  char *filename = user_histo_file(jid);
+  char *filename;
 
-  if (!filename)
-    return;
+  if (!UseFileLogging) return;
+
+  filename = user_histo_file(jid);
 
   // If timestamp is null, get current date
   if (timestamp)
@@ -89,10 +90,81 @@ static void write_histo_line(const char *jid,
 
   fp = fopen(filename, "a");
   g_free(filename);
-  if (!fp)
-    return;
+  if (!fp) return;
+
   fprintf(fp, "%c%c %10u %03d %s\n", type, info, (unsigned int)ts, len, data);
   fclose(fp);
+}
+
+//  hlog_read_history()
+// Reads the jid's history logfile
+void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
+{
+  char *filename;
+  time_t timestamp;
+  guchar type, info;
+  char *data, *tail;
+  guint len;
+  FILE *fp;
+  char prefix[32];
+
+  if (!FileLoadLogs) return;
+
+  data = g_new(char, HBB_BLOCKSIZE+32);
+  if (!data) {
+    scr_LogPrint("Not enough memory to read history file");
+    return;
+  }
+
+  filename = user_histo_file(jid);
+
+  fp = fopen(filename, "r");
+  g_free(filename);
+  if (!fp) { g_free(data); return; }
+
+  /* See write_histo_line() for line format... */
+  while (!feof(fp)) {
+    if (fgets(data, HBB_BLOCKSIZE+24, fp) == NULL) break;
+
+    for (tail = data; *tail; tail++) ;
+
+    type = data[0];
+    info = data[1];
+    if ((type != 'M' && type != 'S') || 
+        (data[13] != ' ') || (data[17] != ' ')) {
+      scr_LogPrint("Error in history file format");
+      break;
+    }
+    data[13] = data[17] = 0;
+    timestamp = (unsigned long) atol(&data[3]);
+    len = (unsigned long) atol(&data[14]);
+    
+    // Some checks
+    if (((type == 'M') && (info != 'S' && info != 'R')) ||
+        ((type == 'I') && (!strchr("oaifdcn", info)))) {
+      scr_LogPrint("Error in history file format");
+      break;
+    }
+
+    while (len--) {
+      if (fgets(tail, HBB_BLOCKSIZE+24 - (tail-data), fp) == NULL) break;
+
+      while (*tail) tail++;
+    }
+    if ((tail > data+18) && (*(tail-1) == '\n'))
+      *(tail-1) = 0;
+
+    if (type == 'M') {
+      strftime(prefix, 12, "[%H:%M] ", localtime(&timestamp));
+      if (info == 'S')
+        strcat(prefix, "--> ");
+      else
+        strcat(prefix, "<== ");
+      hbuf_add_line(p_buddyhbuf, &data[18], prefix, width);
+    }
+  }
+  fclose(fp);
+  g_free(data);
 }
 
 //  hlog_enable()

@@ -18,6 +18,7 @@ TODO:
   top variable on a resize).
 * Show number of online contacts in folded groups
 * Add a cfg_read_int() function
+* Better prefix usage in the hbuf buffers (use flags for IN/OUT etc.)
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>

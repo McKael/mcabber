@@ -101,12 +101,12 @@ static void write_histo_line(const char *jid,
 void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
 {
   char *filename;
-  time_t timestamp;
   guchar type, info;
   char *data, *tail;
+  time_t timestamp;
+  guint prefix_flags;
   guint len;
   FILE *fp;
-  char prefix[32];
 
   if (!FileLoadLogs) return;
 
@@ -155,12 +155,11 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
       *(tail-1) = 0;
 
     if (type == 'M') {
-      strftime(prefix, 12, "[%H:%M] ", localtime(&timestamp));
       if (info == 'S')
-        strcat(prefix, "--> ");
+        prefix_flags = HBB_PREFIX_OUT;
       else
-        strcat(prefix, "<== ");
-      hbuf_add_line(p_buddyhbuf, &data[18], prefix, width);
+        prefix_flags = HBB_PREFIX_IN;
+      hbuf_add_line(p_buddyhbuf, &data[18], timestamp, prefix_flags, width);
     }
   }
   fclose(fp);

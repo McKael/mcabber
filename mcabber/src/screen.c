@@ -250,8 +250,9 @@ void scr_UpdateWindow(window_entry_t *win_entry)
 {
   int n;
   int width;
-  char **lines;
+  hbb_line **lines, *line;
   GList *hbuf_head;
+  char date[32];
 
   width = scr_WindowWidth(win_entry->win);
 
@@ -286,14 +287,22 @@ void scr_UpdateWindow(window_entry_t *win_entry)
   // Display these lines
   for (n = 0; n < CHAT_WIN_HEIGHT; n++) {
     wmove(win_entry->win, n, 0);
-    if (*(lines+2*n)) {
-      if (**(lines+2*n))
-        wprintw(win_entry->win, "%s", *(lines+2*n));      // prefix
+    line = *(lines+n);
+    if (line) {
+      if (line->timestamp) {
+        strftime(date, 35, "%H:%M", localtime(&line->timestamp));
+      } else
+        strcpy(date, "     ");
+      if (line->flags & HBB_PREFIX_IN)
+        wprintw(win_entry->win, "[%.5s] <== ", date);
+      else if (line->flags & HBB_PREFIX_OUT)
+        wprintw(win_entry->win, "[%.5s] --> ", date);
       else {
         wprintw(win_entry->win, "            ");
       }
-      wprintw(win_entry->win, "%s", *(lines+2*n+1));      // line
+      wprintw(win_entry->win, "%s", line->text);      // line
       wclrtoeol(win_entry->win);
+      g_free(line->text);
     } else {
       wclrtobot(win_entry->win);
       break;
@@ -353,25 +362,11 @@ void scr_ShowBuddyWindow(void)
 // Write some text in the winId window (this usually is a jid).
 // Lines are splitted when they are too long to fit in the chat window.
 // If this window doesn't exist, it is created.
-void scr_WriteInWindow(const char *winId, const char *text, int TimeStamp,
-        const char *prefix, int force_show)
+void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
+        unsigned int prefix_flags, int force_show)
 {
-  char *fullprefix = NULL;
   window_entry_t *win_entry;
   int dont_show = FALSE;
-
-  // Prepare the prefix
-  if (prefix || TimeStamp) {
-    if (!prefix)  prefix = "";
-    fullprefix = calloc(1, strlen(prefix)+16);
-    if (TimeStamp) {
-      time_t now = time(NULL);
-      strftime(fullprefix, 12, "[%H:%M] ", localtime(&now));
-    } else {
-      strcpy(fullprefix, "            ");
-    }
-    strcat(fullprefix, prefix);
-  }
 
   // Look for the window entry.
   win_entry = scr_SearchWindow(winId);
@@ -387,9 +382,8 @@ void scr_WriteInWindow(const char *winId, const char *text, int TimeStamp,
     win_entry = scr_CreateBuddyPanel(winId, dont_show);
   }
 
-  hbuf_add_line(&win_entry->hbuf, text, fullprefix,
+  hbuf_add_line(&win_entry->hbuf, text, timestamp, prefix_flags,
                 maxX - scr_WindowWidth(rosterWnd) - 14);
-  free(fullprefix);
 
   if (win_entry->cleared) {
     win_entry->cleared = 0; // The message must be displayed
@@ -661,22 +655,26 @@ void scr_DrawRoster(void)
   doupdate();
 }
 
-void scr_WriteMessage(const char *jid, const char *text, char *prefix)
+void scr_WriteMessage(const char *jid, const char *text, time_t timestamp,
+        guint prefix_flags)
 {
-  scr_WriteInWindow(jid, text, TRUE, prefix, FALSE);
+  if (!timestamp) timestamp = time(NULL);
+
+  scr_WriteInWindow(jid, text, timestamp, prefix_flags, FALSE);
 }
 
-void scr_WriteIncomingMessage(const char *jidfrom, const char *text)
+void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
+        time_t timestamp)
 {
   // FIXME expand tabs / filter out special chars...
-  scr_WriteMessage(jidfrom, text, "<== ");
+  scr_WriteMessage(jidfrom, text, timestamp, HBB_PREFIX_IN);
   update_panels();
   doupdate();
 }
 
 void scr_WriteOutgoingMessage(const char *jidto, const char *text)
 {
-  scr_WriteMessage(jidto, text, "--> ");
+  scr_WriteMessage(jidto, text, 0, HBB_PREFIX_OUT);
   scr_ShowWindow(jidto);
 }
 

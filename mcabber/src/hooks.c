@@ -44,7 +44,7 @@ inline void hk_message_in(const char *jid, time_t timestamp, const char *msg)
   // Note: the hlog_write should not be called first, because in some
   // cases scr_WriteIncomingMessage() will load the history and we'd
   // have the message twice...
-  scr_WriteIncomingMessage(jid, buffer);
+  scr_WriteIncomingMessage(jid, buffer, timestamp);
   hlog_write_message(jid, timestamp, FALSE, buffer);
   hk_ext_cmd(jid, 'M', 'R', NULL);
   free(buffer);

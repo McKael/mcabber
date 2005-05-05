@@ -23,7 +23,8 @@ void scr_InitCurses(void);
 void scr_DrawMainWindow(unsigned int fullinit);
 void scr_DrawRoster(void);
 void scr_TerminateCurses(void);
-void scr_WriteIncomingMessage(const char *jidfrom, const char *text);
+void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
+        time_t timestamp);
 void scr_WriteOutgoingMessage(const char *jidto,   const char *text);
 void scr_ShowBuddyWindow(void);
 void scr_LogPrint(const char *fmt, ...);

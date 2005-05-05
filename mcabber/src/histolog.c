@@ -43,11 +43,17 @@ static char *RootDir;
 static char *user_histo_file(const char *jid)
 {
   char *filename;
+  char *lowerid, *p;
   if (!UseFileLogging && !FileLoadLogs) return NULL;
+
+  lowerid = g_strdup(jid);
+  for (p=lowerid; *p ; p++)
+    *p = tolower(*p);
 
   filename = g_new(char, strlen(RootDir) + strlen(jid) + 1);
   strcpy(filename, RootDir);
-  strcat(filename, jid);
+  strcat(filename, lowerid);
+  g_free(lowerid);
   return filename;
 }
 
@@ -133,7 +139,8 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     if ((type != 'M' && type != 'S') || 
         (data[13] != ' ') || (data[17] != ' ')) {
       scr_LogPrint("Error in history file format");
-      break;
+      //break;
+      continue;
     }
     data[13] = data[17] = 0;
     timestamp = (unsigned long) atol(&data[3]);
@@ -143,9 +150,11 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     if (((type == 'M') && (info != 'S' && info != 'R')) ||
         ((type == 'I') && (!strchr("OAIFDCN", info)))) {
       scr_LogPrint("Error in history file format");
-      break;
+      //break;
+      continue;
     }
 
+    // FIXME This will fail when a message is too big
     while (len--) {
       if (fgets(tail, HBB_BLOCKSIZE+24 - (tail-data), fp) == NULL) break;
 

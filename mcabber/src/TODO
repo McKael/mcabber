@@ -17,7 +17,6 @@ TODO:
   top variable on a resize).
 * Show number of online contacts in folded groups
 * Add a cfg_read_int() function
-* Better prefix usage in the hbuf buffers (use flags for IN/OUT etc.)
 * Buddy buffer in full width (handy for cut'n paste!)
 
 * Commands! :-)
@@ -42,7 +41,6 @@ TODO:
   - /help
 * Multi-lines
 * Handle message type "error"
-* Shortcut to jump to next message received (shift-tab?)
 * File transfer? :)
 * Conferences :))
 * Show status changes in buddy window (if open)?  Could be great!

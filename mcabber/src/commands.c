@@ -27,6 +27,7 @@
 #include "screen.h"
 #include "compl.h"
 #include "hooks.h"
+#include "hbuf.h"
 #include "utf8.h"
 #include "utils.h"
 
@@ -38,6 +39,7 @@ void do_group(char *arg);
 void do_say(char *arg);
 void do_buffer(char *arg);
 void do_clear(char *arg);
+void do_info(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -70,7 +72,7 @@ void cmd_init(void)
   //cmd_add("del");
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
   cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
-  //cmd_add("info");
+  cmd_add("info", "Show basic infos on current buddy", 0, 0, &do_info);
   //cmd_add("move");
   //cmd_add("nick");
   cmd_add("quit", "Exit the software", 0, 0, NULL);
@@ -359,5 +361,47 @@ void do_buffer(char *arg)
 void do_clear(char *arg)    // Alias for "/buffer clear"
 {
   do_buffer("clear");
+}
+
+void do_info(char *arg)
+{
+  gpointer bud;
+  const char *jid, *name;
+  guint type;
+  enum imstatus status;
+  char *buffer;
+
+  if (!current_buddy) return;
+  bud = BUDDATA(current_buddy);
+
+  jid    = buddy_getjid(bud);
+  name   = buddy_getname(bud);
+  type   = buddy_gettype(bud);
+  status = buddy_getstatus(bud);
+
+  buffer = g_new(char, 128);
+
+  if (jid) {
+    char *typestr = "unknown";
+
+    snprintf(buffer, 127, "jid:  <%s>", jid);
+    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    if (name) {
+      snprintf(buffer, 127, "Name: %s", name);
+      scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    }
+
+    if (type == ROSTER_TYPE_USER) typestr = "user";
+    else if (type == ROSTER_TYPE_AGENT) typestr = "agent";
+
+    snprintf(buffer, 127, "Type: %s", typestr);
+    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  } else {
+    if (name) scr_LogPrint("Name: %s", name);
+    scr_LogPrint("Type: %s",
+            ((type == ROSTER_TYPE_GROUP) ? "group" : "unknown"));
+  }
+
+  g_free(buffer);
 }
 

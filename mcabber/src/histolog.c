@@ -113,6 +113,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   guint prefix_flags;
   guint len;
   FILE *fp;
+  guint err = 0;
 
   if (!FileLoadLogs) return;
 
@@ -138,7 +139,10 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     info = data[1];
     if ((type != 'M' && type != 'S') || 
         (data[13] != ' ') || (data[17] != ' ')) {
-      scr_LogPrint("Error in history file format");
+      if (!err) {
+        scr_LogPrint("Error in history file format (%s)", jid);
+        err = 1;
+      }
       //break;
       continue;
     }
@@ -149,7 +153,10 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     // Some checks
     if (((type == 'M') && (info != 'S' && info != 'R')) ||
         ((type == 'I') && (!strchr("OAIFDCN", info)))) {
-      scr_LogPrint("Error in history file format");
+      if (!err) {
+        scr_LogPrint("Error in history file format (%s)", jid);
+        err = 1;
+      }
       //break;
       continue;
     }
@@ -169,6 +176,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
       else
         prefix_flags = HBB_PREFIX_IN;
       hbuf_add_line(p_buddyhbuf, &data[18], timestamp, prefix_flags, width);
+      err = 0;
     }
   }
   fclose(fp);

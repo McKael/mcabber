@@ -74,8 +74,7 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
   roster sample;
   GCompareFunc comp;
 
-  if (!jidname)
-    return NULL;    // should not happen
+  if (!jidname) return NULL;
 
   if (!roster_type)
     roster_type = ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_GROUP;
@@ -139,8 +138,8 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
   if (!group)  group = "";
 
   // #1 Check this user doesn't already exist
-  if ((slist = roster_find(jid, jidsearch, type)) != NULL)
-    return slist;
+  slist = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  if (slist) return slist;
   // #2 add group if necessary
   slist = roster_add_group(group);
   if (!slist) return NULL;

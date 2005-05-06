@@ -94,6 +94,9 @@ static void jidsplit(const char *jid, char **user, char **host,
 }
 */
 
+//  jidtodisp(jid)
+// Strips the resource part from the jid
+// The caller should g_free the result after use.
 char *jidtodisp(const char *jid)
 {
   char *ptr;
@@ -294,6 +297,7 @@ void jb_send_msg(const char *jid, const char *text)
 void jb_addbuddy(const char *jid, const char *group)
 {
   xmlnode x, y, z;
+  char *cleanjid;
 
   // XXX Check jid (but perhaps caller should do it)
 
@@ -318,7 +322,9 @@ void jb_addbuddy(const char *jid, const char *group)
   jab_send(jc, x);
   xmlnode_free(x);
 
-  roster_add_user(jid, NULL, group, ROSTER_TYPE_USER);
+  cleanjid = jidtodisp(jid);
+  roster_add_user(cleanjid, NULL, group, ROSTER_TYPE_USER);
+  g_free(cleanjid);
   buddylist_build();
 
   // maybe not needed: if user appears his status will change
@@ -407,14 +413,14 @@ void gotroster(xmlnode x)
 
     if (alias) {
       char *buddyname;
+      char *cleanalias = jidtodisp(alias);
       if (name)
         buddyname = (char*)name;
       else
-        buddyname = jidtodisp(alias);
+        buddyname = cleanalias;
 
-      roster_add_user(alias, buddyname, group, ROSTER_TYPE_USER);
-      if (!name)
-        free(buddyname);
+      roster_add_user(cleanalias, buddyname, group, ROSTER_TYPE_USER);
+      g_free(cleanalias);
     }
   }
 
@@ -437,7 +443,7 @@ void gotmessage(char *type, const char *from, const char *body,
 
   jid = jidtodisp(from);
   hk_message_in(jid, 0, body);
-  free(jid);
+  g_free(jid);
 }
 
 void statehandler(jconn conn, int state)
@@ -448,19 +454,13 @@ void statehandler(jconn conn, int state)
 
   switch(state) {
     case JCONN_STATE_OFF:
+        if (previous_state != JCONN_STATE_OFF)
+          scr_LogPrint("+ JCONN_STATE_OFF");
 
         online = FALSE;
         mystatus = offline;
         roster_free();
         update_roster = TRUE;
-
-        if (previous_state != JCONN_STATE_OFF) {
-          scr_LogPrint("+ JCONN_STATE_OFF");
-          /*
-           jhook.roster.clear();
-           jhook.agents.clear();
-          */
-        }
         break;
 
     case JCONN_STATE_CONNECTED:
@@ -599,6 +599,11 @@ void packethandler(jconn conn, jpacket packet)
                     if (xmlnode_get_tag(y, "transport")) atype = transport; else
                       if (xmlnode_get_tag(y, "search")) atype = search;
 
+                  if (atype == transport) {
+                    char *cleanjid = jidtodisp(alias);
+                    roster_add_user(cleanjid, NULL, NULL, ROSTER_TYPE_AGENT);
+                    g_free(cleanjid);
+                  }
                   if (alias && name && desc) {
                     scr_LogPrint("Agent: %s / %s / %s / type=%d",
                                  alias, name, desc, atype);

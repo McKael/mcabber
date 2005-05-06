@@ -299,6 +299,8 @@ void scr_UpdateWindow(window_entry_t *win_entry)
         wprintw(win_entry->win, "%.11s <== ", date);
       else if (line->flags & HBB_PREFIX_OUT)
         wprintw(win_entry->win, "%.11s --> ", date);
+      else if (line->flags & HBB_PREFIX_INFO)
+        wprintw(win_entry->win, "%.11s *** ", date);
       else {
         wprintw(win_entry->win, "%.11s     ", date);
       }
@@ -669,11 +671,13 @@ void scr_WriteMessage(const char *jid, const char *text, time_t timestamp,
   scr_WriteInWindow(jid, text, timestamp, prefix_flags, FALSE);
 }
 
+// If prefix is NULL, HBB_PREFIX_IN is supposed.
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
-        time_t timestamp)
+        time_t timestamp, guint prefix)
 {
+  if (!prefix) prefix = HBB_PREFIX_IN;
   // FIXME expand tabs / filter out special chars...
-  scr_WriteMessage(jidfrom, text, timestamp, HBB_PREFIX_IN);
+  scr_WriteMessage(jidfrom, text, timestamp, prefix);
   update_panels();
   doupdate();
 }

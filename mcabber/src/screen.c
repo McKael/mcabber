@@ -533,6 +533,7 @@ void scr_Resize()
   list_for_each_safe(pos, n, &window_list) {
     search_entry = window_entry(pos);
     if (search_entry->win) {
+      GList *rescue_top;
       // Resize buddy window (no need to move it)
       wresize(search_entry->win, lines, cols);
       werase(search_entry->win);
@@ -541,8 +542,11 @@ void scr_Resize()
         replace_panel(search_entry->panel, search_entry->win);
       }
       // Redo line wrapping
+      rescue_top = hbuf_previous_persistent(search_entry->top);
       hbuf_rebuild(&search_entry->hbuf,
               maxX - ROSTER_WIDTH - PREFIX_WIDTH);
+      if (g_list_position(g_list_first(search_entry->hbuf), search_entry->top) == -1)
+        search_entry->top = rescue_top;
     }
   }
 

@@ -217,6 +217,26 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
   }
 }
 
+//  hbuf_previous_persistent()
+// Returns the previous persistent block (line).  If the given line is
+// persistent, then it is returned.
+// This function is used for example when resizing a buffer.  If the top of the
+// screen is on a non-persistent block, then a screen resize could destroy this
+// line...
+GList *hbuf_previous_persistent(GList *l_line)
+{
+  hbuf_block *hbuf_b_elt;
+
+  while (l_line) {
+    hbuf_b_elt = (hbuf_block*)l_line->data;
+    if (hbuf_b_elt->flags & HBB_FLAG_PERSISTENT)
+      return l_line;
+    l_line = g_list_previous(l_line);
+  }
+
+  return NULL;
+}
+
 //  hbuf_get_lines(hbuf, n, where)  FIXME bad comments XXX
 // Returns an array of 2*n pointers (for n prefixes + n lines from hbuf)
 // (prefix line 1, line 1, prefix line 2, line 2, etc.)

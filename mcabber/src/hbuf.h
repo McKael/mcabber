@@ -30,6 +30,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
         guint prefix_flags, guint width);
 void hbuf_free(GList **p_hbuf);
 void hbuf_rebuild(GList **p_hbuf, unsigned int width);
+GList *hbuf_previous_persistent(GList *l_line);
 
 hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n);
 

@@ -3,5 +3,6 @@
 
 int cfg_file(char *filename);
 char *cfg_read(char *key);
+int cfg_read_int(char *key);
 
 #endif

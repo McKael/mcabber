@@ -115,3 +115,15 @@ char *cfg_read(char *key)
   }
   return NULL;
 }
+
+int cfg_read_int(char *key)
+{
+  char *optval;
+
+  optval = cfg_read(key);
+
+  if (optval)
+    return atoi(optval);
+
+  return 0;
+}

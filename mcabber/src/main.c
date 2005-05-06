@@ -87,15 +87,14 @@ void credits(void)
 int main(int argc, char **argv)
 {
   char *configFile = NULL;
-  char *username, *password, *resource;
-  char *servername, *portstring;
+  char *username, *password, *resource, *servername;
   char *jid;
-  char *optstring, *optstring2;
+  char *optstring;
   int optval, optval2;
+  int ssl;
   int key;
   unsigned int port;
   unsigned int ping;
-  int ssl;
   int ret = 0;
   unsigned int refresh = 0;
 
@@ -134,13 +133,12 @@ int main(int argc, char **argv)
   if (configFile) g_free(configFile);
 
   optstring = cfg_read("debug");
-  if (optstring)
-    ut_InitDebug(1, optstring);
+  if (optval) ut_InitDebug(1, optstring);
 
   servername = cfg_read("server");
-  username = cfg_read("username");
-  password = cfg_read("password");
-  resource = cfg_read("resource");
+  username   = cfg_read("username");
+  password   = cfg_read("password");
+  resource   = cfg_read("resource");
 
   if (!servername) {
       printf("Server name has not been specified in the config file!\n");
@@ -168,22 +166,16 @@ int main(int argc, char **argv)
   ut_WriteLog("Drawing main window...\n");
   scr_DrawMainWindow(TRUE);
 
-  optstring  = cfg_read("logging");
-  optstring2 = cfg_read("load_logs");
-  optval     = (optstring && (atoi(optstring) > 0));
-  optval2    = (optstring2 && (atoi(optstring2) > 0));
+  optval   = (cfg_read_int("logging") > 0);
+  optval2  = (cfg_read_int("load_logs") > 0);
   if (optval || optval2)
     hlog_enable(optval, cfg_read("logging_dir"), optval2);
 
   if ((optstring = cfg_read("events_command")) != NULL)
     hk_ext_cmd_init(optstring);
 
-  ssl = 0;
-  optstring = cfg_read("ssl");
-  if (optstring && (atoi(optstring) > 0))
-    ssl = 1;
-  portstring = cfg_read("port");
-  port = (portstring != NULL) ? (unsigned int) atoi(portstring) : 0;
+  ssl  = (cfg_read_int("ssl") > 0);
+  port = (unsigned int) cfg_read_int("port");
 
   /* Connect to server */
   ut_WriteLog("Connecting to server: %s:%d\n", servername, port);
@@ -205,8 +197,7 @@ int main(int argc, char **argv)
   jb_set_keepalive_delay(ping);
   ut_WriteLog("Ping interval stablished: %d secs\n", ping);
 
-  optstring = cfg_read("hide_offline_buddies");
-  if (optstring && (atoi(optstring) > 0))
+  if (cfg_read_int("hide_offline_buddies") > 0)
     buddylist_set_hide_offline_buddies(TRUE);
 
   /* Initialize commands system */

@@ -16,7 +16,6 @@ TODO:
 * Add a function in hbuf ~previous_persistent(hbuf *top) (to avoid loosing the
   top variable on a resize).
 * Show number of online contacts in folded groups
-* Add a cfg_read_int() function
 * Buddy buffer in full width (handy for cut'n paste!)
 
 * Commands! :-)

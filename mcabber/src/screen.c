@@ -1070,6 +1070,33 @@ const char *scr_cmdhisto_next(char *mask, guint len)
   return cmdhisto_backup;
 }
 
+//  backward_kill_word()
+// Kill the word before the cursor, in input line
+void backward_kill_word()
+{
+  char *c, *old = ptr_inputline;
+  int spaceallowed = 1;
+
+  if (ptr_inputline == inputLine) return;
+
+  for (c = ptr_inputline-1 ; c > inputLine ; c--)
+    if (!isalnum(*c)) {
+      if (*c == ' ')
+        if (!spaceallowed) break;
+    } else spaceallowed = 0;
+
+  if (c != inputLine || *c != ' ')
+    if ((c < ptr_inputline-1) && (!isalnum(*c)))
+      c++;
+
+  // Modify the line
+  ptr_inputline = c;
+  for (;;) {
+    *c = *old++;
+    if (!*c++) break;
+  }
+}
+
 //  which_row()
 // Tells which row our cursor is in, in the command line.
 // -1 -> normal text
@@ -1328,6 +1355,10 @@ int process_key(int key)
           break;
       case 14:  // Ctrl-n
           scr_ScrollDown();
+          break;
+      case 23:  // Ctrl-w
+          backward_kill_word();
+          check_offset(-1);
           break;
       case 27:  // ESC
           currentWindow = NULL;

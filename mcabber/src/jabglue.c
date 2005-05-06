@@ -31,6 +31,8 @@
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
 
+#define JABBER_AGENT_GROUP "Jabber Agents"
+
 jconn jc;
 time_t LastPingTime;
 unsigned int KeepaliveDelay;
@@ -601,7 +603,8 @@ void packethandler(jconn conn, jpacket packet)
 
                   if (atype == transport) {
                     char *cleanjid = jidtodisp(alias);
-                    roster_add_user(cleanjid, NULL, NULL, ROSTER_TYPE_AGENT);
+                    roster_add_user(cleanjid, NULL, JABBER_AGENT_GROUP,
+                            ROSTER_TYPE_AGENT);
                     g_free(cleanjid);
                   }
                   if (alias && name && desc) {

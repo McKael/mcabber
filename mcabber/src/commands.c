@@ -32,11 +32,12 @@
 
 // Commands callbacks
 void do_roster(char *arg);
-void do_clear(char *arg);
 void do_status(char *arg);
 void do_add(char *arg);
 void do_group(char *arg);
 void do_say(char *arg);
+void do_buffer(char *arg);
+void do_clear(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -63,6 +64,8 @@ void cmd_add(const char *name, const char *help,
 void cmd_init(void)
 {
   cmd_add("add", "Add a jabber user", COMPL_JID, 0, &do_add);
+  cmd_add("buffer", "Manipulate current buddy's buffer (chat window)",
+          COMPL_BUFFER, 0, &do_buffer);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
   //cmd_add("del");
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
@@ -95,6 +98,11 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "hide_offline");
   compl_add_category_word(COMPL_ROSTER, "show_offline");
   compl_add_category_word(COMPL_ROSTER, "top");
+
+  // Roster category
+  compl_add_category_word(COMPL_BUFFER, "bottom");
+  compl_add_category_word(COMPL_BUFFER, "clear");
+  compl_add_category_word(COMPL_BUFFER, "top");
 
   // Group category
   compl_add_category_word(COMPL_GROUP, "expand");
@@ -239,11 +247,6 @@ void do_roster(char *arg)
     scr_LogPrint("Unrecognized parameter!");
 }
 
-void do_clear(char *arg)
-{
-  scr_Clear();
-}
-
 void do_status(char *arg)
 {
   enum imstatus st;
@@ -339,5 +342,22 @@ void do_say(char *arg)
 
   buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
   send_message(arg);
+}
+
+void do_buffer(char *arg)
+{
+  if (!strcasecmp(arg, "top")) {
+    scr_BufferTop();
+  } else if (!strcasecmp(arg, "bottom")) {
+    scr_BufferBottom();
+  } else if (!strcasecmp(arg, "clear")) {
+    scr_Clear();
+  } else
+    scr_LogPrint("Unrecognized parameter!");
+}
+
+void do_clear(char *arg)    // Alias for "/buffer clear"
+{
+  do_buffer("clear");
 }
 

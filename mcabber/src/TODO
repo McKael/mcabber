@@ -22,6 +22,7 @@ TODO:
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>
     + next_message (Ctrl-q?)
+  - /buffer <clear|top|bottom>
   - /group <expand|shrink|toggle>
   - /say blabla
   - /say_to <jid> blabla

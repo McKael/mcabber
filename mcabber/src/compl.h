@@ -10,7 +10,8 @@
 #define COMPL_STATUS    16
 #define COMPL_FILENAME  32      // Not implemented yet
 #define COMPL_ROSTER    64
-#define COMPL_GROUP    128
+#define COMPL_BUFFER   128
+#define COMPL_GROUP    256
 
 void    compl_add_category_word(guint, const char *command);
 GSList *compl_get_category_list(guint cat_flags);

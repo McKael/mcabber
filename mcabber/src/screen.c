@@ -922,6 +922,58 @@ void scr_Clear(void)
   doupdate();
 }
 
+//  scr_BufferTop()
+// Jump to the head of the current buddy window
+void scr_BufferTop(void)
+{
+  const gchar *jid;
+  window_entry_t *win_entry;
+
+  // Get win_entry
+  if (!current_buddy) return;
+  jid = CURRENT_JID;
+  if (!jid) return;
+  win_entry  = scr_SearchWindow(jid);
+
+  if (!win_entry) return;
+
+  win_entry->cleared = FALSE;
+  win_entry->top = g_list_first(win_entry->hbuf);
+
+  // Refresh the window
+  scr_UpdateWindow(win_entry);
+
+  // Finished :)
+  update_panels();
+  doupdate();
+}
+
+//  scr_BufferBottom()
+// Jump to the end of the current buddy window
+void scr_BufferBottom(void)
+{
+  const gchar *jid;
+  window_entry_t *win_entry;
+
+  // Get win_entry
+  if (!current_buddy) return;
+  jid = CURRENT_JID;
+  if (!jid) return;
+  win_entry  = scr_SearchWindow(jid);
+
+  if (!win_entry) return;
+
+  win_entry->cleared = FALSE;
+  win_entry->top = NULL;
+
+  // Refresh the window
+  scr_UpdateWindow(win_entry);
+
+  // Finished :)
+  update_panels();
+  doupdate();
+}
+
 //  scr_LogPrint(...)
 // Display a message in the log window.
 void scr_LogPrint(const char *fmt, ...)

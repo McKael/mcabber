@@ -301,7 +301,7 @@ void jb_addbuddy(const char *jid, const char *group)
   xmlnode x, y, z;
   char *cleanjid;
 
-  // XXX Check jid (but perhaps caller should do it)
+  if (!online) return;
 
   // We don't check if the jabber user already exists in the roster,
   // because it allows to re-ask for notification.
@@ -340,8 +340,6 @@ void jb_delbuddy(const char *jid)
 
   if (!online) return;
 
-  // XXX Check jid (but perhaps caller should do it)
-
   cleanjid = jidtodisp(jid);
 
   // If the current buddy is an agent, unsubscribe from it
@@ -375,6 +373,32 @@ void jb_delbuddy(const char *jid)
   buddylist_build();
 
   update_roster = TRUE;
+}
+
+void jb_updatebuddy(const char *jid, const char *name, const char *group)
+{
+  xmlnode x, y;
+  char *cleanjid;
+
+  if (!online) return;
+
+  // XXX We should check name's and group's correctness
+
+  cleanjid = jidtodisp(jid);
+
+  x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
+  y = xmlnode_insert_tag(xmlnode_get_tag(x, "query"), "item");
+  xmlnode_put_attrib(y, "jid", cleanjid);
+  xmlnode_put_attrib(y, "name", name);
+
+  if (group) {
+    y = xmlnode_insert_tag(y, "group");
+    xmlnode_insert_cdata(y, group, (unsigned) -1);
+  }
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+  g_free(cleanjid);
 }
 
 void postlogin()

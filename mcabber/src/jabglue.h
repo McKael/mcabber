@@ -34,6 +34,7 @@ void jb_disconnect(void);
 void jb_main();
 void jb_addbuddy(const char *jid, const char *group);
 void jb_delbuddy(const char *jid);
+void jb_updatebuddy(const char *jid, const char *name, const char *group);
 inline enum imstatus jb_getstatus();
 void jb_setstatus(enum imstatus st, char *msg);
 void jb_send_msg(const char *, const char *);

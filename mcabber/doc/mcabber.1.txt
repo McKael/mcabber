@@ -15,7 +15,7 @@ DESCRIPTION
 -----------
 `mcabber(1)` is a small Jabber console client. +
 For now it needs a configuration file to start, so please copy the sample
-mcabberrc file and update your connection options.
+mcabberrc file and adapt your connection settings.
 
 The `mcabber(1)` screen is divided into 4 regions.
 The 'roster', alias 'buddylist', is on the left.  The 'chat window', or chat
@@ -78,7 +78,7 @@ COMMANDS
 
 /add jid::
         Add the 'jid' Jabber user to our roster, and send a notification
-        request to this buddy
+        request to this buddy.
 
 /buffer clear|top|bottom::
         The 'buffer' command manipulates the current buddy's buffer
@@ -103,10 +103,13 @@ COMMANDS
         'toggle';; toggle the fold/unfold state of the current tree
 
 /info::
-        Display info on the selected entry (user, agent, group...)
+        Display info on the selected entry (user, agent, group...).
 
 /quit::
-        Disconnect and leave `mcabber(1)`
+        Disconnect and leave `mcabber(1)`.
+
+/rename nickname::
+        Rename current buddy to the given nickname.
 
 /roster hide_offline|show_offline|top|bottom::
         The 'roster' command manipulates the roster/buddylist.

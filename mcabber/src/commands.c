@@ -41,6 +41,7 @@ void do_say(char *arg);
 void do_buffer(char *arg);
 void do_clear(char *arg);
 void do_info(char *arg);
+void do_rename(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -77,7 +78,7 @@ void cmd_init(void)
   //cmd_add("move");
   //cmd_add("nick");
   cmd_add("quit", "Exit the software", 0, 0, NULL);
-  //cmd_add("rename");
+  cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
   //cmd_add("request_auth");
   cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0,
           &do_roster);
@@ -421,5 +422,41 @@ void do_info(char *arg)
   }
 
   g_free(buffer);
+}
+
+void do_rename(char *arg)
+{
+  gpointer bud;
+  const char *jid, *group;
+  guint type;
+  char *newname, *p;
+
+  if (!arg || (*arg == 0)) {
+    scr_LogPrint("Missing parameter");
+    return;
+  }
+
+  if (!current_buddy) return;
+  bud = BUDDATA(current_buddy);
+
+  jid   = buddy_getjid(bud);
+  group = buddy_getgroupname(bud);
+  type  = buddy_gettype(bud);
+
+  if (type & ROSTER_TYPE_GROUP) {
+    scr_LogPrint("You can't rename groups");
+    return;
+  }
+
+  newname = g_strdup(arg);
+  // Remove trailing space
+  for (p = newname; *p; p++) ;
+  while (p > newname && *p == ' ') *p = 0;
+
+  buddy_setname(bud, newname);
+  jb_updatebuddy(jid, newname, group);
+
+  g_free(newname);
+  update_roster = TRUE;
 }
 

@@ -35,6 +35,7 @@
 void do_roster(char *arg);
 void do_status(char *arg);
 void do_add(char *arg);
+void do_del(char *arg);
 void do_group(char *arg);
 void do_say(char *arg);
 void do_buffer(char *arg);
@@ -69,7 +70,7 @@ void cmd_init(void)
   cmd_add("buffer", "Manipulate current buddy's buffer (chat window)",
           COMPL_BUFFER, 0, &do_buffer);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
-  //cmd_add("del");
+  cmd_add("del", "Delete the current buddy", 0, 0, &do_del);
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
   cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
   cmd_add("info", "Show basic infos on current buddy", 0, 0, &do_info);
@@ -403,5 +404,22 @@ void do_info(char *arg)
   }
 
   g_free(buffer);
+}
+
+void do_del(char *arg)
+{
+  const char *jid;
+
+  if (arg && (*arg)) {
+    scr_LogPrint("Wrong usage");
+    return;
+  }
+
+  if (!current_buddy) return;
+  jid = buddy_getjid(BUDDATA(current_buddy));
+  if (!jid) return;
+
+  scr_LogPrint("Removing <%s>...", jid);
+  jb_delbuddy(jid);
 }
 

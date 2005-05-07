@@ -91,6 +91,10 @@ COMMANDS
 /clear::
         The 'clear' command is an alias for "/buffer clear".
 
+/del::
+        Delete the current buddy from our roster, unsubscribe from its presence
+        notification and unsubscribe it from ours.
+
 /group expand|shrink|toggle::
         The 'group' command changes the group display settings.
 

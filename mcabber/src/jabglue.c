@@ -333,6 +333,50 @@ void jb_addbuddy(const char *jid, const char *group)
   //update_roster = TRUE;
 }
 
+void jb_delbuddy(const char *jid)
+{
+  xmlnode x, y, z;
+  char *cleanjid;
+
+  if (!online) return;
+
+  // XXX Check jid (but perhaps caller should do it)
+
+  cleanjid = jidtodisp(jid);
+
+  // If the current buddy is an agent, unsubscribe from it
+  if (roster_gettype(cleanjid) == ROSTER_TYPE_AGENT) {
+    scr_LogPrint("Unregistering from the %s agent", cleanjid);
+
+    x = jutil_iqnew(JPACKET__SET, NS_REGISTER);
+    xmlnode_put_attrib(x, "to", cleanjid);
+    y = xmlnode_get_tag(x, "query");
+    xmlnode_insert_tag(y, "remove");
+    jab_send(jc, x);
+    xmlnode_free(x);
+  }
+
+  // Unsubscribe this buddy from our presence notification
+  x = jutil_presnew(JPACKET__UNSUBSCRIBE, cleanjid, 0);
+  jab_send(jc, x);
+  xmlnode_free(x);
+
+  // Ask for removal from roster
+  x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
+  y = xmlnode_get_tag(x, "query");
+  z = xmlnode_insert_tag(y, "item");
+  xmlnode_put_attrib(z, "jid", cleanjid);
+  xmlnode_put_attrib(z, "subscription", "remove");
+  jab_send(jc, x);
+  xmlnode_free(x);
+
+  roster_del_user(cleanjid);
+  g_free(cleanjid);
+  buddylist_build();
+
+  update_roster = TRUE;
+}
+
 void postlogin()
 {
   //int i;
@@ -737,8 +781,8 @@ void packethandler(jconn conn, jpacket packet)
         break;
 
     case JPACKET_S10N:
-        scr_LogPrint("Received subscription packet");
-        if (type) scr_LogPrint("Type=%s", type);
+        scr_LogPrint("Received (un)subscription packet (type=%s)",
+                ((type) ? type : ""));
 
         if (!strcmp(type, "subscribe")) {
           int isagent;

@@ -7,7 +7,7 @@ BUGS:
 TODO:
 
 * Presence notification is always accepted.  We should ask...
-* Display status
+* Display status / chat mode
 * Get timestamp for offline messages
 * /connect /disconnect ?
 * Key bindings (ex: F5 <-> /group toggle)
@@ -15,6 +15,7 @@ TODO:
   maybe we could show it someway (maybe just a flag?).
 * Show number of online contacts in folded groups
 * Buddy buffer in full width (handy for cut'n paste!)
+* Create .mcabber and .mcabber/histo dirs if needed.
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>

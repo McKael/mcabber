@@ -138,7 +138,7 @@ Certainly a lot.  Please tell me if you find one!  :-)
 
 AUTHOR
 ------
-Written by mailto:bmikael@lists.ilotux.ne[Mikael BERTHE]. +
+Written by mailto:bmikael@lists.lilotux.net[Mikael BERTHE]. +
 Originally based on cabber
 (http://cabber.sourceforge.net[Cabber homepage]), please
 consult the AUTHORS file for details.

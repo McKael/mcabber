@@ -16,6 +16,62 @@ DESCRIPTION
 'mcabber'(1) is a small jabber console client.
 Please copy the sample mcabberrc file and update your connection options.
 
+COMMANDS
+--------
+
+/add jid::
+        Add the 'jid' Jabber user to our roster, and send a notification
+        request to this buddy
+
+/buffer clear|top|bottom::
+	The 'buffer' command manipulates the current buddy's buffer
+	(chat window).
+
+	clear:  clear the current buddy chat window
+
+	top:    jump to the top of the current buddy chat buffer
+
+	bottom: jump to the bottom of the current buddy chat buffer
+
+/clear::
+	The 'clear' command is an alias for "/buffer clear".
+
+/group expand|shrink|toggle::
+	The 'group' command changes the group display settings.
+
+	expand: expand (unfold) the current group tree in the roster
+
+	shrink: shrink (fold) the current group tree in the roster
+
+	toggle: toggle the fold/unfold state of the current tree
+
+        Note: the "fold" and "unfold" keywords are accepted.
+
+/info::
+	Display info on the selected entry (user, agent, group...)
+
+/quit::
+	Disconnect and leave mcabber(1)
+
+/roster hide_offline|show_offline|top|bottom::
+	The 'roster' command manipulates the roster/buddylist.
+
+	hide_offline: hide offline buddies
+
+        show_offline: show offline buddies
+
+        top:          jump to the top of the roster
+
+        bottom:	      jump to the bottom of the roster
+
+/say text::
+	Send the text message to the currently selected buddy.  Can be useful
+        if you want to send a message beginning with a slash, for example.
+
+/status [online|avail|invisible|free|dnd|busy|notavail|away]::
+        Set the current status.  If no status is specified, display the
+        current status.
+
 OPTIONS
 -------
 --help, -h::
@@ -24,9 +80,9 @@ OPTIONS
 -f configfile::
 	Use configuration file 'configfile'.
 
-COMMANDS
---------
-
+CONFIGURATION FILE
+------------------
+See the provided sample configuration file, which should be self-documented.
 
 BUGS
 ----

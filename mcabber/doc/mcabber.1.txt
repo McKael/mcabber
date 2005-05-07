@@ -89,7 +89,7 @@ COMMANDS
         'bottom';; jump to the bottom of the current buddy chat buffer  
 
 /clear::
-        The 'clear' command is an alias for "/buffer clear".
+        The 'clear' command is actually an alias for "/buffer clear".
 
 /del::
         Delete the current buddy from our roster, unsubscribe from its presence

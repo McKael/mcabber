@@ -289,6 +289,23 @@ void do_add(char *arg)
   jb_addbuddy(arg, NULL);
 }
 
+void do_del(char *arg)
+{
+  const char *jid;
+
+  if (arg && (*arg)) {
+    scr_LogPrint("Wrong usage");
+    return;
+  }
+
+  if (!current_buddy) return;
+  jid = buddy_getjid(BUDDATA(current_buddy));
+  if (!jid) return;
+
+  scr_LogPrint("Removing <%s>...", jid);
+  jb_delbuddy(jid);
+}
+
 void do_group(char *arg)
 {
   gpointer group;
@@ -404,22 +421,5 @@ void do_info(char *arg)
   }
 
   g_free(buffer);
-}
-
-void do_del(char *arg)
-{
-  const char *jid;
-
-  if (arg && (*arg)) {
-    scr_LogPrint("Wrong usage");
-    return;
-  }
-
-  if (!current_buddy) return;
-  jid = buddy_getjid(BUDDATA(current_buddy));
-  if (!jid) return;
-
-  scr_LogPrint("Removing <%s>...", jid);
-  jb_delbuddy(jid);
 }
 

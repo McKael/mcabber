@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <bmikael@lists.lilotux.net>
-May 2005
+v0.6.0, May 2005
 
 NAME
 ----
@@ -13,16 +13,16 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-'mcabber'(1) is a small Jabber console client.
+`mcabber(1)` is a small Jabber console client with (optional) SSL support. +
 For now it needs a configuration file to start, so please copy the sample
 mcabberrc file and update your connection options.
 
-The mcabber(1) screen is divided into 4 regions.
+The `mcabber(1)` screen is divided into 4 regions.
 The 'roster', alias 'buddylist', is on the left.  The 'chat window', or chat
 buffer, is on the right.  The 'input line' lies at the bottom of the screen,
 under a small 'log window'.
 
-Commands completion.  If possible, mcabber(1) will try to complete your
+Commands completion.  If possible, `mcabber(1)` will try to complete your
 commands line if you hit the Tab key.
 
 Chat mode.  When 'chat mode' is enabled, the buddies chat buffers are
@@ -30,8 +30,8 @@ displayed.  Otherwise, the chat window is empty.  You can enter chat mode by
 pressing enter, and leave chat mode with the ESC key.  Sending a message also
 enables chat mode implicitly.
 
-History logging.  If enabled (see the CONFIGURATION FILE section), mcabber(1)
-can save discussions to history log files.
+History logging.  If enabled (see the CONFIGURATION FILE section),
+`mcabber(1)` can save discussions to history log files.
 
 External actions.  Some 'events' (like receiving a message) can trigger an
 external action, for example a shell script (you need to enable it in your
@@ -40,10 +40,10 @@ configuration file).
 OPTIONS
 -------
 --help, -h::
-	Quick help usage message
+        Quick help usage message
 
 -f configfile::
-	Use configuration file 'configfile'
+        Use configuration file 'configfile'
 
 KEYS
 ----
@@ -81,48 +81,39 @@ COMMANDS
         request to this buddy
 
 /buffer clear|top|bottom::
-	The 'buffer' command manipulates the current buddy's buffer
-	(chat window).
+        The 'buffer' command manipulates the current buddy's buffer
+        (chat window).
 
-	clear:  clear the current buddy chat window
-
-	top:    jump to the top of the current buddy chat buffer
-
-	bottom: jump to the bottom of the current buddy chat buffer
+        'clear';;  clear the current buddy chat window                  
+        'top';;    jump to the top of the current buddy chat buffer     
+        'bottom';; jump to the bottom of the current buddy chat buffer  
 
 /clear::
-	The 'clear' command is an alias for "/buffer clear".
+        The 'clear' command is an alias for "/buffer clear".
 
 /group expand|shrink|toggle::
-	The 'group' command changes the group display settings.
+        The 'group' command changes the group display settings.
 
-	expand: expand (unfold) the current group tree in the roster
-
-	shrink: shrink (fold) the current group tree in the roster
-
-	toggle: toggle the fold/unfold state of the current tree
-
-        Note: the "fold" and "unfold" keywords are accepted.
+        'expand';; expand the current group tree in the roster (syn: 'unfold')
+        'shrink';; shrink the current group tree in the roster (syn: 'fold')
+        'toggle';; toggle the fold/unfold state of the current tree
 
 /info::
-	Display info on the selected entry (user, agent, group...)
+        Display info on the selected entry (user, agent, group...)
 
 /quit::
-	Disconnect and leave mcabber(1)
+        Disconnect and leave `mcabber(1)`
 
 /roster hide_offline|show_offline|top|bottom::
-	The 'roster' command manipulates the roster/buddylist.
+        The 'roster' command manipulates the roster/buddylist.
 
-	hide_offline: hide offline buddies
-
-        show_offline: show offline buddies
-
-        top:          jump to the top of the roster
-
-        bottom:	      jump to the bottom of the roster
+        'hide_offline';; hide offline buddies
+        'show_offline';; show offline buddies
+        'top';;          jump to the top of the roster
+        'bottom';;       jump to the bottom of the roster
 
 /say text::
-	Send the text message to the currently selected buddy.  Can be useful
+        Send the text message to the currently selected buddy.  Can be useful
         if you want to send a message beginning with a slash, for example.
 
 /status [online|avail|invisible|free|dnd|busy|notavail|away]::
@@ -135,7 +126,7 @@ See the provided sample configuration file, which should be self-documented.
 
 FILES
 -----
-The following files can be used by mcabber(1):
+The following files can be used by `mcabber(1)`:
 
     $HOME/.mcabber/mcabberrc    Default configuration file
     $HOME/.mcabberrc            Configuration file used if no other has been found
@@ -143,22 +134,23 @@ The following files can be used by mcabber(1):
 
 BUGS
 ----
-Certainly a lot.
+Certainly a lot.  Please tell me if you find one!  :-)
 
 AUTHOR
 ------
-Written by Mikael BERTHE, <bmikael@lists.ilotux.net>.  
-Originally based on cabber (see <http://cabber.sourceforge.net>), please
+Written by mailto:bmikael@lists.ilotux.ne[Mikael BERTHE]. +
+Originally based on cabber
+(http://cabber.sourceforge.net[Cabber homepage]), please
 consult the AUTHORS file for details.
 
 RESOURCES
 ---------
-Main web site: http://www.lilotux.net/~mikael/mcabber/
+http://www.lilotux.net/~mikael/mcabber/[Main web site]
 
 COPYING
 -------
-Copyright (C) 2005 Mikael Berthe.
-Some portions are Copyright (C) 2002-2004 <cabber@ajmacias.com>.
+Copyright (C) 2005 Mikael Berthe. +
+Some portions are Copyright (C) 2002-2004 mailto:cabber@ajmacias.com[].
 
 Free use of this software is granted under the terms of the GNU General Public
 License (GPL).

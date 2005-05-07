@@ -5,7 +5,7 @@ May 2005
 
 NAME
 ----
-mcabber - a simple jabber console client
+mcabber - a simple Jabber console client
 
 SYNOPSIS
 --------
@@ -13,8 +13,65 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-'mcabber'(1) is a small jabber console client.
-Please copy the sample mcabberrc file and update your connection options.
+'mcabber'(1) is a small Jabber console client.
+For now it needs a configuration file to start, so please copy the sample
+mcabberrc file and update your connection options.
+
+The mcabber(1) screen is divided into 4 regions.
+The 'roster', alias 'buddylist', is on the left.  The 'chat window', or chat
+buffer, is on the right.  The 'input line' lies at the bottom of the screen,
+under a small 'log window'.
+
+Commands completion.  If possible, mcabber(1) will try to complete your
+commands line if you hit the Tab key.
+
+Chat mode.  When 'chat mode' is enabled, the buddies chat buffers are
+displayed.  Otherwise, the chat window is empty.  You can enter chat mode by
+pressing enter, and leave chat mode with the ESC key.  Sending a message also
+enables chat mode implicitly.
+
+History logging.  If enabled (see the CONFIGURATION FILE section), mcabber(1)
+can save discussions to history log files.
+
+External actions.  Some 'events' (like receiving a message) can trigger an
+external action, for example a shell script (you need to enable it in your
+configuration file).
+
+OPTIONS
+-------
+--help, -h::
+	Quick help usage message
+
+-f configfile::
+	Use configuration file 'configfile'
+
+KEYS
+----
+
+Text typing happens in the 'input line'; basic operations are supported (left
+arrow, right arrow, home/end keys, insert, delete, backspace...).
+
+PageUp and PageDown keys are used to move in the roster.
+
+To send a message, move to the choosen buddy in the buddylist, type your
+message and hit enter.  If the line begins with a slash, this will be
+interpreted as a command (see the COMMAND section below).  Hit escape to
+leave the chat mode.
+
+Here is a quick description of the key bindings:
+
+Ctrl-a::        Go to the beginning of the input line
+Ctrl-e::        Go to the end of the input line
+Ctrl-l::        Force a resize
+PgUp/PgDown::   Move inside the roster (buddylist)
+Tab::           Complete current word, in the input line
+Ctrl-g::        Cancel completion / ctrl-g
+Ctrl-p/Ctrl-n:: Scroll up/down half a screen in the buffer window (chat mode)
+Ctrl-u::        Delete from beginning of the line to the cursor
+Ctrl-k::        Delete from the cursor to the end of line
+Ctrl-w::        Backward kill word
+Ctrl-t::        Transpose chars
+Ctrl-q::        Jump to the next unread message (Not yet implemented)
 
 COMMANDS
 --------
@@ -72,17 +129,17 @@ COMMANDS
         Set the current status.  If no status is specified, display the
         current status.
 
-OPTIONS
--------
---help, -h::
-	Quick help usage message
-
--f configfile::
-	Use configuration file 'configfile'.
-
 CONFIGURATION FILE
 ------------------
 See the provided sample configuration file, which should be self-documented.
+
+FILES
+-----
+The following files can be used by mcabber(1):
+
+    $HOME/.mcabber/mcabberrc    Default configuration file
+    $HOME/.mcabberrc            Configuration file used if no other has been found
+    $HOME/.mcabber/histo/       Default directory for storing chat history files, if enabled
 
 BUGS
 ----

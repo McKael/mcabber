@@ -595,8 +595,6 @@ void scr_DrawRoster(void)
   i = g_list_position(buddylist, current_buddy);
   if (i == -1) { // This is bad
     scr_LogPrint("Doh! Can't find current selected buddy!!");
-    update_panels();
-    doupdate();
     return;
   } else if (i < offset) {
     offset = i;
@@ -1088,6 +1086,7 @@ void readline_transpose_chars()
     *(ptr_inputline-2) = *(ptr_inputline-1);
     *(ptr_inputline-1) = swp;
   } else {
+    // Swap the two characters before the cursor and move right.
     swp = *(ptr_inputline-1);
     *(ptr_inputline-1) = *ptr_inputline;
     *ptr_inputline++ = swp;
@@ -1381,6 +1380,9 @@ int process_key(int key)
           break;
       case 14:  // Ctrl-n
           scr_ScrollDown();
+          break;
+      case 17:  // Ctrl-q
+          // scr_jump_next_new_message();
           break;
       case 20:  // Ctrl-t
           readline_transpose_chars();

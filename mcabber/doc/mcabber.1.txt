@@ -1,0 +1,52 @@
+MCABBER(1)
+===========
+Mikael BERTHE <bmikael@lists.lilotux.net>
+May 2005
+
+NAME
+----
+mcabber - a simple jabber console client
+
+SYNOPSIS
+--------
+'mcabber' [ -f configfile ] [ --help | -h ]
+
+DESCRIPTION
+-----------
+'mcabber'(1) is a small jabber console client.
+Please copy the sample mcabberrc file and update your connection options.
+
+OPTIONS
+-------
+--help, -h::
+	Quick help usage message
+
+-f configfile::
+	Use configuration file 'configfile'.
+
+COMMANDS
+--------
+
+
+BUGS
+----
+Certainly a lot.
+
+AUTHOR
+------
+Written by Mikael BERTHE, <bmikael@lists.ilotux.net>.  
+Originally based on cabber (see <http://cabber.sourceforge.net>), please
+consult the AUTHORS file for details.
+
+RESOURCES
+---------
+Main web site: http://www.lilotux.net/~mikael/mcabber/
+
+COPYING
+-------
+Copyright (C) 2005 Mikael Berthe.
+Some portions are Copyright (C) 2002-2004 <cabber@ajmacias.com>.
+
+Free use of this software is granted under the terms of the GNU General Public
+License (GPL).
+

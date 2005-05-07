@@ -478,6 +478,7 @@ const char *buddy_getjid(gpointer rosterdata)
 void buddy_setname(gpointer rosterdata, char *newname)
 {
   roster *roster_usr = rosterdata;
+  GSList **sl_group;
 
   // TODO For groups, we need to check for unicity
   // However, renaming a group boils down to moving all its buddies to
@@ -490,6 +491,12 @@ void buddy_setname(gpointer rosterdata, char *newname)
   }
   if (newname)
     roster_usr->name = g_strdup(newname);
+
+  // We need to resort the group list
+  sl_group = &((roster*)((GSList*)roster_usr->list)->data)->list;
+  *sl_group = g_slist_sort(*sl_group, (GCompareFunc)&roster_compare_name);
+
+  buddylist_build();
 }
 
 const char *buddy_getname(gpointer rosterdata)

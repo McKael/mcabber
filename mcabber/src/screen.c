@@ -1070,9 +1070,34 @@ const char *scr_cmdhisto_next(char *mask, guint len)
   return cmdhisto_backup;
 }
 
-//  backward_kill_word()
+//  readline_transpose_chars()
+// Drag  the  character  before point forward over the character at
+// point, moving point forward as well.  If point is at the end  of
+// the  line, then this transposes the two characters before point.
+void readline_transpose_chars()
+{
+  char swp;
+
+  if (ptr_inputline == inputLine) return;
+
+  if (!*ptr_inputline) { // We're at EOL
+    // If line is only 1 char long, nothing to do...
+    if (ptr_inputline == inputLine+1) return;
+    // Transpose the two previous characters
+    swp = *(ptr_inputline-2);
+    *(ptr_inputline-2) = *(ptr_inputline-1);
+    *(ptr_inputline-1) = swp;
+  } else {
+    swp = *(ptr_inputline-1);
+    *(ptr_inputline-1) = *ptr_inputline;
+    *ptr_inputline++ = swp;
+    check_offset(1);
+  }
+}
+
+//  readline_backward_kill_word()
 // Kill the word before the cursor, in input line
-void backward_kill_word()
+void readline_backward_kill_word()
 {
   char *c, *old = ptr_inputline;
   int spaceallowed = 1;
@@ -1095,6 +1120,7 @@ void backward_kill_word()
     *c = *old++;
     if (!*c++) break;
   }
+  check_offset(-1);
 }
 
 //  which_row()
@@ -1356,9 +1382,11 @@ int process_key(int key)
       case 14:  // Ctrl-n
           scr_ScrollDown();
           break;
+      case 20:  // Ctrl-t
+          readline_transpose_chars();
+          break;
       case 23:  // Ctrl-w
-          backward_kill_word();
-          check_offset(-1);
+          readline_backward_kill_word();
           break;
       case 27:  // ESC
           currentWindow = NULL;

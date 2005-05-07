@@ -13,7 +13,7 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-`mcabber(1)` is a small Jabber console client with (optional) SSL support. +
+`mcabber(1)` is a small Jabber console client. +
 For now it needs a configuration file to start, so please copy the sample
 mcabberrc file and update your connection options.
 
@@ -22,20 +22,20 @@ The 'roster', alias 'buddylist', is on the left.  The 'chat window', or chat
 buffer, is on the right.  The 'input line' lies at the bottom of the screen,
 under a small 'log window'.
 
-Commands completion.  If possible, `mcabber(1)` will try to complete your
-commands line if you hit the Tab key.
+To display buddies chat buffers, you will have to enter 'chat mode'.
+You can enter chat mode by pressing enter, and leave chat mode with the ESC
+key.  Sending a message also enables chat mode implicitly.
 
-Chat mode.  When 'chat mode' is enabled, the buddies chat buffers are
-displayed.  Otherwise, the chat window is empty.  You can enter chat mode by
-pressing enter, and leave chat mode with the ESC key.  Sending a message also
-enables chat mode implicitly.
+Here are some of the features of `mcabber`:
 
-History logging.  If enabled (see the CONFIGURATION FILE section),
-`mcabber(1)` can save discussions to history log files.
-
-External actions.  Some 'events' (like receiving a message) can trigger an
-external action, for example a shell script (you need to enable it in your
-configuration file).
+- 'SSL support'.
+- 'History logging:'  If enabled (see the CONFIGURATION FILE section),
+  `mcabber(1)` can save discussions to history log files.
+- 'Commands completion:'  If possible, `mcabber(1)` will try to complete your
+  commands line if you hit the Tab key.
+- 'External actions:'  Some events (like receiving a message) can trigger an
+  external action, for example a shell script (you need to enable it in your
+  configuration file).
 
 OPTIONS
 -------
@@ -139,8 +139,7 @@ Certainly a lot.  Please tell me if you find one!  :-)
 AUTHOR
 ------
 Written by mailto:bmikael@lists.lilotux.net[Mikael BERTHE]. +
-Originally based on cabber
-(http://cabber.sourceforge.net[Cabber homepage]), please
+Originally based on http://cabber.sourceforge.net[Cabber], please
 consult the AUTHORS file for details.
 
 RESOURCES

@@ -27,8 +27,8 @@
 /* This is a private structure type for the roster */
 
 typedef struct {
-  const char *name;
-  const char *jid;
+  const gchar *name;
+  const gchar *jid;
   guint type;
   enum imstatus status;
   guint flags;
@@ -460,66 +460,96 @@ void buddylist_build(void)
 // "hide" values: 1=hide 0=show_all -1=invert
 void buddy_hide_group(gpointer rosterdata, int hide)
 {
-  roster *roster = rosterdata;
+  roster *roster_usr = rosterdata;
   if (hide > 0)                     // TRUE   (hide)
-    roster->flags |= ROSTER_FLAG_HIDE;
+    roster_usr->flags |= ROSTER_FLAG_HIDE;
   else if (hide < 0)                // NEG    (invert)
-    roster->flags ^= ROSTER_FLAG_HIDE;
+    roster_usr->flags ^= ROSTER_FLAG_HIDE;
   else                              // FALSE  (don't hide)
-    roster->flags &= ~ROSTER_FLAG_HIDE;
+    roster_usr->flags &= ~ROSTER_FLAG_HIDE;
 }
 
 const char *buddy_getjid(gpointer rosterdata)
 {
-  roster *roster = rosterdata;
-  return roster->jid;
+  roster *roster_usr = rosterdata;
+  return roster_usr->jid;
+}
+
+void buddy_setname(gpointer rosterdata, char *newname)
+{
+  roster *roster_usr = rosterdata;
+
+  // TODO For groups, we need to check for unicity
+  // However, renaming a group boils down to moving all its buddies to
+  // another group, so calling this function is not really necessary...
+  if (roster_usr->type & ROSTER_TYPE_GROUP) return;
+
+  if (roster_usr->name) {
+    g_free((gchar*)roster_usr->name);
+    roster_usr->name = NULL;
+  }
+  if (newname)
+    roster_usr->name = g_strdup(newname);
 }
 
 const char *buddy_getname(gpointer rosterdata)
 {
-  roster *roster = rosterdata;
-  return roster->name;
+  roster *roster_usr = rosterdata;
+  return roster_usr->name;
+}
+
+//  buddy_getgroupname()
+// Returns a pointer on buddy's group name.
+const char *buddy_getgroupname(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+
+  if (roster_usr->type & ROSTER_TYPE_GROUP)
+    return roster_usr->name;
+
+  // This is a user
+  return ((roster*)((GSList*)roster_usr->list)->data)->name;
 }
 
 //  buddy_getgroup()
 // Returns a pointer on buddy's group.
 gpointer buddy_getgroup(gpointer rosterdata)
 {
-  roster *roster = rosterdata;
+  roster *roster_usr = rosterdata;
 
-  if (roster->type & ROSTER_TYPE_GROUP)
+  if (roster_usr->type & ROSTER_TYPE_GROUP)
     return rosterdata;
 
   // This is a user
-  return (gpointer)((GSList*)roster->list)->data;
+  return (gpointer)((GSList*)roster_usr->list)->data;
 }
 
 guint buddy_gettype(gpointer rosterdata)
 {
-  roster *roster = rosterdata;
-  return roster->type;
+  roster *roster_usr = rosterdata;
+  return roster_usr->type;
 }
 
 enum imstatus buddy_getstatus(gpointer rosterdata)
 {
-  roster *roster = rosterdata;
-  return roster->status;
+  roster *roster_usr = rosterdata;
+  return roster_usr->status;
 }
 
 //  buddy_setflags()
 // Set one or several flags to value (TRUE/FALSE)
 void buddy_setflags(gpointer rosterdata, guint flags, guint value)
 {
-  roster *roster = rosterdata;
+  roster *roster_usr = rosterdata;
   if (value)
-    roster->flags |= flags;
+    roster_usr->flags |= flags;
   else
-    roster->flags &= ~flags;
+    roster_usr->flags &= ~flags;
 }
 
 guint buddy_getflags(gpointer rosterdata)
 {
-  roster *roster = rosterdata;
-  return roster->flags;
+  roster *roster_usr = rosterdata;
+  return roster_usr->flags;
 }
 

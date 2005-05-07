@@ -113,6 +113,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   guint prefix_flags;
   guint len;
   FILE *fp;
+  struct stat bufstat;
   guint err = 0;
 
   if (!FileLoadLogs) return;
@@ -128,6 +129,13 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   fp = fopen(filename, "r");
   g_free(filename);
   if (!fp) { g_free(data); return; }
+
+  // If file is large (> 512 here), display a message to inform the user
+  // (it can take a while...)
+  if (!fstat(fileno(fp), &bufstat)) {
+    if (bufstat.st_size > 524288)
+      scr_LogPrint("Reading <%s> history file...", jid);
+  }
 
   /* See write_histo_line() for line format... */
   while (!feof(fp)) {
@@ -161,12 +169,13 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
       continue;
     }
 
-    // FIXME This will fail when a message is too big
+    // XXX This will fail when a message is too big
     while (len--) {
       if (fgets(tail, HBB_BLOCKSIZE+24 - (tail-data), fp) == NULL) break;
 
       while (*tail) tail++;
     }
+    // Remove last CR
     if ((tail > data+18) && (*(tail-1) == '\n'))
       *(tail-1) = 0;
 

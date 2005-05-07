@@ -78,6 +78,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   if (strlen(text) >= HBB_BLOCKSIZE) {
     // Too long
     text = "[ERR:LINE_TOO_LONG]";
+    hbuf_block_elt->prefix.flags |= HBB_PREFIX_INFO;
   }
   if (hbuf_block_elt->ptr + strlen(text) >= hbuf_block_elt->ptr_end_alloc) {
     // Too long for the current allocated bloc, we need another one

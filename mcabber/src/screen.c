@@ -295,12 +295,17 @@ void scr_UpdateWindow(window_entry_t *win_entry)
         strftime(date, 35, "%m-%d %H:%M", localtime(&line->timestamp));
       } else
         strcpy(date, "           ");
-      if (line->flags & HBB_PREFIX_IN)
+      if (line->flags & HBB_PREFIX_INFO) {
+        char dir = '*';
+        if (line->flags & HBB_PREFIX_IN)
+          dir = '<';
+        else if (line->flags & HBB_PREFIX_OUT)
+          dir = '>';
+        wprintw(win_entry->win, "%.11s *%c* ", date, dir);
+      } else if (line->flags & HBB_PREFIX_IN)
         wprintw(win_entry->win, "%.11s <== ", date);
       else if (line->flags & HBB_PREFIX_OUT)
         wprintw(win_entry->win, "%.11s --> ", date);
-      else if (line->flags & HBB_PREFIX_INFO)
-        wprintw(win_entry->win, "%.11s *** ", date);
       else {
         wprintw(win_entry->win, "%.11s     ", date);
       }

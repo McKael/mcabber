@@ -32,7 +32,6 @@ static char *extcommand;
 
 inline void hk_message_in(const char *jid, time_t timestamp, const char *msg)
 {
-  char *buffer = utf8_decode(msg);
   int new_guy = FALSE;
 
   // If this user isn't in the roster, we add it
@@ -44,10 +43,9 @@ inline void hk_message_in(const char *jid, time_t timestamp, const char *msg)
   // Note: the hlog_write should not be called first, because in some
   // cases scr_WriteIncomingMessage() will load the history and we'd
   // have the message twice...
-  scr_WriteIncomingMessage(jid, buffer, timestamp, 0);
-  hlog_write_message(jid, timestamp, FALSE, buffer);
+  scr_WriteIncomingMessage(jid, msg, timestamp, 0);
+  hlog_write_message(jid, timestamp, FALSE, msg);
   hk_ext_cmd(jid, 'M', 'R', NULL);
-  free(buffer);
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set
   if (new_guy ||

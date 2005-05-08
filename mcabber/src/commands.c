@@ -149,7 +149,6 @@ cmd *cmd_get(char *command)
 // the network.
 void send_message(char *msg)
 {
-  char *buffer;
   const char *jid;
       
   if (!current_buddy) {
@@ -167,9 +166,7 @@ void send_message(char *msg)
   hk_message_out(jid, 0, msg);
 
   // Network part
-  buffer = utf8_encode(msg);
-  jb_send_msg(jid, buffer);
-  free(buffer);
+  jb_send_msg(jid, msg);
 }
 
 //  process_line(line)

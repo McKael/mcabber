@@ -26,6 +26,7 @@
 #include "roster.h"
 #include "screen.h"
 #include "hooks.h"
+#include "utf8.h"
 #include "utils.h"
 
 #define JABBERPORT      5222
@@ -290,12 +291,15 @@ void jb_setstatus(enum imstatus st, char *msg)
 
 void jb_send_msg(const char *jid, const char *text)
 {
-  xmlnode x = jutil_msgnew(TMSG_CHAT, (char*)jid, 0, (char*)text);
+  char *buffer = utf8_encode(text);
+  xmlnode x = jutil_msgnew(TMSG_CHAT, (char*)jid, 0, (char*)buffer);
   jab_send(jc, x);
   xmlnode_free(x);
+  free(buffer);
   jb_reset_keepalive();
 }
 
+// Note: the caller should check the jid is correct
 void jb_addbuddy(const char *jid, const char *group)
 {
   xmlnode x, y, z;
@@ -317,8 +321,10 @@ void jb_addbuddy(const char *jid, const char *group)
   xmlnode_put_attrib(z, "jid", jid);
 
   if (group) {
+    char *group_utf8 = utf8_encode(group);
     z = xmlnode_insert_tag(z, "group");
-    xmlnode_insert_cdata(z, group, (unsigned) -1);
+    xmlnode_insert_cdata(z, group_utf8, (unsigned) -1);
+    free(group_utf8);
   }
 
   jab_send(jc, x);
@@ -329,7 +335,7 @@ void jb_addbuddy(const char *jid, const char *group)
   g_free(cleanjid);
   buddylist_build();
 
-  // maybe not needed: if user appears his status will change
+  // useless IMHO: if user appears his status will change
   //update_roster = TRUE;
 }
 
@@ -379,25 +385,30 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
 {
   xmlnode x, y;
   char *cleanjid;
+  char *name_utf8;
 
   if (!online) return;
 
   // XXX We should check name's and group's correctness
 
   cleanjid = jidtodisp(jid);
+  name_utf8 = utf8_encode(name);
 
   x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
   y = xmlnode_insert_tag(xmlnode_get_tag(x, "query"), "item");
   xmlnode_put_attrib(y, "jid", cleanjid);
-  xmlnode_put_attrib(y, "name", name);
+  xmlnode_put_attrib(y, "name", name_utf8);
 
   if (group) {
+    char *group_utf8 = utf8_encode(group);
     y = xmlnode_insert_tag(y, "group");
-    xmlnode_insert_cdata(y, group, (unsigned) -1);
+    xmlnode_insert_cdata(y, group_utf8, (unsigned) -1);
+    free(group_utf8);
   }
 
   jab_send(jc, x);
   xmlnode_free(x);
+  free(name_utf8);
   g_free(cleanjid);
 }
 
@@ -476,7 +487,7 @@ void gotroster(xmlnode x)
     const char *alias = xmlnode_get_attrib(y, "jid");
     //const char *sub = xmlnode_get_attrib(y, "subscription"); // TODO Not used
     const char *name = xmlnode_get_attrib(y, "name");
-    const char *group = NULL;
+    char *group = NULL;
 
     z = xmlnode_get_tag(y, "group");
     if (z) group = xmlnode_get_data(z);
@@ -484,12 +495,19 @@ void gotroster(xmlnode x)
     if (alias) {
       char *buddyname;
       char *cleanalias = jidtodisp(alias);
-      if (name)
-        buddyname = (char*)name;
-      else
+      char *name_noutf8 = NULL;
+      char *group_noutf8 = NULL;
+
+      if (name) {
+        name_noutf8 = utf8_decode(name);
+        buddyname = name_noutf8;
+      } else
         buddyname = cleanalias;
 
-      roster_add_user(cleanalias, buddyname, group, ROSTER_TYPE_USER);
+      if (group) group_noutf8 = utf8_decode(group);
+      roster_add_user(cleanalias, buddyname, group_noutf8, ROSTER_TYPE_USER);
+      if (name_noutf8)  free(name_noutf8);
+      if (group_noutf8) free(group_noutf8);
       g_free(cleanalias);
     }
   }
@@ -501,6 +519,7 @@ void gotmessage(char *type, const char *from, const char *body,
         const char *enc)
 {
   char *jid;
+  char *buffer = utf8_decode(body);
 
   /*
   //char *u, *h, *r;
@@ -512,8 +531,9 @@ void gotmessage(char *type, const char *from, const char *body,
   */
 
   jid = jidtodisp(from);
-  hk_message_in(jid, 0, body);
+  hk_message_in(jid, 0, buffer);
   g_free(jid);
+  free(buffer);
 }
 
 void statehandler(jconn conn, int state)

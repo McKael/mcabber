@@ -212,6 +212,7 @@ void roster_free(void)
         g_free((gchar*)roster_usr->jid);
       if (roster_usr->name)
         g_free((gchar*)roster_usr->name);
+      g_free(roster_usr);
       sl_usr = g_slist_next(sl_usr);
     }
     // Free group's users list
@@ -222,6 +223,7 @@ void roster_free(void)
       g_free((gchar*)roster_grp->jid);
     if (roster_grp->name)
       g_free((gchar*)roster_grp->name);
+    g_free(roster_grp);
     sl_grp = g_slist_next(sl_grp);
   }
   // Free groups list

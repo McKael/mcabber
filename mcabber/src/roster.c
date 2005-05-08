@@ -508,8 +508,15 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   if (roster_usr->name) g_free((gchar*)roster_usr->name);
   g_free(roster_usr);
 
-  buddylist_build();
+  // If new new group is folded, the curren_buddy will be lost, and the
+  // chat window won't be correctly refreshed.  So we make sure it isn't...
+  ((roster*)((GSList*)roster_clone->list)->data)->flags &= ~ROSTER_FLAG_HIDE;
+
+  // Little trick to have current_body pointing to the cloned buddy
+  buddylist = g_list_append(buddylist, roster_clone);
   current_buddy = g_list_find(buddylist, roster_clone);
+
+  buddylist_build();
 }
 
 void buddy_setname(gpointer rosterdata, char *newname)

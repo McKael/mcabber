@@ -18,6 +18,7 @@ TODO:
 * Buddy buffer in full width (handy for cut'n paste!)
 * Create .mcabber and .mcabber/histo dirs if needed.
 * Everything isn't freed in roster_free()
+* Add completion for group names
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>

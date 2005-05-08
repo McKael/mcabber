@@ -17,7 +17,6 @@ ssl = 0
 # can use the pinginterval.  Setting this option to 0 disables the ping.
 # Default value is 40 seconds.
 #pinginterval = 40
-pinginterval = 0
 
 # Set hide_offline_buddies to 1 to display only connected buddies
 # in the roster.

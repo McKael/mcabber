@@ -17,6 +17,7 @@ TODO:
 * Show number of online contacts in folded groups
 * Buddy buffer in full width (handy for cut'n paste!)
 * Create .mcabber and .mcabber/histo dirs if needed.
+* Everything isn't freed in roster_free()
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>

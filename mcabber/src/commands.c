@@ -42,6 +42,7 @@ void do_buffer(char *arg);
 void do_clear(char *arg);
 void do_info(char *arg);
 void do_rename(char *arg);
+void do_move(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -75,7 +76,7 @@ void cmd_init(void)
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
   cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
   cmd_add("info", "Show basic infos on current buddy", 0, 0, &do_info);
-  //cmd_add("move");
+  cmd_add("move", "Move the current buddy to another group", 0, 0, &do_move);
   //cmd_add("nick");
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
@@ -457,6 +458,40 @@ void do_rename(char *arg)
   jb_updatebuddy(jid, newname, group);
 
   g_free(newname);
+  update_roster = TRUE;
+}
+
+void do_move(char *arg)
+{
+  gpointer bud;
+  const char *jid, *name;
+  guint type;
+  char *newgroupname, *p;
+
+  if (!current_buddy) return;
+  bud = BUDDATA(current_buddy);
+
+  jid  = buddy_getjid(bud);
+  name = buddy_getname(bud);
+  type = buddy_gettype(bud);
+
+  if (type & ROSTER_TYPE_GROUP) {
+    scr_LogPrint("You can't move groups!");
+    return;
+  }
+
+  newgroupname = g_strdup(arg);
+  // Remove trailing space
+  for (p = newgroupname; *p; p++) ;
+  while (p > newgroupname && *p == ' ') *p = 0;
+
+  // Call to buddy_setgroup() should be at the end, as current implementation
+  // clones the buddy and deletes the old one (and thus, jid and name are
+  // freed)
+  jb_updatebuddy(jid, name, newgroupname);
+  buddy_setgroup(bud, newgroupname);
+
+  g_free(newgroupname);
   update_roster = TRUE;
 }
 

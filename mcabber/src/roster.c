@@ -180,6 +180,7 @@ void roster_del_user(const char *jid)
     g_free((gchar*)roster_usr->jid);
   if (roster_usr->name)
     g_free((gchar*)roster_usr->name);
+  g_free(roster_usr);
 
   // That's a little complex, we need to dereference twice
   sl_group = ((roster*)sl_user->data)->list;
@@ -189,12 +190,12 @@ void roster_del_user(const char *jid)
   // We need to rebuild the list
   if (current_buddy)
     buddylist_build();
-  // TODO What we should do, too, is to check if the deleted node is
+  // TODO What we could do, too, is to check if the deleted node is
   // current_buddy, in which case we could move current_buddy to the
   // previous (or next) node.
 }
 
-// Free all roster data.  Call buddylist_build() to free the buddylist.
+// Free all roster data and call buddylist_build() to free the buddylist.
 void roster_free(void)
 {
   GSList *sl_grp = groups;
@@ -473,6 +474,42 @@ const char *buddy_getjid(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->jid;
+}
+
+//  buddy_setgroup()
+// Change the group of current buddy
+//
+// Warning!  This function changes current_buddy!
+// Warning!  Old buddy is deleted, so you can't acces to its jid/name after
+//           calling this function.
+void buddy_setgroup(gpointer rosterdata, char *newgroupname)
+{
+  roster *roster_usr = rosterdata;
+  GSList **sl_group;
+  GSList *sl_clone;
+  roster *roster_clone;
+
+  // A group has no group :)
+  if (roster_usr->type & ROSTER_TYPE_GROUP) return;
+
+  // Remove the buddy from current group
+  sl_group = &((roster*)((GSList*)roster_usr->list)->data)->list;
+  *sl_group = g_slist_remove(*sl_group, rosterdata);
+  
+  // Add the buddy to its new group; actually we "clone" this buddy...
+  sl_clone = roster_add_user(roster_usr->jid, roster_usr->name,
+          newgroupname, roster_usr->type);
+  roster_clone = (roster*)sl_clone->data;
+  roster_clone->status = roster_usr->status;
+  roster_clone->flags  = roster_usr->flags;
+
+  // Free old buddy
+  if (roster_usr->jid)  g_free((gchar*)roster_usr->jid);
+  if (roster_usr->name) g_free((gchar*)roster_usr->name);
+  g_free(roster_usr);
+
+  buddylist_build();
+  current_buddy = g_list_find(buddylist, roster_clone);
 }
 
 void buddy_setname(gpointer rosterdata, char *newname)

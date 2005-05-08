@@ -52,6 +52,7 @@ const char *buddy_getjid(gpointer rosterdata);
 void        buddy_setname(gpointer rosterdata, char *newname);
 const char *buddy_getname(gpointer rosterdata);
 guint   buddy_gettype(gpointer rosterdata);
+void    buddy_setgroup(gpointer rosterdata, char *newgroupname);
 const char *buddy_getgroupname(gpointer rosterdata);
 gpointer buddy_getgroup(gpointer rosterdata);
 enum imstatus buddy_getstatus(gpointer rosterdata);

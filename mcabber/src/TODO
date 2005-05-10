@@ -1,6 +1,10 @@
 
 BUGS:
 
+* /clear : does not scroll again when typing until bottom after issuing a
+  /clear command...
+* We should display a warning when we can't write (any more) logs
+  (bad dir, no space left...)
 * Colors are misnamed
 
 
@@ -17,32 +21,38 @@ TODO:
 * Buddy buffer in full width (handy for cut'n paste!)
 * Create .mcabber and .mcabber/histo dirs if needed.
 * Add completion for group names
+* Search for a user
+* Get info about a user
+* Publish personal information
+* Unread message queue (/roster next_message & Ctrl-q)
+* Multi-lines messages
+* Handle message type "error"
+* Show status changes in buddy window (if open)?
+* Auto away
+
+* File transfer? :)
+* Conferences
 
 * Commands! :-)
   - /roster <hide_offline|show_offline|top|bottom>
     + next_message (Ctrl-q?)
+    + search jid|name
   - /buffer <clear|top|bottom>
+    + /buffer % 50          (jump to 50 %)
+    + /buffer date $date    (jump to first msg after $date)
+    + /buffer search $string
+      (backward or forward? maybe search_backward/search_forward)
   - /group <expand|shrink|toggle>
-  - /say blabla
+    + rename
+  - /msay [jid]             (multi-lines "say")
   - /say_to <jid> blabla
-  - /add <jid> [Name]
-  - /del [jid]
-  - /move [\<jid\>] <group>
-  - /nick (== rename <me> $@)
-  - /rename [\<jid\>] Name
+  - /add jid [Name]
+  - /nick                   (I don't know if it makes sense for Jabber)
   - /info [jid]
   - /request_auth [jid]
   - /send_auth [jid]
-  - /status [online|avail|invisible|free|dnd|busy|notavail|away]
-    (and common shortcuts: /away, /online, /busy, /dnd)
-  - /rawxml...
-  - /search <\<jid\>|name>
-  - /clear
+  - Common status shortcuts: /away, /online, /busy, /dnd
+  - /search <jid>|name
   - /help
-* Multi-lines
-* Handle message type "error"
-* File transfer? :)
-* Conferences :))
-* Show status changes in buddy window (if open)?  Could be great!
-* Auto away
+  - /rawxml...
 

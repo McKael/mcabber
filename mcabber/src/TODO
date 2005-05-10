@@ -49,6 +49,7 @@ TODO:
   - /add jid [Name]
   - /nick                   (I don't know if it makes sense for Jabber)
   - /info [jid]
+  - /server connect|disconnect|register|unregister
   - /request_auth [jid]
   - /send_auth [jid]
   - Common status shortcuts: /away, /online, /busy, /dnd

@@ -133,7 +133,7 @@ int main(int argc, char **argv)
   if (configFile) g_free(configFile);
 
   optstring = cfg_read("debug");
-  if (optval) ut_InitDebug(1, optstring);
+  if (optstring) ut_InitDebug(1, optstring);
 
   servername = cfg_read("server");
   username   = cfg_read("username");

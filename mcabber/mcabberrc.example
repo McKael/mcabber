@@ -52,6 +52,6 @@ color_borderlines = white
 color_jidonline = green
 color_newmsg = red
 color_jidofflineselected = red
-color_jidoffline = red
+color_jidoffline = magenta
 color_text = white
 

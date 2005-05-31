@@ -19,6 +19,7 @@ TODO:
   maybe we could show it someway (maybe just a flag?).
 * Show number of online contacts in folded groups
 * Buddy buffer in full width (handy for cut'n paste!)
+  (i.e. hide roster window)
 * Create .mcabber and .mcabber/histo dirs if needed.
 * Add completion for group names
 * Search for a user

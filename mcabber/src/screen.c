@@ -391,12 +391,27 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     win_entry = scr_CreateBuddyPanel(winId, dont_show);
   }
 
+  // The message must be displayed -> update top pointer
+  if (win_entry->cleared)
+    win_entry->top = g_list_last(win_entry->hbuf);
+
   hbuf_add_line(&win_entry->hbuf, text, timestamp, prefix_flags,
                 maxX - ROSTER_WIDTH - PREFIX_WIDTH);
 
   if (win_entry->cleared) {
-    win_entry->cleared = 0; // The message must be displayed
-    win_entry->top = g_list_last(win_entry->hbuf);
+    win_entry->cleared = FALSE;
+    if (g_list_next(win_entry->top))
+      win_entry->top = g_list_next(win_entry->top);
+  }
+
+  // Make sure the last line appears in the window; update top if necessary
+  if (win_entry->top) {
+    int dist;
+    GList *first = g_list_first(win_entry->hbuf);
+    dist = g_list_position(first, g_list_last(win_entry->hbuf)) -
+           g_list_position(first, win_entry->top);
+    if (dist >= CHAT_WIN_HEIGHT)
+      win_entry->top = NULL;
   }
 
   if (!dont_show) {

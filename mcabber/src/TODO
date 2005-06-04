@@ -1,8 +1,6 @@
 
 BUGS:
 
-* /clear : does not scroll again when typing until bottom after issuing a
-  /clear command...
 * We should display a warning when we can't write (any more) logs
   (bad dir, no space left...)
 * Colors are misnamed

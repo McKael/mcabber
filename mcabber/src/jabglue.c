@@ -813,15 +813,15 @@ void packethandler(jconn conn, jpacket packet)
           ust = offline;
         }
 
+        if ((x = xmlnode_get_tag(packet->x, "status")) != NULL)
+          p = xmlnode_get_data(x);
+        else
+          p = NULL;
+
         r = jidtodisp(from);
         if (ust != roster_getstatus(r))
-          hk_statuschange(r, 0, ust);
+          hk_statuschange(r, 0, ust, p);
         g_free(r);
-        /*
-        if (x = xmlnode_get_tag(packet->x, "status"))
-          if (p = xmlnode_get_data(x))
-            scr_LogPrint("Away msg: %s", p);
-        */
         break;
 
     case JPACKET_S10N:

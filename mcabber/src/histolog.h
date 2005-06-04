@@ -10,7 +10,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width);
 inline void hlog_write_message(const char *jid, time_t timestamp, int sent,
         const char *msg);
 inline void hlog_write_status(const char *jid, time_t timestamp,
-        enum imstatus status);
+        enum imstatus status, const char *status_msg);
 
 #endif /* __HISTOLOG_H__ */
 

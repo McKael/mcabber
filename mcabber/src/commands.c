@@ -386,7 +386,7 @@ void do_clear(char *arg)    // Alias for "/buffer clear"
 void do_info(char *arg)
 {
   gpointer bud;
-  const char *jid, *name;
+  const char *jid, *name, *st_msg;
   guint type;
   enum imstatus status;
   char *buffer;
@@ -398,6 +398,7 @@ void do_info(char *arg)
   name   = buddy_getname(bud);
   type   = buddy_gettype(bud);
   status = buddy_getstatus(bud);
+  st_msg = buddy_getstatusmsg(bud);
 
   buffer = g_new(char, 128);
 
@@ -408,6 +409,10 @@ void do_info(char *arg)
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
     if (name) {
       snprintf(buffer, 127, "Name: %s", name);
+      scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    }
+    if (st_msg) {
+      snprintf(buffer, 127, "Status message: %s", st_msg);
       scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
     }
 

@@ -35,7 +35,8 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
         guint type);
 void    roster_del_user(const char *jid);
 void    roster_free(void);
-void    roster_setstatus(const char *jid, enum imstatus bstat);
+void    roster_setstatus(const char *jid, enum imstatus bstat,
+        const char *status_msg);
 void    roster_setflags(const char *jid, guint flags, guint value);
 void    roster_msg_setflag(const char *jid, guint value);
 void    roster_settype(const char *jid, guint type);
@@ -56,6 +57,7 @@ void    buddy_setgroup(gpointer rosterdata, char *newgroupname);
 const char *buddy_getgroupname(gpointer rosterdata);
 gpointer buddy_getgroup(gpointer rosterdata);
 enum imstatus buddy_getstatus(gpointer rosterdata);
+const char *buddy_getstatusmsg(gpointer rosterdata);
 void    buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint   buddy_getflags(gpointer rosterdata);
 

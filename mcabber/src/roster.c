@@ -29,6 +29,7 @@
 typedef struct {
   const gchar *name;
   const gchar *jid;
+  const gchar *status_msg;
   guint type;
   enum imstatus status;
   guint flags;
@@ -176,10 +177,9 @@ void roster_del_user(const char *jid)
     return;
   // Let's free memory (jid, name)
   roster_usr = (roster*)sl_user->data;
-  if (roster_usr->jid)
-    g_free((gchar*)roster_usr->jid);
-  if (roster_usr->name)
-    g_free((gchar*)roster_usr->name);
+  if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
+  if (roster_usr->name)       g_free((gchar*)roster_usr->name);
+  if (roster_usr->status_msg) g_free((gchar*)roster_usr->status_msg);
   g_free(roster_usr);
 
   // That's a little complex, we need to dereference twice
@@ -208,10 +208,9 @@ void roster_free(void)
     while (sl_usr) {
       roster *roster_usr = (roster*)sl_usr->data;
       // Free name and jid
-      if (roster_usr->jid)
-        g_free((gchar*)roster_usr->jid);
-      if (roster_usr->name)
-        g_free((gchar*)roster_usr->name);
+      if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
+      if (roster_usr->name)       g_free((gchar*)roster_usr->name);
+      if (roster_usr->status_msg) g_free((gchar*)roster_usr->status_msg);
       g_free(roster_usr);
       sl_usr = g_slist_next(sl_usr);
     }
@@ -219,10 +218,8 @@ void roster_free(void)
     if (roster_grp->list)
       g_slist_free(roster_grp->list);
     // Free group's name and jid
-    if (roster_grp->jid)
-      g_free((gchar*)roster_grp->jid);
-    if (roster_grp->name)
-      g_free((gchar*)roster_grp->name);
+    if (roster_grp->jid)  g_free((gchar*)roster_grp->jid);
+    if (roster_grp->name) g_free((gchar*)roster_grp->name);
     g_free(roster_grp);
     sl_grp = g_slist_next(sl_grp);
   }
@@ -236,7 +233,8 @@ void roster_free(void)
   }
 }
 
-void roster_setstatus(const char *jid, enum imstatus bstat)
+void roster_setstatus(const char *jid, enum imstatus bstat,
+        const char *status_msg)
 {
   GSList *sl_user;
   roster *roster_usr;
@@ -248,6 +246,12 @@ void roster_setstatus(const char *jid, enum imstatus bstat)
 
   roster_usr = (roster*)sl_user->data;
   roster_usr->status = bstat;
+  if (roster_usr->status_msg) {
+    g_free((gchar*)roster_usr->status_msg);
+    roster_usr->status_msg = NULL;
+  }
+  if (status_msg)
+    roster_usr->status_msg = g_strdup(status_msg);
 }
 
 //  roster_setflags()
@@ -506,8 +510,9 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   roster_clone->flags  = roster_usr->flags;
 
   // Free old buddy
-  if (roster_usr->jid)  g_free((gchar*)roster_usr->jid);
-  if (roster_usr->name) g_free((gchar*)roster_usr->name);
+  if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
+  if (roster_usr->name)       g_free((gchar*)roster_usr->name);
+  if (roster_usr->status_msg) g_free((gchar*)roster_usr->status_msg);
   g_free(roster_usr);
 
   // If new new group is folded, the curren_buddy will be lost, and the
@@ -587,6 +592,12 @@ enum imstatus buddy_getstatus(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->status;
+}
+
+const char *buddy_getstatusmsg(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->status_msg;
 }
 
 //  buddy_setflags()

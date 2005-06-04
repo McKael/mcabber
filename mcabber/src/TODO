@@ -13,7 +13,7 @@ TODO:
 * Get timestamp for offline messages
 * /connect /disconnect ?
 * Key bindings (ex: F5 <-> /group toggle)
-* Pending message not displayed if buddy outside Contact window,
+* Pending message flag is not displayed when buddy is outside Contact window,
   maybe we could show it someway (maybe just a flag?).
 * Show number of online contacts in folded groups
 * Buddy buffer in full width (handy for cut'n paste!)

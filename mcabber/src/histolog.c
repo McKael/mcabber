@@ -238,11 +238,11 @@ inline void hlog_write_message(const char *jid, time_t timestamp, int sent,
 }
 
 inline void hlog_write_status(const char *jid, time_t timestamp,
-        enum imstatus status)
+        enum imstatus status, const char *status_msg)
 {
   // #1 XXX Check status value?
   // #2 We could add a user-readable comment
   write_histo_line(jid, timestamp, 'S', toupper(imstatus2char[status]),
-          NULL);
+          status_msg);
 }
 

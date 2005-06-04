@@ -516,7 +516,7 @@ void gotroster(xmlnode x)
 }
 
 void gotmessage(char *type, const char *from, const char *body,
-        const char *enc)
+        const char *enc, time_t timestamp)
 {
   char *jid;
   char *buffer = utf8_decode(body);
@@ -531,7 +531,7 @@ void gotmessage(char *type, const char *from, const char *body,
   */
 
   jid = jidtodisp(from);
-  hk_message_in(jid, 0, buffer);
+  hk_message_in(jid, timestamp, buffer);
   g_free(jid);
   free(buffer);
 }
@@ -596,6 +596,8 @@ void packethandler(jconn conn, jpacket packet)
     case JPACKET_MESSAGE:
         {
           char *tmp = NULL;
+          time_t timestamp = 0;
+
           x = xmlnode_get_tag(packet->x, "body");
           p = xmlnode_get_data(x); if (p) body = p;
 
@@ -622,8 +624,18 @@ void packethandler(jconn conn, jpacket packet)
                 }
           }
 
+          // Timestamp?
+          if ((x = xmlnode_get_tag(packet->x, "x")) != NULL) {
+            if ((p = xmlnode_get_attrib(x, "stamp")) != NULL) {
+              struct tm tstamp;
+              memset(&tstamp, 0, sizeof(tstamp));
+              if (strptime(p, "%Y%m%dT%H:%M:%S", &tstamp))
+                timestamp = mktime(&tstamp) - timezone;
+            }
+          }
+
           if (from && body)
-            gotmessage(type, from, body, enc);
+            gotmessage(type, from, body, enc, timestamp);
           if (tmp)
             g_free(tmp);
         }

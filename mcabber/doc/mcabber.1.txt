@@ -1,6 +1,6 @@
 MCABBER(1)
 ===========
-Mikael BERTHE <bmikael@lists.lilotux.net>
+Mikael BERTHE <mcabber@lilotux.net>
 v0.6.0, May 2005
 
 NAME
@@ -152,7 +152,7 @@ Certainly a lot.  Please tell me if you find one!  :-)
 
 AUTHOR
 ------
-Written by mailto:bmikael@lists.lilotux.net[Mikael BERTHE]. +
+Written by mailto:mcabber@lilotux.net[Mikael BERTHE]. +
 Originally based on http://cabber.sourceforge.net[Cabber], please
 consult the AUTHORS file for details.
 

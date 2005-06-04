@@ -9,8 +9,9 @@ BUGS:
 TODO:
 
 * Presence notification is always accepted.  We should ask...
+* Unread message queue (/roster next_message & Ctrl-q)
+* Multi-lines messages
 * Display status / chat mode
-* Get timestamp for offline messages
 * /connect /disconnect ?
 * Key bindings (ex: F5 <-> /group toggle)
 * Pending message flag is not displayed when buddy is outside Contact window,
@@ -23,8 +24,6 @@ TODO:
 * Search for a user
 * Get info about a user
 * Publish personal information
-* Unread message queue (/roster next_message & Ctrl-q)
-* Multi-lines messages
 * Handle message type "error"
 * Show status changes in buddy window (if open)?
 * Auto away

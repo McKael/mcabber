@@ -20,7 +20,6 @@ TODO:
 * Buddy buffer in full width (handy for cut'n paste!)
   (i.e. hide roster window)
 * Create .mcabber and .mcabber/histo dirs if needed.
-* Add completion for group names
 * Search for a user
 * Get info about a user
 * Publish personal information

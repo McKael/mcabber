@@ -61,4 +61,6 @@ const char *buddy_getstatusmsg(gpointer rosterdata);
 void    buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint   buddy_getflags(gpointer rosterdata);
 
+GSList *compl_list(guint type);
+
 #endif /* __ROSTER_H__ */

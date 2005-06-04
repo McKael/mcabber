@@ -617,3 +617,31 @@ guint buddy_getflags(gpointer rosterdata)
   return roster_usr->flags;
 }
 
+//  compl_list(type)
+// Returns a list of jid's or groups.  (For commands completion)
+// type: ROSTER_TYPE_USER (jid's) or ROSTER_TYPE_GROUP (group names)
+// The list should be freed by the caller after use.
+GSList *compl_list(guint type)
+{
+  GSList *list = NULL;
+  GList  *buddy = buddylist;
+
+  for ( ; buddy ; buddy = g_list_next(buddy)) {
+    guint btype = buddy_gettype(BUDDATA(buddy));
+
+    if (type == ROSTER_TYPE_GROUP) { // (group names)
+      if (btype == ROSTER_TYPE_GROUP) {
+        const char *bname = buddy_getname(BUDDATA(buddy));
+        if ((bname) && (*bname))
+          list = g_slist_append(list, g_strdup(bname));
+      }
+    } else { // ROSTER_TYPE_USER (jid)
+        const char *bjid = buddy_getjid(BUDDATA(buddy));
+        if (bjid)
+          list = g_slist_append(list, g_strdup(bjid));
+    }
+  }
+
+  return list;
+}
+

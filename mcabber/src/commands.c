@@ -76,7 +76,8 @@ void cmd_init(void)
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
   cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
   cmd_add("info", "Show basic infos on current buddy", 0, 0, &do_info);
-  cmd_add("move", "Move the current buddy to another group", 0, 0, &do_move);
+  cmd_add("move", "Move the current buddy to another group", COMPL_GROUPNAME,
+          0, &do_move);
   //cmd_add("nick");
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);

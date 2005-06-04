@@ -32,6 +32,7 @@
 #include <string.h>
 
 #include "compl.h"
+#include "roster.h"
 
 // Completion structure
 typedef struct {
@@ -50,20 +51,11 @@ typedef struct {
 static GSList *Categories;
 static compl *InputCompl;
 
-//  XXX Should not be there (?)
-//  jid_list(type)
-// Returns a list of jid's.  If type is COMPL_URLJID, urls are surrounded with
-// '<' and '>'.
-GSList *jid_list(guint type)  // bool urlstyle?
-{
-}
-
 //  new_completion(prefix, compl_cat)
 // . prefix    = beginning of the word, typed by the user
 // . compl_cat = pointer to a completion category list (list of *char)
 // Returns a pointer to an allocated compl structure.  This structure should
 // be freed by the caller when not used anymore.
-//compl *new_completion(char *prefix, GSList *compl_cat)
 void new_completion(char *prefix, GSList *compl_cat)
 {
   compl *c;
@@ -179,7 +171,14 @@ GSList *compl_get_category_list(guint cat_flags)
   if (sl_cat)       // Category was found, easy...
     return ((category*)sl_cat->data)->words;
 
-  // TODO handle dynamic SLists :)
+  // Handle dynamic SLists
+  if (cat_flags == COMPL_GROUPNAME) {
+    return compl_list(ROSTER_TYPE_GROUP);
+  }
+  if (cat_flags == COMPL_JID) {
+    return compl_list(ROSTER_TYPE_USER);
+  }
+
   return NULL;
 }
 

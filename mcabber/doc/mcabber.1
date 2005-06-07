@@ -28,13 +28,13 @@ mcabber [ \-f configfile ] [ --help | \-h ]
 .SH "DESCRIPTION"
 
 
-mcabber(1) is a small Jabber console client\&. For now it needs a configuration file to start, so please copy the sample mcabberrc file and update your connection options\&.
+mcabber(1) is a small Jabber console client\&. For now it needs a configuration file to start, so please copy the sample mcabberrc file and adapt your connection settings\&.
 
 
-The mcabber(1) screen is divided into 4 regions\&. The roster, alias buddylist, is on the left\&. The chat window, or chat buffer, is on the right\&. The input line lies at the bottom of the screen, under a small log window\&.
+The mcabber(1) screen is divided into 4 regions\&. The \fIroster\fR, alias \fIbuddylist\fR, is on the left\&. The \fIchat window\fR, or chat buffer, is on the right\&. The \fIinput line\fR lies at the bottom of the screen, under a small \fIlog window\fR\&.
 
 
-To display buddies chat buffers, you will have to enter chat mode\&. You can enter chat mode by pressing enter, and leave chat mode with the ESC key\&. Sending a message also enables chat mode implicitly\&.
+To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter, and leave chat mode with the ESC key\&. Sending a message also enables chat mode implicitly\&.
 
 
 Here are some of the features of mcabber:
@@ -66,7 +66,7 @@ Use configuration file configfile
 .SH "KEYS"
 
 
-Text typing happens in the input line; basic operations are supported (left arrow, right arrow, home/end keys, insert, delete, backspace...)\&.
+Text typing happens in the \fIinput line\fR; basic operations are supported (left arrow, right arrow, home/end keys, insert, delete, backspace...)\&.
 
 
 PageUp and PageDown keys are used to move in the roster\&.
@@ -80,95 +80,49 @@ Here is a quick description of the key bindings:
 
 Ctrl\-a
 
-
-
 Go to the beginning of the input line
-
-
 
 Ctrl\-e
 
-
-
 Go to the end of the input line
-
-
 
 Ctrl\-l
 
-
-
 Force a resize
-
-
 
 PgUp/PgDown
 
-
-
 Move inside the roster (buddylist)
-
-
 
 Tab
 
-
-
 Complete current word, in the input line
-
-
 
 Ctrl\-g
 
-
-
 Cancel completion / ctrl\-g
-
-
 
 Ctrl\-p/Ctrl\-n
 
-
-
 Scroll up/down half a screen in the buffer window (chat mode)
-
-
 
 Ctrl\-u
 
-
-
 Delete from beginning of the line to the cursor
-
-
 
 Ctrl\-k
 
-
-
 Delete from the cursor to the end of line
-
-
 
 Ctrl\-w
 
-
-
 Backward kill word
-
-
 
 Ctrl\-t
 
-
-
 Transpose chars
 
-
-
 Ctrl\-q
-
-
 
 Jump to the next unread message (Not yet implemented)
 
@@ -177,68 +131,80 @@ Jump to the next unread message (Not yet implemented)
 
 .TP
 /add jid
-Add the jid Jabber user to our roster, and send a notification request to this buddy
+Add the jid Jabber user to our roster, and send a notification request to this buddy\&.
 
 .TP
 /buffer clear|top|bottom
 The buffer command manipulates the current buddy's buffer (chat window)\&.
- clear 
+ \fIclear\fR 
 
 clear the current buddy chat window
 
- top 
+ \fItop\fR 
 
 jump to the top of the current buddy chat buffer
 
- bottom 
+ \fIbottom\fR 
 
 jump to the bottom of the current buddy chat buffer
 
 
 .TP
 /clear
-The clear command is an alias for "/buffer clear"\&.
+The clear command is actually an alias for "/buffer clear"\&.
+
+.TP
+/del
+Delete the current buddy from our roster, unsubscribe from its presence notification and unsubscribe it from ours\&.
 
 .TP
 /group expand|shrink|toggle
 The group command changes the group display settings\&.
- expand 
+ \fIexpand\fR 
 
-expand the current group tree in the roster (syn: unfold)
+expand the current group tree in the roster (syn: \fIunfold\fR)
 
- shrink 
+ \fIshrink\fR 
 
-shrink the current group tree in the roster (syn: fold)
+shrink the current group tree in the roster (syn: \fIfold\fR)
 
- toggle 
+ \fItoggle\fR 
 
 toggle the fold/unfold state of the current tree
 
 
 .TP
 /info
-Display info on the selected entry (user, agent, group...)
+Display info on the selected entry (user, agent, group...)\&.
+
+.TP
+/move [groupname]
+Move the current buddy to the requested group\&. If no group is specified, then the buddy is moved to the default group\&. This command only works with users (not agents), right now\&.
 
 .TP
 /quit
-Disconnect and leave mcabber(1) 
+Disconnect and leave mcabber(1)\&.
+
+.TP
+/rename nickname
+Rename current buddy to the given nickname\&. This command does not work for groups, right now (but you can move the buddies to another group with the /move command)\&.
 
 .TP
 /roster hide_offline|show_offline|top|bottom
 The roster command manipulates the roster/buddylist\&.
- hide_offline 
+ \fIhide_offline\fR 
 
 hide offline buddies
 
- show_offline 
+ \fIshow_offline\fR 
 
 show offline buddies
 
- top 
+ \fItop\fR 
 
 jump to the top of the roster
 
- bottom 
+ \fIbottom\fR 
 
 jump to the bottom of the roster
 

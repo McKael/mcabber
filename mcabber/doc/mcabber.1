@@ -34,7 +34,7 @@ mcabber(1) is a small Jabber console client\&. For now it needs a configuration 
 The mcabber(1) screen is divided into 4 regions\&. The \fIroster\fR, alias \fIbuddylist\fR, is on the left\&. The \fIchat window\fR, or chat buffer, is on the right\&. The \fIinput line\fR lies at the bottom of the screen, under a small \fIlog window\fR\&.
 
 
-To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter, and leave chat mode with the ESC key\&. Sending a message also enables chat mode implicitly\&.
+To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter, and leave chat mode with the ESC key\&. Simply sending a message will also enable chat mode\&.
 
 
 Here are some of the features of mcabber:
@@ -47,7 +47,7 @@ Here are some of the features of mcabber:
  History logging: If enabled (see the CONFIGURATION FILE section), mcabber(1) can save discussions to history log files\&.
 .TP
 \(bu
- Commands completion: If possible, mcabber(1) will try to complete your commands line if you hit the Tab key\&.
+ Commands completion: If possible, mcabber(1) will try to complete your command line if you hit the Tab key\&.
 .TP
 \(bu
  External actions: Some events (like receiving a message) can trigger an external action, for example a shell script (you need to enable it in your configuration file)\&.
@@ -66,7 +66,7 @@ Use configuration file configfile
 .SH "KEYS"
 
 
-Text typing happens in the \fIinput line\fR; basic operations are supported (left arrow, right arrow, home/end keys, insert, delete, backspace...)\&.
+Text typing occurs in the \fIinput line\fR; basic operations are supported (left arrow, right arrow, home/end keys, insert, delete, backspace...)\&.
 
 
 PageUp and PageDown keys are used to move in the roster\&.
@@ -74,147 +74,94 @@ PageUp and PageDown keys are used to move in the roster\&.
 
 To send a message, move to the choosen buddy in the buddylist, type your message and hit enter\&. If the line begins with a slash, this will be interpreted as a command (see the COMMAND section below)\&. Hit escape to leave the chat mode\&.
 
-
 Here is a quick description of the key bindings:
 
+Ctrl\-a		Go to the beginning of the input line
 
-Ctrl\-a
+Ctrl\-e		Go to the end of the input line
 
-Go to the beginning of the input line
+Ctrl\-l		Force a resize
 
-Ctrl\-e
+PgUp/PgDown	Move inside the roster (buddylist)
 
-Go to the end of the input line
+Tab			Complete current word, in the input line
 
-Ctrl\-l
+Ctrl\-g		Cancel completion / ctrl\-g
 
-Force a resize
+Ctrl\-p/Ctrl\-n	Scroll up/down half a screen in the buffer window (chat mode)
 
-PgUp/PgDown
+Ctrl\-u		Delete from beginning of the line to the cursor
 
-Move inside the roster (buddylist)
+Ctrl\-k		Delete from the cursor to the end of line
 
-Tab
+Ctrl\-w		Backward kill word
 
-Complete current word, in the input line
+Ctrl\-t		Transpose chars
 
-Ctrl\-g
-
-Cancel completion / ctrl\-g
-
-Ctrl\-p/Ctrl\-n
-
-Scroll up/down half a screen in the buffer window (chat mode)
-
-Ctrl\-u
-
-Delete from beginning of the line to the cursor
-
-Ctrl\-k
-
-Delete from the cursor to the end of line
-
-Ctrl\-w
-
-Backward kill word
-
-Ctrl\-t
-
-Transpose chars
-
-Ctrl\-q
-
-Jump to the next unread message (Not yet implemented)
+Ctrl\-q		Jump to the next unread message (Not yet implemented)
 
 
 .SH "COMMANDS"
 
 .TP
-/add jid
+\fB/add\fR jid
 Add the jid Jabber user to our roster, and send a notification request to this buddy\&.
 
 .TP
-/buffer clear|top|bottom
+\fB/buffer\fR clear|top|bottom
 The buffer command manipulates the current buddy's buffer (chat window)\&.
- \fIclear\fR 
 
-clear the current buddy chat window
-
- \fItop\fR 
-
-jump to the top of the current buddy chat buffer
-
- \fIbottom\fR 
-
-jump to the bottom of the current buddy chat buffer
-
+ \fBclear\fR	clear the current buddy chat window
+ \fBtop\fR	jump to the top of the current buddy chat buffer
+ \fBbottom\fR	jump to the bottom of the current buddy chat buffer
 
 .TP
-/clear
+\fB/clear\fR
 The clear command is actually an alias for "/buffer clear"\&.
 
 .TP
-/del
+\fB/del\fR
 Delete the current buddy from our roster, unsubscribe from its presence notification and unsubscribe it from ours\&.
 
 .TP
-/group expand|shrink|toggle
+\fB/group\fR expand|shrink|toggle
 The group command changes the group display settings\&.
- \fIexpand\fR 
 
-expand the current group tree in the roster (syn: \fIunfold\fR)
-
- \fIshrink\fR 
-
-shrink the current group tree in the roster (syn: \fIfold\fR)
-
- \fItoggle\fR 
-
-toggle the fold/unfold state of the current tree
-
+ \fBexpand\fR expand the current group tree in the roster (syn: unfold)
+ \fBshrink\fR shrink the current group tree in the roster (syn: fold)
+ \fBtoggle\fR toggle the fold/unfold state of the current tree
 
 .TP
-/info
+\fB/info\fR
 Display info on the selected entry (user, agent, group...)\&.
 
 .TP
-/move [groupname]
-Move the current buddy to the requested group\&. If no group is specified, then the buddy is moved to the default group\&. This command only works with users (not agents), right now\&.
+\fB/move\fR [groupname]
+Move the current buddy to the requested group\&. If no group is specified, then the buddy is moved to the default group\&. This command only works with users (not agents), at the moment\&.
 
 .TP
-/quit
-Disconnect and leave mcabber(1)\&.
+\fB/quit\fR
+Disconnect and leave mcabber(1) 
 
 .TP
-/rename nickname
-Rename current buddy to the given nickname\&. This command does not work for groups, right now (but you can move the buddies to another group with the /move command)\&.
+\fB/rename\fR nickname
+Rename current buddy to the given nickname\&. This command does not work for groups, at the moment (but you can move the buddies to another group with the /move command)\&.
 
 .TP
-/roster hide_offline|show_offline|top|bottom
+\fB/roster\fR hide_offline|show_offline|top|bottom
 The roster command manipulates the roster/buddylist\&.
- \fIhide_offline\fR 
 
-hide offline buddies
-
- \fIshow_offline\fR 
-
-show offline buddies
-
- \fItop\fR 
-
-jump to the top of the roster
-
- \fIbottom\fR 
-
-jump to the bottom of the roster
-
+ \fBhide_offline\fR hide offline buddies
+ \fBshow_offline\fR show offline buddies
+ \fBtop\fR jump to the top of the roster
+ \fBbottom\fR jump to the bottom of the roster
 
 .TP
-/say text
+\fB/say\fR text
 Send the text message to the currently selected buddy\&. Can be useful if you want to send a message beginning with a slash, for example\&.
 
 .TP
-/status [online|avail|invisible|free|dnd|busy|notavail|away]
+\fB/status\fR [online|avail|invisible|free|dnd|busy|notavail|away]
 Set the current status\&. If no status is specified, display the current status\&.
 
 .SH "CONFIGURATION FILE"
@@ -243,17 +190,20 @@ Certainly a lot\&. Please tell me if you find one! :\-)
 .SH "AUTHOR"
 
 
-Written by Mikael BERTHE: \fImailto:mcabber@lilotux.net\fR\&. Originally based on Cabber: \fIhttp://cabber.sourceforge.net\fR, please consult the AUTHORS file for details\&.
+Written by Mikael BERTHE <\fImcabber@lilotux.net\fR>\&.
+Originally based on cabber (Cabber homepage: <\fIhttp://cabber.sourceforge.net\fR>), please consult the AUTHORS file for details\&.
 
 .SH "RESOURCES"
 
 
-Main web site: \fIhttp://www.lilotux.net/~mikael/mcabber/\fR
+Main web site: <\fIhttp://www.lilotux.net/~mikael/mcabber/\fR>
 
 .SH "COPYING"
 
 
-Copyright (C) 2005 Mikael Berthe\&. Some portions are Copyright (C) 2002\-2004 cabber@ajmacias\&.com: \fImailto:cabber@ajmacias.com\fR\&.
+Copyright (C) 2005 Mikael Berthe\&.
+
+Some portions are Copyright (C) 2002\-2004 <cabber@ajmacias\&.com>\&.
 
 
 Free use of this software is granted under the terms of the GNU General Public License (GPL)\&.

@@ -1,0 +1,486 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<meta name="generator" content="AsciiDoc 6.0.3" />
+<meta name="author" content="Mikael BERTHE" />
+<meta name="author-email" content="mcabber@lilotux.net" />
+<link rel="stylesheet" href="./manpage.css" type="text/css" />
+<title>mcabber</title>
+</head>
+<body>
+<div id="content">
+<h1>MCABBER(1) Manual Page</h1>
+<h2>NAME</h2>
+<p>mcabber -
+   a simple Jabber console client
+</p>
+<div id="synopsis">
+<h2>SYNOPSIS</h2>
+<p>
+<b>mcabber</b> [ -f configfile ] [ &#8212;help | -h ]
+</p>
+</div>
+<h2>DESCRIPTION</h2>
+<p>
+<tt>mcabber(1)</tt> is a small Jabber console client.<br />
+For now it needs a configuration file to start, so please copy the sample
+mcabberrc file and adapt your connection settings.
+</p>
+<p>
+The <tt>mcabber(1)</tt> screen is divided into 4 regions.
+The <b>roster</b>, alias <b>buddylist</b>, is on the left.  The <b>chat window</b>, or chat
+buffer, is on the right.  The <b>input line</b> lies at the bottom of the screen,
+under a small <b>log window</b>.
+</p>
+<p>
+To display buddies chat buffers, you will have to enter <b>chat mode</b>.
+You can enter chat mode by pressing enter, and leave chat mode with the ESC
+key.  Simply sending a message will also enable chat mode.
+</p>
+<p>
+Here are some of the features of <tt>mcabber</tt>:
+</p>
+<ul>
+<li>
+<p>
+<b>SSL support</b>.
+</p>
+</li>
+<li>
+<p>
+<b>History logging:</b>  If enabled (see the CONFIGURATION FILE section),
+  <tt>mcabber(1)</tt> can save discussions to history log files.
+</p>
+</li>
+<li>
+<p>
+<b>Commands completion:</b>  If possible, <tt>mcabber(1)</tt> will try to complete your
+  command line if you hit the Tab key.
+</p>
+</li>
+<li>
+<p>
+<b>External actions:</b>  Some events (like receiving a message) can trigger an
+  external action, for example a shell script (you need to enable it in your
+  configuration file).
+</p>
+</li>
+</ul>
+<h2>OPTIONS</h2>
+<dl>
+<dt><b>
+&#8212;help, -h
+</b></dt>
+<dd>
+
+        Quick help usage message
+
+</dd>
+<dt><b>
+-f configfile
+</b></dt>
+<dd>
+
+        Use configuration file <b>configfile</b>
+
+</dd>
+</dl>
+<h2>KEYS</h2>
+<p>
+Text typing occurs in the <b>input line</b>; basic operations are supported
+(left arrow, right arrow, home/end keys, insert, delete, backspace&#8230;).
+</p>
+<p>
+PageUp and PageDown keys are used to move in the roster.
+</p>
+<p>
+To send a message, move to the choosen buddy in the buddylist, type your
+message and hit enter.  If the line begins with a slash, this will be
+interpreted as a command (see the COMMAND section below).  Hit escape to
+leave the chat mode.
+</p>
+<p>
+Here is a quick description of the key bindings:
+</p>
+<table class="hlist">
+<tr valign="top">
+<td>
+Ctrl-a
+</td>
+<td>
+
+Go to the beginning of the input line
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-e
+</td>
+<td>
+
+Go to the end of the input line
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-l
+</td>
+<td>
+
+Force a resize
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+PgUp/PgDown
+</td>
+<td>
+
+Move inside the roster (buddylist)
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+Tab
+</td>
+<td>
+
+Complete current word, in the input line
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-g
+</td>
+<td>
+
+Cancel completion / ctrl-g
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-p/Ctrl-n
+</td>
+<td>
+
+Scroll up/down half a screen in the buffer window (chat mode)
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-u
+</td>
+<td>
+
+Delete from beginning of the line to the cursor
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-k
+</td>
+<td>
+
+Delete from the cursor to the end of line
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-w
+</td>
+<td>
+
+Backward kill word
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-t
+</td>
+<td>
+
+Transpose chars
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-q
+</td>
+<td>
+
+Jump to the next unread message (Not yet implemented)
+
+</td>
+</tr>
+</table>
+<h2>COMMANDS</h2>
+<dl>
+<dt><b>
+/add jid
+</b></dt>
+<dd>
+
+        Add the <b>jid</b> Jabber user to our roster, and send a notification
+        request to this buddy.
+
+</dd>
+<dt><b>
+/buffer clear|top|bottom
+</b></dt>
+<dd>
+
+        The <b>buffer</b> command manipulates the current buddy's buffer
+        (chat window).
+
+<table class="hlist">
+<tr valign="top">
+<td>
+<b>clear</b>
+</td>
+<td>
+
+clear the current buddy chat window
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>top</b>
+</td>
+<td>
+
+jump to the top of the current buddy chat buffer
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>bottom</b>
+</td>
+<td>
+
+jump to the bottom of the current buddy chat buffer
+
+</td>
+</tr>
+</table>
+</dd>
+<dt><b>
+/clear
+</b></dt>
+<dd>
+
+        The <b>clear</b> command is actually an alias for "/buffer clear".
+
+</dd>
+<dt><b>
+/del
+</b></dt>
+<dd>
+
+        Delete the current buddy from our roster, unsubscribe from its presence
+        notification and unsubscribe it from ours.
+
+</dd>
+<dt><b>
+/group expand|shrink|toggle
+</b></dt>
+<dd>
+
+        The <b>group</b> command changes the group display settings.
+
+<table class="hlist">
+<tr valign="top">
+<td>
+<b>expand</b>
+</td>
+<td>
+
+expand the current group tree in the roster (syn: <b>unfold</b>)
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>shrink</b>
+</td>
+<td>
+
+shrink the current group tree in the roster (syn: <b>fold</b>)
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>toggle</b>
+</td>
+<td>
+
+toggle the fold/unfold state of the current tree
+
+</td>
+</tr>
+</table>
+</dd>
+<dt><b>
+/info
+</b></dt>
+<dd>
+
+        Display info on the selected entry (user, agent, group&#8230;).
+
+</dd>
+<dt><b>
+/move [groupname]
+</b></dt>
+<dd>
+
+        Move the current buddy to the requested group.  If no group is
+        specified, then the buddy is moved to the default group.
+        This command only works with users (not agents), at the moment.
+
+</dd>
+<dt><b>
+/quit
+</b></dt>
+<dd>
+
+        Disconnect and leave <tt>mcabber(1)</tt>.
+
+</dd>
+<dt><b>
+/rename nickname
+</b></dt>
+<dd>
+
+        Rename current buddy to the given nickname.
+        This command does not work for groups, at the moment (but you can move
+        the buddies to another group with the /move command).
+
+</dd>
+<dt><b>
+/roster hide_offline|show_offline|top|bottom
+</b></dt>
+<dd>
+
+        The <b>roster</b> command manipulates the roster/buddylist.
+
+<table class="hlist">
+<tr valign="top">
+<td>
+<b>hide_offline</b>
+</td>
+<td>
+
+hide offline buddies
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>show_offline</b>
+</td>
+<td>
+
+show offline buddies
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>top</b>
+</td>
+<td>
+
+jump to the top of the roster
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>bottom</b>
+</td>
+<td>
+
+jump to the bottom of the roster
+
+</td>
+</tr>
+</table>
+</dd>
+<dt><b>
+/say text
+</b></dt>
+<dd>
+
+        Send the text message to the currently selected buddy.  Can be useful
+        if you want to send a message beginning with a slash, for example.
+
+</dd>
+<dt><b>
+/status [online|avail|invisible|free|dnd|busy|notavail|away]
+</b></dt>
+<dd>
+
+        Set the current status.  If no status is specified, display the
+        current status.
+
+</dd>
+</dl>
+<h2>CONFIGURATION FILE</h2>
+<p>
+See the provided sample configuration file, which should be self-documented.
+</p>
+<h2>FILES</h2>
+<p>
+The following files can be used by <tt>mcabber(1)</tt>:
+</p>
+<div class="literalparagraph"><pre>
+$HOME/.mcabber/mcabberrc    Default configuration file
+$HOME/.mcabberrc            Configuration file used if no other has been found
+$HOME/.mcabber/histo/       Default directory for storing chat history files, if enabled
+</pre></div>
+<h2>BUGS</h2>
+<p>
+Certainly a lot.  Please tell me if you find one!  :-)
+</p>
+<h2>AUTHOR</h2>
+<p>
+Written by <a href="mailto:mcabber@lilotux.net">Mikael BERTHE</a>.<br />
+Originally based on <a href="http://cabber.sourceforge.net">Cabber</a>, please
+consult the AUTHORS file for details.
+</p>
+<h2>RESOURCES</h2>
+<p>
+<a href="http://www.lilotux.net/~mikael/mcabber/">Main web site</a>
+</p>
+<h2>COPYING</h2>
+<p>
+Copyright &#169; 2005 Mikael Berthe.<br />
+Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com">cabber@ajmacias.com</a>.
+</p>
+<p>
+Free use of this software is granted under the terms of the GNU General Public
+License (GPL).
+</p>
+<div id="footer">
+<p>
+Version 0.6.0<br />
+Last updated 07-Jun-2005 22:11:00 CEST
+</p>
+</div>
+</div>
+</body>
+</html>

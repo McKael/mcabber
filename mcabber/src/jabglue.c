@@ -765,6 +765,7 @@ void packethandler(jconn conn, jpacket packet)
           p = xmlnode_get_attrib(x, "id"); if (p) name = p;
           p = xmlnode_get_tag_data(packet->x, "error"); if (p) desc = p;
 
+#if 0
           switch(code) {
             case 401: /* Unauthorized */
             case 302: /* Redirect */
@@ -801,6 +802,7 @@ void packethandler(jconn conn, jpacket packet)
                 }
                 */
           }
+#endif
           scr_LogPrint("Error code from server (%d)", code);
 
         }

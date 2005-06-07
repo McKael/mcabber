@@ -1,6 +1,18 @@
-mcabber (0.6.0-dev)
+mcabber (0.6.0)
 
   Initial fork from cabber 0.5.0-test1
-  * Lots of changes... 
+  Lots of changes, here is a quick summary:
+  * Use automake/autoconf
+  * Switch to libjabber
+  * SSL support with OpenSSL (should work with gnutls but I didn't
+    succeed)
+  * History scrolling and resizing
+  * History logging (and reading)
+  * Small manpage (AsciiDoc documentation)
+  * Buddy groups implementation
+    - fold/unfold groups
+    - hide/show offline buddies
+  * Commands, and command completion system
+  * Hooks for external events (for ex. when receiving a message)
 
- -- Mikael, $date
+ -- Mikael, 2005-06-07

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-libtoolize --force --automake
+libtoolize --force --automake --copy
 aclocal -I macros/
 autoheader
 autoconf

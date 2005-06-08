@@ -287,6 +287,7 @@ void do_add(char *arg)
   // FIXME check arg =~ jabber id
   // 2nd parameter = optional nickname (XXX NULL for now...)
   jb_addbuddy(arg, NULL);
+  scr_LogPrint("Sent presence notfication request to <%s>", arg);
 }
 
 void do_del(char *arg)

@@ -6,6 +6,7 @@
 #include <time.h>
 #include <ctype.h>
 #include <locale.h>
+#include <langinfo.h>
 
 #include "screen.h"
 #include "hbuf.h"
@@ -43,6 +44,7 @@ static window_entry_t *currentWindow;
 
 static int chatmode;
 int update_roster;
+int utf8_mode = 0;
 
 static char       inputLine[INPUTLINE_LENGTH+1];
 static char      *ptr_inputline;
@@ -445,6 +447,7 @@ void scr_InitCurses(void)
   ptr_inputline = inputLine;
 
   setlocale(LC_CTYPE, "");
+  utf8_mode = (strcmp(nl_langinfo(CODESET), "UTF-8") == 0);
 
   return;
 }
@@ -512,6 +515,9 @@ void scr_DrawMainWindow(unsigned int fullinit)
     logPanel_border = new_panel(logWnd_border);
     logPanel    = new_panel(logWnd);
     inputPanel  = new_panel(inputWnd);
+
+    if (utf8_mode)
+      scr_LogPrint("WARNING: UTF-8 not yet supported!");
   } else {
     // Update panels
     replace_panel(rosterPanel, rosterWnd);
@@ -1309,6 +1315,8 @@ int process_key(int key)
     check_offset(1);
   } else {
     switch(key) {
+      case 8:     // Ctrl-h
+      case 127:   // Backspace too
       case KEY_BACKSPACE:
           if (ptr_inputline != (char*)&inputLine) {
             char *c = --ptr_inputline;
@@ -1425,6 +1433,8 @@ int process_key(int key)
           break;
       default:
           scr_LogPrint("Unkown key=%d", key);
+          if (utf8_mode)
+            scr_LogPrint("WARNING: UTF-8 not yet supported!");
     }
   }
   if (completion_started && key != 9 && key != KEY_RESIZE)

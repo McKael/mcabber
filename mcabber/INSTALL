@@ -1,3 +1,22 @@
+This file contains the generic instructions; the short version is:
+$ ./configure
+$ make
+... and if you want to install the software:
+$ make install
+(If you don't want to install it, the "mcabber" binary lies in
+the src/ directory after the build procedure)
+
+MCabber needs ncurses and ncurses development packages to build correctly.
+If you want SSL support, you will need openssl lib & dev packages as well.
+
+Please have a look at the README file before launching mcabber.
+
+Please send me a message (mcabber AT lilotux DOT net) if you have
+questions, suggestions or even patches...
+
+Mikael
+
+
 Installation Instructions
 *************************
 

@@ -11,6 +11,8 @@ TODO:
 * Presence notification is always accepted.  We should ask...
 * Unread message queue (/roster next_message & Ctrl-q)
 * Multi-lines messages
+* Resource priority
+* UTF-8 support
 * Display status / chat mode
 * /connect /disconnect ?
 * Key bindings (ex: F5 <-> /group toggle)

@@ -94,5 +94,6 @@ AC_DEFINE(BUILD_JABBER, 1, [build with jabber support])
 AC_CONFIG_FILES([connwrap/Makefile
                  libjabber/Makefile
                  src/Makefile
+                 doc/Makefile
                  Makefile])
 AC_OUTPUT

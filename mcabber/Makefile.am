@@ -1,1 +1,1 @@
-SUBDIRS = connwrap libjabber src
+SUBDIRS = connwrap libjabber src doc

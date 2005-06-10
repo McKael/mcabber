@@ -42,13 +42,9 @@ typedef struct {
 
 static int hide_offline_buddies;
 static GSList *groups;
+static GSList *unread_list;
 GList *buddylist;
 GList *current_buddy;
-
-#ifdef MCABBER_TESTUNIT
-// Export groups for testing routines
-GSList **pgroups = &groups;
-#endif
 
 
 /* ### Roster functions ### */
@@ -182,6 +178,9 @@ void roster_del_user(const char *jid)
   if (roster_usr->status_msg) g_free((gchar*)roster_usr->status_msg);
   g_free(roster_usr);
 
+  // Remove (if present) from unread messages list
+  unread_list = g_slist_delete_link(unread_list, sl_user);
+
   // That's a little complex, we need to dereference twice
   sl_group = ((roster*)sl_user->data)->list;
   sl_group_listptr = &((roster*)(sl_group->data))->list;
@@ -275,6 +274,7 @@ void roster_setflags(const char *jid, guint flags, guint value)
 //  roster_msg_setflag()
 // Set the ROSTER_FLAG_MSG to the given value for the given jid.
 // It will update the buddy's group message flag.
+// Update the unread messages list too.
 void roster_msg_setflag(const char *jid, guint value)
 {
   GSList *sl_user;
@@ -291,10 +291,17 @@ void roster_msg_setflag(const char *jid, guint value)
     // to TRUE...
     roster_usr->flags |= ROSTER_FLAG_MSG;
     roster_grp->flags |= ROSTER_FLAG_MSG; // group
+    // Append the roster_usr to unread_list, but avoid duplicates
+    if (!g_slist_find(unread_list, roster_usr))
+      unread_list = g_slist_append(unread_list, roster_usr);
   } else {
     // Message flag is FALSE.
     guint msg = FALSE;
     roster_usr->flags &= ~ROSTER_FLAG_MSG;
+    if (unread_list) {
+      GSList *node = g_slist_find(unread_list, roster_usr);
+      if (node) unread_list = g_slist_delete_link(unread_list, node);
+    }
     // For the group value we need to watch all buddies in this group;
     // if one is flagged, then the group will be flagged.
     // I will re-use sl_user and roster_usr here, as they aren't used
@@ -643,5 +650,25 @@ GSList *compl_list(guint type)
   }
 
   return list;
+}
+
+//  unread_msg(rosterdata)
+// Return the next buddy with an unread message.  If the parameter is NULL,
+// return the first buddy with an unread message.
+gpointer unread_msg(gpointer rosterdata)
+{
+  GSList *unread, *next_unread;
+
+  if (!unread_list) return NULL;
+  // First unread message
+  if (!rosterdata) return unread_list->data;
+
+  unread = g_slist_find(unread_list, rosterdata);
+  if (!unread) return unread_list->data;
+
+  next_unread = g_slist_next(unread);
+  if (next_unread) return next_unread->data;
+
+  return unread_list->data;
 }
 

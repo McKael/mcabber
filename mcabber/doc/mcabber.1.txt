@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.6.0, June 2005
+v0.6.1, June 2005
 
 NAME
 ----
@@ -71,7 +71,7 @@ Ctrl-u::        Delete from beginning of the line to the cursor
 Ctrl-k::        Delete from the cursor to the end of line
 Ctrl-w::        Backward kill word
 Ctrl-t::        Transpose chars
-Ctrl-q::        Jump to the next unread message (Not yet implemented)
+Ctrl-q::        Jump to the next unread message
 
 COMMANDS
 --------
@@ -125,6 +125,8 @@ COMMANDS
         'show_offline';; show offline buddies
         'top';;          jump to the top of the roster
         'bottom';;       jump to the bottom of the roster
+        'unread_first';; jump to the first unread message
+        'unread_next';;  jump to the next unread message
 
 /say text::
         Send the text message to the currently selected buddy.  Can be useful

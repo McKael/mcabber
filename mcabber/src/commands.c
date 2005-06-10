@@ -104,6 +104,8 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "hide_offline");
   compl_add_category_word(COMPL_ROSTER, "show_offline");
   compl_add_category_word(COMPL_ROSTER, "top");
+  compl_add_category_word(COMPL_ROSTER, "unread_first");
+  compl_add_category_word(COMPL_ROSTER, "unread_next");
 
   // Roster category
   compl_add_category_word(COMPL_BUFFER, "bottom");
@@ -246,6 +248,10 @@ void do_roster(char *arg)
     buddylist_set_hide_offline_buddies(FALSE);
     buddylist_build();
     update_roster = TRUE;
+  } else if (!strcasecmp(arg, "unread_first")) {
+    scr_RosterUnreadMessage(0);
+  } else if (!strcasecmp(arg, "unread_next")) {
+    scr_RosterUnreadMessage(1);
   } else
     scr_LogPrint("Unrecognized parameter!");
 }

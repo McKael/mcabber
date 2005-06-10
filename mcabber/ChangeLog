@@ -1,5 +1,13 @@
 mcabber (0.6.1)
 
+  * Fix backspace handling (KEY_BACKSPACE isn't reliable)
+  * Implement Ctrl-q (jump to first/next unread message)
+  * Display a warning when the locale is UTF-8
+  * Display log notice when sending a notification request message
+  * Update INSTALL and mcabberrc.example files for better explanations
+  * Comment out useless code (fix a compilation error with gcc 4)
+  * Add Makefile for the doc subdir; manpage will be installed now
+
  -- Mikael, ?
 
 mcabber (0.6.0)

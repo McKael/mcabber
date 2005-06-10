@@ -841,6 +841,52 @@ void scr_RosterDown(void)
     scr_ShowBuddyWindow();
 }
 
+//  scr_RosterUnreadMessage(next)
+// Go to a new message.  If next is not null, try to go to the next new
+// message.  If it is not possible or if next is NULL, go to the first new
+// message from unread_list.
+void scr_RosterUnreadMessage(int next)
+{
+  enum imstatus prev_st = imstatus_size; // undef
+
+  if (current_buddy) {
+    gpointer unread_ptr;
+    gpointer refbuddata;
+    gpointer ngroup;
+    GList *nbuddy;
+
+    if (next) refbuddata = BUDDATA(current_buddy);
+    else      refbuddata = NULL;
+
+    unread_ptr = unread_msg(refbuddata);
+    if (!unread_ptr) return;
+
+    // If buddy is in a folded group, we need to expand it
+    ngroup = buddy_getgroup(unread_ptr);
+    if (buddy_getflags(ngroup) & ROSTER_FLAG_HIDE) {
+      buddy_setflags(ngroup, ROSTER_FLAG_HIDE, FALSE);
+      buddylist_build();
+    }
+
+    nbuddy = g_list_find(buddylist, unread_ptr);
+    if (nbuddy) {
+      prev_st = buddy_getstatus(BUDDATA(current_buddy));
+      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+      current_buddy = nbuddy;
+      if (chatmode)
+        buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
+      // We should rebuild the buddylist but not everytime
+      // Here we check if we were locking a buddy who is actually offline,
+      // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
+      if (prev_st == offline && buddylist_get_hide_offline_buddies())
+        buddylist_build();
+      update_roster = TRUE;
+
+      if (chatmode) scr_ShowBuddyWindow();
+    } else scr_LogPrint("Error: nbuddy == NULL");
+  }
+}
+
 //  scr_ScrollUp()
 // Scroll up the current buddy window, half a screen.
 void scr_ScrollUp(void)
@@ -1410,7 +1456,7 @@ int process_key(int key)
           scr_ScrollDown();
           break;
       case 17:  // Ctrl-q
-          // scr_jump_next_new_message();
+          scr_RosterUnreadMessage(1); // next unread message
           break;
       case 20:  // Ctrl-t
           readline_transpose_chars();

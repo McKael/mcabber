@@ -9,7 +9,6 @@ BUGS:
 TODO:
 
 * Presence notification is always accepted.  We should ask...
-* Unread message queue (/roster next_message & Ctrl-q)
 * Multi-lines messages
 * Resource priority
 * UTF-8 support
@@ -23,18 +22,18 @@ TODO:
   (i.e. hide roster window)
 * Create .mcabber and .mcabber/histo dirs if needed.
 * Search for a user
-* Get info about a user
+* Get info from server about a user
 * Publish personal information
 * Handle message type "error"
 * Show status changes in buddy window (if open)?
 * Auto away
+* Ctrl-o
 
 * File transfer? :)
 * Conferences
 
 * Commands! :-)
-  - /roster <hide_offline|show_offline|top|bottom>
-    + next_message (Ctrl-q?)
+  - /roster <hide_offline|show_offline|top|bottom|unread_first|unread_next>
     + search jid|name
   - /buffer <clear|top|bottom>
     + /buffer % 50          (jump to 50 %)

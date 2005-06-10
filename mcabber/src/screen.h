@@ -43,5 +43,6 @@ void scr_RosterBottom(void);
 void scr_BufferTop(void);
 void scr_BufferBottom(void);
 void scr_Clear(void);
+void scr_RosterUnreadMessage(int);
 
 #endif

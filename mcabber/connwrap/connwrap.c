@@ -277,7 +277,7 @@ int cw_nb_connect(int sockfd, const struct sockaddr *serv_addr, int addrlen, int
 	    rc = cw_connect(sockfd, serv_addr, addrlen, 0);
 	else{ /* check if the socket is connected correctly */
 	    int optlen = sizeof(int), optval;
-	    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) || optval)
+	    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, (socklen_t*)&optlen) || optval)
 	    return -1;
 	}
 
@@ -322,7 +322,7 @@ int cw_nb_connect(int sockfd, const struct sockaddr *serv_addr, int addrlen, int
 	rc = connect(sockfd, serv_addr, addrlen);
     else{ /* check if the socket is connected correctly */
 	int optlen = sizeof(int), optval;
-	if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) || optval)
+	if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, (socklen_t*)&optlen) || optval)
 	    return -1;
 	*state = 0;
 	return 0;
@@ -340,7 +340,7 @@ int cw_accept(int s, struct sockaddr *addr, int *addrlen, int ssl) {
     int rc;
 
     if(ssl) {
-	rc = accept(s, addr, addrlen);
+	rc = accept(s, addr, (socklen_t*)addrlen);
 
 	if(!rc) {
 	    sslsock *p = addsock(s);
@@ -352,7 +352,7 @@ int cw_accept(int s, struct sockaddr *addr, int *addrlen, int ssl) {
 	return rc;
     }
 #endif
-    return accept(s, addr, addrlen);
+    return accept(s, addr, (socklen_t*)addrlen);
 }
 
 int cw_write(int fd, const void *buf, int count, int ssl) {
@@ -360,7 +360,7 @@ int cw_write(int fd, const void *buf, int count, int ssl) {
     sslsock *p;
 
     if(ssl)
-    if(p = getsock(fd))
+    if((p = getsock(fd)) != NULL)
 	return SSL_write(p->ssl, buf, count);
 #endif
     return write(fd, buf, count);
@@ -371,13 +371,13 @@ int cw_read(int fd, void *buf, int count, int ssl) {
     sslsock *p;
 
     if(ssl)
-    if(p = getsock(fd))
+    if((p = getsock(fd)) != NULL)
 	return SSL_read(p->ssl, buf, count);
 #endif
     return read(fd, buf, count);
 }
 
-int cw_close(int fd) {
+void cw_close(int fd) {
 #ifdef HAVE_OPENSSL
     delsock(fd);
 #endif

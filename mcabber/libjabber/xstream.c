@@ -17,6 +17,7 @@
  *  Copyright (C) 1998-1999 The Jabber Team http://jabber.org/
  */
 
+#include <time.h>
 #include <libxode.h>
 
 /* xstream is a way to have a consistent method of handling incoming XML Stream based events... it doesn't handle the generation of an XML Stream, but provides some facilities to help do that */

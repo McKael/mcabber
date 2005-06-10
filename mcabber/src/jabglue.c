@@ -21,6 +21,7 @@
  * USA
  */
 
+#define _GNU_SOURCE  /* We need glibc for strptime */
 #include "../libjabber/jabber.h"
 #include "jabglue.h"
 #include "roster.h"

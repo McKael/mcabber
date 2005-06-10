@@ -20,6 +20,10 @@ AC_PROG_INSTALL
 AC_CHECK_LIB([ncurses], [initscr])
 AC_CHECK_LIB([panel], [new_panel])
 
+AC_CHECK_DECLS([strptime],,,
+[#define _GNU_SOURCE
+#include <time.h>])
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h stdlib.h string.h strings.h sys/socket.h sys/time.h syslog.h termios.h unistd.h ncurses.h panel.h getopt.h])

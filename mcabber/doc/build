@@ -1,0 +1,11 @@
+#! /bin/sh
+
+set -e -x
+
+asciidoc -b css -d manpage mcabber.1.txt
+asciidoc -b docbook -d manpage mcabber.1.txt
+mv mcabber.1 mcabber.1.before
+xmlto man mcabber.1.xml
+mv mcabber.1 mcabber.1.new
+mv mcabber.1.before mcabber.1
+

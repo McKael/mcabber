@@ -12,7 +12,7 @@ typedef struct {
 } cmd;
 
 void cmd_init(void);
-cmd *cmd_get(char *command);
+cmd *cmd_get(const char *command);
 int  process_line(char *line);
 
 #endif /* __COMMANDS_H__ */

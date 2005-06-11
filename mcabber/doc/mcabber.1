@@ -140,8 +140,12 @@ Display info on the selected entry (user, agent, group...)\&.
 Move the current buddy to the requested group\&. If no group is specified, then the buddy is moved to the default group\&. This command only works with users (not agents), at the moment\&.
 
 .TP
-\fB/quit\fR
-Disconnect and leave mcabber(1) 
+\fB/msay\fR begin|send|abort
+Send a multi\-line message\&. To write a single message with several lines, the \fImulti\-line mode\fR should be used\&. In multi\-line mode, each line (except command lines) typed in the input line will be added to the multi\-line message\&. Once the message is finished, it can be sent to the current selected buddy with the "msay /send" command\&.
+
+ \fBbegin\fR enter multi\-line mode
+ \fBsend\fR send the current multi\-line message to the currently selected buddy
+ \fBabort\fR leave multi\-line mode without sending the message
 
 .TP
 \fB/rename\fR nickname

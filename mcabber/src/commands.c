@@ -38,6 +38,7 @@ void do_add(char *arg);
 void do_del(char *arg);
 void do_group(char *arg);
 void do_say(char *arg);
+void do_msay(char *arg);
 void do_buffer(char *arg);
 void do_clear(char *arg);
 void do_info(char *arg);
@@ -78,6 +79,8 @@ void cmd_init(void)
   cmd_add("info", "Show basic infos on current buddy", 0, 0, &do_info);
   cmd_add("move", "Move the current buddy to another group", COMPL_GROUPNAME,
           0, &do_move);
+  cmd_add("msay", "Send a multi-lines message to the selected buddy",
+          COMPL_MULTILINE, 0, &do_msay);
   //cmd_add("nick");
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
@@ -116,14 +119,19 @@ void cmd_init(void)
   compl_add_category_word(COMPL_GROUP, "expand");
   compl_add_category_word(COMPL_GROUP, "shrink");
   compl_add_category_word(COMPL_GROUP, "toggle");
+
+  // Multi-line (msay) category
+  compl_add_category_word(COMPL_MULTILINE, "abort");
+  compl_add_category_word(COMPL_MULTILINE, "begin");
+  compl_add_category_word(COMPL_MULTILINE, "send");
 }
 
 //  cmd_get
 // Finds command in the command list structure.
 // Returns a pointer to the cmd entry, or NULL if command not found.
-cmd *cmd_get(char *command)
+cmd *cmd_get(const char *command)
 {
-  char *p1, *p2;
+  const char *p1, *p2;
   char *com;
   GSList *sl_com;
   // Ignore leading '/'
@@ -150,7 +158,7 @@ cmd *cmd_get(char *command)
 //  send_message(msg)
 // Write the message in the buddy's window and send the message on
 // the network.
-void send_message(char *msg)
+void send_message(const char *msg)
 {
   const char *jid;
       
@@ -182,6 +190,10 @@ int process_line(char *line)
   cmd *curcmd;
 
   if (!*line) { // User only pressed enter
+    if (scr_get_multimode()) {
+      scr_append_multiline("");
+      return 0;
+    }
     if (current_buddy) {
       scr_set_chatmode(TRUE);
       buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
@@ -191,7 +203,10 @@ int process_line(char *line)
   }
 
   if (*line != '/') {
-    do_say(line);
+    if (scr_get_multimode())
+      scr_append_multiline(line);
+    else
+      do_say(line);
     return 0;
   }
 
@@ -372,6 +387,54 @@ void do_say(char *arg)
 
   buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
   send_message(arg);
+}
+
+void do_msay(char *arg)
+{
+  /* begin abort send */
+  gpointer bud;
+
+  if (!strcasecmp(arg, "abort")) {
+    scr_set_multimode(FALSE);
+    return;
+  } else if (!strcasecmp(arg, "begin")) {
+    scr_set_multimode(TRUE);
+    scr_LogPrint("Entered multi-line message mode.");
+    scr_LogPrint("Select a buddy and use \"/msay send\" "
+                 "when your message is ready.");
+    return;
+  } else if (*arg == 0) {
+    scr_LogPrint("Please read the manual before using the /msay command.");
+    scr_LogPrint("(Use /msay begin to enter multi-line mode...)");
+    return;
+  } else if (strcasecmp(arg, "send")) {
+    scr_LogPrint("Unrecognized parameter!");
+    return;
+  }
+
+  // send command
+
+  if (!scr_get_multimode()) {
+    scr_LogPrint("No message to send.  Use \"/msay begin\" first.");
+    return;
+  }
+
+  scr_set_chatmode(TRUE);
+
+  if (!current_buddy) {
+    scr_LogPrint("Who are you talking to??");
+    return;
+  }
+
+  bud = BUDDATA(current_buddy);
+  if (!(buddy_gettype(bud) & ROSTER_TYPE_USER)) {
+    scr_LogPrint("This is not a user");
+    return;
+  }
+
+  buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
+  send_message(scr_get_multiline());
+  scr_set_multimode(FALSE);
 }
 
 void do_buffer(char *arg)

@@ -353,6 +353,51 @@ toggle the fold/unfold state of the current tree
 
 </dd>
 <dt><b>
+/msay begin|send|abort
+</b></dt>
+<dd>
+
+        Send a multi-line message.  To write a single message with several
+        lines, the <b>multi-line mode</b> should be used.  In multi-line mode,
+        each line (except command lines) typed in the input line will
+        be added to the multi-line message.  Once the message is finished, it
+        can be sent to the current selected buddy with the "msay /send"
+        command.
+
+<table class="hlist">
+<tr valign="top">
+<td>
+<b>begin</b>
+</td>
+<td>
+
+enter multi-line mode
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>send</b>
+</td>
+<td>
+
+send the current multi-line message to the currently selected buddy
+
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>abort</b>
+</td>
+<td>
+
+leave multi-line mode without sending the message
+
+</td>
+</tr>
+</table>
+</dd>
+<dt><b>
 /quit
 </b></dt>
 <dd>
@@ -498,7 +543,7 @@ License (GPL).
 <div id="footer">
 <p>
 Version 0.6.1<br />
-Last updated 10-Jun-2005 22:47:25 CEST
+Last updated 11-Jun-2005 23:08:15 CEST
 </p>
 </div>
 </div>

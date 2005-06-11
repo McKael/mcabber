@@ -43,6 +43,8 @@ static int maxY, maxX;
 static window_entry_t *currentWindow;
 
 static int chatmode;
+static int multimode;
+static char *multiline;
 int update_roster;
 int utf8_mode = 0;
 
@@ -1086,6 +1088,75 @@ inline void scr_set_chatmode(int enable)
   chatmode = enable;
 }
 
+//  scr_get_multimode()
+// Public fonction to get multimode status...
+inline int scr_get_multimode()
+{
+  return multimode;
+}
+
+//  scr_set_multimode()
+// Public fonction to (un)set multimode...
+inline void scr_set_multimode(int enable)
+{
+  if (multiline) {
+    g_free(multiline);
+    multiline = NULL;
+  }
+  if (enable)
+    multimode = TRUE;
+  else
+    multimode = FALSE;
+}
+
+//  scr_get_multiline()
+// Public fonction to get multimode status...
+inline const char *scr_get_multiline()
+{
+  if (multimode && multiline)
+    return multiline;
+  else
+    return "";
+}
+
+//  scr_append_multiline(line)
+// Public function to append a line to the current multi-line message.
+// Skip empty leading lines.
+void scr_append_multiline(const char *line)
+{
+  static int num;
+
+  if (!multimode) {
+    scr_LogPrint("Error: Not in multi-line message mode!");
+    return;
+  }
+  if (multiline) {
+    int len = strlen(multiline)+strlen(line)+2;
+    if (len >= HBB_BLOCKSIZE) {
+      // We don't handle single messages with size > HBB_BLOCKSIZE
+      // (see hbuf)
+      scr_LogPrint("Your multi-line message is too big, this line has "
+                   "not been added.");
+      scr_LogPrint("Please send this part now...");
+      return;
+    }
+    multiline = g_renew(char, multiline, len);
+    strcat(multiline, "\n");
+    strcat(multiline, line);
+    num++;
+  } else {
+    // First message line (we skip leading empty lines)
+    num = 0;
+    if (line[0]) {
+      multiline = g_new(char, strlen(line)+1);
+      strcpy(multiline, line);
+      num++;
+    } else
+      return;
+  }
+  scr_LogPrint("Multi-line mode: line #%d added  [%.25s...", num, line);
+}
+
 //  scr_cmdhisto_addline()
 // Add a line to the inputLine history
 inline void scr_cmdhisto_addline(char *line)
@@ -1371,7 +1442,7 @@ int process_key(int key)
             check_offset(-1);
           }
           break;
-      case KEY_DC:
+      case KEY_DC:// Del
           if (*ptr_inputline)
             strcpy(ptr_inputline, ptr_inputline+1);
           break;

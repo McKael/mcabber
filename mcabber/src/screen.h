@@ -30,6 +30,10 @@ void scr_WriteOutgoingMessage(const char *jidto,   const char *text);
 void scr_ShowBuddyWindow(void);
 void scr_LogPrint(const char *fmt, ...);
 inline void scr_set_chatmode(int enable);
+inline void scr_set_multimode(int enable);
+inline int  scr_get_multimode();
+void scr_append_multiline(const char *line);
+inline const char *scr_get_multiline();
 
 WINDOW *scr_GetInputWindow(void);
 

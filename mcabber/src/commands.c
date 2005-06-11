@@ -116,8 +116,8 @@ void cmd_init(void)
   compl_add_category_word(COMPL_BUFFER, "top");
 
   // Group category
-  compl_add_category_word(COMPL_GROUP, "expand");
-  compl_add_category_word(COMPL_GROUP, "shrink");
+  compl_add_category_word(COMPL_GROUP, "fold");
+  compl_add_category_word(COMPL_GROUP, "unfold");
   compl_add_category_word(COMPL_GROUP, "toggle");
 
   // Multi-line (msay) category

@@ -9,7 +9,6 @@ BUGS:
 TODO:
 
 * Presence notification is always accepted.  We should ask...
-* Multi-lines messages
 * Resource priority
 * UTF-8 support
 * Display status / chat mode

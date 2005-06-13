@@ -31,6 +31,7 @@
 #include "hbuf.h"
 #include "jabglue.h"
 #include "screen.h"
+#include "utils.h"
 
 static guint UseFileLogging;
 static guint FileLoadLogs;
@@ -67,6 +68,7 @@ static void write_histo_line(const char *jid,
   time_t ts;
   const char *p;
   char *filename;
+  char str_ts[20];
 
   if (!UseFileLogging) return;
 
@@ -85,8 +87,9 @@ static void write_histo_line(const char *jid,
   for (p=data ; *p ; p++)
     if (*p == '\n') len++;
 
-  /* Line format: "TI DDDDDDDDDD LLL [data]"
-   * T=Type, I=Info, DDDDDDDDDD=date, LLL=0-padded-len
+  /* Line format: "TI yyyymmddThh:mm:ssZ [data]"
+   * (Old format: "TI DDDDDDDDDD LLL [data])"
+   * T=Type, I=Info, yyyymmddThh:mm:ssZ=date, LLL=0-padded-len
    *
    * Types:
    * - M message    Info: S (send) R (receive)
@@ -98,7 +101,8 @@ static void write_histo_line(const char *jid,
   g_free(filename);
   if (!fp) return;
 
-  fprintf(fp, "%c%c %10u %03d %s\n", type, info, (unsigned int)ts, len, data);
+  to_iso8601(str_ts, ts);
+  fprintf(fp, "%c%c %-18.18s %03d %s\n", type, info, str_ts, len, data);
   fclose(fp);
 }
 
@@ -115,6 +119,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   FILE *fp;
   struct stat bufstat;
   guint err = 0;
+  guint oldformat;
 
   if (!FileLoadLogs) return;
 
@@ -139,14 +144,23 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
 
   /* See write_histo_line() for line format... */
   while (!feof(fp)) {
+    int format_off =0;
     if (fgets(data, HBB_BLOCKSIZE+24, fp) == NULL) break;
 
     for (tail = data; *tail; tail++) ;
 
     type = data[0];
     info = data[1];
+
+    // XXX Log format detection.  We can read both old and new log formats
+    // To be removed in a future version
+    oldformat = (data[11] != 'T' || data[20] != 'Z');
+    if (!oldformat)
+      format_off = 8;
+
     if ((type != 'M' && type != 'S') || 
-        (data[13] != ' ') || (data[17] != ' ')) {
+        (oldformat && ((data[13] != ' ') || (data[17] != ' '))) ||
+        ((!oldformat) && ((data[21] != ' ') || (data[25] != ' ')))) {
       if (!err) {
         scr_LogPrint("Error in history file format (%s)", jid);
         err = 1;
@@ -154,9 +168,12 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
       //break;
       continue;
     }
-    data[13] = data[17] = 0;
-    timestamp = (unsigned long) atol(&data[3]);
-    len = (unsigned long) atol(&data[14]);
+    data[13+format_off] = data[17+format_off] = 0;
+    if (oldformat)
+      timestamp = (unsigned long) atol(&data[3]);
+    else
+      timestamp = from_iso8601(&data[3], 1);
+    len = (unsigned long) atol(&data[14+format_off]);
     
     // Some checks
     if (((type == 'M') && (info != 'S' && info != 'R')) ||
@@ -176,7 +193,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
       while (*tail) tail++;
     }
     // Remove last CR
-    if ((tail > data+18) && (*(tail-1) == '\n'))
+    if ((tail > data+18+format_off) && (*(tail-1) == '\n'))
       *(tail-1) = 0;
 
     if (type == 'M') {
@@ -184,7 +201,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
         prefix_flags = HBB_PREFIX_OUT;
       else
         prefix_flags = HBB_PREFIX_IN;
-      hbuf_add_line(p_buddyhbuf, &data[18], timestamp, prefix_flags, width);
+      hbuf_add_line(p_buddyhbuf, &data[18+format_off], timestamp, prefix_flags, width);
       err = 0;
     }
   }

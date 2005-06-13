@@ -627,12 +627,8 @@ void packethandler(jconn conn, jpacket packet)
 
           // Timestamp?
           if ((x = xmlnode_get_tag(packet->x, "x")) != NULL) {
-            if ((p = xmlnode_get_attrib(x, "stamp")) != NULL) {
-              struct tm tstamp;
-              memset(&tstamp, 0, sizeof(tstamp));
-              if (strptime(p, "%Y%m%dT%H:%M:%S", &tstamp))
-                timestamp = mktime(&tstamp) - timezone;
-            }
+            if ((p = xmlnode_get_attrib(x, "stamp")) != NULL)
+              timestamp = from_iso8601(p, 1);
           }
 
           if (from && body)

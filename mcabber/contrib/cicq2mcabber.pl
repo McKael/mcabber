@@ -38,7 +38,12 @@ sub print_entry()
   $len  = $bdata{"nb"};
   $data = $bdata{"msg"};
 
-  printf("%s%s %10u %03d %s", $type, $info, $date, $len, $data);
+  # Date conversion to iso8601
+  my ($ss,$mm,$hh,$DD,$MM,$YYYY) = gmtime($date);
+  $date = sprintf "%04d%02d%02dT%02d:%02d:%02dZ",
+                  $YYYY+1900, $MM+1,$DD,$hh,$mm,$ss;
+
+  printf("%s%s %18.18s %03d %s", $type, $info, $date, $len, $data);
 }
 
 while ($line = <>) {

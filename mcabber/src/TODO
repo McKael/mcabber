@@ -41,9 +41,7 @@ TODO:
       (backward or forward? maybe search_backward/search_forward)
   - /group <expand|shrink|toggle>
     + rename
-  - /msay [jid]             (multi-lines "say")
   - /say_to <jid> blabla
-  - /add jid [Name]
   - /nick                   (I don't know if it makes sense for Jabber)
   - /info [jid]
   - /server connect|disconnect|register|unregister
@@ -51,6 +49,7 @@ TODO:
   - /send_auth [jid]
   - Common status shortcuts: /away, /online, /busy, /dnd
   - /search <jid>|name
+  - /set option = value
   - /help
   - /rawxml...
 

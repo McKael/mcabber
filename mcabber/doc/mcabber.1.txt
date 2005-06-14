@@ -76,9 +76,10 @@ Ctrl-q::        Jump to the next unread message
 COMMANDS
 --------
 
-/add jid::
-        Add the 'jid' Jabber user to our roster, and send a notification
-        request to this buddy.
+/add jid [nickname]::
+        Add the 'jid' Jabber user to our roster (default group), and send a
+        notification request to this buddy.  If no nickname is specified, the
+        jid is used.
 
 /buffer clear|top|bottom::
         The 'buffer' command manipulates the current buddy's buffer

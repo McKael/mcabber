@@ -40,7 +40,7 @@ enum agtype {
 jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass);
 void jb_disconnect(void);
 void jb_main();
-void jb_addbuddy(const char *jid, const char *group);
+void jb_addbuddy(const char *jid, const char *name, const char *group);
 void jb_delbuddy(const char *jid);
 void jb_updatebuddy(const char *jid, const char *name, const char *group);
 inline enum imstatus jb_getstatus();

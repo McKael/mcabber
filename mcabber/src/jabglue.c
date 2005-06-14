@@ -301,7 +301,7 @@ void jb_send_msg(const char *jid, const char *text)
 }
 
 // Note: the caller should check the jid is correct
-void jb_addbuddy(const char *jid, const char *group)
+void jb_addbuddy(const char *jid, const char *name, const char *group)
 {
   xmlnode x, y, z;
   char *cleanjid;
@@ -321,6 +321,13 @@ void jb_addbuddy(const char *jid, const char *group)
   z = xmlnode_insert_tag(y, "item");
   xmlnode_put_attrib(z, "jid", jid);
 
+  if (name) {
+    char *name_utf8 = utf8_encode(name);
+    z = xmlnode_insert_tag(z, "name");
+    xmlnode_insert_cdata(z, name_utf8, (unsigned) -1);
+    free(name_utf8);
+  }
+
   if (group) {
     char *group_utf8 = utf8_encode(group);
     z = xmlnode_insert_tag(z, "group");
@@ -332,12 +339,11 @@ void jb_addbuddy(const char *jid, const char *group)
   xmlnode_free(x);
 
   cleanjid = jidtodisp(jid);
-  roster_add_user(cleanjid, NULL, group, ROSTER_TYPE_USER);
+  roster_add_user(cleanjid, name, group, ROSTER_TYPE_USER);
   g_free(cleanjid);
   buddylist_build();
 
-  // useless IMHO: if user appears his status will change
-  //update_roster = TRUE;
+  update_roster = TRUE;
 }
 
 void jb_delbuddy(const char *jid)

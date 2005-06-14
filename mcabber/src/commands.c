@@ -300,15 +300,25 @@ void do_status(char *arg)
 
 void do_add(char *arg)
 {
+  char *id, *nick;
   if (!arg || (*arg == 0)) {
     scr_LogPrint("Wrong usage");
     return;
   }
 
-  // FIXME check arg =~ jabber id
-  // 2nd parameter = optional nickname (XXX NULL for now...)
-  jb_addbuddy(arg, NULL);
-  scr_LogPrint("Sent presence notfication request to <%s>", arg);
+  id = g_strdup(arg);
+  nick = strchr(id, ' ');
+  if (nick) {
+    *nick++ = 0;
+    while (*nick && *nick == ' ')
+      nick++;
+  }
+
+  // FIXME check id =~ jabber id
+  // 2nd parameter = optional nickname
+  jb_addbuddy(id, nick, NULL);
+  scr_LogPrint("Sent presence notfication request to <%s>", id);
+  g_free(id);
 }
 
 void do_del(char *arg)

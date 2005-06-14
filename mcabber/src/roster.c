@@ -167,19 +167,22 @@ void roster_del_user(const char *jid)
   GSList *sl_user, *sl_group;
   GSList **sl_group_listptr;
   roster *roster_usr;
+  GSList *node;
 
   sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return;
-  // Let's free memory (jid, name)
   roster_usr = (roster*)sl_user->data;
+
+  // Remove (if present) from unread messages list
+  node = g_slist_find(unread_list, roster_usr);
+  if (node) unread_list = g_slist_delete_link(unread_list, node);
+
+  // Let's free memory (jid, name, status message)
   if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
   if (roster_usr->name)       g_free((gchar*)roster_usr->name);
   if (roster_usr->status_msg) g_free((gchar*)roster_usr->status_msg);
   g_free(roster_usr);
-
-  // Remove (if present) from unread messages list
-  unread_list = g_slist_delete_link(unread_list, sl_user);
 
   // That's a little complex, we need to dereference twice
   sl_group = ((roster*)sl_user->data)->list;

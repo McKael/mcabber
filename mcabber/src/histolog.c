@@ -120,6 +120,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   struct stat bufstat;
   guint err = 0;
   guint oldformat;
+  guint ln = 0; // line number
 
   if (!FileLoadLogs) return;
 
@@ -146,6 +147,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   while (!feof(fp)) {
     int format_off =0;
     if (fgets(data, HBB_BLOCKSIZE+24, fp) == NULL) break;
+    ln++;
 
     for (tail = data; *tail; tail++) ;
 
@@ -162,7 +164,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
         (oldformat && ((data[13] != ' ') || (data[17] != ' '))) ||
         ((!oldformat) && ((data[21] != ' ') || (data[25] != ' ')))) {
       if (!err) {
-        scr_LogPrint("Error in history file format (%s)", jid);
+        scr_LogPrint("Error in history file format (%s), l.%u", jid, ln);
         err = 1;
       }
       //break;
@@ -179,7 +181,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     if (((type == 'M') && (info != 'S' && info != 'R')) ||
         ((type == 'I') && (!strchr("OAIFDCN", info)))) {
       if (!err) {
-        scr_LogPrint("Error in history file format (%s)", jid);
+        scr_LogPrint("Error in history file format (%s), l.%u", jid, ln);
         err = 1;
       }
       //break;
@@ -188,9 +190,14 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
 
     // XXX This will fail when a message is too big
     while (len--) {
+      ln++;
       if (fgets(tail, HBB_BLOCKSIZE+24 - (tail-data), fp) == NULL) break;
 
       while (*tail) tail++;
+    }
+    // Small check for too long messages
+    if (tail+1 >= HBB_BLOCKSIZE+24 + data) {
+      scr_LogPrint("Message is too big in history file!");
     }
     // Remove last CR
     if ((tail > data+18+format_off) && (*(tail-1) == '\n'))

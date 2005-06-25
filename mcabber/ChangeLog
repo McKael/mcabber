@@ -1,3 +1,7 @@
+mcabber (0.6.2-dev)
+
+ -- Mikael, ?
+
 mcabber (0.6.1)
 
   * Fix backspace handling (KEY_BACKSPACE isn't reliable)

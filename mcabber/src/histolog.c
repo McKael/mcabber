@@ -121,6 +121,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   guint err = 0;
   guint oldformat;
   guint ln = 0; // line number
+  guint pleaseconvert = 0;
 
   if (!FileLoadLogs) return;
 
@@ -145,8 +146,8 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
 
   /* See write_histo_line() for line format... */
   while (!feof(fp)) {
-    int format_off =0;
-    if (fgets(data, HBB_BLOCKSIZE+24, fp) == NULL) break;
+    int format_off = 0;
+    if (fgets(data, HBB_BLOCKSIZE+19+format_off, fp) == NULL) break;
     ln++;
 
     for (tail = data; *tail; tail++) ;
@@ -191,29 +192,40 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     // XXX This will fail when a message is too big
     while (len--) {
       ln++;
-      if (fgets(tail, HBB_BLOCKSIZE+24 - (tail-data), fp) == NULL) break;
+      if (fgets(tail, HBB_BLOCKSIZE+19+format_off - (tail-data), fp) == NULL)
+        break;
 
       while (*tail) tail++;
     }
     // Small check for too long messages
-    if (tail+1 >= HBB_BLOCKSIZE+24 + data) {
-      scr_LogPrint("Message is too big in history file!");
+    if (tail >= HBB_BLOCKSIZE+18+format_off + data) {
+      scr_LogPrint("A message could be too big in history file...");
+      scr_LogPrint("S=%d, fmt=%d  (->%d)", tail-data, format_off,
+                   tail-data-format_off-18);
+      // Maybe we will have a parse error on next, because this
+      // message is big (maybe too big).
     }
     // Remove last CR
     if ((tail > data+18+format_off) && (*(tail-1) == '\n'))
       *(tail-1) = 0;
+
+    if (oldformat)
+      pleaseconvert = 1;
 
     if (type == 'M') {
       if (info == 'S')
         prefix_flags = HBB_PREFIX_OUT;
       else
         prefix_flags = HBB_PREFIX_IN;
-      hbuf_add_line(p_buddyhbuf, &data[18+format_off], timestamp, prefix_flags, width);
+      hbuf_add_line(p_buddyhbuf, &data[18+format_off], timestamp,
+                    prefix_flags, width);
       err = 0;
     }
   }
   fclose(fp);
   g_free(data);
+  if (pleaseconvert)
+    scr_LogPrint("Please convert your history files to the new format!");
 }
 
 //  hlog_enable()

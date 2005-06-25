@@ -199,12 +199,11 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     }
     // Small check for too long messages
     if (tail >= HBB_BLOCKSIZE+18+format_off + data) {
-      scr_LogPrint("A message could be too big in history file...");
-                   tail-data-format_off-18);
       // Maybe we will have a parse error on next, because this
       // message is big (maybe too big).
+      scr_LogPrint("A message could be too big in history file...");
     }
-    // Remove last CR
+    // Remove last CR (we keep it if the line is empty, too)
     if ((tail > data+18+format_off) && (*(tail-1) == '\n'))
       *(tail-1) = 0;
 

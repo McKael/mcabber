@@ -14,7 +14,7 @@ mcabber (0.6.1)
   * Add Makefile for the doc subdir; the manpage will be installed now
   * Minor fixes
 
- -- Mikael, ?
+ -- Mikael, 2005-06-25
 
 mcabber (0.6.0)
 

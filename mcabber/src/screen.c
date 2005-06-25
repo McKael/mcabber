@@ -1132,7 +1132,7 @@ void scr_append_multiline(const char *line)
   }
   if (multiline) {
     int len = strlen(multiline)+strlen(line)+2;
-    if (len >= HBB_BLOCKSIZE) {
+    if (len >= HBB_BLOCKSIZE - 1) {
       // We don't handle single messages with size > HBB_BLOCKSIZE
       // (see hbuf)
       scr_LogPrint("Your multi-line message is too big, this line has "

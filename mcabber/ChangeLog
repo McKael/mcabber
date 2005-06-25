@@ -3,6 +3,7 @@ mcabber (0.6.1)
   * Fix backspace handling (KEY_BACKSPACE isn't reliable)
   * Change logfile date format to iso8601 (more readable!)
     A script is available in contrib/ to convert the existing (old) logfiles
+    MCabber will display a warning when parsing an old-style file
   * Implement Ctrl-q (jump to first/next unread message)
   * Implement initial support for multi-line messages (/msay command)
   * The /add command can now set the nickname
@@ -11,6 +12,7 @@ mcabber (0.6.1)
   * Update INSTALL and mcabberrc.example files for better explanations
   * Comment out useless code (fix a compilation error with gcc 4)
   * Add Makefile for the doc subdir; the manpage will be installed now
+  * Minor fixes
 
  -- Mikael, ?
 

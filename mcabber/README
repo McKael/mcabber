@@ -1,0 +1,17 @@
+Well, the documentation is missing yet, but...
+
+!!!!!! SEE mcabberrc.example !!!!!!
+
+configfile:
+    The configfile will be placed in $HOME/.mcabberrc
+    and it will be:
+	
+	    username = username
+	    password = yourpassword
+	    server = serveryou.use
+	    resource = yourresourcenameOFFICE
+	    passtype = plain  (or sha1)
+	    
+
+That's all folks! (by the moment ;-)
+

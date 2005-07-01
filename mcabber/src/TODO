@@ -9,7 +9,6 @@ BUGS:
 
 TODO:
 
-* Multi-line "verbatim" mode (with commands disabled)
 * Presence notification is always accepted.  We should ask...
 * Resource priority
 * UTF-8 support

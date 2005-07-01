@@ -1097,20 +1097,19 @@ inline int scr_get_multimode()
 
 //  scr_set_multimode()
 // Public fonction to (un)set multimode...
+// Convention:
+//  0 = disabled / 1 = multimode / 2 = multimode verbatim (commands disabled)
 inline void scr_set_multimode(int enable)
 {
   if (multiline) {
     g_free(multiline);
     multiline = NULL;
   }
-  if (enable)
-    multimode = TRUE;
-  else
-    multimode = FALSE;
+  multimode = enable;
 }
 
 //  scr_get_multiline()
-// Public fonction to get multimode status...
+// Public fonction to get the current multi-line.
 inline const char *scr_get_multiline()
 {
   if (multimode && multiline)

@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-<meta name="generator" content="AsciiDoc 6.0.3" />
+<meta name="generator" content="AsciiDoc 7.0.0" />
 <meta name="author" content="Mikael BERTHE" />
 <meta name="author-email" content="mcabber@lilotux.net" />
 <link rel="stylesheet" href="./manpage.css" type="text/css" />
@@ -17,30 +17,20 @@
 </p>
 <div id="synopsis">
 <h2>SYNOPSIS</h2>
-<p>
-<b>mcabber</b> [ -f configfile ] [ &#8212;help | -h ]
-</p>
+<p><b>mcabber</b> [ -f configfile ] [ --help | -h ]</p>
 </div>
 <h2>DESCRIPTION</h2>
-<p>
-<tt>mcabber(1)</tt> is a small Jabber console client.<br />
+<p><tt>mcabber(1)</tt> is a small Jabber console client.<br />
 For now it needs a configuration file to start, so please copy the sample
-mcabberrc file and adapt your connection settings.
-</p>
-<p>
-The <tt>mcabber(1)</tt> screen is divided into 4 regions.
+mcabberrc file and adapt your connection settings.</p>
+<p>The <tt>mcabber(1)</tt> screen is divided into 4 regions.
 The <b>roster</b>, alias <b>buddylist</b>, is on the left.  The <b>chat window</b>, or chat
 buffer, is on the right.  The <b>input line</b> lies at the bottom of the screen,
-under a small <b>log window</b>.
-</p>
-<p>
-To display buddies chat buffers, you will have to enter <b>chat mode</b>.
+under a small <b>log window</b>.</p>
+<p>To display buddies chat buffers, you will have to enter <b>chat mode</b>.
 You can enter chat mode by pressing enter, and leave chat mode with the ESC
-key.  Simply sending a message will also enable chat mode.
-</p>
-<p>
-Here are some of the features of <tt>mcabber</tt>:
-</p>
+key.  Simply sending a message will also enable chat mode.</p>
+<p>Here are some of the features of <tt>mcabber</tt>:</p>
 <ul>
 <li>
 <p>
@@ -70,48 +60,34 @@ Here are some of the features of <tt>mcabber</tt>:
 <h2>OPTIONS</h2>
 <dl>
 <dt><b>
-&#8212;help, -h
+--help, -h
 </b></dt>
 <dd>
-
         Quick help usage message
-
 </dd>
 <dt><b>
 -f configfile
 </b></dt>
 <dd>
-
         Use configuration file <b>configfile</b>
-
 </dd>
 </dl>
 <h2>KEYS</h2>
-<p>
-Text typing occurs in the <b>input line</b>; basic operations are supported
-(left arrow, right arrow, home/end keys, insert, delete, backspace&#8230;).
-</p>
-<p>
-PageUp and PageDown keys are used to move in the roster.
-</p>
-<p>
-To send a message, move to the choosen buddy in the buddylist, type your
+<p>Text typing occurs in the <b>input line</b>; basic operations are supported
+(left arrow, right arrow, home/end keys, insert, delete, backspace&#8230;).</p>
+<p>PageUp and PageDown keys are used to move in the roster.</p>
+<p>To send a message, move to the choosen buddy in the buddylist, type your
 message and hit enter.  If the line begins with a slash, this will be
 interpreted as a command (see the COMMAND section below).  Hit escape to
-leave the chat mode.
-</p>
-<p>
-Here is a quick description of the key bindings:
-</p>
+leave the chat mode.</p>
+<p>Here is a quick description of the key bindings:</p>
 <table class="hlist">
 <tr valign="top">
 <td>
 Ctrl-a
 </td>
 <td>
-
 Go to the beginning of the input line
-
 </td>
 </tr>
 <tr valign="top">
@@ -119,9 +95,7 @@ Go to the beginning of the input line
 Ctrl-e
 </td>
 <td>
-
 Go to the end of the input line
-
 </td>
 </tr>
 <tr valign="top">
@@ -129,9 +103,7 @@ Go to the end of the input line
 Ctrl-l
 </td>
 <td>
-
 Force a resize
-
 </td>
 </tr>
 <tr valign="top">
@@ -139,9 +111,7 @@ Force a resize
 PgUp/PgDown
 </td>
 <td>
-
 Move inside the roster (buddylist)
-
 </td>
 </tr>
 <tr valign="top">
@@ -149,9 +119,7 @@ Move inside the roster (buddylist)
 Tab
 </td>
 <td>
-
 Complete current word, in the input line
-
 </td>
 </tr>
 <tr valign="top">
@@ -159,9 +127,7 @@ Complete current word, in the input line
 Ctrl-g
 </td>
 <td>
-
 Cancel completion / ctrl-g
-
 </td>
 </tr>
 <tr valign="top">
@@ -169,9 +135,7 @@ Cancel completion / ctrl-g
 Ctrl-p/Ctrl-n
 </td>
 <td>
-
 Scroll up/down half a screen in the buffer window (chat mode)
-
 </td>
 </tr>
 <tr valign="top">
@@ -179,9 +143,7 @@ Scroll up/down half a screen in the buffer window (chat mode)
 Ctrl-u
 </td>
 <td>
-
 Delete from beginning of the line to the cursor
-
 </td>
 </tr>
 <tr valign="top">
@@ -189,9 +151,7 @@ Delete from beginning of the line to the cursor
 Ctrl-k
 </td>
 <td>
-
 Delete from the cursor to the end of line
-
 </td>
 </tr>
 <tr valign="top">
@@ -199,9 +159,7 @@ Delete from the cursor to the end of line
 Ctrl-w
 </td>
 <td>
-
 Backward kill word
-
 </td>
 </tr>
 <tr valign="top">
@@ -209,9 +167,7 @@ Backward kill word
 Ctrl-t
 </td>
 <td>
-
 Transpose chars
-
 </td>
 </tr>
 <tr valign="top">
@@ -219,9 +175,7 @@ Transpose chars
 Ctrl-q
 </td>
 <td>
-
 Jump to the next unread message
-
 </td>
 </tr>
 </table>
@@ -231,29 +185,23 @@ Jump to the next unread message
 /add jid [nickname]
 </b></dt>
 <dd>
-
         Add the <b>jid</b> Jabber user to our roster (default group), and send a
         notification request to this buddy.  If no nickname is specified, the
         jid is used.
-
 </dd>
 <dt><b>
 /buffer clear|top|bottom
 </b></dt>
 <dd>
-
         The <b>buffer</b> command manipulates the current buddy's buffer
         (chat window).
-
 <table class="hlist">
 <tr valign="top">
 <td>
 <b>clear</b>
 </td>
 <td>
-
 clear the current buddy chat window
-
 </td>
 </tr>
 <tr valign="top">
@@ -261,9 +209,7 @@ clear the current buddy chat window
 <b>top</b>
 </td>
 <td>
-
 jump to the top of the current buddy chat buffer
-
 </td>
 </tr>
 <tr valign="top">
@@ -271,9 +217,7 @@ jump to the top of the current buddy chat buffer
 <b>bottom</b>
 </td>
 <td>
-
 jump to the bottom of the current buddy chat buffer
-
 </td>
 </tr>
 </table>
@@ -282,35 +226,27 @@ jump to the bottom of the current buddy chat buffer
 /clear
 </b></dt>
 <dd>
-
         The <b>clear</b> command is actually an alias for "/buffer clear".
-
 </dd>
 <dt><b>
 /del
 </b></dt>
 <dd>
-
         Delete the current buddy from our roster, unsubscribe from its presence
         notification and unsubscribe it from ours.
-
 </dd>
 <dt><b>
 /group fold|unfold|toggle
 </b></dt>
 <dd>
-
         The <b>group</b> command changes the current group display.
-
 <table class="hlist">
 <tr valign="top">
 <td>
 <b>fold</b>
 </td>
 <td>
-
 fold (shrink) the current group tree in the roster
-
 </td>
 </tr>
 <tr valign="top">
@@ -318,9 +254,7 @@ fold (shrink) the current group tree in the roster
 <b>unfold</b>
 </td>
 <td>
-
 unfold (expand) the current group tree in the roster
-
 </td>
 </tr>
 <tr valign="top">
@@ -328,9 +262,7 @@ unfold (expand) the current group tree in the roster
 <b>toggle</b>
 </td>
 <td>
-
 toggle the state (fold/unfold) of the current tree
-
 </td>
 </tr>
 </table>
@@ -339,41 +271,43 @@ toggle the state (fold/unfold) of the current tree
 /info
 </b></dt>
 <dd>
-
         Display info on the selected entry (user, agent, group&#8230;).
-
 </dd>
 <dt><b>
 /move [groupname]
 </b></dt>
 <dd>
-
         Move the current buddy to the requested group.  If no group is
         specified, then the buddy is moved to the default group.
         This command only works with users (not agents), at the moment.
-
 </dd>
 <dt><b>
-/msay begin|send|abort
+/msay begin|verbatim|send|abort
 </b></dt>
 <dd>
-
         Send a multi-line message.  To write a single message with several
         lines, the <b>multi-line mode</b> should be used.  In multi-line mode,
         each line (except command lines) typed in the input line will
         be added to the multi-line message.  Once the message is finished, it
         can be sent to the current selected buddy with the "msay /send"
-        command.
-
+        command.  The <b>verbatim</b> multi-line mode disables commands, so that it
+        is possible to enter lines starting with a slash.  Only the "/msay"
+        command (with send or abort parameters) can be used to exit verbatim mode.
 <table class="hlist">
 <tr valign="top">
 <td>
 <b>begin</b>
 </td>
 <td>
-
 enter multi-line mode
-
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>verbatim</b>
+</td>
+<td>
+enter verbatim multi-line mode
 </td>
 </tr>
 <tr valign="top">
@@ -381,9 +315,7 @@ enter multi-line mode
 <b>send</b>
 </td>
 <td>
-
 send the current multi-line message to the currently selected buddy
-
 </td>
 </tr>
 <tr valign="top">
@@ -391,9 +323,7 @@ send the current multi-line message to the currently selected buddy
 <b>abort</b>
 </td>
 <td>
-
 leave multi-line mode without sending the message
-
 </td>
 </tr>
 </table>
@@ -402,36 +332,28 @@ leave multi-line mode without sending the message
 /quit
 </b></dt>
 <dd>
-
         Disconnect and leave <tt>mcabber(1)</tt>.
-
 </dd>
 <dt><b>
 /rename nickname
 </b></dt>
 <dd>
-
         Rename current buddy to the given nickname.
         This command does not work for groups, at the moment (but you can move
         the buddies to another group with the /move command).
-
 </dd>
 <dt><b>
 /roster hide_offline|show_offline|top|bottom
 </b></dt>
 <dd>
-
         The <b>roster</b> command manipulates the roster/buddylist.
-
 <table class="hlist">
 <tr valign="top">
 <td>
 <b>hide_offline</b>
 </td>
 <td>
-
 hide offline buddies
-
 </td>
 </tr>
 <tr valign="top">
@@ -439,9 +361,7 @@ hide offline buddies
 <b>show_offline</b>
 </td>
 <td>
-
 show offline buddies
-
 </td>
 </tr>
 <tr valign="top">
@@ -449,9 +369,7 @@ show offline buddies
 <b>top</b>
 </td>
 <td>
-
 jump to the top of the roster
-
 </td>
 </tr>
 <tr valign="top">
@@ -459,9 +377,7 @@ jump to the top of the roster
 <b>bottom</b>
 </td>
 <td>
-
 jump to the bottom of the roster
-
 </td>
 </tr>
 <tr valign="top">
@@ -469,9 +385,7 @@ jump to the bottom of the roster
 <b>unread_first</b>
 </td>
 <td>
-
 jump to the first unread message
-
 </td>
 </tr>
 <tr valign="top">
@@ -479,9 +393,7 @@ jump to the first unread message
 <b>unread_next</b>
 </td>
 <td>
-
 jump to the next unread message
-
 </td>
 </tr>
 </table>
@@ -490,61 +402,41 @@ jump to the next unread message
 /say text
 </b></dt>
 <dd>
-
         Send the text message to the currently selected buddy.  Can be useful
         if you want to send a message beginning with a slash, for example.
-
 </dd>
 <dt><b>
 /status [online|avail|invisible|free|dnd|busy|notavail|away]
 </b></dt>
 <dd>
-
         Set the current status.  If no status is specified, display the
         current status.
-
 </dd>
 </dl>
 <h2>CONFIGURATION FILE</h2>
-<p>
-See the provided sample configuration file, which should be self-documented.
-</p>
+<p>See the provided sample configuration file, which should be self-documented.</p>
 <h2>FILES</h2>
-<p>
-The following files can be used by <tt>mcabber(1)</tt>:
-</p>
-<div class="literalparagraph"><pre>
-$HOME/.mcabber/mcabberrc    Default configuration file
+<p>The following files can be used by <tt>mcabber(1)</tt>:</p>
+<div class="literalparagraph"><pre>$HOME/.mcabber/mcabberrc    Default configuration file
 $HOME/.mcabberrc            Configuration file used if no other has been found
-$HOME/.mcabber/histo/       Default directory for storing chat history files, if enabled
-</pre></div>
+$HOME/.mcabber/histo/       Default directory for storing chat history files, if enabled</pre></div>
 <h2>BUGS</h2>
-<p>
-Certainly a lot.  Please tell me if you find one!  :-)
-</p>
+<p>Certainly a lot.  Please tell me if you find one!  :-)</p>
 <h2>AUTHOR</h2>
-<p>
-Written by <a href="mailto:mcabber@lilotux.net">Mikael BERTHE</a>.<br />
+<p>Written by <a href="mailto:mcabber@lilotux.net">Mikael BERTHE</a>.<br />
 Originally based on <a href="http://cabber.sourceforge.net">Cabber</a>, please
-consult the AUTHORS file for details.
-</p>
+consult the AUTHORS file for details.</p>
 <h2>RESOURCES</h2>
-<p>
-<a href="http://www.lilotux.net/~mikael/mcabber/">Main web site</a>
-</p>
+<p><a href="http://www.lilotux.net/~mikael/mcabber/">Main web site</a></p>
 <h2>COPYING</h2>
-<p>
-Copyright &#169; 2005 Mikael Berthe.<br />
-Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com">cabber@ajmacias.com</a>.
-</p>
-<p>
-Free use of this software is granted under the terms of the GNU General Public
-License (GPL).
-</p>
+<p>Copyright &#169; 2005 Mikael Berthe.<br />
+Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com">cabber@ajmacias.com</a>.</p>
+<p>Free use of this software is granted under the terms of the GNU General Public
+License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.6.2<br />
-Last updated 14-Jun-2005 23:30:26 CEST
+Last updated 02-Jul-2005 00:36:19 CEST
 </p>
 </div>
 </div>

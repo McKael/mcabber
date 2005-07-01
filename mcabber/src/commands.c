@@ -124,6 +124,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_MULTILINE, "abort");
   compl_add_category_word(COMPL_MULTILINE, "begin");
   compl_add_category_word(COMPL_MULTILINE, "send");
+  compl_add_category_word(COMPL_MULTILINE, "verbatim");
 }
 
 //  cmd_get
@@ -203,6 +204,7 @@ int process_line(char *line)
   }
 
   if (*line != '/') {
+    // This isn't a command
     if (scr_get_multimode())
       scr_append_multiline(line);
     else
@@ -218,9 +220,16 @@ int process_line(char *line)
     *p = 0;
 
   // Command "quit"?
-  if (!strncasecmp(line, "/quit", 5))
+  if ((!strncasecmp(line, "/quit", 5)) && (scr_get_multimode() != 2) )
     if (!line[5] || line[5] == ' ')
       return 255;
+
+  // If verbatim multi-line mode, we check if another /msay command is typed
+  if ((scr_get_multimode() == 2) && (strncasecmp(line, "/msay ", 6))) {
+    // It isn't an /msay command
+    scr_append_multiline(line);
+    return 0;
+  }
 
   // Commands handling
   curcmd = cmd_get(line);
@@ -401,14 +410,18 @@ void do_say(char *arg)
 
 void do_msay(char *arg)
 {
-  /* begin abort send */
+  /* Parameters: begin verbatim abort send */
   gpointer bud;
 
   if (!strcasecmp(arg, "abort")) {
     scr_set_multimode(FALSE);
     return;
-  } else if (!strcasecmp(arg, "begin")) {
-    scr_set_multimode(TRUE);
+  } else if ((!strcasecmp(arg, "begin")) || (!strcasecmp(arg, "verbatim"))) {
+    if (!strcasecmp(arg, "verbatim"))
+      scr_set_multimode(2);
+    else
+      scr_set_multimode(1);
+
     scr_LogPrint("Entered multi-line message mode.");
     scr_LogPrint("Select a buddy and use \"/msay send\" "
                  "when your message is ready.");

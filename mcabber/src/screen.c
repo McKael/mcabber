@@ -1082,21 +1082,21 @@ void scr_LogPrint(const char *fmt, ...)
 }
 
 //  scr_set_chatmode()
-// Public fonction to (un)set chatmode...
+// Public function to (un)set chatmode...
 inline void scr_set_chatmode(int enable)
 {
   chatmode = enable;
 }
 
 //  scr_get_multimode()
-// Public fonction to get multimode status...
+// Public function to get multimode status...
 inline int scr_get_multimode()
 {
   return multimode;
 }
 
 //  scr_set_multimode()
-// Public fonction to (un)set multimode...
+// Public function to (un)set multimode...
 // Convention:
 //  0 = disabled / 1 = multimode / 2 = multimode verbatim (commands disabled)
 inline void scr_set_multimode(int enable)
@@ -1109,7 +1109,7 @@ inline void scr_set_multimode(int enable)
 }
 
 //  scr_get_multiline()
-// Public fonction to get the current multi-line.
+// Public function to get the current multi-line.
 inline const char *scr_get_multiline()
 {
   if (multimode && multiline)

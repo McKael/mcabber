@@ -119,9 +119,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   FILE *fp;
   struct stat bufstat;
   guint err = 0;
-  guint oldformat;
   guint ln = 0; // line number
-  guint pleaseconvert = 0;
 
   if (!FileLoadLogs) return;
 
@@ -146,8 +144,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
 
   /* See write_histo_line() for line format... */
   while (!feof(fp)) {
-    int format_off = 0;
-    if (fgets(data, HBB_BLOCKSIZE+19+format_off, fp) == NULL) break;
+    if (fgets(data, HBB_BLOCKSIZE+27, fp) == NULL) break;
     ln++;
 
     for (tail = data; *tail; tail++) ;
@@ -155,15 +152,9 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     type = data[0];
     info = data[1];
 
-    // XXX Log format detection.  We can read both old and new log formats
-    // To be removed in a future version
-    oldformat = (data[11] != 'T' || data[20] != 'Z');
-    if (!oldformat)
-      format_off = 8;
-
     if ((type != 'M' && type != 'S') || 
-        (oldformat && ((data[13] != ' ') || (data[17] != ' '))) ||
-        ((!oldformat) && ((data[21] != ' ') || (data[25] != ' ')))) {
+        ((data[11] != 'T') || (data[20] != 'Z') ||
+         (data[21] != ' ') || (data[25] != ' '))) {
       if (!err) {
         scr_LogPrint("Error in history file format (%s), l.%u", jid, ln);
         err = 1;
@@ -171,12 +162,9 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
       //break;
       continue;
     }
-    data[13+format_off] = data[17+format_off] = 0;
-    if (oldformat)
-      timestamp = (unsigned long) atol(&data[3]);
-    else
-      timestamp = from_iso8601(&data[3], 1);
-    len = (unsigned long) atol(&data[14+format_off]);
+    data[21] = data[25] = 0;
+    timestamp = from_iso8601(&data[3], 1);
+    len = (guint) atoi(&data[22]);
     
     // Some checks
     if (((type == 'M') && (info != 'S' && info != 'R')) ||
@@ -192,38 +180,33 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     // XXX This will fail when a message is too big
     while (len--) {
       ln++;
-      if (fgets(tail, HBB_BLOCKSIZE+19+format_off - (tail-data), fp) == NULL)
+      if (fgets(tail, HBB_BLOCKSIZE+27 - (tail-data), fp) == NULL)
         break;
 
       while (*tail) tail++;
     }
     // Small check for too long messages
-    if (tail >= HBB_BLOCKSIZE+18+format_off + data) {
+    if (tail >= HBB_BLOCKSIZE+26 + data) {
       // Maybe we will have a parse error on next, because this
       // message is big (maybe too big).
       scr_LogPrint("A message could be too big in history file...");
     }
     // Remove last CR (we keep it if the line is empty, too)
-    if ((tail > data+18+format_off) && (*(tail-1) == '\n'))
+    if ((tail > data+26) && (*(tail-1) == '\n'))
       *(tail-1) = 0;
-
-    if (oldformat)
-      pleaseconvert = 1;
 
     if (type == 'M') {
       if (info == 'S')
         prefix_flags = HBB_PREFIX_OUT;
       else
         prefix_flags = HBB_PREFIX_IN;
-      hbuf_add_line(p_buddyhbuf, &data[18+format_off], timestamp,
+      hbuf_add_line(p_buddyhbuf, &data[26], timestamp,
                     prefix_flags, width);
       err = 0;
     }
   }
   fclose(fp);
   g_free(data);
-  if (pleaseconvert)
-    scr_LogPrint("Please convert your history files to the new format!");
 }
 
 //  hlog_enable()

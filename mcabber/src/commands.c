@@ -104,9 +104,10 @@ void cmd_init(void)
 
   // Roster category
   compl_add_category_word(COMPL_ROSTER, "bottom");
+  compl_add_category_word(COMPL_ROSTER, "top");
   compl_add_category_word(COMPL_ROSTER, "hide_offline");
   compl_add_category_word(COMPL_ROSTER, "show_offline");
-  compl_add_category_word(COMPL_ROSTER, "top");
+  compl_add_category_word(COMPL_ROSTER, "search");
   compl_add_category_word(COMPL_ROSTER, "unread_first");
   compl_add_category_word(COMPL_ROSTER, "unread_next");
 
@@ -276,6 +277,20 @@ void do_roster(char *arg)
     scr_RosterUnreadMessage(0);
   } else if (!strcasecmp(arg, "unread_next")) {
     scr_RosterUnreadMessage(1);
+  } else if (!strncasecmp(arg, "search", 6)) {
+    char *string = arg+6;
+    if (*string && (*string != ' ')) {
+      scr_LogPrint("Unrecognized parameter!");
+      return;
+    }
+    while (*string == ' ')
+      string++;
+    if (!*string) {
+      scr_LogPrint("What name or jid are you looking for?");
+      return;
+    }
+    scr_RosterSearch(string);
+    update_roster = TRUE;
   } else
     scr_LogPrint("Unrecognized parameter!");
 }

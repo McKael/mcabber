@@ -19,6 +19,7 @@
  * USA
  */
 
+#define _GNU_SOURCE     /* for strcasestr() */
 #include <string.h>
 
 #include "roster.h"
@@ -625,6 +626,31 @@ guint buddy_getflags(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->flags;
+}
+
+//  buddy_search(string)
+// Look for a buddy whose name or jid contains string.
+// Search begins at current_buddy; if no match is found in the the buddylist,
+// return NULL;
+GList *buddy_search(char *string)
+{
+  GList *buddy = current_buddy;
+  roster *roster_usr;
+  if (!buddylist || !current_buddy) return NULL;
+  for (;;) {
+    buddy = g_list_next(buddy);
+    if (!buddy)
+      buddy = buddylist;
+
+    roster_usr = (roster*)buddy->data;
+    if (roster_usr->jid && strcasestr(roster_usr->jid, string))
+      return buddy;
+    if (roster_usr->name && strcasestr(roster_usr->name, string))
+      return buddy;
+
+    if (buddy == current_buddy)
+      return NULL; // Back to the beginning, and no match found
+  }
 }
 
 //  compl_list(type)

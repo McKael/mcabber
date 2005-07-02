@@ -114,7 +114,7 @@ Add the jid Jabber user to our roster (default group), and send a notification r
 The buffer command manipulates the current buddy's buffer (chat window)\&.
 
  \fBclear\fR	clear the current buddy chat window
- \fBtop\fR	jump to the top of the current buddy chat buffer
+ \fBtop\fR 	jump to the top of the current buddy chat buffer
  \fBbottom\fR	jump to the bottom of the current buddy chat buffer
 
 .TP
@@ -129,9 +129,9 @@ Delete the current buddy from our roster, unsubscribe from its presence notifica
 \fB/group\fR fold|unfold|toggle
 The group command changes the current group display\&.
 
- \fBfold\fR fold (shrink) the current group tree in the roster
- \fBunfold\fR unfold (expand) the current group tree in the roster
- \fBtoggle\fR toggle the state (fold/unfold) of the current tree
+ \fBfold\fR	fold (shrink) the current group tree in the roster
+ \fBunfold\fR	unfold (expand) the current group tree in the roster
+ \fBtoggle\fR	toggle the state (fold/unfold) of the current tree
 
 .TP
 \fB/info\fR
@@ -145,25 +145,26 @@ Move the current buddy to the requested group\&. If no group is specified, then 
 \fB/msay\fR begin|verbatim|send|abort
 Send a multi\-line message\&. To write a single message with several lines, the \fImulti\-line mode\fR should be used\&. In multi\-line mode, each line (except command lines) typed in the input line will be added to the multi\-line message\&. Once the message is finished, it can be sent to the current selected buddy with the "msay /send" command\&. The \fIverbatim\fR multi\-line mode disables commands, so that it is possible to enter lines starting with a slash\&. Only the "/msay" command (with send or abort parameters) can be used to exit verbatim mode\&.
 
- \fBbegin\fR enter multi\-line mode
- \fBverbatim\fR enter verbatim multi\-line mode
- \fBsend\fR send the current multi\-line message to the currently selected buddy
- \fBabort\fR leave multi\-line mode without sending the message
+ \fBbegin\fR	enter multi\-line mode
+ \fBverbatim\fR	enter verbatim multi\-line mode
+ \fBsend\fR	send the current multi\-line message to the currently selected buddy
+ \fBabort\fR	leave multi\-line mode without sending the message
 
 .TP
 \fB/rename\fR nickname
 Rename current buddy to the given nickname\&. This command does not work for groups, at the moment (but you can move the buddies to another group with the /move command)\&.
 
 .TP
-\fB/roster\fR hide_offline|show_offline|top|bottom
-The roster command manipulates the roster/buddylist\&.
+\fB/roster\fR
+The roster command manipulates the roster/buddylist\&.  Here are the available parameters:
 
- \fBhide_offline\fR hide offline buddies
- \fBshow_offline\fR show offline buddies
- \fBtop\fR jump to the top of the roster
- \fBbottom\fR jump to the bottom of the roster
- \fIunread_first\fR jump to the first unread message
- \fIunread_next\fR jump to the next unread message
+ \fBbottom\fR     	jump to the bottom of the roster
+ \fBtop\fR        	jump to the top of the roster
+ \fBhide_offline\fR	hide offline buddies
+ \fBshow_offline\fR	show offline buddies
+ \fBsearch\fR bud	search for a buddy with a name or buddy containing "bud" (only in the displayed buddylist)
+ \fBunread_first\fR	jump to the first unread message
+ \fBunread_next\fR	jump to the next unread message
 
 .TP
 \fB/say\fR text

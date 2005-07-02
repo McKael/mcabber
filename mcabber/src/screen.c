@@ -843,6 +843,34 @@ void scr_RosterDown(void)
     scr_ShowBuddyWindow();
 }
 
+//  scr_RosterSearch(str)
+// Look forward for a buddy with jid/name containing str.
+void scr_RosterSearch(char *str)
+{
+  GList *matching_buddy;
+  enum imstatus prev_st = imstatus_size; // undef
+
+  if (current_buddy) {
+    matching_buddy = buddy_search(str);
+    if (matching_buddy) {
+      prev_st = buddy_getstatus(BUDDATA(current_buddy));
+      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+      current_buddy = matching_buddy;
+      if (chatmode)
+        buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
+      // We should rebuild the buddylist but not everytime
+      // Here we check if we were locking a buddy who is actually offline,
+      // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
+      if (prev_st == offline && buddylist_get_hide_offline_buddies())
+        buddylist_build();
+      update_roster = TRUE;
+    }
+  }
+
+  if (chatmode)
+    scr_ShowBuddyWindow();
+}
+
 //  scr_RosterUnreadMessage(next)
 // Go to a new message.  If next is not null, try to go to the next new
 // message.  If it is not possible or if next is NULL, go to the first new

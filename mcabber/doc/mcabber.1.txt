@@ -135,13 +135,15 @@ COMMANDS
         This command does not work for groups, at the moment (but you can move
         the buddies to another group with the /move command).
 
-/roster hide_offline|show_offline|top|bottom::
-        The 'roster' command manipulates the roster/buddylist.
+/roster bottom|top|hide_offline|show_offline|unread_first|unread_next::
+/roster search bud::
+        The 'roster' command manipulates the roster/buddylist.  Here are the available parameters:
 
+        'bottom';;       jump to the bottom of the roster
+        'top';;          jump to the top of the roster
         'hide_offline';; hide offline buddies
         'show_offline';; show offline buddies
-        'top';;          jump to the top of the roster
-        'bottom';;       jump to the bottom of the roster
+        'search' bud;;   search for a buddy with a name or buddy containing "bud" (only in the displayed buddylist)
         'unread_first';; jump to the first unread message
         'unread_next';;  jump to the next unread message
 

@@ -44,6 +44,7 @@ int process_key(int);
 // For commands...
 void scr_RosterTop(void);
 void scr_RosterBottom(void);
+void scr_RosterSearch(char *);
 void scr_BufferTop(void);
 void scr_BufferBottom(void);
 void scr_Clear(void);

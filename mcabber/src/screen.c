@@ -1466,15 +1466,28 @@ int process_key(int key)
           check_offset(0);
           break;
       case '\n':  // Enter
+      case 15:    // Ctrl-o ("accept-line-and-down-history")
           if (process_line(inputLine))
             return 255;
           // Add line to history
           scr_cmdhisto_addline(inputLine);
-          cmdhisto_cur = NULL;
           // Reset the line
           ptr_inputline = inputLine;
           *ptr_inputline = 0;
           inputline_offset = 0;
+
+          if (key == '\n')          // Enter
+          {
+            // Reset history line pointer
+            cmdhisto_cur = NULL;
+          } else {                  // down-history
+            // Use next history line instead of a blank line
+            const char *l = scr_cmdhisto_next("", 0);
+            if (l)
+              strcpy(inputLine, l);
+            // Reset backup history line
+            cmdhisto_backup[0] = 0;
+          }
           break;
       case KEY_UP:
           {

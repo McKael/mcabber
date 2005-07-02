@@ -3,8 +3,6 @@ BUGS:
 
 * We should display a warning when we can't write (any more) logs
   (bad dir, no space left...)
-* Colors are misnamed
-* Buggy (or inexistent) color setup makes (m)cabber crash
 
 
 TODO:

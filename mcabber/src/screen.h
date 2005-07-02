@@ -4,12 +4,10 @@
 #include <ncurses.h>
 #include <glib.h>
 
-//#define COLOR_NMSG      1
 #define COLOR_GENERAL   3
-//#define COLOR_BD_CON    4
-#define COLOR_NMSG      5
-#define COLOR_BD_DESSEL 6
-#define COLOR_BD_DES    7
+#define COLOR_NMSG      4
+#define COLOR_BD_DESSEL 5
+#define COLOR_BD_DES    6
 
 #define LOG_WIN_HEIGHT  (5+2)
 #define ROSTER_WIDTH    24

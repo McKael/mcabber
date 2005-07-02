@@ -134,26 +134,28 @@ int FindColor(char *name)
 
 void ParseColors(void)
 {
-  char *colors[11] = {
+  char *colors[8] = {
     "", "",
-    "borderlines",
-    "jidonline",
+    "general",
     "newmsg",
-    "jidofflineselected",
-    "jidoffline",
-    "text",
+    "rosterselect",
+    "rosternormal",
     NULL
   };
 
   char *tmp = malloc(1024);
-  char *color1;
+  char *color;
   char *background = cfg_read("color_background");
   char *backselected = cfg_read("color_backselected");
   int i = 0;
 
+  // Default values
+  if (!background)   background   = "blue";
+  if (!backselected) backselected = "cyan";
+
   while (colors[i]) {
     sprintf(tmp, "color_%s", colors[i]);
-    color1 = cfg_read(tmp);
+    color = cfg_read(tmp);
 
     switch (i + 1) {
     case 1:
@@ -163,22 +165,20 @@ void ParseColors(void)
       init_pair(2, COLOR_WHITE, COLOR_BLACK);
       break;
     case 3:
-      init_pair(3, FindColor(color1), FindColor(background));
+      init_pair(3, ((color) ? FindColor(color) : COLOR_WHITE),
+                FindColor(background));
       break;
     case 4:
-      init_pair(4, FindColor(color1), FindColor(backselected));
+      init_pair(4, ((color) ? FindColor(color) : COLOR_RED),
+                FindColor(background));
       break;
     case 5:
-      init_pair(5, FindColor(color1), FindColor(background));
+      init_pair(5, ((color) ? FindColor(color) : COLOR_BLACK),
+                FindColor(backselected));
       break;
     case 6:
-      init_pair(6, FindColor(color1), FindColor(backselected));
-      break;
-    case 7:
-      init_pair(7, FindColor(color1), FindColor(background));
-      break;
-    case 8:
-      init_pair(8, FindColor(color1), FindColor(background));
+      init_pair(6, ((color) ? FindColor(color) : COLOR_MAGENTA),
+                FindColor(background));
       break;
     }
     i++;

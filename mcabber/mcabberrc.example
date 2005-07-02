@@ -44,15 +44,11 @@ logging = 1
 #debug = /home/mikael/mcabber.log
 
 #  The colors
-# NOTE: the following settings may or may not be used currently... :)
-
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white
-color_background = blue
-color_backselected = cyan
-color_borderlines = white
-color_jidonline = green
-color_newmsg = red
-color_jidofflineselected = red
-color_jidoffline = magenta
-color_text = white
+#color_background   = blue
+#color_general      = white
+#color_newmessage   = red
+#color_rosternormal = magenta
+#color_rosterselect = black
+#color_backselected = cyan
 

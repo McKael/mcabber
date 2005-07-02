@@ -32,8 +32,6 @@ TODO:
 * Conferences
 
 * Commands! :-)
-  - /roster <hide_offline|show_offline|top|bottom|unread_first|unread_next>
-    + search jid|name
   - /buffer <clear|top|bottom>
     + /buffer % 50          (jump to 50 %)
     + /buffer date $date    (jump to first msg after $date)

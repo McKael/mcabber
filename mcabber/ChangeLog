@@ -4,6 +4,7 @@ mcabber (0.6.2-dev)
    commands but /msay are disabled, so that lines beginning with a slash
    can be sent.
  * Ctrl-o (accept-line-and-down-history)
+ * Add "/roster search jid|name" to look for somebody in the current buddylist
 
  -- Mikael, ?
 

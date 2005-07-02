@@ -1,5 +1,10 @@
 mcabber (0.6.2-dev)
 
+ * New multi-line "verbatim" mode (/msay verbatim).  In this mode, all
+   commands but /msay are disabled, so that lines beginning with a slash
+   can be sent.
+ * Ctrl-o (accept-line-and-down-history)
+
  -- Mikael, ?
 
 mcabber (0.6.1)

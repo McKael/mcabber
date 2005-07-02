@@ -11,7 +11,7 @@ TODO:
 
 * Presence notification is always accepted.  We should ask...
 * Resource priority
-* UTF-8 support
+* UTF-8 support (Can somebody help me?)
 * Display status / chat mode
 * /connect /disconnect ?
 * Key bindings (ex: F5 <-> /group toggle)
@@ -27,7 +27,6 @@ TODO:
 * Handle message type "error"
 * Show status changes in buddy window (if open)?
 * Auto away
-* Ctrl-o
 
 * File transfer? :)
 * Conferences
@@ -46,9 +45,11 @@ TODO:
   - /nick                   (I don't know if it makes sense for Jabber)
   - /info [jid]
   - /server connect|disconnect|register|unregister
-  - /request_auth [jid]
-  - /send_auth [jid]
+  - /auth request|send [jid]
   - Common status shortcuts: /away, /online, /busy, /dnd
+    I'm not sure it's worth it, with tab completion it is easy and fast to
+    type anyway.  We'd better use user-defined aliases.
+  - /alias alias command
   - /search <jid>|name
   - /set option = value
   - /help

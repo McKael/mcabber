@@ -1,14 +1,11 @@
 
 BUGS:
 
-* We should display a warning when we can't write (any more) logs
-  (bad dir, no space left...)
 
 
 TODO:
 
 * Presence notification is always accepted.  We should ask...
-* Resource priority
 * UTF-8 support (Can somebody help me?)
 * Display status / chat mode
 * /connect /disconnect ?
@@ -23,10 +20,16 @@ TODO:
 * Publish personal information
 * Handle message type "error"
 * Show status changes in buddy window (if open)?
-* Auto away
+* Auto away (it would be better to add the "message" variable first, which could
+  be changed with "/set message = I'll be back!")
 * Maybe Ctrl-c should not quit mcabber.  What about:
   - 1 Ctrl-c leaves completion/multi-line modes
   - 2 Ctrl-c in less than 2 seconds leave mcabber
+* Keep track of buddy resources.  Ex.:
+  - buddy A connects with resource r1
+  - buddy A connects with resource r2
+  - A/r2 disconnects
+  Then we see A as being offline, although we should still see A/r1 online
 
 * File transfer? :)
 * Conferences
@@ -42,7 +45,8 @@ TODO:
   - /group <expand|shrink|toggle>
     + rename
   - /say_to <jid> blabla
-  - /nick                   (I don't know if it makes sense for Jabber)
+  - /nick (I don't know if it makes sense for Jabber)
+    I think it is equivalent to setting the "away" message.
   - /info [jid]
   - /server connect|disconnect|register|unregister
   - /auth request|send [jid]

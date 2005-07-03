@@ -2,11 +2,14 @@ mcabber (0.6.2-dev)
 
  * New multi-line "verbatim" mode (/msay verbatim).  In this mode, all
    commands but /msay are disabled, so that lines beginning with a slash
-   can be sent.
- * Ctrl-o (accept-line-and-down-history)
+   can be sent
+ * Ctrl-o (accept-line-and-down-history) has been added
  * Add "/roster search jid|name" to look for somebody in the current buddylist
- * Color configuration handling improvement.
+ * Color configuration handling improvement
    NOTE: configuration file needs to be updated; see sample config. file!
+ * Resource priority can be set (see sample config. file)
+ * mcabber now warns when logging is enabled and there is a write error while
+   writing to log files
 
  -- Mikael, ?
 

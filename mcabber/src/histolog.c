@@ -69,6 +69,7 @@ static void write_histo_line(const char *jid,
   const char *p;
   char *filename;
   char str_ts[20];
+  int err;
 
   if (!UseFileLogging) return;
 
@@ -99,11 +100,17 @@ static void write_histo_line(const char *jid,
 
   fp = fopen(filename, "a");
   g_free(filename);
-  if (!fp) return;
+  if (!fp) {
+    scr_LogPrint("Unable to write history (cannot open logfile)");
+    return;
+  }
 
   to_iso8601(str_ts, ts);
-  fprintf(fp, "%c%c %-18.18s %03d %s\n", type, info, str_ts, len, data);
+  err = fprintf(fp, "%c%c %-18.18s %03d %s\n", type, info, str_ts, len, data);
   fclose(fp);
+  if (err < 0) {
+    scr_LogPrint("Error while writing to log file: %s", strerror(errno));
+  }
 }
 
 //  hlog_read_history()

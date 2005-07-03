@@ -1589,7 +1589,7 @@ int process_key(int key)
           scr_Resize();
           break;
       default:
-          scr_LogPrint("Unkown key=%d", key);
+          scr_LogPrint("Unknown key=%d", key);
           if (utf8_mode)
             scr_LogPrint("WARNING: UTF-8 not yet supported!");
     }

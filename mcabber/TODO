@@ -12,7 +12,6 @@ TODO:
 * UTF-8 support (Can somebody help me?)
 * Display status / chat mode
 * /connect /disconnect ?
-* Key bindings (ex: F5 <-> /group toggle)
 * Pending message flag is not displayed when buddy is outside Contact window,
   maybe we could show it someway (maybe just a flag?).
 * Show number of online contacts in folded groups
@@ -25,11 +24,16 @@ TODO:
 * Handle message type "error"
 * Show status changes in buddy window (if open)?
 * Auto away
+* Maybe Ctrl-c should not quit mcabber.  What about:
+  - 1 Ctrl-c leaves completion/multi-line modes
+  - 2 Ctrl-c in less than 2 seconds leave mcabber
 
 * File transfer? :)
 * Conferences
 
 * Commands! :-)
+  - /bind $keynum = command
+    Ex.: "/bind 269 = /group toggle"  Map F5 to group toggle
   - /buffer <clear|top|bottom>
     + /buffer % 50          (jump to 50 %)
     + /buffer date $date    (jump to first msg after $date)

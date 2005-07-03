@@ -9,9 +9,10 @@ username = yourusername
 #password = yourpassword
 server = your.jabber.server
 #port = 5222
+ssl = 0
 # If you don't know what a resource is, you can leave "mcabber" here.
 resource = mcabber
-ssl = 0
+#priority = 3
 
 # Keepalive
 # If you need a ping/keepalive to leave your connection open, you

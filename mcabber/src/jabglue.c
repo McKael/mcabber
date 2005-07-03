@@ -38,6 +38,7 @@
 jconn jc;
 time_t LastPingTime;
 unsigned int KeepaliveDelay;
+static unsigned int prio;
 static int s_id = 1;  // FIXME which use??
 static int regmode, regdone;
 static enum imstatus mystatus = offline;
@@ -165,6 +166,11 @@ void jb_set_keepalive_delay(unsigned int delay)
   KeepaliveDelay = delay;
 }
 
+inline void jb_set_priority(unsigned int priority)
+{
+  prio = priority;
+}
+
 void jb_main()
 {
   xmlnode x, z;
@@ -262,11 +268,12 @@ void jb_setstatus(enum imstatus st, char *msg)
         break;
   }
 
-  /* TODO
-  if (!add["prio"].empty())
+  if (prio) {
+    char strprio[8];
+    snprintf(strprio, 8, "%u", prio);
     xmlnode_insert_cdata(xmlnode_insert_tag(x, "priority"),
-            add["prio"].c_str(), (unsigned) -1);
-  */
+            strprio, (unsigned) -1);
+  }
 
   if (!msg) {
     msg  = ""; // FIXME

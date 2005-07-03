@@ -177,6 +177,8 @@ int main(int argc, char **argv)
   ssl  = (cfg_read_int("ssl") > 0);
   port = (unsigned int) cfg_read_int("port");
 
+  jb_set_priority(cfg_read_int("priority"));
+
   /* Connect to server */
   ut_WriteLog("Connecting to server: %s:%d\n", servername, port);
   scr_LogPrint("Connecting to server: %s:%d", servername, port);

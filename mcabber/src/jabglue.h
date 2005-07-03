@@ -49,5 +49,6 @@ void jb_send_msg(const char *, const char *);
 void jb_keepalive();
 inline void jb_reset_keepalive();
 void jb_set_keepalive_delay(unsigned int delay);
+inline void jb_set_priority(unsigned int priority);
 
 #endif /* __JABGLUE_H__ */

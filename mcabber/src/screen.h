@@ -16,6 +16,11 @@
 
 #define INPUTLINE_LENGTH  1024
 
+// Only used in screen.c; this is the maximum line number
+// in a multi-line message.  Should be < 1000
+// Note: message length is limited by the HBB_BLOCKSIZE size too
+#define MULTILINE_MAX_LINE_NUMBER 299
+
 extern int update_roster;
 
 void scr_InitCurses(void);

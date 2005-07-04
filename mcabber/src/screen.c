@@ -1167,6 +1167,14 @@ void scr_append_multiline(const char *line)
       scr_LogPrint("Please send this part now...");
       return;
     }
+    if (num >= MULTILINE_MAX_LINE_NUMBER) {
+      // We don't allow too many lines; however the maximum is arbitrary
+      // (It should be < 1000 yet)
+      scr_LogPrint("Your message has too many lines, this one has "
+                   "not been added.");
+      scr_LogPrint("Please send this part now...");
+      return;
+    }
     multiline = g_renew(char, multiline, len);
     strcat(multiline, "\n");
     strcat(multiline, line);

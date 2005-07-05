@@ -5,6 +5,6 @@
 
 #define MCABBER_VERSION "MCabber v" VERSION " -- " \
         "based on http://cabber.sourceforge.net"
-#define EMAIL "Email: bmikael [at] lists [dot] lilotux [dot] net"
+#define EMAIL "Email: mcabber [at] lilotux [dot] net"
 
 #endif

@@ -14,7 +14,7 @@
 #include "compl.h"
 #include "roster.h"
 #include "histolog.h"
-#include "parsecfg.h"
+#include "settings.h"
 #include "utils.h"
 #include "list.h"
 
@@ -145,8 +145,8 @@ void ParseColors(void)
 
   char *tmp = malloc(1024);
   char *color;
-  char *background = cfg_read("color_background");
-  char *backselected = cfg_read("color_backselected");
+  char *background = settings_opt_get("color_background");
+  char *backselected = settings_opt_get("color_backselected");
   int i = 0;
 
   // Default values
@@ -155,7 +155,7 @@ void ParseColors(void)
 
   while (colors[i]) {
     sprintf(tmp, "color_%s", colors[i]);
-    color = cfg_read(tmp);
+    color = settings_opt_get(tmp);
 
     switch (i + 1) {
     case 1:

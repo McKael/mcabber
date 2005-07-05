@@ -13,6 +13,7 @@
 #include "jabglue.h"
 #include "screen.h"
 #include "parsecfg.h"
+#include "settings.h"
 #include "roster.h"
 #include "commands.h"
 #include "histolog.h"
@@ -132,13 +133,13 @@ int main(int argc, char **argv)
   cfg_file(configFile);
   if (configFile) g_free(configFile);
 
-  optstring = cfg_read("debug");
+  optstring = settings_opt_get("debug");
   if (optstring) ut_InitDebug(1, optstring);
 
-  servername = cfg_read("server");
-  username   = cfg_read("username");
-  password   = cfg_read("password");
-  resource   = cfg_read("resource");
+  servername = settings_opt_get("server");
+  username   = settings_opt_get("username");
+  password   = settings_opt_get("password");
+  resource   = settings_opt_get("resource");
 
   if (!servername) {
       printf("Server name has not been specified in the config file!\n");
@@ -166,18 +167,20 @@ int main(int argc, char **argv)
   ut_WriteLog("Drawing main window...\n");
   scr_DrawMainWindow(TRUE);
 
-  optval   = (cfg_read_int("logging") > 0);
-  optval2  = (cfg_read_int("load_logs") > 0);
+  optval   = (settings_opt_get_int("logging") > 0);
+  optval2  = (settings_opt_get_int("load_logs") > 0);
   if (optval || optval2)
-    hlog_enable(optval, cfg_read("logging_dir"), optval2);
+    hlog_enable(optval, settings_opt_get("logging_dir"),
+                optval2);
 
-  if ((optstring = cfg_read("events_command")) != NULL)
+  optstring = settings_opt_get("events_command");
+  if (optstring)
     hk_ext_cmd_init(optstring);
 
-  ssl  = (cfg_read_int("ssl") > 0);
-  port = (unsigned int) cfg_read_int("port");
+  ssl  = (settings_opt_get_int("ssl") > 0);
+  port = (unsigned int) settings_opt_get_int("port");
 
-  jb_set_priority(cfg_read_int("priority"));
+  jb_set_priority(settings_opt_get_int("priority"));
 
   /* Connect to server */
   ut_WriteLog("Connecting to server: %s:%d\n", servername, port);
@@ -194,12 +197,12 @@ int main(int argc, char **argv)
   }
 
   ping = 40;
-  if (cfg_read("pinginterval"))
-    ping = (unsigned int) atoi(cfg_read("pinginterval"));
+  if (settings_opt_get("pinginterval"))
+    ping = (unsigned int) settings_opt_get_int("pinginterval");
   jb_set_keepalive_delay(ping);
   ut_WriteLog("Ping interval stablished: %d secs\n", ping);
 
-  if (cfg_read_int("hide_offline_buddies") > 0)
+  if (settings_opt_get_int("hide_offline_buddies") > 0)
     buddylist_set_hide_offline_buddies(TRUE);
 
   /* Initialize commands system */

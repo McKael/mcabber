@@ -45,7 +45,7 @@ static enum imstatus mystatus = offline;
 unsigned char online;
 
 char imstatus2char[imstatus_size] = {
-    '_', 'o', 'i', 'f', 'd', 'c', 'n', 'a'
+    '_', 'o', 'i', 'f', 'd', 'n', 'a'
 };
 
 static enum {
@@ -240,7 +240,6 @@ void jb_setstatus(enum imstatus st, char *msg)
                 (unsigned) -1);
         break;
 
-    case occupied:
     case dontdisturb:
         xmlnode_insert_cdata(xmlnode_insert_tag(x, "show"), "dnd",
                 (unsigned) -1);

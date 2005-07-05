@@ -16,7 +16,7 @@
 extern jconn jc;
 
 extern char imstatus2char[];
-// Status chars: '_', 'o', 'i', 'f', 'd', 'c', 'n', 'a'
+// Status chars: '_', 'o', 'i', 'f', 'd', 'n', 'a'
 
 enum imstatus {
     offline,
@@ -24,7 +24,6 @@ enum imstatus {
     invisible,
     freeforchat,
     dontdisturb,
-    occupied,
     notavail,
     away,
     imstatus_size

@@ -175,7 +175,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     
     // Some checks
     if (((type == 'M') && (info != 'S' && info != 'R')) ||
-        ((type == 'I') && (!strchr("OAIFDCN", info)))) {
+        ((type == 'I') && (!strchr("OAIFDN", info)))) {
       if (!err) {
         scr_LogPrint("Error in history file format (%s), l.%u", jid, ln);
         err = 1;

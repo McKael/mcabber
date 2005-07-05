@@ -98,7 +98,6 @@ void cmd_init(void)
   compl_add_category_word(COMPL_STATUS, "invisible");
   compl_add_category_word(COMPL_STATUS, "free");
   compl_add_category_word(COMPL_STATUS, "dnd");
-  compl_add_category_word(COMPL_STATUS, "busy");
   compl_add_category_word(COMPL_STATUS, "notavail");
   compl_add_category_word(COMPL_STATUS, "away");
 
@@ -310,7 +309,6 @@ void do_status(char *arg)
   else if (!strcasecmp(arg, "away"))      st = away;
   else if (!strcasecmp(arg, "invisible")) st = invisible;
   else if (!strcasecmp(arg, "dnd"))       st = dontdisturb;
-  else if (!strcasecmp(arg, "busy"))      st = occupied;
   else if (!strcasecmp(arg, "notavail"))  st = notavail;
   else if (!strcasecmp(arg, "free"))      st = freeforchat;
   else {

@@ -108,7 +108,7 @@ guint parse_assigment(gchar *assignment, const gchar **pkey, const gchar **pval)
   for (t = val ; *t ; t++) ;
   for (t-- ; t >= val && isblank(*t) ; t--) ;
 
-  if (t < val) return FALSE;   // no value (variable reset for example)
+  if (t < val) return TRUE; // no value (variable reset for example)
 
   *pval = g_strndup(val, t+1-val);
   return TRUE;

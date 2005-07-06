@@ -32,7 +32,7 @@
 static int DebugEnabled;
 static char *FName;
 
-void ut_InitDebug(unsigned int level, char *filename)
+void ut_InitDebug(unsigned int level, const char *filename)
 {
   FILE *fp;
 

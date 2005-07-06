@@ -219,7 +219,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
 //  hlog_enable()
 // Enable logging to files.  If root_dir is NULL, then $HOME/.mcabber is used.
 // If loadfiles is TRUE, we will try to load buddies history logs from file.
-void hlog_enable(guint enable, char *root_dir, guint loadfiles)
+void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
 {
   UseFileLogging = enable;
   FileLoadLogs = loadfiles;

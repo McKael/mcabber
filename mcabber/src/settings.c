@@ -44,7 +44,7 @@ inline GSList **get_list_ptr(guint type)
 }
 
 // Return a pointer to the node with the requested key, or NULL if none found
-GSList *settings_find(GSList *list, gchar *key)
+GSList *settings_find(GSList *list, const gchar *key)
 {
   GSList *ptr;
   
@@ -69,7 +69,7 @@ GSList *settings_find(GSList *list, gchar *key)
 // to NULL and return FALSE.
 //
 // The called should g_free() *pkey and *pval (if not NULL) after use.
-guint parse_assigment(gchar *assignment, gchar **pkey, gchar **pval)
+guint parse_assigment(gchar *assignment, const gchar **pkey, const gchar **pval)
 {
   char *key, *val, *t;
 
@@ -114,7 +114,7 @@ guint parse_assigment(gchar *assignment, gchar **pkey, gchar **pval)
   return TRUE;
 }
 
-void settings_set(guint type, gchar *key, gchar *value)
+void settings_set(guint type, const gchar *key, const gchar *value)
 {
   GSList **plist;
   GSList *sptr;
@@ -145,12 +145,12 @@ void settings_set(guint type, gchar *key, gchar *value)
   }
 }
 
-void settings_del(guint type, gchar *key)
+void settings_del(guint type, const gchar *key)
 {
   settings_set(type, key, NULL);
 }
 
-gchar *settings_get(guint type, gchar *key)
+const gchar *settings_get(guint type, const gchar *key)
 {
   GSList **plist;
   GSList *sptr;
@@ -164,9 +164,9 @@ gchar *settings_get(guint type, gchar *key)
   return setting->value;
 }
 
-int settings_get_int(guint type, gchar *key)
+int settings_get_int(guint type, const gchar *key)
 {
-  gchar *setval = settings_get(type, key);
+  const gchar *setval = settings_get(type, key);
 
   if (setval) return atoi(setval);
   return 0;

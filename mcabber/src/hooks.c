@@ -90,7 +90,7 @@ inline void hk_mystatuschange(time_t timestamp,
 //  hk_ext_cmd_init()
 // Initialize external command variable.
 // Can be called with parameter NULL to reset and free memory.
-void hk_ext_cmd_init(char *command)
+void hk_ext_cmd_init(const char *command)
 {
   if (extcommand) {
     g_free(extcommand);

@@ -108,7 +108,7 @@ void scr_draw_box(WINDOW * win, int y, int x, int height, int width,
   }
 }
 
-int FindColor(char *name)
+int FindColor(const char *name)
 {
   if (!strcmp(name, "default"))
     return -1;
@@ -134,7 +134,7 @@ int FindColor(char *name)
 
 void ParseColors(void)
 {
-  char *colors[8] = {
+  const char *colors[8] = {
     "", "",
     "general",
     "newmsg",
@@ -144,9 +144,9 @@ void ParseColors(void)
   };
 
   char *tmp = malloc(1024);
-  char *color;
-  char *background = settings_opt_get("color_background");
-  char *backselected = settings_opt_get("color_backselected");
+  const char *color;
+  const char *background   = settings_opt_get("color_background");
+  const char *backselected = settings_opt_get("color_backselected");
   int i = 0;
 
   // Default values

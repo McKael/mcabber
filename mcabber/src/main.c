@@ -88,9 +88,9 @@ void credits(void)
 int main(int argc, char **argv)
 {
   char *configFile = NULL;
-  char *username, *password, *resource, *servername;
+  const char *username, *password, *resource, *servername;
   char *jid;
-  char *optstring;
+  const char *optstring;
   int optval, optval2;
   int ssl;
   int key;
@@ -153,10 +153,10 @@ int main(int argc, char **argv)
       char *p;
       size_t passsize = 64;
       printf("Please enter password: ");
-      my_getpass(&password, &passsize);
+      my_getpass((char**)&password, &passsize);
       printf("\n");
-      for (p = password; *p; p++);
-      for ( ; p > password ; p--)
+      for (p = (char*)password; *p; p++);
+      for ( ; p > (char*)password ; p--)
           if (*p == '\n' || *p == '\r') *p = 0;
   }
 

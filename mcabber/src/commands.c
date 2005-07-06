@@ -30,6 +30,7 @@
 #include "hbuf.h"
 #include "utf8.h"
 #include "utils.h"
+#include "settings.h"
 
 // Commands callbacks
 void do_roster(char *arg);
@@ -44,6 +45,7 @@ void do_clear(char *arg);
 void do_info(char *arg);
 void do_rename(char *arg);
 void do_move(char *arg);
+void do_set(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -90,6 +92,7 @@ void cmd_init(void)
   cmd_add("say", "Say something to the selected buddy", 0, 0, &do_say);
   //cmd_add("search");
   //cmd_add("send_auth");
+  cmd_add("set", "Set/query an option value", 0, 0, &do_set);
   cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status);
 
   // Status category
@@ -605,5 +608,35 @@ void do_move(char *arg)
 
   g_free(newgroupname);
   update_roster = TRUE;
+}
+
+void do_set(char *arg)
+{
+  guint assign;
+  const gchar *option, *value;
+  
+  assign = parse_assigment(arg, &option, &value);
+  if (!option) {
+    scr_LogPrint("Huh?");
+    return;
+  }
+  if (!assign) {
+    // This is a query
+    value = settings_opt_get(option);
+    if (value) {
+      scr_LogPrint("%s = [%s]", option, value);
+    } else
+      scr_LogPrint("Option %s is not set", option);
+    return;
+  }
+  // Update the option
+  // XXX Maybe some options should be protected when user is connected
+  // (server, username, etc.).  And we should catch some options here, too
+  // (hide_offline_buddies for ex.)
+  if (!value) {
+    settings_del(SETTINGS_TYPE_OPTION, option);
+  } else {
+    settings_set(SETTINGS_TYPE_OPTION, option, value);
+  }
 }
 

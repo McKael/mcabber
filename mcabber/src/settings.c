@@ -21,6 +21,7 @@
 
 #include <strings.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "settings.h"
 
@@ -57,6 +58,61 @@ GSList *settings_find(GSList *list, gchar *key)
 }
 
 /* -- */
+
+//  parse_assigment(assignment, pkey, pval)
+// Read assignment and split it to key, value
+//
+// If this is an assignment, the function will return TRUE and
+// set *pkey and *pval (*pval is set to NULL if value field is empty).
+//
+// If this isn't a assignment (no = char), the function will set *pval
+// to NULL and return FALSE.
+//
+// The called should g_free() *pkey and *pval (if not NULL) after use.
+guint parse_assigment(gchar *assignment, gchar **pkey, gchar **pval)
+{
+  char *key, *val, *t;
+
+  *pkey = *pval = NULL;
+
+  key = assignment;
+  // Remove leading spaces in option name
+  while ((!isalnum(*key)) && (*key != '=') && *key) {
+    //if (!isblank(*key))
+    //  scr_LogPrint("Error in setting parsing!\n");
+    key++;
+  }
+  if (!*key) return FALSE; // Empty assignment
+
+  if (*key == '=') {
+    //scr_LogPrint("Cannot parse setting!\n");
+    return FALSE;
+  }
+  // Ok, key points to the option name
+
+  for (val = key+1 ; *val && (*val != '=') ; val++)
+    if (!isalnum(*val) && !isblank(*val) && (*val != '_') && (*val != '-')) {
+      // Key should only have alnum chars...
+      //scr_LogPrint("Error in setting parsing!\n");
+      return FALSE;
+    }
+  // Remove trailing spaces in option name:
+  for (t = val-1 ; t > key && isblank(*t) ; t--)
+    ;
+  *pkey = g_strndup(key, t+1-key);
+
+  if (!*val) return FALSE; // Not an assignment
+
+  // Remove leading and trailing spaces in option value:
+  for (val++; *val && isblank(*val) ; val++) ;
+  for (t = val ; *t ; t++) ;
+  for (t-- ; t >= val && isblank(*t) ; t--) ;
+
+  if (t < val) return FALSE;   // no value (variable reset for example)
+
+  *pval = g_strndup(val, t+1-val);
+  return TRUE;
+}
 
 void settings_set(guint type, gchar *key, gchar *value)
 {

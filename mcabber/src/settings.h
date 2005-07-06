@@ -10,6 +10,7 @@
 #define settings_opt_get(k)     settings_get(SETTINGS_TYPE_OPTION, k)
 #define settings_opt_get_int(k) settings_get_int(SETTINGS_TYPE_OPTION, k)
 
+guint   parse_assigment(gchar *assignment, gchar **pkey, gchar **pval);
 void    settings_set(guint type, gchar *key, gchar *value);
 void    settings_del(guint type, gchar *key);
 gchar  *settings_get(guint type, gchar *key);

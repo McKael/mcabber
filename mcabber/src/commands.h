@@ -14,6 +14,7 @@ typedef struct {
 void cmd_init(void);
 cmd *cmd_get(const char *command);
 int  process_line(char *line);
+char *expandalias(char *line);
 
 #endif /* __COMMANDS_H__ */
 

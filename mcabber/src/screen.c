@@ -1374,12 +1374,23 @@ void scr_handle_tab(void)
     row = &inputLine[1];
     compl_categ = COMPL_CMD;
   } else {              // Other completion, depending on the command
-    cmd *com = cmd_get(inputLine);
-    if (!com || !row) {
+    int alias = FALSE;
+    cmd *com;
+    char *xpline = expandalias(inputLine);
+    com = cmd_get(xpline);
+    if (xpline != inputLine) {
+      // This is an alias, so we can't complete rows > 0
+      alias = TRUE;
+      g_free(xpline);
+    }
+    if ((!com && (!alias || !completion_started)) || !row) {
       scr_LogPrint("I cannot complete that...");
       return;
     }
-    compl_categ = com->completion_flags[nrow-1];
+    if (!alias)
+      compl_categ = com->completion_flags[nrow-1];
+    else
+      compl_categ = 0;
   }
 
   if (!completion_started) {

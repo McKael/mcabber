@@ -46,6 +46,7 @@ void do_info(char *arg);
 void do_rename(char *arg);
 void do_move(char *arg);
 void do_set(char *arg);
+void do_alias(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -72,6 +73,7 @@ void cmd_add(const char *name, const char *help,
 void cmd_init(void)
 {
   cmd_add("add", "Add a jabber user", COMPL_JID, 0, &do_add);
+  cmd_add("alias", "Add an alias", 0, 0, &do_alias);
   cmd_add("buffer", "Manipulate current buddy's buffer (chat window)",
           COMPL_BUFFER, 0, &do_buffer);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
@@ -130,6 +132,41 @@ void cmd_init(void)
   compl_add_category_word(COMPL_MULTILINE, "verbatim");
 }
 
+//  expandalias(line)
+// If there is one, expand the alias in line and returns a new allocated line
+// If no alias is found, returns line
+// Note : if the returned pointer is different from line, the caller should
+//        g_free() the pointer after use
+char *expandalias(char *line)
+{
+  const char *p1, *p2;
+  char *word;
+  const gchar *value;
+  char *newline = line;
+
+  // Ignore leading '/'
+  for (p1 = line ; *p1 == '/' ; p1++)
+    ;
+  // Locate the end of the word
+  for (p2 = p1 ; *p2 && (*p2 != ' ') ; p2++)
+    ;
+  // Extract the word
+  word = g_strndup(p1, p2-p1);
+
+  // Look for an alias in the list
+  value = settings_get(SETTINGS_TYPE_ALIAS, (const char*)word);
+  if (value) {
+    // There is an alias to expand
+    newline = g_new(char, strlen(value)+strlen(p2)+2);
+    *newline = '/';
+    strcpy(newline+1, value);
+    strcat(newline, p2);
+  }
+  g_free(word);
+
+  return newline;
+}
+
 //  cmd_get
 // Finds command in the command list structure.
 // Returns a pointer to the cmd entry, or NULL if command not found.
@@ -138,6 +175,7 @@ cmd *cmd_get(const char *command)
   const char *p1, *p2;
   char *com;
   GSList *sl_com;
+
   // Ignore leading '/'
   for (p1 = command ; *p1 == '/' ; p1++)
     ;
@@ -191,6 +229,7 @@ void send_message(const char *msg)
 int process_line(char *line)
 {
   char *p;
+  char *xpline;
   cmd *curcmd;
 
   if (!*line) { // User only pressed enter
@@ -222,37 +261,43 @@ int process_line(char *line)
   for (p-- ; p>line && (*p == ' ') ; p--)
     *p = 0;
 
+  // We do alias expansion here
+  xpline = expandalias(line);
+
   // Command "quit"?
-  if ((!strncasecmp(line, "/quit", 5)) && (scr_get_multimode() != 2) )
-    if (!line[5] || line[5] == ' ')
+  if ((!strncasecmp(xpline, "/quit", 5)) && (scr_get_multimode() != 2) )
+    if (!xpline[5] || xpline[5] == ' ')
       return 255;
 
   // If verbatim multi-line mode, we check if another /msay command is typed
-  if ((scr_get_multimode() == 2) && (strncasecmp(line, "/msay ", 6))) {
+  if ((scr_get_multimode() == 2) && (strncasecmp(xpline, "/msay ", 6))) {
     // It isn't an /msay command
-    scr_append_multiline(line);
+    scr_append_multiline(xpline);
     return 0;
   }
 
   // Commands handling
-  curcmd = cmd_get(line);
+  curcmd = cmd_get(xpline);
 
   if (!curcmd) {
     scr_LogPrint("Unrecognized command, sorry.");
+    if (xpline != line) g_free(xpline);
     return 0;
   }
   if (!curcmd->func) {
     scr_LogPrint("Not yet implemented, sorry.");
+    if (xpline != line) g_free(xpline);
     return 0;
   }
   // Lets go to the command parameters
-  for (line++; *line && (*line != ' ') ; line++)
+  for (p = xpline+1; *p && (*p != ' ') ; p++)
     ;
   // Skip spaces
-  while (*line && (*line == ' '))
-    line++;
+  while (*p && (*p == ' '))
+    p++;
   // Call command-specific function
-  (*curcmd->func)(line);
+  (*curcmd->func)(p);
+  if (xpline != line) g_free(xpline);
   return 0;
 }
 
@@ -637,6 +682,45 @@ void do_set(char *arg)
     settings_del(SETTINGS_TYPE_OPTION, option);
   } else {
     settings_set(SETTINGS_TYPE_OPTION, option, value);
+  }
+}
+
+void do_alias(char *arg)
+{
+  guint assign;
+  const gchar *alias, *value;
+  
+  assign = parse_assigment(arg, &alias, &value);
+  if (!alias) {
+    scr_LogPrint("Huh?");
+    return;
+  }
+  if (!assign) {
+    // This is a query
+    value = settings_get(SETTINGS_TYPE_ALIAS, alias);
+    if (value) {
+      scr_LogPrint("%s = %s", alias, value);
+    } else
+      scr_LogPrint("Alias '%s' does not exist", alias);
+    return;
+  }
+  // Check the alias does not conflict with a registered command
+  if (cmd_get(alias)) {
+      scr_LogPrint("'%s' is a reserved word!", alias);
+      return;
+  }
+  // Update the alias
+  if (!value) {
+    if (settings_get(SETTINGS_TYPE_ALIAS, alias)) {
+      settings_del(SETTINGS_TYPE_ALIAS, alias);
+      // Remove alias from the completion list
+      compl_del_category_word(COMPL_CMD, alias);
+    }
+  } else {
+    // Add alias to the completion list, if not already in
+    if (!settings_get(SETTINGS_TYPE_ALIAS, alias))
+      compl_add_category_word(COMPL_CMD, alias);
+    settings_set(SETTINGS_TYPE_ALIAS, alias, value);
   }
 }
 

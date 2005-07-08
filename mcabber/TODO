@@ -20,10 +20,11 @@ TODO:
 * Publish personal information
 * Handle message type "error"
 * Show status changes in buddy window (if open)?
+* Options completion
 * Auto away (it would be better to add the "message" variable first, which could
   be changed with "/set message = I'll be back!")
   Messages variables:
-  - message_{online,avail,free,dnd,busy,notavail,away,autoaway}
+  - message_{online,avail,free,dnd,notavail,away,autoaway}
   - message (current message)
 * Maybe Ctrl-c should not (immediately) quit mcabber.  What about:
   - 1 Ctrl-c leaves completion/multi-line modes
@@ -39,10 +40,6 @@ TODO:
 
 * Commands:
 
-  - /alias alias = command
-  - /set option = value
-  - /bind $keynum = command
-    Ex.: "/bind 269 = /group toggle"  Map F5 to group toggle
   - /bind $keynum = command
     Ex.: "/bind 269 = /group toggle"  Map F5 to group toggle
   - /buffer <clear|top|bottom>
@@ -58,9 +55,6 @@ TODO:
   - /info [jid]
   - /server connect|disconnect|register|unregister
   - /auth request|send [jid]
-  - Common status shortcuts: /away, /online, /busy, /dnd
-    I'm not sure it's worth it, with tab completion it is easy and fast to
-    type anyway.  We'd better use user-defined aliases.
   - /search <jid>|name
   - /help
   - /rawxml...

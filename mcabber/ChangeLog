@@ -10,6 +10,10 @@ mcabber (0.6.2-dev)
  * Resource priority can be set (see sample config. file)
  * mcabber now warns when logging is enabled and there is a write error while
    writing to log files
+ * Remove busy/occupied status, which does not exist (it could be an alias for
+   dnd)
+ * New /alias command
+ * Rewrite settings system
 
  -- Mikael, ?
 

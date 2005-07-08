@@ -17,5 +17,7 @@ void    settings_del(guint type, const gchar *key);
 const gchar *settings_get(guint type, const gchar *key);
 int     settings_get_int(guint type, const gchar *key);
 
+const gchar *isbound(int key);
+
 #endif /* __SETTINGS_H__ */
 

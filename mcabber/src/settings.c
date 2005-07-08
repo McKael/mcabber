@@ -172,3 +172,11 @@ int settings_get_int(guint type, const gchar *key)
   return 0;
 }
 
+// Return the command the key is bound to, or NULL.
+const gchar *isbound(int key)
+{
+  gchar asciikey[16];
+  g_snprintf(asciikey, 15, "%d", key);
+  return settings_get(SETTINGS_TYPE_BINDING, asciikey);
+}
+

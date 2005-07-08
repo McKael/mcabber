@@ -47,6 +47,7 @@ void do_rename(char *arg);
 void do_move(char *arg);
 void do_set(char *arg);
 void do_alias(char *arg);
+void do_bind(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -74,6 +75,7 @@ void cmd_init(void)
 {
   cmd_add("add", "Add a jabber user", COMPL_JID, 0, &do_add);
   cmd_add("alias", "Add an alias", 0, 0, &do_alias);
+  cmd_add("bind", "Add an key binding", 0, 0, &do_bind);
   cmd_add("buffer", "Manipulate current buddy's buffer (chat window)",
           COMPL_BUFFER, 0, &do_buffer);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
@@ -222,39 +224,15 @@ void send_message(const char *msg)
   jb_send_msg(jid, msg);
 }
 
-//  process_line(line)
-// Process a command/message line.
-// If this isn't a command, this is a message and it is sent to the
-// currently selected buddy.
-int process_line(char *line)
+//  process_command(line)
+// Process a command line.
+// Return 255 if this is the /quit command, and 0 for the other commands.
+int process_command(char *line)
 {
   char *p;
   char *xpline;
   cmd *curcmd;
 
-  if (!*line) { // User only pressed enter
-    if (scr_get_multimode()) {
-      scr_append_multiline("");
-      return 0;
-    }
-    if (current_buddy) {
-      scr_set_chatmode(TRUE);
-      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
-      scr_ShowBuddyWindow();
-    }
-    return 0;
-  }
-
-  if (*line != '/') {
-    // This isn't a command
-    if (scr_get_multimode())
-      scr_append_multiline(line);
-    else
-      do_say(line);
-    return 0;
-  }
-
-  /* It is a command */
   // Remove trailing spaces:
   for (p=line ; *p ; p++)
     ;
@@ -262,7 +240,10 @@ int process_line(char *line)
     *p = 0;
 
   // We do alias expansion here
-  xpline = expandalias(line);
+  if (scr_get_multimode() != 2)
+    xpline = expandalias(line);
+  else
+    xpline = line; // No expansion in verbatim multi-line mode
 
   // Command "quit"?
   if ((!strncasecmp(xpline, "/quit", 5)) && (scr_get_multimode() != 2) )
@@ -299,6 +280,39 @@ int process_line(char *line)
   (*curcmd->func)(p);
   if (xpline != line) g_free(xpline);
   return 0;
+}
+
+//  process_line(line)
+// Process a command/message line.
+// If this isn't a command, this is a message and it is sent to the
+// currently selected buddy.
+// Return 255 if the line is the /quit command, or 0.
+int process_line(char *line)
+{
+  if (!*line) { // User only pressed enter
+    if (scr_get_multimode()) {
+      scr_append_multiline("");
+      return 0;
+    }
+    if (current_buddy) {
+      scr_set_chatmode(TRUE);
+      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
+      scr_ShowBuddyWindow();
+    }
+    return 0;
+  }
+
+  if (*line != '/') {
+    // This isn't a command
+    if (scr_get_multimode())
+      scr_append_multiline(line);
+    else
+      do_say(line);
+    return 0;
+  }
+
+  /* It is (probably) a command -- except for verbatim multi-line mode */
+  return process_command(line);
 }
 
 /* Commands callback functions */
@@ -722,5 +736,31 @@ void do_alias(char *arg)
       compl_add_category_word(COMPL_CMD, alias);
     settings_set(SETTINGS_TYPE_ALIAS, alias, value);
   }
+}
+
+void do_bind(char *arg)
+{
+  guint assign;
+  const gchar *keycode, *value;
+  
+  assign = parse_assigment(arg, &keycode, &value);
+  if (!keycode) {
+    scr_LogPrint("Huh?");
+    return;
+  }
+  if (!assign) {
+    // This is a query
+    value = settings_get(SETTINGS_TYPE_BINDING, keycode);
+    if (value) {
+      scr_LogPrint("Key %s is bound to: %s", keycode, value);
+    } else
+      scr_LogPrint("Key %s is not bound", keycode);
+    return;
+  }
+  // Update the key binding
+  if (!value)
+    settings_del(SETTINGS_TYPE_BINDING, keycode);
+  else
+    settings_set(SETTINGS_TYPE_BINDING, keycode, value);
 }
 

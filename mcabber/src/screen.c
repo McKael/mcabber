@@ -1608,9 +1608,19 @@ int process_key(int key)
           scr_Resize();
           break;
       default:
-          scr_LogPrint("Unknown key=%d", key);
-          if (utf8_mode)
-            scr_LogPrint("WARNING: UTF-8 not yet supported!");
+          {
+            const gchar *boundcmd = isbound(key);
+            if (boundcmd) {
+              gchar *cmd = g_strdup_printf("/%s", boundcmd);
+              if (process_command(cmd))
+                return 255;
+              g_free(cmd);
+            } else {
+              scr_LogPrint("Unknown key=%d", key);
+              if (utf8_mode)
+                scr_LogPrint("WARNING: UTF-8 not yet supported!");
+            }
+          }
     }
   }
   if (completion_started && key != 9 && key != KEY_RESIZE)

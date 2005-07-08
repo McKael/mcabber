@@ -113,6 +113,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "top");
   compl_add_category_word(COMPL_ROSTER, "hide_offline");
   compl_add_category_word(COMPL_ROSTER, "show_offline");
+  compl_add_category_word(COMPL_ROSTER, "toggle_offline");
   compl_add_category_word(COMPL_ROSTER, "search");
   compl_add_category_word(COMPL_ROSTER, "unread_first");
   compl_add_category_word(COMPL_ROSTER, "unread_next");
@@ -332,6 +333,10 @@ void do_roster(char *arg)
     update_roster = TRUE;
   } else if (!strcasecmp(arg, "show_offline")) {
     buddylist_set_hide_offline_buddies(FALSE);
+    buddylist_build();
+    update_roster = TRUE;
+  } else if (!strcasecmp(arg, "toggle_offline")) {
+    buddylist_set_hide_offline_buddies(-1);
     buddylist_build();
     update_roster = TRUE;
   } else if (!strcasecmp(arg, "unread_first")) {

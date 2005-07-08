@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.6.2, June 2005
+v0.6.2, July 2005
 
 NAME
 ----
@@ -83,9 +83,21 @@ COMMANDS
         jid is used.
 
 /alias name = command line::
-        Add "name" as an alias for "command line".
+        Add "name" as an alias for "command line". +
+        Aliases are expanded only once, thus they can not be chained. +
+        "/alias name" displays the value associated with the "name" alias;
+        "/alias name =" unsets the "name" alias. +
         Example: "/alias away = status away".
-        Aliases are expanded only once, thus they can not be chained.
+
+/bind keycode = command line::
+        Bind a command line to the key with the "keycode" code number. +
+        Keycodes of unused keys are displayed by mcabber in the log window
+        when pressing the key, for example "Unknown key=265". +
+        "/bind keycode" displays the command line bound to the given keycode;
+        "/bind keycode" unbinds the given keycode. +
+        Note: aliases can be used in key bindings. +
+        Example: "/bind 265 = status online" (265 is F1 for me, but it can
+        depend on your ncurses installation).
 
 /buffer clear|top|bottom::
         The 'buffer' command manipulates the current buddy's buffer
@@ -119,13 +131,15 @@ COMMANDS
 
 /msay begin|verbatim|send|abort::
         Send a multi-line message.  To write a single message with several
-        lines, the 'multi-line mode' should be used.  In multi-line mode,
-        each line (except command lines) typed in the input line will
-        be added to the multi-line message.  Once the message is finished, it
-        can be sent to the current selected buddy with the "msay /send"
-        command.  The 'verbatim' multi-line mode disables commands, so that it
-        is possible to enter lines starting with a slash.  Only the "/msay"
-        command (with send or abort parameters) can be used to exit verbatim mode.
+        lines, the 'multi-line mode' should be used. +
+        In multi-line mode, each line (except command lines) typed in the input
+        line will be added to the multi-line message.  Once the message is
+        finished, it can be sent to the current selected buddy with the "msay
+        /send" command. +
+        The 'verbatim' multi-line mode disables commands, so that it is
+        possible to enter lines starting with a slash.  Only the "/msay"
+        command (with send or abort parameters) can be used to exit verbatim
+        mode.
 
         'begin';; enter multi-line mode
         'verbatim';; enter verbatim multi-line mode

@@ -111,7 +111,11 @@ Add the jid Jabber user to our roster (default group), and send a notification r
 
 .TP
 \fB/alias\fR name = command line
-Add "name" as an alias for "command line"\&. Example: "/alias away = status away"\&. Aliases are expanded only once, thus they can not be chained\&.
+Add "name" as an alias for "command line"\&. Aliases are expanded only once, thus they can not be chained\&. "/alias name" displays the value associated with the "name" alias; "/alias name =" unsets the "name" alias\&. Example: "/alias away = status away"\&.
+
+.TP
+\fB/bind\fR keycode = command line
+Bind a command line to the key with the "keycode" code number\&. Keycodes of unused keys are displayed by mcabber in the log window when pressing the key, for example "Unknown key=265"\&. "/bind keycode" displays the command line bound to the given keycode; "/bind keycode" unbinds the given keycode\&. Note: aliases can be used in key bindings\&. Example: "/bind 265 = status online" (265 is F1 for me, but it can depend on your ncurses installation)\&.
 
 .TP
 \fB/buffer\fR clear|top|bottom

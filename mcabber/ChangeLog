@@ -12,8 +12,10 @@ mcabber (0.6.2-dev)
    writing to log files
  * Remove busy/occupied status, which does not exist (it could be an alias for
    dnd)
+ * The settings system has been rewritten, but it is still not 100% ready yet
  * New /alias command
- * Rewrite settings system
+ * New /bind command
+ * Add /roster toggle_offline
 
  -- Mikael, ?
 

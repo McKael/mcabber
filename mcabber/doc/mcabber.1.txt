@@ -82,6 +82,11 @@ COMMANDS
         notification request to this buddy.  If no nickname is specified, the
         jid is used.
 
+/alias name = command line::
+        Add "name" as an alias for "command line".
+        Example: "/alias away = status away".
+        Aliases are expanded only once, thus they can not be chained.
+
 /buffer clear|top|bottom::
         The 'buffer' command manipulates the current buddy's buffer
         (chat window).

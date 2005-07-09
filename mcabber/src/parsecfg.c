@@ -8,6 +8,11 @@
 #include "settings.h"
 #include "utils.h"
 
+//  cfg_file(filename)
+// Read and parse config file "filename".  If filename is NULL,
+// try to open the configuration file at the default locations.
+//
+// This function comes from Cabber, and has been slightly modified.
 int cfg_file(char *filename)
 {
   FILE *fp;

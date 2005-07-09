@@ -71,7 +71,7 @@ GSList *settings_find(GSList *list, const gchar *key)
 // The called should g_free() *pkey and *pval (if not NULL) after use.
 guint parse_assigment(gchar *assignment, const gchar **pkey, const gchar **pval)
 {
-  char *key, *val, *t;
+  char *key, *val, *t, *p;
 
   *pkey = *pval = NULL;
 
@@ -79,13 +79,13 @@ guint parse_assigment(gchar *assignment, const gchar **pkey, const gchar **pval)
   // Remove leading spaces in option name
   while ((!isalnum(*key)) && (*key != '=') && *key) {
     //if (!isblank(*key))
-    //  scr_LogPrint("Error in setting parsing!\n");
+    //  scr_LogPrint("Error in assignment parsing!");
     key++;
   }
   if (!*key) return FALSE; // Empty assignment
 
   if (*key == '=') {
-    //scr_LogPrint("Cannot parse setting!\n");
+    //scr_LogPrint("Cannot parse assignment!");
     return FALSE;
   }
   // Ok, key points to the option name
@@ -93,12 +93,21 @@ guint parse_assigment(gchar *assignment, const gchar **pkey, const gchar **pval)
   for (val = key+1 ; *val && (*val != '=') ; val++)
     if (!isalnum(*val) && !isblank(*val) && (*val != '_') && (*val != '-')) {
       // Key should only have alnum chars...
-      //scr_LogPrint("Error in setting parsing!\n");
+      //scr_LogPrint("Error in assignment parsing!");
       return FALSE;
     }
   // Remove trailing spaces in option name:
   for (t = val-1 ; t > key && isblank(*t) ; t--)
     ;
+  // Check for embedded whitespace characters
+  for (p = key; p < t; p++) {
+    if (isblank(*p)) {
+      //scr_LogPrint("Error in assignment parsing!"
+      //             " (Name should not contain space chars)");
+      return FALSE;
+    }
+  }
+
   *pkey = g_strndup(key, t+1-key);
 
   if (!*val) return FALSE; // Not an assignment

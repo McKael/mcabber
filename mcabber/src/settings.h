@@ -3,6 +3,10 @@
 
 #include <glib.h>
 
+#ifndef	__USE_ISOC99
+# define isblank(c)  ((c) == 0x20 || (c) == 0x09)
+#endif
+
 #define SETTINGS_TYPE_OPTION    1
 #define SETTINGS_TYPE_ALIAS     2
 #define SETTINGS_TYPE_BINDING   3

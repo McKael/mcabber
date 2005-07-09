@@ -9,7 +9,7 @@
 \.sw.($|/)
 
 ^mcabber/lastchange$
-^mcabber/cscope.out$
+/cscope.out$
 ^mcabber/src/mcabber$
 (^|/)Makefile($|/)
 (^|/)config\.(h(\.in|)|log|cache|guess|status)($|/)

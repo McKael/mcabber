@@ -3,9 +3,21 @@
 
 #include <glib.h>
 
+#include "jabglue.h"
+
 #ifndef	__USE_ISOC99
 # define isblank(c)  ((c) == 0x20 || (c) == 0x09)
 #endif
+
+
+/* Default status messages */
+#define MSG_AVAIL     "I'm here!"
+#define MSG_FREE      "Free for chat"
+#define MSG_DND       "Busy"
+#define MSG_NOTAVAIL  "Not available"
+#define MSG_AWAY      "Away"
+#define MSG_AUTOAWAY  "Auto away"
+
 
 #define SETTINGS_TYPE_OPTION    1
 #define SETTINGS_TYPE_ALIAS     2
@@ -20,6 +32,7 @@ void    settings_set(guint type, const gchar *key, const gchar *value);
 void    settings_del(guint type, const gchar *key);
 const gchar *settings_get(guint type, const gchar *key);
 int     settings_get_int(guint type, const gchar *key);
+const gchar *settings_get_status_msg(enum imstatus status);
 
 const gchar *isbound(int key);
 

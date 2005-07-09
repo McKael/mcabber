@@ -44,6 +44,16 @@ logging = 1
 # You can enable debug in main.c before compiling mcabber, too.
 #debug = /home/mikael/mcabber.log
 
+#  Status messages
+# The "message" value will override all others, take care!
+#message = Unique message status
+#message_avail     = I'm available
+#message_free      = I'm free for chat
+#message_dnd       = Please do not disturb
+#message_notavail  = I'm not available
+#message_away      = I'm away
+#message_autoaway  = Auto-away (Not yet implemented)
+
 #  The colors
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white
 #color_background   = blue

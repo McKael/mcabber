@@ -29,6 +29,7 @@
 #include "hooks.h"
 #include "utf8.h"
 #include "utils.h"
+#include "settings.h"
 
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
@@ -226,7 +227,7 @@ inline enum imstatus jb_getstatus()
   return mystatus;
 }
 
-void jb_setstatus(enum imstatus st, char *msg)
+void jb_setstatus(enum imstatus st, const char *msg)
 {
   xmlnode x;
 
@@ -274,10 +275,8 @@ void jb_setstatus(enum imstatus st, char *msg)
             strprio, (unsigned) -1);
   }
 
-  if (!msg) {
-    msg  = ""; // FIXME
-    //msg = imstatus2str(st);
-  }
+  if (!msg)
+      msg = settings_get_status_msg(st);
 
   xmlnode_insert_cdata(xmlnode_insert_tag(x, "status"), msg,
           (unsigned) -1);
@@ -434,7 +433,7 @@ void postlogin()
 
   //setautostatus(jhook.manualstatus);
 
-  jb_setstatus(available, "I'm here!"); // XXX not always "available"...
+  jb_setstatus(available, NULL);
   buddylist_build();
   /*
   for (i = 0; i < clist.count; i++) {

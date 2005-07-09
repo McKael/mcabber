@@ -189,3 +189,48 @@ const gchar *isbound(int key)
   return settings_get(SETTINGS_TYPE_BINDING, asciikey);
 }
 
+//  settings_get_status_msg(status)
+// Return a string with the current status message:
+// - if there is a user-defined message ("message" option),
+//   return this message
+// - if there is a user-defined message for the given status (and no
+//   generic user message), it is returned
+// - if no user-defined message is found, return the mcabber default msg
+// - if there is no default (offline, invisible), return an empty string
+const gchar *settings_get_status_msg(enum imstatus status)
+{
+  const gchar *rstatus = settings_opt_get("message");
+
+  if (rstatus) return rstatus;
+
+  switch(status) {
+    case available:
+        if ((rstatus = settings_opt_get("message_avail")) == NULL)
+          rstatus = MSG_AVAIL;
+        break;
+
+    case freeforchat:
+        if ((rstatus = settings_opt_get("message_free")) == NULL)
+          rstatus = MSG_FREE;
+        break;
+
+    case dontdisturb:
+        if ((rstatus = settings_opt_get("message_dnd")) == NULL)
+          rstatus = MSG_DND;
+        break;
+
+    case notavail:
+        if ((rstatus = settings_opt_get("message_notavail")) == NULL)
+          rstatus = MSG_NOTAVAIL;
+        break;
+
+    case away:
+        if ((rstatus = settings_opt_get("message_away")) == NULL)
+          rstatus = MSG_AWAY;
+        break;
+
+    default:
+        rstatus = "";
+  }
+  return rstatus;
+}

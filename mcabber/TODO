@@ -14,18 +14,13 @@ TODO:
 * Show number of online contacts in folded groups
 * Buddy buffer in full width (handy for cut'n paste!)
   (i.e. hide roster window)
-* Create .mcabber and .mcabber/histo dirs if needed.
-* Search for a user
-* Get info from server about a user
+* Create .mcabber and .mcabber/histo dirs if needed.  Or maybe not.
+  However it could be a good idea to check the permissions.
 * Publish personal information
 * Handle message type "error"
 * Show status changes in buddy window (if open)?
 * Options completion
-* Auto away (it would be better to add the "message" variable first, which could
-  be changed with "/set message = I'll be back!")
-  Messages variables:
-  - message_{online,avail,free,dnd,notavail,away,autoaway}
-  - message (current message)
+* Auto away
 * Maybe Ctrl-c should not (immediately) quit mcabber.  What about:
   - 1 Ctrl-c leaves completion/multi-line modes
   - 2 Ctrl-c in less than 2 seconds leave mcabber
@@ -40,8 +35,6 @@ TODO:
 
 * Commands:
 
-  - /bind $keynum = command
-    Ex.: "/bind 269 = /group toggle"  Map F5 to group toggle
   - /buffer <clear|top|bottom>
     + /buffer % 50          (jump to 50 %)
     + /buffer date $date    (jump to first msg after $date)
@@ -50,12 +43,12 @@ TODO:
   - /group <expand|shrink|toggle>
     + rename
   - /say_to <jid> blabla
-  - /nick (I don't know if it makes sense for Jabber)
-    I think it is equivalent to setting the "away" message.
   - /info [jid]
+    (request info to the server if the buddy is not in the roster)
   - /server connect|disconnect|register|unregister
   - /auth request|send [jid]
   - /search <jid>|name
+    (server search)
   - /help
   - /rawxml...
 

@@ -1,5 +1,8 @@
 mcabber (0.6.2-dev)
 
+ * The history log file format has changed; the old log files written by
+   mcabber < 0.6.1 are no longer supported and should be converted.
+   Please see the NEWS file for the details.
  * New multi-line "verbatim" mode (/msay verbatim).  In this mode, all
    commands but /msay are disabled, so that lines beginning with a slash
    can be sent
@@ -8,6 +11,7 @@ mcabber (0.6.2-dev)
  * Color configuration handling improvement
    NOTE: configuration file needs to be updated; see sample config. file!
  * Resource priority can be set (see sample config. file)
+ * Status messages can be user-defined (see sample config. file)
  * mcabber now warns when logging is enabled and there is a write error while
    writing to log files
  * Remove busy/occupied status, which does not exist (it could be an alias for

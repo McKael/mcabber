@@ -17,9 +17,11 @@ mcabber (0.6.2-dev)
  * Remove busy/occupied status, which does not exist (it could be an alias for
    dnd)
  * The settings system has been rewritten, but it is still not 100% ready yet
+ * Fix segfault when the resource is not specified
  * New /alias command
  * New /bind command
  * Add /roster toggle_offline
+ * Add /connect and /disconnect commands
 
  -- Mikael, ?
 

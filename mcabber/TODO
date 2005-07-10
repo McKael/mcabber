@@ -5,10 +5,10 @@ BUGS:
 
 TODO:
 
+* Improve debug logging system
 * Presence notification is always accepted.  We should ask...
 * UTF-8 support (Can somebody help me?)
 * Display status / chat mode
-* /connect /disconnect ?
 * Pending message flag is not displayed when buddy is outside Contact window,
   maybe we could show it someway (maybe just a flag?).
 * Show number of online contacts in folded groups

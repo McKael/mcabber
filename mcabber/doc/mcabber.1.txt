@@ -110,9 +110,17 @@ COMMANDS
 /clear::
         The 'clear' command is actually an alias for "/buffer clear".
 
+/connect::
+        Establish connection to the Jabber server.
+
 /del::
         Delete the current buddy from our roster, unsubscribe from its presence
         notification and unsubscribe it from ours.
+
+/disconnect::
+        Terminate connection to the Jabber server.  Note: the roster is only
+        available when the connection to the server is active, so the
+        buddylist is empty when disconnected.
 
 /group fold|unfold|toggle::
         The 'group' command changes the current group display.

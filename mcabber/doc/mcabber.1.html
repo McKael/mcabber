@@ -260,11 +260,25 @@ jump to the bottom of the current buddy chat buffer
         The <b>clear</b> command is actually an alias for "/buffer clear".
 </dd>
 <dt><b>
+/connect
+</b></dt>
+<dd>
+        Establish connection to the Jabber server.
+</dd>
+<dt><b>
 /del
 </b></dt>
 <dd>
         Delete the current buddy from our roster, unsubscribe from its presence
         notification and unsubscribe it from ours.
+</dd>
+<dt><b>
+/disconnect
+</b></dt>
+<dd>
+        Terminate connection to the Jabber server.  Note: the roster is only
+        available when the connection to the server is active, so the
+        buddylist is empty when disconnected.
 </dd>
 <dt><b>
 /group fold|unfold|toggle
@@ -488,7 +502,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.6.2<br />
-Last updated 08-Jul-2005 23:29:01 CEST
+Last updated 10-Jul-2005 16:33:35 CEST
 </p>
 </div>
 </div>

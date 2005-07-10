@@ -45,7 +45,7 @@ TODO:
   - /say_to <jid> blabla
   - /info [jid]
     (request info to the server if the buddy is not in the roster)
-  - /server connect|disconnect|register|unregister
+  - /server register|unregister
   - /auth request|send [jid]
   - /search <jid>|name
     (server search)

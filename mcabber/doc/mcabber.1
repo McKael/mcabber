@@ -56,7 +56,7 @@ Here are some of the features of mcabber:
 .SH "OPTIONS"
 
 .TP
---help, \-h
+\-\-help, \-h
 Quick help usage message
 
 .TP
@@ -130,8 +130,16 @@ The buffer command manipulates the current buddy's buffer (chat window)\&.
 The clear command is actually an alias for "/buffer clear"\&.
 
 .TP
+\fB/connect\fR
+Establish connection to the Jabber server\&.
+
+.TP
 \fB/del\fR
 Delete the current buddy from our roster, unsubscribe from its presence notification and unsubscribe it from ours\&.
+
+.TP
+\fB/disconnect\fR
+Terminate connection to the Jabber server\&. Note: the roster is only available when the connection to the server is active, so the buddylist is empty when disconnected\&.
 
 .TP
 \fB/group\fR fold|unfold|toggle

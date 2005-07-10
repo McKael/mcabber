@@ -36,6 +36,8 @@ enum agtype {
     search
 };
 
+char *compose_jid(const char *username, const char *servername,
+                  const char *resource);
 jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass);
 void jb_disconnect(void);
 void jb_main();

@@ -34,9 +34,8 @@ void sig_handler(int signum)
     //  ut_WriteLog("Error in waitpid: errno=%d\n", errno);
     signal(SIGCHLD, sig_handler);
   } else if (signum == SIGTERM) {
-    // bud_TerminateBuddies();
-    scr_TerminateCurses();
     jb_disconnect();
+    scr_TerminateCurses();
     printf("Killed by SIGTERM\nBye!\n");
     exit(EXIT_SUCCESS);
   } else {
@@ -66,17 +65,52 @@ ssize_t my_getpass (char **passstr, size_t *n)
   return (ssize_t)nread;
 }
 
-char *compose_jid(const char *username, const char *servername,
-        const char *resource)
+void mcabber_connect(void)
 {
-  char *jid = g_new(char, 
-          strlen(username)+strlen(servername)+strlen(resource)+3);
-  strcpy(jid, username);
-  strcat(jid, "@");
-  strcat(jid, servername);
-  strcat(jid, "/");
-  strcat(jid, resource);
-  return jid;
+  const char *username, *password, *resource, *servername;
+  char *jid;
+  int ssl;
+  unsigned int port;
+
+  servername = settings_opt_get("server");
+  username   = settings_opt_get("username");
+  password   = settings_opt_get("password");
+  resource   = settings_opt_get("resource");
+
+  if (!servername) {
+    scr_LogPrint("Server name has not been specified!\n");
+    return;
+  }
+  if (!username) {
+    scr_LogPrint("User name has not been specified!\n");
+    return;
+  }
+  if (!password) {
+    scr_LogPrint("Password has not been specified!\n");
+    return;
+  }
+  if (!resource)
+    resource = "mcabber";
+
+  ssl  = (settings_opt_get_int("ssl") > 0);
+  port = (unsigned int) settings_opt_get_int("port");
+
+  jb_set_priority(settings_opt_get_int("priority"));
+
+  /* Connect to server */
+  ut_WriteLog("Connecting to server: %s:%d\n", servername, port);
+  scr_LogPrint("Connecting to server: %s:%d", servername, port);
+
+  jid = compose_jid(username, servername, resource);
+  jc = jb_connect(jid, port, ssl, password);
+  g_free(jid);
+
+  if (!jc) {
+    ut_WriteLog("\tConnection error!!!\n");
+    scr_LogPrint("Error connecting to (%s)\n", servername);
+  }
+
+  jb_reset_keepalive();
 }
 
 void credits(void)
@@ -88,20 +122,17 @@ void credits(void)
 int main(int argc, char **argv)
 {
   char *configFile = NULL;
-  const char *username, *password, *resource, *servername;
-  char *jid;
   const char *optstring;
   int optval, optval2;
-  int ssl;
   int key;
-  unsigned int port;
   unsigned int ping;
   int ret = 0;
   unsigned int refresh = 0;
 
   credits();
 
-  /* SET THIS >0 TO ENABLE LOG */
+  /* Set this >0 to enable log */
+  /* Note: debug can be enabled via the config file */
   ut_InitDebug(0, NULL);
 
   ut_WriteLog("Setting signals handlers...\n");
@@ -136,28 +167,20 @@ int main(int argc, char **argv)
   optstring = settings_opt_get("debug");
   if (optstring) ut_InitDebug(1, optstring);
 
-  servername = settings_opt_get("server");
-  username   = settings_opt_get("username");
-  password   = settings_opt_get("password");
-  resource   = settings_opt_get("resource");
+  // If no password is stored, we ask for it before entering
+  // ncurses mode
+  if (!settings_opt_get("password")) {
+    char *password, *p;
+    size_t passsize = 64;
+    printf("Please enter password: ");
+    my_getpass((char**)&password, &passsize);
+    printf("\n");
+    for (p = (char*)password; *p; p++)
+      ;
+    for ( ; p > (char*)password ; p--)
+      if (*p == '\n' || *p == '\r') *p = 0;
 
-  if (!servername) {
-      printf("Server name has not been specified in the config file!\n");
-      return -1;
-  }
-  if (!username) {
-      printf("User name has not been specified in the config file!\n");
-      return -1;
-  }
-  if (!password) {
-      char *p;
-      size_t passsize = 64;
-      printf("Please enter password: ");
-      my_getpass((char**)&password, &passsize);
-      printf("\n");
-      for (p = (char*)password; *p; p++);
-      for ( ; p > (char*)password ; p--)
-          if (*p == '\n' || *p == '\r') *p = 0;
+    settings_set(SETTINGS_TYPE_OPTION, "password", password);
   }
 
   /* Initialize N-Curses */
@@ -170,31 +193,11 @@ int main(int argc, char **argv)
   optval   = (settings_opt_get_int("logging") > 0);
   optval2  = (settings_opt_get_int("load_logs") > 0);
   if (optval || optval2)
-    hlog_enable(optval, settings_opt_get("logging_dir"),
-                optval2);
+    hlog_enable(optval, settings_opt_get("logging_dir"), optval2);
 
   optstring = settings_opt_get("events_command");
   if (optstring)
     hk_ext_cmd_init(optstring);
-
-  ssl  = (settings_opt_get_int("ssl") > 0);
-  port = (unsigned int) settings_opt_get_int("port");
-
-  jb_set_priority(settings_opt_get_int("priority"));
-
-  /* Connect to server */
-  ut_WriteLog("Connecting to server: %s:%d\n", servername, port);
-  scr_LogPrint("Connecting to server: %s:%d", servername, port);
-
-  jid = compose_jid(username, servername, resource);
-  jc = jb_connect(jid, port, ssl, password);
-  g_free(jid);
-  if (!jc) {
-    ut_WriteLog("\terror!!!\n");
-    fprintf(stderr, "Error connecting to (%s)\n", servername);
-    scr_TerminateCurses();
-    return -2;
-  }
 
   ping = 40;
   if (settings_opt_get("pinginterval"))
@@ -205,13 +208,15 @@ int main(int argc, char **argv)
   if (settings_opt_get_int("hide_offline_buddies") > 0)
     buddylist_set_hide_offline_buddies(TRUE);
 
+  // Connection
+  mcabber_connect();
+
   /* Initialize commands system */
   cmd_init();
 
   ut_WriteLog("Entering into main loop...\n\n");
   ut_WriteLog("Ready to send/receive messages...\n");
 
-  jb_reset_keepalive();
   while (ret != 255) {
     key = scr_Getch();
 
@@ -233,7 +238,6 @@ int main(int argc, char **argv)
   }
 
   jb_disconnect();
-  //bud_TerminateBuddies();
   scr_TerminateCurses();
 
   printf("\n\nHave a nice day!\nBye!\n");

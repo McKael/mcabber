@@ -40,7 +40,7 @@ jconn jc;
 time_t LastPingTime;
 unsigned int KeepaliveDelay;
 static unsigned int prio;
-static int s_id = 1;  // FIXME which use??
+static int s_id;
 static int regmode, regdone;
 static enum imstatus mystatus = offline;
 unsigned char online;
@@ -117,6 +117,19 @@ char *jidtodisp(const char *jid)
   return alias;
 }
 
+char *compose_jid(const char *username, const char *servername,
+        const char *resource)
+{
+  char *jid = g_new(char, 
+          strlen(username)+strlen(servername)+strlen(resource)+3);
+  strcpy(jid, username);
+  strcat(jid, "@");
+  strcat(jid, servername);
+  strcat(jid, "/");
+  strcat(jid, resource);
+  return jid;
+}
+
 jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass)
 {
   if (!port) {
@@ -126,16 +139,18 @@ jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass)
       port = JABBERPORT;
   }
 
-  if (jc)
-    free(jc);
+  //if (jc)
+  //  free(jc); XXX
 
+  s_id = 1;
   jc = jab_new((char*)jid, (char*)pass, port, ssl);
 
+  /* These 3 functions can deal with a NULL jc, no worry... */
   jab_logger(jc, file_logger);
   jab_packet_handler(jc, &packethandler);
   jab_state_handler(jc, &statehandler);
 
-  if (jc->user) {
+  if (jc && jc->user) {
     online = TRUE;
     jstate = STATE_CONNECTING;
     statehandler(0, -1);
@@ -147,7 +162,12 @@ jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass)
 
 void jb_disconnect(void)
 {
+  if (!jc) return;
+
   statehandler(jc, JCONN_STATE_OFF);
+  jab_delete(jc);
+  //free(jc); XXX
+  jc = NULL;
 }
 
 inline void jb_reset_keepalive()

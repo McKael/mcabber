@@ -48,6 +48,8 @@ void do_move(char *arg);
 void do_set(char *arg);
 void do_alias(char *arg);
 void do_bind(char *arg);
+void do_connect(char *arg);
+void do_disconnect(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -79,7 +81,9 @@ void cmd_init(void)
   cmd_add("buffer", "Manipulate current buddy's buffer (chat window)",
           COMPL_BUFFER, 0, &do_buffer);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
+  cmd_add("connect", "Connect to the server", 0, 0, &do_connect);
   cmd_add("del", "Delete the current buddy", 0, 0, &do_del);
+  cmd_add("disconnect", "Disconnect from server", 0, 0, &do_disconnect);
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
   //cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
   cmd_add("info", "Show basic infos on current buddy", 0, 0, &do_info);
@@ -767,5 +771,15 @@ void do_bind(char *arg)
     settings_del(SETTINGS_TYPE_BINDING, keycode);
   else
     settings_set(SETTINGS_TYPE_BINDING, keycode, value);
+}
+
+void do_connect(char *arg)
+{
+  mcabber_connect();
+}
+
+void do_disconnect(char *arg)
+{
+  jb_disconnect();
 }
 

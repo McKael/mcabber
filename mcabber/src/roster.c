@@ -203,6 +203,12 @@ void roster_free(void)
 {
   GSList *sl_grp = groups;
 
+  // Free unread_list
+  if (unread_list) {
+    g_slist_free(unread_list);
+    unread_list = NULL;
+  }
+
   // Walk through groups
   while (sl_grp) {
     roster *roster_grp = (roster*)sl_grp->data;

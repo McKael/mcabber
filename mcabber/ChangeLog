@@ -1,4 +1,4 @@
-mcabber (0.6.2-dev)
+mcabber (0.6.2)
 
  * The history log file format has changed; the old log files written by
    mcabber < 0.6.1 are no longer supported and should be converted.
@@ -16,14 +16,14 @@ mcabber (0.6.2-dev)
    writing to log files
  * Remove busy/occupied status, which does not exist (it could be an alias for
    dnd)
- * The settings system has been rewritten, but it is still not 100% ready yet
+ * The settings system has been rewritten
  * Fix segfault when the resource is not specified
  * New /alias command
  * New /bind command
  * Add /roster toggle_offline
  * Add /connect and /disconnect commands
 
- -- Mikael, ?
+ -- Mikael, 2005-07-11
 
 mcabber (0.6.1)
 

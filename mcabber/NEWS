@@ -1,4 +1,4 @@
-mcabber (0.6.2-dev)
+mcabber (0.6.2)
 
  * Support for old style (i.e. < 0.6.1) history logfiles has been removed.
    You can upgrade your logfiles with the script "contrib/conv_log_dates.pl"
@@ -6,5 +6,5 @@ mcabber (0.6.2-dev)
  * The colors option names have changed (and they aren't mandatory anymore).
    Please look at the sample config. file to update your mcabberrc.
 
- -- Mikael, ?
+ -- Mikael, 2005-07-11
 

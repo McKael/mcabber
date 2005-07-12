@@ -43,26 +43,38 @@ void sig_handler(int signum)
   }
 }
 
-ssize_t my_getpass (char **passstr, size_t *n)
+void ask_password(void)
 {
+  char *password, *p;
+  size_t passsize = 128;
   struct termios orig, new;
   int nread;
 
   /* Turn echoing off and fail if we can't. */
-  if (tcgetattr(fileno(stdin), &orig) != 0)
-      return -1;
+  if (tcgetattr(fileno(stdin), &orig) != 0) return;
   new = orig;
   new.c_lflag &= ~ECHO;
-  if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0)
-      return -1;
+  if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) return;
 
   /* Read the password. */
-  nread = getline(passstr, n, stdin);
+  password = NULL;
+  printf("Please enter password: ");
+  nread = getline(&password, &passsize, stdin);
 
   /* Restore terminal. */
-  (void) tcsetattr(fileno(stdin), TCSAFLUSH, &orig);
+  tcsetattr(fileno(stdin), TCSAFLUSH, &orig);
+  printf("\n");
 
-  return (ssize_t)nread;
+  if (nread == -1 || !password) return;
+
+  for (p = (char*)password; *p; p++)
+    ;
+  for ( ; p > (char*)password ; p--)
+    if (*p == '\n' || *p == '\r') *p = 0;
+
+  settings_set(SETTINGS_TYPE_OPTION, "password", password);
+  free(password);
+  return;
 }
 
 void mcabber_connect(void)
@@ -167,21 +179,10 @@ int main(int argc, char **argv)
   optstring = settings_opt_get("debug");
   if (optstring) ut_InitDebug(1, optstring);
 
-  // If no password is stored, we ask for it before entering
-  // ncurses mode
-  if (!settings_opt_get("password")) {
-    char *password, *p;
-    size_t passsize = 64;
-    printf("Please enter password: ");
-    my_getpass((char**)&password, &passsize);
-    printf("\n");
-    for (p = (char*)password; *p; p++)
-      ;
-    for ( ; p > (char*)password ; p--)
-      if (*p == '\n' || *p == '\r') *p = 0;
-
-    settings_set(SETTINGS_TYPE_OPTION, "password", password);
-  }
+  /* If no password is stored, we ask for it before entering
+     ncurses mode */
+  if (!settings_opt_get("password"))
+    ask_password();
 
   /* Initialize N-Curses */
   ut_WriteLog("Initializing N-Curses...\n");
@@ -208,8 +209,11 @@ int main(int argc, char **argv)
   if (settings_opt_get_int("hide_offline_buddies") > 0)
     buddylist_set_hide_offline_buddies(TRUE);
 
-  // Connection
-  mcabber_connect();
+  /* Connection */
+  if (settings_opt_get("password"))
+    mcabber_connect();
+  else
+    scr_LogPrint("Can't connect: no password supplied");
 
   /* Initialize commands system */
   cmd_init();

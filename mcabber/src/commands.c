@@ -100,7 +100,7 @@ void cmd_init(void)
   cmd_add("say", "Say something to the selected buddy", 0, 0, &do_say);
   //cmd_add("search");
   //cmd_add("send_auth");
-  cmd_add("set", "Set/query an option value", 0, 0, &do_set);
+  //cmd_add("set", "Set/query an option value", 0, 0, &do_set);
   cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status);
 
   // Status category

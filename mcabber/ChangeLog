@@ -1,8 +1,9 @@
-mcabber (0.6.3-dev)
+mcabber (0.6.3)
 
+ * Fix interactive password crash
+ * Disable /set command (it is almost useless)
 
-
- -- Mikael, ?
+ -- Mikael, 2005-07-12
 
 mcabber (0.6.2)
 

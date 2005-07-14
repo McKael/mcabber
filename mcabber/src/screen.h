@@ -37,6 +37,7 @@ inline void scr_set_multimode(int enable);
 inline int  scr_get_multimode();
 void scr_append_multiline(const char *line);
 inline const char *scr_get_multiline();
+void scr_handle_sigint(void);
 
 WINDOW *scr_GetInputWindow(void);
 

@@ -1,6 +1,7 @@
 mcabber (0.6.4-dev)
 
- 
+ * One Ctrl-C does not terminate mcabber anymore (the 2nd Ctrl-C do), but
+   abort current completion
 
  -- Mikael, ?
 

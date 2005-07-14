@@ -20,10 +20,10 @@ TODO:
 * Handle message type "error"
 * Show status changes in buddy window (if open)?
 * Options completion
+* Configuration file parsing: parse as commands (set, alias, bind)
 * Auto away
-* Maybe Ctrl-c should not (immediately) quit mcabber.  What about:
-  - 1 Ctrl-c leaves completion/multi-line modes
-  - 2 Ctrl-c in less than 2 seconds leave mcabber
+* Add a sample script for the events command
+* Make first Ctrl-C leave multi-line mode
 * Keep track of buddy resources.  Ex.:
   - buddy A connects with resource r1
   - buddy A connects with resource r2
@@ -49,6 +49,7 @@ TODO:
   - /auth request|send [jid]
   - /search <jid>|name
     (server search)
+  - status status Message
   - /help
   - /rawxml...
 

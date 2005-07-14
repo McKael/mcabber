@@ -44,61 +44,6 @@
 #include "harddefines.h"
 
 
-void sig_handler(int signum)
-{
-  if (signum == SIGCHLD) {
-    int status;
-    pid_t pid;
-    do {
-      pid = waitpid (WAIT_ANY, &status, WNOHANG);
-    } while (pid > 0);
-    //if (pid < 0)
-    //  ut_WriteLog("Error in waitpid: errno=%d\n", errno);
-    signal(SIGCHLD, sig_handler);
-  } else if (signum == SIGTERM) {
-    jb_disconnect();
-    scr_TerminateCurses();
-    printf("Killed by SIGTERM\nBye!\n");
-    exit(EXIT_SUCCESS);
-  } else {
-    ut_WriteLog("Caught signal: %d\n", signum);
-  }
-}
-
-void ask_password(void)
-{
-  char *password, *p;
-  size_t passsize = 128;
-  struct termios orig, new;
-  int nread;
-
-  /* Turn echoing off and fail if we can't. */
-  if (tcgetattr(fileno(stdin), &orig) != 0) return;
-  new = orig;
-  new.c_lflag &= ~ECHO;
-  if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) return;
-
-  /* Read the password. */
-  password = NULL;
-  printf("Please enter password: ");
-  nread = getline(&password, &passsize, stdin);
-
-  /* Restore terminal. */
-  tcsetattr(fileno(stdin), TCSAFLUSH, &orig);
-  printf("\n");
-
-  if (nread == -1 || !password) return;
-
-  for (p = (char*)password; *p; p++)
-    ;
-  for ( ; p > (char*)password ; p--)
-    if (*p == '\n' || *p == '\r') *p = 0;
-
-  settings_set(SETTINGS_TYPE_OPTION, "password", password);
-  free(password);
-  return;
-}
-
 void mcabber_connect(void)
 {
   const char *username, *password, *resource, *servername;
@@ -147,6 +92,79 @@ void mcabber_connect(void)
   jb_reset_keepalive();
 }
 
+void mcabber_disconnect(const char *msg)
+{
+  jb_disconnect();
+  scr_TerminateCurses();
+  if (msg)
+    fprintf(stderr, "%s\n", msg);
+  printf("Bye!\n");
+  exit(EXIT_SUCCESS);
+}
+
+void sig_handler(int signum)
+{
+  if (signum == SIGCHLD) {
+    int status;
+    pid_t pid;
+    do {
+      pid = waitpid (WAIT_ANY, &status, WNOHANG);
+    } while (pid > 0);
+    //if (pid < 0)
+    //  ut_WriteLog("Error in waitpid: errno=%d\n", errno);
+    signal(SIGCHLD, sig_handler);
+  } else if (signum == SIGTERM) {
+    mcabber_disconnect("Killed by SIGTERM");
+  } else if (signum == SIGINT) {  // Ctrl-C
+    static time_t LastSigtermTime;
+    time_t now;
+    time(&now);
+    /* Terminate if 2 consecutive SIGTERMs */
+    if (now - LastSigtermTime < 2)
+      mcabber_disconnect("Killed by SIGINT");
+    LastSigtermTime = now;
+    signal(SIGINT, sig_handler);
+    scr_LogPrint("Hit Ctrl-C twice to leave mcabber");
+    scr_handle_sigint();
+  } else {
+    ut_WriteLog("Caught signal: %d\n", signum);
+  }
+}
+
+void ask_password(void)
+{
+  char *password, *p;
+  size_t passsize = 128;
+  struct termios orig, new;
+  int nread;
+
+  /* Turn echoing off and fail if we can't. */
+  if (tcgetattr(fileno(stdin), &orig) != 0) return;
+  new = orig;
+  new.c_lflag &= ~ECHO;
+  if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) return;
+
+  /* Read the password. */
+  password = NULL;
+  printf("Please enter password: ");
+  nread = getline(&password, &passsize, stdin);
+
+  /* Restore terminal. */
+  tcsetattr(fileno(stdin), TCSAFLUSH, &orig);
+  printf("\n");
+
+  if (nread == -1 || !password) return;
+
+  for (p = (char*)password; *p; p++)
+    ;
+  for ( ; p > (char*)password ; p--)
+    if (*p == '\n' || *p == '\r') *p = 0;
+
+  settings_set(SETTINGS_TYPE_OPTION, "password", password);
+  free(password);
+  return;
+}
+
 void credits(void)
 {
   printf(MCABBER_VERSION "\n");
@@ -171,6 +189,7 @@ int main(int argc, char **argv)
 
   ut_WriteLog("Setting signals handlers...\n");
   signal(SIGTERM, sig_handler);
+  signal(SIGINT,  sig_handler);
   signal(SIGCHLD, sig_handler);
 
   /* Parse command line options */

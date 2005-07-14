@@ -1482,6 +1482,24 @@ inline void check_offset(int direction)
   }
 }
 
+inline void refresh_inputline(void)
+{
+  mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
+  wclrtoeol(inputWnd);
+  if (*ptr_inputline)
+    wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine - inputline_offset);
+}
+
+void scr_handle_sigint(void)
+{
+  scr_LogPrint("In screen. completion_started=%d", completion_started);
+  // Same as Ctrl-g, now
+  scr_cancel_current_completion();
+  scr_end_current_completion();
+  check_offset(-1);
+  refresh_inputline();
+}
+
 //  process_key(key)
 // Handle the pressed key, in the command line (bottom).
 int process_key(int key)
@@ -1647,14 +1665,8 @@ int process_key(int key)
   }
   if (completion_started && key != 9 && key != KEY_RESIZE)
     scr_end_current_completion();
-  mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
-  wclrtoeol(inputWnd);
-  if (*ptr_inputline) {
-    wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine - inputline_offset);
-  }
-  if (!update_roster) {
-    //update_panels();
+  refresh_inputline();
+  if (!update_roster)
     doupdate();
-  }
   return 0;
 }

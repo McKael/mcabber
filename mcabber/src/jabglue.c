@@ -37,8 +37,8 @@
 #define JABBER_AGENT_GROUP "Jabber Agents"
 
 jconn jc;
-time_t LastPingTime;
-unsigned int KeepaliveDelay;
+static time_t LastPingTime;
+static unsigned int KeepaliveDelay;
 static unsigned int prio;
 static int s_id;
 static int regmode, regdone;

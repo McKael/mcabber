@@ -1,0 +1,30 @@
+#! /bin/sh
+#
+# Sample events script for mcabber
+# Plays a sound when receiving a message
+#
+# To use this script, set the "events_command" option to the path of
+# the script (see the mcabberrc.example file for an example)
+#
+# MiKael, 2005-07-15
+
+# The following sound comes with the gtkboard package,
+# you can modify this line to play another one...
+CMD_MSG_IN="/usr/bin/play /usr/share/sounds/gtkboard/machine_move.ogg"
+
+event=$1
+arg1=$2
+arg2=$3
+
+if [ $event == "MSG" ]; then
+  case "$arg1" in
+    IN)
+      # Incoming message from buddy $arg2
+      $CMD_MSG_IN > /dev/null 2>&1
+      ;;
+    OUT)
+      # Outgoing message for buddy $arg2
+      ;;
+  esac
+fi
+

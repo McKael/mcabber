@@ -862,9 +862,9 @@ void packethandler(jconn conn, jpacket packet)
           p = NULL;
 
         r = jidtodisp(from);
-        m = roster_getstatusmsg(r);
         // Call hk_statuschange() if status has changed or if the
         // status message is different
+        m = roster_getstatusmsg(r);
         if ((ust != roster_getstatus(r)) || (p && (!m || strcmp(p, m))))
           hk_statuschange(r, 0, ust, p);
         g_free(r);

@@ -1,7 +1,9 @@
 mcabber (0.6.4-dev)
 
  * One Ctrl-C does not terminate mcabber anymore (the 2nd Ctrl-C do), but
-   abort current completion
+   leaves multi-line message mode and aborts current completion
+ * Add a sample script to handle events (currently, plays a sounds when
+   a message is received)
 
  -- Mikael, ?
 

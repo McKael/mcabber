@@ -22,8 +22,6 @@ TODO:
 * Options completion
 * Configuration file parsing: parse as commands (set, alias, bind)
 * Auto away
-* Add a sample script for the events command
-* Make first Ctrl-C leave multi-line mode
 * Keep track of buddy resources.  Ex.:
   - buddy A connects with resource r1
   - buddy A connects with resource r2

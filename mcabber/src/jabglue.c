@@ -250,6 +250,7 @@ inline enum imstatus jb_getstatus()
 void jb_setstatus(enum imstatus st, const char *msg)
 {
   xmlnode x;
+  char *utf8_msg;
 
   if (!online) return;
 
@@ -298,11 +299,13 @@ void jb_setstatus(enum imstatus st, const char *msg)
   if (!msg)
       msg = settings_get_status_msg(st);
 
-  xmlnode_insert_cdata(xmlnode_insert_tag(x, "status"), msg,
+  utf8_msg = utf8_encode(msg);
+  xmlnode_insert_cdata(xmlnode_insert_tag(x, "status"), utf8_msg,
           (unsigned) -1);
 
   jab_send(jc, x);
   xmlnode_free(x);
+  free(utf8_msg);
 
   //sendvisibility();   ???
 
@@ -852,12 +855,11 @@ void packethandler(jconn conn, jpacket packet)
           }
         }
 
-        if (type && !strcmp(type, "unavailable")) {
+        if (type && !strcmp(type, "unavailable"))
           ust = offline;
-        }
 
         if ((x = xmlnode_get_tag(packet->x, "status")) != NULL)
-          p = xmlnode_get_data(x);
+          p = utf8_decode(xmlnode_get_data(x));
         else
           p = NULL;
 
@@ -868,6 +870,7 @@ void packethandler(jconn conn, jpacket packet)
         if ((ust != roster_getstatus(r)) || (p && (!m || strcmp(p, m))))
           hk_statuschange(r, 0, ust, p);
         g_free(r);
+        if (p) free(p);
         break;
 
     case JPACKET_S10N:

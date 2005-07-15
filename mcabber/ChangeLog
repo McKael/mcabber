@@ -1,9 +1,13 @@
 mcabber (0.6.4-dev)
 
+ * [FIX] Convert status messages to/from UTF-8
+ * The /status command can specify a status message
+ * Display the buddy status message when a buddy connects/changes his status
  * One Ctrl-C does not terminate mcabber anymore (the 2nd Ctrl-C do), but
    leaves multi-line message mode and aborts current completion
  * Add a sample script to handle events (currently, plays a sounds when
    a message is received)
+ * New autoaway feature (see sample config. file)
 
  -- Mikael, ?
 

@@ -21,7 +21,6 @@ TODO:
 * Show status changes in buddy window (if open)?
 * Options completion
 * Configuration file parsing: parse as commands (set, alias, bind)
-* Auto away
 * Keep track of buddy resources.  Ex.:
   - buddy A connects with resource r1
   - buddy A connects with resource r2
@@ -47,7 +46,6 @@ TODO:
   - /auth request|send [jid]
   - /search <jid>|name
     (server search)
-  - status status Message
   - /help
   - /rawxml...
 

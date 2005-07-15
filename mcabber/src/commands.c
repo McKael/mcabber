@@ -368,27 +368,40 @@ void do_roster(char *arg)
 void do_status(char *arg)
 {
   enum imstatus st;
+  int len;
+  char *msg;
 
   if (!arg || (*arg == 0)) {
     scr_LogPrint("Your status is: %c", imstatus2char[jb_getstatus()]);
     return;
   }
 
-  if (!strcasecmp(arg, "offline"))        st = offline;
-  else if (!strcasecmp(arg, "online"))    st = available;
-  else if (!strcasecmp(arg, "avail"))     st = available;
-  else if (!strcasecmp(arg, "away"))      st = away;
-  else if (!strcasecmp(arg, "invisible")) st = invisible;
-  else if (!strcasecmp(arg, "dnd"))       st = dontdisturb;
-  else if (!strcasecmp(arg, "notavail"))  st = notavail;
-  else if (!strcasecmp(arg, "free"))      st = freeforchat;
+  msg = strchr(arg, ' ');
+  if (!msg)
+    len = strlen(arg);
+  else
+    len = msg - arg;
+
+  if      (!strncasecmp(arg, "offline",   len)) st = offline;
+  else if (!strncasecmp(arg, "online",    len)) st = available;
+  else if (!strncasecmp(arg, "avail",     len)) st = available;
+  else if (!strncasecmp(arg, "away",      len)) st = away;
+  else if (!strncasecmp(arg, "invisible", len)) st = invisible;
+  else if (!strncasecmp(arg, "dnd",       len)) st = dontdisturb;
+  else if (!strncasecmp(arg, "notavail",  len)) st = notavail;
+  else if (!strncasecmp(arg, "free",      len)) st = freeforchat;
   else {
     scr_LogPrint("Unrecognized parameter!");
     return;
   }
 
-  // XXX special case if offline??
-  jb_setstatus(st, NULL);  // TODO handle message (instead of NULL)
+  if (msg && st != offline && st != invisible) {
+    for (msg++ ; *msg && *msg == ' ' ; msg++) ;
+    if (!*msg) msg = NULL;
+  } else
+    msg = NULL;
+
+  jb_setstatus(st, msg);
 }
 
 void do_add(char *arg)

@@ -65,8 +65,9 @@ inline void hk_message_out(const char *jid, time_t timestamp, const char *msg)
 inline void hk_statuschange(const char *jid, time_t timestamp, 
         enum imstatus status, const char *status_msg)
 {
-  scr_LogPrint("Buddy status has changed: [%c>%c] <%s>",
-          imstatus2char[roster_getstatus(jid)], imstatus2char[status], jid);
+  scr_LogPrint("Buddy status has changed: [%c>%c] <%s> %s",
+          imstatus2char[roster_getstatus(jid)], imstatus2char[status], jid,
+          ((status_msg) ? status_msg : ""));
   roster_setstatus(jid, status, status_msg);
   buddylist_build();
   scr_DrawRoster();
@@ -74,13 +75,14 @@ inline void hk_statuschange(const char *jid, time_t timestamp,
 }
 
 inline void hk_mystatuschange(time_t timestamp,
-        enum imstatus old_status, enum imstatus new_status)
+        enum imstatus old_status, enum imstatus new_status, const char *msg)
 {
-  if (old_status == new_status)
+  if (!msg && (old_status == new_status))
     return;
 
-  scr_LogPrint("Your status has changed:  [%c>%c]",
-          imstatus2char[old_status], imstatus2char[new_status]);
+  scr_LogPrint("Your status has changed:  [%c>%c] %s",
+          imstatus2char[old_status], imstatus2char[new_status],
+          ((msg) ? msg : ""));
   //hlog_write_status(NULL, 0, status);
 }
 

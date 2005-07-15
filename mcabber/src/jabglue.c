@@ -311,7 +311,7 @@ void jb_setstatus(enum imstatus st, const char *msg)
   if (mystatus == offline || st == offline)
     update_roster = TRUE;
 
-  hk_mystatuschange(0, mystatus, st);
+  hk_mystatuschange(0, mystatus, st, msg);
   mystatus = st;
 }
 
@@ -611,6 +611,7 @@ void statehandler(jconn conn, int state)
 void packethandler(jconn conn, jpacket packet)
 {
   char *p, *r;
+  const char *m;
   xmlnode x, y;
   char *from=NULL, *type=NULL, *body=NULL, *enc=NULL;
   char *ns=NULL;
@@ -861,7 +862,10 @@ void packethandler(jconn conn, jpacket packet)
           p = NULL;
 
         r = jidtodisp(from);
-        if (ust != roster_getstatus(r))
+        m = roster_getstatusmsg(r);
+        // Call hk_statuschange() if status has changed or if the
+        // status message is different
+        if ((ust != roster_getstatus(r)) || (p && (!m || strcmp(p, m))))
           hk_statuschange(r, 0, ust, p);
         g_free(r);
         break;

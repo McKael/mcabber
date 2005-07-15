@@ -359,6 +359,19 @@ enum imstatus roster_getstatus(const char *jid)
   return roster_usr->status;
 }
 
+const char *roster_getstatusmsg(const char *jid)
+{
+  GSList *sl_user;
+  roster *roster_usr;
+
+  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  if (sl_user == NULL)
+    return offline; // Not in the roster, anyway...
+
+  roster_usr = (roster*)sl_user->data;
+  return roster_usr->status_msg;
+}
+
 guint roster_gettype(const char *jid)
 {
   GSList *sl_user;

@@ -41,6 +41,7 @@ void    roster_setflags(const char *jid, guint flags, guint value);
 void    roster_msg_setflag(const char *jid, guint value);
 void    roster_settype(const char *jid, guint type);
 enum imstatus roster_getstatus(const char *jid);
+const char   *roster_getstatusmsg(const char *jid);
 guint   roster_gettype(const char *jid);
 inline guint roster_exists(const char *jidname, enum findwhat type,
         guint roster_type);

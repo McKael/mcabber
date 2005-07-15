@@ -24,6 +24,11 @@ resource = mcabber
 # in the roster.
 #hide_offline_buddies = 0
 
+# Set the auto-away timeout, in seconds.  If set to a value >0,
+# mcabber will change your status to away if no real activity is detected
+# (command, message, move in the buddylist...)
+#set autoaway = 0
+
 # History logging
 # You can save the messages history: set logging = 1
 # You can load (read) the messages history: set load_logs = 1
@@ -52,7 +57,7 @@ logging = 1
 #message_dnd       = Please do not disturb
 #message_notavail  = I'm not available
 #message_away      = I'm away
-#message_autoaway  = Auto-away (Not yet implemented)
+#message_autoaway  = Auto-away
 
 #  The colors
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white

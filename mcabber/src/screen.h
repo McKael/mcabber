@@ -45,6 +45,8 @@ int scr_Getch(void);
 
 int process_key(int);
 
+void scr_CheckAutoAway(bool activity);
+
 // For commands...
 void scr_RosterTop(void);
 void scr_RosterBottom(void);

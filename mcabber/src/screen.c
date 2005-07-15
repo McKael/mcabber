@@ -69,6 +69,7 @@ static int multimode;
 static char *multiline;
 int update_roster;
 int utf8_mode = 0;
+static bool Autoaway;
 
 static char       inputLine[INPUTLINE_LENGTH+1];
 static char      *ptr_inputline;
@@ -482,6 +483,47 @@ void scr_TerminateCurses(void)
   refresh();
   endwin();
   return;
+}
+
+void inline set_autoaway(bool setaway)
+{
+  static enum imstatus oldstatus;
+  Autoaway = setaway;
+
+  if (setaway) {
+    const char *msg;
+    oldstatus = jb_getstatus();
+    msg = settings_opt_get("message_autoaway");
+    if (!msg) msg = MSG_AUTOAWAY;
+    jb_setstatus(away, msg);
+  } else {
+    // Back
+    jb_setstatus(oldstatus, NULL);
+  }
+}
+
+// Check if we should enter/leave automatic away status
+void scr_CheckAutoAway(bool activity)
+{
+  static time_t LastActivity;
+  enum imstatus cur_st;
+  unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
+
+  if (Autoaway && activity) set_autoaway(FALSE);
+  if (!autoaway_timeout) return;
+  if (!LastActivity || activity) time(&LastActivity);
+
+  cur_st = jb_getstatus();
+  // Auto-away is disabled for the following states
+  if ((cur_st == away) || (cur_st == notavail) || (cur_st == invisible))
+    return;
+
+  if (!activity) {
+    time_t now;
+    time(&now);
+    if (!Autoaway && (now > LastActivity + autoaway_timeout))
+      set_autoaway(TRUE);
+  }
 }
 
 //  scr_DrawMainWindow()
@@ -1554,6 +1596,7 @@ int process_key(int key)
           break;
       case '\n':  // Enter
       case 15:    // Ctrl-o ("accept-line-and-down-history")
+          scr_CheckAutoAway(TRUE);
           if (process_line(inputLine))
             return 255;
           // Add line to history
@@ -1595,9 +1638,11 @@ int process_key(int key)
           }
           break;
       case KEY_PPAGE:
+          scr_CheckAutoAway(TRUE);
           scr_RosterUp();
           break;
       case KEY_NPAGE:
+          scr_CheckAutoAway(TRUE);
           scr_RosterDown();
           break;
       case KEY_HOME:
@@ -1626,6 +1671,7 @@ int process_key(int key)
           scr_ScrollDown();
           break;
       case 17:  // Ctrl-q
+          scr_CheckAutoAway(TRUE);
           scr_RosterUnreadMessage(1); // next unread message
           break;
       case 20:  // Ctrl-t
@@ -1635,6 +1681,7 @@ int process_key(int key)
           readline_backward_kill_word();
           break;
       case 27:  // ESC
+          scr_CheckAutoAway(TRUE);
           currentWindow = NULL;
           chatmode = FALSE;
           if (current_buddy)
@@ -1645,6 +1692,7 @@ int process_key(int key)
           break;
       case 12:  // Ctrl-l
       case KEY_RESIZE:
+          scr_CheckAutoAway(TRUE);
           scr_Resize();
           break;
       default:
@@ -1652,6 +1700,7 @@ int process_key(int key)
             const gchar *boundcmd = isbound(key);
             if (boundcmd) {
               gchar *cmd = g_strdup_printf("/%s", boundcmd);
+              scr_CheckAutoAway(TRUE);
               if (process_command(cmd))
                 return 255;
               g_free(cmd);

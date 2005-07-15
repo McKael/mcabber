@@ -268,6 +268,7 @@ int main(int argc, char **argv)
     /* The refresh is really an ugly hack, but we need to call doupdate()
        from time to time to catch the RESIZE events, because getch keep
        returning ERR until a real key is pressed :-(
+       However, it allows us to handle an autoaway check here...
      */
     if (key != ERR) {
       ret = process_key(key);
@@ -275,6 +276,7 @@ int main(int argc, char **argv)
     } else if (refresh++ > 1) {
       doupdate();
       refresh = 0;
+      scr_CheckAutoAway(FALSE);
     }
 
     if (key != KEY_RESIZE)

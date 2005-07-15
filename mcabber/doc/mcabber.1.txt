@@ -179,9 +179,11 @@ COMMANDS
         Send the text message to the currently selected buddy.  Can be useful
         if you want to send a message beginning with a slash, for example.
 
-/status [online|avail|invisible|free|dnd|notavail|away]::
+/status [online|avail|invisible|free|dnd|notavail|away [StatusMessage]]::
         Set the current status.  If no status is specified, display the
-        current status.
+        current status. +
+        If a status message is specified, it will overrride the message*
+        variables.
 
 CONFIGURATION FILE
 ------------------

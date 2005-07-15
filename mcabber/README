@@ -1,12 +1,15 @@
-Well, the documentation is missing yet, but...
+ Hello, and thanks for trying mcabber.
 
-!!!!!! SEE mcabberrc.example !!!!!!
+For installation instruction, have a look at the INSTALL file.
 
-A configuration file is necessary.
-Its name is $HOME/.mcabber/mcabberrc (or $HOME/.mcabberrc).
-Please see the sample config file!
+A configuration file is necessary to start mcabber.  Its name is
+$HOME/.mcabber/mcabberrc (or $HOME/.mcabberrc).
 
-You can use the -f option to specify another configuration file.
+A sample configuration file, "mcabberrc.example", is provided in this
+directory.  Copy it and modify it to fit your needs.
+
+
+You can use mcabber "-f" option to specify another configuration file.
 
 
 This software is under development, please give me some feedback (and some

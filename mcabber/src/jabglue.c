@@ -566,7 +566,7 @@ void gotmessage(char *type, const char *from, const char *body,
   */
 
   jid = jidtodisp(from);
-  hk_message_in(jid, timestamp, buffer);
+  hk_message_in(jid, timestamp, buffer, type);
   g_free(jid);
   free(buffer);
 }

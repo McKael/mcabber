@@ -329,6 +329,13 @@ void scr_UpdateWindow(window_entry_t *win_entry)
         else if (line->flags & HBB_PREFIX_OUT)
           dir = '>';
         wprintw(win_entry->win, "%.11s *%c* ", date, dir);
+      } else if (line->flags & HBB_PREFIX_ERR) {
+        char dir = '#';
+        if (line->flags & HBB_PREFIX_IN)
+          dir = '<';
+        else if (line->flags & HBB_PREFIX_OUT)
+          dir = '>';
+        wprintw(win_entry->win, "%.11s #%c# ", date, dir);
       } else if (line->flags & HBB_PREFIX_IN)
         wprintw(win_entry->win, "%.11s <== ", date);
       else if (line->flags & HBB_PREFIX_OUT)

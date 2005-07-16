@@ -27,12 +27,15 @@
 #include "roster.h"
 #include "histolog.h"
 #include "utf8.h"
+#include "hbuf.h"
 
 static char *extcommand;
 
-inline void hk_message_in(const char *jid, time_t timestamp, const char *msg)
+inline void hk_message_in(const char *jid, time_t timestamp, const char *msg,
+                          const char *type)
 {
   int new_guy = FALSE;
+  int message_flags;
 
   // If this user isn't in the roster, we add it
   if (!roster_exists(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT)) {
@@ -40,11 +43,19 @@ inline void hk_message_in(const char *jid, time_t timestamp, const char *msg)
     new_guy = TRUE;
   }
 
+  if (type && !strcmp(type, "error")) {
+    message_flags = HBB_PREFIX_ERR | HBB_PREFIX_IN;
+    scr_LogPrint("Error message received from <%s>", jid);
+  } else
+    message_flags = 0;
+
   // Note: the hlog_write should not be called first, because in some
   // cases scr_WriteIncomingMessage() will load the history and we'd
   // have the message twice...
-  scr_WriteIncomingMessage(jid, msg, timestamp, 0);
-  hlog_write_message(jid, timestamp, FALSE, msg);
+  scr_WriteIncomingMessage(jid, msg, timestamp, message_flags);
+  // We don't log the message if it is an error message
+  if (!(message_flags & HBB_PREFIX_ERR))
+    hlog_write_message(jid, timestamp, FALSE, msg);
   hk_ext_cmd(jid, 'M', 'R', NULL);
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set

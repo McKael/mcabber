@@ -23,6 +23,7 @@ enum findwhat {
 
 extern GList *buddylist;
 extern GList *current_buddy;
+extern GList *alternate_buddy;
 
 // Macros...
 

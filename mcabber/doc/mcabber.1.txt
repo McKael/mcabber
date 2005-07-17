@@ -162,7 +162,8 @@ COMMANDS
         This command does not work for groups, at the moment (but you can move
         the buddies to another group with the /move command).
 
-/roster bottom|top|hide_offline|show_offline|toggle_offline|unread_first|unread_next::
+/roster bottom|top|hide_offline|show_offline|toggle_offline::
+/roster alternate|unread_first|unread_next::
 /roster search bud::
         The 'roster' command manipulates the roster/buddylist.  Here are the available parameters:
 
@@ -172,6 +173,7 @@ COMMANDS
         'show_offline';; show offline buddies
         'toggle_offline';; toggle display of offline buddies
         'search' bud;;   search for a buddy with a name or buddy containing "bud" (only in the displayed buddylist)
+        'alternate';;    jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
         'unread_first';; jump to the first unread message
         'unread_next';;  jump to the next unread message
 

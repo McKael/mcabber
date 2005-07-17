@@ -46,6 +46,7 @@ static GSList *groups;
 static GSList *unread_list;
 GList *buddylist;
 GList *current_buddy;
+GList *alternate_buddy;
 
 
 /* ### Roster functions ### */
@@ -419,12 +420,16 @@ void buddylist_build(void)
   GSList *sl_roster_elt = groups;
   roster *roster_elt;
   roster *roster_current_buddy = NULL;
+  roster *roster_alternate_buddy = NULL;
   int shrunk_group;
 
   // We need to remember which buddy is selected.
   if (current_buddy)
     roster_current_buddy = BUDDATA(current_buddy);
   current_buddy = NULL;
+  if (alternate_buddy)
+    roster_alternate_buddy = BUDDATA(alternate_buddy);
+  alternate_buddy = NULL;
 
   // Destroy old buddylist
   if (buddylist) {
@@ -487,6 +492,8 @@ void buddylist_build(void)
   // Check if we can find our saved current_buddy...
   if (roster_current_buddy)
     current_buddy = g_list_find(buddylist, roster_current_buddy);
+  if (roster_alternate_buddy)
+    alternate_buddy = g_list_find(buddylist, roster_alternate_buddy);
   // current_buddy initialization
   if (!current_buddy || (g_list_position(buddylist, current_buddy) == -1))
     current_buddy = g_list_first(buddylist);

@@ -55,5 +55,6 @@ void scr_BufferTop(void);
 void scr_BufferBottom(void);
 void scr_Clear(void);
 void scr_RosterUnreadMessage(int);
+void scr_RosterJumpAlternate(void);
 
 #endif

@@ -823,6 +823,8 @@ static void set_current_buddy(GList *newbuddy)
 
   prev_st = buddy_getstatus(BUDDATA(current_buddy));
   buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+  if (chatmode)
+    alternate_buddy = current_buddy;
   current_buddy = newbuddy;
   // Lock the buddy in the buddylist if we're in chat mode
   if (chatmode)
@@ -911,6 +913,17 @@ void scr_RosterUnreadMessage(int next)
     set_current_buddy(nbuddy);
     if (chatmode) scr_ShowBuddyWindow();
   } else scr_LogPrint("Error: nbuddy == NULL");
+}
+
+//  scr_RosterJumpAlternate()
+// Try to jump to alternate (== previous) buddy
+void scr_RosterJumpAlternate(void)
+{
+  if (!alternate_buddy || g_list_position(buddylist, alternate_buddy) == -1)
+    return;
+  set_current_buddy(alternate_buddy);
+  if (chatmode)
+    scr_ShowBuddyWindow();
 }
 
 //  scr_ScrollUp()

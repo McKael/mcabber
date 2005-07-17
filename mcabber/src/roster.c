@@ -531,6 +531,7 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   GSList **sl_group;
   GSList *sl_clone;
   roster *roster_clone;
+  int is_alternate;
 
   // A group has no group :)
   if (roster_usr->type & ROSTER_TYPE_GROUP) return;
@@ -557,8 +558,11 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   ((roster*)((GSList*)roster_clone->list)->data)->flags &= ~ROSTER_FLAG_HIDE;
 
   // Little trick to have current_body pointing to the cloned buddy
+  is_alternate = (alternate_buddy == current_buddy);
   buddylist = g_list_append(buddylist, roster_clone);
   current_buddy = g_list_find(buddylist, roster_clone);
+  if (is_alternate)
+    alternate_buddy = current_buddy;
 
   buddylist_build();
 }

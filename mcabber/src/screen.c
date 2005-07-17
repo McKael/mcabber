@@ -657,7 +657,7 @@ void scr_Resize()
 }
 
 //  scr_DrawRoster()
-// Actually, display the buddylist on the screen.
+// Display the buddylist (not really the roster) on the screen
 void scr_DrawRoster(void)
 {
   static guint offset = 0;
@@ -807,83 +807,56 @@ WINDOW *scr_GetInputWindow(void)
   return inputWnd;
 }
 
+//  set_current_buddy(newbuddy)
+// Set the current_buddy to newbuddy (if not NULL)
+// Lock the newbuddy, and unlock the previous current_buddy
+static void set_current_buddy(GList *newbuddy)
+{
+  enum imstatus prev_st = imstatus_size;
+  /* prev_st initialized to imstatus_size, which is used as "undef" value.
+   * We are sure prev_st will get a different status value after the
+   * buddy_getstatus() call.
+   */
+
+  if (!current_buddy || !newbuddy) return;
+
+  prev_st = buddy_getstatus(BUDDATA(current_buddy));
+  buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+  current_buddy = newbuddy;
+  // Lock the buddy in the buddylist if we're in chat mode
+  if (chatmode)
+    buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
+  // We should rebuild the buddylist but not everytime
+  // Here we check if we were locking a buddy who is actually offline,
+  // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
+  if (prev_st == offline && buddylist_get_hide_offline_buddies())
+    buddylist_build();
+  update_roster = TRUE;
+}
+
 //  scr_RosterTop()
 // Go to the first buddy in the buddylist
 void scr_RosterTop(void)
 {
-  enum imstatus prev_st = imstatus_size; // undef
-
-  if (current_buddy) {
-    prev_st = buddy_getstatus(BUDDATA(current_buddy));
-    if (chatmode)
-      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-  }
-  current_buddy = buddylist;
-  if (chatmode && current_buddy)
-    buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
-
-  // We should rebuild the buddylist but not everytime
-  // Here we check if we were locking a buddy who is actually offline,
-  // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
-  if (current_buddy && prev_st == offline &&
-          buddylist_get_hide_offline_buddies())
-    buddylist_build();
+  set_current_buddy(buddylist);
   if (chatmode)
     scr_ShowBuddyWindow();
-  update_roster = TRUE;
 }
 
 //  scr_RosterBottom()
 // Go to the last buddy in the buddylist
 void scr_RosterBottom(void)
 {
-  enum imstatus prev_st = imstatus_size; // undef
-
-  if (current_buddy) {
-    prev_st = buddy_getstatus(BUDDATA(current_buddy));
-    if (chatmode)
-      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-  }
-  current_buddy = g_list_last(buddylist);
-  // Lock the buddy in the buddylist if we're in chat mode
-  if (chatmode && current_buddy)
-    buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
-
-  // We should rebuild the buddylist but not everytime
-  // Here we check if we were locking a buddy who is actually offline,
-  // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
-  if (current_buddy && prev_st == offline &&
-          buddylist_get_hide_offline_buddies())
-    buddylist_build();
-
+  set_current_buddy(g_list_last(buddylist));
   if (chatmode)
     scr_ShowBuddyWindow();
-  update_roster = TRUE;
 }
 
 //  scr_RosterUp()
 // Go to the previous buddy in the buddylist
 void scr_RosterUp(void)
 {
-  enum imstatus prev_st = imstatus_size; // undef
-
-  if (current_buddy) {
-    if (g_list_previous(current_buddy)) {
-      prev_st = buddy_getstatus(BUDDATA(current_buddy));
-      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-      current_buddy = g_list_previous(current_buddy);
-      // Lock the buddy in the buddylist if we're in chat mode
-      if (chatmode)
-        buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
-      // We should rebuild the buddylist but not everytime
-      // Here we check if we were locking a buddy who is actually offline,
-      // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
-      if (prev_st == offline && buddylist_get_hide_offline_buddies())
-        buddylist_build();
-      update_roster = TRUE;
-    }
-  }
-
+  set_current_buddy(g_list_previous(current_buddy));
   if (chatmode)
     scr_ShowBuddyWindow();
 }
@@ -892,24 +865,7 @@ void scr_RosterUp(void)
 // Go to the next buddy in the buddylist
 void scr_RosterDown(void)
 {
-  enum imstatus prev_st = imstatus_size; // undef
-
-  if (current_buddy) {
-    if (g_list_next(current_buddy)) {
-      prev_st = buddy_getstatus(BUDDATA(current_buddy));
-      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-      current_buddy = g_list_next(current_buddy);
-      if (chatmode)
-        buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
-      // We should rebuild the buddylist but not everytime
-      // Here we check if we were locking a buddy who is actually offline,
-      // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
-      if (prev_st == offline && buddylist_get_hide_offline_buddies())
-        buddylist_build();
-      update_roster = TRUE;
-    }
-  }
-
+  set_current_buddy(g_list_next(current_buddy));
   if (chatmode)
     scr_ShowBuddyWindow();
 }
@@ -918,26 +874,7 @@ void scr_RosterDown(void)
 // Look forward for a buddy with jid/name containing str.
 void scr_RosterSearch(char *str)
 {
-  GList *matching_buddy;
-  enum imstatus prev_st = imstatus_size; // undef
-
-  if (current_buddy) {
-    matching_buddy = buddy_search(str);
-    if (matching_buddy) {
-      prev_st = buddy_getstatus(BUDDATA(current_buddy));
-      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-      current_buddy = matching_buddy;
-      if (chatmode)
-        buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
-      // We should rebuild the buddylist but not everytime
-      // Here we check if we were locking a buddy who is actually offline,
-      // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
-      if (prev_st == offline && buddylist_get_hide_offline_buddies())
-        buddylist_build();
-      update_roster = TRUE;
-    }
-  }
-
+  set_current_buddy(buddy_search(str));
   if (chatmode)
     scr_ShowBuddyWindow();
 }

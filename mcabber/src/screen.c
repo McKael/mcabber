@@ -818,7 +818,8 @@ static void set_current_buddy(GList *newbuddy)
    * buddy_getstatus() call.
    */
 
-  if (!current_buddy || !newbuddy) return;
+  if (!current_buddy || !newbuddy)  return;
+  if (newbuddy == current_buddy)    return;
 
   prev_st = buddy_getstatus(BUDDATA(current_buddy));
   buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
@@ -885,44 +886,31 @@ void scr_RosterSearch(char *str)
 // message from unread_list.
 void scr_RosterUnreadMessage(int next)
 {
-  enum imstatus prev_st = imstatus_size; // undef
+  gpointer unread_ptr;
+  gpointer refbuddata;
+  gpointer ngroup;
+  GList *nbuddy;
 
-  if (current_buddy) {
-    gpointer unread_ptr;
-    gpointer refbuddata;
-    gpointer ngroup;
-    GList *nbuddy;
+  if (!current_buddy) return;
 
-    if (next) refbuddata = BUDDATA(current_buddy);
-    else      refbuddata = NULL;
+  if (next) refbuddata = BUDDATA(current_buddy);
+  else      refbuddata = NULL;
 
-    unread_ptr = unread_msg(refbuddata);
-    if (!unread_ptr) return;
+  unread_ptr = unread_msg(refbuddata);
+  if (!unread_ptr) return;
 
-    // If buddy is in a folded group, we need to expand it
-    ngroup = buddy_getgroup(unread_ptr);
-    if (buddy_getflags(ngroup) & ROSTER_FLAG_HIDE) {
-      buddy_setflags(ngroup, ROSTER_FLAG_HIDE, FALSE);
-      buddylist_build();
-    }
-
-    nbuddy = g_list_find(buddylist, unread_ptr);
-    if (nbuddy) {
-      prev_st = buddy_getstatus(BUDDATA(current_buddy));
-      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-      current_buddy = nbuddy;
-      if (chatmode)
-        buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
-      // We should rebuild the buddylist but not everytime
-      // Here we check if we were locking a buddy who is actually offline,
-      // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
-      if (prev_st == offline && buddylist_get_hide_offline_buddies())
-        buddylist_build();
-      update_roster = TRUE;
-
-      if (chatmode) scr_ShowBuddyWindow();
-    } else scr_LogPrint("Error: nbuddy == NULL");
+  // If buddy is in a folded group, we need to expand it
+  ngroup = buddy_getgroup(unread_ptr);
+  if (buddy_getflags(ngroup) & ROSTER_FLAG_HIDE) {
+    buddy_setflags(ngroup, ROSTER_FLAG_HIDE, FALSE);
+    buddylist_build();
   }
+
+  nbuddy = g_list_find(buddylist, unread_ptr);
+  if (nbuddy) {
+    set_current_buddy(nbuddy);
+    if (chatmode) scr_ShowBuddyWindow();
+  } else scr_LogPrint("Error: nbuddy == NULL");
 }
 
 //  scr_ScrollUp()

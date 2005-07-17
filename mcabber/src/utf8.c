@@ -13,21 +13,21 @@
  */
 char *utf8_decode(const char *src)
 {
-  unsigned char *ret;
+  unsigned char *ret, *aux;
   
   if (!src) return NULL;
 
-  ret = calloc(1, strlen(src) + 1);
+  aux = ret = calloc(1, strlen(src) + 1);
 
   while (*src) {
     unsigned char lead = *src++;
     if ((lead & 0xe0) == 0xc0) {
       unsigned char ch2 = *src++;
-      *ret = ((lead & 0x1f) << 6) | (ch2 & 0x3f);
+      *aux = ((lead & 0x1f) << 6) | (ch2 & 0x3f);
     } else {
-      *ret = lead;
+      *aux = lead;
     }
-    ret++;
+    aux++;
   }
 
   return (char*)ret;
@@ -43,19 +43,19 @@ char *utf8_decode(const char *src)
  */
 char *utf8_encode(const char *src)
 {
-  unsigned char *ret;
+  unsigned char *ret, *aux;
   
   if (!src) return NULL;
 
-  ret = calloc(1, (strlen(src) * 2) + 1);
+  aux = ret = calloc(1, (strlen(src) * 2) + 1);
 
   while (*src) {
     unsigned char ch = *src++;
     if (ch < 0x80U) {
-      *ret++ = ch;
+      *aux++ = ch;
     } else {  /* if (ch < 0x800U) { */
-      *ret++ = 0xc0 | (ch >> 6);
-      *ret++ = 0x80 | (ch & 0x3f);
+      *aux++ = 0xc0 | (ch >> 6);
+      *aux++ = 0x80 | (ch & 0x3f);
     }
   }
 

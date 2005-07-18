@@ -70,6 +70,7 @@ static char *multiline;
 int update_roster;
 int utf8_mode = 0;
 static bool Autoaway;
+static bool Curses;
 
 static char       inputLine[INPUTLINE_LENGTH+1];
 static char      *ptr_inputline;
@@ -469,6 +470,7 @@ void scr_InitCurses(void)
   halfdelay(5);
   start_color();
   use_default_colors();
+  Curses = TRUE;
 
   ParseColors();
 
@@ -489,6 +491,7 @@ void scr_TerminateCurses(void)
   clear();
   refresh();
   endwin();
+  Curses = FALSE;
   return;
 }
 
@@ -1105,17 +1108,23 @@ void scr_LogPrint(const char *fmt, ...)
 
   timestamp = time(NULL);
   strftime(buffer, 64, "[%H:%M:%S] ", localtime(&timestamp));
-  wprintw(logWnd, "\n%s", buffer);
+  if (Curses)
+    wprintw(logWnd, "\n%s", buffer);
+  else
+    printf("%s", buffer);
 
   va_start(ap, fmt);
   vsnprintf(buffer, 1024, fmt, ap);
   va_end(ap);
 
-  wprintw(logWnd, "%s", buffer);
+  if (Curses) {
+    wprintw(logWnd, "%s", buffer);
+    update_panels();
+    doupdate();
+  } else {
+    printf("%s\n", buffer);
+  }
   free(buffer);
-
-  update_panels();
-  doupdate();
 }
 
 //  scr_set_chatmode()

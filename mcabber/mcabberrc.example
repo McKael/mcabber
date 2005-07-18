@@ -6,6 +6,8 @@
 # Use ssl = 1 to enable SSL
 
 set username = yourusername
+# Note: if the password contains leading or trailing spaces, you must
+# enclose it with quotes: set password = " example password "
 #set password = yourpassword
 set server = your.jabber.server
 #set port = 5222

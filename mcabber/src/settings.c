@@ -119,6 +119,12 @@ guint parse_assigment(gchar *assignment, const gchar **pkey, const gchar **pval)
 
   if (t < val) return TRUE; // no value (variable reset for example)
 
+  // If the value begins and ends with quotes ("), these quotes are
+  // removed and whitespace is not stripped
+  if ((t>val) && (*val == '"' && *t == '"')) {
+    val++;
+    t--;
+  }
   *pval = g_strndup(val, t+1-val);
   return TRUE;
 }

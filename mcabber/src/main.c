@@ -178,7 +178,7 @@ int main(int argc, char **argv)
   int optval, optval2;
   int key;
   unsigned int ping;
-  int ret = 0;
+  int ret;
   unsigned int refresh = 0;
 
   credits();
@@ -209,13 +209,19 @@ int main(int argc, char **argv)
       }
   }
 
+  /* Initialize commands system */
+  cmd_init();
+
   if (configFile)
     ut_WriteLog("Setting config file: %s\n", configFile);
 
   /* Parsing config file... */
   ut_WriteLog("Parsing config file...\n");
-  cfg_file(configFile);
+  ret = cfg_file(configFile);
   if (configFile) g_free(configFile);
+  /* Leave if there was an error in the config. file */
+  if (ret)
+    exit(EXIT_FAILURE);
 
   optstring = settings_opt_get("debug");
   if (optstring) ut_InitDebug(1, optstring);
@@ -256,13 +262,10 @@ int main(int argc, char **argv)
   else
     scr_LogPrint("Can't connect: no password supplied");
 
-  /* Initialize commands system */
-  cmd_init();
-
   ut_WriteLog("Entering into main loop...\n\n");
   ut_WriteLog("Ready to send/receive messages...\n");
 
-  while (ret != 255) {
+  for (ret = 0 ; ret != 255 ; ) {
     key = scr_Getch();
 
     /* The refresh is really an ugly hack, but we need to call doupdate()

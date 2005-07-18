@@ -6,7 +6,9 @@
 #include <glib.h>
 
 #include "settings.h"
+#include "commands.h"
 #include "utils.h"
+#include "screen.h"
 
 //  cfg_file(filename)
 // Read and parse config file "filename".  If filename is NULL,
@@ -18,14 +20,16 @@ int cfg_file(char *filename)
   FILE *fp;
   char *buf;
   char *line;
-  char *value;
+  unsigned int ln = 0;
+  int err = 0;
 
   if (!filename) {
     // Use default config file locations
     char *home = getenv("HOME");
     if (!home) {
       ut_WriteLog("Can't find home dir!\n");
-      exit(EXIT_FAILURE);
+      fprintf(stderr, "Can't find home dir!\n");
+      return -1;
     }
     filename = g_new(char, strlen(home)+24);
     sprintf(filename, "%s/.mcabber/mcabberrc", home);
@@ -34,48 +38,51 @@ int cfg_file(char *filename)
       sprintf(filename, "%s/.mcabberrc", home);
       if ((fp = fopen(filename, "r")) == NULL) {
         fprintf(stderr, "Cannot open config file!\n");
-        exit(EXIT_FAILURE);
+        return -1;
       }
     }
     g_free(filename);
   }
   else if ((fp = fopen(filename, "r")) == NULL) {
     perror("fopen (parsecfg.c:46)");
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
-  buf = g_new(char, 256);
+  // This should be fully rewritten...
+  buf = g_new(char, 512);
 
-  while (fgets(buf, 256, fp) != NULL) {
-    line = buf;
+  while (fgets(buf+1, 511, fp) != NULL) {
+    line = buf+1;
+    ln++;
 
-    while (isspace((int) *line))
+    while (isspace(*line))
       line++;
 
-    while ((strlen(line) > 0)
-	   && isspace((int) line[strlen(line) - 1]))
+    while ((strlen(line) > 0) && isspace((int) line[strlen(line) - 1]))
       line[strlen(line) - 1] = '\0';
 
     if ((*line == '\n') || (*line == '\0') || (*line == '#'))
       continue;
 
     if ((strchr(line, '=') != NULL)) {
-      value = strchr(line, '=');
-      *value = '\0';
-      value++;
-
-      while (isspace((int) *value))
-	value++;
-
-      while ((strlen(line) > 0)
-	     && isspace((int) line[strlen(line) - 1]))
+      while ((strlen(line) > 0) && isspace(line[strlen(line) - 1]))
 	line[strlen(line) - 1] = '\0';
 
-      settings_set(SETTINGS_TYPE_OPTION, line, value);
-      continue;
+      if (strncmp(line, "set ", 4) &&
+          strncmp(line, "bind ", 5) &&
+          strncmp(line, "alias ", 6)) {
+        scr_LogPrint("Error in configuration file (l. %d)", ln);
+        err++;
+        continue;
+      }
+      *(--line) = '/';
+      process_command(line);
+    } else {
+      scr_LogPrint("Error in configuration file (l. %d)", ln);
+      err++;
     }
-    fprintf(stderr, "CFG: orphaned line \"%s\"\n", line);
   }
   g_free(buf);
-  return 1;
+  fclose(fp);
+  return err;
 }

@@ -1,13 +1,18 @@
 mcabber (0.6.4-dev)
 
+ * Configuration file format change (see NEWS file)
+   Aliases & key bindings can be put in the config. file
+ * Enable /set command
  * [FIX] Convert status messages to/from UTF-8
  * The /status command can specify a status message
  * Display the buddy status message when a buddy connects/changes his status
+ * New autoaway feature (see sample config. file)
+ * New "/roster alternate".  Jumps to the last buddy window left in chat mode
+ * Handle "error" message type
  * One Ctrl-C does not terminate mcabber anymore (the 2nd Ctrl-C do), but
    leaves multi-line message mode and aborts current completion
  * Add a sample script to handle events (currently, plays a sounds when
    a message is received)
- * New autoaway feature (see sample config. file)
 
  -- Mikael, ?
 

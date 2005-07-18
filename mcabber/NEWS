@@ -1,3 +1,10 @@
+mcabber (0.6.4)
+
+ * The configuration file format has changed.  Options need to be set using
+   the "set" keywords.  The sample config. file has been updated.
+
+ -- Mikael, 2005-07-18
+
 mcabber (0.6.2)
 
  * Support for old style (i.e. < 0.6.1) history logfiles has been removed.

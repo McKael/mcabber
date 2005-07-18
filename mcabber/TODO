@@ -6,6 +6,7 @@ BUGS:
 TODO:
 
 * Improve debug logging system
+* cfg_file() needs a rewrite
 * Presence notification is always accepted.  We should ask...
 * UTF-8 support (Can somebody help me?)
 * Display status / chat mode
@@ -17,7 +18,6 @@ TODO:
 * Create .mcabber and .mcabber/histo dirs if needed.  Or maybe not.
   However it could be a good idea to check the permissions.
 * Publish personal information
-* Handle message type "error"
 * Show status changes in buddy window (if open)?
 * Options completion
 * Configuration file parsing: parse as commands (set, alias, bind)

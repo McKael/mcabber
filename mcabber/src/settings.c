@@ -35,7 +35,7 @@ typedef struct {
   gchar *value;
 } T_setting;
 
-inline GSList **get_list_ptr(guint type)
+static inline GSList **get_list_ptr(guint type)
 {
   if      (type == SETTINGS_TYPE_OPTION)  return &option;
   else if (type == SETTINGS_TYPE_ALIAS)   return &alias;
@@ -44,7 +44,7 @@ inline GSList **get_list_ptr(guint type)
 }
 
 // Return a pointer to the node with the requested key, or NULL if none found
-GSList *settings_find(GSList *list, const gchar *key)
+static GSList *settings_find(GSList *list, const gchar *key)
 {
   GSList *ptr;
   

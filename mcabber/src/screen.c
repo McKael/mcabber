@@ -42,7 +42,7 @@
 
 #define window_entry(n) list_entry(n, window_entry_t, list)
 
-inline void check_offset(int);
+static inline void check_offset(int);
 
 LIST_HEAD(window_list);
 
@@ -83,27 +83,15 @@ static char   cmdhisto_backup[INPUTLINE_LENGTH+1];
 
 /* Functions */
 
-int scr_WindowWidth(WINDOW * win)
+static int scr_WindowWidth(WINDOW * win)
 {
   int x, y;
   getmaxyx(win, y, x);
   return x;
 }
 
-void scr_clear_box(WINDOW *win, int y, int x, int height, int width, int Color)
-{
-  int i, j;
-
-  wattrset(win, COLOR_PAIR(Color));
-  for (i = 0; i < height; i++) {
-    wmove(win, y + i, x);
-    for (j = 0; j < width; j++)
-      wprintw(win, " ");
-  }
-}
-
-void scr_draw_box(WINDOW * win, int y, int x, int height, int width,
-                  int Color, chtype box, chtype border)
+static void scr_draw_box(WINDOW * win, int y, int x, int height, int width,
+                         int Color, chtype box, chtype border)
 {
   int i, j;
 
@@ -132,7 +120,7 @@ void scr_draw_box(WINDOW * win, int y, int x, int height, int width,
   }
 }
 
-int FindColor(const char *name)
+static int FindColor(const char *name)
 {
   if (!strcmp(name, "default"))
     return -1;
@@ -156,7 +144,7 @@ int FindColor(const char *name)
   return -1;
 }
 
-void ParseColors(void)
+static void ParseColors(void)
 {
   const char *colors[8] = {
     "", "",
@@ -209,8 +197,7 @@ void ParseColors(void)
   }
 }
 
-
-window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
+static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
 {
   int x;
   int y;
@@ -256,7 +243,7 @@ window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   return tmp;
 }
 
-window_entry_t *scr_SearchWindow(const char *winId)
+static window_entry_t *scr_SearchWindow(const char *winId)
 {
   struct list_head *pos, *n;
   window_entry_t *search_entry = NULL;
@@ -274,7 +261,7 @@ window_entry_t *scr_SearchWindow(const char *winId)
 
 //  scr_UpdateWindow()
 // (Re-)Display the given chat window.
-void scr_UpdateWindow(window_entry_t *win_entry)
+static void scr_UpdateWindow(window_entry_t *win_entry)
 {
   int n;
   int width;
@@ -357,7 +344,7 @@ void scr_UpdateWindow(window_entry_t *win_entry)
 
 //  scr_ShowWindow()
 // Display the chat window with the given identifier.
-void scr_ShowWindow(const char *winId)
+static void scr_ShowWindow(const char *winId)
 {
   window_entry_t *win_entry = scr_SearchWindow(winId);
 
@@ -795,21 +782,6 @@ int scr_Getch(void)
   return ch;
 }
 
-WINDOW *scr_GetRosterWindow(void)
-{
-  return rosterWnd;
-}
-
-WINDOW *scr_GetStatusWindow(void)
-{
-  return chatWnd;
-}
-
-WINDOW *scr_GetInputWindow(void)
-{
-  return inputWnd;
-}
-
 //  set_current_buddy(newbuddy)
 // Set the current_buddy to newbuddy (if not NULL)
 // Lock the newbuddy, and unlock the previous current_buddy
@@ -1042,6 +1014,7 @@ void scr_Clear(void)
   doupdate();
 }
 
+// TODO Merge BufferTop & BufferBottom
 //  scr_BufferTop()
 // Jump to the head of the current buddy window
 void scr_BufferTop(void)
@@ -1222,7 +1195,7 @@ inline void scr_cmdhisto_addline(char *line)
 //  scr_cmdhisto_prev()
 // Look for previous line beginning w/ the given mask in the inputLine history
 // Returns NULL if none found
-const char *scr_cmdhisto_prev(char *mask, guint len)
+static const char *scr_cmdhisto_prev(char *mask, guint len)
 {
   GList *hl;
   if (!cmdhisto_cur) {
@@ -1247,7 +1220,7 @@ const char *scr_cmdhisto_prev(char *mask, guint len)
 //  scr_cmdhisto_next()
 // Look for next line beginning w/ the given mask in the inputLine history
 // Returns NULL if none found
-const char *scr_cmdhisto_next(char *mask, guint len)
+static const char *scr_cmdhisto_next(char *mask, guint len)
 {
   GList *hl;
   if (!cmdhisto_cur) return NULL;
@@ -1324,7 +1297,7 @@ void readline_backward_kill_word()
 //  0 -> command
 //  1 -> parameter 1 (etc.)
 //  If > 0, then *p_row is set to the beginning of the row
-int which_row(char **p_row)
+static int which_row(char **p_row)
 {
   int row = -1;
   char *p;
@@ -1357,7 +1330,7 @@ int which_row(char **p_row)
 // Insert the given text at the current cursor position.
 // The cursor is moved.  We don't check if the cursor still is in the screen
 // after, the caller should do that.
-void scr_insert_text(const char *text)
+static void scr_insert_text(const char *text)
 {
   char tmpLine[INPUTLINE_LENGTH+1];
   int len = strlen(text);
@@ -1375,7 +1348,7 @@ void scr_insert_text(const char *text)
 //  scr_handle_tab()
 // Function called when tab is pressed.
 // Initiate or continue a completion...
-void scr_handle_tab(void)
+static void scr_handle_tab(void)
 {
   int nrow;
   char *row;
@@ -1439,7 +1412,7 @@ void scr_handle_tab(void)
   }
 }
 
-void scr_cancel_current_completion(void)
+static void scr_cancel_current_completion(void)
 {
   char *c;
   guint back = cancel_completion();
@@ -1450,7 +1423,7 @@ void scr_cancel_current_completion(void)
     *c = *(c+back);
 }
 
-void scr_end_current_completion(void)
+static void scr_end_current_completion(void)
 {
   done_completion();
   completion_started = FALSE;
@@ -1459,7 +1432,7 @@ void scr_end_current_completion(void)
 //  check_offset(int direction)
 // Check inputline_offset value, and make sure the cursor is inside the
 // screen.
-inline void check_offset(int direction)
+static inline void check_offset(int direction)
 {
   // Left side
   if (inputline_offset && direction <= 0) {
@@ -1478,7 +1451,7 @@ inline void check_offset(int direction)
   }
 }
 
-inline void refresh_inputline(void)
+static inline void refresh_inputline(void)
 {
   mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
   wclrtoeol(inputWnd);

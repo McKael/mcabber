@@ -52,14 +52,14 @@ GList *alternate_buddy;
 /* ### Roster functions ### */
 
 // Comparison function used to search in the roster (compares jids and types)
-gint roster_compare_jid_type(roster *a, roster *b) {
+static gint roster_compare_jid_type(roster *a, roster *b) {
   if (! (a->type & b->type))
     return -1; // arbitrary (but should be != , of course)
   return strcasecmp(a->jid, b->jid);
 }
 
 // Comparison function used to sort the roster (by name)
-gint roster_compare_name(roster *a, roster *b) {
+static gint roster_compare_name(roster *a, roster *b) {
   return strcasecmp(a->name, b->name);
 }
 

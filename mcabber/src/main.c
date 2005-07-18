@@ -131,7 +131,7 @@ void sig_handler(int signum)
   }
 }
 
-void ask_password(void)
+static void ask_password(void)
 {
   char *password, *p;
   size_t passsize = 128;
@@ -165,7 +165,7 @@ void ask_password(void)
   return;
 }
 
-void credits(void)
+static void credits(void)
 {
   printf(MCABBER_VERSION "\n");
   printf(EMAIL "\n");

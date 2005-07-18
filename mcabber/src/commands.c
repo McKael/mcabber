@@ -33,23 +33,23 @@
 #include "settings.h"
 
 // Commands callbacks
-void do_roster(char *arg);
-void do_status(char *arg);
-void do_add(char *arg);
-void do_del(char *arg);
-void do_group(char *arg);
-void do_say(char *arg);
-void do_msay(char *arg);
-void do_buffer(char *arg);
-void do_clear(char *arg);
-void do_info(char *arg);
-void do_rename(char *arg);
-void do_move(char *arg);
-void do_set(char *arg);
-void do_alias(char *arg);
-void do_bind(char *arg);
-void do_connect(char *arg);
-void do_disconnect(char *arg);
+static void do_roster(char *arg);
+static void do_status(char *arg);
+static void do_add(char *arg);
+static void do_del(char *arg);
+static void do_group(char *arg);
+static void do_say(char *arg);
+static void do_msay(char *arg);
+static void do_buffer(char *arg);
+static void do_clear(char *arg);
+static void do_info(char *arg);
+static void do_rename(char *arg);
+static void do_move(char *arg);
+static void do_set(char *arg);
+static void do_alias(char *arg);
+static void do_bind(char *arg);
+static void do_connect(char *arg);
+static void do_disconnect(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -323,7 +323,7 @@ int process_line(char *line)
 
 /* Commands callback functions */
 
-void do_roster(char *arg)
+static void do_roster(char *arg)
 {
   if (!strcasecmp(arg, "top")) {
     scr_RosterTop();
@@ -368,7 +368,7 @@ void do_roster(char *arg)
     scr_LogPrint("Unrecognized parameter!");
 }
 
-void do_status(char *arg)
+static void do_status(char *arg)
 {
   enum imstatus st;
   int len;
@@ -407,7 +407,7 @@ void do_status(char *arg)
   jb_setstatus(st, msg);
 }
 
-void do_add(char *arg)
+static void do_add(char *arg)
 {
   char *id, *nick;
   if (!arg || (*arg == 0)) {
@@ -430,7 +430,7 @@ void do_add(char *arg)
   g_free(id);
 }
 
-void do_del(char *arg)
+static void do_del(char *arg)
 {
   const char *jid;
 
@@ -447,7 +447,7 @@ void do_del(char *arg)
   jb_delbuddy(jid);
 }
 
-void do_group(char *arg)
+static void do_group(char *arg)
 {
   gpointer group;
   guint leave_windowbuddy;
@@ -487,7 +487,7 @@ void do_group(char *arg)
   if (leave_windowbuddy) scr_ShowBuddyWindow();
 }
 
-void do_say(char *arg)
+static void do_say(char *arg)
 {
   gpointer bud;
 
@@ -508,7 +508,7 @@ void do_say(char *arg)
   send_message(arg);
 }
 
-void do_msay(char *arg)
+static void do_msay(char *arg)
 {
   /* Parameters: begin verbatim abort send */
   gpointer bud;
@@ -560,7 +560,7 @@ void do_msay(char *arg)
   scr_set_multimode(FALSE);
 }
 
-void do_buffer(char *arg)
+static void do_buffer(char *arg)
 {
   if (!strcasecmp(arg, "top")) {
     scr_BufferTop();
@@ -572,12 +572,12 @@ void do_buffer(char *arg)
     scr_LogPrint("Unrecognized parameter!");
 }
 
-void do_clear(char *arg)    // Alias for "/buffer clear"
+static void do_clear(char *arg)    // Alias for "/buffer clear"
 {
   do_buffer("clear");
 }
 
-void do_info(char *arg)
+static void do_info(char *arg)
 {
   gpointer bud;
   const char *jid, *name, *st_msg;
@@ -624,7 +624,7 @@ void do_info(char *arg)
   g_free(buffer);
 }
 
-void do_rename(char *arg)
+static void do_rename(char *arg)
 {
   gpointer bud;
   const char *jid, *group;
@@ -660,7 +660,7 @@ void do_rename(char *arg)
   update_roster = TRUE;
 }
 
-void do_move(char *arg)
+static void do_move(char *arg)
 {
   gpointer bud;
   const char *jid, *name;
@@ -694,7 +694,7 @@ void do_move(char *arg)
   update_roster = TRUE;
 }
 
-void do_set(char *arg)
+static void do_set(char *arg)
 {
   guint assign;
   const gchar *option, *value;
@@ -724,7 +724,7 @@ void do_set(char *arg)
   }
 }
 
-void do_alias(char *arg)
+static void do_alias(char *arg)
 {
   guint assign;
   const gchar *alias, *value;
@@ -763,7 +763,7 @@ void do_alias(char *arg)
   }
 }
 
-void do_bind(char *arg)
+static void do_bind(char *arg)
 {
   guint assign;
   const gchar *keycode, *value;
@@ -789,12 +789,12 @@ void do_bind(char *arg)
     settings_set(SETTINGS_TYPE_BINDING, keycode, value);
 }
 
-void do_connect(char *arg)
+static void do_connect(char *arg)
 {
   mcabber_connect();
 }
 
-void do_disconnect(char *arg)
+static void do_disconnect(char *arg)
 {
   jb_disconnect();
 }

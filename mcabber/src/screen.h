@@ -39,8 +39,6 @@ void scr_append_multiline(const char *line);
 inline const char *scr_get_multiline();
 void scr_handle_sigint(void);
 
-WINDOW *scr_GetInputWindow(void);
-
 int scr_Getch(void);
 
 int process_key(int);

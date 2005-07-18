@@ -512,7 +512,7 @@ void scr_CheckAutoAway(bool activity)
 
   cur_st = jb_getstatus();
   // Auto-away is disabled for the following states
-  if ((cur_st == away) || (cur_st == notavail) || (cur_st == invisible))
+  if ((cur_st != available) && (cur_st != freeforchat))
     return;
 
   if (!activity) {

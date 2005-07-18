@@ -28,7 +28,8 @@ set resource = mcabber
 
 # Set the auto-away timeout, in seconds.  If set to a value >0,
 # mcabber will change your status to away if no real activity is detected
-# (command, message, move in the buddylist...)
+# (command, message, move in the buddylist...).  Note: auto-away only changes
+# the status when it is "available" (online) or "free_for_chat".
 #set autoaway = 0
 
 # History logging

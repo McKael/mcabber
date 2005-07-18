@@ -5,24 +5,24 @@
 # If port is not given, default Jabber port will be used.
 # Use ssl = 1 to enable SSL
 
-username = yourusername
-#password = yourpassword
-server = your.jabber.server
-#port = 5222
-ssl = 0
+set username = yourusername
+#set password = yourpassword
+set server = your.jabber.server
+#set port = 5222
+set ssl = 0
 # If you don't know what a resource is, you can leave "mcabber" here.
-resource = mcabber
-#priority = 3
+set resource = mcabber
+#set priority = 3
 
 # Keepalive
 # If you need a ping/keepalive to leave your connection open, you
 # can use the pinginterval.  Setting this option to 0 disables the ping.
 # Default value is 40 seconds.
-#pinginterval = 40
+#set pinginterval = 40
 
 # Set hide_offline_buddies to 1 to display only connected buddies
 # in the roster.
-#hide_offline_buddies = 0
+#set hide_offline_buddies = 0
 
 # Set the auto-away timeout, in seconds.  If set to a value >0,
 # mcabber will change your status to away if no real activity is detected
@@ -33,38 +33,50 @@ resource = mcabber
 # You can save the messages history: set logging = 1
 # You can load (read) the messages history: set load_logs = 1
 # Default logging directory (logging_dir) is $HOME/.mcabber/histo/
-logging = 1
-#load_logs = 1
-#logging_dir = /home/mikael/.mcabber/histo/
+set logging = 1
+#set load_logs = 1
+#set logging_dir = /home/mikael/.mcabber/histo/
 
 # External command for events
 # You can specify a script or process to be launched when an event occurs.
 # For now it is called the following way:
 #   $events_command MSG IN jabber@id
-# ... when receiving a message.
-#events_command = /home/mikael/.mcabber/eventcmd
+# ... when receiving a message (see sample script in contrib/).
+#set events_command = /home/mikael/.mcabber/eventcmd
 
 # Debug logging
 # If you want advanced debug, please specify a file here.
 # You can enable debug in main.c before compiling mcabber, too.
-#debug = /home/mikael/mcabber.log
+#set debug = /home/mikael/mcabber.log
 
 #  Status messages
 # The "message" value will override all others, take care!
-#message = Unique message status
-#message_avail     = I'm available
-#message_free      = I'm free for chat
-#message_dnd       = Please do not disturb
-#message_notavail  = I'm not available
-#message_away      = I'm away
-#message_autoaway  = Auto-away
+#set message = Unique message status
+#set message_avail     = I'm available
+#set message_free      = I'm free for chat
+#set message_dnd       = Please do not disturb
+#set message_notavail  = I'm not available
+#set message_away      = I'm away
+#set message_autoaway  = Auto-away
 
 #  The colors
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white
-#color_background   = blue
-#color_general      = white
-#color_newmessage   = red
-#color_rosternormal = magenta
-#color_rosterselect = black
-#color_backselected = cyan
+#set color_background   = blue
+#set color_general      = white
+#set color_newmessage   = red
+#set color_rosternormal = magenta
+#set color_rosterselect = black
+#set color_backselected = cyan
+
+#  Aliases
+alias online   = status online
+alias away     = status away
+alias dnd      = status dnd
+alias notavail = status notavail
+
+#  Key bindings
+# Ctlr-X (24) bound to /roster alternate
+bind 24 = roster alternate
+# F5 (269) bound to /roster toggle_offline  (centericq-like, IIRC)
+bind 269 = roster toggle_offline
 

@@ -24,6 +24,9 @@
 #include <ctype.h>
 
 #include "settings.h"
+#include "commands.h"
+#include "utils.h"
+#include "screen.h"
 
 static GSList *option;
 static GSList *alias;
@@ -58,6 +61,89 @@ static GSList *settings_find(GSList *list, const gchar *key)
 }
 
 /* -- */
+
+//  cfg_read_file(filename)
+// Read and parse config file "filename".  If filename is NULL,
+// try to open the configuration file at the default locations.
+//
+int cfg_read_file(char *filename)
+{
+  FILE *fp;
+  char *buf;
+  char *line, *eol;
+  unsigned int ln = 0;
+  int err = 0;
+
+  if (!filename) {
+    // Use default config file locations
+    char *home = getenv("HOME");
+    if (!home) {
+      ut_WriteLog("Can't find home dir!\n");
+      fprintf(stderr, "Can't find home dir!\n");
+      return -1;
+    }
+    filename = g_new(char, strlen(home)+24);
+    sprintf(filename, "%s/.mcabber/mcabberrc", home);
+    if ((fp = fopen(filename, "r")) == NULL) {
+      // 2nd try...
+      sprintf(filename, "%s/.mcabberrc", home);
+      if ((fp = fopen(filename, "r")) == NULL) {
+        fprintf(stderr, "Cannot open config file!\n");
+        return -1;
+      }
+    }
+    g_free(filename);
+  }
+  else if ((fp = fopen(filename, "r")) == NULL) {
+    perror("fopen (cfg_file())");
+    return -1;
+  }
+
+  buf = g_new(char, 512);
+
+  while (fgets(buf+1, 511, fp) != NULL) {
+    // The first char is reserved to add a '/', to make a command line
+    line = buf+1;
+    ln++;
+
+    // Strip leading spaces
+    while (isspace(*line))
+      line++;
+
+    // Make eol point to the last char of the line
+    for (eol = line ; *eol ; eol++)
+      ;
+    if (eol > line)
+      eol--;
+
+    // Strip trailing spaces
+    while (eol > line && isspace(*eol))
+      *eol-- = 0;
+
+    // Ignore empty lines and comments
+    if ((*line == '\n') || (*line == '\0') || (*line == '#'))
+      continue;
+
+    if ((strchr(line, '=') != NULL)) {
+      // Only accept the set, alias and bind commands
+      if (strncmp(line, "set ", 4) &&
+          strncmp(line, "bind ", 5) &&
+          strncmp(line, "alias ", 6)) {
+        scr_LogPrint("Error in configuration file (l. %d): bad command", ln);
+        err++;
+        continue;
+      }
+      *(--line) = '/';        // Set the leading '/' to build a command line
+      process_command(line);  // Process the command
+    } else {
+      scr_LogPrint("Error in configuration file (l. %d): no assignment", ln);
+      err++;
+    }
+  }
+  g_free(buf);
+  fclose(fp);
+  return err;
+}
 
 //  parse_assigment(assignment, pkey, pval)
 // Read assignment and split it to key, value

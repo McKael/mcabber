@@ -26,6 +26,7 @@
 #define settings_opt_get(k)     settings_get(SETTINGS_TYPE_OPTION, k)
 #define settings_opt_get_int(k) settings_get_int(SETTINGS_TYPE_OPTION, k)
 
+int     cfg_read_file(char *filename);
 guint   parse_assigment(gchar *assignment,
                         const gchar **pkey, const gchar **pval);
 void    settings_set(guint type, const gchar *key, const gchar *value);

@@ -34,7 +34,6 @@
 
 #include "jabglue.h"
 #include "screen.h"
-#include "parsecfg.h"
 #include "settings.h"
 #include "roster.h"
 #include "commands.h"
@@ -217,7 +216,7 @@ int main(int argc, char **argv)
 
   /* Parsing config file... */
   ut_WriteLog("Parsing config file...\n");
-  ret = cfg_file(configFile);
+  ret = cfg_read_file(configFile);
   if (configFile) g_free(configFile);
   /* Leave if there was an error in the config. file */
   if (ret)

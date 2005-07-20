@@ -16,7 +16,7 @@
 #define MSG_DND       "Busy"
 #define MSG_NOTAVAIL  "Not available"
 #define MSG_AWAY      "Away"
-#define MSG_AUTOAWAY  "Auto away"
+#define MSG_AUTOAWAY  "Auto away status (idle)"
 
 
 #define SETTINGS_TYPE_OPTION    1

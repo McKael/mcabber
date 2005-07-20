@@ -1,4 +1,4 @@
-mcabber (0.6.4-dev)
+mcabber (0.6.4)
 
  * Configuration file format change (see NEWS file)
    Aliases & key bindings can be put in the config. file
@@ -11,10 +11,10 @@ mcabber (0.6.4-dev)
  * Handle "error" message type
  * One Ctrl-C does not terminate mcabber anymore (the 2nd Ctrl-C do), but
    leaves multi-line message mode and aborts current completion
- * Add a sample script to handle events (currently, plays a sounds when
+ * Add a sample script to handle events (currently, it plays a sounds when
    a message is received)
 
- -- Mikael, ?
+ -- Mikael, 2005-07-20
 
 mcabber (0.6.3)
 

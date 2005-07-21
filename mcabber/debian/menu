@@ -1,0 +1,2 @@
+?package(mcabber):needs="text" section="Apps/Net"\
+  title="MCabber" command="/usr/bin/mcabber"

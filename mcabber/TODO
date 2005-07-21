@@ -5,6 +5,8 @@ BUGS:
 
 TODO:
 
+* More events
+* Add debian/ directory
 * Improve debug logging system
 * Implement automatic reconnection after network failure
 * Presence notification is always accepted.  We should ask...

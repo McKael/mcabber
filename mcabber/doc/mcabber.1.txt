@@ -201,7 +201,7 @@ The following files can be used by `mcabber(1)`:
 
 BUGS
 ----
-Certainly a lot.  Please tell me if you find one!  :-)
+Certainly.  Please tell me if you find one!  :-)
 
 AUTHOR
 ------

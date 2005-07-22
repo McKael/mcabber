@@ -29,7 +29,7 @@
 #include "utf8.h"
 #include "hbuf.h"
 
-static char *extcommand;
+static char *extcmd;
 
 inline void hk_message_in(const char *jid, time_t timestamp, const char *msg,
                           const char *type)
@@ -56,6 +56,7 @@ inline void hk_message_in(const char *jid, time_t timestamp, const char *msg,
   // We don't log the message if it is an error message
   if (!(message_flags & HBB_PREFIX_ERR))
     hlog_write_message(jid, timestamp, FALSE, msg);
+  // External command
   hk_ext_cmd(jid, 'M', 'R', NULL);
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set
@@ -71,6 +72,8 @@ inline void hk_message_out(const char *jid, time_t timestamp, const char *msg)
 {
   scr_WriteOutgoingMessage(jid, msg);
   hlog_write_message(jid, timestamp, TRUE, msg);
+  // External command
+  hk_ext_cmd(jid, 'M', 'S', NULL);
 }
 
 inline void hk_statuschange(const char *jid, time_t timestamp, 
@@ -83,6 +86,8 @@ inline void hk_statuschange(const char *jid, time_t timestamp,
   buddylist_build();
   scr_DrawRoster();
   hlog_write_status(jid, 0, status, status_msg);
+  // External command
+  hk_ext_cmd(jid, 'S', imstatus2char[status], NULL);
 }
 
 inline void hk_mystatuschange(time_t timestamp,
@@ -105,12 +110,12 @@ inline void hk_mystatuschange(time_t timestamp,
 // Can be called with parameter NULL to reset and free memory.
 void hk_ext_cmd_init(const char *command)
 {
-  if (extcommand) {
-    g_free(extcommand);
-    extcommand = NULL;
+  if (extcmd) {
+    g_free(extcmd);
+    extcmd = NULL;
   }
   if (command)
-    extcommand = g_strdup(command);
+    extcmd = g_strdup(command);
 }
 
 //  hk_ext_cmd()
@@ -119,21 +124,44 @@ void hk_ext_cmd_init(const char *command)
 void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
 {
   pid_t pid;
+  char *arg_type = NULL;
+  char *arg_info = NULL;
+  char *arg_data = NULL;
+  char status_str[2];
 
-  if (!extcommand) return;
+  if (!extcmd) return;
 
-  // For now we'll only handle incoming messages
-  if (type != 'M') return;
-  if (info != 'R') return;
+  // Prepare arg_* (external command parameters)
+  switch (type) {
+    case 'M':
+        arg_type = "MSG";
+        if (info == 'R')
+          arg_info = "IN";
+        else if (info == 'S')
+          arg_info = "OUT";
+
+        break;
+    case 'S':
+        arg_type = "STATUS";
+        if (strchr(imstatus2char, tolower(info))) {
+          status_str[0] = toupper(info);
+          status_str[1] = 0;
+          arg_info = status_str;
+        }
+        break;
+    default:
+        return;
+  }
+
+  if (!arg_type || !arg_info) return;
 
   if ((pid=fork()) == -1) {
     scr_LogPrint("Fork error, cannot launch external command.");
     return;
   }
 
-  // I don't remember what I should do with the parent process...
   if (pid == 0) { // child
-    if (execl(extcommand, extcommand, "MSG", "IN", jid, NULL) == -1) {
+    if (execl(extcmd, extcmd, arg_type, arg_info, jid, arg_data) == -1) {
       // ut_WriteLog("Cannot execute external command.\n");
       exit(1);
     }

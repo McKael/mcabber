@@ -26,5 +26,8 @@ if [ $event == "MSG" ]; then
       # Outgoing message for buddy $arg2
       ;;
   esac
+elif [ $event == "STATUS" ]; then
+  # Buddy $arg2 status is $arg1 (_, O, I, F, D, N, A)
+  echo > /dev/null
 fi
 

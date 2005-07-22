@@ -42,9 +42,11 @@ set logging = 1
 
 # External command for events
 # You can specify a script or process to be launched when an event occurs.
-# For now it is called the following way:
-#   $events_command MSG IN jabber@id
-# ... when receiving a message (see sample script in contrib/).
+# The command is called the following way:
+#   $events_command MSG IN jabber@id        (when receiving a message)
+#   $events_command MSG OUT jabber@id       (when sending a message)
+#   $events_command STATUS X jabber@id      (new buddy status is X)
+# See sample script in contrib/ directory.
 #set events_command = /home/mikael/.mcabber/eventcmd
 
 # Debug logging

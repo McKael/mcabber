@@ -10,7 +10,6 @@ Section: net
 Priority: optional
 Architecture: any
 Depends: ${shlibs:Depends}, libglib2.0-0, libncurses5, libssl0.9.7, pkg-config
-Maintainer: Mikael BERTHE <mikael.berthe@lilotux.net>
 Description: Small Jabber console client
  MCabber is a Jabber text-mode client, which includes features such as
  SSL support, history logging, commands completion, and external actions

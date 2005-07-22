@@ -45,8 +45,8 @@ static int regmode, regdone;
 static enum imstatus mystatus = offline;
 unsigned char online;
 
-char imstatus2char[imstatus_size] = {
-    '_', 'o', 'i', 'f', 'd', 'n', 'a'
+char imstatus2char[imstatus_size+1] = {
+    '_', 'o', 'i', 'f', 'd', 'n', 'a', '\0'
 };
 
 static enum {

@@ -94,7 +94,7 @@ static void write_histo_line(const char *jid,
    *
    * Types:
    * - M message    Info: S (send) R (receive)
-   * - S status     Info: [oaifdcn]
+   * - S status     Info: [_oifdna]
    * We don't check them, we'll trust the caller.
    */
 

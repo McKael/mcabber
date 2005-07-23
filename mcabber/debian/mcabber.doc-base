@@ -5,8 +5,8 @@ Abstract: This manual describes what mcabber is
  and how it can be used.
 Section: Apps/Net
 
-Format: text
-Files: /usr/share/doc/mcabber/mcabber.1.txt.gz
+#Format: text
+#Files: /usr/share/doc/mcabber/mcabber.1.txt.gz
 
 Format: HTML
 Index: /usr/share/doc/mcabber/mcabber.1.html

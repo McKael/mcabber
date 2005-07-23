@@ -76,8 +76,12 @@ void mcabber_connect(void)
   jb_set_priority(settings_opt_get_int("priority"));
 
   /* Connect to server */
-  ut_WriteLog("Connecting to server: %s:%d\n", servername, port);
-  scr_LogPrint("Connecting to server: %s:%d", servername, port);
+  ut_WriteLog("Connecting to server: %s\n", servername);
+  scr_LogPrint("Connecting to server: %s", servername);
+  if (port) {
+    ut_WriteLog(" using port %d\n", port);
+    scr_LogPrint(" using port %d", port);
+  }
 
   jid = compose_jid(username, servername, resource);
   jc = jb_connect(jid, port, ssl, password);

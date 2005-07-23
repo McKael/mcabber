@@ -139,8 +139,7 @@ jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass)
       port = JABBERPORT;
   }
 
-  //if (jc)
-  //  free(jc); XXX
+  jb_disconnect();
 
   s_id = 1;
   jc = jab_new((char*)jid, (char*)pass, port, ssl);
@@ -580,7 +579,7 @@ void statehandler(jconn conn, int state)
   switch(state) {
     case JCONN_STATE_OFF:
         if (previous_state != JCONN_STATE_OFF)
-          scr_LogPrint("+ JCONN_STATE_OFF");
+          scr_LogPrint("[Jabber] Not connected to the server");
 
         online = FALSE;
         mystatus = offline;
@@ -589,20 +588,21 @@ void statehandler(jconn conn, int state)
         break;
 
     case JCONN_STATE_CONNECTED:
-        scr_LogPrint("+ JCONN_STATE_CONNECTED");
+        scr_LogPrint("[Jabber] Connected to the server");
         break;
 
     case JCONN_STATE_AUTH:
-        scr_LogPrint("+ JCONN_STATE_AUTH");
+        scr_LogPrint("[Jabber] Authenticating to the server");
         break;
 
     case JCONN_STATE_ON:
-        scr_LogPrint("+ JCONN_STATE_ON");
+        scr_LogPrint("[Jabber] Communication with the server established");
         online = TRUE;
         break;
 
     case JCONN_STATE_CONNECTING:
-        scr_LogPrint("+ JCONN_STATE_CONNECTING");
+        if (previous_state != state)
+        scr_LogPrint("[Jabber] Connecting to the server");
         break;
 
     default:

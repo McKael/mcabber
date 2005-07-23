@@ -36,7 +36,9 @@ set resource = mcabber
 # You can save the messages history: set logging = 1
 # You can load (read) the messages history: set load_logs = 1
 # Default logging directory (logging_dir) is $HOME/.mcabber/histo/
-set logging = 1
+# Defaults for logging, load_logs are 0 (disabled)
+# Note: and the logging directory must exist if you enable logging.
+#set logging = 1
 #set load_logs = 1
 #set logging_dir = /home/mikael/.mcabber/histo/
 

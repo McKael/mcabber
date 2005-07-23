@@ -563,9 +563,9 @@ static void do_msay(char *arg)
 static void do_buffer(char *arg)
 {
   if (!strcasecmp(arg, "top")) {
-    scr_BufferTop();
+    scr_BufferTopBottom(-1);
   } else if (!strcasecmp(arg, "bottom")) {
-    scr_BufferBottom();
+    scr_BufferTopBottom(1);
   } else if (!strcasecmp(arg, "clear")) {
     scr_Clear();
   } else

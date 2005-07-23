@@ -248,6 +248,8 @@ static window_entry_t *scr_SearchWindow(const char *winId)
   struct list_head *pos, *n;
   window_entry_t *search_entry = NULL;
 
+  if (!winId) return NULL;
+
   list_for_each_safe(pos, n, &window_list) {
     search_entry = window_entry(pos);
     if (search_entry->name) {
@@ -906,82 +908,45 @@ void scr_RosterJumpAlternate(void)
     scr_ShowBuddyWindow();
 }
 
-//  scr_ScrollUp()
-// Scroll up the current buddy window, half a screen.
-void scr_ScrollUp(void)
+//  scr_ScrollUpDown()
+// Scroll up/down the current buddy window, half a screen.
+// (up if updown == -1, down if updown == 1)
+void scr_ScrollUpDown(int updown)
 {
-  const gchar *jid;
   window_entry_t *win_entry;
   int n, nblines;
   GList *hbuf_top;
 
   // Get win_entry
-  if (!current_buddy)
-    return;
-  jid = CURRENT_JID;
-  if (!jid)
-    return;
-  win_entry  = scr_SearchWindow(jid);
-  if (!win_entry)
-    return;
+  if (!current_buddy) return;
+  win_entry  = scr_SearchWindow(CURRENT_JID);
+  if (!win_entry) return;
 
-  // Scroll up half a screen (or less)
-  nblines = CHAT_WIN_HEIGHT/2-1;
-  hbuf_top = win_entry->top;
-  if (!hbuf_top) {
-    hbuf_top = g_list_last(win_entry->hbuf);
-    if (!win_entry->cleared)
-      nblines *= 3;
-    else
-      win_entry->cleared = FALSE;
-  }
-
-  n = 0;
-  while (hbuf_top && n < nblines && g_list_previous(hbuf_top)) {
-    hbuf_top = g_list_previous(hbuf_top);
-    n++;
-  }
-  win_entry->top = hbuf_top;
-
-  // Refresh the window
-  scr_UpdateWindow(win_entry);
-
-  // Finished :)
-  update_panels();
-  doupdate();
-}
-
-//  scr_ScrollDown()
-// Scroll down the current buddy window, half a screen.
-void scr_ScrollDown(void)
-{
-  const gchar *jid;
-  window_entry_t *win_entry;
-  int n, nblines;
-  GList *hbuf_top;
-
-  // Get win_entry
-  if (!current_buddy)
-    return;
-  jid = CURRENT_JID;
-  if (!jid)
-    return;
-  win_entry  = scr_SearchWindow(jid);
-  if (!win_entry)
-    return;
-
-  // Scroll down half a screen (or less)
+  // Scroll half a screen (or less)
   nblines = CHAT_WIN_HEIGHT/2-1;
   hbuf_top = win_entry->top;
 
-  for (n=0 ; hbuf_top && n < nblines ; n++)
-    hbuf_top = g_list_next(hbuf_top);
-  win_entry->top = hbuf_top;
-  // Check if we are at the bottom
-  for (n=0 ; hbuf_top && n < CHAT_WIN_HEIGHT-1 ; n++)
-    hbuf_top = g_list_next(hbuf_top);
-  if (!hbuf_top)
-    win_entry->top = NULL; // End reached
+  if (updown == -1) {   // UP
+    if (!hbuf_top) {
+      hbuf_top = g_list_last(win_entry->hbuf);
+      if (!win_entry->cleared)
+        nblines *= 3;
+      else
+        win_entry->cleared = FALSE;
+    }
+    for (n=0 ; hbuf_top && n < nblines && g_list_previous(hbuf_top) ; n++)
+      hbuf_top = g_list_previous(hbuf_top);
+    win_entry->top = hbuf_top;
+  } else {              // DOWN
+    for (n=0 ; hbuf_top && n < nblines ; n++)
+      hbuf_top = g_list_next(hbuf_top);
+    win_entry->top = hbuf_top;
+    // Check if we are at the bottom
+    for (n=0 ; hbuf_top && n < CHAT_WIN_HEIGHT-1 ; n++)
+      hbuf_top = g_list_next(hbuf_top);
+    if (!hbuf_top)
+      win_entry->top = NULL; // End reached
+  }
 
   // Refresh the window
   scr_UpdateWindow(win_entry);
@@ -995,18 +960,12 @@ void scr_ScrollDown(void)
 // Clear the current buddy window (used for the /clear command)
 void scr_Clear(void)
 {
-  const gchar *jid;
   window_entry_t *win_entry;
 
   // Get win_entry
-  if (!current_buddy)
-    return;
-  jid = CURRENT_JID;
-  if (!jid)
-    return;
-  win_entry  = scr_SearchWindow(jid);
-  if (!win_entry)
-    return;
+  if (!current_buddy) return;
+  win_entry  = scr_SearchWindow(CURRENT_JID);
+  if (!win_entry) return;
 
   win_entry->cleared = TRUE;
   win_entry->top = NULL;
@@ -1019,50 +978,23 @@ void scr_Clear(void)
   doupdate();
 }
 
-// TODO Merge BufferTop & BufferBottom
-//  scr_BufferTop()
-// Jump to the head of the current buddy window
-void scr_BufferTop(void)
+//  scr_BufferTopBottom()
+// Jump to the head/tail of the current buddy window
+// (top if topbottom == -1, bottom topbottom == 1)
+void scr_BufferTopBottom(int topbottom)
 {
-  const gchar *jid;
   window_entry_t *win_entry;
 
   // Get win_entry
   if (!current_buddy) return;
-  jid = CURRENT_JID;
-  if (!jid) return;
-  win_entry  = scr_SearchWindow(jid);
-
+  win_entry  = scr_SearchWindow(CURRENT_JID);
   if (!win_entry) return;
 
   win_entry->cleared = FALSE;
-  win_entry->top = g_list_first(win_entry->hbuf);
-
-  // Refresh the window
-  scr_UpdateWindow(win_entry);
-
-  // Finished :)
-  update_panels();
-  doupdate();
-}
-
-//  scr_BufferBottom()
-// Jump to the end of the current buddy window
-void scr_BufferBottom(void)
-{
-  const gchar *jid;
-  window_entry_t *win_entry;
-
-  // Get win_entry
-  if (!current_buddy) return;
-  jid = CURRENT_JID;
-  if (!jid) return;
-  win_entry  = scr_SearchWindow(jid);
-
-  if (!win_entry) return;
-
-  win_entry->cleared = FALSE;
-  win_entry->top = NULL;
+  if (topbottom == 1)
+    win_entry->top = NULL;
+  else
+    win_entry->top = g_list_first(win_entry->hbuf);
 
   // Refresh the window
   scr_UpdateWindow(win_entry);
@@ -1597,10 +1529,10 @@ int process_key(int key)
           *ptr_inputline = 0;
           break;
       case 16:  // Ctrl-p
-          scr_ScrollUp();
+          scr_ScrollUpDown(-1);
           break;
       case 14:  // Ctrl-n
-          scr_ScrollDown();
+          scr_ScrollUpDown(1);
           break;
       case 17:  // Ctrl-q
           scr_CheckAutoAway(TRUE);

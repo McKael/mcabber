@@ -538,6 +538,11 @@ void scr_DrawMainWindow(unsigned int fullinit)
     logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
     logWnd    = newwin(LOG_WIN_HEIGHT-2, maxX-2, CHAT_WIN_HEIGHT+1, 1);
     inputWnd  = newwin(1, maxX, maxY-1, 0);
+    if (!rosterWnd || !chatWnd || !logWnd || !inputWnd) {
+      scr_TerminateCurses();
+      fprintf(stderr, "Cannot create windows!\n");
+      exit(EXIT_FAILURE);
+    }
     wbkgd(rosterWnd,      COLOR_PAIR(COLOR_GENERAL));
     wbkgd(chatWnd,        COLOR_PAIR(COLOR_GENERAL));
     wbkgd(logWnd_border,  COLOR_PAIR(COLOR_GENERAL));

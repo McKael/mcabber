@@ -23,6 +23,8 @@
 <p><tt>mcabber(1)</tt> is a small Jabber console client.<br />
 For now it needs a configuration file to start, so please copy the sample
 mcabberrc file and adapt your connection settings.</p>
+<p>You also need to have an existing Jabber account to use this software, as
+it cannot (un)register accounts yet.</p>
 <p>The <tt>mcabber(1)</tt> screen is divided into 4 regions.
 The <b>roster</b>, alias <b>buddylist</b>, is on the left.  The <b>chat window</b>, or chat
 buffer, is on the right.  The <b>input line</b> lies at the bottom of the screen,
@@ -390,7 +392,10 @@ leave multi-line mode without sending the message
         the buddies to another group with the /move command).
 </dd>
 <dt><b>
-/roster bottom|top|hide_offline|show_offline|toggle_offline|alternate|unread_first|unread_next
+/roster bottom|top|hide_offline|show_offline|toggle_offline
+</b></dt>
+<dt><b>
+/roster alternate|unread_first|unread_next
 </b></dt>
 <dt><b>
 /roster search bud
@@ -497,7 +502,7 @@ jump to the next unread message
 $HOME/.mcabberrc            Configuration file used if no other has been found
 $HOME/.mcabber/histo/       Default directory for storing chat history files, if enabled</pre></div>
 <h2>BUGS</h2>
-<p>Certainly a lot.  Please tell me if you find one!  :-)</p>
+<p>Certainly.  Please tell me if you find one!  :-)</p>
 <h2>AUTHOR</h2>
 <p>Written by <a href="mailto:mcabber@lilotux.net">Mikael BERTHE</a>.<br />
 Originally based on <a href="http://cabber.sourceforge.net">Cabber</a>, please
@@ -511,8 +516,8 @@ Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com
 License (GPL).</p>
 <div id="footer">
 <p>
-Version 0.6.4<br />
-Last updated 17-Jul-2005 21:49:05 CEST
+Version 0.6.5-dev<br />
+Last updated 23-Jul-2005 16:09:54 CEST
 </p>
 </div>
 </div>

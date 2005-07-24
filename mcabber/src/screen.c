@@ -477,6 +477,7 @@ void scr_InitCurses(void)
 
 void scr_TerminateCurses(void)
 {
+  if (!Curses) return;
   clear();
   refresh();
   endwin();

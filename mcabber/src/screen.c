@@ -1399,6 +1399,7 @@ static inline void refresh_inputline(void)
 
 void scr_handle_sigint(void)
 {
+  if (!Curses) return;
   // Leave multi-line mode
   process_command("/msay abort");
   // Same as Ctrl-g, now

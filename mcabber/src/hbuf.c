@@ -238,11 +238,10 @@ GList *hbuf_previous_persistent(GList *l_line)
   return NULL;
 }
 
-//  hbuf_get_lines(hbuf, n, where)  FIXME bad comments XXX
-// Returns an array of 2*n pointers (for n prefixes + n lines from hbuf)
-// (prefix line 1, line 1, prefix line 2, line 2, etc.)
+//  hbuf_get_lines(hbuf, n)
+// Returns an array of n *hbb_line pointers
 // (The first line will be the line currently pointed by hbuf)
-// Note:The caller should free the array after use.
+// Note: The caller should free the array and the text pointers after use.
 hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
 {
   unsigned int i;

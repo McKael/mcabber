@@ -4,6 +4,8 @@
 void ut_InitDebug(unsigned int level, const char *file);
 void ut_WriteLog(const char *fmt, ...);
 
+int checkset_perm(const char *name, unsigned int setmode);
+
 int    to_iso8601(char *dststr, time_t timestamp);
 time_t from_iso8601(const char *timestamp, int utc);
 

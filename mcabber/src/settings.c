@@ -92,11 +92,20 @@ int cfg_read_file(char *filename)
         return -1;
       }
     }
+    // Check configuration file permissions
+    // As it could contain sensitive data, we make it user-readable only
+    checkset_perm(filename, TRUE);
+    // Check mcabber dir.  There we just warn, we don't change the modes
+    sprintf(filename, "%s/.mcabber/", home);
+    checkset_perm(filename, FALSE);
     g_free(filename);
-  }
-  else if ((fp = fopen(filename, "r")) == NULL) {
-    perror("fopen (cfg_file())");
-    return -1;
+  } else {
+    if ((fp = fopen(filename, "r")) == NULL) {
+      perror("fopen (cfg_file())");
+      return -1;
+    }
+    // Check configuration file permissions (see above)
+    checkset_perm(filename, TRUE);
   }
 
   buf = g_new(char, 512);

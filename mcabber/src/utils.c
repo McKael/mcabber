@@ -26,8 +26,12 @@
 #include <string.h>
 #include <stdarg.h>
 #include <time.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <config.h>
+#include "screen.h"
 
 static int DebugEnabled;
 static char *FName;
@@ -88,6 +92,45 @@ void ut_WriteLog(const char *fmt, ...)
     free(buffer);
     fclose(fp);
   }
+}
+
+//  checkset_perm(name, setmode)
+// Check the permissions of the "name" file/dir
+// If setmode is true, correct the permissions if they are wrong
+// Return values: -1 == bad file/dir, 0 == success, 1 == cannot correct
+int checkset_perm(const char *name, unsigned int setmode)
+{
+  int fd;
+  struct stat buf;
+
+  fd = lstat(name, &buf);
+  if (fd == -1) return -1;
+
+  if (buf.st_uid != geteuid()) {
+    scr_LogPrint("Wrong file owner [%s]", name);
+    return 1;
+  }
+
+  if (buf.st_mode & (S_IRGRP | S_IWGRP | S_IXGRP) ||
+      buf.st_mode & (S_IROTH | S_IWOTH | S_IXOTH)) {
+    if (setmode) {
+      mode_t newmode = 0;
+      scr_LogPrint("Bad permissions [%s]", name);
+      if (S_ISDIR(buf.st_mode))
+        newmode |= S_IXUSR;
+      newmode |= S_IRUSR | S_IWUSR;
+      if (chmod(name, newmode)) {
+        scr_LogPrint("WARNING: Failed to correct permissions!");
+        return 1;
+      }
+      scr_LogPrint("Permissions have been corrected");
+    } else {
+      scr_LogPrint("WARNING: Bad permissions [%s]", name);
+      return 1;
+    }
+  }
+
+  return 0;
 }
 
 //  to_iso8601(dststr, timestamp)
@@ -185,4 +228,3 @@ time_t from_iso8601(const char *timestamp, int utc)
 
   return retval;
 }
-

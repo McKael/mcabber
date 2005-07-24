@@ -229,7 +229,7 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
       int l = strlen(root_dir);
       if (l < 1) {
         scr_LogPrint("root_dir too short");
-        UseFileLogging = FALSE;
+        UseFileLogging = FileLoadLogs = FALSE;
         return;
       }
       // RootDir must be slash-terminated
@@ -247,11 +247,16 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
       strcpy(RootDir, home);
       strcat(RootDir, dir);
     }
-    // FIXME
-    // We should check the directory actually exists
-  } else    // Disable history logging
-    if (RootDir) {
-    g_free(RootDir);
+    // Check directory permissions (should not be readable by group/others)
+    if (checkset_perm(RootDir, TRUE) == -1) {
+      // The directory does not actually exists
+      g_free(RootDir);
+      scr_LogPrint("ERROR: Can't access history log directory");
+      UseFileLogging = FileLoadLogs = FALSE;
+    }
+  } else {  // Disable history logging
+    if (RootDir)
+      g_free(RootDir);
   }
 }
 

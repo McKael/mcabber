@@ -909,10 +909,10 @@ void scr_RosterJumpAlternate(void)
     scr_ShowBuddyWindow();
 }
 
-//  scr_ScrollUpDown()
+//  scr_BufferScrollUpDown()
 // Scroll up/down the current buddy window, half a screen.
 // (up if updown == -1, down if updown == 1)
-void scr_ScrollUpDown(int updown)
+void scr_BufferScrollUpDown(int updown)
 {
   window_entry_t *win_entry;
   int n, nblines;
@@ -957,9 +957,9 @@ void scr_ScrollUpDown(int updown)
   doupdate();
 }
 
-//  scr_Clear()
+//  scr_BufferClear()
 // Clear the current buddy window (used for the /clear command)
-void scr_Clear(void)
+void scr_BufferClear(void)
 {
   window_entry_t *win_entry;
 
@@ -1532,10 +1532,10 @@ int process_key(int key)
           *ptr_inputline = 0;
           break;
       case 16:  // Ctrl-p
-          scr_ScrollUpDown(-1);
+          scr_BufferScrollUpDown(-1);
           break;
       case 14:  // Ctrl-n
-          scr_ScrollUpDown(1);
+          scr_BufferScrollUpDown(1);
           break;
       case 17:  // Ctrl-q
           scr_CheckAutoAway(TRUE);

@@ -50,7 +50,7 @@ void scr_RosterTop(void);
 void scr_RosterBottom(void);
 void scr_RosterSearch(char *);
 void scr_BufferTopBottom(int topbottom);
-void scr_Clear(void);
+void scr_BufferClear(void);
 void scr_RosterUnreadMessage(int);
 void scr_RosterJumpAlternate(void);
 

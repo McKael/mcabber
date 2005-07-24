@@ -569,7 +569,7 @@ static void do_buffer(char *arg)
   } else if (!strcasecmp(arg, "bottom")) {
     scr_BufferTopBottom(1);
   } else if (!strcasecmp(arg, "clear")) {
-    scr_Clear();
+    scr_BufferClear();
   } else
     scr_LogPrint("Unrecognized parameter!");
 }

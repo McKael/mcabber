@@ -514,6 +514,8 @@ static void do_msay(char *arg)
   gpointer bud;
 
   if (!strcasecmp(arg, "abort")) {
+    if (scr_get_multimode())
+      scr_LogPrint("Leaving multi-line message mode");
     scr_set_multimode(FALSE);
     return;
   } else if ((!strcasecmp(arg, "begin")) || (!strcasecmp(arg, "verbatim"))) {

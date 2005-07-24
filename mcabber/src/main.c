@@ -127,8 +127,8 @@ void sig_handler(int signum)
       mcabber_disconnect("Killed by SIGINT");
     LastSigtermTime = now;
     signal(SIGINT, sig_handler);
-    scr_LogPrint("Hit Ctrl-C twice to leave mcabber");
     scr_handle_sigint();
+    scr_LogPrint("Hit Ctrl-C twice to leave mcabber");
   } else {
     ut_WriteLog("Caught signal: %d\n", signum);
   }

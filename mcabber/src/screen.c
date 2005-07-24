@@ -1399,7 +1399,8 @@ static inline void refresh_inputline(void)
 
 void scr_handle_sigint(void)
 {
-  scr_LogPrint("In screen. completion_started=%d", completion_started);
+  // Leave multi-line mode
+  process_command("/msay abort");
   // Same as Ctrl-g, now
   scr_cancel_current_completion();
   scr_end_current_completion();

@@ -251,7 +251,8 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
     if (checkset_perm(RootDir, TRUE) == -1) {
       // The directory does not actually exists
       g_free(RootDir);
-      scr_LogPrint("ERROR: Can't access history log directory");
+      scr_LogPrint("ERROR: Cannot access history log directory, "
+                   "logging DISABLED");
       UseFileLogging = FileLoadLogs = FALSE;
     }
   } else {  // Disable history logging

@@ -589,9 +589,11 @@ static void do_buffer(char *arg)
   } else
     scr_LogPrint("Unrecognized parameter!");
 
-  // Is it a string search command?
-  if (search_dir)
+  if (search_dir) { // It is a string search command
+    for ( ; *arg && *arg == ' ' ; arg++)
+      ;
     scr_BufferSearch(search_dir, arg);
+  }
 }
 
 static void do_clear(char *arg)    // Alias for "/buffer clear"

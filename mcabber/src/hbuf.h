@@ -34,5 +34,6 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width);
 GList *hbuf_previous_persistent(GList *l_line);
 
 hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n);
+GList *hbuf_search(GList *hbuf, int direction, const char *string);
 
 #endif /* __HBUF_H__ */

@@ -127,6 +127,8 @@ void cmd_init(void)
   compl_add_category_word(COMPL_BUFFER, "bottom");
   compl_add_category_word(COMPL_BUFFER, "clear");
   compl_add_category_word(COMPL_BUFFER, "top");
+  compl_add_category_word(COMPL_BUFFER, "search_backward");
+  compl_add_category_word(COMPL_BUFFER, "search_forward");
 
   // Group category
   compl_add_category_word(COMPL_GROUP, "fold");
@@ -564,14 +566,32 @@ static void do_msay(char *arg)
 
 static void do_buffer(char *arg)
 {
+  int search_dir = 0;
+
   if (!strcasecmp(arg, "top")) {
     scr_BufferTopBottom(-1);
   } else if (!strcasecmp(arg, "bottom")) {
     scr_BufferTopBottom(1);
   } else if (!strcasecmp(arg, "clear")) {
     scr_BufferClear();
+  } else if (!strncasecmp(arg, "search_backward", 15)) {
+    arg += 15;
+    if (*arg++ == ' ')
+      search_dir = -1;
+    else
+      scr_LogPrint("Missing parameter");
+  } else if (!strncasecmp(arg, "search_forward", 14)) {
+    arg += 14;
+    if (*arg++ == ' ')
+      search_dir = 1;
+    else
+      scr_LogPrint("Missing parameter");
   } else
     scr_LogPrint("Unrecognized parameter!");
+
+  // Is it a string search command?
+  if (search_dir)
+    scr_BufferSearch(search_dir, arg);
 }
 
 static void do_clear(char *arg)    // Alias for "/buffer clear"

@@ -19,6 +19,7 @@
  * USA
  */
 
+#define _GNU_SOURCE  /* We need glibc for strptime */
 #include <string.h>
 
 #include "hbuf.h"
@@ -239,7 +240,7 @@ GList *hbuf_previous_persistent(GList *l_line)
 }
 
 //  hbuf_get_lines(hbuf, n)
-// Returns an array of n *hbb_line pointers
+// Returns an array of n hbb_line pointers
 // (The first line will be the line currently pointed by hbuf)
 // Note: The caller should free the array and the text pointers after use.
 hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
@@ -269,3 +270,27 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
   return array;
 }
 
+//  hbuf_search(hbuf, direction, string)
+// Look backward/forward for a line containing string in the history buffer
+// Search starts at hbuf, and goes forward if direction == 1, backward if -1
+GList *hbuf_search(GList *hbuf, int direction, const char *string)
+{
+  hbuf_block *blk;
+
+  for (;;) {
+    if (direction > 0)
+      hbuf = g_list_next(hbuf);
+    else
+      hbuf = g_list_previous(hbuf);
+
+    if (!hbuf) break;
+
+    blk = (hbuf_block*)(hbuf->data);
+    // XXX blk->ptr is (maybe) not really correct, because the match should
+    // not be after ptr_end.  We should check that...
+    if (strcasestr(blk->ptr, string))
+      break;
+  }
+
+  return hbuf;
+}

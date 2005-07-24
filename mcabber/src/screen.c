@@ -1005,6 +1005,40 @@ void scr_BufferTopBottom(int topbottom)
   doupdate();
 }
 
+//  scr_BufferSearch(direction, text)
+// Jump to the next line containing text
+// (backward search if direction == -1, forward if topbottom == 1)
+void scr_BufferSearch(int direction, const char *text)
+{
+  window_entry_t *win_entry;
+  GList *current_line, *search_res;
+
+  // Get win_entry
+  if (!current_buddy) return;
+  win_entry  = scr_SearchWindow(CURRENT_JID);
+  if (!win_entry) return;
+
+  if (win_entry->top)
+    current_line = win_entry->top;
+  else
+    current_line = g_list_last(win_entry->hbuf);
+
+  search_res = hbuf_search(current_line, direction, text);
+
+  if (search_res) {
+    win_entry->cleared = FALSE;
+    win_entry->top = search_res;
+
+    // Refresh the window
+    scr_UpdateWindow(win_entry);
+
+    // Finished :)
+    update_panels();
+    doupdate();
+  } else
+    scr_LogPrint("Search string not found");
+}
+
 //  scr_LogPrint(...)
 // Display a message in the log window.
 void scr_LogPrint(const char *fmt, ...)

@@ -1,6 +1,16 @@
 mcabber (0.6.5-dev)
 
- 
+ * Add Debian directory for packaging, create an experimenal package
+ * Add a few external actions (MSG OUT, STATUS *)
+   The contrib/eventcmd script has been updated
+ * Use better messages for server connection states
+ * [FIX] Fix a segfault when starting mcabber in a really small terminal
+ * Fix some history log directory issues
+ * - Check history directory permissions and configuration file permissions
+     They are corrected automatically (to 700 and 600)
+   - Warn when mcabber main directory ($HOME/.mcabber) has bad permissions
+ * First Ctrl-C didn't really leave multi-line message mode! (merge issue)
+ * A few internal changes and minor bugfixes
 
  -- Mikael, ?
 

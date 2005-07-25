@@ -101,7 +101,8 @@ static void write_histo_line(const char *jid,
   fp = fopen(filename, "a");
   g_free(filename);
   if (!fp) {
-    scr_LogPrint("Unable to write history (cannot open logfile)");
+    scr_LogPrint(LPRINT_LOGNORM, "Unable to write history "
+                 "(cannot open logfile)");
     return;
   }
 
@@ -109,7 +110,8 @@ static void write_histo_line(const char *jid,
   err = fprintf(fp, "%c%c %-18.18s %03d %s\n", type, info, str_ts, len, data);
   fclose(fp);
   if (err < 0) {
-    scr_LogPrint("Error while writing to log file: %s", strerror(errno));
+    scr_LogPrint(LPRINT_LOGNORM, "Error while writing to log file: %s",
+                 strerror(errno));
   }
 }
 
@@ -132,7 +134,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
 
   data = g_new(char, HBB_BLOCKSIZE+32);
   if (!data) {
-    scr_LogPrint("Not enough memory to read history file");
+    scr_LogPrint(LPRINT_LOGNORM, "Not enough memory to read history file");
     return;
   }
 
@@ -146,7 +148,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   // (it can take a while...)
   if (!fstat(fileno(fp), &bufstat)) {
     if (bufstat.st_size > 524288)
-      scr_LogPrint("Reading <%s> history file...", jid);
+      scr_LogPrint(LPRINT_NORMAL, "Reading <%s> history file...", jid);
   }
 
   /* See write_histo_line() for line format... */
@@ -163,7 +165,8 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
         ((data[11] != 'T') || (data[20] != 'Z') ||
          (data[21] != ' ') || (data[25] != ' '))) {
       if (!err) {
-        scr_LogPrint("Error in history file format (%s), l.%u", jid, ln);
+        scr_LogPrint(LPRINT_LOGNORM, "Error in history file format (%s), l.%u",
+                     jid, ln);
         err = 1;
       }
       //break;
@@ -177,7 +180,8 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     if (((type == 'M') && (info != 'S' && info != 'R')) ||
         ((type == 'I') && (!strchr("OAIFDN", info)))) {
       if (!err) {
-        scr_LogPrint("Error in history file format (%s), l.%u", jid, ln);
+        scr_LogPrint(LPRINT_LOGNORM, "Error in history file format (%s), l.%u",
+                     jid, ln);
         err = 1;
       }
       //break;
@@ -196,7 +200,8 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     if (tail >= HBB_BLOCKSIZE+26 + data) {
       // Maybe we will have a parse error on next, because this
       // message is big (maybe too big).
-      scr_LogPrint("A message could be too big in history file...");
+      scr_LogPrint(LPRINT_LOGNORM, "A message could be too big "
+                   "in history file...");
     }
     // Remove last CR (we keep it if the line is empty, too)
     if ((tail > data+26) && (*(tail-1) == '\n'))
@@ -228,7 +233,7 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
     if (root_dir) {
       int l = strlen(root_dir);
       if (l < 1) {
-        scr_LogPrint("root_dir too short");
+        scr_LogPrint(LPRINT_LOGNORM, "Error: logging dir name too short");
         UseFileLogging = FileLoadLogs = FALSE;
         return;
       }
@@ -251,8 +256,8 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
     if (checkset_perm(RootDir, TRUE) == -1) {
       // The directory does not actually exists
       g_free(RootDir);
-      scr_LogPrint("ERROR: Cannot access history log directory, "
-                   "logging DISABLED");
+      scr_LogPrint(LPRINT_LOGNORM, "ERROR: Cannot access "
+                   "history log directory, logging DISABLED");
       UseFileLogging = FileLoadLogs = FALSE;
     }
   } else {  // Disable history logging

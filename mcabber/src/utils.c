@@ -40,7 +40,7 @@ void ut_InitDebug(unsigned int level, const char *filename)
 {
   FILE *fp;
 
-  if (!level) {
+  if (level < 1) {
     DebugEnabled = 0;
     FName = NULL;
     return;
@@ -62,34 +62,23 @@ void ut_InitDebug(unsigned int level, const char *filename)
 
   DebugEnabled = level;
 
-  fp = fopen(FName, "w");
+  fp = fopen(FName, "a");
   if (!fp) return;
-  fprintf(fp, "Debugging mode started...\n"
-	  "-----------------------------------\n");
+  fprintf(fp, "New trace log started.\n"
+	  "----------------------\n");
+  fchmod(fileno(fp), S_IRUSR|S_IWUSR);
   fclose(fp);
 }
 
-void ut_WriteLog(const char *fmt, ...)
+void ut_WriteLog(unsigned int flag, const char *data)
 {
-  FILE *fp = NULL;
-  time_t ahora;
-  va_list ap;
-  char *buffer = NULL;
-
-  if (DebugEnabled && FName) {
-    fp = fopen(FName, "a+");
+  if (!DebugEnabled || !FName) return;
+  
+  if (((DebugEnabled == 2) && (flag & (LPRINT_LOG|LPRINT_DEBUG))) ||
+      ((DebugEnabled == 1) && (flag & LPRINT_LOG))) {
+    FILE *fp = fopen(FName, "a+");
     if (!fp) return;
-    buffer = (char *) calloc(1, 64);
-
-    ahora = time(NULL);
-    strftime(buffer, 64, "[%H:%M:%S] ", localtime(&ahora));
-    fprintf(fp, "%s", buffer);
-
-    va_start(ap, fmt);
-    vfprintf(fp, fmt, ap);
-    va_end(ap);
-
-    free(buffer);
+    fputs(data, fp);
     fclose(fp);
   }
 }
@@ -107,7 +96,7 @@ int checkset_perm(const char *name, unsigned int setmode)
   if (fd == -1) return -1;
 
   if (buf.st_uid != geteuid()) {
-    scr_LogPrint("Wrong file owner [%s]", name);
+    scr_LogPrint(LPRINT_LOGNORM, "Wrong file owner [%s]", name);
     return 1;
   }
 
@@ -115,17 +104,17 @@ int checkset_perm(const char *name, unsigned int setmode)
       buf.st_mode & (S_IROTH | S_IWOTH | S_IXOTH)) {
     if (setmode) {
       mode_t newmode = 0;
-      scr_LogPrint("Bad permissions [%s]", name);
+      scr_LogPrint(LPRINT_LOGNORM, "Bad permissions [%s]", name);
       if (S_ISDIR(buf.st_mode))
         newmode |= S_IXUSR;
       newmode |= S_IRUSR | S_IWUSR;
       if (chmod(name, newmode)) {
-        scr_LogPrint("WARNING: Failed to correct permissions!");
+        scr_LogPrint(LPRINT_LOGNORM, "WARNING: Failed to correct permissions!");
         return 1;
       }
-      scr_LogPrint("Permissions have been corrected");
+      scr_LogPrint(LPRINT_LOGNORM, "Permissions have been corrected");
     } else {
-      scr_LogPrint("WARNING: Bad permissions [%s]", name);
+      scr_LogPrint(LPRINT_LOGNORM, "WARNING: Bad permissions [%s]", name);
       return 1;
     }
   }

@@ -4,6 +4,8 @@
 #include <ncurses.h>
 #include <glib.h>
 
+#include "logprint.h"
+
 #define COLOR_GENERAL   3
 #define COLOR_NMSG      4
 #define COLOR_BD_DESSEL 5
@@ -24,14 +26,13 @@
 extern int update_roster;
 
 void scr_InitCurses(void);
+void scr_TerminateCurses(void);
 void scr_DrawMainWindow(unsigned int fullinit);
 void scr_DrawRoster(void);
-void scr_TerminateCurses(void);
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
         time_t timestamp, guint prefix);
 void scr_WriteOutgoingMessage(const char *jidto,   const char *text);
 void scr_ShowBuddyWindow(void);
-void scr_LogPrint(const char *fmt, ...);
 inline void scr_set_chatmode(int enable);
 inline void scr_set_multimode(int enable);
 inline int  scr_get_multimode();

@@ -215,13 +215,13 @@ void send_message(const char *msg)
   const char *jid;
       
   if (!current_buddy) {
-    scr_LogPrint("No buddy currently selected.");
+    scr_LogPrint(LPRINT_NORMAL, "No buddy currently selected.");
     return;
   }
 
   jid = CURRENT_JID;
   if (!jid) {
-    scr_LogPrint("No buddy currently selected.");
+    scr_LogPrint(LPRINT_NORMAL, "No buddy currently selected.");
     return;
   }
 
@@ -269,12 +269,12 @@ int process_command(char *line)
   curcmd = cmd_get(xpline);
 
   if (!curcmd) {
-    scr_LogPrint("Unrecognized command, sorry.");
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized command, sorry.");
     if (xpline != line) g_free(xpline);
     return 0;
   }
   if (!curcmd->func) {
-    scr_LogPrint("Not yet implemented, sorry.");
+    scr_LogPrint(LPRINT_NORMAL, "Not yet implemented, sorry.");
     if (xpline != line) g_free(xpline);
     return 0;
   }
@@ -355,19 +355,19 @@ static void do_roster(char *arg)
   } else if (!strncasecmp(arg, "search", 6)) {
     char *string = arg+6;
     if (*string && (*string != ' ')) {
-      scr_LogPrint("Unrecognized parameter!");
+      scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
       return;
     }
     while (*string == ' ')
       string++;
     if (!*string) {
-      scr_LogPrint("What name or jid are you looking for?");
+      scr_LogPrint(LPRINT_NORMAL, "What name or jid are you looking for?");
       return;
     }
     scr_RosterSearch(string);
     update_roster = TRUE;
   } else
-    scr_LogPrint("Unrecognized parameter!");
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
 }
 
 static void do_status(char *arg)
@@ -377,7 +377,8 @@ static void do_status(char *arg)
   char *msg;
 
   if (!arg || (*arg == 0)) {
-    scr_LogPrint("Your status is: %c", imstatus2char[jb_getstatus()]);
+    scr_LogPrint(LPRINT_NORMAL, "Your status is: %c",
+                 imstatus2char[jb_getstatus()]);
     return;
   }
 
@@ -396,7 +397,7 @@ static void do_status(char *arg)
   else if (!strncasecmp(arg, "notavail",  len)) st = notavail;
   else if (!strncasecmp(arg, "free",      len)) st = freeforchat;
   else {
-    scr_LogPrint("Unrecognized parameter!");
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
     return;
   }
 
@@ -413,7 +414,7 @@ static void do_add(char *arg)
 {
   char *id, *nick;
   if (!arg || (*arg == 0)) {
-    scr_LogPrint("Wrong usage");
+    scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
     return;
   }
 
@@ -428,7 +429,7 @@ static void do_add(char *arg)
   // FIXME check id =~ jabber id
   // 2nd parameter = optional nickname
   jb_addbuddy(id, nick, NULL);
-  scr_LogPrint("Sent presence notfication request to <%s>", id);
+  scr_LogPrint(LPRINT_LOGNORM, "Sent presence notfication request to <%s>", id);
   g_free(id);
 }
 
@@ -437,7 +438,7 @@ static void do_del(char *arg)
   const char *jid;
 
   if (arg && (*arg)) {
-    scr_LogPrint("Wrong usage");
+    scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
     return;
   }
 
@@ -445,7 +446,7 @@ static void do_del(char *arg)
   jid = buddy_getjid(BUDDATA(current_buddy));
   if (!jid) return;
 
-  scr_LogPrint("Removing <%s>...", jid);
+  scr_LogPrint(LPRINT_LOGNORM, "Removing <%s>...", jid);
   jb_delbuddy(jid);
 }
 
@@ -455,7 +456,7 @@ static void do_group(char *arg)
   guint leave_windowbuddy;
 
   if (!arg || (*arg == 0)) {
-    scr_LogPrint("Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
     return;
   }
 
@@ -468,7 +469,7 @@ static void do_group(char *arg)
   leave_windowbuddy = (group != BUDDATA(current_buddy));
 
   if (!(buddy_gettype(group) & ROSTER_TYPE_GROUP)) {
-    scr_LogPrint("You need to select a group");
+    scr_LogPrint(LPRINT_NORMAL, "You need to select a group");
     return;
   }
 
@@ -480,7 +481,7 @@ static void do_group(char *arg)
     buddy_setflags(group, ROSTER_FLAG_HIDE,
             !(buddy_getflags(group) & ROSTER_FLAG_HIDE));
   } else {
-    scr_LogPrint("Unrecognized parameter!");
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
     return;
   }
 
@@ -496,13 +497,13 @@ static void do_say(char *arg)
   scr_set_chatmode(TRUE);
 
   if (!current_buddy) {
-    scr_LogPrint("Who are you talking to??");
+    scr_LogPrint(LPRINT_NORMAL, "Who are you talking to??");
     return;
   }
 
   bud = BUDDATA(current_buddy);
   if (!(buddy_gettype(bud) & ROSTER_TYPE_USER)) {
-    scr_LogPrint("This is not a user");
+    scr_LogPrint(LPRINT_NORMAL, "This is not a user");
     return;
   }
 
@@ -517,7 +518,7 @@ static void do_msay(char *arg)
 
   if (!strcasecmp(arg, "abort")) {
     if (scr_get_multimode())
-      scr_LogPrint("Leaving multi-line message mode");
+      scr_LogPrint(LPRINT_NORMAL, "Leaving multi-line message mode");
     scr_set_multimode(FALSE);
     return;
   } else if ((!strcasecmp(arg, "begin")) || (!strcasecmp(arg, "verbatim"))) {
@@ -526,36 +527,39 @@ static void do_msay(char *arg)
     else
       scr_set_multimode(1);
 
-    scr_LogPrint("Entered multi-line message mode.");
-    scr_LogPrint("Select a buddy and use \"/msay send\" "
+    scr_LogPrint(LPRINT_NORMAL, "Entered multi-line message mode.");
+    scr_LogPrint(LPRINT_NORMAL, "Select a buddy and use \"/msay send\" "
                  "when your message is ready.");
     return;
   } else if (*arg == 0) {
-    scr_LogPrint("Please read the manual before using the /msay command.");
-    scr_LogPrint("(Use /msay begin to enter multi-line mode...)");
+    scr_LogPrint(LPRINT_NORMAL, "Please read the manual before using "
+                 "the /msay command.");
+    scr_LogPrint(LPRINT_NORMAL, "(Use \"/msay begin\" to enter "
+                 "multi-line mode...)");
     return;
   } else if (strcasecmp(arg, "send")) {
-    scr_LogPrint("Unrecognized parameter!");
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
     return;
   }
 
   // send command
 
   if (!scr_get_multimode()) {
-    scr_LogPrint("No message to send.  Use \"/msay begin\" first.");
+    scr_LogPrint(LPRINT_NORMAL, "No message to send.  "
+                 "Use \"/msay begin\" first.");
     return;
   }
 
   scr_set_chatmode(TRUE);
 
   if (!current_buddy) {
-    scr_LogPrint("Who are you talking to??");
+    scr_LogPrint(LPRINT_NORMAL, "Who are you talking to??");
     return;
   }
 
   bud = BUDDATA(current_buddy);
   if (!(buddy_gettype(bud) & ROSTER_TYPE_USER)) {
-    scr_LogPrint("This is not a user");
+    scr_LogPrint(LPRINT_NORMAL, "This is not a user");
     return;
   }
 
@@ -579,15 +583,15 @@ static void do_buffer(char *arg)
     if (*arg++ == ' ')
       search_dir = -1;
     else
-      scr_LogPrint("Missing parameter");
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
   } else if (!strncasecmp(arg, "search_forward", 14)) {
     arg += 14;
     if (*arg++ == ' ')
       search_dir = 1;
     else
-      scr_LogPrint("Missing parameter");
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
   } else
-    scr_LogPrint("Unrecognized parameter!");
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
 
   if (search_dir) { // It is a string search command
     for ( ; *arg && *arg == ' ' ; arg++)
@@ -640,8 +644,8 @@ static void do_info(char *arg)
     snprintf(buffer, 127, "Type: %s", typestr);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
   } else {
-    if (name) scr_LogPrint("Name: %s", name);
-    scr_LogPrint("Type: %s",
+    if (name) scr_LogPrint(LPRINT_NORMAL, "Name: %s", name);
+    scr_LogPrint(LPRINT_NORMAL, "Type: %s",
             ((type == ROSTER_TYPE_GROUP) ? "group" : "unknown"));
   }
 
@@ -656,7 +660,7 @@ static void do_rename(char *arg)
   char *newname, *p;
 
   if (!arg || (*arg == 0)) {
-    scr_LogPrint("Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
     return;
   }
 
@@ -668,7 +672,7 @@ static void do_rename(char *arg)
   type  = buddy_gettype(bud);
 
   if (type & ROSTER_TYPE_GROUP) {
-    scr_LogPrint("You can't rename groups");
+    scr_LogPrint(LPRINT_NORMAL, "You can't rename groups");
     return;
   }
 
@@ -699,7 +703,7 @@ static void do_move(char *arg)
   type = buddy_gettype(bud);
 
   if (type & ROSTER_TYPE_GROUP) {
-    scr_LogPrint("You can't move groups!");
+    scr_LogPrint(LPRINT_NORMAL, "You can't move groups!");
     return;
   }
 
@@ -725,16 +729,16 @@ static void do_set(char *arg)
   
   assign = parse_assigment(arg, &option, &value);
   if (!option) {
-    scr_LogPrint("Huh?");
+    scr_LogPrint(LPRINT_NORMAL, "Huh?");
     return;
   }
   if (!assign) {
     // This is a query
     value = settings_opt_get(option);
     if (value) {
-      scr_LogPrint("%s = [%s]", option, value);
+      scr_LogPrint(LPRINT_NORMAL, "%s = [%s]", option, value);
     } else
-      scr_LogPrint("Option %s is not set", option);
+      scr_LogPrint(LPRINT_NORMAL, "Option %s is not set", option);
     return;
   }
   // Update the option
@@ -755,21 +759,21 @@ static void do_alias(char *arg)
   
   assign = parse_assigment(arg, &alias, &value);
   if (!alias) {
-    scr_LogPrint("Huh?");
+    scr_LogPrint(LPRINT_NORMAL, "Huh?");
     return;
   }
   if (!assign) {
     // This is a query
     value = settings_get(SETTINGS_TYPE_ALIAS, alias);
     if (value) {
-      scr_LogPrint("%s = %s", alias, value);
+      scr_LogPrint(LPRINT_NORMAL, "%s = %s", alias, value);
     } else
-      scr_LogPrint("Alias '%s' does not exist", alias);
+      scr_LogPrint(LPRINT_NORMAL, "Alias '%s' does not exist", alias);
     return;
   }
   // Check the alias does not conflict with a registered command
   if (cmd_get(alias)) {
-      scr_LogPrint("'%s' is a reserved word!", alias);
+      scr_LogPrint(LPRINT_NORMAL, "'%s' is a reserved word!", alias);
       return;
   }
   // Update the alias
@@ -794,16 +798,16 @@ static void do_bind(char *arg)
   
   assign = parse_assigment(arg, &keycode, &value);
   if (!keycode) {
-    scr_LogPrint("Huh?");
+    scr_LogPrint(LPRINT_NORMAL, "Huh?");
     return;
   }
   if (!assign) {
     // This is a query
     value = settings_get(SETTINGS_TYPE_BINDING, keycode);
     if (value) {
-      scr_LogPrint("Key %s is bound to: %s", keycode, value);
+      scr_LogPrint(LPRINT_NORMAL, "Key %s is bound to: %s", keycode, value);
     } else
-      scr_LogPrint("Key %s is not bound", keycode);
+      scr_LogPrint(LPRINT_NORMAL, "Key %s is not bound", keycode);
     return;
   }
   // Update the key binding

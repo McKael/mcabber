@@ -45,7 +45,7 @@ inline void hk_message_in(const char *jid, time_t timestamp, const char *msg,
 
   if (type && !strcmp(type, "error")) {
     message_flags = HBB_PREFIX_ERR | HBB_PREFIX_IN;
-    scr_LogPrint("Error message received from <%s>", jid);
+    scr_LogPrint(LPRINT_LOGNORM, "Error message received from <%s>", jid);
   } else
     message_flags = 0;
 
@@ -79,7 +79,7 @@ inline void hk_message_out(const char *jid, time_t timestamp, const char *msg)
 inline void hk_statuschange(const char *jid, time_t timestamp, 
         enum imstatus status, const char *status_msg)
 {
-  scr_LogPrint("Buddy status has changed: [%c>%c] <%s> %s",
+  scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] <%s> %s",
           imstatus2char[roster_getstatus(jid)], imstatus2char[status], jid,
           ((status_msg) ? status_msg : ""));
   roster_setstatus(jid, status, status_msg);
@@ -96,7 +96,7 @@ inline void hk_mystatuschange(time_t timestamp,
   if (!msg && (old_status == new_status))
     return;
 
-  scr_LogPrint("Your status has changed:  [%c>%c] %s",
+  scr_LogPrint(LPRINT_LOGNORM, "Your status has changed:  [%c>%c] %s",
           imstatus2char[old_status], imstatus2char[new_status],
           ((msg) ? msg : ""));
   //hlog_write_status(NULL, 0, status);
@@ -156,13 +156,13 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
   if (!arg_type || !arg_info) return;
 
   if ((pid=fork()) == -1) {
-    scr_LogPrint("Fork error, cannot launch external command.");
+    scr_LogPrint(LPRINT_LOGNORM, "Fork error, cannot launch external command.");
     return;
   }
 
   if (pid == 0) { // child
     if (execl(extcmd, extcmd, arg_type, arg_info, jid, arg_data) == -1) {
-      // ut_WriteLog("Cannot execute external command.\n");
+      // scr_LogPrint(LPRINT_LOGNORM, "Cannot execute external command.");
       exit(1);
     }
   }

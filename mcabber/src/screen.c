@@ -233,33 +233,38 @@ void scr_TerminateCurses(void)
 
 //  scr_LogPrint(...)
 // Display a message in the log window.
-void scr_LogPrint(const char *fmt, ...)
+void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 {
   time_t timestamp;
-  char *buffer;
+  char *buffer, *b2;
   va_list ap;
 
+  if (!flag) return;
+
   do {
-    buffer = (char *) calloc(1, 1024);
+    buffer = (char *) calloc(1, 1088);
   } while (!buffer);
 
   timestamp = time(NULL);
   strftime(buffer, 64, "[%H:%M:%S] ", localtime(&timestamp));
-  if (Curses)
-    wprintw(logWnd, "\n%s", buffer);
-  else
-    printf("%s", buffer);
-
+  for (b2 = buffer ; *b2 ; b2++)
+    ;
   va_start(ap, fmt);
-  vsnprintf(buffer, 1024, fmt, ap);
+  vsnprintf(b2, 1024, fmt, ap);
   va_end(ap);
 
-  if (Curses) {
-    wprintw(logWnd, "%s", buffer);
-    update_panels();
-    doupdate();
-  } else {
-    printf("%s\n", buffer);
+  if (flag & LPRINT_NORMAL) {
+    if (Curses) {
+      wprintw(logWnd, "\n%s", buffer);
+      update_panels();
+      doupdate();
+    } else {
+      printf("%s\n", buffer);
+    }
+  }
+  if (flag & (LPRINT_LOG|LPRINT_DEBUG)) {
+    strcat(buffer, "\n");
+    ut_WriteLog(flag, buffer);
   }
   free(buffer);
 }
@@ -579,7 +584,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
     inputPanel  = new_panel(inputWnd);
 
     if (utf8_mode)
-      scr_LogPrint("WARNING: UTF-8 not yet supported!");
+      scr_LogPrint(LPRINT_NORMAL, "WARNING: UTF-8 not yet supported!");
   } else {
     // Update panels
     replace_panel(rosterPanel, rosterWnd);
@@ -682,7 +687,7 @@ void scr_DrawRoster(void)
   // Update offset if necessary
   i = g_list_position(buddylist, current_buddy);
   if (i == -1) { // This is bad
-    scr_LogPrint("Doh! Can't find current selected buddy!!");
+    scr_LogPrint(LPRINT_NORMAL, "Doh! Can't find current selected buddy!!");
     return;
   } else if (i < offset) {
     offset = i;
@@ -920,7 +925,8 @@ void scr_RosterUnreadMessage(int next)
   if (nbuddy) {
     set_current_buddy(nbuddy);
     if (chatmode) scr_ShowBuddyWindow();
-  } else scr_LogPrint("Error: nbuddy == NULL");
+  } else
+    scr_LogPrint(LPRINT_LOGNORM, "Error: nbuddy == NULL"); // should not happen
 }
 
 //  scr_RosterJumpAlternate()
@@ -1061,7 +1067,7 @@ void scr_BufferSearch(int direction, const char *text)
     update_panels();
     doupdate();
   } else
-    scr_LogPrint("Search string not found");
+    scr_LogPrint(LPRINT_NORMAL, "Search string not found");
 }
 
 //  scr_set_chatmode()
@@ -1109,7 +1115,7 @@ void scr_append_multiline(const char *line)
   static int num;
 
   if (!multimode) {
-    scr_LogPrint("Error: Not in multi-line message mode!");
+    scr_LogPrint(LPRINT_NORMAL, "Error: Not in multi-line message mode!");
     return;
   }
   if (multiline) {
@@ -1117,17 +1123,17 @@ void scr_append_multiline(const char *line)
     if (len >= HBB_BLOCKSIZE - 1) {
       // We don't handle single messages with size > HBB_BLOCKSIZE
       // (see hbuf)
-      scr_LogPrint("Your multi-line message is too big, this line has "
-                   "not been added.");
-      scr_LogPrint("Please send this part now...");
+      scr_LogPrint(LPRINT_NORMAL, "Your multi-line message is too big, "
+                   "this line has not been added.");
+      scr_LogPrint(LPRINT_NORMAL, "Please send this part now...");
       return;
     }
     if (num >= MULTILINE_MAX_LINE_NUMBER) {
       // We don't allow too many lines; however the maximum is arbitrary
       // (It should be < 1000 yet)
-      scr_LogPrint("Your message has too many lines, this one has "
-                   "not been added.");
-      scr_LogPrint("Please send this part now...");
+      scr_LogPrint(LPRINT_NORMAL, "Your message has too many lines, "
+                   "this one has not been added.");
+      scr_LogPrint(LPRINT_NORMAL, "Please send this part now...");
       return;
     }
     multiline = g_renew(char, multiline, len);
@@ -1144,7 +1150,8 @@ void scr_append_multiline(const char *line)
     } else
       return;
   }
-  scr_LogPrint("Multi-line mode: line #%d added  [%.25s...", num, line);
+  scr_LogPrint(LPRINT_NORMAL, "Multi-line mode: line #%d added  [%.25s...",
+               num, line);
 }
 
 //  scr_cmdhisto_addline()
@@ -1300,7 +1307,7 @@ static void scr_insert_text(const char *text)
   int len = strlen(text);
   // Check the line isn't too long
   if (strlen(inputLine) + len >= INPUTLINE_LENGTH) {
-    scr_LogPrint("Cannot insert text, line too long.");
+    scr_LogPrint(LPRINT_LOGNORM, "Cannot insert text, line too long.");
     return;
   }
 
@@ -1339,7 +1346,7 @@ static void scr_handle_tab(void)
       g_free(xpline);
     }
     if ((!com && (!alias || !completion_started)) || !row) {
-      scr_LogPrint("I cannot complete that...");
+      scr_LogPrint(LPRINT_NORMAL, "I cannot complete that...");
       return;
     }
     if (!alias)
@@ -1605,9 +1612,10 @@ int process_key(int key)
                 return 255;
               g_free(cmd);
             } else {
-              scr_LogPrint("Unknown key=%d", key);
+              scr_LogPrint(LPRINT_NORMAL, "Unknown key=%d", key);
               if (utf8_mode)
-                scr_LogPrint("WARNING: UTF-8 not yet supported!");
+                scr_LogPrint(LPRINT_NORMAL,
+                             "WARNING: UTF-8 not yet supported!");
             }
           }
     }

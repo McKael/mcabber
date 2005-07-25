@@ -2,7 +2,7 @@
 #define __UTILS_H__ 1
 
 void ut_InitDebug(unsigned int level, const char *file);
-void ut_WriteLog(const char *fmt, ...);
+void ut_WriteLog(unsigned int flag, const char *data);
 
 int checkset_perm(const char *name, unsigned int setmode);
 

@@ -78,7 +78,7 @@ int cfg_read_file(char *filename)
     // Use default config file locations
     char *home = getenv("HOME");
     if (!home) {
-      ut_WriteLog("Can't find home dir!\n");
+      scr_LogPrint(LPRINT_LOG, "Can't find home dir!");
       fprintf(stderr, "Can't find home dir!\n");
       return -1;
     }
@@ -138,14 +138,16 @@ int cfg_read_file(char *filename)
       if (strncmp(line, "set ", 4) &&
           strncmp(line, "bind ", 5) &&
           strncmp(line, "alias ", 6)) {
-        scr_LogPrint("Error in configuration file (l. %d): bad command", ln);
+        scr_LogPrint(LPRINT_LOGNORM,
+                     "Error in configuration file (l. %d): bad command", ln);
         err++;
         continue;
       }
       *(--line) = '/';        // Set the leading '/' to build a command line
       process_command(line);  // Process the command
     } else {
-      scr_LogPrint("Error in configuration file (l. %d): no assignment", ln);
+      scr_LogPrint(LPRINT_LOGNORM,
+                   "Error in configuration file (l. %d): no assignment", ln);
       err++;
     }
   }

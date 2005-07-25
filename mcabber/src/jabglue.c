@@ -60,20 +60,9 @@ static enum {
 void statehandler(jconn, int);
 void packethandler(jconn, jpacket);
 
-void screen_logger(jconn j, int io, const char *buf)
+static void logger(jconn j, int io, const char *buf)
 {
-  scr_LogPrint("%03s: %s", ((io == 0) ? "OUT" : "IN"), buf);
-}
-
-void file_logger(jconn j, int io, const char *buf)
-{
-  ut_WriteLog("%03s: %s\n", ((io == 0) ? "OUT" : "IN"), buf);
-}
-
-void big_logger(jconn j, int io, const char *buf)
-{
-  screen_logger(j, io, buf);
-  file_logger(j, io, buf);
+  scr_LogPrint(LPRINT_DEBUG, "%03s: %s", ((io == 0) ? "OUT" : "IN"), buf);
 }
 
 /*
@@ -145,7 +134,7 @@ jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass)
   jc = jab_new((char*)jid, (char*)pass, port, ssl);
 
   /* These 3 functions can deal with a NULL jc, no worry... */
-  jab_logger(jc, file_logger);
+  jab_logger(jc, logger);
   jab_packet_handler(jc, &packethandler);
   jab_state_handler(jc, &statehandler);
 
@@ -221,7 +210,7 @@ void jb_main()
     }
 
     if (!jc || jc->state == JCONN_STATE_OFF) {
-      scr_LogPrint("Unable to connect to the server");
+      scr_LogPrint(LPRINT_LOGNORM, "Unable to connect to the server");
       online = FALSE;
     }
   }
@@ -384,7 +373,7 @@ void jb_delbuddy(const char *jid)
 
   // If the current buddy is an agent, unsubscribe from it
   if (roster_gettype(cleanjid) == ROSTER_TYPE_AGENT) {
-    scr_LogPrint("Unregistering from the %s agent", cleanjid);
+    scr_LogPrint(LPRINT_LOGNORM, "Unregistering from the %s agent", cleanjid);
 
     x = jutil_iqnew(JPACKET__SET, NS_REGISTER);
     xmlnode_put_attrib(x, "to", cleanjid);
@@ -560,8 +549,10 @@ void gotmessage(char *type, const char *from, const char *body,
   //jidsplit(from, &u, &h, &r);
   // Maybe we should remember the resource?
   if (r)
-    scr_LogPrint("There is an extra part in message (resource?): %s", r);
-  //scr_LogPrint("Msg from <%s>, type=%s", jidtodisp(from), type);
+    scr_LogPrint(LPRINT_NORMAL,
+                 "There is an extra part in message (resource?): %s", r);
+  //scr_LogPrint(LPRINT_NORMAL, "Msg from <%s>, type=%s",
+  //             jidtodisp(from), type);
   */
 
   jid = jidtodisp(from);
@@ -574,12 +565,12 @@ void statehandler(jconn conn, int state)
 {
   static int previous_state = -1;
 
-  ut_WriteLog("StateHandler called (state=%d).\n", state);
+  scr_LogPrint(LPRINT_DEBUG, "StateHandler called (state=%d).", state);
 
   switch(state) {
     case JCONN_STATE_OFF:
         if (previous_state != JCONN_STATE_OFF)
-          scr_LogPrint("[Jabber] Not connected to the server");
+          scr_LogPrint(LPRINT_LOGNORM, "[Jabber] Not connected to the server");
 
         online = FALSE;
         mystatus = offline;
@@ -588,21 +579,22 @@ void statehandler(jconn conn, int state)
         break;
 
     case JCONN_STATE_CONNECTED:
-        scr_LogPrint("[Jabber] Connected to the server");
+        scr_LogPrint(LPRINT_LOGNORM, "[Jabber] Connected to the server");
         break;
 
     case JCONN_STATE_AUTH:
-        scr_LogPrint("[Jabber] Authenticating to the server");
+        scr_LogPrint(LPRINT_LOGNORM, "[Jabber] Authenticating to the server");
         break;
 
     case JCONN_STATE_ON:
-        scr_LogPrint("[Jabber] Communication with the server established");
+        scr_LogPrint(LPRINT_LOGNORM, "[Jabber] Communication with the server "
+                     "established");
         online = TRUE;
         break;
 
     case JCONN_STATE_CONNECTING:
         if (previous_state != state)
-        scr_LogPrint("[Jabber] Connecting to the server");
+        scr_LogPrint(LPRINT_LOGNORM, "[Jabber] Connecting to the server");
         break;
 
     default:
@@ -679,7 +671,7 @@ void packethandler(jconn conn, jpacket packet)
           if ((p = xmlnode_get_attrib(packet->x, "id")) != NULL) {
             int iid = atoi(p);
 
-            ut_WriteLog("iid = %d\n", iid);
+            scr_LogPrint(LPRINT_DEBUG, "iid = %d", iid);
             if (iid == s_id) {
               if (!regmode) {
                 if (jstate == STATE_GETAUTH) {
@@ -705,11 +697,11 @@ void packethandler(jconn conn, jpacket packet)
               if (!x) x = packet->x;
 
               //jhook.gotvcard(ic, x); TODO
-              scr_LogPrint("Got VCARD");
+              scr_LogPrint(LPRINT_LOGNORM, "Got VCARD");
               return;
             } else if (!strcmp(p, "versionreq")) {
               // jhook.gotversion(ic, packet->x); TODO
-              scr_LogPrint("Got version");
+              scr_LogPrint(LPRINT_LOGNORM, "Got version");
               return;
             }
           }
@@ -740,7 +732,7 @@ void packethandler(jconn conn, jpacket packet)
                     g_free(cleanjid);
                   }
                   if (alias && name && desc) {
-                    scr_LogPrint("Agent: %s / %s / %s / type=%d",
+                    scr_LogPrint(LPRINT_LOGNORM, "Agent: %s / %s / %s / type=%d",
                                  alias, name, desc, atype);
 
                     if (atype == search) {
@@ -773,10 +765,10 @@ void packethandler(jconn conn, jpacket packet)
 
               if (!strcmp(id, "Agent info")) {
                 // jhook.gotagentinfo(packet->x); TODO
-                scr_LogPrint("Got agent info");
+                scr_LogPrint(LPRINT_LOGNORM, "Got agent info");
               } else if (!strcmp(id, "Lookup")) {
                 // jhook.gotsearchresults(packet->x); TODO
-                scr_LogPrint("Got search results");
+                scr_LogPrint(LPRINT_LOGNORM, "Got search results");
               } else if (!strcmp(id, "Register")) {
                 x = jutil_iqnew(JPACKET__GET, NS_REGISTER);
                 xmlnode_put_attrib(x, "to", from);
@@ -835,7 +827,7 @@ void packethandler(jconn conn, jpacket packet)
                 */
           }
 #endif
-          scr_LogPrint("Error code from server (%d)", code);
+          scr_LogPrint(LPRINT_LOGNORM, "Error code from server (%d)", code);
 
         }
         break;
@@ -874,17 +866,17 @@ void packethandler(jconn conn, jpacket packet)
         break;
 
     case JPACKET_S10N:
-        scr_LogPrint("Received (un)subscription packet (type=%s)",
-                ((type) ? type : ""));
+        scr_LogPrint(LPRINT_LOGNORM, "Received (un)subscription packet "
+                     "(type=%s)", ((type) ? type : ""));
 
         if (!strcmp(type, "subscribe")) {
           int isagent;
           r = jidtodisp(from);
           isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
           g_free(r);
-          scr_LogPrint("isagent=%d", isagent); // XXX DBG
+          scr_LogPrint(LPRINT_LOGNORM, "isagent=%d", isagent); // XXX DBG
           if (!isagent) {
-            scr_LogPrint("<%s> wants to subscribe "
+            scr_LogPrint(LPRINT_LOGNORM, "<%s> wants to subscribe "
                          "to your network presence updates", from);
             // FIXME we accept everybody...
             x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
@@ -899,7 +891,8 @@ void packethandler(jconn conn, jpacket packet)
           x = jutil_presnew(JPACKET__UNSUBSCRIBED, from, 0);
           jab_send(jc, x);
           xmlnode_free(x);
-          scr_LogPrint("<%s> has unsubscribed to your presence updates", from);
+          scr_LogPrint(LPRINT_LOGNORM, "<%s> has unsubscribed to "
+                       "your presence updates", from);
         }
         break;
 

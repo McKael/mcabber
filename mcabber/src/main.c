@@ -56,15 +56,15 @@ void mcabber_connect(void)
   resource   = settings_opt_get("resource");
 
   if (!servername) {
-    scr_LogPrint("Server name has not been specified!\n");
+    scr_LogPrint(LPRINT_NORMAL, "Server name has not been specified!");
     return;
   }
   if (!username) {
-    scr_LogPrint("User name has not been specified!\n");
+    scr_LogPrint(LPRINT_NORMAL, "User name has not been specified!");
     return;
   }
   if (!password) {
-    scr_LogPrint("Password has not been specified!\n");
+    scr_LogPrint(LPRINT_NORMAL, "Password has not been specified!");
     return;
   }
   if (!resource)
@@ -76,21 +76,17 @@ void mcabber_connect(void)
   jb_set_priority(settings_opt_get_int("priority"));
 
   /* Connect to server */
-  ut_WriteLog("Connecting to server: %s\n", servername);
-  scr_LogPrint("Connecting to server: %s", servername);
-  if (port) {
-    ut_WriteLog(" using port %d\n", port);
-    scr_LogPrint(" using port %d", port);
-  }
+  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",
+               servername);
+  if (port)
+    scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " using port %d", port);
 
   jid = compose_jid(username, servername, resource);
   jc = jb_connect(jid, port, ssl, password);
   g_free(jid);
 
-  if (!jc) {
-    ut_WriteLog("\tConnection error!!!\n");
-    scr_LogPrint("Error connecting to (%s)\n", servername);
-  }
+  if (!jc)
+    scr_LogPrint(LPRINT_LOGNORM, "Error connecting to (%s)", servername);
 
   jb_reset_keepalive();
 }
@@ -114,7 +110,7 @@ void sig_handler(int signum)
       pid = waitpid (WAIT_ANY, &status, WNOHANG);
     } while (pid > 0);
     //if (pid < 0)
-    //  ut_WriteLog("Error in waitpid: errno=%d\n", errno);
+    //  scr_LogPrint(LPRINT_LOGNORM, "Error in waitpid: errno=%d", errno);
     signal(SIGCHLD, sig_handler);
   } else if (signum == SIGTERM) {
     mcabber_disconnect("Killed by SIGTERM");
@@ -128,9 +124,9 @@ void sig_handler(int signum)
     LastSigtermTime = now;
     signal(SIGINT, sig_handler);
     scr_handle_sigint();
-    scr_LogPrint("Hit Ctrl-C twice to leave mcabber");
+    scr_LogPrint(LPRINT_NORMAL, "Hit Ctrl-C twice to leave mcabber");
   } else {
-    ut_WriteLog("Caught signal: %d\n", signum);
+    scr_LogPrint(LPRINT_LOGNORM, "Caught signal: %d", signum);
   }
 }
 
@@ -186,11 +182,6 @@ int main(int argc, char **argv)
 
   credits();
 
-  /* Set this >0 to enable log */
-  /* Note: debug can be enabled via the config file */
-  ut_InitDebug(0, NULL);
-
-  ut_WriteLog("Setting signals handlers...\n");
   signal(SIGTERM, sig_handler);
   signal(SIGINT,  sig_handler);
   signal(SIGCHLD, sig_handler);
@@ -215,19 +206,17 @@ int main(int argc, char **argv)
   /* Initialize commands system */
   cmd_init();
 
-  if (configFile)
-    ut_WriteLog("Setting config file: %s\n", configFile);
-
   /* Parsing config file... */
-  ut_WriteLog("Parsing config file...\n");
   ret = cfg_read_file(configFile);
+  /* free() configFile if it has been allocated during options parsing */
   if (configFile) g_free(configFile);
   /* Leave if there was an error in the config. file */
   if (ret)
     exit(EXIT_FAILURE);
 
-  optstring = settings_opt_get("debug");
-  if (optstring) ut_InitDebug(1, optstring);
+  optstring = settings_opt_get("tracelog_file");
+  if (optstring)
+    ut_InitDebug(settings_opt_get_int("tracelog_level"), optstring);
 
   /* If no password is stored, we ask for it before entering
      ncurses mode */
@@ -235,10 +224,10 @@ int main(int argc, char **argv)
     ask_password();
 
   /* Initialize N-Curses */
-  ut_WriteLog("Initializing N-Curses...\n");
+  scr_LogPrint(LPRINT_DEBUG, "Initializing N-Curses...");
   scr_InitCurses();
 
-  ut_WriteLog("Drawing main window...\n");
+  scr_LogPrint(LPRINT_DEBUG, "Drawing main window...");
   scr_DrawMainWindow(TRUE);
 
   optval   = (settings_opt_get_int("logging") > 0);
@@ -254,7 +243,7 @@ int main(int argc, char **argv)
   if (settings_opt_get("pinginterval"))
     ping = (unsigned int) settings_opt_get_int("pinginterval");
   jb_set_keepalive_delay(ping);
-  ut_WriteLog("Ping interval stablished: %d secs\n", ping);
+  scr_LogPrint(LPRINT_DEBUG, "Ping interval established: %d secs", ping);
 
   if (settings_opt_get_int("hide_offline_buddies") > 0)
     buddylist_set_hide_offline_buddies(TRUE);
@@ -263,10 +252,9 @@ int main(int argc, char **argv)
   if (settings_opt_get("password"))
     mcabber_connect();
   else
-    scr_LogPrint("Can't connect: no password supplied");
+    scr_LogPrint(LPRINT_LOGNORM, "Can't connect: no password supplied");
 
-  ut_WriteLog("Entering into main loop...\n\n");
-  ut_WriteLog("Ready to send/receive messages...\n");
+  scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
 
   for (ret = 0 ; ret != 255 ; ) {
     key = scr_Getch();

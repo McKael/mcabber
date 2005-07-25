@@ -197,6 +197,73 @@ static void ParseColors(void)
   }
 }
 
+void scr_InitCurses(void)
+{
+  initscr();
+  noecho();
+  raw();
+  halfdelay(5);
+  start_color();
+  use_default_colors();
+  Curses = TRUE;
+
+  ParseColors();
+
+  getmaxyx(stdscr, maxY, maxX);
+  if (maxY < LOG_WIN_HEIGHT+2)
+    maxY = LOG_WIN_HEIGHT+2;
+  inputLine[0] = 0;
+  ptr_inputline = inputLine;
+
+  setlocale(LC_CTYPE, "");
+  utf8_mode = (strcmp(nl_langinfo(CODESET), "UTF-8") == 0);
+
+  return;
+}
+
+void scr_TerminateCurses(void)
+{
+  if (!Curses) return;
+  clear();
+  refresh();
+  endwin();
+  Curses = FALSE;
+  return;
+}
+
+//  scr_LogPrint(...)
+// Display a message in the log window.
+void scr_LogPrint(const char *fmt, ...)
+{
+  time_t timestamp;
+  char *buffer;
+  va_list ap;
+
+  do {
+    buffer = (char *) calloc(1, 1024);
+  } while (!buffer);
+
+  timestamp = time(NULL);
+  strftime(buffer, 64, "[%H:%M:%S] ", localtime(&timestamp));
+  if (Curses)
+    wprintw(logWnd, "\n%s", buffer);
+  else
+    printf("%s", buffer);
+
+  va_start(ap, fmt);
+  vsnprintf(buffer, 1024, fmt, ap);
+  va_end(ap);
+
+  if (Curses) {
+    wprintw(logWnd, "%s", buffer);
+    update_panels();
+    doupdate();
+  } else {
+    printf("%s\n", buffer);
+  }
+  free(buffer);
+}
+
 static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
 {
   int x;
@@ -390,7 +457,6 @@ void scr_ShowBuddyWindow(void)
   scr_ShowWindow(jid);
 }
 
-
 //  scr_WriteInWindow()
 // Write some text in the winId window (this usually is a jid).
 // Lines are splitted when they are too long to fit in the chat window.
@@ -448,81 +514,6 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   } else {
     roster_msg_setflag(winId, TRUE);
     update_roster = TRUE;
-  }
-}
-
-void scr_InitCurses(void)
-{
-  initscr();
-  noecho();
-  raw();
-  halfdelay(5);
-  start_color();
-  use_default_colors();
-  Curses = TRUE;
-
-  ParseColors();
-
-  getmaxyx(stdscr, maxY, maxX);
-  if (maxY < LOG_WIN_HEIGHT+2)
-    maxY = LOG_WIN_HEIGHT+2;
-  inputLine[0] = 0;
-  ptr_inputline = inputLine;
-
-  setlocale(LC_CTYPE, "");
-  utf8_mode = (strcmp(nl_langinfo(CODESET), "UTF-8") == 0);
-
-  return;
-}
-
-void scr_TerminateCurses(void)
-{
-  if (!Curses) return;
-  clear();
-  refresh();
-  endwin();
-  Curses = FALSE;
-  return;
-}
-
-void inline set_autoaway(bool setaway)
-{
-  static enum imstatus oldstatus;
-  Autoaway = setaway;
-
-  if (setaway) {
-    const char *msg;
-    oldstatus = jb_getstatus();
-    msg = settings_opt_get("message_autoaway");
-    if (!msg) msg = MSG_AUTOAWAY;
-    jb_setstatus(away, msg);
-  } else {
-    // Back
-    jb_setstatus(oldstatus, NULL);
-  }
-}
-
-// Check if we should enter/leave automatic away status
-void scr_CheckAutoAway(bool activity)
-{
-  static time_t LastActivity;
-  enum imstatus cur_st;
-  unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
-
-  if (Autoaway && activity) set_autoaway(FALSE);
-  if (!autoaway_timeout) return;
-  if (!LastActivity || activity) time(&LastActivity);
-
-  cur_st = jb_getstatus();
-  // Auto-away is disabled for the following states
-  if ((cur_st != available) && (cur_st != freeforchat))
-    return;
-
-  if (!activity) {
-    time_t now;
-    time(&now);
-    if (!Autoaway && (now > LastActivity + autoaway_timeout))
-      set_autoaway(TRUE);
   }
 }
 
@@ -783,11 +774,45 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text)
   scr_ShowWindow(jidto);
 }
 
-int scr_Getch(void)
+void inline set_autoaway(bool setaway)
 {
-  int ch;
-  ch = wgetch(inputWnd);
-  return ch;
+  static enum imstatus oldstatus;
+  Autoaway = setaway;
+
+  if (setaway) {
+    const char *msg;
+    oldstatus = jb_getstatus();
+    msg = settings_opt_get("message_autoaway");
+    if (!msg) msg = MSG_AUTOAWAY;
+    jb_setstatus(away, msg);
+  } else {
+    // Back
+    jb_setstatus(oldstatus, NULL);
+  }
+}
+
+// Check if we should enter/leave automatic away status
+void scr_CheckAutoAway(bool activity)
+{
+  static time_t LastActivity;
+  enum imstatus cur_st;
+  unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
+
+  if (Autoaway && activity) set_autoaway(FALSE);
+  if (!autoaway_timeout) return;
+  if (!LastActivity || activity) time(&LastActivity);
+
+  cur_st = jb_getstatus();
+  // Auto-away is disabled for the following states
+  if ((cur_st != available) && (cur_st != freeforchat))
+    return;
+
+  if (!activity) {
+    time_t now;
+    time(&now);
+    if (!Autoaway && (now > LastActivity + autoaway_timeout))
+      set_autoaway(TRUE);
+  }
 }
 
 //  set_current_buddy(newbuddy)
@@ -1037,39 +1062,6 @@ void scr_BufferSearch(int direction, const char *text)
     doupdate();
   } else
     scr_LogPrint("Search string not found");
-}
-
-//  scr_LogPrint(...)
-// Display a message in the log window.
-void scr_LogPrint(const char *fmt, ...)
-{
-  time_t timestamp;
-  char *buffer;
-  va_list ap;
-
-  do {
-    buffer = (char *) calloc(1, 1024);
-  } while (!buffer);
-
-  timestamp = time(NULL);
-  strftime(buffer, 64, "[%H:%M:%S] ", localtime(&timestamp));
-  if (Curses)
-    wprintw(logWnd, "\n%s", buffer);
-  else
-    printf("%s", buffer);
-
-  va_start(ap, fmt);
-  vsnprintf(buffer, 1024, fmt, ap);
-  va_end(ap);
-
-  if (Curses) {
-    wprintw(logWnd, "%s", buffer);
-    update_panels();
-    doupdate();
-  } else {
-    printf("%s\n", buffer);
-  }
-  free(buffer);
 }
 
 //  scr_set_chatmode()
@@ -1441,6 +1433,13 @@ void scr_handle_sigint(void)
   scr_end_current_completion();
   check_offset(-1);
   refresh_inputline();
+}
+
+int scr_Getch(void)
+{
+  int ch;
+  ch = wgetch(inputWnd);
+  return ch;
 }
 
 //  process_key(key)

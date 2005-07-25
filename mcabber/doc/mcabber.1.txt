@@ -102,13 +102,15 @@ COMMANDS
         Example: "/bind 265 = status online" (265 is F1 for me, but it can
         depend on your ncurses installation).
 
-/buffer clear|top|bottom::
+/buffer clear|top|bottom|search_backward|search_forward::
         The 'buffer' command manipulates the current buddy's buffer
         (chat window).
 
-        'clear';;  clear the current buddy chat window                  
-        'top';;    jump to the top of the current buddy chat buffer     
-        'bottom';; jump to the bottom of the current buddy chat buffer  
+        'clear';;       clear the current buddy chat window                  
+        'top';;         jump to the top of the current buddy chat buffer     
+        'bottom';;      jump to the bottom of the current buddy chat buffer  
+        'search_backward' text;; search for text in the current buddy chat buffer
+        'search_forward'  text;; search for text in the current buddy chat buffer
 
 /clear::
         The 'clear' command is actually an alias for "/buffer clear".

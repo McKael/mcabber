@@ -121,12 +121,14 @@ Add "name" as an alias for "command line"\&. Aliases are expanded only once, thu
 Bind a command line to the key with the "keycode" code number\&. Keycodes of unused keys are displayed by mcabber in the log window when pressing the key, for example "Unknown key=265"\&. "/bind keycode" displays the command line bound to the given keycode; "/bind keycode" unbinds the given keycode\&. Note: aliases can be used in key bindings\&. Example: "/bind 265 = status online" (265 is F1 for me, but it can depend on your ncurses installation)\&.
 
 .TP
-\fB/buffer\fR clear|top|bottom
+\fB/buffer\fR clear|top|bottom|search_backward|search_forward
 The buffer command manipulates the current buddy's buffer (chat window)\&.
 
  \fBclear\fR	clear the current buddy chat window
  \fBtop\fR 	jump to the top of the current buddy chat buffer
  \fBbottom\fR	jump to the bottom of the current buddy chat buffer
+ \fBsearch_backward\fR text	search for text in the current buddy chat buffer
+ \fBsearch_forward\fR  text	search for text in the current buddy chat buffer
 
 .TP
 \fB/clear\fR

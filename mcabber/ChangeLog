@@ -10,7 +10,13 @@ mcabber (0.6.5-dev)
      They are corrected automatically (to 700 and 600)
    - Warn when mcabber main directory ($HOME/.mcabber) has bad permissions
  * First Ctrl-C didn't really leave multi-line message mode! (merge issue)
- * A few internal changes and minor bugfixes
+ * Add "/buffer search_backward"  and "/buffer search_forward", to search
+   for a string in a buffer window
+ * New logging system.  The "debug" file has been replaced by a "trace file",
+   and 2 levels are availabler.  In level 1, the messages from the log window
+   are written to te trace file. In level 2, debug messages and XML are
+   written to the file.  See the sample configuration file.
+ * A few other internal changes and minor bugfixes
 
  -- Mikael, ?
 

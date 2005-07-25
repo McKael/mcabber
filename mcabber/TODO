@@ -5,7 +5,6 @@ BUGS:
 
 TODO:
 
-* Improve debug logging system
 * Implement automatic reconnection after network failure
 * Presence notification is always accepted.  We should ask...
 * UTF-8 support (Can somebody help me?)
@@ -32,8 +31,6 @@ TODO:
   - /buffer <clear|top|bottom>
     + /buffer % 50          (jump to 50 %)
     + /buffer date $date    (jump to first msg after $date)
-    + /buffer search $string
-      (backward or forward? maybe search_backward/search_forward)
   - /group <expand|shrink|toggle>
     + rename
   - /say_to <jid> blabla

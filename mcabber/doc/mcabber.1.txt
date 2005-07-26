@@ -174,6 +174,8 @@ COMMANDS
 
         'bottom';;       jump to the bottom of the roster
         'top';;          jump to the top of the roster
+        'up';;           move up in the roster
+        'down';;         move down in the roster
         'hide_offline';; hide offline buddies
         'show_offline';; show offline buddies
         'toggle_offline';; toggle display of offline buddies

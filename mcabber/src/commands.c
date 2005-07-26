@@ -115,6 +115,8 @@ void cmd_init(void)
   // Roster category
   compl_add_category_word(COMPL_ROSTER, "bottom");
   compl_add_category_word(COMPL_ROSTER, "top");
+  compl_add_category_word(COMPL_ROSTER, "up");
+  compl_add_category_word(COMPL_ROSTER, "down");
   compl_add_category_word(COMPL_ROSTER, "hide_offline");
   compl_add_category_word(COMPL_ROSTER, "show_offline");
   compl_add_category_word(COMPL_ROSTER, "toggle_offline");
@@ -366,6 +368,10 @@ static void do_roster(char *arg)
     }
     scr_RosterSearch(string);
     update_roster = TRUE;
+  } else if (!strcasecmp(arg, "up")) {
+    scr_RosterUp();
+  } else if (!strcasecmp(arg, "down")) {
+    scr_RosterDown();
   } else
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
 }

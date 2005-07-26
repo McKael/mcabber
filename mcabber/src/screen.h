@@ -49,6 +49,8 @@ void scr_CheckAutoAway(bool activity);
 // For commands...
 void scr_RosterTop(void);
 void scr_RosterBottom(void);
+void scr_RosterUp(void);
+void scr_RosterDown(void);
 void scr_RosterSearch(char *);
 void scr_BufferTopBottom(int topbottom);
 void scr_BufferClear(void);

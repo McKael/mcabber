@@ -1,8 +1,14 @@
+mcabber (0.6.5-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Mikael BERTHE <mikael.berthe@lilotux.net>  Tue, 26 Jul 2005 20:39:09 +0200
+
 mcabber (0.6.4-2) unstable; urgency=low
 
   * Improve Debian package, with some help from Benjamin Drieu
 
- -- Mikael BERTHE <mikael.berthe@free.fr>  Sat, 23 Jul 2005 15:26:58 +0200
+ -- Mikael BERTHE <mikael.berthe@lilotux.net>  Sat, 23 Jul 2005 15:26:58 +0200
 
 mcabber (0.6.4-1) unstable; urgency=low
 

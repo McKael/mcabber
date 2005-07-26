@@ -1,6 +1,12 @@
+mcabber (0.6.6-dev)
+
+ *
+
+ -- Mikael, ?
+
 mcabber (0.6.5)
 
- * Add Debian directory for packaging, create an experimenal package
+ * Add Debian directory for packaging, create an experimental package
  * Add a few external actions (MSG OUT, STATUS *)
    The contrib/eventcmd script has been updated
  * Use better messages for server connection states

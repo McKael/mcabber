@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 #include <config.h>
-#include "screen.h"
+#include "logprint.h"
 
 static int DebugEnabled;
 static char *FName;
@@ -63,7 +63,10 @@ void ut_InitDebug(unsigned int level, const char *filename)
   DebugEnabled = level;
 
   fp = fopen(FName, "a");
-  if (!fp) return;
+  if (!fp) {
+    fprintf(stderr, "ERROR: Cannot open tracelog file\n");
+    return;
+  }
   fprintf(fp, "New trace log started.\n"
 	  "----------------------\n");
   fchmod(fileno(fp), S_IRUSR|S_IWUSR);
@@ -77,7 +80,10 @@ void ut_WriteLog(unsigned int flag, const char *data)
   if (((DebugEnabled == 2) && (flag & (LPRINT_LOG|LPRINT_DEBUG))) ||
       ((DebugEnabled == 1) && (flag & LPRINT_LOG))) {
     FILE *fp = fopen(FName, "a+");
-    if (!fp) return;
+    if (!fp) {
+      scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot open tracelog file");
+      return;
+    }
     fputs(data, fp);
     fclose(fp);
   }

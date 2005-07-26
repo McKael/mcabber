@@ -30,8 +30,8 @@
 #include "histolog.h"
 #include "hbuf.h"
 #include "jabglue.h"
-#include "screen.h"
 #include "utils.h"
+#include "logprint.h"
 
 static guint UseFileLogging;
 static guint FileLoadLogs;

@@ -26,7 +26,7 @@
 #include "settings.h"
 #include "commands.h"
 #include "utils.h"
-#include "screen.h"
+#include "logprint.h"
 
 static GSList *option;
 static GSList *alias;

@@ -21,9 +21,9 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include <screen.h>
 
 #include "hooks.h"
+#include "screen.h"
 #include "roster.h"
 #include "histolog.h"
 #include "utf8.h"

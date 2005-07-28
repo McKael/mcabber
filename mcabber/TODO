@@ -3,7 +3,6 @@ BUGS:
 
 * The PgUp and Ins keys do not work for some people
   Cannot reproduce, any help appreciated.
-* The euro symbol is not correctly encoded/decoded
 
 TODO:
 

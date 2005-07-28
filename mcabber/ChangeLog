@@ -1,6 +1,6 @@
 mcabber (0.6.6-dev)
 
- *
+ * Use Glib for UTF-8 conversions
 
  -- Mikael, ?
 
@@ -21,7 +21,7 @@ mcabber (0.6.5)
  * Add "/roster up" and "/roster down" commands
  * New logging system.  The "debug" file has been replaced by a "trace file",
    and 2 levels are available.  In level 1, the messages from the log window
-   are written to te trace file. In level 2, debug messages and XML are
+   are written to te trace file.  In level 2, debug messages and XML are
    written to the file.  See the sample configuration file.
  * A few other internal changes and minor bugfixes
 

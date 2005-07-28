@@ -27,7 +27,6 @@
 #include "roster.h"
 #include "screen.h"
 #include "hooks.h"
-#include "utf8.h"
 #include "utils.h"
 #include "settings.h"
 
@@ -238,7 +237,7 @@ inline enum imstatus jb_getstatus()
 void jb_setstatus(enum imstatus st, const char *msg)
 {
   xmlnode x;
-  char *utf8_msg;
+  gchar *utf8_msg;
 
   if (!online) return;
 
@@ -287,13 +286,13 @@ void jb_setstatus(enum imstatus st, const char *msg)
   if (!msg)
       msg = settings_get_status_msg(st);
 
-  utf8_msg = utf8_encode(msg);
+  utf8_msg = g_locale_to_utf8(msg, -1, NULL, NULL, NULL);
   xmlnode_insert_cdata(xmlnode_insert_tag(x, "status"), utf8_msg,
           (unsigned) -1);
 
   jab_send(jc, x);
   xmlnode_free(x);
-  free(utf8_msg);
+  g_free(utf8_msg);
 
   //sendvisibility();   ???
 
@@ -308,11 +307,11 @@ void jb_setstatus(enum imstatus st, const char *msg)
 
 void jb_send_msg(const char *jid, const char *text)
 {
-  char *buffer = utf8_encode(text);
+  gchar *buffer = g_locale_to_utf8(text, -1, NULL, NULL, NULL);
   xmlnode x = jutil_msgnew(TMSG_CHAT, (char*)jid, 0, (char*)buffer);
   jab_send(jc, x);
   xmlnode_free(x);
-  free(buffer);
+  g_free(buffer);
   jb_reset_keepalive();
 }
 
@@ -338,17 +337,17 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
   xmlnode_put_attrib(z, "jid", jid);
 
   if (name) {
-    char *name_utf8 = utf8_encode(name);
+    gchar *name_utf8 = g_locale_to_utf8(name, -1, NULL, NULL, NULL);
     z = xmlnode_insert_tag(z, "name");
     xmlnode_insert_cdata(z, name_utf8, (unsigned) -1);
-    free(name_utf8);
+    g_free(name_utf8);
   }
 
   if (group) {
-    char *group_utf8 = utf8_encode(group);
+    char *group_utf8 = g_locale_to_utf8(group, -1, NULL, NULL, NULL);
     z = xmlnode_insert_tag(z, "group");
     xmlnode_insert_cdata(z, group_utf8, (unsigned) -1);
-    free(group_utf8);
+    g_free(group_utf8);
   }
 
   jab_send(jc, x);
@@ -408,14 +407,14 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
 {
   xmlnode x, y;
   char *cleanjid;
-  char *name_utf8;
+  gchar *name_utf8;
 
   if (!online) return;
 
   // XXX We should check name's and group's correctness
 
   cleanjid = jidtodisp(jid);
-  name_utf8 = utf8_encode(name);
+  name_utf8 = g_locale_to_utf8(name, -1, NULL, NULL, NULL);
 
   x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
   y = xmlnode_insert_tag(xmlnode_get_tag(x, "query"), "item");
@@ -423,15 +422,15 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
   xmlnode_put_attrib(y, "name", name_utf8);
 
   if (group) {
-    char *group_utf8 = utf8_encode(group);
+    gchar *group_utf8 = g_locale_to_utf8(group, -1, NULL, NULL, NULL);
     y = xmlnode_insert_tag(y, "group");
     xmlnode_insert_cdata(y, group_utf8, (unsigned) -1);
-    free(group_utf8);
+    g_free(group_utf8);
   }
 
   jab_send(jc, x);
   xmlnode_free(x);
-  free(name_utf8);
+  g_free(name_utf8);
   g_free(cleanjid);
 }
 
@@ -518,19 +517,21 @@ void gotroster(xmlnode x)
     if (alias) {
       char *buddyname;
       char *cleanalias = jidtodisp(alias);
-      char *name_noutf8 = NULL;
-      char *group_noutf8 = NULL;
+      gchar *name_noutf8 = NULL;
+      gchar *group_noutf8 = NULL;
 
       if (name) {
-        name_noutf8 = utf8_decode(name);
+        name_noutf8 = g_locale_from_utf8(name, -1, NULL, NULL, NULL);
         buddyname = name_noutf8;
       } else
         buddyname = cleanalias;
 
-      if (group) group_noutf8 = utf8_decode(group);
+      if (group)
+        group_noutf8 = g_locale_from_utf8(group, -1, NULL, NULL, NULL);
+
       roster_add_user(cleanalias, buddyname, group_noutf8, ROSTER_TYPE_USER);
-      if (name_noutf8)  free(name_noutf8);
-      if (group_noutf8) free(group_noutf8);
+      if (name_noutf8)  g_free(name_noutf8);
+      if (group_noutf8) g_free(group_noutf8);
       g_free(cleanalias);
     }
   }
@@ -542,7 +543,7 @@ void gotmessage(char *type, const char *from, const char *body,
         const char *enc, time_t timestamp)
 {
   char *jid;
-  char *buffer = utf8_decode(body);
+  gchar *buffer = g_locale_from_utf8(body, -1, NULL, NULL, NULL);
 
   /*
   //char *u, *h, *r;
@@ -558,7 +559,7 @@ void gotmessage(char *type, const char *from, const char *body,
   jid = jidtodisp(from);
   hk_message_in(jid, timestamp, buffer, type);
   g_free(jid);
-  free(buffer);
+  g_free(buffer);
 }
 
 void statehandler(jconn conn, int state)
@@ -851,7 +852,7 @@ void packethandler(jconn conn, jpacket packet)
           ust = offline;
 
         if ((x = xmlnode_get_tag(packet->x, "status")) != NULL)
-          p = utf8_decode(xmlnode_get_data(x));
+          p = g_locale_from_utf8(xmlnode_get_data(x), -1, NULL, NULL, NULL);
         else
           p = NULL;
 
@@ -862,7 +863,7 @@ void packethandler(jconn conn, jpacket packet)
         if ((ust != roster_getstatus(r)) || (p && (!m || strcmp(p, m))))
           hk_statuschange(r, 0, ust, p);
         g_free(r);
-        if (p) free(p);
+        if (p) g_free(p);
         break;
 
     case JPACKET_S10N:

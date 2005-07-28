@@ -26,7 +26,6 @@
 #include "screen.h"
 #include "roster.h"
 #include "histolog.h"
-#include "utf8.h"
 #include "hbuf.h"
 
 static char *extcmd;

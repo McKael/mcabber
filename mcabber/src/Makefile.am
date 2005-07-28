@@ -4,7 +4,7 @@ mcabber_SOURCES = main.c jabglue.c jabglue.h roster.c roster.h \
 		  hbuf.c hbuf.h screen.c screen.h logprint.h \
 		  settings.c settings.h \
 		  hooks.c hooks.h histolog.c histolog.h \
-		  utf8.c utf8.h utils.c utils.h list.h harddefines.h
+		  utils.c utils.h list.h harddefines.h
 
 LDADD = -lglib-2.0 -lncurses -lpanel \
 	../libjabber/liblibjabber.a ../connwrap/libconnwrap.a

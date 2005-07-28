@@ -28,7 +28,6 @@
 #include "compl.h"
 #include "hooks.h"
 #include "hbuf.h"
-#include "utf8.h"
 #include "utils.h"
 #include "settings.h"
 

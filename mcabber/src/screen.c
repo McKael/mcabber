@@ -200,9 +200,8 @@ static void ParseColors(void)
 void scr_InitCurses(void)
 {
   initscr();
-  noecho();
   raw();
-  halfdelay(5);
+  noecho();
   start_color();
   use_default_colors();
   Curses = TRUE;
@@ -575,6 +574,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
   if (fullinit) {
     // Enable keypad (+ special keys)
     keypad(inputWnd, TRUE);
+    nodelay(inputWnd, TRUE);
 
     // Create panels
     rosterPanel = new_panel(rosterWnd);

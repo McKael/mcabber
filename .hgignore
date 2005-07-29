@@ -3,16 +3,16 @@
 
 (^|/)autom4te\.cache($|/)
 (^|/)\.deps($|/)
-(^|/)Makefile\.in($|/)
-\.o($|/)
-\.a($|/)
-\.sw.($|/)
+(^|/)Makefile\.in$
+\.o$
+\.a$
+\.sw.$
 
 ^mcabber/lastchange$
 /cscope.out$
 ^mcabber/src/mcabber$
-(^|/)Makefile($|/)
-(^|/)config\.(h(\.in|)|log|cache|guess|status)($|/)
+(^|/)Makefile$
+(^|/)config\.(h(\.in|)|log|cache|guess|status)$
 ^mcabber/aclocal.m4$
 ^mcabber/config.sub$
 ^mcabber/configure$

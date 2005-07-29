@@ -640,8 +640,10 @@ void scr_Resize()
       rescue_top = hbuf_previous_persistent(search_entry->top);
       hbuf_rebuild(&search_entry->hbuf,
               maxX - ROSTER_WIDTH - PREFIX_WIDTH);
-      if (g_list_position(g_list_first(search_entry->hbuf), search_entry->top) == -1)
+      if (g_list_position(g_list_first(search_entry->hbuf),
+                          search_entry->top) == -1) {
         search_entry->top = rescue_top;
+      }
     }
   }
 
@@ -1598,8 +1600,9 @@ int process_key(int key)
           update_panels();
           break;
       case 12:  // Ctrl-l
-      case KEY_RESIZE:
           scr_CheckAutoAway(TRUE);
+          redrawwin(stdscr);
+      case KEY_RESIZE:
           scr_Resize();
           break;
       default:

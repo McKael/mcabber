@@ -35,6 +35,9 @@
 
 #define JABBER_AGENT_GROUP "Jabber Agents"
 
+#define to_utf8(s)   ((s) ? g_locale_to_utf8((s),   -1, NULL,NULL,NULL) : NULL)
+#define from_utf8(s) ((s) ? g_locale_from_utf8((s), -1, NULL,NULL,NULL) : NULL)
+
 jconn jc;
 static time_t LastPingTime;
 static unsigned int KeepaliveDelay;
@@ -286,7 +289,7 @@ void jb_setstatus(enum imstatus st, const char *msg)
   if (!msg)
       msg = settings_get_status_msg(st);
 
-  utf8_msg = g_locale_to_utf8(msg, -1, NULL, NULL, NULL);
+  utf8_msg = to_utf8(msg);
   xmlnode_insert_cdata(xmlnode_insert_tag(x, "status"), utf8_msg,
           (unsigned) -1);
 
@@ -307,7 +310,7 @@ void jb_setstatus(enum imstatus st, const char *msg)
 
 void jb_send_msg(const char *jid, const char *text)
 {
-  gchar *buffer = g_locale_to_utf8(text, -1, NULL, NULL, NULL);
+  gchar *buffer = to_utf8(text);
   xmlnode x = jutil_msgnew(TMSG_CHAT, (char*)jid, 0, (char*)buffer);
   jab_send(jc, x);
   xmlnode_free(x);
@@ -337,14 +340,14 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
   xmlnode_put_attrib(z, "jid", jid);
 
   if (name) {
-    gchar *name_utf8 = g_locale_to_utf8(name, -1, NULL, NULL, NULL);
+    gchar *name_utf8 = to_utf8(name);
     z = xmlnode_insert_tag(z, "name");
     xmlnode_insert_cdata(z, name_utf8, (unsigned) -1);
     g_free(name_utf8);
   }
 
   if (group) {
-    char *group_utf8 = g_locale_to_utf8(group, -1, NULL, NULL, NULL);
+    char *group_utf8 = to_utf8(group);
     z = xmlnode_insert_tag(z, "group");
     xmlnode_insert_cdata(z, group_utf8, (unsigned) -1);
     g_free(group_utf8);
@@ -414,7 +417,7 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
   // XXX We should check name's and group's correctness
 
   cleanjid = jidtodisp(jid);
-  name_utf8 = g_locale_to_utf8(name, -1, NULL, NULL, NULL);
+  name_utf8 = to_utf8(name);
 
   x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
   y = xmlnode_insert_tag(xmlnode_get_tag(x, "query"), "item");
@@ -422,7 +425,7 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
   xmlnode_put_attrib(y, "name", name_utf8);
 
   if (group) {
-    gchar *group_utf8 = g_locale_to_utf8(group, -1, NULL, NULL, NULL);
+    gchar *group_utf8 = to_utf8(group);
     y = xmlnode_insert_tag(y, "group");
     xmlnode_insert_cdata(y, group_utf8, (unsigned) -1);
     g_free(group_utf8);
@@ -521,13 +524,13 @@ void gotroster(xmlnode x)
       gchar *group_noutf8 = NULL;
 
       if (name) {
-        name_noutf8 = g_locale_from_utf8(name, -1, NULL, NULL, NULL);
+        name_noutf8 = from_utf8(name);
         buddyname = name_noutf8;
       } else
         buddyname = cleanalias;
 
       if (group)
-        group_noutf8 = g_locale_from_utf8(group, -1, NULL, NULL, NULL);
+        group_noutf8 = from_utf8(group);
 
       roster_add_user(cleanalias, buddyname, group_noutf8, ROSTER_TYPE_USER);
       if (name_noutf8)  g_free(name_noutf8);
@@ -543,7 +546,7 @@ void gotmessage(char *type, const char *from, const char *body,
         const char *enc, time_t timestamp)
 {
   char *jid;
-  gchar *buffer = g_locale_from_utf8(body, -1, NULL, NULL, NULL);
+  gchar *buffer = from_utf8(body);
 
   /*
   //char *u, *h, *r;
@@ -852,7 +855,7 @@ void packethandler(jconn conn, jpacket packet)
           ust = offline;
 
         if ((x = xmlnode_get_tag(packet->x, "status")) != NULL)
-          p = g_locale_from_utf8(xmlnode_get_data(x), -1, NULL, NULL, NULL);
+          p = from_utf8(xmlnode_get_data(x));
         else
           p = NULL;
 

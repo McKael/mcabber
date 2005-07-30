@@ -202,6 +202,8 @@ void scr_InitCurses(void)
   initscr();
   raw();
   noecho();
+  nonl();
+  intrflush(stdscr, FALSE);
   start_color();
   use_default_colors();
   Curses = TRUE;
@@ -1432,7 +1434,7 @@ static inline void refresh_inputline(void)
     wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine - inputline_offset);
 }
 
-void scr_handle_sigint(void)
+void scr_handle_CtrlC(void)
 {
   if (!Curses) return;
   // Leave multi-line mode
@@ -1503,7 +1505,7 @@ int process_key(int key)
           scr_handle_tab();
           check_offset(0);
           break;
-      case '\n':  // Enter
+      case 13:    // Enter
       case 15:    // Ctrl-o ("accept-line-and-down-history")
           scr_CheckAutoAway(TRUE);
           if (process_line(inputLine))
@@ -1515,7 +1517,7 @@ int process_key(int key)
           *ptr_inputline = 0;
           inputline_offset = 0;
 
-          if (key == '\n')          // Enter
+          if (key == 13)            // Enter
           {
             // Reset history line pointer
             cmdhisto_cur = NULL;
@@ -1558,6 +1560,9 @@ int process_key(int key)
       case 1:
           ptr_inputline = inputLine;
           inputline_offset = 0;
+          break;
+      case 3:   // Ctrl-C
+          scr_handle_CtrlC();
           break;
       case KEY_END:
       case 5:

@@ -114,17 +114,8 @@ void sig_handler(int signum)
     signal(SIGCHLD, sig_handler);
   } else if (signum == SIGTERM) {
     mcabber_disconnect("Killed by SIGTERM");
-  } else if (signum == SIGINT) {  // Ctrl-C
-    static time_t LastSigtermTime;
-    time_t now;
-    time(&now);
-    /* Terminate if 2 consecutive SIGTERMs */
-    if (now - LastSigtermTime < 2)
-      mcabber_disconnect("Killed by SIGINT");
-    LastSigtermTime = now;
-    signal(SIGINT, sig_handler);
-    scr_handle_sigint();
-    scr_LogPrint(LPRINT_NORMAL, "Hit Ctrl-C twice to leave mcabber");
+  } else if (signum == SIGINT) {
+    mcabber_disconnect("Killed by SIGINT");
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Caught signal: %d", signum);
   }

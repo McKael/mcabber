@@ -62,9 +62,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   hbuf_block_elt->prefix.timestamp  = timestamp;
   hbuf_block_elt->prefix.flags      = prefix_flags;
   if (!hbuf) {
-    do {
-      hbuf_block_elt->ptr  = g_new(char, HBB_BLOCKSIZE);
-    } while (!hbuf_block_elt->ptr);
+    hbuf_block_elt->ptr  = g_new(char, HBB_BLOCKSIZE);
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
     hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
     *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
@@ -83,9 +81,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   }
   if (hbuf_block_elt->ptr + strlen(text) >= hbuf_block_elt->ptr_end_alloc) {
     // Too long for the current allocated bloc, we need another one
-    do {
-      hbuf_block_elt->ptr  = g_new0(char, HBB_BLOCKSIZE);
-    } while (!hbuf_block_elt->ptr);
+    hbuf_block_elt->ptr  = g_new0(char, HBB_BLOCKSIZE);
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
     hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
   }
@@ -151,6 +147,7 @@ void hbuf_free(GList **p_hbuf)
     if (hbuf_b_elt->flags & HBB_FLAG_ALLOC) {
       g_free(hbuf_b_elt->ptr);
     }
+    g_free(hbuf_b_elt);
   }
 
   g_list_free(*p_hbuf);
@@ -180,6 +177,7 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
     // Is next line not-persistent?
     if (!(hbuf_b_next->flags & HBB_FLAG_PERSISTENT)) {
       hbuf_b_curr->ptr_end = hbuf_b_next->ptr_end;
+      g_free(hbuf_b_next);
       g_list_delete_link(curr_elt, next_elt);
     } else 
       curr_elt = next_elt;

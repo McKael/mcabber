@@ -1,6 +1,6 @@
 /*
  * histolog.c     -- File history handling
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -161,7 +161,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     type = data[0];
     info = data[1];
 
-    if ((type != 'M' && type != 'S') || 
+    if ((type != 'M' && type != 'S') ||
         ((data[11] != 'T') || (data[20] != 'Z') ||
          (data[21] != ' ') || (data[25] != ' '))) {
       if (!err) {
@@ -175,7 +175,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     data[21] = data[25] = 0;
     timestamp = from_iso8601(&data[3], 1);
     len = (guint) atoi(&data[22]);
-    
+
     // Some checks
     if (((type == 'M') && (info != 'S' && info != 'R')) ||
         ((type == 'I') && (!strchr("OAIFDN", info)))) {

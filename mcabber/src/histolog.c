@@ -144,11 +144,11 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   g_free(filename);
   if (!fp) { g_free(data); return; }
 
-  // If file is large (> 512 here), display a message to inform the user
+  // If file is large (> 3MB here), display a message to inform the user
   // (it can take a while...)
   if (!fstat(fileno(fp), &bufstat)) {
-    if (bufstat.st_size > 524288)
-      scr_LogPrint(LPRINT_NORMAL, "Reading <%s> history file...", jid);
+    if (bufstat.st_size > 3145728)
+      scr_LogPrint(LPRINT_LOGNORM, "Reading <%s> history file...", jid);
   }
 
   /* See write_histo_line() for line format... */

@@ -1,6 +1,6 @@
 /*
  * compl.c      -- Completion system
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify

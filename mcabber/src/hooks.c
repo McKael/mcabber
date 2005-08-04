@@ -1,6 +1,6 @@
 /*
  * hooks.c     -- Hooks layer
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -75,7 +75,7 @@ inline void hk_message_out(const char *jid, time_t timestamp, const char *msg)
   hk_ext_cmd(jid, 'M', 'S', NULL);
 }
 
-inline void hk_statuschange(const char *jid, time_t timestamp, 
+inline void hk_statuschange(const char *jid, time_t timestamp,
         enum imstatus status, const char *status_msg)
 {
   scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] <%s> %s",

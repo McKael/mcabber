@@ -1,6 +1,6 @@
 /*
  * main.c
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  * Parts of this file come from Cabber <cabber@ajmacias.com>
  *

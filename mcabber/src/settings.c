@@ -1,6 +1,6 @@
 /*
  * settings.c   -- Configuration stuff
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,7 +50,7 @@ static inline GSList **get_list_ptr(guint type)
 static GSList *settings_find(GSList *list, const gchar *key)
 {
   GSList *ptr;
-  
+
   if (!list) return NULL;
 
   for (ptr = list ; ptr; ptr = g_slist_next(ptr))

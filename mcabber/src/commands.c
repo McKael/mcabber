@@ -1,6 +1,6 @@
 /*
  * commands.c     -- user commands handling
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -214,7 +214,7 @@ cmd *cmd_get(const char *command)
 void send_message(const char *msg)
 {
   const char *jid;
-      
+
   if (!current_buddy) {
     scr_LogPrint(LPRINT_NORMAL, "No buddy currently selected.");
     return;
@@ -731,7 +731,7 @@ static void do_set(char *arg)
 {
   guint assign;
   const gchar *option, *value;
-  
+
   assign = parse_assigment(arg, &option, &value);
   if (!option) {
     scr_LogPrint(LPRINT_NORMAL, "Huh?");
@@ -761,7 +761,7 @@ static void do_alias(char *arg)
 {
   guint assign;
   const gchar *alias, *value;
-  
+
   assign = parse_assigment(arg, &alias, &value);
   if (!alias) {
     scr_LogPrint(LPRINT_NORMAL, "Huh?");
@@ -800,7 +800,7 @@ static void do_bind(char *arg)
 {
   guint assign;
   const gchar *keycode, *value;
-  
+
   assign = parse_assigment(arg, &keycode, &value);
   if (!keycode) {
     scr_LogPrint(LPRINT_NORMAL, "Huh?");

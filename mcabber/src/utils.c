@@ -1,6 +1,6 @@
 /*
  * utils.c      -- Various utility functions
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  * ut_* functions are derived from Cabber debug/log code.
  * from_iso8601() comes from the Gaim project.
@@ -76,7 +76,7 @@ void ut_InitDebug(unsigned int level, const char *filename)
 void ut_WriteLog(unsigned int flag, const char *data)
 {
   if (!DebugEnabled || !FName) return;
-  
+
   if (((DebugEnabled == 2) && (flag & (LPRINT_LOG|LPRINT_DEBUG))) ||
       ((DebugEnabled == 1) && (flag & LPRINT_LOG))) {
     FILE *fp = fopen(FName, "a+");

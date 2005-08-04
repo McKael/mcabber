@@ -1,6 +1,6 @@
 /*
  * roster.c     -- Local roster implementation
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -539,7 +539,7 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   // Remove the buddy from current group
   sl_group = &((roster*)((GSList*)roster_usr->list)->data)->list;
   *sl_group = g_slist_remove(*sl_group, rosterdata);
-  
+
   // Add the buddy to its new group; actually we "clone" this buddy...
   sl_clone = roster_add_user(roster_usr->jid, roster_usr->name,
           newgroupname, roster_usr->type);

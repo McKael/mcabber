@@ -1,6 +1,6 @@
 /*
  * hbuf.c       -- History buffer implementation
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -182,7 +182,7 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
       hbuf_b_curr->ptr_end = hbuf_b_next->ptr_end;
       g_free(hbuf_b_next);
       g_list_delete_link(curr_elt, next_elt);
-    } else 
+    } else
       curr_elt = next_elt;
   }
   // #2 Go back to head and create non-persistent blocks when needed

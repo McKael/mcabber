@@ -1,6 +1,6 @@
 /*
  * screen.c     -- UI stuff
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  * Parts of this file come from the Cabber project <cabber@ajmacias.com>
  *
@@ -277,7 +277,7 @@ static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   int lines;
   int cols;
   window_entry_t *tmp;
-  
+
   do {
     tmp = calloc(1, sizeof(window_entry_t));
   } while (!tmp);

@@ -1,6 +1,6 @@
 /*
  * jabglue.c    -- Jabber protocol handling
- * 
+ *
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  * Parts come from the centericq project:
  * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
@@ -111,8 +111,8 @@ char *jidtodisp(const char *jid)
 char *compose_jid(const char *username, const char *servername,
         const char *resource)
 {
-  char *jid = g_new(char, 
-          strlen(username)+strlen(servername)+strlen(resource)+3);
+  char *jid = g_new(char, 3 +
+                    strlen(username) + strlen(servername) + strlen(resource));
   strcpy(jid, username);
   strcat(jid, "@");
   strcat(jid, servername);

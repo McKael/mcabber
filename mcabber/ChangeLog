@@ -1,8 +1,13 @@
-mcabber (0.6.6-dev)
+mcabber (0.6.6)
 
  * Use Glib for UTF-8 conversions
+ * A screen resize does not terminate auto-away
+ * Ctrl-l does a full screen refresh
+ * Ctrl-c is treated as a normal key; we're now using ncurses raw mode
+   so it doesn't trigger a signal
+ * Speed up history file loading
 
- -- Mikael, ?
+ -- Mikael, 2005-08-17
 
 mcabber (0.6.5)
 
@@ -15,7 +20,7 @@ mcabber (0.6.5)
  * - Check history directory permissions and configuration file permissions
      They are corrected automatically (to 700 and 600)
    - Warn when mcabber main directory ($HOME/.mcabber) has bad permissions
- * First Ctrl-C didn't really leave multi-line message mode! (merge issue)
+ * First Ctrl-c didn't really leave multi-line message mode! (merge issue)
  * Add "/buffer search_backward"  and "/buffer search_forward", to search
    for a string in a buffer window
  * Add "/roster up" and "/roster down" commands
@@ -38,7 +43,7 @@ mcabber (0.6.4)
  * New autoaway feature (see sample config. file)
  * New "/roster alternate".  Jumps to the last buddy window left in chat mode
  * Handle "error" message type
- * One Ctrl-C does not terminate mcabber anymore (the 2nd Ctrl-C do), but
+ * One Ctrl-c does not terminate mcabber anymore (the 2nd Ctrl-c does), but
    leaves multi-line message mode and aborts current completion
  * Add a sample script to handle events (currently, it plays a sounds when
    a message is received)

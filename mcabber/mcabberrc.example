@@ -71,8 +71,9 @@ set resource = mcabber
 #set message_away      = I'm away
 #set message_autoaway  = Auto-away
 
-#  The colors
+#  Colors
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white
+# You can use the "default" color, too (i.e. for transparent background)
 #set color_background   = blue
 #set color_general      = white
 #set color_newmessage   = red

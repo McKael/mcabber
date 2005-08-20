@@ -110,6 +110,7 @@ int cw_http_connect(int sockfd, const struct sockaddr *serv_addr, int addrlen) {
     char buf[512];
     fd_set rfds;
 
+    fl = 0;
     err = 0;
     in_http_connect = 1;
 

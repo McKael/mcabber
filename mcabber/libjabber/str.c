@@ -344,6 +344,7 @@ void str_b64decode(char* str)
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1   /* F0-FF */
     };
 
+    dlast = 0;
     phase = 0;
     for (cur = str; *cur != '\0'; ++cur )
     {

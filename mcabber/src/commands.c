@@ -434,7 +434,8 @@ static void do_add(char *arg)
   // FIXME check id =~ jabber id
   // 2nd parameter = optional nickname
   jb_addbuddy(id, nick, NULL);
-  scr_LogPrint(LPRINT_LOGNORM, "Sent presence notfication request to <%s>", id);
+  scr_LogPrint(LPRINT_LOGNORM, "Sent presence notification request to <%s>",
+               id);
   g_free(id);
 }
 

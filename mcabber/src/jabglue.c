@@ -191,12 +191,12 @@ void jb_main()
   char *cid;
 
   if (!online) {
-    usleep(50000);
+    usleep(10000);
     return;
   }
 
   if (jc && jc->state == JCONN_STATE_CONNECTING) {
-    usleep(200000);
+    usleep(150000);
     jab_start(jc);
     return;
   }
@@ -605,7 +605,7 @@ void statehandler(jconn conn, int state)
 
     case JCONN_STATE_CONNECTING:
         if (previous_state != state)
-        scr_LogPrint(LPRINT_LOGNORM, "[Jabber] Connecting to the server");
+          scr_LogPrint(LPRINT_LOGNORM, "[Jabber] Connecting to the server");
         break;
 
     default:

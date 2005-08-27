@@ -792,7 +792,8 @@ void packethandler(jconn conn, jpacket packet)
           }
         } else if (!strcmp(type, "set")) {
         } else if (!strcmp(type, "error")) {
-          char *name=NULL, *desc=NULL;
+          char *name=NULL, *desc;
+          char *text=NULL;
           int code = 0;
 
           x = xmlnode_get_tag(packet->x, "error");
@@ -800,46 +801,54 @@ void packethandler(jconn conn, jpacket packet)
           p = xmlnode_get_attrib(x, "id"); if (p) name = p;
           p = xmlnode_get_tag_data(packet->x, "error"); if (p) desc = p;
 
-#if 0
+          // Sometimes there is a text message
+          x = xmlnode_get_tag(x, "text");
+          p = xmlnode_get_data(x); if (p) text = p;
+
           switch(code) {
-            case 401: /* Unauthorized */
-            case 302: /* Redirect */
-            case 400: /* Bad request */
-            case 402: /* Payment Required */
-            case 403: /* Forbidden */
-            case 404: /* Not Found */
-            case 405: /* Not Allowed */
-            case 406: /* Not Acceptable */
-            case 407: /* Registration Required */
-            case 408: /* Request Timeout */
-            case 409: /* Conflict */
-            case 500: /* Internal Server Error */
-            case 501: /* Not Implemented */
-            case 502: /* Remote Server Error */
-            case 503: /* Service Unavailable */
-            case 504: /* Remote Server Timeout */
+            case 401: desc = "Unauthorized";
+                break;
+            case 302: desc = "Redirect";
+                break;
+            case 400: desc = "Bad request";
+                break;
+            case 402: desc = "Payment Required";
+                break;
+            case 403: desc = "Forbidden";
+                break;
+            case 404: desc = "Not Found";
+                break;
+            case 405: desc = "Not Allowed";
+                break;
+            case 406: desc = "Not Acceptable";
+                break;
+            case 407: desc = "Registration Required";
+                break;
+            case 408: desc = "Request Timeout";
+                break;
+            case 409: desc = "Conflict";
+                break;
+            case 500: desc = "Internal Server Error";
+                break;
+            case 501: desc = "Not Implemented";
+                break;
+            case 502: desc = "Remote Server Error";
+                break;
+            case 503: desc = "Service Unavailable";
+                break;
+            case 504: desc = "Remote Server Timeout";
+                break;
             default:
-                /*
-                if (!regmode) {
-                  face.log(desc.empty() ?
-                          _("+ [jab] error %d") :
-                          _("+ [jab] error %d: %s"),
-                          code, desc.c_str());
-
-                  if (!jhook.flogged && code != 501) {
-                    close(jc->fd);
-                    jc->fd = -1;
-                  }
-
-                } else {
-                  jhook.regerr = desc;
-
-                }
-                */
+                desc = NULL;
           }
-#endif
-          scr_LogPrint(LPRINT_LOGNORM, "Error code from server (%d)", code);
 
+          scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s",
+                       code, (desc ? desc : ""));
+          if (text)
+            scr_LogPrint(LPRINT_LOGNORM, "Server message: %s", text);
+
+          if (name)
+            scr_LogPrint(LPRINT_DEBUG, "Error id: %s", name);
         }
         break;
 

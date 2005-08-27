@@ -196,7 +196,6 @@ void jb_main()
   }
 
   if (jc && jc->state == JCONN_STATE_CONNECTING) {
-    usleep(150000);
     jab_start(jc);
     return;
   }

@@ -41,7 +41,7 @@ static void charData(void *userdata, const char *s, int slen);
  *      a pointer to the connection structure
  *      or NULL if allocations failed
  */
-jconn jab_new(char *user, char *pass, int port, int ssl)
+jconn jab_new(char *user, char *pass, char *server, int port, int ssl)
 {
     pool p;
     jconn j;
@@ -57,6 +57,7 @@ jconn jab_new(char *user, char *pass, int port, int ssl)
     j->user = jid_new(p, user);
     j->pass = pstrdup(p, pass);
     j->port = port;
+    j->server = server;
 
     j->state = JCONN_STATE_OFF;
     j->cw_state = 0;
@@ -139,10 +140,10 @@ void jab_start(jconn j)
 	XML_SetCharacterDataHandler(j->parser, charData);
 
 	if (j->cw_state & CW_CONNECT_BLOCKING)
-	    j->fd = make_netsocket(j->port, j->user->server, NETSOCKET_CLIENT, j->ssl);
+	    j->fd = make_netsocket(j->port, j->server, NETSOCKET_CLIENT, j->ssl);
 	else
-	    j->fd = make_nb_netsocket(j->port, j->user->server, NETSOCKET_CLIENT, j->ssl, &j->cw_state);
-	
+	    j->fd = make_nb_netsocket(j->port, j->server, NETSOCKET_CLIENT, j->ssl, &j->cw_state);
+
 	if(j->fd < 0) {
 	    STATE_EVT(JCONN_STATE_OFF);
 	    return;

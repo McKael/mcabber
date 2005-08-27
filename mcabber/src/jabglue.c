@@ -114,14 +114,17 @@ char *compose_jid(const char *username, const char *servername,
   char *jid = g_new(char, 3 +
                     strlen(username) + strlen(servername) + strlen(resource));
   strcpy(jid, username);
-  strcat(jid, "@");
-  strcat(jid, servername);
+  if (!strchr(jid, '@')) {
+    strcat(jid, "@");
+    strcat(jid, servername);
+  }
   strcat(jid, "/");
   strcat(jid, resource);
   return jid;
 }
 
-jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass)
+jconn jb_connect(const char *jid, const char *server, unsigned int port,
+                 int ssl, const char *pass)
 {
   if (!port) {
     if (ssl)
@@ -133,7 +136,7 @@ jconn jb_connect(const char *jid, unsigned int port, int ssl, const char *pass)
   jb_disconnect();
 
   s_id = 1;
-  jc = jab_new((char*)jid, (char*)pass, port, ssl);
+  jc = jab_new((char*)jid, (char*)pass, (char*)server, port, ssl);
 
   /* These 3 functions can deal with a NULL jc, no worry... */
   jab_logger(jc, logger);

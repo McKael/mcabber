@@ -82,7 +82,7 @@ void mcabber_connect(void)
     scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " using port %d", port);
 
   jid = compose_jid(username, servername, resource);
-  jc = jb_connect(jid, port, ssl, password);
+  jc = jb_connect(jid, servername, port, ssl, password);
   g_free(jid);
 
   if (!jc)

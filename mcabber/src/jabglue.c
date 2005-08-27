@@ -190,9 +190,13 @@ void jb_main()
   xmlnode x, z;
   char *cid;
 
-  if (!online) return;
+  if (!online) {
+    usleep(50000);
+    return;
+  }
 
   if (jc && jc->state == JCONN_STATE_CONNECTING) {
+    usleep(200000);
     jab_start(jc);
     return;
   }

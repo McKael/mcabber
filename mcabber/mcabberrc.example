@@ -1,6 +1,9 @@
 # Sample ~/.mcabber/mcabberrc file
 
-# The jid will be the following: username@server/resource
+# The jid will be the following: username@server
+# If your jid's domain name is different from the server name,
+# you can specify your complete jid as username.
+#
 # If password is not given, it will be interactively asked for.
 # If port is not given, default Jabber port will be used.
 # Use ssl = 1 to enable SSL

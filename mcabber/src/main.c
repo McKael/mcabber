@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <glib.h>
+#include <config.h>
 
 #include "jabglue.h"
 #include "screen.h"
@@ -40,7 +41,6 @@
 #include "histolog.h"
 #include "hooks.h"
 #include "utils.h"
-#include "harddefines.h"
 
 
 void mcabber_connect(void)
@@ -155,10 +155,9 @@ static void ask_password(void)
   return;
 }
 
-static void credits(void)
+inline static void credits(void)
 {
-  printf(MCABBER_VERSION "\n");
-  printf(EMAIL "\n");
+  printf("MCabber v" VERSION " -- Email: mcabber [at] lilotux [dot] net\n");
 }
 
 int main(int argc, char **argv)

@@ -243,7 +243,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
   if (!flag) return;
 
   do {
-    buffer = (char *) calloc(1, 1088);
+    buffer = (char *) malloc(1088);
   } while (!buffer);
 
   timestamp = time(NULL);
@@ -264,8 +264,19 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     }
   }
   if (flag & (LPRINT_LOG|LPRINT_DEBUG)) {
-    strcat(buffer, "\n");
-    ut_WriteLog(flag, buffer);
+    char *buffer2 = malloc(1088);
+
+    if (buffer2) {
+      strftime(buffer2, 23, "[%Y-%m-%d %H:%M:%S] ", localtime(&timestamp));
+      strcat(buffer2, b2);
+    } else {
+      buffer2 = buffer;
+    }
+
+    strcat(buffer2, "\n");
+    ut_WriteLog(flag, buffer2);
+    if (buffer2 != buffer)
+      free(buffer2);
   }
   free(buffer);
 }

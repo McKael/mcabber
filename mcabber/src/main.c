@@ -211,8 +211,11 @@ int main(int argc, char **argv)
 
   /* If no password is stored, we ask for it before entering
      ncurses mode */
-  if (!settings_opt_get("password"))
+  if (!settings_opt_get("password")) {
+    if (settings_opt_get("server"))
+      printf("Server: %s\n", settings_opt_get("server"));
     ask_password();
+  }
 
   /* Initialize N-Curses */
   scr_LogPrint(LPRINT_DEBUG, "Initializing N-Curses...");

@@ -20,9 +20,10 @@ int cw_connect(int sockfd, const struct sockaddr *serv_addr, int addrlen, int ss
 #define CW_CONNECT_WANT_WRITE 0x8
 #define CW_CONNECT_WANT_SOMETHING 0xC
 #define CW_CONNECT_BLOCKING 0x10
-  
+
 /* non-blocking socket
-   state should be initialized with 0, subsequent calls should keep the modified state (state is a bitwise OR between CW_CONNECT_XXX)
+   state should be initialized with 0, subsequent calls should keep the
+   modified state (state is a bitwise OR between CW_CONNECT_XXX)
    returns 0 for OK, or if it wants subsequent calls
 	   -1 for a fatal error
  */

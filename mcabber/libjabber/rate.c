@@ -55,9 +55,9 @@ int jlimit_check(jlimit r, char *key, int points)
     { /* start a new key */
 	free(r->key);
 	if(key != NULL)
-	  /* We use strdup instead of pstrdup since r->key needs to be free'd before 
+	  /* We use strdup instead of pstrdup since r->key needs to be free'd before
 	     and more often than the rest of the rlimit structure */
-	    r->key = strdup(key); 
+	    r->key = strdup(key);
 	else
 	    r->key = NULL;
 	r->start = now;

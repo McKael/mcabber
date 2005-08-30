@@ -290,7 +290,7 @@ int cw_nb_connect(int sockfd, const struct sockaddr *serv_addr, int addrlen, int
 		p = getsock(sockfd);
 	    else
 		p = addsock(sockfd);
-	    
+
 	    rc = SSL_connect(p->ssl);
 	    switch(rc){
 	    case 1:
@@ -447,6 +447,6 @@ char *cw_base64_encode(const char *in) {
 	c = '-';
 	strncat(out, &c, 1);
     }
-    
+
     return out;
 }

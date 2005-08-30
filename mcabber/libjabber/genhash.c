@@ -345,7 +345,7 @@ int ghash_remove(HASHTABLE tbl, const void *key)
 /*
     Description:
         Removes an entry from a hash table, given its key.
-    
+
     Input:
         Parameters:
         tbl - Hash table to remove from.
@@ -459,11 +459,11 @@ int str_hash_code(const char *s)
         Generates a hash code for a string.  This function uses the ELF hashing
         algorithm as reprinted in Andrew Binstock, "Hashing Rehashed," _Dr.
         Dobb's Journal_, April 1996.
- 
+
     Input:
         Parameters:
             s - The string to be hashed.
- 
+
     Output:
         Returns:
             A hash code for the string.

@@ -132,7 +132,7 @@ void jab_start(jconn j)
     char *t,*t2;
 
     if(!j || (j->state != JCONN_STATE_OFF && j->state != JCONN_STATE_CONNECTING) ) return;
-    
+
     if (!(j->cw_state & CW_CONNECT_WANT_SOMETHING)) { /* same as state != JCONN_STATE_CONNECTING */
 	j->parser = XML_ParserCreate(NULL);
 	XML_SetUserData(j->parser, (void *)j);
@@ -161,7 +161,7 @@ void jab_start(jconn j)
 	return;
     }
     change_socket_to_blocking(j->fd);
-    
+
     j->state = JCONN_STATE_CONNECTED;
     STATE_EVT(JCONN_STATE_CONNECTED)
 

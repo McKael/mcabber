@@ -157,7 +157,12 @@ void jb_disconnect(void)
 {
   if (!jc) return;
 
+  // announce it to  everyone else
+  jb_setstatus(offline, "");
+
+  // announce it to the user
   statehandler(jc, JCONN_STATE_OFF);
+
   jab_delete(jc);
   //free(jc); XXX
   jc = NULL;

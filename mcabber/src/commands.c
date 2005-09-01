@@ -406,7 +406,7 @@ static void do_status(char *arg)
     return;
   }
 
-  if (msg && st != offline && st != invisible) {
+  if (msg && st != invisible) {
     for (msg++ ; *msg && *msg == ' ' ; msg++) ;
     if (!*msg) msg = NULL;
   } else

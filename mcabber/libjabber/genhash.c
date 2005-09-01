@@ -13,8 +13,19 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- *  Jabber
- *  Copyright (C) 1998-1999 The Jabber Team http://jabber.org/
+ * Copyrights
+ *
+ * Portions created by or assigned to Jabber.com, Inc. are 
+ * Copyright (c) 1999-2002 Jabber.com, Inc.  All Rights Reserved.  Contact
+ * information for Jabber.com, Inc. is available at http://www.jabber.com/.
+ *
+ * Portions Copyright (c) 1998-1999 Jeremie Miller.
+ *
+ * Acknowledgements
+ *
+ * Special thanks to the Jabber Open Source Contributors for their
+ * suggestions and support of Jabber.
+ *
  */
 #include <libxode.h>
 

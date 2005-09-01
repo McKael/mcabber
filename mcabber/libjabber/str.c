@@ -13,12 +13,42 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- *  Jabber
- *  Copyright (C) 1998-1999 The Jabber Team http://jabber.org/
+ * Copyrights
+ *
+ * Portions created by or assigned to Jabber.com, Inc. are
+ * Copyright (c) 1999-2002 Jabber.com, Inc.  All Rights Reserved.  Contact
+ * information for Jabber.com, Inc. is available at http://www.jabber.com/.
+ *
+ * Portions Copyright (c) 1998-1999 Jeremie Miller.
+ *
+ * Acknowledgements
+ *
+ * Special thanks to the Jabber Open Source Contributors for their
+ * suggestions and support of Jabber.
+ *
+ */
+
+/**
+ * @file str.c
+ * @brief utilities for string handling
+ *
+ * This file contains utility functions for string handling:
+ * - NULL pointer save versions of many functions in string.c
+ * - string spools
+ * - functions to (un)escape strings for XML usage
+ *
+ * String spools allow to create a string by concatenating several smaller strings
+ * and the spool implementation is allocating the neccessary memory using memory pools.
  */
 
 #include "libxode.h"
 
+/**
+ * NULL pointer save version of strdup()
+ *
+ * @param str the string the should be duplicated
+ * @return the duplicated string
+ */
 char *j_strdup(const char *str)
 {
     if(str == NULL)
@@ -27,6 +57,17 @@ char *j_strdup(const char *str)
         return strdup(str);
 }
 
+/**
+ * NULL pointer save version of strcat()
+ *
+ * @note the return value of j_strcat() is not compatible with the return value of strcat()
+ *
+ * @todo check if the behaviour of the return value is intended
+ *
+ * @param dest where to append the string
+ * @param txt what to append
+ * @return dest if txt contains a NULL pointer, pointer to the terminating zero byte of the result else
+ */
 char *j_strcat(char *dest, char *txt)
 {
     if(!txt) return(dest);
@@ -38,14 +79,38 @@ char *j_strcat(char *dest, char *txt)
     return(dest);
 }
 
+/**
+ * NULL pointer save version of strcmp
+ *
+ * If one of the parameters contains a NULL pointer, the string is considered to be unequal.
+ *
+ * @note the return value is not compatible with strcmp()
+ *
+ * @param a the one string
+ * @param b the other string
+ * @return 0 if the strings are equal, -1 if the strings are not equal
+ */
 int j_strcmp(const char *a, const char *b)
 {
     if(a == NULL || b == NULL)
         return -1;
-    else
-        return strcmp(a, b);
+
+    while(*a == *b && *a != '\0' && *b != '\0'){ a++; b++; }
+
+    if(*a == *b) return 0;
+
+    return -1;
 }
 
+/**
+ * NULL pointer save version of strcasecmp()
+ *
+ * If one of the parameters contains a NULL pointer, the string is considered to be unequal
+ *
+ * @param a the one string
+ * @param b the other string
+ * @return 0 if the strings are equal, non zero else
+ */
 int j_strcasecmp(const char *a, const char *b)
 {
     if(a == NULL || b == NULL)
@@ -54,6 +119,16 @@ int j_strcasecmp(const char *a, const char *b)
         return strcasecmp(a, b);
 }
 
+/**
+ * NULL pointer save version of strncmp()
+ *
+ * If one of the parameters contains a NULL pointer, the string is considered to be unequal
+ *
+ * @param a the first string
+ * @param b the second string
+ * @param i how many characters to compare at most
+ * @return 0 if the strings are equal (within the given length limitation), non zero else
+ */
 int j_strncmp(const char *a, const char *b, int i)
 {
     if(a == NULL || b == NULL)
@@ -62,6 +137,16 @@ int j_strncmp(const char *a, const char *b, int i)
         return strncmp(a, b, i);
 }
 
+/**
+ * NULL pointer save version of strncasecmp()
+ *
+ * If one of the parameters contains a NULL pointer, the string is considered to be unequal
+ *
+ * @param a the first string
+ * @param b the second string
+ * @param i how many characters to compare at most
+ * @return 0 if the strings are equal (within the given length limitation), non zero else
+ */
 int j_strncasecmp(const char *a, const char *b, int i)
 {
     if(a == NULL || b == NULL)
@@ -70,6 +155,14 @@ int j_strncasecmp(const char *a, const char *b, int i)
         return strncasecmp(a, b, i);
 }
 
+/**
+ * NULL pointer save version of strlen
+ *
+ * If the parameter contains a NULL pointer, 0 is returned
+ *
+ * @param a the string for which the length should be calculated
+ * @return 0 if a==NULL, length of the string else
+ */
 int j_strlen(const char *a)
 {
     if(a == NULL)
@@ -136,7 +229,7 @@ void spooler(spool s, ...)
     while(1)
     {
         arg = va_arg(ap,char *);
-        if((int)arg == (int)s)
+        if((spool)arg == s)
             break;
         else
             spool_add(s, arg);
@@ -185,7 +278,7 @@ char *spools(pool p, ...)
     while(1)
     {
         arg = va_arg(ap,char *);
-        if((int)arg == (int)p)
+        if((pool)arg == p)
             break;
         else
             spool_add(s, arg);
@@ -318,62 +411,4 @@ char *zonestr(char *file, int line)
     buff[i] = '\0';
 
     return buff;
-}
-
-void str_b64decode(char* str)
-{
-    char *cur;
-    int d, dlast, phase;
-    unsigned char c;
-    static int table[256] = {
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,  /* 00-0F */
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,  /* 10-1F */
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,62,-1,-1,-1,63,  /* 20-2F */
-        52,53,54,55,56,57,58,59,60,61,-1,-1,-1,-1,-1,-1,  /* 30-3F */
-        -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,  /* 40-4F */
-        15,16,17,18,19,20,21,22,23,24,25,-1,-1,-1,-1,-1,  /* 50-5F */
-        -1,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,  /* 60-6F */
-        41,42,43,44,45,46,47,48,49,50,51,-1,-1,-1,-1,-1,  /* 70-7F */
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,  /* 80-8F */
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,  /* 90-9F */
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,  /* A0-AF */
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,  /* B0-BF */
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,  /* C0-CF */
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,  /* D0-DF */
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,  /* E0-EF */
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1   /* F0-FF */
-    };
-
-    dlast = 0;
-    phase = 0;
-    for (cur = str; *cur != '\0'; ++cur )
-    {
-        d = table[(int)*cur];
-        if(d != -1)
-        {
-            switch(phase)
-            {
-            case 0:
-                ++phase;
-                break;
-            case 1:
-                c = ((dlast << 2) | ((d & 0x30) >> 4));
-                *str++ = c;
-                ++phase;
-                break;
-            case 2:
-                c = (((dlast & 0xf) << 4) | ((d & 0x3c) >> 2));
-                *str++ = c;
-                ++phase;
-                break;
-            case 3:
-                c = (((dlast & 0x03 ) << 6) | d);
-                *str++ = c;
-                phase = 0;
-                break;
-            }
-            dlast = d;
-        }
-    }
-    *str = '\0';
 }

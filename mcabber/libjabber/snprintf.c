@@ -53,6 +53,15 @@
  * <panos@alumni.cs.colorado.edu> for xinetd.
  */
 
+/**
+ * @file snprintf.c
+ * @brief implement snprintf if not present in the libc
+ *
+ * snprintf is not implemented by all libc implementations, this file implements this
+ * function, if it is not already present. You should not call any of the functions
+ * in this file directly!
+ */
+
 #include <libxode.h>
 
 #if !defined(HAVE_SNPRINTF) || !defined(HAVE_VSNPRINTF)
@@ -242,8 +251,12 @@ typedef enum {
     NO = 0, YES = 1
 } boolean_e;
 
-#define FALSE           0
-#define TRUE            1
+#ifndef FALSE
+#  define FALSE           0
+#endif
+#ifndef TRUE
+#  define TRUE            1
+#endif
 #define NUL         '\0'
 #define INT_NULL        ((int *)0)
 #define WIDE_INT        long

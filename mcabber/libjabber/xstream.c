@@ -13,16 +13,37 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- *  Jabber
- *  Copyright (C) 1998-1999 The Jabber Team http://jabber.org/
+ * Copyrights
+ *
+ * Portions created by or assigned to Jabber.com, Inc. are
+ * Copyright (c) 1999-2002 Jabber.com, Inc.  All Rights Reserved.  Contact
+ * information for Jabber.com, Inc. is available at http://www.jabber.com/.
+ *
+ * Portions Copyright (c) 1998-1999 Jeremie Miller.
+ *
+ * Acknowledgements
+ *
+ * Special thanks to the Jabber Open Source Contributors for their
+ * suggestions and support of Jabber.
+ *
+ */
+
+/**
+ * @file xstream.c
+ * @brief handling of incoming XML stream based events
+ *
+ * xstream is a way to have a consistent method of handling incoming XML stream based events ...
+ * it doesn't handle the generation of an XML stream, but provides some facilities to help doing that
  */
 
 #include <time.h>
 #include <libxode.h>
 
-/* xstream is a way to have a consistent method of handling incoming XML Stream based events... it doesn't handle the generation of an XML Stream, but provides some facilities to help do that */
+/* ========== internal expat callbacks =========== */
 
-/******* internal expat callbacks *********/
+/**
+ * internal expat callback for read start tags of an element
+ */
 void _xstream_startElement(xstream xs, const char* name, const char** atts)
 {
     pool p;
@@ -53,7 +74,9 @@ void _xstream_startElement(xstream xs, const char* name, const char** atts)
         xs->status = XSTREAM_ERR;
 }
 
-
+/**
+ * internal expat callback for read end tags of an element
+ */
 void _xstream_endElement(xstream xs, const char* name)
 {
     xmlnode parent;
@@ -78,7 +101,9 @@ void _xstream_endElement(xstream xs, const char* name)
     xs->depth--;
 }
 
-
+/**
+ * internal expat callback for read CDATA
+ */
 void _xstream_charData(xstream xs, const char *str, int len)
 {
     /* if xstream is bad, get outa here */
@@ -93,7 +118,11 @@ void _xstream_charData(xstream xs, const char *str, int len)
     xmlnode_insert_cdata(xs->node, str, len);
 }
 
-
+/**
+ * internal function to be registered as pool cleaner, frees a stream if the associated memory pool is freed
+ *
+ * @param pointer to the xstream to free
+ */
 void _xstream_cleanup(void *arg)
 {
     xstream xs = (xstream)arg;
@@ -103,7 +132,14 @@ void _xstream_cleanup(void *arg)
 }
 
 
-/* creates a new xstream with given pool, xstream will be cleaned up w/ pool */
+/**
+ * creates a new xstream with given pool, xstream will be cleaned up w/ pool
+ *
+ * @param p the memory pool to use for the stream
+ * @param f function pointer to the event handler function
+ * @param arg parameter to pass to the event handler function
+ * @return the created xstream
+ */
 xstream xstream_new(pool p, xstream_onNode f, void *arg)
 {
     xstream newx;
@@ -129,7 +165,14 @@ xstream xstream_new(pool p, xstream_onNode f, void *arg)
     return newx;
 }
 
-/* attempts to parse the buff onto this stream firing events to the handler, returns the last known status */
+/**
+ * attempts to parse the buff onto this stream firing events to the handler
+ *
+ * @param xs the xstream to parse the data on
+ * @param buff the new data
+ * @param len length of the data
+ * @return last known xstream status
+ */
 int xstream_eat(xstream xs, char *buff, int len)
 {
     char *err;
@@ -174,11 +217,17 @@ int xstream_eat(xstream xs, char *buff, int len)
 
 /* STREAM CREATION UTILITIES */
 
-/* give a standard template xmlnode to work from */
+/** give a standard template xmlnode to work from 
+ *
+ * @param namespace ("jabber:client", "jabber:server", ...)
+ * @param to where the stream is sent to
+ * @param from where we are (source of the stream)
+ * @return the xmlnode that has been generated as the template
+ */
 xmlnode xstream_header(char *namespace, char *to, char *from)
 {
     xmlnode x;
-    char id[10];
+    char id[11];
 
     sprintf(id,"%X",(int)time(NULL));
 
@@ -195,14 +244,20 @@ xmlnode xstream_header(char *namespace, char *to, char *from)
     return x;
 }
 
-/* trim the xmlnode to only the opening header :) [NO CHILDREN ALLOWED] */
+/**
+ * trim the xmlnode to only the opening header :)
+ *
+ * @note NO CHILDREN ALLOWED
+ *
+ * @param x the xmlnode
+ * @return string representation of the start tag
+ */
 char *xstream_header_char(xmlnode x)
 {
     spool s;
     char *fixr, *head;
 
-    if(xmlnode_has_children(x))
-    {
+    if(xmlnode_has_children(x)) {
         fprintf(stderr,"Fatal Programming Error: xstream_header_char() was sent a header with children!\n");
         return NULL;
     }

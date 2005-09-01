@@ -57,7 +57,7 @@ extern "C" {
 #define JID_SERVER   4
 
 typedef struct jid_struct
-{ 
+{
     pool               p;
     char*              resource;
     char*              user;
@@ -65,7 +65,7 @@ typedef struct jid_struct
     char*              full;
     struct jid_struct *next; /* for lists of jids */
 } *jid;
-  
+
 jid     jid_new(pool p, char *idstr);          /* Creates a jabber id from the idstr */
 
 void    jid_set(jid id, char *str, int item);  /* Individually sets jid components */
@@ -75,6 +75,7 @@ int     jid_cmpx(jid a, jid b, int parts);     /* Compares just the parts specif
 jid     jid_append(jid a, jid b);              /* Appending b to a (list), no dups */
 xmlnode jid_xres(jid id);                      /* Returns xmlnode representation of the resource?query=string */
 xmlnode jid_nodescan(jid id, xmlnode x);       /* Scans the children of the node for a matching jid attribute */
+jid     jid_user(jid a);                       /* returns the same jid but just of the user@host part */
 
 
 /* --------------------------------------------------------- */
@@ -104,21 +105,22 @@ xmlnode jid_nodescan(jid id, xmlnode x);       /* Scans the children of the node
 #define JPACKET__UNAVAILABLE  13
 #define JPACKET__PROBE        14
 #define JPACKET__HEADLINE     15
+#define JPACKET__INVISIBLE    16
 
 typedef struct jpacket_struct
 {
-    unsigned char type;
-    int           subtype;
-    int           flag;
-    void*         aux1;
-    xmlnode       x;
-    jid           to;
-    jid           from;
-    char*         iqns;
-    xmlnode       iq;
-    pool          p;
+    unsigned char type;             /**< stanza type (JPACKET_*) */
+    int           subtype;          /**< subtype of a stanza */
+    int           flag;             /**< used by the session manager to flag messages, that are read from offline storage */
+    void*         aux1;             /**< pointer to data passed around with a jpacket, multiple use inside jsm */
+    xmlnode       x;                /**< xmlnode containing the stanza inside the jpacket */
+    jid           to;               /**< destination of the stanza */
+    jid           from;             /**< source address for the stanza */
+    char*         iqns;             /**< pointer to the namespace inside an IQ stanza */
+    xmlnode       iq;               /**< "content" of an iq stanza, pointer to the element in its own namespace */
+    pool          p;                /**< memory pool used for this stanza */
 } *jpacket, _jpacket;
- 
+
 jpacket jpacket_new(xmlnode x);     /* Creates a jabber packet from the xmlnode */
 jpacket jpacket_reset(jpacket p);   /* Resets the jpacket values based on the xmlnode */
 int     jpacket_subtype(jpacket p); /* Returns the subtype value (looks at xmlnode for it) */
@@ -130,7 +132,7 @@ int     jpacket_subtype(jpacket p); /* Returns the subtype value (looks at xmlno
 /*                                                           */
 /* --------------------------------------------------------- */
 typedef struct ppdb_struct
-{                             
+{
     jid     id;                /* entry data */
     int     pri;
     xmlnode x;
@@ -159,7 +161,7 @@ typedef struct jlimit_struct
     int maxt, maxp;
     pool p;
 } *jlimit, _jlimit;
- 
+
 jlimit jlimit_new(int maxt, int maxp);
 void jlimit_free(jlimit r);
 int jlimit_check(jlimit r, char *key, int points);
@@ -194,6 +196,49 @@ typedef struct terror_struct
 #define TERROR_EXTTIMEOUT (terror){504,"Remote Server Timeout"}
 #define TERROR_DISCONNECTED (terror){510,"Disconnected"}
 
+/* we define this to signal that we support xterror */
+#define HAS_XTERROR
+
+typedef struct xterror_struct
+{
+    int  code;
+    char msg[256];
+    char type[9];
+    char condition[64];
+} xterror;
+
+#define XTERROR_BAD		(xterror){400,"Bad Request","modify","bad-request"}
+#define XTERROR_CONFLICT	(xterror){409,"Conflict","cancel","conflict"}
+#define XTERROR_NOTIMPL		(xterror){501,"Not Implemented","cancel","feature-not-implemented"}
+#define XTERROR_FORBIDDEN	(xterror){403,"Forbidden","auth","forbidden"}
+#define XTERROR_GONE		(xterror){302,"Gone","modify","gone"}
+#define XTERROR_INTERNAL	(xterror){500,"Internal Server Error","wait","internal-server-error"}
+#define XTERROR_NOTFOUND	(xterror){404,"Not Found","cancel","item-not-found"}
+#define XTERROR_JIDMALFORMED	(xterror){400,"Bad Request","modify","jid-malformed"}
+#define XTERROR_NOTACCEPTABLE	(xterror){406,"Not Acceptable","modify","not-acceptable"}
+#define XTERROR_NOTALLOWED	(xterror){405,"Not Allowed","cancel","not-allowed"}
+#define XTERROR_AUTH		(xterror){401,"Unauthorized","auth","not-authorized"}
+#define XTERROR_PAY		(xterror){402,"Payment Required","auth","payment-required"}
+#define XTERROR_RECIPIENTUNAVAIL (xterror){404,"Receipient Is Unavailable","wait","recipient-unavailable"}
+#define XTERROR_REDIRECT	(xterror){302,"Redirect","modify","redirect"}
+#define XTERROR_REGISTER	(xterror){407,"Registration Required","auth","registration-required"}
+#define XTERROR_REMOTENOTFOUND	(xterror){404,"Remote Server Not Found","cancel","remote-server-not-found"}
+#define XTERROR_REMOTETIMEOUT	(xterror){504,"Remote Server Timeout","wait","remote-server-timeout"}
+#define XTERROR_RESCONSTRAINT	(xterror){500,"Resource Constraint","wait","resource-constraint"}
+#define XTERROR_UNAVAIL		(xterror){503,"Service Unavailable","cancel","service-unavailable"}
+#define XTERROR_SUBSCRIPTIONREQ	(xterror){407,"Subscription Required","auth","subscription-required"}
+#define XTERROR_UNDEF_CANCEL	(xterror){500,NULL,"cancel","undefined-condition"}
+#define XTERROR_UNDEF_CONTINUE	(xterror){500,NULL,"continue","undefined-condition"}
+#define XTERROR_UNDEF_MODIFY	(xterror){500,NULL,"modify","undefined-condition"}
+#define XTERROR_UNDEF_AUTH	(xterror){500,NULL,"auth","undefined-condition"}
+#define XTERROR_UNDEF_WAIT	(xterror){500,NULL,"wait","undefined-condition"}
+#define XTERROR_UNEXPECTED	(xterror){400,"Unexpected Request","wait","unexpected-request"}
+
+#define XTERROR_REQTIMEOUT	(xterror){408,"Request Timeout","wait","remote-server-timeout"}
+#define XTERROR_EXTERNAL	(xterror){502,"Remote Server Error","wait","service-unavailable"}
+#define XTERROR_EXTTIMEOUT	(xterror){504,"Remote Server Timeout","wait","remote-server-timeout"}
+#define XTERROR_DISCONNECTED	(xterror){510,"Disconnected","cancel","service-unavailable"}
+
 /* --------------------------------------------------------- */
 /*                                                           */
 /* Namespace constants                                       */
@@ -203,7 +248,9 @@ typedef struct terror_struct
 
 #define NS_CLIENT    "jabber:client"
 #define NS_SERVER    "jabber:server"
+#define NS_DIALBACK  "jabber:server:dialback"
 #define NS_AUTH      "jabber:iq:auth"
+#define NS_AUTH_CRYPT "jabber:iq:auth:crypt"
 #define NS_REGISTER  "jabber:iq:register"
 #define NS_ROSTER    "jabber:iq:roster"
 #define NS_OFFLINE   "jabber:x:offline"
@@ -220,7 +267,30 @@ typedef struct terror_struct
 #define NS_ADMIN     "jabber:iq:admin"
 #define NS_FILTER    "jabber:iq:filter"
 #define NS_AUTH_0K   "jabber:iq:auth:0k"
+#define NS_BROWSE    "jabber:iq:browse"
+#define NS_EVENT     "jabber:x:event"
+#define NS_CONFERENCE "jabber:iq:conference"
+#define NS_SIGNED    "jabber:x:signed"
+#define NS_ENCRYPTED "jabber:x:encrypted"
+#define NS_GATEWAY   "jabber:iq:gateway"
+#define NS_LAST      "jabber:iq:last"
+#define NS_ENVELOPE  "jabber:x:envelope"
+#define NS_EXPIRE    "jabber:x:expire"
+#define NS_XHTML     "http://www.w3.org/1999/xhtml"
+#define NS_DISCO_INFO "http://jabber.org/protocol/disco#info"
+#define NS_DISCO_ITEMS "http://jabber.org/protocol/disco#items"
+#define NS_IQ_AUTH    "http://jabber.org/features/iq-auth"
+#define NS_REGISTER_FEATURE "http://jabber.org/features/iq-register"
 
+#define NS_XDBGINSERT "jabber:xdb:ginsert"
+#define NS_XDBNSLIST  "jabber:xdb:nslist"
+
+#define NS_XMPP_STANZAS "urn:ietf:params:xml:ns:xmpp-stanzas"
+#define NS_XMPP_TLS  "urn:ietf:params:xml:ns:xmpp-tls"
+#define NS_XMPP_STREAMS "urn:ietf:params:xml:ns:xmpp-streams"
+
+#define NS_JABBERD_STOREDPRESENCE "http://jabberd.org/ns/storedpresence"
+#define NS_JABBERD_HISTORY "http://jabberd.org/ns/history"
 
 /* --------------------------------------------------------- */
 /*                                                           */

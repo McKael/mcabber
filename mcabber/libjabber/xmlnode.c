@@ -13,8 +13,19 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- *  Jabber
- *  Copyright (C) 1998-1999 The Jabber Team http://jabber.org/
+ * Copyrights
+ *
+ * Portions created by or assigned to Jabber.com, Inc. are
+ * Copyright (c) 1999-2002 Jabber.com, Inc.  All Rights Reserved.  Contact
+ * information for Jabber.com, Inc. is available at http://www.jabber.com/.
+ *
+ * Portions Copyright (c) 1998-1999 Jeremie Miller.
+ *
+ * Acknowledgements
+ *
+ * Special thanks to the Jabber Open Source Contributors for their
+ * suggestions and support of Jabber.
+ *
  */
 
 #include "libxode.h"
@@ -35,8 +46,7 @@ xmlnode _xmlnode_new(pool p, const char* name, unsigned int type)
     }
 
     /* Allocate & zero memory */
-    result = (xmlnode)pmalloc(p, sizeof(_xmlnode));
-    memset(result, '\0', sizeof(_xmlnode));
+    result = (xmlnode)pmalloco(p, sizeof(_xmlnode));
 
     /* Initialize fields */
     if (type != NTYPE_CDATA)
@@ -64,7 +74,7 @@ static xmlnode _xmlnode_insert(xmlnode parent, const char* name, unsigned int ty
 {
     xmlnode result;
 
-    if(parent == NULL || name == NULL) return NULL;
+    if(parent == NULL || (type != NTYPE_CDATA && name == NULL)) return NULL;
 
     /* If parent->firstchild is NULL, simply create a new node for the first child */
     if (parent->firstchild == NULL)
@@ -100,18 +110,36 @@ static xmlnode _xmlnode_search(xmlnode firstsibling, const char* name, unsigned 
     return NULL;
 }
 
-static char* _xmlnode_merge(pool p, char* dest, unsigned int destsize, const char* src, unsigned int srcsize)
+void _xmlnode_merge(xmlnode data)
 {
-    char* result;
-    result = (char*)pmalloc(p, destsize + srcsize + 1);
-    memcpy(result, dest, destsize);
-    memcpy(result+destsize, src, srcsize);
-    result[destsize + srcsize] = '\0';
+    xmlnode cur;
+    char *merge, *scur;
+    int imerge;
 
-    /* WARNING: major ugly hack: since we're throwing the old data away, let's jump in the pool and subtract it from the size, this is for xmlstream's big-node checking */
-    p->size -= destsize;
+    /* get total size of all merged cdata */
+    imerge = 0;
+    for(cur = data; cur != NULL && cur->type == NTYPE_CDATA; cur = cur->next)
+        imerge += cur->data_sz;
 
-    return result;
+    /* copy in current data and then spin through all of them and merge */
+    scur = merge = pmalloc(data->p,imerge + 1);
+    for(cur = data; cur != NULL && cur->type == NTYPE_CDATA; cur = cur->next)
+    {
+        memcpy(scur,cur->data,cur->data_sz);
+        scur += cur->data_sz;
+    }
+    *scur = '\0';
+
+    /* this effectively hides all of the merged-in chunks */
+    data->next = cur;
+    if(cur == NULL)
+        data->parent->lastchild = data;
+    else
+        cur->prev = data;
+
+    /* reset data */
+    data->data = merge;
+    data->data_sz = imerge;
 }
 
 static void _xmlnode_hide_sibling(xmlnode child)
@@ -155,7 +183,7 @@ spool _xmlnode2spool(xmlnode node)
     xmlnode tmp;
 
     if(!node || xmlnode_get_type(node)!=NTYPE_TAG)
-	return NULL;
+        return NULL;
 
     s = spool_new(xmlnode_pool(node));
     if(!s) return(NULL);
@@ -164,40 +192,34 @@ spool _xmlnode2spool(xmlnode node)
     {
         if(dir==0)
         {
-    	    if(xmlnode_get_type(node) == NTYPE_TAG)
+            if(xmlnode_get_type(node) == NTYPE_TAG)
             {
-		        if(xmlnode_has_children(node))
+                if(xmlnode_has_children(node))
                 {
-		            _xmlnode_tag2str(s,node,1);
-        		    node = xmlnode_get_firstchild(node);
-		            level++;
-		            continue;
-        		}
-                else
-                {
-		            _xmlnode_tag2str(s,node,0);
-		        }
-	        }
-            else
-            {
-		        spool_add(s,strescape(xmlnode_pool(node),xmlnode_get_data(node)));
-	        }
-	    }
+                    _xmlnode_tag2str(s,node,1);
+                    node = xmlnode_get_firstchild(node);
+                    level++;
+                    continue;
+                }else{
+                    _xmlnode_tag2str(s,node,0);
+                }
+            }else{
+                spool_add(s,strescape(xmlnode_pool(node),xmlnode_get_data(node)));
+            }
+        }
 
-    	tmp = xmlnode_get_nextsibling(node);
-	    if(!tmp)
+        tmp = xmlnode_get_nextsibling(node);
+        if(!tmp)
         {
-	        node = xmlnode_get_parent(node);
-	        level--;
-	        if(level>=0) _xmlnode_tag2str(s,node,2);
-	        if(level<1) break;
-	        dir = 1;
-	    }
-        else
-        {
-	        node = tmp;
-	        dir = 0;
-	    }
+            node = xmlnode_get_parent(node);
+            level--;
+            if(level>=0) _xmlnode_tag2str(s,node,2);
+            if(level<1) break;
+            dir = 1;
+        }else{
+            node = tmp;
+            dir = 0;
+        }
     }
 
     return s;
@@ -260,8 +282,6 @@ xmlnode xmlnode_insert_tag(xmlnode parent, const char* name)
 
 /*
  *  xmlnode_insert_cdata -- append character data to a tag
- *  If last child of the parent is CDATA, merges CDATA nodes. Otherwise
- *  creates a CDATA node, and appends it to the parent's child list.
  *
  *  parameters
  *      parent -- parent tag
@@ -283,22 +303,13 @@ xmlnode xmlnode_insert_cdata(xmlnode parent, const char* CDATA, unsigned int siz
     if(size == -1)
         size = strlen(CDATA);
 
-    if ((parent->lastchild != NULL) && (parent->lastchild->type == NTYPE_CDATA))
+    result = _xmlnode_insert(parent, NULL, NTYPE_CDATA);
+    if (result != NULL)
     {
-        result = parent->lastchild;
-        result->data = _xmlnode_merge(result->p, result->data, result->data_sz, CDATA, size);
-        result->data_sz = result->data_sz + size;
-    }
-    else
-    {
-        result = _xmlnode_insert(parent, "", NTYPE_CDATA);
-        if (result != NULL)
-        {
-            result->data = (char*)pmalloc(result->p, size + 1);
-            memcpy(result->data, CDATA, size);
-            result->data[size] = '\0';
-            result->data_sz = size;
-        }
+        result->data = (char*)pmalloc(result->p, size + 1);
+        memcpy(result->data, CDATA, size);
+        result->data[size] = '\0';
+        result->data_sz = size;
     }
 
     return result;
@@ -314,7 +325,8 @@ xmlnode xmlnode_insert_cdata(xmlnode parent, const char* CDATA, unsigned int siz
  *              "name/name" for a sub child (recurses)
  *              "?attrib" to match the first tag with that attrib defined
  *              "?attrib=value" to match the first tag with that attrib and value
- *              or any combination: "name/name/?attrib", etc
+ *              "=cdata" to match the cdata contents of the child
+ *              or any combination: "name/name/?attrib", "name=cdata", etc
  *
  *  results
  *      a pointer to the tag matching search criteria
@@ -325,16 +337,42 @@ xmlnode xmlnode_get_tag(xmlnode parent, const char* name)
     char *str, *slash, *qmark, *equals;
     xmlnode step, ret;
 
+
     if(parent == NULL || parent->firstchild == NULL || name == NULL || name == '\0') return NULL;
 
-    if(strstr(name, "/") == NULL && strstr(name,"?") == NULL)
+    if(strstr(name, "/") == NULL && strstr(name,"?") == NULL && strstr(name, "=") == NULL)
         return _xmlnode_search(parent->firstchild, name, NTYPE_TAG);
 
-    /* jer's note: why can't I modify the name directly, why do I have to strdup it?  damn c grrr! */
     str = strdup(name);
     slash = strstr(str, "/");
     qmark = strstr(str, "?");
     equals = strstr(str, "=");
+
+    if(equals != NULL && (slash == NULL || equals < slash) && (qmark == NULL || equals < qmark))
+    { /* of type =cdata */
+
+        *equals = '\0';
+        equals++;
+
+        for(step = parent->firstchild; step != NULL; step = xmlnode_get_nextsibling(step))
+        {
+            if(xmlnode_get_type(step) != NTYPE_TAG)
+                continue;
+
+            if(*str != '\0')
+                if(j_strcmp(xmlnode_get_name(step),str) != 0)
+                    continue;
+
+            if(j_strcmp(xmlnode_get_data(step),equals) != 0)
+                continue;
+
+            break;
+        }
+
+        free(str);
+        return step;
+    }
+
 
     if(qmark != NULL && (slash == NULL || qmark < slash))
     { /* of type ?attrib */
@@ -528,33 +566,34 @@ char* xmlnode_get_name(xmlnode node)
 
 char* xmlnode_get_data(xmlnode node)
 {
-    xmlnode cur;
+    if(xmlnode_get_type(node) == NTYPE_TAG) /* loop till we find a CDATA in the children */
+        for(node = xmlnode_get_firstchild(node); node != NULL; node = xmlnode_get_nextsibling(node))
+            if(xmlnode_get_type(node) == NTYPE_CDATA) break;
 
     if(node == NULL) return NULL;
 
-    if(xmlnode_get_type(node) == NTYPE_TAG) /* loop till we find a CDATA */
-    {
-        for(cur = xmlnode_get_firstchild(node); cur != NULL; cur = xmlnode_get_nextsibling(cur))
-            if(xmlnode_get_type(cur) == NTYPE_CDATA)
-                return cur->data;
-    }else{
-        return node->data;
-    }
-    return NULL;
+    /* check for a dirty node w/ unassembled cdata chunks */
+    if(xmlnode_get_type(node->next) == NTYPE_CDATA)
+        _xmlnode_merge(node);
+
+    return node->data;
 }
 
 int xmlnode_get_datasz(xmlnode node)
 {
-    if (node != NULL)
-        return node->data_sz;
-    return (int)NULL;
+    if(xmlnode_get_type(node) != NTYPE_CDATA) return 0;
+
+    /* check for a dirty node w/ unassembled cdata chunks */
+    if(xmlnode_get_type(node->next) == NTYPE_CDATA)
+        _xmlnode_merge(node);
+    return node->data_sz;
 }
 
 int xmlnode_get_type(xmlnode node)
 {
     if (node != NULL)
         return node->type;
-    return (int)NULL;
+    return NTYPE_UNDEF;
 }
 
 int xmlnode_has_children(xmlnode node)

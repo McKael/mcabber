@@ -1,3 +1,27 @@
+/*
+ * jabberd - Jabber Open Source Server
+ * Copyright (c) 2002 Jeremie Miller, Thomas Muldowney,
+ *                    Ryan Eatmon, Robert Norris
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA02111-1307USA
+ */
+
+#ifdef HAVE_CONFIG_H
+#   include <config.h>
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -7,26 +31,23 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <signal.h>
-#include <syslog.h>
 #include <strings.h>
 #include <unistd.h>
-#include <sys/socket.h>
+#include <sys/time.h>
+#include <syslog.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-#include <sys/time.h>
+#include <sys/socket.h>
 
 #include "xmlparse.h"
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
 
 /*
 **  Arrange to use either varargs or stdargs
 */
 
-#define MAXSHORTSTR     203             /* max short string length */
-#define QUAD_T  unsigned long long
+#define MAXSHORTSTR    203        /* max short string length */
+#define QUAD_T    unsigned long long
 
 #ifdef __STDC__
 
@@ -77,7 +98,7 @@ char *zonestr(char *file, int line);
 #undef POOL_DEBUG
 /*
  flip these, this should be a prime number for top # of pools debugging
-#define POOL_DEBUG 40009 
+#define POOL_DEBUG 40009
 */
 
 /* pheap - singular allocation of memory */
@@ -88,7 +109,7 @@ struct pheap
 };
 
 /* pool_cleaner - callback type which is associated
-   with a pool entry; invoked when the pool entry is 
+   with a pool entry; invoked when the pool entry is
    free'd */
 typedef void (*pool_cleaner)(void *arg);
 
@@ -113,16 +134,16 @@ typedef struct pool_struct
     char name[8], zone[32];
     int lsize;
 } _pool, *pool;
-#define pool_new() _pool_new(ZONE) 
-#define pool_heap(i) _pool_new_heap(i,ZONE) 
+#define pool_new() _pool_new(__FILE__,__LINE__)
+#define pool_heap(i) _pool_new_heap(i,__FILE__,__LINE__)
 #else
 } _pool, *pool;
-#define pool_heap(i) _pool_new_heap(i,NULL) 
-#define pool_new() _pool_new(NULL)
+#define pool_heap(i) _pool_new_heap(i, NULL, 0)
+#define pool_new() _pool_new(NULL, 0)
 #endif
 
-pool _pool_new(char *zone); /* new pool :) */
-pool _pool_new_heap(int size, char *zone); /* creates a new memory pool with an initial heap size */
+pool _pool_new(char *zone, int line); /* new pool :) */
+pool _pool_new_heap(int size, char *zone, int line); /* creates a new memory pool with an initial heap size */
 void *pmalloc(pool p, int size); /* wrapper around malloc, takes from the pool, cleaned up automatically */
 void *pmalloc_x(pool p, int size, char c); /* Wrapper around pmalloc which prefils buffer with c */
 void *pmalloco(pool p, int size); /* YAPW for zeroing the block */
@@ -246,7 +267,7 @@ typedef struct spool_struct
 spool spool_new(pool p); /* create a string pool */
 void spooler(spool s, ...); /* append all the char * args to the pool, terminate args with s again */
 char *spool_print(spool s); /* return a big string */
-void spool_add(spool s, char *str); /* add a single char to the pool */
+void spool_add(spool s, char *str); /* add a single string to the pool */
 char *spools(pool p, ...); /* wrap all the spooler stuff in one function, the happy fun ball! */
 
 
@@ -262,8 +283,8 @@ char *spools(pool p, ...); /* wrap all the spooler stuff in one function, the ha
 #define NTYPE_LAST   2
 #define NTYPE_UNDEF  -1
 
-/* -------------------------------------------------------------------------- 
-   Node structure. Do not use directly! Always use accessor macros 
+/* --------------------------------------------------------------------------
+   Node structure. Do not use directly! Always use accessor macros
    and methods!
    -------------------------------------------------------------------------- */
 typedef struct xmlnode_t
@@ -275,9 +296,9 @@ typedef struct xmlnode_t
      int                 complete;
      pool               p;
      struct xmlnode_t*  parent;
-     struct xmlnode_t*  firstchild; 
+     struct xmlnode_t*  firstchild;
      struct xmlnode_t*  lastchild;
-     struct xmlnode_t*  prev; 
+     struct xmlnode_t*  prev;
      struct xmlnode_t*  next;
      struct xmlnode_t*  firstattrib;
      struct xmlnode_t*  lastattrib;
@@ -287,7 +308,7 @@ typedef struct xmlnode_t
 xmlnode  xmlnode_wrap(xmlnode x,const char* wrapper);
 xmlnode  xmlnode_new_tag(const char* name);
 xmlnode  xmlnode_new_tag_pool(pool p, const char* name);
-xmlnode  xmlnode_insert_tag(xmlnode parent, const char* name); 
+xmlnode  xmlnode_insert_tag(xmlnode parent, const char* name);
 xmlnode  xmlnode_insert_cdata(xmlnode parent, const char* CDATA, unsigned int size);
 xmlnode  xmlnode_insert_tag_node(xmlnode parent, xmlnode node);
 void     xmlnode_insert_node(xmlnode parent, xmlnode node);
@@ -340,13 +361,14 @@ int      xmlnode_has_attribs(xmlnode node);
 /* Node-to-string translation */
 char*    xmlnode2str(xmlnode node);
 
-/* Node-to-terminated-string translation 
+/* Node-to-terminated-string translation
    -- useful for interfacing w/ scripting langs */
 char*    xmlnode2tstr(xmlnode node);
 
 int      xmlnode_cmp(xmlnode a, xmlnode b); /* compares a and b for equality */
 
 int      xmlnode2file(char *file, xmlnode node); /* writes node to file */
+int xmlnode2file_limited(char *file, xmlnode node, size_t sizelimit);
 
 /* Expat callbacks */
 void expat_startElement(void* userdata, const char* name, const char** atts);
@@ -388,32 +410,32 @@ xmlnode xstream_header(char *nspace, char *to, char *from);
 char *xstream_header_char(xmlnode x);
 
 /* SHA.H */
-/* 
+/*
  * The contents of this file are subject to the Mozilla Public
  * License Version 1.1 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of
  * the License at http://www.mozilla.org/MPL/
- * 
+ *
  * Software distributed under the License is distributed on an "AS
  * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
  * implied. See the License for the specific language governing
  * rights and limitations under the License.
- * 
+ *
  * The Original Code is SHA 180-1 Header File
- * 
+ *
  * The Initial Developer of the Original Code is Paul Kocher of
- * Cryptography Research.  Portions created by Paul Kocher are 
+ * Cryptography Research.  Portions created by Paul Kocher are
  * Copyright (C) 1995-9 by Cryptography Research, Inc.  All
  * Rights Reserved.
- * 
+ *
  * Contributor(s):
  *
  *     Paul Kocher
- * 
+ *
  * Alternatively, the contents of this file may be used under the
  * terms of the GNU General Public License Version 2 or later (the
- * "GPL"), in which case the provisions of the GPL are applicable 
- * instead of those above.  If you wish to allow use of your 
+ * "GPL"), in which case the provisions of the GPL are applicable
+ * instead of those above.  If you wish to allow use of your
  * version of this file only under the terms of the GPL and not to
  * allow others to use your version of this file under the MPL,
  * indicate your decision by deleting the provisions above and

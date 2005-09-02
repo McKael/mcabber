@@ -577,6 +577,50 @@ void gotmessage(char *type, const char *from, const char *body,
   g_free(buffer);
 }
 
+const char *errormsg(int code)
+{
+  const char *desc;
+
+  switch(code) {
+    case 401: desc = "Unauthorized";
+              break;
+    case 302: desc = "Redirect";
+              break;
+    case 400: desc = "Bad request";
+              break;
+    case 402: desc = "Payment Required";
+              break;
+    case 403: desc = "Forbidden";
+              break;
+    case 404: desc = "Not Found";
+              break;
+    case 405: desc = "Not Allowed";
+              break;
+    case 406: desc = "Not Acceptable";
+              break;
+    case 407: desc = "Registration Required";
+              break;
+    case 408: desc = "Request Timeout";
+              break;
+    case 409: desc = "Conflict";
+              break;
+    case 500: desc = "Internal Server Error";
+              break;
+    case 501: desc = "Not Implemented";
+              break;
+    case 502: desc = "Remote Server Error";
+              break;
+    case 503: desc = "Service Unavailable";
+              break;
+    case 504: desc = "Remote Server Timeout";
+              break;
+    default:
+              desc = NULL;
+  }
+
+  return desc;
+}
+
 void statehandler(jconn conn, int state)
 {
   static int previous_state = -1;
@@ -658,7 +702,8 @@ void packethandler(jconn conn, jpacket packet)
           /* there can be multiple <x> tags. we're looking for one with
              xmlns = jabber:x:encrypted */
 
-          for (x = xmlnode_get_firstchild(packet->x); x; x = xmlnode_get_nextsibling(x)) {
+          x = xmlnode_get_firstchild(packet->x);
+          for ( ; x; x = xmlnode_get_nextsibling(x)) {
             if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
               if ((p = xmlnode_get_attrib(x, "xmlns")) &&
                       !strcasecmp(p, "jabber:x:encrypted"))
@@ -674,6 +719,17 @@ void packethandler(jconn conn, jpacket packet)
               timestamp = from_iso8601(p, 1);
           }
 
+          if (type && !strcmp(type, "error")) {
+            if ((x = xmlnode_get_tag(packet->x, "error")) != NULL) {
+              if ((p = xmlnode_get_attrib(x, "code")) != NULL) {
+                const char *desc;
+                int code = atoi(p);
+                desc = errormsg(atoi(p));
+                scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s",
+                             code, (desc ? desc : ""));
+              }
+            }
+          }
           if (from && body)
             gotmessage(type, from, body, enc, timestamp);
           if (tmp)
@@ -797,9 +853,10 @@ void packethandler(jconn conn, jpacket packet)
           }
         } else if (!strcmp(type, "set")) {
         } else if (!strcmp(type, "error")) {
-          char *name=NULL, *desc;
+          char *name=NULL;
           char *text=NULL;
           int code = 0;
+          const char *desc;
 
           x = xmlnode_get_tag(packet->x, "error");
           p = xmlnode_get_attrib(x, "code"); if (p) code = atoi(p);
@@ -810,42 +867,7 @@ void packethandler(jconn conn, jpacket packet)
           x = xmlnode_get_tag(x, "text");
           p = xmlnode_get_data(x); if (p) text = p;
 
-          switch(code) {
-            case 401: desc = "Unauthorized";
-                break;
-            case 302: desc = "Redirect";
-                break;
-            case 400: desc = "Bad request";
-                break;
-            case 402: desc = "Payment Required";
-                break;
-            case 403: desc = "Forbidden";
-                break;
-            case 404: desc = "Not Found";
-                break;
-            case 405: desc = "Not Allowed";
-                break;
-            case 406: desc = "Not Acceptable";
-                break;
-            case 407: desc = "Registration Required";
-                break;
-            case 408: desc = "Request Timeout";
-                break;
-            case 409: desc = "Conflict";
-                break;
-            case 500: desc = "Internal Server Error";
-                break;
-            case 501: desc = "Not Implemented";
-                break;
-            case 502: desc = "Remote Server Error";
-                break;
-            case 503: desc = "Service Unavailable";
-                break;
-            case 504: desc = "Remote Server Timeout";
-                break;
-            default:
-                desc = NULL;
-          }
+          desc = errormsg(code);
 
           scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s",
                        code, (desc ? desc : ""));

@@ -672,7 +672,6 @@ void packethandler(jconn conn, jpacket packet)
   char *ns=NULL;
   char *id=NULL;
   enum imstatus ust;
-  // int npos;
 
   jb_reset_keepalive(); // reset keepalive delay
   jpacket_reset(packet);

@@ -1,15 +1,15 @@
-mcabber (0.6.7-dev)
+mcabber (0.6.7)
 
  * Allow a different server name than the jid domain name
-   (which allows connecting to Google Talk).  The libjabber
-   patch (credited to Ian Johannesen) comes from centericq.
+   (which allows connecting to Google Talk).
+   The libjabber patch (credited to Ian Johannesen) comes from centericq.
  * Reduce CPU consumption when mcabber is not connected to a Jabber server
  * Update libjabber (sync with upstream)
- * Fix a weird bug when trying to connect to a closed port
+ * Fix a weird crash when trying to connect to a closed port
  * Display text messages corresponding to the Jabber server error codes
- * Display full date in the trace logfile
+ * Display full dates in the trace logfile
 
- -- Mikael, ?
+ -- Mikael, 2005-09-02
 
 mcabber (0.6.6)
 

@@ -100,7 +100,7 @@ char *jidtodisp(const char *jid)
   char *alias;
 
   while ((alias = g_strdup(jid)) == NULL)
-    usleep(100);
+    safe_usleep(100);
 
   if ((ptr = strchr(alias, '/')) != NULL) {
     *ptr = 0;
@@ -196,12 +196,12 @@ void jb_main()
   char *cid;
 
   if (!online) {
-    usleep(10000);
+    safe_usleep(10000);
     return;
   }
 
   if (jc && jc->state == JCONN_STATE_CONNECTING) {
-    usleep(75000);
+    safe_usleep(75000);
     jab_start(jc);
     return;
   }

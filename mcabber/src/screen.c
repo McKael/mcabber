@@ -301,7 +301,7 @@ static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
 
   tmp->win = newwin(lines, cols, y, x);
   while (!tmp->win) {
-    usleep(250);
+    safe_usleep(250);
     tmp->win = newwin(lines, cols, y, x);
   }
   wbkgd(tmp->win, COLOR_PAIR(COLOR_GENERAL));
@@ -393,7 +393,7 @@ static void scr_UpdateWindow(window_entry_t *win_entry)
     // You need to set it to the whole prefix length + 1
     if (line) {
       if (line->timestamp) {
-        strftime(date, 35, "%m-%d %H:%M", localtime(&line->timestamp));
+        strftime(date, 30, "%m-%d %H:%M", localtime(&line->timestamp));
       } else
         strcpy(date, "           ");
       if (line->flags & HBB_PREFIX_INFO) {
@@ -1159,8 +1159,7 @@ void scr_append_multiline(const char *line)
     // First message line (we skip leading empty lines)
     num = 0;
     if (line[0]) {
-      multiline = g_new(char, strlen(line)+1);
-      strcpy(multiline, line);
+      multiline = g_strdup(line);
       num++;
     } else
       return;
@@ -1327,7 +1326,8 @@ static void scr_insert_text(const char *text)
   }
 
   strcpy(tmpLine, ptr_inputline);
-  strcpy(ptr_inputline, text);    ptr_inputline += len;
+  strcpy(ptr_inputline, text);
+  ptr_inputline += len;
   strcpy(ptr_inputline, tmpLine);
 }
 
@@ -1535,8 +1535,7 @@ int process_key(int key)
           } else {                  // down-history
             // Use next history line instead of a blank line
             const char *l = scr_cmdhisto_next("", 0);
-            if (l)
-              strcpy(inputLine, l);
+            if (l) strcpy(inputLine, l);
             // Reset backup history line
             cmdhisto_backup[0] = 0;
           }
@@ -1545,18 +1544,14 @@ int process_key(int key)
           {
             const char *l = scr_cmdhisto_prev(inputLine,
                     ptr_inputline-inputLine);
-            if (l) {
-              strcpy(inputLine, l);
-            }
+            if (l) strcpy(inputLine, l);
           }
           break;
       case KEY_DOWN:
           {
             const char *l = scr_cmdhisto_next(inputLine,
                     ptr_inputline-inputLine);
-            if (l) {
-              strcpy(inputLine, l);
-            }
+            if (l) strcpy(inputLine, l);
           }
           break;
       case KEY_PPAGE:

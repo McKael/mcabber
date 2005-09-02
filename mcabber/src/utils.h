@@ -9,4 +9,6 @@ int checkset_perm(const char *name, unsigned int setmode);
 int    to_iso8601(char *dststr, time_t timestamp);
 time_t from_iso8601(const char *timestamp, int utc);
 
+inline void safe_usleep(unsigned int usec); /* Only for delays < 1s */
+
 #endif

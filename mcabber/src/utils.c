@@ -223,3 +223,12 @@ time_t from_iso8601(const char *timestamp, int utc)
 
   return retval;
 }
+
+// Should only be used for delays < 1s
+inline void safe_usleep(unsigned int usec)
+{
+  struct timespec req;
+  req.tv_sec = 0;
+  req.tv_nsec = (long)usec * 1000L;
+  nanosleep(&req, NULL);
+}

@@ -1,3 +1,9 @@
+mcabber (0.6.7-2) unstable; urgency=low
+
+  * Add contrib directory to the package
+
+ -- Mikael BERTHE <mikael.berthe@lilotux.net>  Sun,  4 Sep 2005 00:13:21 +0200
+
 mcabber (0.6.7-1) unstable; urgency=low
 
   * New upstream release

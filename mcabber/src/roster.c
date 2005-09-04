@@ -367,7 +367,7 @@ const char *roster_getstatusmsg(const char *jid)
 
   sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
-    return offline; // Not in the roster, anyway...
+    return NULL; // Not in the roster, anyway...
 
   roster_usr = (roster*)sl_user->data;
   return roster_usr->status_msg;

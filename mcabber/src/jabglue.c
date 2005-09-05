@@ -577,7 +577,7 @@ void gotmessage(char *type, const char *from, const char *body,
   g_free(buffer);
 }
 
-const char *errormsg(int code)
+const char *defaulterrormsg(int code)
 {
   const char *desc;
 
@@ -619,6 +619,30 @@ const char *errormsg(int code)
   }
 
   return desc;
+}
+
+void display_server_error(xmlnode x)
+{
+  char *s;
+  const char *desc;
+  int code;
+
+  if ((s = xmlnode_get_attrib(x, "code")) != NULL) {
+    code = atoi(s);
+
+    // Default message
+    desc = defaulterrormsg(atoi(s));
+
+    // Error tag data is better, if available
+    s = xmlnode_get_data(x);
+    if (s && *s) desc = s;
+
+    // And sometimes there is a text message
+    s = xmlnode_get_tag_data(x, "text");
+    if (s && *s) desc = s; // FIXME utf8??
+
+    scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s", code, desc);
+  }
 }
 
 void statehandler(jconn conn, int state)
@@ -719,15 +743,8 @@ void packethandler(jconn conn, jpacket packet)
           }
 
           if (type && !strcmp(type, "error")) {
-            if ((x = xmlnode_get_tag(packet->x, "error")) != NULL) {
-              if ((p = xmlnode_get_attrib(x, "code")) != NULL) {
-                const char *desc;
-                int code = atoi(p);
-                desc = errormsg(atoi(p));
-                scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s",
-                             code, (desc ? desc : ""));
-              }
-            }
+            if ((x = xmlnode_get_tag(packet->x, "error")) != NULL)
+              display_server_error(x);
           }
           if (from && body)
             gotmessage(type, from, body, enc, timestamp);
@@ -852,33 +869,20 @@ void packethandler(jconn conn, jpacket packet)
           }
         } else if (!strcmp(type, "set")) {
         } else if (!strcmp(type, "error")) {
-          char *name=NULL;
-          char *text=NULL;
-          int code = 0;
-          const char *desc;
-
-          x = xmlnode_get_tag(packet->x, "error");
-          p = xmlnode_get_attrib(x, "code"); if (p) code = atoi(p);
-          p = xmlnode_get_attrib(x, "id"); if (p) name = p;
-          p = xmlnode_get_tag_data(packet->x, "error"); if (p) desc = p;
-
-          // Sometimes there is a text message
-          x = xmlnode_get_tag(x, "text");
-          p = xmlnode_get_data(x); if (p) text = p;
-
-          desc = errormsg(code);
-
-          scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s",
-                       code, (desc ? desc : ""));
-          if (text)
-            scr_LogPrint(LPRINT_LOGNORM, "Server message: %s", text);
-
-          if (name)
-            scr_LogPrint(LPRINT_DEBUG, "Error id: %s", name);
+          if ((x = xmlnode_get_tag(packet->x, "error")) != NULL)
+            display_server_error(x);
         }
         break;
 
     case JPACKET_PRESENCE:
+        r = jidtodisp(from);
+        if (type && !strcmp(type, "error")) {
+          scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", r);
+          if ((x = xmlnode_get_tag(packet->x, "error")) != NULL)
+            display_server_error(x);
+          g_free(r);
+          break;
+        }
         x = xmlnode_get_tag(packet->x, "show");
         ust = available;
 
@@ -901,7 +905,6 @@ void packethandler(jconn conn, jpacket packet)
         else
           p = NULL;
 
-        r = jidtodisp(from);
         // Call hk_statuschange() if status has changed or if the
         // status message is different
         m = roster_getstatusmsg(r);

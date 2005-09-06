@@ -151,7 +151,7 @@ int cw_http_connect(int sockfd, const struct sockaddr *serv_addr, int addrlen) {
 	    char *b;
 	    SOCKOUT("Proxy-Authorization: Basic ");
 
-	    sprintf(buf, "%s:%s", proxyuser, proxypass);
+	    snprintf(buf, sizeof(buf), "%s:%s", proxyuser, proxypass);
 	    b = cw_base64_encode(buf);
 	    SOCKOUT(b);
 	    free(b);

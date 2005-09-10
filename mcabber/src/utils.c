@@ -39,6 +39,8 @@ static char *FName;
 void ut_InitDebug(unsigned int level, const char *filename)
 {
   FILE *fp;
+  struct stat buf;
+  int err;
 
   if (level < 1) {
     DebugEnabled = 0;
@@ -67,9 +69,23 @@ void ut_InitDebug(unsigned int level, const char *filename)
     fprintf(stderr, "ERROR: Cannot open tracelog file\n");
     return;
   }
+
+  err = fstat(fileno(fp), &buf);
+  if (err || buf.st_uid != geteuid()) {
+    fclose(fp);
+    DebugEnabled = 0;
+    FName = NULL;
+    if (err) {
+      fprintf(stderr, "ERROR: cannot stat the tracelog file!\n");
+    } else {
+      fprintf(stderr, "ERROR: tracelog file does not belong to you!\n");
+    }
+    return;
+  }
+  fchmod(fileno(fp), S_IRUSR|S_IWUSR);
+
   fprintf(fp, "New trace log started.\n"
 	  "----------------------\n");
-  fchmod(fileno(fp), S_IRUSR|S_IWUSR);
   fclose(fp);
 }
 

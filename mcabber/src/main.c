@@ -46,6 +46,7 @@
 void mcabber_connect(void)
 {
   const char *username, *password, *resource, *servername;
+  const char *proxy_host;
   char *jid;
   int ssl;
   unsigned int port;
@@ -54,6 +55,7 @@ void mcabber_connect(void)
   username   = settings_opt_get("username");
   password   = settings_opt_get("password");
   resource   = settings_opt_get("resource");
+  proxy_host = settings_opt_get("proxy_host");
 
   if (!servername) {
     scr_LogPrint(LPRINT_NORMAL, "Server name has not been specified!");
@@ -80,6 +82,21 @@ void mcabber_connect(void)
                servername);
   if (port)
     scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " using port %d", port);
+
+  if (proxy_host) {
+    int proxy_port = settings_opt_get_int("proxy_port");
+    if (proxy_port <= 0 || proxy_port > 65535) {
+      scr_LogPrint(LPRINT_LOGNORM, "Invalid proxy port: %d", proxy_port);
+    } else {
+      const char *proxy_user, *proxy_pass;
+      proxy_user = settings_opt_get("proxy_user");
+      proxy_pass = settings_opt_get("proxy_pass");
+      // Proxy initialization
+      cw_setproxy(proxy_host, proxy_port, proxy_user, proxy_pass);
+      scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " using proxy %s:%d",
+                   proxy_host, proxy_port);
+    }
+  }
 
   jid = compose_jid(username, servername, resource);
   jc = jb_connect(jid, servername, port, ssl, password);

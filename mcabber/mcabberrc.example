@@ -19,6 +19,14 @@ set ssl = 0
 set resource = mcabber
 #set priority = 3
 
+# Proxy
+# mcabber can use a proxy if it supports the CONNECT method
+# The proxy_user/proxy_pass variables are optional.
+#set proxy_host = "proxy-hostname"
+#set proxy_port = 3128
+#set proxy_user = "username"
+#set proxy_pass = "password"
+
 # Keepalive
 # If you need a ping/keepalive to leave your connection open, you
 # can use the pinginterval.  Setting this option to 0 disables the ping.

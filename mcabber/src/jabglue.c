@@ -621,28 +621,42 @@ const char *defaulterrormsg(int code)
   return desc;
 }
 
+//  display_server_error(x)
+// Display the error to the user
+// x: error tag xmlnode pointer
 void display_server_error(xmlnode x)
 {
+  const char *desc = NULL;
+  int code = 0;
   char *s;
-  const char *desc;
-  int code;
+  const char *p;
 
+  /* RFC3920:
+   *    The <error/> element:
+   *       o  MUST contain a child element corresponding to one of the defined
+   *          stanza error conditions specified below; this element MUST be
+   *          qualified by the 'urn:ietf:params:xml:ns:xmpp-stanzas' namespace.
+   */
+  p = xmlnode_get_name(xmlnode_get_firstchild(x));
+  if (p)
+    scr_LogPrint(LPRINT_LOGNORM, "Received error packet [%s]", p);
+
+  // For backward compatibility
   if ((s = xmlnode_get_attrib(x, "code")) != NULL) {
     code = atoi(s);
-
     // Default message
-    desc = defaulterrormsg(atoi(s));
-
-    // Error tag data is better, if available
-    s = xmlnode_get_data(x);
-    if (s && *s) desc = s;
-
-    // And sometimes there is a text message
-    s = xmlnode_get_tag_data(x, "text");
-    if (s && *s) desc = s; // FIXME utf8??
-
-    scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s", code, desc);
+    desc = defaulterrormsg(code);
   }
+
+  // Error tag data is better, if available
+  s = xmlnode_get_data(x);
+  if (s && *s) desc = s;
+
+  // And sometimes there is a text message
+  s = xmlnode_get_tag_data(x, "text");
+  if (s && *s) desc = s; // FIXME utf8??
+
+  scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s", code, desc);
 }
 
 void statehandler(jconn conn, int state)

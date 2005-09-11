@@ -325,17 +325,6 @@ int cw_nb_connect(int sockfd, const struct sockaddr *serv_addr, int addrlen, int
 	rc = connect(sockfd, serv_addr, addrlen);
     else{ /* check if the socket is connected correctly */
 	int optlen = sizeof(int), optval;
-	fd_set fds;
-	struct timeval tv;
-
-	FD_ZERO(&fds);
-	FD_SET(sockfd, &fds);
-
-	tv.tv_sec = 0;
-	tv.tv_usec = 10000;
-
-	if (select(sockfd+1, 0, &fds, 0, &tv) < 1)
-	    return -1;
 	if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, (socklen_t*)&optlen) || optval)
 	    return -1;
 	*state = 0;

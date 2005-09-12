@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-<meta name="generator" content="AsciiDoc 7.0.0" />
+<meta name="generator" content="AsciiDoc 7.0.1" />
 <meta name="author" content="Mikael BERTHE" />
 <meta name="author-email" content="mcabber@lilotux.net" />
 <link rel="stylesheet" href="./manpage.css" type="text/css" />
@@ -42,12 +42,12 @@ key.  Simply sending a message will also enable chat mode.</p>
 <li>
 <p>
 <b>History logging:</b>  If enabled (see the CONFIGURATION FILE section),
-  <tt>mcabber(1)</tt> can save discussions to history log files.
+  <tt>mcabber</tt> can save discussions to history log files.
 </p>
 </li>
 <li>
 <p>
-<b>Commands completion:</b>  If possible, <tt>mcabber(1)</tt> will try to complete your
+<b>Commands completion:</b>  If possible, <tt>mcabber</tt> will try to complete your
   command line if you hit the Tab key.
 </p>
 </li>
@@ -55,7 +55,8 @@ key.  Simply sending a message will also enable chat mode.</p>
 <p>
 <b>External actions:</b>  Some events (like receiving a message) can trigger an
   external action, for example a shell script (you need to enable it in your
-  configuration file).
+  configuration file).  A sample events script ("eventcmd") is provided with
+  <tt>mcabber</tt> source code, in the contrib directory.
 </p>
 </li>
 </ul>
@@ -214,7 +215,7 @@ Jump to the next unread message
 </b></dt>
 <dd>
         Bind a command line to the key with the "keycode" code number.<br />
-        Keycodes of unused keys are displayed by mcabber in the log window
+        Keycodes of unused keys are displayed by <tt>mcabber</tt> in the log window
         when pressing the key, for example "Unknown key=265".<br />
         "/bind keycode" displays the command line bound to the given keycode;
         "/bind keycode" unbinds the given keycode.<br />
@@ -548,8 +549,8 @@ Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com
 License (GPL).</p>
 <div id="footer">
 <p>
-Version 0.6.7<br />
-Last updated 26-Jul-2005 20:34:28 CEST
+Version 0.6.8<br />
+Last updated 12-Sep-2005 19:31:21 CEST
 </p>
 </div>
 </div>

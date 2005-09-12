@@ -1,8 +1,13 @@
-mcabber (0.6.8-dev)
+mcabber (0.6.8)
 
- * 
+ * Proxy support (see updated mcabberrc sample file)
+ * Better handling of server error codes/messages (we try to respect RFC3920)
+ * A contact does not show up as "online" anymore when mcabber receives an
+   error presence packet
+ * Check the tracelog file actually belongs to the user, if logging is enabled
+ * Fix a potential connection failure introduced in 0.6.7
 
- -- Mikael, ?
+ -- Mikael, 2005-09-12
 
 mcabber (0.6.7)
 

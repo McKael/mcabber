@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.6.8-dev, September 2005
+v0.6.8, September 2005
 
 NAME
 ----
@@ -33,12 +33,13 @@ Here are some of the features of `mcabber`:
 
 - 'SSL support'.
 - 'History logging:'  If enabled (see the CONFIGURATION FILE section),
-  `mcabber(1)` can save discussions to history log files.
-- 'Commands completion:'  If possible, `mcabber(1)` will try to complete your
+  `mcabber` can save discussions to history log files.
+- 'Commands completion:'  If possible, `mcabber` will try to complete your
   command line if you hit the Tab key.
 - 'External actions:'  Some events (like receiving a message) can trigger an
   external action, for example a shell script (you need to enable it in your
-  configuration file).
+  configuration file).  A sample events script ("eventcmd") is provided with
+  `mcabber` source code, in the contrib directory.
 
 OPTIONS
 -------
@@ -94,7 +95,7 @@ COMMANDS
 
 /bind keycode = command line::
         Bind a command line to the key with the "keycode" code number. +
-        Keycodes of unused keys are displayed by mcabber in the log window
+        Keycodes of unused keys are displayed by `mcabber` in the log window
         when pressing the key, for example "Unknown key=265". +
         "/bind keycode" displays the command line bound to the given keycode;
         "/bind keycode" unbinds the given keycode. +

@@ -49,6 +49,7 @@ static void do_alias(char *arg);
 static void do_bind(char *arg);
 static void do_connect(char *arg);
 static void do_disconnect(char *arg);
+static void do_rawxml(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -92,6 +93,7 @@ void cmd_init(void)
           COMPL_MULTILINE, 0, &do_msay);
   //cmd_add("nick");
   cmd_add("quit", "Exit the software", 0, 0, NULL);
+  cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
   //cmd_add("request_auth");
   cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0,
@@ -821,6 +823,19 @@ static void do_bind(char *arg)
     settings_del(SETTINGS_TYPE_BINDING, keycode);
   else
     settings_set(SETTINGS_TYPE_BINDING, keycode, value);
+}
+
+static void do_rawxml(char *arg)
+{
+  if (!strncasecmp(arg, "send ", 5))  {
+    for (arg += 5; *arg && *arg == ' '; arg++)
+      ;
+    scr_LogPrint(LPRINT_NORMAL, "Sending XML string");
+    jb_send_raw(arg);
+  } else {
+    scr_LogPrint(LPRINT_NORMAL, "Please read the manual page"
+                 " before using /rawxml :-)");
+  }
 }
 
 static void do_connect(char *arg)

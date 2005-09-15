@@ -173,6 +173,12 @@ inline void jb_reset_keepalive()
   time(&LastPingTime);
 }
 
+void jb_send_raw(const char *str)
+{
+  if (jc && online)
+    jab_send_raw(jc, str);
+}
+
 void jb_keepalive()
 {
   if (jc && online)

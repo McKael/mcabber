@@ -48,6 +48,7 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group);
 inline enum imstatus jb_getstatus();
 void jb_setstatus(enum imstatus st, const char *msg);
 void jb_send_msg(const char *, const char *);
+void jb_send_raw(const char *str);
 void jb_keepalive();
 inline void jb_reset_keepalive();
 void jb_set_keepalive_delay(unsigned int delay);

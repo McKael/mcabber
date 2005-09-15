@@ -163,6 +163,9 @@ COMMANDS
 /quit::
         Disconnect and leave `mcabber(1)`.
 
+/rawxml send::
+        'send' string: send string (raw XML format) to the Jabber server.  No check is done on the string provided.  BEWARE! Use this only if you know what you are doing, or you could terminate the connection.
+
 /rename nickname::
         Rename current buddy to the given nickname.
         This command does not work for groups, at the moment (but you can move

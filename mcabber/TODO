@@ -23,18 +23,21 @@ TODO:
   - buddy A connects with resource r2
   - A/r2 disconnects
   Then we see A as being offline, although we should still see A/r1 online
+* MUC: invitation
+* MUC: join password-protected room
 
 * File transfer? :)
 * MUC (Conferences...)
 
 * Commands:
 
-  - /buffer <clear|top|bottom>
+  - /buffer clear|top|bottom
     + /buffer % 50          (jump to 50 %)
     + /buffer date $date    (jump to first msg after $date)
-  - /group <expand|shrink|toggle>
+  - /group expand|shrink|toggle
     + rename
-  - /say_to <jid> blabla
+  - /say_to jid blabla
+  - /status_to jid status [message]
   - /info [jid]
     (request info to the server if the buddy is not in the roster)
   - /server register|unregister
@@ -42,6 +45,5 @@ TODO:
   - /search <jid>|name
     (server search)
   - /help
-  - /room join|leave|topic|names
-  - /rawxml...
+  - /room join|leave|topic|names|nick
 

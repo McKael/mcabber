@@ -733,7 +733,7 @@ void scr_DrawRoster(void)
       pending = '#';
     }
 
-    budstate = buddy_getstatus(BUDDATA(buddy));
+    budstate = buddy_getstatus(BUDDATA(buddy), NULL);
     if (budstate >= 0 && budstate < imstatus_size && currentstatus != offline)
       status = imstatus2char[budstate];
     if (buddy == current_buddy) {
@@ -849,7 +849,7 @@ static void set_current_buddy(GList *newbuddy)
   if (!current_buddy || !newbuddy)  return;
   if (newbuddy == current_buddy)    return;
 
-  prev_st = buddy_getstatus(BUDDATA(current_buddy));
+  prev_st = buddy_getstatus(BUDDATA(current_buddy), NULL);
   buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
   if (chatmode)
     alternate_buddy = current_buddy;

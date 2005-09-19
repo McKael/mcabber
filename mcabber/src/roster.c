@@ -25,14 +25,26 @@
 #include "roster.h"
 
 
+/* Resource structure */
+
+typedef struct {
+  gchar *name;
+  gchar prio;
+  enum imstatus status;
+  gchar *status_msg;
+  enum imrole role;
+  gchar *realjid;       /* for chatrooms, if buddy's real jid is known */
+} res;
+
 /* This is a private structure type for the roster */
 
 typedef struct {
-  const gchar *name;
-  const gchar *jid;
-  const gchar *status_msg;
+  gchar *name;
+  gchar *jid;
   guint type;
-  enum imstatus status;
+  enum subscr subscription;
+  GSList *resource;
+  res *cur_res;
   guint flags;
   // list: user -> points to his group; group -> points to its users list
   GSList *list;
@@ -47,6 +59,115 @@ static GSList *unread_list;
 GList *buddylist;
 GList *current_buddy;
 GList *alternate_buddy;
+
+
+/* ### Resources functions ### */
+
+static void free_all_resources(GSList **reslist)
+{
+  GSList *lip;
+  res *p_res;
+
+  for ( lip = *reslist; lip ; lip = g_slist_next(lip)) {
+    p_res = (res*)lip->data;
+    if (p_res->status_msg) {
+      g_free((gchar*)p_res->status_msg);
+    }
+    if (p_res->name) {
+      g_free((gchar*)p_res->name);
+    }
+    if (p_res->realjid) {
+      g_free((gchar*)p_res->realjid);
+    }
+  }
+  // Free all nodes but the first (which is static)
+  g_slist_free(*reslist);
+  *reslist = NULL;
+}
+
+// Resources are sorted in ascending order
+static gint resource_compare_prio(res *a, res *b) {
+  //return (a->prio - b->prio);
+  if (a->prio < b->prio) return -1;
+  else                   return 1;
+}
+
+//  get_resource(rost, resname)
+// Return a pointer to the resource with name resname, in rost's resources list
+// - if rost has no resources, return NULL
+// - if resname is defined, return the match or NULL
+// - if resname is NULL, the last resource is returned, currently
+//   This could change in the future, because we should return the best one
+//   (priority? last used? and fall back to the first resource)
+//
+static res *get_resource(roster *rost, const char *resname)
+{
+  GSList *p;
+  res *r = NULL;
+
+  for (p = rost->resource; p; p = g_slist_next(p)) {
+    r = p->data;
+    if (resname && !strcmp(r->name, resname))
+      return r;
+  }
+
+  // The last resource is one of the resources with the highest priority,
+  // however, we don't know if it is the more-recently-used.
+  if (!resname) return r;
+  return NULL;
+}
+
+//  get_or_add_resource(rost, resname, priority)
+// - if there is a "resname" resource in rost's resources, return a pointer
+//   on this resource
+// - if not, add the resource, set the name, and return a pointer on this
+//   new resource
+static res *get_or_add_resource(roster *rost, const char *resname, gchar prio)
+{
+  GSList *p;
+  res *nres;
+
+  if (!resname) return NULL;
+
+  for (p = rost->resource; p; p = g_slist_next(p)) {
+    res *r = p->data;
+    if (!strcmp(r->name, resname))
+      return r;
+  }
+
+  // Resource not found
+  nres = g_new0(res, 1);
+  nres->name = g_strdup(resname);
+  nres->prio = prio;
+  rost->resource = g_slist_insert_sorted(rost->resource, nres,
+                                         (GCompareFunc)&resource_compare_prio);
+  return nres;
+}
+
+static void del_resource(roster *rost, const char *resname)
+{
+  GSList *p;
+  GSList *p_res_elt = NULL;
+  res *p_res;
+
+  if (!resname) return;
+
+  for (p = rost->resource; p; p = g_slist_next(p)) {
+    res *r = p->data;
+    if (!strcmp(r->name, resname))
+      p_res_elt = p;
+  }
+
+  if (!p_res_elt) return;   // Resource not found
+
+  p_res = p_res_elt->data;
+  // Free allocations and delete resource node
+  if (p_res->name)        g_free(p_res->name);
+  if (p_res->status_msg)  g_free(p_res->status_msg);
+  if (p_res->realjid)     g_free(p_res->realjid);
+  rost->resource = g_slist_delete_link(rost->resource, p_res_elt);
+  return;
+}
 
 
 /* ### Roster functions ### */
@@ -80,10 +201,10 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
 
   sample.type = roster_type;
   if (type == jidsearch) {
-    sample.jid = jidname;
+    sample.jid = (gchar*)jidname;
     comp = (GCompareFunc)&roster_compare_jid_type;
   } else if (type == namesearch) {
-    sample.name = jidname;
+    sample.name = (gchar*)jidname;
     comp = (GCompareFunc)&roster_compare_name;
   } else
     return NULL;    // should not happen
@@ -183,7 +304,7 @@ void roster_del_user(const char *jid)
   // Let's free memory (jid, name, status message)
   if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
   if (roster_usr->name)       g_free((gchar*)roster_usr->name);
-  if (roster_usr->status_msg) g_free((gchar*)roster_usr->status_msg);
+  free_all_resources(&roster_usr->resource);
   g_free(roster_usr);
 
   // That's a little complex, we need to dereference twice
@@ -220,7 +341,7 @@ void roster_free(void)
       // Free name and jid
       if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
       if (roster_usr->name)       g_free((gchar*)roster_usr->name);
-      if (roster_usr->status_msg) g_free((gchar*)roster_usr->status_msg);
+      free_all_resources(&roster_usr->resource);
       g_free(roster_usr);
       sl_usr = g_slist_next(sl_usr);
     }
@@ -243,25 +364,38 @@ void roster_free(void)
   }
 }
 
-void roster_setstatus(const char *jid, enum imstatus bstat,
-        const char *status_msg)
+void roster_setstatus(const char *jid, const char *resname, gchar prio,
+                      enum imstatus bstat, const char *status_msg)
 {
   GSList *sl_user;
   roster *roster_usr;
+  res *p_res;
 
   sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
   // If we can't find it, we add it
   if (sl_user == NULL)
     sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER);
 
+  // If there is no resource name, we can leave now
+  if (!resname) return;
+
   roster_usr = (roster*)sl_user->data;
-  roster_usr->status = bstat;
-  if (roster_usr->status_msg) {
-    g_free((gchar*)roster_usr->status_msg);
-    roster_usr->status_msg = NULL;
+
+  // If bstat is offline, we MUST delete the resource, actually
+  if (bstat == offline) {
+    del_resource(roster_usr, resname);
+    return;
+  }
+
+  // New or updated resource
+  p_res = get_or_add_resource(roster_usr, resname, prio);
+  p_res->status = bstat;
+  if (p_res->status_msg) {
+    g_free((gchar*)p_res->status_msg);
+    p_res->status_msg = NULL;
   }
   if (status_msg)
-    roster_usr->status_msg = g_strdup(status_msg);
+    p_res->status_msg = g_strdup(status_msg);
 }
 
 //  roster_setflags()
@@ -347,30 +481,38 @@ void roster_settype(const char *jid, guint type)
   roster_usr->type = type;
 }
 
-enum imstatus roster_getstatus(const char *jid)
+enum imstatus roster_getstatus(const char *jid, const char *resname)
 {
   GSList *sl_user;
   roster *roster_usr;
+  res *p_res;
 
   sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return offline; // Not in the roster, anyway...
 
   roster_usr = (roster*)sl_user->data;
-  return roster_usr->status;
+  p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->status;
+  return offline;
 }
 
-const char *roster_getstatusmsg(const char *jid)
+const char *roster_getstatusmsg(const char *jid, const char *resname)
 {
   GSList *sl_user;
   roster *roster_usr;
+  res *p_res;
 
   sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return NULL; // Not in the roster, anyway...
 
   roster_usr = (roster*)sl_user->data;
-  return roster_usr->status_msg;
+  p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->status_msg;
+  return NULL;
 }
 
 guint roster_gettype(const char *jid)
@@ -466,7 +608,7 @@ void buddylist_build(void)
       // - group isn't hidden (shrunk)
       // - this is the current_buddy
       if (!hide_offline_buddies || roster_usrelt == roster_current_buddy ||
-          (buddy_getstatus((gpointer)roster_usrelt) != offline) ||
+          (buddy_getstatus((gpointer)roster_usrelt, NULL) != offline) ||
           (buddy_getflags((gpointer)roster_usrelt) &
                (ROSTER_FLAG_LOCK | ROSTER_FLAG_MSG))) {
         // This user should be added.  Maybe the group hasn't been added yet?
@@ -544,13 +686,14 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   sl_clone = roster_add_user(roster_usr->jid, roster_usr->name,
           newgroupname, roster_usr->type);
   roster_clone = (roster*)sl_clone->data;
-  roster_clone->status = roster_usr->status;
-  roster_clone->flags  = roster_usr->flags;
+  roster_clone->flags = roster_usr->flags;
+  roster_clone->resource = roster_usr->resource;
+  roster_usr->resource = NULL;
 
   // Free old buddy
   if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
   if (roster_usr->name)       g_free((gchar*)roster_usr->name);
-  if (roster_usr->status_msg) g_free((gchar*)roster_usr->status_msg);
+  free_all_resources(&roster_usr->resource);
   g_free(roster_usr);
 
   // If new new group is folded, the curren_buddy will be lost, and the
@@ -629,16 +772,22 @@ guint buddy_gettype(gpointer rosterdata)
   return roster_usr->type;
 }
 
-enum imstatus buddy_getstatus(gpointer rosterdata)
+enum imstatus buddy_getstatus(gpointer rosterdata, const char *resname)
 {
   roster *roster_usr = rosterdata;
-  return roster_usr->status;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->status;
+  return offline;
 }
 
-const char *buddy_getstatusmsg(gpointer rosterdata)
+const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname)
 {
   roster *roster_usr = rosterdata;
-  return roster_usr->status_msg;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->status_msg;
+  return NULL;
 }
 
 //  buddy_setflags()

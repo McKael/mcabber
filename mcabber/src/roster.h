@@ -5,6 +5,20 @@
 
 # include "jabglue.h"
 
+enum imrole {
+  role_none,
+  role_moderator,
+  role_participant,
+  role_visitor
+};
+
+enum subscr {
+  sub_none,
+  sub_to,
+  sub_from,
+  sub_both
+};
+
 enum findwhat {
   jidsearch,
   namesearch
@@ -36,16 +50,16 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
         guint type);
 void    roster_del_user(const char *jid);
 void    roster_free(void);
-void    roster_setstatus(const char *jid, enum imstatus bstat,
-        const char *status_msg);
+void    roster_setstatus(const char *jid, const char *resname, gchar prio,
+                         enum imstatus bstat, const char *status_msg);
 void    roster_setflags(const char *jid, guint flags, guint value);
 void    roster_msg_setflag(const char *jid, guint value);
 void    roster_settype(const char *jid, guint type);
-enum imstatus roster_getstatus(const char *jid);
-const char   *roster_getstatusmsg(const char *jid);
+enum imstatus roster_getstatus(const char *jid, const char *resname);
+const char   *roster_getstatusmsg(const char *jid, const char *resname);
 guint   roster_gettype(const char *jid);
 inline guint roster_exists(const char *jidname, enum findwhat type,
-        guint roster_type);
+                           guint roster_type);
 
 void    buddylist_build(void);
 void    buddy_hide_group(gpointer rosterdata, int hide);
@@ -58,8 +72,8 @@ guint   buddy_gettype(gpointer rosterdata);
 void    buddy_setgroup(gpointer rosterdata, char *newgroupname);
 const char *buddy_getgroupname(gpointer rosterdata);
 gpointer buddy_getgroup(gpointer rosterdata);
-enum imstatus buddy_getstatus(gpointer rosterdata);
-const char *buddy_getstatusmsg(gpointer rosterdata);
+enum imstatus buddy_getstatus(gpointer rosterdata, const char *resname);
+const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname);
 void    buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint   buddy_getflags(gpointer rosterdata);
 GList  *buddy_search(char *string);

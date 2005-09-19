@@ -627,8 +627,8 @@ static void do_info(char *arg)
   jid    = buddy_getjid(bud);
   name   = buddy_getname(bud);
   type   = buddy_gettype(bud);
-  status = buddy_getstatus(bud);
-  st_msg = buddy_getstatusmsg(bud);
+  status = buddy_getstatus(bud, NULL);
+  st_msg = buddy_getstatusmsg(bud, NULL);
 
   buffer = g_new(char, 128);
 

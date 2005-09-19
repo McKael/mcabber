@@ -60,7 +60,8 @@ inline void hk_message_in(const char *jid, time_t timestamp, const char *msg,
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set
   if (new_guy ||
-     (roster_getstatus(jid) == offline && buddylist_get_hide_offline_buddies()))
+      (roster_getstatus(jid, NULL) == offline &&
+       buddylist_get_hide_offline_buddies()))
   {
     buddylist_build();
     update_roster = TRUE;
@@ -75,13 +76,16 @@ inline void hk_message_out(const char *jid, time_t timestamp, const char *msg)
   hk_ext_cmd(jid, 'M', 'S', NULL);
 }
 
-inline void hk_statuschange(const char *jid, time_t timestamp,
-        enum imstatus status, const char *status_msg)
+inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
+                            time_t timestamp, enum imstatus status,
+                            const char *status_msg)
 {
-  scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] <%s> %s",
-          imstatus2char[roster_getstatus(jid)], imstatus2char[status], jid,
-          ((status_msg) ? status_msg : ""));
-  roster_setstatus(jid, status, status_msg);
+  const char *rn = (resname ? resname : "default");
+  scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] <%s/%s> %s",
+               imstatus2char[roster_getstatus(jid, resname)],
+               imstatus2char[status], jid, rn,
+               ((status_msg) ? status_msg : ""));
+  roster_setstatus(jid, rn, prio, status, status_msg);
   buddylist_build();
   scr_DrawRoster();
   hlog_write_status(jid, 0, status, status_msg);

@@ -99,8 +99,7 @@ char *jidtodisp(const char *jid)
   char *ptr;
   char *alias;
 
-  while ((alias = g_strdup(jid)) == NULL)
-    safe_usleep(100);
+  alias = g_strdup(jid);
 
   if ((ptr = strchr(alias, '/')) != NULL) {
     *ptr = 0;
@@ -710,12 +709,13 @@ void statehandler(jconn conn, int state)
 void packethandler(jconn conn, jpacket packet)
 {
   char *p, *r;
-  const char *m;
+  const char *m, *rname;
   xmlnode x, y;
   char *from=NULL, *type=NULL, *body=NULL, *enc=NULL;
   char *ns=NULL;
   char *id=NULL;
   enum imstatus ust;
+  char bpprio;
 
   jb_reset_keepalive(); // reset keepalive delay
   jpacket_reset(packet);
@@ -903,18 +903,18 @@ void packethandler(jconn conn, jpacket packet)
           g_free(r);
           break;
         }
-        x = xmlnode_get_tag(packet->x, "show");
+
+        p = xmlnode_get_tag_data(packet->x, "priority");
+        if (p && *p) bpprio = (gchar)atoi(p);
+        else         bpprio = 0;
+
         ust = available;
-
-        if (x) {
-          p = xmlnode_get_data(x); if (p) ns = p;
-
-          if (ns) {
-            if (!strcmp(ns, "away"))      ust = away;
-            else if (!strcmp(ns, "dnd"))  ust = dontdisturb;
-            else if (!strcmp(ns, "xa"))   ust = notavail;
-            else if (!strcmp(ns, "chat")) ust = freeforchat;
-          }
+        p = xmlnode_get_tag_data(packet->x, "show");
+        if (p) {
+          if (!strcmp(p, "away"))      ust = away;
+          else if (!strcmp(p, "dnd"))  ust = dontdisturb;
+          else if (!strcmp(p, "xa"))   ust = notavail;
+          else if (!strcmp(p, "chat")) ust = freeforchat;
         }
 
         if (type && !strcmp(type, "unavailable"))
@@ -927,9 +927,11 @@ void packethandler(jconn conn, jpacket packet)
 
         // Call hk_statuschange() if status has changed or if the
         // status message is different
-        m = roster_getstatusmsg(r);
-        if ((ust != roster_getstatus(r)) || (p && (!m || strcmp(p, m))))
-          hk_statuschange(r, 0, ust, p);
+        rname = strchr(from, '/');
+        if (rname) rname++;
+        m = roster_getstatusmsg(r, rname);
+        if ((ust != roster_getstatus(r, rname)) || (p && (!m || strcmp(p, m))))
+          hk_statuschange(r, rname, bpprio, 0, ust, p);
         g_free(r);
         if (p) g_free(p);
         break;

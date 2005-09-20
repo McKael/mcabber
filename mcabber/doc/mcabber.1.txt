@@ -136,7 +136,9 @@ COMMANDS
         'toggle';; toggle the state (fold/unfold) of the current tree
 
 /info::
-        Display info on the selected entry (user, agent, group...).
+        Display info on the selected entry (user, agent, group...). +
+        For users, resources are displayed with the status, priority and
+        status message (if available) of each resource.
 
 /move [groupname]::
         Move the current buddy to the requested group.  If no group is

@@ -74,6 +74,8 @@ const char *buddy_getgroupname(gpointer rosterdata);
 gpointer buddy_getgroup(gpointer rosterdata);
 enum imstatus buddy_getstatus(gpointer rosterdata, const char *resname);
 const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname);
+gchar   buddy_getresourceprio(gpointer rosterdata, const char *resname);
+GSList *buddy_getresources(gpointer rosterdata);
 void    buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint   buddy_getflags(gpointer rosterdata);
 GList  *buddy_search(char *string);

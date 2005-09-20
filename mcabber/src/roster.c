@@ -790,6 +790,29 @@ const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname)
   return NULL;
 }
 
+gchar buddy_getresourceprio(gpointer rosterdata, const char *resname)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->prio;
+  return 0;
+}
+
+//  buddy_getresources(roster_data)
+// Return a singly-linked-list of resource names
+// Note: the caller should free the list (and data) after use
+GSList *buddy_getresources(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  GSList *reslist = NULL, *lp;
+
+  for (lp = roster_usr->resource; lp; lp = g_slist_next(lp))
+    reslist = g_slist_append(reslist, g_strdup(((res*)lp->data)->name));
+
+  return reslist;
+}
+
 //  buddy_setflags()
 // Set one or several flags to value (TRUE/FALSE)
 void buddy_setflags(gpointer rosterdata, guint flags, guint value)

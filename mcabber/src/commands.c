@@ -616,9 +616,8 @@ static void do_clear(char *arg)    // Alias for "/buffer clear"
 static void do_info(char *arg)
 {
   gpointer bud;
-  const char *jid, *name, *st_msg;
+  const char *jid, *name;
   guint type;
-  enum imstatus status;
   char *buffer;
 
   if (!current_buddy) return;
@@ -627,12 +626,11 @@ static void do_info(char *arg)
   jid    = buddy_getjid(bud);
   name   = buddy_getname(bud);
   type   = buddy_gettype(bud);
-  status = buddy_getstatus(bud, NULL);
-  st_msg = buddy_getstatusmsg(bud, NULL);
 
   buffer = g_new(char, 128);
 
   if (jid) {
+    GSList *resources;
     char *typestr = "unknown";
 
     snprintf(buffer, 127, "jid:  <%s>", jid);
@@ -641,20 +639,34 @@ static void do_info(char *arg)
       snprintf(buffer, 127, "Name: %s", name);
       scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
     }
-    if (st_msg) {
-      snprintf(buffer, 127, "Status message: %s", st_msg);
-      scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
-    }
 
-    if (type == ROSTER_TYPE_USER) typestr = "user";
+    if (type == ROSTER_TYPE_USER)       typestr = "user";
     else if (type == ROSTER_TYPE_AGENT) typestr = "agent";
-
     snprintf(buffer, 127, "Type: %s", typestr);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+
+    resources = buddy_getresources(bud);
+    for ( ; resources ; resources = g_slist_next(resources) ) {
+      gchar rprio;
+      enum imstatus rstatus;
+      const char *rst_msg;
+
+      rprio   = buddy_getresourceprio(bud, resources->data);
+      rstatus = buddy_getstatus(bud, resources->data);
+      rst_msg = buddy_getstatusmsg(bud, resources->data);
+
+      snprintf(buffer, 127, "Resource: [%c] (%d) %s", imstatus2char[rstatus],
+               rprio, (char*)resources->data);
+      scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+      if (rst_msg) {
+        snprintf(buffer, 127, "Status message: %s", rst_msg);
+        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+      }
+    }
   } else {
     if (name) scr_LogPrint(LPRINT_NORMAL, "Name: %s", name);
     scr_LogPrint(LPRINT_NORMAL, "Type: %s",
-            ((type == ROSTER_TYPE_GROUP) ? "group" : "unknown"));
+                 ((type == ROSTER_TYPE_GROUP) ? "group" : "unknown"));
   }
 
   g_free(buffer);

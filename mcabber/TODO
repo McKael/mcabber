@@ -18,11 +18,6 @@ TODO:
 * Publish personal information
 * Show status changes in buddy window (if open)?
 * Options completion
-* Keep track of buddy resources.  Ex.:
-  - buddy A connects with resource r1
-  - buddy A connects with resource r2
-  - A/r2 disconnects
-  Then we see A as being offline, although we should still see A/r1 online
 * MUC: invitation
 * MUC: join password-protected room
 

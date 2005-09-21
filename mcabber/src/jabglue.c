@@ -29,6 +29,7 @@
 #include "hooks.h"
 #include "utils.h"
 #include "settings.h"
+#include "hbuf.h"
 
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
@@ -540,11 +541,11 @@ void gotroster(xmlnode x)
       gchar *name_noutf8 = NULL;
       gchar *group_noutf8 = NULL;
 
+      buddyname = cleanalias;
       if (name) {
         name_noutf8 = from_utf8(name);
-        buddyname = name_noutf8;
-      } else
-        buddyname = cleanalias;
+        if (name_noutf8) buddyname = name_noutf8;
+      }
 
       if (group)
         group_noutf8 = from_utf8(group);
@@ -565,6 +566,18 @@ void gotmessage(char *type, const char *from, const char *body,
   char *jid;
   gchar *buffer = from_utf8(body);
 
+  jid = jidtodisp(from);
+
+  if (!buffer && body) {
+    scr_LogPrint(LPRINT_LOGNORM, "Decoding of message from <%s> has failed",
+                 from);
+    scr_WriteIncomingMessage(jid, "Cannot display message: "
+                             "UTF-8 conversion failure",
+                             0, HBB_PREFIX_ERR | HBB_PREFIX_IN);
+    g_free(jid);
+    return;
+  }
+
   /*
   //char *u, *h, *r;
   //jidsplit(from, &u, &h, &r);
@@ -576,7 +589,6 @@ void gotmessage(char *type, const char *from, const char *body,
   //             jidtodisp(from), type);
   */
 
-  jid = jidtodisp(from);
   hk_message_in(jid, timestamp, buffer, type);
   g_free(jid);
   g_free(buffer);

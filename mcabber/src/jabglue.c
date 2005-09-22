@@ -29,6 +29,7 @@
 #include "hooks.h"
 #include "utils.h"
 #include "settings.h"
+#include "hbuf.h"
 
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
@@ -99,8 +100,7 @@ char *jidtodisp(const char *jid)
   char *ptr;
   char *alias;
 
-  while ((alias = g_strdup(jid)) == NULL)
-    safe_usleep(100);
+  alias = g_strdup(jid);
 
   if ((ptr = strchr(alias, '/')) != NULL) {
     *ptr = 0;
@@ -171,6 +171,12 @@ void jb_disconnect(void)
 inline void jb_reset_keepalive()
 {
   time(&LastPingTime);
+}
+
+void jb_send_raw(const char *str)
+{
+  if (jc && online)
+    jab_send_raw(jc, str);
 }
 
 void jb_keepalive()
@@ -535,11 +541,11 @@ void gotroster(xmlnode x)
       gchar *name_noutf8 = NULL;
       gchar *group_noutf8 = NULL;
 
+      buddyname = cleanalias;
       if (name) {
         name_noutf8 = from_utf8(name);
-        buddyname = name_noutf8;
-      } else
-        buddyname = cleanalias;
+        if (name_noutf8) buddyname = name_noutf8;
+      }
 
       if (group)
         group_noutf8 = from_utf8(group);
@@ -560,6 +566,18 @@ void gotmessage(char *type, const char *from, const char *body,
   char *jid;
   gchar *buffer = from_utf8(body);
 
+  jid = jidtodisp(from);
+
+  if (!buffer && body) {
+    scr_LogPrint(LPRINT_LOGNORM, "Decoding of message from <%s> has failed",
+                 from);
+    scr_WriteIncomingMessage(jid, "Cannot display message: "
+                             "UTF-8 conversion failure",
+                             0, HBB_PREFIX_ERR | HBB_PREFIX_IN);
+    g_free(jid);
+    return;
+  }
+
   /*
   //char *u, *h, *r;
   //jidsplit(from, &u, &h, &r);
@@ -571,7 +589,6 @@ void gotmessage(char *type, const char *from, const char *body,
   //             jidtodisp(from), type);
   */
 
-  jid = jidtodisp(from);
   hk_message_in(jid, timestamp, buffer, type);
   g_free(jid);
   g_free(buffer);
@@ -704,12 +721,13 @@ void statehandler(jconn conn, int state)
 void packethandler(jconn conn, jpacket packet)
 {
   char *p, *r;
-  const char *m;
+  const char *m, *rname;
   xmlnode x, y;
   char *from=NULL, *type=NULL, *body=NULL, *enc=NULL;
   char *ns=NULL;
   char *id=NULL;
   enum imstatus ust;
+  char bpprio;
 
   jb_reset_keepalive(); // reset keepalive delay
   jpacket_reset(packet);
@@ -897,18 +915,18 @@ void packethandler(jconn conn, jpacket packet)
           g_free(r);
           break;
         }
-        x = xmlnode_get_tag(packet->x, "show");
+
+        p = xmlnode_get_tag_data(packet->x, "priority");
+        if (p && *p) bpprio = (gchar)atoi(p);
+        else         bpprio = 0;
+
         ust = available;
-
-        if (x) {
-          p = xmlnode_get_data(x); if (p) ns = p;
-
-          if (ns) {
-            if (!strcmp(ns, "away"))      ust = away;
-            else if (!strcmp(ns, "dnd"))  ust = dontdisturb;
-            else if (!strcmp(ns, "xa"))   ust = notavail;
-            else if (!strcmp(ns, "chat")) ust = freeforchat;
-          }
+        p = xmlnode_get_tag_data(packet->x, "show");
+        if (p) {
+          if (!strcmp(p, "away"))      ust = away;
+          else if (!strcmp(p, "dnd"))  ust = dontdisturb;
+          else if (!strcmp(p, "xa"))   ust = notavail;
+          else if (!strcmp(p, "chat")) ust = freeforchat;
         }
 
         if (type && !strcmp(type, "unavailable"))
@@ -921,9 +939,11 @@ void packethandler(jconn conn, jpacket packet)
 
         // Call hk_statuschange() if status has changed or if the
         // status message is different
-        m = roster_getstatusmsg(r);
-        if ((ust != roster_getstatus(r)) || (p && (!m || strcmp(p, m))))
-          hk_statuschange(r, 0, ust, p);
+        rname = strchr(from, '/');
+        if (rname) rname++;
+        m = roster_getstatusmsg(r, rname);
+        if ((ust != roster_getstatus(r, rname)) || (p && (!m || strcmp(p, m))))
+          hk_statuschange(r, rname, bpprio, 0, ust, p);
         g_free(r);
         if (p) g_free(p);
         break;

@@ -136,7 +136,9 @@ COMMANDS
         'toggle';; toggle the state (fold/unfold) of the current tree
 
 /info::
-        Display info on the selected entry (user, agent, group...).
+        Display info on the selected entry (user, agent, group...). +
+        For users, resources are displayed with the status, priority and
+        status message (if available) of each resource.
 
 /move [groupname]::
         Move the current buddy to the requested group.  If no group is
@@ -162,6 +164,9 @@ COMMANDS
 
 /quit::
         Disconnect and leave `mcabber(1)`.
+
+/rawxml send::
+        'send' string: send string (raw XML format) to the Jabber server.  No check is done on the string provided.  BEWARE! Use this only if you know what you are doing, or you could terminate the connection.
 
 /rename nickname::
         Rename current buddy to the given nickname.

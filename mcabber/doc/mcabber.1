@@ -156,7 +156,7 @@ The group command changes the current group display\&.
 
 .TP
 \fB/info\fR
-Display info on the selected entry (user, agent, group...)\&.
+Display info on the selected entry (user, agent, group...)\&. For users, resources are displayed with the status, priority and status message (if available) of each resource\&.
 
 .TP
 \fB/move\fR [groupname]
@@ -170,6 +170,10 @@ Send a multi\-line message\&. To write a single message with several lines, the 
  \fBverbatim\fR	enter verbatim multi\-line mode
  \fBsend\fR	send the current multi\-line message to the currently selected buddy
  \fBabort\fR	leave multi\-line mode without sending the message
+
+.TP
+\fB/rawxml\fR send
+ \fBsend\fR string: send string (raw XML format) to the Jabber server\&. No check is done on the string provided\&. BEWARE! Use this only if you know what you are doing, or you could terminate the connection\&.
 
 .TP
 \fB/rename\fR nickname

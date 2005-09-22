@@ -335,7 +335,9 @@ toggle the state (fold/unfold) of the current tree
 /info
 </b></dt>
 <dd>
-        Display info on the selected entry (user, agent, group&#8230;).
+        Display info on the selected entry (user, agent, group&#8230;).<br />
+        For users, resources are displayed with the status, priority and
+        status message (if available) of each resource.
 </dd>
 <dt><b>
 /move [groupname]
@@ -399,6 +401,12 @@ leave multi-line mode without sending the message
 </b></dt>
 <dd>
         Disconnect and leave <tt>mcabber(1)</tt>.
+</dd>
+<dt><b>
+/rawxml send
+</b></dt>
+<dd>
+        <b>send</b> string: send string (raw XML format) to the Jabber server.  No check is done on the string provided.  BEWARE! Use this only if you know what you are doing, or you could terminate the connection.
 </dd>
 <dt><b>
 /rename nickname
@@ -549,8 +557,8 @@ Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com
 License (GPL).</p>
 <div id="footer">
 <p>
-Version 0.6.8<br />
-Last updated 12-Sep-2005 19:31:21 CEST
+Version 0.6.9-dev<br />
+Last updated 20-Sep-2005 23:15:49 CEST
 </p>
 </div>
 </div>

@@ -152,6 +152,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROOM, "join");
   compl_add_category_word(COMPL_ROOM, "leave");
   compl_add_category_word(COMPL_ROOM, "names");
+  compl_add_category_word(COMPL_ROOM, "remove");
 }
 
 //  expandalias(line)
@@ -973,6 +974,22 @@ static void do_room(char *arg)
       return;
     }
     do_info(NULL);
+  } else if (!strcasecmp(arg, "remove"))  {
+    gpointer bud;
+    bud = BUDDATA(current_buddy);
+    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
+      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+      return;
+    }
+    // Quick check: if there are resources, we haven't left
+    if (buddy_getresources(bud)) {
+      scr_LogPrint(LPRINT_NORMAL, "You haven't left this room!");
+      return;
+    }
+    // Delete the room
+    roster_del_user(buddy_getjid(bud));
+    buddylist_build();
+    update_roster = TRUE;
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

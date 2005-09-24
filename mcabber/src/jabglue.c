@@ -158,7 +158,7 @@ void jb_disconnect(void)
   if (!jc) return;
 
   // announce it to  everyone else
-  jb_setstatus(offline, "");
+  jb_setstatus(offline, NULL, "");
 
   // announce it to the user
   statehandler(jc, JCONN_STATE_OFF);
@@ -255,7 +255,7 @@ inline enum imstatus jb_getstatus()
   return mystatus;
 }
 
-void jb_setstatus(enum imstatus st, const char *msg)
+void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 {
   xmlnode x;
   gchar *utf8_msg;
@@ -263,6 +263,9 @@ void jb_setstatus(enum imstatus st, const char *msg)
   if (!online) return;
 
   x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
+
+  if (recipient)
+    xmlnode_put_attrib(x, "to", recipient);
 
   switch(st) {
     case away:
@@ -315,7 +318,11 @@ void jb_setstatus(enum imstatus st, const char *msg)
   xmlnode_free(x);
   g_free(utf8_msg);
 
-  //sendvisibility();   ???
+  // If we didn't change our _global_ status, we are done
+  if (recipient) return;
+
+  // Buddy per buddy invisibility handling
+  //sendvisibility();
 
   // We'll need to update the roster if we switch to/from offline because
   // we don't know the presences of buddies when offline...
@@ -464,7 +471,7 @@ void postlogin()
 
   //setautostatus(jhook.manualstatus);
 
-  jb_setstatus(available, NULL);
+  jb_setstatus(available, NULL, NULL);
   buddylist_build();
   /*
   for (i = 0; i < clist.count; i++) {

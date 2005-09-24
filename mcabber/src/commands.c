@@ -34,6 +34,7 @@
 // Commands callbacks
 static void do_roster(char *arg);
 static void do_status(char *arg);
+static void do_status_to(char *arg);
 static void do_add(char *arg);
 static void do_del(char *arg);
 static void do_group(char *arg);
@@ -103,6 +104,8 @@ void cmd_init(void)
   //cmd_add("send_auth");
   cmd_add("set", "Set/query an option value", 0, 0, &do_set);
   cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status);
+  cmd_add("status_to", "Show or set your status for one recipient",
+          COMPL_JID, COMPL_STATUS, &do_status_to);
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");
@@ -377,17 +380,15 @@ static void do_roster(char *arg)
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
 }
 
-static void do_status(char *arg)
+//  setstatus(recipient, arg)
+// Set your Jabber status.
+// - if recipient is not NULL, the status is sent to this contact only
+// - arg must be "status message" (message is optional)
+static void setstatus(const char *recipient, const char *arg)
 {
   enum imstatus st;
   int len;
   char *msg;
-
-  if (!arg || (*arg == 0)) {
-    scr_LogPrint(LPRINT_NORMAL, "Your status is: %c",
-                 imstatus2char[jb_getstatus()]);
-    return;
-  }
 
   msg = strchr(arg, ' ');
   if (!msg)
@@ -404,7 +405,7 @@ static void do_status(char *arg)
   else if (!strncasecmp(arg, "notavail",  len)) st = notavail;
   else if (!strncasecmp(arg, "free",      len)) st = freeforchat;
   else {
-    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized status!");
     return;
   }
 
@@ -414,7 +415,43 @@ static void do_status(char *arg)
   } else
     msg = NULL;
 
-  jb_setstatus(st, msg);
+  jb_setstatus(st, recipient, msg);
+}
+
+static void do_status(char *arg)
+{
+  if (!arg || (!*arg)) {
+    scr_LogPrint(LPRINT_NORMAL, "Your status is: %c",
+                 imstatus2char[jb_getstatus()]);
+    return;
+  }
+  setstatus(NULL, arg);
+}
+
+static void do_status_to(char *arg)
+{
+  char *id, *st;
+  if (!arg || (*arg == 0)) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    return;
+  }
+
+  // Split recipient jid, status
+  id = g_strdup(arg);
+  st = strchr(id, ' ');
+  if (!st) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    g_free(id);
+    return;
+  }
+
+  *st++ = 0;
+  while (*st && *st == ' ')
+    st++;
+
+  // FIXME check id =~ jabber id
+  scr_LogPrint(LPRINT_LOGNORM, "Sending to <%s> /status %s", id, st);
+  setstatus(id, st);
 }
 
 static void do_add(char *arg)

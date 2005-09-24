@@ -804,10 +804,10 @@ void inline set_autoaway(bool setaway)
     oldstatus = jb_getstatus();
     msg = settings_opt_get("message_autoaway");
     if (!msg) msg = MSG_AUTOAWAY;
-    jb_setstatus(away, msg);
+    jb_setstatus(away, NULL, msg);
   } else {
     // Back
-    jb_setstatus(oldstatus, NULL);
+    jb_setstatus(oldstatus, NULL, NULL);
   }
 }
 

@@ -51,6 +51,7 @@ static void do_bind(char *arg);
 static void do_connect(char *arg);
 static void do_disconnect(char *arg);
 static void do_rawxml(char *arg);
+static void do_room(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -92,7 +93,7 @@ void cmd_init(void)
           0, &do_move);
   cmd_add("msay", "Send a multi-lines message to the selected buddy",
           COMPL_MULTILINE, 0, &do_msay);
-  //cmd_add("nick");
+  cmd_add("room", "MUC actions command", COMPL_ROOM, 0, &do_room);
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
@@ -146,6 +147,11 @@ void cmd_init(void)
   compl_add_category_word(COMPL_MULTILINE, "begin");
   compl_add_category_word(COMPL_MULTILINE, "send");
   compl_add_category_word(COMPL_MULTILINE, "verbatim");
+
+  // Room category
+  compl_add_category_word(COMPL_ROOM, "join");
+  compl_add_category_word(COMPL_ROOM, "leave");
+  compl_add_category_word(COMPL_ROOM, "names");
 }
 
 //  expandalias(line)
@@ -231,11 +237,13 @@ void send_message(const char *msg)
     return;
   }
 
-  // local part (UI, logging, etc.)
-  hk_message_out(jid, 0, msg);
+  if (buddy_gettype(BUDDATA(current_buddy)) != ROSTER_TYPE_ROOM) {
+    // local part (UI, logging, etc.)
+    hk_message_out(jid, 0, msg);
+  }
 
   // Network part
-  jb_send_msg(jid, msg);
+  jb_send_msg(jid, msg, buddy_gettype(BUDDATA(current_buddy)));
 }
 
 //  process_command(line)
@@ -547,7 +555,7 @@ static void do_say(char *arg)
   }
 
   bud = BUDDATA(current_buddy);
-  if (!(buddy_gettype(bud) & ROSTER_TYPE_USER)) {
+  if (!(buddy_gettype(bud) & (ROSTER_TYPE_USER|ROSTER_TYPE_ROOM))) {
     scr_LogPrint(LPRINT_NORMAL, "This is not a user");
     return;
   }
@@ -603,7 +611,7 @@ static void do_msay(char *arg)
   }
 
   bud = BUDDATA(current_buddy);
-  if (!(buddy_gettype(bud) & ROSTER_TYPE_USER)) {
+  if (!(buddy_gettype(bud) & (ROSTER_TYPE_USER|ROSTER_TYPE_ROOM))) {
     scr_LogPrint(LPRINT_NORMAL, "This is not a user");
     return;
   }
@@ -683,6 +691,7 @@ static void do_info(char *arg)
     }
 
     if (type == ROSTER_TYPE_USER)       typestr = "user";
+    else if (type == ROSTER_TYPE_ROOM)  typestr = "chatroom";
     else if (type == ROSTER_TYPE_AGENT) typestr = "agent";
     snprintf(buffer, 127, "Type: %s", typestr);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
@@ -889,6 +898,83 @@ static void do_rawxml(char *arg)
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Please read the manual page"
                  " before using /rawxml :-)");
+  }
+}
+
+static void do_room(char *arg)
+{
+  gpointer bud;
+
+  if (!arg || (!*arg)) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    return;
+  }
+
+  bud = BUDDATA(current_buddy);
+
+  if (!strncasecmp(arg, "join", 4))  {
+    GSList *roster_usr;
+    char *roomname, *nick, *roomid;
+
+    arg += 4;
+    if (*arg++ != ' ') {
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+      return;
+    }
+    for (; *arg && *arg == ' '; arg++)
+      ;
+
+    roomname = g_strdup(arg);
+    nick = strchr(roomname, ' ');
+    if (!nick) {
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
+      g_free(roomname);
+      return;
+    }
+
+    *nick++ = 0;
+    while (*nick && *nick == ' ')
+      nick++;
+    if (!*nick) {
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
+      g_free(roomname);
+      return;
+    }
+    // room syntax: "room@server/nick"
+    // FIXME: check roomid is a jid
+    roomid = g_strdup_printf("%s/%s", roomname, nick);
+    jb_room_join(roomid);
+    roster_usr = roster_add_user(roomname, NULL, NULL, ROSTER_TYPE_ROOM);
+    if (roster_usr)
+      buddy_setnickname(roster_usr->data, nick);
+    g_free(roomname);
+    g_free(roomid);
+    buddylist_build();
+    update_roster = TRUE;
+  } else if (!strncasecmp(arg, "leave", 5))  {
+    char *roomid;
+    arg += 5;
+    for (; *arg && *arg == ' '; arg++)
+      ;
+    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
+      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+      return;
+    }
+    roomid = g_strdup_printf("%s/%s", buddy_getjid(bud),
+                             buddy_getnickname(bud));
+    jb_setstatus(offline, roomid, arg);
+    g_free(roomid);
+    buddy_setnickname(bud, NULL);
+    buddy_del_all_resources(bud);
+    scr_LogPrint(LPRINT_NORMAL, "You have left %s", buddy_getjid(bud));
+  } else if (!strcasecmp(arg, "names"))  {
+    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
+      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+      return;
+    }
+    do_info(NULL);
+  } else {
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }
 }
 

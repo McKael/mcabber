@@ -30,33 +30,59 @@
 
 static char *extcmd;
 
-inline void hk_message_in(const char *jid, time_t timestamp, const char *msg,
-                          const char *type)
+inline void hk_message_in(const char *jid, const char *resname,
+                          time_t timestamp, const char *msg, const char *type)
 {
   int new_guy = FALSE;
-  int message_flags;
+  int is_groupchat = FALSE;
+  int message_flags = 0;
+  guint rtype = ROSTER_TYPE_USER;
+  char *wmsg;
+  GSList *roster_usr;
+
+  if (type && !strcmp(type, "groupchat")) {
+    rtype = ROSTER_TYPE_ROOM;
+    is_groupchat = TRUE;
+    if (!resname) {
+      message_flags = HBB_PREFIX_INFO;
+      resname = "";
+    }
+    wmsg = g_strdup_printf("<%s> %s", resname, msg);
+  } else {
+    wmsg = (char*) msg;
+  }
 
   // If this user isn't in the roster, we add it
-  if (!roster_exists(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT)) {
-    roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER);
+  roster_usr = roster_find(jid, jidsearch,
+                           rtype|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
+  if (!roster_usr) {
+    roster_add_user(jid, NULL, NULL, rtype);
     new_guy = TRUE;
+  } else {
+    if (buddy_gettype(roster_usr->data) == ROSTER_TYPE_ROOM)
+      is_groupchat = TRUE;
   }
 
   if (type && !strcmp(type, "error")) {
     message_flags = HBB_PREFIX_ERR | HBB_PREFIX_IN;
     scr_LogPrint(LPRINT_LOGNORM, "Error message received from <%s>", jid);
-  } else
-    message_flags = 0;
+  }
 
   // Note: the hlog_write should not be called first, because in some
   // cases scr_WriteIncomingMessage() will load the history and we'd
   // have the message twice...
-  scr_WriteIncomingMessage(jid, msg, timestamp, message_flags);
+  scr_WriteIncomingMessage(jid, wmsg, timestamp, message_flags);
+
   // We don't log the message if it is an error message
-  if (!(message_flags & HBB_PREFIX_ERR))
-    hlog_write_message(jid, timestamp, FALSE, msg);
+  // or if it is a groupchat message
+  // XXX We could use an option here to know if we should write GC messages...
+  if (!is_groupchat && !(message_flags & HBB_PREFIX_ERR))
+    hlog_write_message(jid, timestamp, FALSE, wmsg);
+
   // External command
-  hk_ext_cmd(jid, 'M', 'R', NULL);
+  if (!is_groupchat)
+    hk_ext_cmd(jid, 'M', 'R', NULL);
+
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set
   if (new_guy ||
@@ -66,6 +92,8 @@ inline void hk_message_in(const char *jid, time_t timestamp, const char *msg,
     buddylist_build();
     update_roster = TRUE;
   }
+
+  if (rtype == ROSTER_TYPE_ROOM) g_free(wmsg);
 }
 
 inline void hk_message_out(const char *jid, time_t timestamp, const char *msg)

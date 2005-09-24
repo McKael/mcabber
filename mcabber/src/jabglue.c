@@ -333,10 +333,17 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
   mystatus = st;
 }
 
-void jb_send_msg(const char *jid, const char *text)
+void jb_send_msg(const char *jid, const char *text, int type)
 {
+  gchar *strtype;
   gchar *buffer = to_utf8(text);
-  xmlnode x = jutil_msgnew(TMSG_CHAT, (char*)jid, 0, (char*)buffer);
+
+  if (type == ROSTER_TYPE_ROOM)
+    strtype = TMSG_GROUPCHAT;
+  else
+    strtype = TMSG_CHAT;
+
+  xmlnode x = jutil_msgnew(strtype, (char*)jid, 0, (char*)buffer);
   jab_send(jc, x);
   xmlnode_free(x);
   g_free(buffer);
@@ -462,6 +469,26 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
   g_free(cleanjid);
 }
 
+// Join a MUC room
+// room syntax: "room@server/nick"
+void jb_room_join(const char *room)
+{
+  xmlnode x, y;
+
+  if (!online) return;
+  if (!room)   return;
+
+  x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
+  xmlnode_put_attrib(x, "from", jid_full(jc->user));
+  xmlnode_put_attrib(x, "to", room);
+  y = xmlnode_insert_tag(x, "x");
+  xmlnode_put_attrib(y, "xmlns", "http://jabber.org/protocol/muc");
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+  jb_reset_keepalive();
+}
+
 void postlogin()
 {
   //int i;
@@ -571,6 +598,7 @@ void gotmessage(char *type, const char *from, const char *body,
         const char *enc, time_t timestamp)
 {
   char *jid;
+  const char *rname;
   gchar *buffer = from_utf8(body);
 
   jid = jidtodisp(from);
@@ -585,18 +613,9 @@ void gotmessage(char *type, const char *from, const char *body,
     return;
   }
 
-  /*
-  //char *u, *h, *r;
-  //jidsplit(from, &u, &h, &r);
-  // Maybe we should remember the resource?
-  if (r)
-    scr_LogPrint(LPRINT_NORMAL,
-                 "There is an extra part in message (resource?): %s", r);
-  //scr_LogPrint(LPRINT_NORMAL, "Msg from <%s>, type=%s",
-  //             jidtodisp(from), type);
-  */
-
-  hk_message_in(jid, timestamp, buffer, type);
+  rname = strchr(from, '/');
+  if (rname) rname++;
+  hk_message_in(jid, rname, timestamp, buffer, type);
   g_free(jid);
   g_free(buffer);
 }
@@ -727,7 +746,7 @@ void statehandler(jconn conn, int state)
 
 void packethandler(jconn conn, jpacket packet)
 {
-  char *p, *r;
+  char *p, *r, *s;
   const char *m, *rname;
   xmlnode x, y;
   char *from=NULL, *type=NULL, *body=NULL, *enc=NULL;
@@ -906,7 +925,28 @@ void packethandler(jconn conn, jpacket packet)
 
             }
           }
+        } else if (!strcmp(type, "get")) {
+          p = xmlnode_get_attrib(packet->x, "id");
+          if (p) {
+            xmlnode z;
+
+            id = p;
+            x = xmlnode_new_tag("iq");
+            xmlnode_put_attrib(x, "type", "result");
+            xmlnode_put_attrib(x, "to", from);
+            xmlnode_put_attrib(x, "id", id);
+            xmlnode_put_attrib(x, "type", "error");
+            y = xmlnode_insert_tag(x, "error");
+            xmlnode_put_attrib(y, "code", "503");
+            xmlnode_put_attrib(y, "type", "cancel");
+            z = xmlnode_insert_tag(y, "feature-not-implemented");
+            xmlnode_put_attrib(z, "xmlns",
+                               "urn:ietf:params:xml:ns:xmpp-stanzas");
+            jab_send(conn, x);
+            xmlnode_free(x);
+          }
         } else if (!strcmp(type, "set")) {
+          /* FIXME: send error */
         } else if (!strcmp(type, "error")) {
           if ((x = xmlnode_get_tag(packet->x, "error")) != NULL)
             display_server_error(x);
@@ -940,19 +980,43 @@ void packethandler(jconn conn, jpacket packet)
           ust = offline;
 
         if ((x = xmlnode_get_tag(packet->x, "status")) != NULL)
-          p = from_utf8(xmlnode_get_data(x));
+          s = from_utf8(xmlnode_get_data(x));
         else
-          p = NULL;
+          s = NULL;
 
         // Call hk_statuschange() if status has changed or if the
         // status message is different
         rname = strchr(from, '/');
         if (rname) rname++;
+
+        // Check for MUC presence packet
+        // There can be multiple <x> tags!!
+        x = xmlnode_get_firstchild(packet->x);
+        for ( ; x; x = xmlnode_get_nextsibling(x)) {
+          if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
+            if ((p = xmlnode_get_attrib(x, "xmlns")) &&
+                !strncasecmp(p, "http://jabber.org/protocol/muc", 30))
+              break;
+        }
+        if (x) {    // This is a MUC presence message
+          roster_add_user(r, NULL, NULL, ROSTER_TYPE_ROOM);
+
+          if (rname)
+            roster_setstatus(r, rname, bpprio, ust, NULL);
+          else
+            scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
+
+          buddylist_build();
+          scr_DrawRoster();
+          break;
+        }
+
+        // Not a MUC message, so this is a regular buddy...
         m = roster_getstatusmsg(r, rname);
-        if ((ust != roster_getstatus(r, rname)) || (p && (!m || strcmp(p, m))))
-          hk_statuschange(r, rname, bpprio, 0, ust, p);
+        if ((ust != roster_getstatus(r, rname)) || (s && (!m || strcmp(s, m))))
+          hk_statuschange(r, rname, bpprio, 0, ust, s);
         g_free(r);
-        if (p) g_free(p);
+        if (s) g_free(s);
         break;
 
     case JPACKET_S10N:

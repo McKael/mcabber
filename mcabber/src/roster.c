@@ -44,7 +44,7 @@ typedef struct {
   guint type;
   enum subscr subscription;
   GSList *resource;
-  res *cur_res;
+  gchar *nickname; // For groupchats
   guint flags;
   // list: user -> points to his group; group -> points to its users list
   GSList *list;
@@ -197,7 +197,8 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
   if (!jidname) return NULL;
 
   if (!roster_type)
-    roster_type = ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_GROUP;
+    roster_type = ROSTER_TYPE_USER | ROSTER_TYPE_ROOM |
+                  ROSTER_TYPE_AGENT | ROSTER_TYPE_GROUP;
 
   sample.type = roster_type;
   if (type == jidsearch) {
@@ -249,7 +250,9 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
   roster *my_group;
   GSList *slist;
 
-  if ((type != ROSTER_TYPE_USER) && (type != ROSTER_TYPE_AGENT)) {
+  if ((type != ROSTER_TYPE_USER) &&
+      (type != ROSTER_TYPE_ROOM) &&
+      (type != ROSTER_TYPE_AGENT)) {
     // XXX Error message?
     return NULL;
   }
@@ -258,7 +261,7 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
   if (!group)  group = "";
 
   // #1 Check this user doesn't already exist
-  slist = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  slist = roster_find(jid, jidsearch, type|ROSTER_TYPE_AGENT);
   if (slist) return slist;
   // #2 add group if necessary
   slist = roster_add_group(group);
@@ -276,7 +279,7 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
     roster_usr->name = g_strdup(str);
     g_free(str);
   }
-  roster_usr->type  = type; //ROSTER_TYPE_USER;
+  roster_usr->type  = type;
   roster_usr->list  = slist;    // (my_group SList element)
   // #4 Insert node (sorted)
   my_group->list = g_slist_insert_sorted(my_group->list, roster_usr,
@@ -292,7 +295,8 @@ void roster_del_user(const char *jid)
   roster *roster_usr;
   GSList *node;
 
-  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  sl_user = roster_find(jid, jidsearch,
+                        ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
   if (sl_user == NULL)
     return;
   roster_usr = (roster*)sl_user->data;
@@ -304,6 +308,7 @@ void roster_del_user(const char *jid)
   // Let's free memory (jid, name, status message)
   if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
   if (roster_usr->name)       g_free((gchar*)roster_usr->name);
+  if (roster_usr->nickname)   g_free((gchar*)roster_usr->nickname);
   free_all_resources(&roster_usr->resource);
   g_free(roster_usr);
 
@@ -341,6 +346,7 @@ void roster_free(void)
       // Free name and jid
       if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
       if (roster_usr->name)       g_free((gchar*)roster_usr->name);
+      if (roster_usr->nickname)   g_free((gchar*)roster_usr->nickname);
       free_all_resources(&roster_usr->resource);
       g_free(roster_usr);
       sl_usr = g_slist_next(sl_usr);
@@ -371,7 +377,8 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
   roster *roster_usr;
   res *p_res;
 
-  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  sl_user = roster_find(jid, jidsearch,
+                        ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   // If we can't find it, we add it
   if (sl_user == NULL)
     sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER);
@@ -405,7 +412,8 @@ void roster_setflags(const char *jid, guint flags, guint value)
   GSList *sl_user;
   roster *roster_usr;
 
-  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  sl_user = roster_find(jid, jidsearch,
+                        ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return;
 
@@ -425,7 +433,8 @@ void roster_msg_setflag(const char *jid, guint value)
   GSList *sl_user;
   roster *roster_usr, *roster_grp;
 
-  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  sl_user = roster_find(jid, jidsearch,
+                        ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return;
 
@@ -525,14 +534,6 @@ guint roster_gettype(const char *jid)
 
   roster_usr = (roster*)sl_user->data;
   return roster_usr->type;
-}
-
-inline guint roster_exists(const char *jidname, enum findwhat type,
-        guint roster_type)
-{
-  if (roster_find(jidname, type, roster_type))
-    return TRUE;
-  return FALSE;
 }
 
 
@@ -693,6 +694,7 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   // Free old buddy
   if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
   if (roster_usr->name)       g_free((gchar*)roster_usr->name);
+  if (roster_usr->nickname)   g_free((gchar*)roster_usr->nickname);
   free_all_resources(&roster_usr->resource);
   g_free(roster_usr);
 
@@ -738,6 +740,26 @@ const char *buddy_getname(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->name;
+}
+
+void buddy_setnickname(gpointer rosterdata, char *newname)
+{
+  roster *roster_usr = rosterdata;
+
+  if (!roster_usr->type & ROSTER_TYPE_ROOM) return;
+
+  if (roster_usr->nickname) {
+    g_free((gchar*)roster_usr->nickname);
+    roster_usr->nickname = NULL;
+  }
+  if (newname)
+    roster_usr->nickname = g_strdup(newname);
+}
+
+const char *buddy_getnickname(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->nickname;
 }
 
 //  buddy_getgroupname()
@@ -813,6 +835,18 @@ GSList *buddy_getresources(gpointer rosterdata)
   return reslist;
 }
 
+//  buddy_del_all_resources()
+// Remove all resources from the specified buddy
+void buddy_del_all_resources(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+
+  while (roster_usr->resource) {
+    res *r = roster_usr->resource->data;
+    del_resource(roster_usr, r->name);
+  }
+}
+
 //  buddy_setflags()
 // Set one or several flags to value (TRUE/FALSE)
 void buddy_setflags(gpointer rosterdata, guint flags, guint value)
@@ -873,7 +907,7 @@ GSList *compl_list(guint type)
         if ((bname) && (*bname))
           list = g_slist_append(list, g_strdup(bname));
       }
-    } else { // ROSTER_TYPE_USER (jid)
+    } else { // ROSTER_TYPE_USER (jid) (or agent, or chatroom...)
         const char *bjid = buddy_getjid(BUDDATA(buddy));
         if (bjid)
           list = g_slist_append(list, g_strdup(bjid));

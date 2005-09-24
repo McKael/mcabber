@@ -720,6 +720,7 @@ void scr_DrawRoster(void)
     enum imstatus budstate;
     unsigned short ismsg = buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_MSG;
     unsigned short isgrp = buddy_gettype(BUDDATA(buddy)) & ROSTER_TYPE_GROUP;
+    unsigned short ismuc = buddy_gettype(BUDDATA(buddy)) & ROSTER_TYPE_ROOM;
     unsigned short ishid = buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_HIDE;
 
     if (rOffset > 0) {
@@ -748,6 +749,8 @@ void scr_DrawRoster(void)
       else
         wattrset(rosterWnd, COLOR_PAIR(COLOR_BD_DES));
     }
+
+    if (ismuc) status = 'C';
 
     strncpy(name, buddy_getname(BUDDATA(buddy)), ROSTER_WIDTH-7);
     if (isgrp) {

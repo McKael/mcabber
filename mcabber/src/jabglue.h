@@ -47,11 +47,12 @@ void jb_delbuddy(const char *jid);
 void jb_updatebuddy(const char *jid, const char *name, const char *group);
 inline enum imstatus jb_getstatus();
 void jb_setstatus(enum imstatus st, const char *recipient, const char *msg);
-void jb_send_msg(const char *, const char *);
+void jb_send_msg(const char *jid, const char *text, int type);
 void jb_send_raw(const char *str);
 void jb_keepalive();
 inline void jb_reset_keepalive();
 void jb_set_keepalive_delay(unsigned int delay);
 inline void jb_set_priority(unsigned int priority);
+void jb_room_join(const char *room);
 
 #endif /* __JABGLUE_H__ */

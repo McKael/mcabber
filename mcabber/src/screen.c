@@ -1345,7 +1345,7 @@ static void scr_handle_tab(void)
 
   // a) No completion if no leading slash ('cause not a command)
   // b) We can't have more than 2 parameters (we use 2 flags)
-  if (nrow < 0 || nrow > 2) return;
+  if (nrow < 0 || (nrow == 3 && !completion_started) || nrow > 3) return;
 
   if (nrow == 0) {      // Command completion
     row = &inputLine[1];

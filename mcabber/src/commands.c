@@ -457,7 +457,7 @@ static void do_status_to(char *arg)
 static void do_add(char *arg)
 {
   char *id, *nick;
-  if (!arg || (*arg == 0)) {
+  if (!arg || (!*arg)) {
     scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
     return;
   }
@@ -500,7 +500,7 @@ static void do_group(char *arg)
   gpointer group;
   guint leave_windowbuddy;
 
-  if (!arg || (*arg == 0)) {
+  if (!arg || (!*arg)) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
     return;
   }
@@ -576,7 +576,7 @@ static void do_msay(char *arg)
     scr_LogPrint(LPRINT_NORMAL, "Select a buddy and use \"/msay send\" "
                  "when your message is ready.");
     return;
-  } else if (*arg == 0) {
+  } else if (!*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Please read the manual before using "
                  "the /msay command.");
     scr_LogPrint(LPRINT_NORMAL, "(Use \"/msay begin\" to enter "
@@ -617,6 +617,11 @@ static void do_buffer(char *arg)
 {
   int search_dir = 0;
 
+  if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_GROUP) {
+    scr_LogPrint(LPRINT_NORMAL, "Groups have no buffer");
+    return;
+  }
+
   if (!strcasecmp(arg, "top")) {
     scr_BufferTopBottom(-1);
   } else if (!strcasecmp(arg, "bottom")) {
@@ -628,13 +633,13 @@ static void do_buffer(char *arg)
     if (*arg++ == ' ')
       search_dir = -1;
     else
-      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
   } else if (!strncasecmp(arg, "search_forward", 14)) {
     arg += 14;
     if (*arg++ == ' ')
       search_dir = 1;
     else
-      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
   } else
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
 
@@ -716,7 +721,7 @@ static void do_rename(char *arg)
   guint type;
   char *newname, *p;
 
-  if (!arg || (*arg == 0)) {
+  if (!arg || (!*arg)) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
     return;
   }
@@ -896,4 +901,3 @@ static void do_disconnect(char *arg)
 {
   jb_disconnect();
 }
-

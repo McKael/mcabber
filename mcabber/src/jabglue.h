@@ -54,5 +54,6 @@ inline void jb_reset_keepalive();
 void jb_set_keepalive_delay(unsigned int delay);
 inline void jb_set_priority(unsigned int priority);
 void jb_room_join(const char *room);
+void jb_room_unlock(const char *room);
 
 #endif /* __JABGLUE_H__ */

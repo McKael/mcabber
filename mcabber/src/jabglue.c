@@ -489,6 +489,28 @@ void jb_room_join(const char *room)
   jb_reset_keepalive();
 }
 
+// Unlock a MUC room
+// room syntax: "room@server"
+void jb_room_unlock(const char *room)
+{
+  xmlnode x, y, z;
+
+  if (!online) return;
+  if (!room)   return;
+
+  x = jutil_iqnew(JPACKET__SET, "http://jabber.org/protocol/muc#owner");
+  xmlnode_put_attrib(x, "id", "unlock1"); // XXX
+  xmlnode_put_attrib(x, "to", room);
+  y = xmlnode_get_tag(x, "query");
+  z = xmlnode_insert_tag(y, "x");
+  xmlnode_put_attrib(z, "xmlns", "jabber:x:data");
+  xmlnode_put_attrib(z, "type", "submit");
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+  jb_reset_keepalive();
+}
+
 void postlogin()
 {
   //int i;

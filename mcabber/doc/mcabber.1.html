@@ -220,7 +220,7 @@ Jump to the next unread message
         "/bind keycode" displays the command line bound to the given keycode;
         "/bind keycode" unbinds the given keycode.<br />
         Note: aliases can be used in key bindings.<br />
-        Example: "/bind 265 = status online" (265 is F1 for me, but it can
+        Example: "/bind 265 = status online" (265 is F1 for me, but it may
         depend on your ncurses installation).
 </dd>
 <dt><b>
@@ -355,8 +355,8 @@ toggle the state (fold/unfold) of the current tree
         lines, the <b>multi-line mode</b> should be used.<br />
         In multi-line mode, each line (except command lines) typed in the input
         line will be added to the multi-line message.  Once the message is
-        finished, it can be sent to the current selected buddy with the "msay
-        /send" command.<br />
+        finished, it can be sent to the current selected buddy with the "/msay
+        send" command.<br />
         The <b>verbatim</b> multi-line mode disables commands, so that it is
         possible to enter lines starting with a slash.  Only the "/msay"
         command (with send or abort parameters) can be used to exit verbatim
@@ -414,7 +414,47 @@ leave multi-line mode without sending the message
 <dd>
         Rename current buddy to the given nickname.
         This command does not work for groups, at the moment (but you can move
-        the buddies to another group with the /move command).
+        the buddies to another group with the "/move" command).
+</dd>
+<dt><b>
+/room join|leave|names|remove
+</b></dt>
+<dd>
+        The <b>room</b> command handles Multi-User Chat room actions.
+<table class="hlist">
+<tr valign="top">
+<td>
+<b>join</b> room nick
+</td>
+<td>
+join "room", using "nick" as nickname
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>leave</b>
+</td>
+<td>
+leave the current room
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>names</b>
+</td>
+<td>
+display members of the current room
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>remove</b>
+</td>
+<td>
+remove the current room from the roster.  You must have left this room before.
+</td>
+</tr>
+</table>
 </dd>
 <dt><b>
 /roster bottom|top|hide_offline|show_offline|toggle_offline
@@ -534,6 +574,16 @@ jump to the next unread message
         If a status message is specified, it will overrride the message*
         variables.
 </dd>
+<dt><b>
+/status_to jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
+</b></dt>
+<dd>
+        Send the requested status to the specified Jabber user.<br />
+        Note: this status will be overridden by subsequent "/status" commands.
+        If you are using the auto-away feature, the status will overridden
+        too.<br />
+        Note: The jid can include a resource (i.e. user@server/resource).
+</dd>
 </dl>
 <h2>CONFIGURATION FILE</h2>
 <p>See the provided sample configuration file, which should be self-documented.</p>
@@ -558,7 +608,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.6.9-dev<br />
-Last updated 20-Sep-2005 23:15:49 CEST
+Last updated 26-Sep-2005 00:06:42 CEST
 </p>
 </div>
 </div>

@@ -100,7 +100,7 @@ COMMANDS
         "/bind keycode" displays the command line bound to the given keycode;
         "/bind keycode" unbinds the given keycode. +
         Note: aliases can be used in key bindings. +
-        Example: "/bind 265 = status online" (265 is F1 for me, but it can
+        Example: "/bind 265 = status online" (265 is F1 for me, but it may
         depend on your ncurses installation).
 
 /buffer clear|top|bottom|search_backward|search_forward::
@@ -150,8 +150,8 @@ COMMANDS
         lines, the 'multi-line mode' should be used. +
         In multi-line mode, each line (except command lines) typed in the input
         line will be added to the multi-line message.  Once the message is
-        finished, it can be sent to the current selected buddy with the "msay
-        /send" command. +
+        finished, it can be sent to the current selected buddy with the "/msay
+        send" command. +
         The 'verbatim' multi-line mode disables commands, so that it is
         possible to enter lines starting with a slash.  Only the "/msay"
         command (with send or abort parameters) can be used to exit verbatim
@@ -171,7 +171,15 @@ COMMANDS
 /rename nickname::
         Rename current buddy to the given nickname.
         This command does not work for groups, at the moment (but you can move
-        the buddies to another group with the /move command).
+        the buddies to another group with the "/move" command).
+
+/room join|leave|names|remove::
+        The 'room' command handles Multi-User Chat room actions.
+
+        'join' room nick;;  join "room", using "nick" as nickname
+        'leave';;           leave the current room
+        'names';;           display members of the current room
+        'remove';;          remove the current room from the roster.  You must have left this room before.
 
 /roster bottom|top|hide_offline|show_offline|toggle_offline::
 /roster alternate|unread_first|unread_next::
@@ -199,6 +207,13 @@ COMMANDS
         current status. +
         If a status message is specified, it will overrride the message*
         variables.
+
+/status_to jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]::
+        Send the requested status to the specified Jabber user. +
+        Note: this status will be overridden by subsequent "/status" commands.
+        If you are using the auto-away feature, the status will overridden
+        too. +
+        Note: The jid can include a resource (i.e. user@server/resource).
 
 CONFIGURATION FILE
 ------------------

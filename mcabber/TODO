@@ -20,9 +20,18 @@ TODO:
 * Options completion
 * MUC: invitation
 * MUC: join password-protected room
+* MUC: show who sends us a private anonymous message
+* MUC: do not log private anonymous messages
+* MUC: default to not logging (that's done), and add an option
+       do not log history messages (i.e. if groupchat && timestamp)
+* MUC: get messages timestamps
+* MUC: display buddies status changes (including join/leave)
+* MUC: show if we're in or out of a room
+* MUC: nickname completion
+* MUC: get the room topic
+* MUC: hooks: use a new identifier for groupchat messages (ex. GMSG)
 
 * File transfer? :)
-* MUC (Conferences...)
 
 * Commands:
 
@@ -32,7 +41,6 @@ TODO:
   - /group expand|shrink|toggle
     + rename
   - /say_to jid blabla
-  - /status_to jid status [message]
   - /info [jid]
     (request info to the server if the buddy is not in the roster)
   - /server register|unregister

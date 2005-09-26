@@ -459,9 +459,14 @@ static void do_status_to(char *arg)
   while (*st && *st == ' ')
     st++;
 
-  // FIXME check id =~ jabber id
-  scr_LogPrint(LPRINT_LOGNORM, "Sending to <%s> /status %s", id, st);
-  setstatus(id, st);
+  if (check_jid_syntax(id)) {
+    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", id);
+  } else {
+    mc_strtolower(id);
+    scr_LogPrint(LPRINT_LOGNORM, "Sending to <%s> /status %s", id, st);
+    setstatus(id, st);
+  }
+  g_free(id);
 }
 
 static void do_add(char *arg)
@@ -480,11 +485,15 @@ static void do_add(char *arg)
       nick++;
   }
 
-  // FIXME check id =~ jabber id
-  // 2nd parameter = optional nickname
-  jb_addbuddy(id, nick, NULL);
-  scr_LogPrint(LPRINT_LOGNORM, "Sent presence notification request to <%s>",
-               id);
+  if (check_jid_syntax(id)) {
+    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", id);
+  } else {
+    mc_strtolower(id);
+    // 2nd parameter = optional nickname
+    jb_addbuddy(id, nick, NULL);
+    scr_LogPrint(LPRINT_LOGNORM, "Sent presence notification request to <%s>",
+                 id);
+  }
   g_free(id);
 }
 
@@ -943,12 +952,22 @@ static void do_room(char *arg)
       return;
     }
     // room syntax: "room@server/nick"
-    // FIXME: check roomid is a jid
     roomid = g_strdup_printf("%s/%s", roomname, nick);
+    if (check_jid_syntax(roomid)) {
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber room", roomid);
+      g_free(roomname);
+      g_free(roomid);
+      return;
+    }
+
+    mc_strtolower(roomid);
     jb_room_join(roomid);
+
+    // We need to save the nickname for future use
     roster_usr = roster_add_user(roomname, NULL, NULL, ROSTER_TYPE_ROOM);
     if (roster_usr)
       buddy_setnickname(roster_usr->data, nick);
+
     g_free(roomname);
     g_free(roomid);
     buddylist_build();

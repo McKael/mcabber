@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <ctype.h>
 
 #include <config.h>
 #include "logprint.h"
@@ -247,4 +248,74 @@ inline void safe_usleep(unsigned int usec)
   req.tv_sec = 0;
   req.tv_nsec = (long)usec * 1000L;
   nanosleep(&req, NULL);
+}
+
+/**
+ * Derived from libjabber/jid.c, because the libjabber version is not
+ * really convenient for our usage.
+ *
+ * Check if the full JID is valid
+ * Return 0 if it is valid, non zero otherwise
+ */
+int check_jid_syntax(char *jid)
+{
+  char *str;
+  char *domain, *resource;
+  int domlen;
+
+  if (!jid) return 1;
+
+  domain = strchr(jid, '@');
+  if (!domain) return 1;
+
+  /* node identifiers may not be longer than 1023 bytes */
+  if ((domain == jid) || (domain-jid > 1023))
+    return 1;
+  domain++;
+
+  /* check for low and invalid ascii characters in the username */
+  for (str = jid; *str != '@'; str++) {
+    if (*str <= 32 || *str == ':' || *str == '@' ||
+        *str == '<' || *str == '>' || *str == '\'' ||
+        *str == '"' || *str == '&') {
+      return 1;
+    }
+  }
+
+  /* the username is okay as far as we can tell without LIBIDN */
+
+  resource = strchr(domain, '/');
+
+  /* the resource is optional */
+  if (resource) {
+    domlen = resource - domain;
+    resource++;
+    /* resources may not be longer than 1023 bytes */
+    if ((*resource == '\0') || strlen(resource) > 1023)
+      return 1;
+  } else {
+    domlen = strlen(domain);
+  }
+
+  /* there must be a domain identifier */
+  if (domlen == 0) return 1;
+
+  /* and it must not be longer than 1023 bytes */
+  if (domlen > 1023) return 1;
+
+  /* make sure the hostname is valid characters */
+  for (str = domain; *str != '\0' && *str != '/'; str++) {
+    if (!(isalnum(*str) || *str == '.' || *str == '-' || *str == '_'))
+      return 1;
+  }
+
+  /* it's okay as far as we can tell without LIBIDN */
+  return 0;
+}
+
+void mc_strtolower(char *str)
+{
+  if (!str) return;
+  for ( ; *str; str++)
+    *str = tolower(*str);
 }

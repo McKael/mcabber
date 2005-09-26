@@ -80,8 +80,8 @@ inline void hk_message_in(const char *jid, const char *resname,
     hlog_write_message(jid, timestamp, FALSE, wmsg);
 
   // External command
-  if (!is_groupchat)
-    hk_ext_cmd(jid, 'M', 'R', NULL);
+  // XXX We should avoid calling the function for history lines in MUC
+  hk_ext_cmd(jid, (is_groupchat ? 'G' : 'M'), 'R', NULL);
 
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set
@@ -170,7 +170,10 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
           arg_info = "IN";
         else if (info == 'S')
           arg_info = "OUT";
-
+        break;
+    case 'G':
+        arg_type = "MSG";
+        arg_info = "MUC";
         break;
     case 'S':
         arg_type = "STATUS";

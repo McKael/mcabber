@@ -935,6 +935,11 @@ static void do_room(char *arg)
     for (; *arg && *arg == ' '; arg++)
       ;
 
+    if (strchr(arg, '/')) {
+      scr_LogPrint(LPRINT_NORMAL, "Invalid room name");
+      return;
+    }
+
     roomname = g_strdup(arg);
     nick = strchr(roomname, ' ');
     if (!nick) {

@@ -22,6 +22,9 @@ if [ $event == "MSG" ]; then
       # Incoming message from buddy $arg2
       $CMD_MSG_IN > /dev/null 2>&1
       ;;
+    MUC)
+      # Groupchat message in room $arg2
+      ;;
     OUT)
       # Outgoing message for buddy $arg2
       ;;

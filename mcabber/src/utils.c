@@ -266,23 +266,26 @@ int check_jid_syntax(char *jid)
   if (!jid) return 1;
 
   domain = strchr(jid, '@');
-  if (!domain) return 1;
 
-  /* node identifiers may not be longer than 1023 bytes */
-  if ((domain == jid) || (domain-jid > 1023))
-    return 1;
-  domain++;
-
-  /* check for low and invalid ascii characters in the username */
-  for (str = jid; *str != '@'; str++) {
-    if (*str <= 32 || *str == ':' || *str == '@' ||
-        *str == '<' || *str == '>' || *str == '\'' ||
-        *str == '"' || *str == '&') {
+  /* the username is optional */
+  if (!domain) {
+    domain = jid;
+  } else {
+    /* node identifiers may not be longer than 1023 bytes */
+    if ((domain == jid) || (domain-jid > 1023))
       return 1;
-    }
-  }
+    domain++;
 
-  /* the username is okay as far as we can tell without LIBIDN */
+    /* check for low and invalid ascii characters in the username */
+    for (str = jid; *str != '@'; str++) {
+      if (*str <= 32 || *str == ':' || *str == '@' ||
+              *str == '<' || *str == '>' || *str == '\'' ||
+              *str == '"' || *str == '&') {
+        return 1;
+      }
+    }
+    /* the username is okay as far as we can tell without LIBIDN */
+  }
 
   resource = strchr(domain, '/');
 

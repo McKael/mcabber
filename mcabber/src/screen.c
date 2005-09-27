@@ -750,7 +750,12 @@ void scr_DrawRoster(void)
         wattrset(rosterWnd, COLOR_PAIR(COLOR_BD_DES));
     }
 
-    if (ismuc) status = 'C';
+    if (ismuc) {
+      if (buddy_getresources(BUDDATA(buddy)))
+        status = 'C';
+      else
+        status = 'x';
+    }
 
     strncpy(name, buddy_getname(BUDDATA(buddy)), ROSTER_WIDTH-7);
     if (isgrp) {

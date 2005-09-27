@@ -80,8 +80,9 @@ inline void hk_message_in(const char *jid, const char *resname,
     hlog_write_message(jid, timestamp, FALSE, wmsg);
 
   // External command
-  // XXX We should avoid calling the function for history lines in MUC
-  hk_ext_cmd(jid, (is_groupchat ? 'G' : 'M'), 'R', NULL);
+  // (We do not call hk_ext_cmd() for history lines in MUC)
+  if (!is_groupchat || !timestamp)
+    hk_ext_cmd(jid, (is_groupchat ? 'G' : 'M'), 'R', NULL);
 
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set

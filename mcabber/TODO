@@ -24,11 +24,7 @@ TODO:
 * MUC: show who sends us a private anonymous message
 * MUC: do not log private anonymous messages
 * MUC: default to not logging (that's done), and add an option
-       do not log history messages (i.e. if groupchat && timestamp)
-       do not call external command for history messages
-* MUC: get messages timestamps
 * MUC: display buddies status changes (including join/leave)
-* MUC: show if we're in or out of a room
 * MUC: nickname completion
 * MUC: get the room topic
 

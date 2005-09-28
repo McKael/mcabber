@@ -902,10 +902,17 @@ static void do_bind(char *arg)
 static void do_rawxml(char *arg)
 {
   if (!strncasecmp(arg, "send ", 5))  {
+    gchar *buffer;
     for (arg += 5; *arg && *arg == ' '; arg++)
       ;
+    buffer = g_locale_to_utf8(arg, -1, NULL, NULL, NULL);
+    if (!buffer) {
+      scr_LogPrint(LPRINT_NORMAL, "Conversion error in XML string");
+      return;
+    }
     scr_LogPrint(LPRINT_NORMAL, "Sending XML string");
-    jb_send_raw(arg);
+    jb_send_raw(buffer);
+    g_free(buffer);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Please read the manual page"
                  " before using /rawxml :-)");

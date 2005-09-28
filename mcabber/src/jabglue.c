@@ -175,7 +175,7 @@ inline void jb_reset_keepalive()
 
 void jb_send_raw(const char *str)
 {
-  if (jc && online)
+  if (jc && online && str)
     jab_send_raw(jc, str);
 }
 

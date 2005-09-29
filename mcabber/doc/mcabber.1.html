@@ -224,7 +224,7 @@ Jump to the next unread message
         depend on your ncurses installation).
 </dd>
 <dt><b>
-/buffer clear|top|bottom|search_backward|search_forward
+/buffer clear|top|bottom|search_backward|search_forward|date|%
 </b></dt>
 <dd>
         The <b>buffer</b> command manipulates the current buddy's buffer
@@ -268,6 +268,22 @@ search for text in the current buddy chat buffer
 </td>
 <td>
 search for text in the current buddy chat buffer
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>date</b> date
+</td>
+<td>
+jump to the first line after the specified date in the chat buffer (date format: "YYYY-mm-dd[THH:MM:SS]", "-" and ":" are optional)
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>%</b> n
+</td>
+<td>
+jump to position %n of the buddy chat buffer
 </td>
 </tr>
 </table>
@@ -608,7 +624,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.6.9-dev<br />
-Last updated 26-Sep-2005 00:06:42 CEST
+Last updated 29-Sep-2005 22:43:43 CEST
 </p>
 </div>
 </div>

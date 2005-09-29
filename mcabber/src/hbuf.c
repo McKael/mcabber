@@ -295,3 +295,15 @@ GList *hbuf_search(GList *hbuf, int direction, const char *string)
 
   return hbuf;
 }
+
+//  hbuf_jump_percent(hbuf, pc)
+// Return a pointer to the line at % pc of the history buffer
+GList *hbuf_jump_percent(GList *hbuf, int pc)
+{
+  guint hlen;
+
+  hbuf = g_list_first(hbuf);
+  hlen = g_list_length(hbuf);
+
+  return g_list_nth(hbuf, pc*hlen/100);
+}

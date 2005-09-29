@@ -1093,6 +1093,36 @@ void scr_BufferSearch(int direction, const char *text)
     scr_LogPrint(LPRINT_NORMAL, "Search string not found");
 }
 
+//  scr_BufferPercent(n)
+// Jump to the specified position in the buffer, in %
+void scr_BufferPercent(int pc)
+{
+  window_entry_t *win_entry;
+  GList *search_res;
+
+  // Get win_entry
+  if (!current_buddy) return;
+  win_entry  = scr_SearchWindow(CURRENT_JID);
+  if (!win_entry) return;
+
+  if (pc < 0 || pc > 100) {
+    scr_LogPrint(LPRINT_NORMAL, "Bad % value");
+    return;
+  }
+
+  search_res = hbuf_jump_percent(win_entry->hbuf, pc);
+
+  win_entry->cleared = FALSE;
+  win_entry->top = search_res;
+
+  // Refresh the window
+  scr_UpdateWindow(win_entry);
+
+  // Finished :)
+  update_panels();
+  doupdate();
+}
+
 //  scr_set_chatmode()
 // Public function to (un)set chatmode...
 inline void scr_set_chatmode(int enable)

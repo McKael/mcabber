@@ -136,6 +136,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_BUFFER, "top");
   compl_add_category_word(COMPL_BUFFER, "search_backward");
   compl_add_category_word(COMPL_BUFFER, "search_forward");
+  compl_add_category_word(COMPL_BUFFER, "%");
 
   // Group category
   compl_add_category_word(COMPL_GROUP, "fold");
@@ -657,6 +658,13 @@ static void do_buffer(char *arg)
     arg += 14;
     if (*arg++ == ' ')
       search_dir = 1;
+    else
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+  } else if (*arg == '%') {
+    arg++;
+    while (*arg == ' ') arg++;
+    if (*arg)
+      scr_BufferPercent(atoi(arg));
     else
       scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
   } else

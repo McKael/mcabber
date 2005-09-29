@@ -35,5 +35,6 @@ GList *hbuf_previous_persistent(GList *l_line);
 
 hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n);
 GList *hbuf_search(GList *hbuf, int direction, const char *string);
+GList *hbuf_jump_percent(GList *hbuf, int pc);
 
 #endif /* __HBUF_H__ */

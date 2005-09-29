@@ -13,12 +13,12 @@ TODO:
 * Pending message flag is not displayed when buddy is outside Contact window,
   maybe we could show it someway (maybe just a flag?).
 * Show number of online contacts in folded groups
-* Buddy buffer in full width (handy for copy'n paste!)
+* Buddy buffer in full width (useful for copy'n paste!)
   (i.e. hide roster window)
 * Publish personal information
 * Show status changes in buddy window (if open)?
 * Options completion
-* /rawxml: utf8-encode user's text
+* MUC: advanced settings for room creation
 * MUC: invitation
 * MUC: join password-protected room
 * MUC: show who sends us a private anonymous message
@@ -32,9 +32,6 @@ TODO:
 
 * Commands:
 
-  - /buffer clear|top|bottom
-    + /buffer % 50          (jump to 50 %)
-    + /buffer date $date    (jump to first msg after $date)
   - /group expand|shrink|toggle
     + rename
   - /say_to jid blabla

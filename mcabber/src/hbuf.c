@@ -296,6 +296,22 @@ GList *hbuf_search(GList *hbuf, int direction, const char *string)
   return hbuf;
 }
 
+//  hbuf_jump_date(hbuf, t)
+// Return a pointer to the first line after date t in the history buffer
+GList *hbuf_jump_date(GList *hbuf, time_t t)
+{
+  hbuf_block *blk;
+
+  hbuf = g_list_first(hbuf);
+
+  for ( ; hbuf && g_list_next(hbuf); hbuf = g_list_next(hbuf)) {
+    blk = (hbuf_block*)(hbuf->data);
+    if (blk->prefix.timestamp >= t) break;
+  }
+
+  return hbuf;
+}
+
 //  hbuf_jump_percent(hbuf, pc)
 // Return a pointer to the line at % pc of the history buffer
 GList *hbuf_jump_percent(GList *hbuf, int pc)

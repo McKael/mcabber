@@ -55,6 +55,7 @@ void scr_BufferTopBottom(int topbottom);
 void scr_BufferClear(void);
 void scr_BufferSearch(int direction, const char *text);
 void scr_BufferPercent(int pc);
+void scr_BufferDate(time_t t);
 void scr_RosterUnreadMessage(int);
 void scr_RosterJumpAlternate(void);
 

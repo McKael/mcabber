@@ -136,6 +136,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_BUFFER, "top");
   compl_add_category_word(COMPL_BUFFER, "search_backward");
   compl_add_category_word(COMPL_BUFFER, "search_forward");
+  compl_add_category_word(COMPL_BUFFER, "date");
   compl_add_category_word(COMPL_BUFFER, "%");
 
   // Group category
@@ -658,6 +659,22 @@ static void do_buffer(char *arg)
     arg += 14;
     if (*arg++ == ' ')
       search_dir = 1;
+    else
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+  } else if (!strncasecmp(arg, "date", 4)) {
+    arg += 4;
+    if (*arg++ != ' ') {
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+      return;
+    }
+    while (*arg == ' ') arg++;
+    if (*arg) {
+      time_t t = from_iso8601(arg, 0);
+      if (t)
+        scr_BufferDate(t);
+      else
+        scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+    }
     else
       scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
   } else if (*arg == '%') {

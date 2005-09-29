@@ -1123,6 +1123,32 @@ void scr_BufferPercent(int pc)
   doupdate();
 }
 
+//  scr_BufferDate(t)
+// Jump to the first line after date t in the buffer
+// t is a date in seconds since `00:00:00 1970-01-01 UTC'
+void scr_BufferDate(time_t t)
+{
+  window_entry_t *win_entry;
+  GList *search_res;
+
+  // Get win_entry
+  if (!current_buddy) return;
+  win_entry  = scr_SearchWindow(CURRENT_JID);
+  if (!win_entry) return;
+
+  search_res = hbuf_jump_date(win_entry->hbuf, t);
+
+  win_entry->cleared = FALSE;
+  win_entry->top = search_res;
+
+  // Refresh the window
+  scr_UpdateWindow(win_entry);
+
+  // Finished :)
+  update_panels();
+  doupdate();
+}
+
 //  scr_set_chatmode()
 // Public function to (un)set chatmode...
 inline void scr_set_chatmode(int enable)

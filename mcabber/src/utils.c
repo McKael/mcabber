@@ -178,6 +178,9 @@ time_t from_iso8601(const char *timestamp, int utc)
   time(&retval);
   localtime_r(&retval, &t);
 
+  /* Reset time to midnight (00:00:00) */
+  t.tm_hour = t.tm_min = t.tm_sec = 0;
+
   snprintf(buf, sizeof(buf), "%s", timestamp);
   c = buf;
 

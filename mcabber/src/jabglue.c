@@ -36,9 +36,6 @@
 
 #define JABBER_AGENT_GROUP "Jabber Agents"
 
-#define to_utf8(s)   ((s) ? g_locale_to_utf8((s),   -1, NULL,NULL,NULL) : NULL)
-#define from_utf8(s) ((s) ? g_locale_from_utf8((s), -1, NULL,NULL,NULL) : NULL)
-
 jconn jc;
 static time_t LastPingTime;
 static unsigned int KeepaliveDelay;
@@ -126,6 +123,7 @@ char *compose_jid(const char *username, const char *servername,
 jconn jb_connect(const char *jid, const char *server, unsigned int port,
                  int ssl, const char *pass)
 {
+  char *utf8_jid;
   if (!port) {
     if (ssl)
       port = JABBERSSLPORT;
@@ -135,8 +133,12 @@ jconn jb_connect(const char *jid, const char *server, unsigned int port,
 
   jb_disconnect();
 
+  utf8_jid = to_utf8(jid);
+  if (!utf8_jid) return jc;
+
   s_id = 1;
-  jc = jab_new((char*)jid, (char*)pass, (char*)server, port, ssl);
+  jc = jab_new(utf8_jid, (char*)pass, (char*)server, port, ssl);
+  g_free(utf8_jid);
 
   /* These 3 functions can deal with a NULL jc, no worry... */
   jab_logger(jc, logger);
@@ -470,23 +472,40 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
 }
 
 // Join a MUC room
-// room syntax: "room@server/nick"
-void jb_room_join(const char *room)
+void jb_room_join(const char *room, const char *nickname)
 {
   xmlnode x, y;
+  gchar *roomid, *utf8_nickname;
+  GSList *roster_usr;
 
-  if (!online) return;
-  if (!room)   return;
+  if (!online || !room || !nickname) return;
 
+  utf8_nickname = to_utf8(nickname);
+  roomid = g_strdup_printf("%s/%s", room, utf8_nickname);
+  g_free(utf8_nickname);
+  if (check_jid_syntax(roomid)) {
+    scr_LogPrint(LPRINT_NORMAL, "<%s/%s> is not a valid Jabber room", room,
+                 nickname);
+    g_free(roomid);
+    return;
+  }
+
+  // We need to save the nickname for future use
+  roster_usr = roster_add_user(room, NULL, NULL, ROSTER_TYPE_ROOM);
+  if (roster_usr)
+    buddy_setnickname(roster_usr->data, nickname);
+
+  // Send the XML request
   x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
   xmlnode_put_attrib(x, "from", jid_full(jc->user));
-  xmlnode_put_attrib(x, "to", room);
+  xmlnode_put_attrib(x, "to", roomid);
   y = xmlnode_insert_tag(x, "x");
   xmlnode_put_attrib(y, "xmlns", "http://jabber.org/protocol/muc");
 
   jab_send(jc, x);
   xmlnode_free(x);
   jb_reset_keepalive();
+  g_free(roomid);
 }
 
 // Unlock a MUC room
@@ -777,11 +796,36 @@ void packethandler(jconn conn, jpacket packet)
   enum imstatus ust;
   char bpprio;
 
-  jb_reset_keepalive(); // reset keepalive delay
+  jb_reset_keepalive(); // reset keepalive timeout
   jpacket_reset(packet);
 
-  p = xmlnode_get_attrib(packet->x, "from"); if (p) from = p;
   p = xmlnode_get_attrib(packet->x, "type"); if (p) type = p;
+  p = xmlnode_get_attrib(packet->x, "from");
+  if (p) {   // Convert from UTF8
+    // We need to be careful because from_utf8() can fail on some chars
+    // Thus we only convert the resource part
+    from = g_new0(char, strlen(p)+1);
+    strcpy(from, p);
+    r = strchr(from, '/');
+    m = strchr(p, '/');
+    if (m++) {
+      s = from_utf8(m);
+      if (s) {
+        // The length should be enough because from_utf should only
+        // reduce the string length
+        strcpy(r+1, s);
+        g_free(s);
+      } else {
+        *(r+1) = 0;
+        scr_LogPrint(LPRINT_LOGNORM, "Decoding of message sender has failed");
+      }
+    }
+  }
+
+  if (!from && packet->type != JPACKET_IQ) {
+    scr_LogPrint(LPRINT_LOGNORM, "Error in packet (could be UTF8-related)");
+    return;
+  }
 
   switch (packet->type) {
     case JPACKET_MESSAGE:
@@ -1053,10 +1097,15 @@ void packethandler(jconn conn, jpacket packet)
             p = xmlnode_get_attrib(y, "code");
             if (p && !strcmp(p, "303")) {
               gchar *mbuf;
-              mbuf = g_strdup_printf("%s is now known as %s", rname, mbnewnick);
+              gchar *newname_noutf8 = from_utf8(mbnewnick);
+              mbuf = g_strdup_printf("%s is now known as %s", rname,
+                      (newname_noutf8 ? newname_noutf8 : "(?)"));
               scr_WriteIncomingMessage(r, mbuf, 0, HBB_PREFIX_INFO);
               g_free(mbuf);
-              buddy_resource_setname(room_elt->data, rname, mbnewnick);
+              if (newname_noutf8) {
+                buddy_resource_setname(room_elt->data, rname, newname_noutf8);
+                g_free(newname_noutf8);
+              }
             }
           }
 
@@ -1128,5 +1177,6 @@ void packethandler(jconn conn, jpacket packet)
     default:
         break;
   }
+  g_free(from);
 }
 

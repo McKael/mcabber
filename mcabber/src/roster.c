@@ -754,7 +754,7 @@ const char *buddy_getname(gpointer rosterdata)
   return roster_usr->name;
 }
 
-void buddy_setnickname(gpointer rosterdata, char *newname)
+void buddy_setnickname(gpointer rosterdata, const char *newname)
 {
   roster *roster_usr = rosterdata;
 

@@ -69,7 +69,7 @@ inline int buddylist_get_hide_offline_buddies(void);
 const char *buddy_getjid(gpointer rosterdata);
 void        buddy_setname(gpointer rosterdata, char *newname);
 const char *buddy_getname(gpointer rosterdata);
-void        buddy_setnickname(gpointer rosterdata, char *newname);
+void        buddy_setnickname(gpointer rosterdata, const char *newname);
 const char *buddy_getnickname(gpointer rosterdata);
 guint   buddy_gettype(gpointer rosterdata);
 void    buddy_setgroup(gpointer rosterdata, char *newgroupname);

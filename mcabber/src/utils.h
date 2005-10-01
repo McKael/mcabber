@@ -1,6 +1,9 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__ 1
 
+#define to_utf8(s)   ((s) ? g_locale_to_utf8((s),   -1, NULL,NULL,NULL) : NULL)
+#define from_utf8(s) ((s) ? g_locale_from_utf8((s), -1, NULL,NULL,NULL) : NULL)
+
 void ut_InitDebug(unsigned int level, const char *file);
 void ut_WriteLog(unsigned int flag, const char *data);
 

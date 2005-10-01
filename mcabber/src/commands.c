@@ -930,7 +930,7 @@ static void do_rawxml(char *arg)
     gchar *buffer;
     for (arg += 5; *arg && *arg == ' '; arg++)
       ;
-    buffer = g_locale_to_utf8(arg, -1, NULL, NULL, NULL);
+    buffer = to_utf8(arg);
     if (!buffer) {
       scr_LogPrint(LPRINT_NORMAL, "Conversion error in XML string");
       return;
@@ -956,8 +956,7 @@ static void do_room(char *arg)
   bud = BUDDATA(current_buddy);
 
   if (!strncasecmp(arg, "join", 4))  {
-    GSList *roster_usr;
-    char *roomname, *nick, *roomid;
+    char *roomname, *nick;
 
     arg += 4;
     if (*arg++ != ' ') {
@@ -988,29 +987,15 @@ static void do_room(char *arg)
       g_free(roomname);
       return;
     }
-    // room syntax: "room@server/nick"
-    roomid = g_strdup_printf("%s/%s", roomname, nick);
-    if (check_jid_syntax(roomid)) {
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber room", roomid);
-      g_free(roomname);
-      g_free(roomid);
-      return;
-    }
 
-    mc_strtolower(roomid);
-    jb_room_join(roomid);
-
-    // We need to save the nickname for future use
-    roster_usr = roster_add_user(roomname, NULL, NULL, ROSTER_TYPE_ROOM);
-    if (roster_usr)
-      buddy_setnickname(roster_usr->data, nick);
+    mc_strtolower(roomname);
+    jb_room_join(roomname, nick);
 
     g_free(roomname);
-    g_free(roomid);
     buddylist_build();
     update_roster = TRUE;
   } else if (!strncasecmp(arg, "leave", 5))  {
-    char *roomid;
+    gchar *roomid, *utf8_nickname;
     arg += 5;
     for (; *arg && *arg == ' '; arg++)
       ;
@@ -1018,9 +1003,10 @@ static void do_room(char *arg)
       scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
       return;
     }
-    roomid = g_strdup_printf("%s/%s", buddy_getjid(bud),
-                             buddy_getnickname(bud));
+    utf8_nickname = to_utf8(buddy_getnickname(bud));
+    roomid = g_strdup_printf("%s/%s", buddy_getjid(bud), utf8_nickname);
     jb_setstatus(offline, roomid, arg);
+    g_free(utf8_nickname);
     g_free(roomid);
     buddy_setnickname(bud, NULL);
     buddy_del_all_resources(bud);

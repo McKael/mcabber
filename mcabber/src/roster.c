@@ -370,8 +370,11 @@ void roster_free(void)
   }
 }
 
+//  roster_setstatus()
+// Note: resname, role and realjid are for room members only
 void roster_setstatus(const char *jid, const char *resname, gchar prio,
-                      enum imstatus bstat, const char *status_msg)
+                      enum imstatus bstat, const char *status_msg,
+                      enum imrole role, const char *realjid)
 {
   GSList *sl_user;
   roster *roster_usr;
@@ -403,6 +406,15 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
   }
   if (status_msg)
     p_res->status_msg = g_strdup(status_msg);
+
+  p_res->role = role;
+
+  if (p_res->realjid) {
+    g_free((gchar*)p_res->realjid);
+    p_res->realjid = NULL;
+  }
+  if (realjid)
+    p_res->realjid = g_strdup(realjid);
 }
 
 //  roster_setflags()
@@ -833,6 +845,23 @@ GSList *buddy_getresources(gpointer rosterdata)
     reslist = g_slist_append(reslist, g_strdup(((res*)lp->data)->name));
 
   return reslist;
+}
+
+//  buddy_resource_setname(roster_data, oldname, newname)
+// Useful for nickname change in a MUC room
+void buddy_resource_setname(gpointer rosterdata, const char *resname,
+                            const char *newname)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res) {
+    if (p_res->name) {
+      g_free((gchar*)p_res->name);
+      p_res->name = NULL;
+    }
+    if (newname)
+      p_res->name = g_strdup(newname);
+  }
 }
 
 //  buddy_del_all_resources()

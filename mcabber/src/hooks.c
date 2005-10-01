@@ -114,7 +114,7 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
                imstatus2char[roster_getstatus(jid, resname)],
                imstatus2char[status], jid, rn,
                ((status_msg) ? status_msg : ""));
-  roster_setstatus(jid, rn, prio, status, status_msg);
+  roster_setstatus(jid, rn, prio, status, status_msg, role_none, NULL);
   buddylist_build();
   scr_DrawRoster();
   hlog_write_status(jid, 0, status, status_msg);

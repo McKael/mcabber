@@ -53,7 +53,8 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type);
 void    roster_del_user(const char *jid);
 void    roster_free(void);
 void    roster_setstatus(const char *jid, const char *resname, gchar prio,
-                         enum imstatus bstat, const char *status_msg);
+                         enum imstatus bstat, const char *status_msg,
+                         enum imrole role, const char *realjid);
 void    roster_setflags(const char *jid, guint flags, guint value);
 void    roster_msg_setflag(const char *jid, guint value);
 void    roster_settype(const char *jid, guint type);
@@ -78,6 +79,8 @@ enum imstatus buddy_getstatus(gpointer rosterdata, const char *resname);
 const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname);
 gchar   buddy_getresourceprio(gpointer rosterdata, const char *resname);
 GSList *buddy_getresources(gpointer rosterdata);
+void    buddy_resource_setname(gpointer rosterdata, const char *resname,
+                               const char *newname);
 void    buddy_del_all_resources(gpointer rosterdata);
 void    buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint   buddy_getflags(gpointer rosterdata);

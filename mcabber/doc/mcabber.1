@@ -47,6 +47,9 @@ Here are some of the features of mcabber:
  SSL support\&.
 .TP
 \(bu
+ MUC support (Multi\-User Chat)\&.
+.TP
+\(bu
  History logging: If enabled (see the CONFIGURATION FILE section), mcabber can save discussions to history log files\&.
 .TP
 \(bu
@@ -197,13 +200,14 @@ Rename current buddy to the given nickname\&. This command does not work for gro
 
 
 .TP
-\fB/room\fR join|leave|names|remove
+\fB/room\fR join|leave|names|remove|unlock
 The room command handles Multi\-User Chat room actions\&.
 
  \fBjoin\fR room nick	join "room", using "nick" as nickname
  \fBleave\fR         	leave the current room
  \fBnames\fR         	display members of the current room
- \fBremove\fR        	remove the current room from the roster\&. You must have left this room before\&.
+ \fBremove\fR        	remove the current room from the roster (you must have left this room before)
+ \fBunlock\fR        	unlock current room (if you are the owner)
 
 .TP
 \fB/roster\fR

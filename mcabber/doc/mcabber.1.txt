@@ -32,6 +32,7 @@ key.  Simply sending a message will also enable chat mode.
 Here are some of the features of `mcabber`:
 
 - 'SSL support'.
+- 'MUC support' (Multi-User Chat).
 - 'History logging:'  If enabled (see the CONFIGURATION FILE section),
   `mcabber` can save discussions to history log files.
 - 'Commands completion:'  If possible, `mcabber` will try to complete your
@@ -175,13 +176,14 @@ COMMANDS
         This command does not work for groups, at the moment (but you can move
         the buddies to another group with the "/move" command).
 
-/room join|leave|names|remove::
+/room join|leave|names|remove|unlock::
         The 'room' command handles Multi-User Chat room actions.
 
         'join' room nick;;  join "room", using "nick" as nickname
         'leave';;           leave the current room
         'names';;           display members of the current room
-        'remove';;          remove the current room from the roster.  You must have left this room before.
+        'remove';;          remove the current room from the roster (you must have left this room before)
+        'unlock';;          unlock current room (if you are the owner)
 
 /roster bottom|top|hide_offline|show_offline|toggle_offline::
 /roster alternate|unread_first|unread_next::

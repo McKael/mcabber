@@ -154,6 +154,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROOM, "join");
   compl_add_category_word(COMPL_ROOM, "leave");
   compl_add_category_word(COMPL_ROOM, "names");
+  compl_add_category_word(COMPL_ROOM, "nick");
   compl_add_category_word(COMPL_ROOM, "remove");
   compl_add_category_word(COMPL_ROOM, "unlock");
 }
@@ -1017,6 +1018,22 @@ static void do_room(char *arg)
       return;
     }
     do_info(NULL);
+  } else if (!strncasecmp(arg, "nick", 4))  {
+    gchar *cmd;
+    arg += 4;
+    if (*arg++ != ' ') {
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+      return;
+    }
+    for (; *arg && *arg == ' '; arg++)
+      ;
+    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
+      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+      return;
+    }
+    cmd = g_strdup_printf("join %s %s", buddy_getjid(bud), arg);
+    do_room(cmd);
+    g_free(cmd);
   } else if (!strcasecmp(arg, "remove"))  {
     if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
       scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");

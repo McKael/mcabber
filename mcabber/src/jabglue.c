@@ -476,7 +476,6 @@ void jb_room_join(const char *room, const char *nickname)
 {
   xmlnode x, y;
   gchar *roomid, *utf8_nickname;
-  GSList *roster_usr;
 
   if (!online || !room || !nickname) return;
 
@@ -489,11 +488,6 @@ void jb_room_join(const char *room, const char *nickname)
     g_free(roomid);
     return;
   }
-
-  // We need to save the nickname for future use
-  roster_usr = roster_add_user(room, NULL, NULL, ROSTER_TYPE_ROOM);
-  if (roster_usr)
-    buddy_setnickname(roster_usr->data, nickname);
 
   // Send the XML request
   x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
@@ -1104,6 +1098,9 @@ void packethandler(jconn conn, jpacket packet)
               g_free(mbuf);
               if (newname_noutf8) {
                 buddy_resource_setname(room_elt->data, rname, newname_noutf8);
+                m = buddy_getnickname(room_elt->data);
+                if (m && !strcmp(rname, m))
+                  buddy_setnickname(room_elt->data, newname_noutf8);
                 g_free(newname_noutf8);
               }
             }
@@ -1116,7 +1113,13 @@ void packethandler(jconn conn, jpacket packet)
             g_free(mbuf);
           } else if (buddy_getstatus(room_elt->data, rname) == offline &&
                      ust != offline) {
-            gchar *mbuf = g_strdup_printf("%s has joined", rname);
+            gchar *mbuf;
+            if (buddy_getnickname(room_elt->data) == NULL) {
+              buddy_setnickname(room_elt->data, rname);
+              mbuf = g_strdup_printf("You have joined as \"%s\"", rname);
+            } else {
+              mbuf = g_strdup_printf("%s has joined", rname);
+            }
             scr_WriteIncomingMessage(r, mbuf, 0, HBB_PREFIX_INFO);
             g_free(mbuf);
           }

@@ -231,6 +231,11 @@ void send_message(const char *msg)
 {
   const char *jid;
 
+  if (!jb_getonline()) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    return;
+  }
+
   if (!current_buddy) {
     scr_LogPrint(LPRINT_NORMAL, "No buddy currently selected.");
     return;
@@ -403,6 +408,11 @@ static void setstatus(const char *recipient, const char *arg)
   int len;
   char *msg;
 
+  if (!jb_getonline()) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    return;
+  }
+
   msg = strchr(arg, ' ');
   if (!msg)
     len = strlen(arg);
@@ -475,6 +485,12 @@ static void do_status_to(char *arg)
 static void do_add(char *arg)
 {
   char *id, *nick;
+
+  if (!jb_getonline()) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    return;
+  }
+
   if (!arg || (!*arg)) {
     scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
     return;
@@ -928,6 +944,11 @@ static void do_bind(char *arg)
 
 static void do_rawxml(char *arg)
 {
+  if (!jb_getonline()) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    return;
+  }
+
   if (!strncasecmp(arg, "send ", 5))  {
     gchar *buffer;
     for (arg += 5; *arg && *arg == ' '; arg++)
@@ -949,6 +970,11 @@ static void do_rawxml(char *arg)
 static void do_room(char *arg)
 {
   gpointer bud;
+
+  if (!jb_getonline()) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    return;
+  }
 
   if (!arg || (!*arg)) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter");

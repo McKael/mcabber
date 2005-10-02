@@ -40,6 +40,7 @@ char *compose_jid(const char *username, const char *servername,
                   const char *resource);
 jconn jb_connect(const char *jid, const char *server, unsigned int port,
                  int ssl, const char *pass);
+inline unsigned char jb_getonline(void);
 void jb_disconnect(void);
 void jb_main();
 void jb_addbuddy(const char *jid, const char *name, const char *group);

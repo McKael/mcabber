@@ -43,7 +43,7 @@ static unsigned int prio;
 static int s_id;
 static int regmode, regdone;
 static enum imstatus mystatus = offline;
-unsigned char online;
+static unsigned char online;
 
 char imstatus2char[imstatus_size+1] = {
     '_', 'o', 'i', 'f', 'd', 'n', 'a', '\0'
@@ -118,6 +118,11 @@ char *compose_jid(const char *username, const char *servername,
   strcat(jid, "/");
   strcat(jid, resource);
   return jid;
+}
+
+inline unsigned char jb_getonline(void)
+{
+  return online;
 }
 
 jconn jb_connect(const char *jid, const char *server, unsigned int port,
@@ -340,6 +345,8 @@ void jb_send_msg(const char *jid, const char *text, int type)
   gchar *strtype;
   gchar *buffer = to_utf8(text);
 
+  if (!online) return;
+
   if (type == ROSTER_TYPE_ROOM)
     strtype = TMSG_GROUPCHAT;
   else
@@ -477,7 +484,8 @@ void jb_room_join(const char *room, const char *nickname)
   xmlnode x, y;
   gchar *roomid, *utf8_nickname;
 
-  if (!online || !room || !nickname) return;
+  if (!online || !room) return;
+  if (!nickname)        return;
 
   utf8_nickname = to_utf8(nickname);
   roomid = g_strdup_printf("%s/%s", room, utf8_nickname);
@@ -508,8 +516,7 @@ void jb_room_unlock(const char *room)
 {
   xmlnode x, y, z;
 
-  if (!online) return;
-  if (!room)   return;
+  if (!online || !room) return;
 
   x = jutil_iqnew(JPACKET__SET, "http://jabber.org/protocol/muc#owner");
   xmlnode_put_attrib(x, "id", "unlock1"); // XXX

@@ -176,7 +176,7 @@ COMMANDS
         This command does not work for groups, at the moment (but you can move
         the buddies to another group with the "/move" command).
 
-/room join|leave|names|nick|remove|unlock::
+/room join|leave|names|nick|remove|topic|unlock::
         The 'room' command handles Multi-User Chat room actions.
 
         'join' room nick;;  join "room", using "nick" as nickname
@@ -184,6 +184,7 @@ COMMANDS
         'names';;           display members of the current room
         'nick' nick;;       change your nickname in the current room
         'remove';;          remove the current room from the roster (you must have left this room before)
+        'topic';;           set topic for current room
         'unlock';;          unlock current room (if you are the owner)
 
 /roster bottom|top|hide_offline|show_offline|toggle_offline::

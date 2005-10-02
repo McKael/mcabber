@@ -48,7 +48,8 @@ void jb_delbuddy(const char *jid);
 void jb_updatebuddy(const char *jid, const char *name, const char *group);
 inline enum imstatus jb_getstatus();
 void jb_setstatus(enum imstatus st, const char *recipient, const char *msg);
-void jb_send_msg(const char *jid, const char *text, int type);
+void jb_send_msg(const char *jid, const char *text, int type,
+                 const char *subject);
 void jb_send_raw(const char *str);
 void jb_keepalive();
 inline void jb_reset_keepalive();

@@ -340,8 +340,10 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
   mystatus = st;
 }
 
-void jb_send_msg(const char *jid, const char *text, int type)
+void jb_send_msg(const char *jid, const char *text, int type,
+                 const char *subject)
 {
+  xmlnode x;
   gchar *strtype;
   gchar *buffer = to_utf8(text);
 
@@ -352,7 +354,14 @@ void jb_send_msg(const char *jid, const char *text, int type)
   else
     strtype = TMSG_CHAT;
 
-  xmlnode x = jutil_msgnew(strtype, (char*)jid, 0, (char*)buffer);
+  x = jutil_msgnew(strtype, (char*)jid, 0, (char*)buffer);
+  if (subject) {
+    xmlnode y;
+    char *bs = to_utf8(subject);
+    y = xmlnode_insert_tag(x, "subject");
+    xmlnode_insert_cdata(y, bs, (unsigned) -1);
+    if (bs) g_free(bs);
+  }
   jab_send(jc, x);
   xmlnode_free(x);
   g_free(buffer);
@@ -838,9 +847,22 @@ void packethandler(jconn conn, jpacket packet)
 
           p = xmlnode_get_tag_data(packet->x, "subject");
           if (p != NULL) {
-            if (type && !strcmp(type, "groupchat")) {
-              // That's a room topic
-            } else {
+            if (type && !strcmp(type, TMSG_GROUPCHAT)) {  // Room topic
+              gchar *mbuf;
+              gchar *subj_noutf8 = from_utf8(p);
+              // Get the room (s) and the nickname (r)
+              s = g_strdup(from);
+              r = strchr(s, '/');
+              if (r) *r++ = 0;
+              else   r = s;
+              // Display inside the room window
+              mbuf = g_strdup_printf("%s has set the topic to: %s", r,
+                      (subj_noutf8 ? subj_noutf8 : "(?)"));
+              scr_WriteIncomingMessage(s, mbuf, 0, HBB_PREFIX_INFO);
+              if (subj_noutf8) g_free(subj_noutf8);
+              g_free(s);
+              g_free(mbuf);
+            } else {                                      // Chat message
               tmp = g_new(char, (body ? strlen(body) : 0) + strlen(p) + 4);
               *tmp = '[';
               strcpy(tmp+1, p);

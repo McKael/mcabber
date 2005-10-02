@@ -156,6 +156,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROOM, "names");
   compl_add_category_word(COMPL_ROOM, "nick");
   compl_add_category_word(COMPL_ROOM, "remove");
+  compl_add_category_word(COMPL_ROOM, "topic");
   compl_add_category_word(COMPL_ROOM, "unlock");
 }
 
@@ -253,7 +254,7 @@ void send_message(const char *msg)
   }
 
   // Network part
-  jb_send_msg(jid, msg, buddy_gettype(BUDDATA(current_buddy)));
+  jb_send_msg(jid, msg, buddy_gettype(BUDDATA(current_buddy)), NULL);
 }
 
 //  process_command(line)
@@ -1082,6 +1083,22 @@ static void do_room(char *arg)
       return;
     }
     jb_room_unlock(buddy_getjid(bud));
+  } else if (!strncasecmp(arg, "topic", 5))  {
+    gchar *msg;
+    arg += 5;
+    if (*arg++ != ' ') {
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+      return;
+    }
+    for (; *arg && *arg == ' '; arg++)
+      ;
+    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
+      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+      return;
+    }
+    msg = g_strdup_printf("/me has set the topic to: %s", arg);
+    jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg);
+    g_free(msg);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

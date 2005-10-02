@@ -6,10 +6,11 @@ BUGS:
 
 TODO:
 
-* Implement automatic reconnection after network failure
-* Presence notification is always accepted.  We should ask...
 * UTF-8 support (Can somebody help me?)
-* Display status / chat mode
+* Implement automatic reconnection after network failure
+  Note: "New message" flags are currently lost on connection failure
+* Presence notification is always accepted.  We should ask...
+* Display status / chat mode (a status line would be great)
 * Pending message flag is not displayed when buddy is outside Contact window,
   maybe we could show it someway (maybe just a flag?).
 * Show number of online contacts in folded groups
@@ -24,9 +25,7 @@ TODO:
 * MUC: show who sends us a private anonymous message
 * MUC: do not log private anonymous messages
 * MUC: default to not logging (that's done), and add an option
-* MUC: display buddies status changes (including join/leave)
 * MUC: nickname completion
-* MUC: get the room topic
 
 * File transfer? :)
 
@@ -42,5 +41,4 @@ TODO:
   - /search <jid>|name
     (server search)
   - /help
-  - /room join|leave|topic|names|nick
 

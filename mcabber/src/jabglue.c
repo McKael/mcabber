@@ -870,8 +870,8 @@ void packethandler(jconn conn, jpacket packet)
               timestamp = from_iso8601(p, 1);
           }
 
-          if (type && !strcmp(type, "error")) {
-            if ((x = xmlnode_get_tag(packet->x, "error")) != NULL)
+          if (type && !strcmp(type, TMSG_ERROR)) {
+            if ((x = xmlnode_get_tag(packet->x, TMSG_ERROR)) != NULL)
               display_server_error(x);
           }
           if (from && body)
@@ -934,12 +934,13 @@ void packethandler(jconn conn, jpacket packet)
                 if (alias) {
                   const char *name = xmlnode_get_tag_data(y, "name");
                   const char *desc = xmlnode_get_tag_data(y, "description");
-                  // const char *service = xmlnode_get_tag_data(y, "service"); TODO
+                  // TODO
+                  // const char *service = xmlnode_get_tag_data(y, "service");
                   enum agtype atype = unknown;
 
-                  if (xmlnode_get_tag(y, "groupchat")) atype = groupchat; else
-                    if (xmlnode_get_tag(y, "transport")) atype = transport; else
-                      if (xmlnode_get_tag(y, "search")) atype = search;
+                  if (xmlnode_get_tag(y, TMSG_GROUPCHAT))   atype = groupchat;
+                  else if (xmlnode_get_tag(y, "transport")) atype = transport;
+                  else if (xmlnode_get_tag(y, "search"))    atype = search;
 
                   if (atype == transport) {
                     char *cleanjid = jidtodisp(alias);
@@ -948,7 +949,8 @@ void packethandler(jconn conn, jpacket packet)
                     g_free(cleanjid);
                   }
                   if (alias && name && desc) {
-                    scr_LogPrint(LPRINT_LOGNORM, "Agent: %s / %s / %s / type=%d",
+                    scr_LogPrint(LPRINT_LOGNORM,
+                                 "Agent: %s / %s / %s / type=%d",
                                  alias, name, desc, atype);
 
                     if (atype == search) {
@@ -1005,8 +1007,8 @@ void packethandler(jconn conn, jpacket packet)
             xmlnode_put_attrib(x, "type", "result");
             xmlnode_put_attrib(x, "to", from);
             xmlnode_put_attrib(x, "id", id);
-            xmlnode_put_attrib(x, "type", "error");
-            y = xmlnode_insert_tag(x, "error");
+            xmlnode_put_attrib(x, "type", TMSG_ERROR);
+            y = xmlnode_insert_tag(x, TMSG_ERROR);
             xmlnode_put_attrib(y, "code", "503");
             xmlnode_put_attrib(y, "type", "cancel");
             z = xmlnode_insert_tag(y, "feature-not-implemented");
@@ -1017,17 +1019,17 @@ void packethandler(jconn conn, jpacket packet)
           }
         } else if (!strcmp(type, "set")) {
           /* FIXME: send error */
-        } else if (!strcmp(type, "error")) {
-          if ((x = xmlnode_get_tag(packet->x, "error")) != NULL)
+        } else if (!strcmp(type, TMSG_ERROR)) {
+          if ((x = xmlnode_get_tag(packet->x, TMSG_ERROR)) != NULL)
             display_server_error(x);
         }
         break;
 
     case JPACKET_PRESENCE:
         r = jidtodisp(from);
-        if (type && !strcmp(type, "error")) {
+        if (type && !strcmp(type, TMSG_ERROR)) {
           scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", r);
-          if ((x = xmlnode_get_tag(packet->x, "error")) != NULL)
+          if ((x = xmlnode_get_tag(packet->x, TMSG_ERROR)) != NULL)
             display_server_error(x);
           g_free(r);
           break;

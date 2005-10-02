@@ -834,18 +834,21 @@ void packethandler(jconn conn, jpacket packet)
           char *tmp = NULL;
           time_t timestamp = 0;
 
-          x = xmlnode_get_tag(packet->x, "body");
-          p = xmlnode_get_data(x); if (p) body = p;
+          body = xmlnode_get_tag_data(packet->x, "body");
 
-          if ((x = xmlnode_get_tag(packet->x, "subject")) != NULL)
-            if ((p = xmlnode_get_data(x)) != NULL) {
-              tmp = g_new(char, strlen(body)+strlen(p)+4);
+          p = xmlnode_get_tag_data(packet->x, "subject");
+          if (p != NULL) {
+            if (type && !strcmp(type, "groupchat")) {
+              // That's a room topic
+            } else {
+              tmp = g_new(char, (body ? strlen(body) : 0) + strlen(p) + 4);
               *tmp = '[';
               strcpy(tmp+1, p);
               strcat(tmp, "]\n");
-              strcat(tmp, body);
+              if (body) strcat(tmp, body);
               body = tmp;
             }
+          }
 
           /* there can be multiple <x> tags. we're looking for one with
              xmlns = jabber:x:encrypted */

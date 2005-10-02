@@ -639,6 +639,7 @@ static void do_buffer(char *arg)
 {
   int search_dir = 0;
 
+  if (!current_buddy) return;
   if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_GROUP) {
     scr_LogPrint(LPRINT_NORMAL, "Groups have no buffer");
     return;
@@ -954,6 +955,7 @@ static void do_room(char *arg)
     return;
   }
 
+  if (!current_buddy) return;
   bud = BUDDATA(current_buddy);
 
   if (!strncasecmp(arg, "join", 4))  {

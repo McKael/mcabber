@@ -30,6 +30,7 @@
 #include "utils.h"
 #include "settings.h"
 #include "hbuf.h"
+#include "histolog.h"
 
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
@@ -859,6 +860,8 @@ void packethandler(jconn conn, jpacket packet)
               mbuf = g_strdup_printf("%s has set the topic to: %s", r,
                       (subj_noutf8 ? subj_noutf8 : "(?)"));
               scr_WriteIncomingMessage(s, mbuf, 0, HBB_PREFIX_INFO);
+              if (settings_opt_get_int("log_muc_conf"))
+                hlog_write_message(s, 0, FALSE, mbuf);
               if (subj_noutf8) g_free(subj_noutf8);
               g_free(s);
               g_free(mbuf);
@@ -1097,6 +1100,7 @@ void packethandler(jconn conn, jpacket packet)
           const char *mbrjid = NULL;
           const char *mbnewnick = NULL;
           GSList *room_elt;
+          int log_muc_conf = settings_opt_get_int("log_muc_conf");
 
           // Add room if it doesn't already exist
           room_elt = roster_add_user(r, NULL, NULL, ROSTER_TYPE_ROOM);
@@ -1129,6 +1133,7 @@ void packethandler(jconn conn, jpacket packet)
               mbuf = g_strdup_printf("%s is now known as %s", rname,
                       (newname_noutf8 ? newname_noutf8 : "(?)"));
               scr_WriteIncomingMessage(r, mbuf, 0, HBB_PREFIX_INFO);
+              if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
               g_free(mbuf);
               if (newname_noutf8) {
                 buddy_resource_setname(room_elt->data, rname, newname_noutf8);
@@ -1144,6 +1149,7 @@ void packethandler(jconn conn, jpacket packet)
           if (!mbnewnick && mbrole == role_none) {
             gchar *mbuf = g_strdup_printf("%s has left", rname);
             scr_WriteIncomingMessage(r, mbuf, 0, HBB_PREFIX_INFO);
+            if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
             g_free(mbuf);
           } else if (buddy_getstatus(room_elt->data, rname) == offline &&
                      ust != offline) {
@@ -1155,6 +1161,7 @@ void packethandler(jconn conn, jpacket packet)
               mbuf = g_strdup_printf("%s has joined", rname);
             }
             scr_WriteIncomingMessage(r, mbuf, 0, HBB_PREFIX_INFO);
+            if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
             g_free(mbuf);
           }
 

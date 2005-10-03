@@ -27,6 +27,7 @@
 #include "roster.h"
 #include "histolog.h"
 #include "hbuf.h"
+#include "settings.h"
 
 static char *extcmd;
 
@@ -34,20 +35,23 @@ inline void hk_message_in(const char *jid, const char *resname,
                           time_t timestamp, const char *msg, const char *type)
 {
   int new_guy = FALSE;
-  int is_groupchat = FALSE;
+  int is_groupchat = FALSE; // groupchat message
+  int is_room = FALSE;      // window is a room window
+  int log_muc_conf = FALSE;
   int message_flags = 0;
   guint rtype = ROSTER_TYPE_USER;
-  char *wmsg;
+  char *wmsg = NULL, *bmsg = NULL;
   GSList *roster_usr;
 
   if (type && !strcmp(type, "groupchat")) {
     rtype = ROSTER_TYPE_ROOM;
     is_groupchat = TRUE;
+    log_muc_conf = settings_opt_get_int("log_muc_conf");
     if (!resname) {
       message_flags = HBB_PREFIX_INFO;
       resname = "";
     }
-    wmsg = g_strdup_printf("<%s> %s", resname, msg);
+    wmsg = bmsg = g_strdup_printf("<%s> %s", resname, msg);
   } else {
     wmsg = (char*) msg;
   }
@@ -56,11 +60,20 @@ inline void hk_message_in(const char *jid, const char *resname,
   roster_usr = roster_find(jid, jidsearch,
                            rtype|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
   if (!roster_usr) {
-    roster_add_user(jid, NULL, NULL, rtype);
     new_guy = TRUE;
-  } else {
-    if (buddy_gettype(roster_usr->data) == ROSTER_TYPE_ROOM)
-      is_groupchat = TRUE;
+    roster_usr = roster_add_user(jid, NULL, NULL, rtype);
+    if (!roster_usr) { // Shouldn't happen...
+      scr_LogPrint(LPRINT_LOGNORM, "ERROR: unable to add buddy!");
+      if (bmsg) g_free(bmsg);
+      return;
+    }
+  }
+
+  is_room = !!(buddy_gettype(roster_usr->data) & ROSTER_TYPE_ROOM);
+
+  if (!is_groupchat && is_room) {
+    // This is a private message from a room participant
+    wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", resname, msg);
   }
 
   if (type && !strcmp(type, "error")) {
@@ -73,28 +86,31 @@ inline void hk_message_in(const char *jid, const char *resname,
   // have the message twice...
   scr_WriteIncomingMessage(jid, wmsg, timestamp, message_flags);
 
-  // We don't log the message if it is an error message
-  // or if it is a groupchat message
-  // XXX We could use an option here to know if we should write GC messages...
-  if (!is_groupchat && !(message_flags & HBB_PREFIX_ERR))
+  // - We don't log the message if it is an error message
+  // - We don't log the message if it is a private conf. message
+  // - We don't log the message if it is groupchat message and the log_muc_conf
+  //   option is off (and it is not a history line)
+  if (!(message_flags & HBB_PREFIX_ERR) &&
+      (!is_room || (is_groupchat && log_muc_conf && !timestamp)))
     hlog_write_message(jid, timestamp, FALSE, wmsg);
 
   // External command
-  // (We do not call hk_ext_cmd() for history lines in MUC)
-  if (!is_groupchat || !timestamp)
+  // - We do not call hk_ext_cmd() for history lines in MUC
+  // - We do call hk_ext_cmd() for private messages in a room
+  if ((is_groupchat && !timestamp) || !is_groupchat)
     hk_ext_cmd(jid, (is_groupchat ? 'G' : 'M'), 'R', NULL);
 
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set
   if (new_guy ||
-      (roster_getstatus(jid, NULL) == offline &&
+      (buddy_getstatus(roster_usr->data, NULL) == offline &&
        buddylist_get_hide_offline_buddies()))
   {
     buddylist_build();
     update_roster = TRUE;
   }
 
-  if (rtype == ROSTER_TYPE_ROOM) g_free(wmsg);
+  if (bmsg) g_free(bmsg);
 }
 
 inline void hk_message_out(const char *jid, time_t timestamp, const char *msg)

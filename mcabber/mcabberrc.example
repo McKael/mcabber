@@ -54,6 +54,9 @@ set resource = mcabber
 #set load_logs = 1
 #set logging_dir = /home/mikael/.mcabber/histo/
 
+# Set log_muc_conf to 1 to enable MUC chatrooms logging (default = 0)
+# set log_muc_conf = 1
+
 # External command for events
 # You can specify a script or process to be launched when an event occurs.
 # The command is called the following way:

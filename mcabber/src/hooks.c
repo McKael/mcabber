@@ -73,6 +73,7 @@ inline void hk_message_in(const char *jid, const char *resname,
 
   if (!is_groupchat && is_room) {
     // This is a private message from a room participant
+    if (!resname) resname = "";
     wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", resname, msg);
   }
 

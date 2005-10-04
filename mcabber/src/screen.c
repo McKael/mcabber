@@ -777,8 +777,8 @@ void scr_DrawRoster(void)
   doupdate();
 }
 
-void scr_WriteMessage(const char *jid, const char *text, time_t timestamp,
-        guint prefix_flags)
+inline void scr_WriteMessage(const char *jid, const char *text,
+                             time_t timestamp, guint prefix_flags)
 {
   if (!timestamp) timestamp = time(NULL);
 
@@ -914,6 +914,27 @@ void scr_RosterDown(void)
 void scr_RosterSearch(char *str)
 {
   set_current_buddy(buddy_search(str));
+  if (chatmode)
+    scr_ShowBuddyWindow();
+}
+
+//  scr_RosterJumpJid(jid)
+// Jump to buddy jid.
+// NOTE: With this function, the buddy is added to the roster if doesn't exist.
+void scr_RosterJumpJid(char *barejid)
+{
+  GSList *roster_elt;
+  // Look for an existing buddy
+  roster_elt = roster_find(barejid, jidsearch,
+                 ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
+  // Create it if necessary
+  if (!roster_elt)
+    roster_elt = roster_add_user(barejid, NULL, NULL, ROSTER_TYPE_USER);
+  // Set a lock to see it in the buddylist
+  buddy_setflags(BUDDATA(roster_elt), ROSTER_FLAG_LOCK, TRUE);
+  buddylist_build();
+  // Jump to the buddy
+  set_current_buddy(buddy_search_jid(barejid));
   if (chatmode)
     scr_ShowBuddyWindow();
 }

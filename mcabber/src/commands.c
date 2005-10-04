@@ -40,6 +40,7 @@ static void do_del(char *arg);
 static void do_group(char *arg);
 static void do_say(char *arg);
 static void do_msay(char *arg);
+static void do_say_to(char *arg);
 static void do_buffer(char *arg);
 static void do_clear(char *arg);
 static void do_info(char *arg);
@@ -101,6 +102,7 @@ void cmd_init(void)
   cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0,
           &do_roster);
   cmd_add("say", "Say something to the selected buddy", 0, 0, &do_say);
+  cmd_add("say_to", "Say something to a specific buddy", 0, 0, &do_say_to);
   //cmd_add("search");
   //cmd_add("send_auth");
   cmd_add("set", "Set/query an option value", 0, 0, &do_set);
@@ -650,6 +652,54 @@ static void do_msay(char *arg)
   buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
   send_message(scr_get_multiline());
   scr_set_multimode(FALSE);
+}
+
+static void do_say_to(char *arg)
+{
+  char *jid, *msg;
+  char *bare_jid, *p;
+
+  if (!jb_getonline()) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    return;
+  }
+
+  msg = strchr(arg, ' ');
+  if (!msg) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    return;
+  }
+
+  jid = g_strndup(arg, msg - arg);
+
+  if (check_jid_syntax(jid)) {
+    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
+    g_free(jid);
+    return;
+  }
+
+  while (*msg == ' ') msg++;
+  if (!*msg) {
+    scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+    g_free(jid);
+    return;
+  }
+
+  // We must use the bare jid in hk_message_out()
+  p = strchr(jid, '/');
+  if (p) bare_jid = g_strndup(jid, p - jid);
+  else   bare_jid = jid;
+
+  // Jump to window, create one if needed
+  scr_RosterJumpJid(bare_jid);
+
+  // local part (UI, logging, etc.)
+  hk_message_out(bare_jid, 0, msg);
+
+  // Network part
+  jb_send_msg(jid, msg, ROSTER_TYPE_USER, NULL);
+  g_free(jid);
+  if (p) g_free(bare_jid);
 }
 
 static void do_buffer(char *arg)

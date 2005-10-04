@@ -175,7 +175,7 @@ static void del_resource(roster *rost, const char *resname)
 // Comparison function used to search in the roster (compares jids and types)
 static gint roster_compare_jid_type(roster *a, roster *b) {
   if (! (a->type & b->type))
-    return -1; // arbitrary (but should be != , of course)
+    return -1; // arbitrary (but should be != 0, of course)
   return strcasecmp(a->jid, b->jid);
 }
 
@@ -197,7 +197,7 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
   if (!jidname) return NULL;
 
   if (!roster_type)
-    roster_type = ROSTER_TYPE_USER | ROSTER_TYPE_ROOM |
+    roster_type = ROSTER_TYPE_USER  | ROSTER_TYPE_ROOM |
                   ROSTER_TYPE_AGENT | ROSTER_TYPE_GROUP;
 
   sample.type = roster_type;
@@ -891,6 +891,25 @@ guint buddy_getflags(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->flags;
+}
+
+//  buddy_search_jid(jid)
+// Look for a buddy with specified jid.
+// Search begins at buddylist; if no match is found in the the buddylist,
+// return NULL;
+GList *buddy_search_jid(char *jid)
+{
+  GList *buddy;
+  roster *roster_usr;
+
+  if (!buddylist) return NULL;
+
+  for (buddy = buddylist; buddy; buddy = g_list_next(buddy)) {
+    roster_usr = (roster*)buddy->data;
+    if (roster_usr->jid && !strcasecmp(roster_usr->jid, jid))
+      return buddy;
+  }
+  return NULL;
 }
 
 //  buddy_search(string)

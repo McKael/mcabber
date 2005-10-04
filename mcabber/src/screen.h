@@ -51,6 +51,7 @@ void scr_RosterBottom(void);
 void scr_RosterUp(void);
 void scr_RosterDown(void);
 void scr_RosterSearch(char *);
+void scr_RosterJumpJid(char *);
 void scr_BufferTopBottom(int topbottom);
 void scr_BufferClear(void);
 void scr_BufferSearch(int direction, const char *text);

@@ -84,6 +84,7 @@ void    buddy_resource_setname(gpointer rosterdata, const char *resname,
 void    buddy_del_all_resources(gpointer rosterdata);
 void    buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint   buddy_getflags(gpointer rosterdata);
+GList  *buddy_search_jid(char *jid);
 GList  *buddy_search(char *string);
 gpointer unread_msg(gpointer rosterdata);
 

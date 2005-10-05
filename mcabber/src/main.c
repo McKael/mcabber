@@ -20,7 +20,6 @@
  * USA
  */
 
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -143,7 +142,8 @@ static void ask_password(void)
   char *password, *p;
   size_t passsize = 128;
   struct termios orig, new;
-  int nread;
+
+  password = g_new0(char, passsize);
 
   /* Turn echoing off and fail if we can't. */
   if (tcgetattr(fileno(stdin), &orig) != 0) return;
@@ -152,15 +152,12 @@ static void ask_password(void)
   if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) return;
 
   /* Read the password. */
-  password = NULL;
   printf("Please enter password: ");
-  nread = getline(&password, &passsize, stdin);
+  fgets(password, passsize, stdin);
 
   /* Restore terminal. */
   tcsetattr(fileno(stdin), TCSAFLUSH, &orig);
   printf("\n");
-
-  if (nread == -1 || !password) return;
 
   for (p = (char*)password; *p; p++)
     ;
@@ -168,7 +165,7 @@ static void ask_password(void)
     if (*p == '\n' || *p == '\r') *p = 0;
 
   settings_set(SETTINGS_TYPE_OPTION, "password", password);
-  free(password);
+  g_free(password);
   return;
 }
 

@@ -5,7 +5,7 @@ mcabber_SOURCES = main.c jabglue.c jabglue.h roster.c roster.h \
 		  settings.c settings.h hooks.c hooks.h \
 		  histolog.c histolog.h utils.c utils.h list.h
 
-LDADD = -lglib-2.0 -lncurses -lpanel \
+LDADD = $(GLIB_LIBS) -lncurses -lpanel \
 	../libjabber/liblibjabber.a ../connwrap/libconnwrap.a
 
 INCLUDES = $(GLIB_CFLAGS)

@@ -57,8 +57,7 @@ inline void hk_message_in(const char *jid, const char *resname,
   }
 
   // If this user isn't in the roster, we add it
-  roster_usr = roster_find(jid, jidsearch,
-                           rtype|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
+  roster_usr = roster_find(jid, jidsearch, 0);
   if (!roster_usr) {
     new_guy = TRUE;
     roster_usr = roster_add_user(jid, NULL, NULL, rtype);

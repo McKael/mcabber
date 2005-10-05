@@ -215,11 +215,9 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
     if (roster_type & ROSTER_TYPE_GROUP) {
       if ((type == namesearch) && !strcasecmp(jidname, roster_elt->name))
         return sl_roster_elt;
-    } else {
-      res = g_slist_find_custom(roster_elt->list, &sample, comp);
-      if (res)
-        return res;
     }
+    res = g_slist_find_custom(roster_elt->list, &sample, comp);
+    if (res) return res;
     sl_roster_elt = g_slist_next(sl_roster_elt);
   }
   return NULL;

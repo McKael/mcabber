@@ -7,7 +7,8 @@
 
 inline void hk_message_in(const char *jid, const char *resname,
                           time_t timestamp, const char *msg, const char *type);
-inline void hk_message_out(const char *jid, time_t timestamp, const char *msg);
+inline void hk_message_out(const char *jid, const char *nickname,
+                           time_t timestamp, const char *msg);
 inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
                             time_t timestamp, enum imstatus status,
                             char const *status_msg);

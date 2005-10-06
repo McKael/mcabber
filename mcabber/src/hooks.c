@@ -113,12 +113,27 @@ inline void hk_message_in(const char *jid, const char *resname,
   if (bmsg) g_free(bmsg);
 }
 
-inline void hk_message_out(const char *jid, time_t timestamp, const char *msg)
+//  hk_message_out()
+// nick should be set for private messages in a chat room, and null for
+// normal messages.
+inline void hk_message_out(const char *jid, const char *nick,
+                           time_t timestamp, const char *msg)
 {
-  scr_WriteOutgoingMessage(jid, msg);
-  hlog_write_message(jid, timestamp, TRUE, msg);
+  char *wmsg = NULL, *bmsg = NULL;
+
+  if (nick) {
+    wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
+  } else {
+    wmsg = (char*)msg;
+    // We don't log private messages
+    hlog_write_message(jid, timestamp, TRUE, msg);
+  }
+
+  scr_WriteOutgoingMessage(jid, wmsg);
   // External command
   hk_ext_cmd(jid, 'M', 'S', NULL);
+
+  if (bmsg) g_free(bmsg);
 }
 
 inline void hk_statuschange(const char *jid, const char *resname, gchar prio,

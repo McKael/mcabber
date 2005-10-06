@@ -252,7 +252,7 @@ void send_message(const char *msg)
 
   if (buddy_gettype(BUDDATA(current_buddy)) != ROSTER_TYPE_ROOM) {
     // local part (UI, logging, etc.)
-    hk_message_out(jid, 0, msg);
+    hk_message_out(jid, NULL, 0, msg);
   }
 
   // Network part
@@ -693,8 +693,15 @@ static void do_say_to(char *arg)
   // Jump to window, create one if needed
   scr_RosterJumpJid(bare_jid);
 
+  // Check if we're sending a message to a conference room
+  // If not, we must make sure p is NULL, for hk_message_out()
+  if (p) {
+    if (roster_find(bare_jid, jidsearch, ROSTER_TYPE_ROOM)) p++;
+    else p = NULL;
+  }
+
   // local part (UI, logging, etc.)
-  hk_message_out(bare_jid, 0, msg);
+  hk_message_out(bare_jid, p, 0, msg);
 
   // Network part
   jb_send_msg(jid, msg, ROSTER_TYPE_USER, NULL);

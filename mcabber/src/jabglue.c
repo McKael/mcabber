@@ -678,7 +678,7 @@ void gotroster(xmlnode x)
 }
 
 void gotmessage(char *type, const char *from, const char *body,
-        const char *enc, time_t timestamp)
+                const char *enc, time_t timestamp)
 {
   char *jid;
   const char *rname;
@@ -889,7 +889,7 @@ void packethandler(jconn conn, jpacket packet)
               else   r = s;
               // Display inside the room window
               mbuf = g_strdup_printf("%s has set the topic to: %s", r,
-                      (subj_noutf8 ? subj_noutf8 : "(?)"));
+                                     (subj_noutf8 ? subj_noutf8 : "(?)"));
               scr_WriteIncomingMessage(s, mbuf, 0, HBB_PREFIX_INFO);
               if (settings_opt_get_int("log_muc_conf"))
                 hlog_write_message(s, 0, FALSE, mbuf);
@@ -1134,7 +1134,11 @@ void packethandler(jconn conn, jpacket packet)
           int log_muc_conf = settings_opt_get_int("log_muc_conf");
 
           // Add room if it doesn't already exist
-          room_elt = roster_add_user(r, NULL, NULL, ROSTER_TYPE_ROOM);
+          room_elt = roster_find(r, jidsearch, 0);
+          if (!room_elt)
+            room_elt = roster_add_user(r, NULL, NULL, ROSTER_TYPE_ROOM);
+          else // Make sure this is a room (it can be a conversion user->room)
+            buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
 
           // Get room member's information
           y = xmlnode_get_tag(x, "item");

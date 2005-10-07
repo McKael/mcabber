@@ -798,6 +798,12 @@ gpointer buddy_getgroup(gpointer rosterdata)
   return (gpointer)((GSList*)roster_usr->list)->data;
 }
 
+void buddy_settype(gpointer rosterdata, guint type)
+{
+  roster *roster_usr = rosterdata;
+  roster_usr->type = type;
+}
+
 guint buddy_gettype(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;

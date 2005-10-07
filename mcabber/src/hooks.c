@@ -66,6 +66,9 @@ inline void hk_message_in(const char *jid, const char *resname,
       if (bmsg) g_free(bmsg);
       return;
     }
+  } else if (is_groupchat) {
+    // Make sure the type is ROOM
+    buddy_settype(roster_usr->data, ROSTER_TYPE_ROOM);
   }
 
   is_room = !!(buddy_gettype(roster_usr->data) & ROSTER_TYPE_ROOM);

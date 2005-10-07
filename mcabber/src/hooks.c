@@ -121,15 +121,17 @@ inline void hk_message_out(const char *jid, const char *nick,
 {
   char *wmsg = NULL, *bmsg = NULL;
 
-  if (nick) {
-    wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
-  } else {
-    wmsg = (char*)msg;
-    // We don't log private messages
-    hlog_write_message(jid, timestamp, TRUE, msg);
-  }
+  if (nick) wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
+  else      wmsg = (char*)msg;
 
+  // Note: the hlog_write should not be called first, because in some
+  // cases scr_WriteOutgoingMessage() will load the history and we'd
+  // have the message twice...
   scr_WriteOutgoingMessage(jid, wmsg);
+
+  // We don't log private messages
+  if (!nick) hlog_write_message(jid, timestamp, TRUE, msg);
+
   // External command
   hk_ext_cmd(jid, 'M', 'S', NULL);
 

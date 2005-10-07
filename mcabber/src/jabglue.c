@@ -355,7 +355,7 @@ void jb_send_msg(const char *jid, const char *text, int type,
   else
     strtype = TMSG_CHAT;
 
-  x = jutil_msgnew(strtype, (char*)jid, 0, (char*)buffer);
+  x = jutil_msgnew(strtype, (char*)jid, NULL, (char*)buffer);
   if (subject) {
     xmlnode y;
     char *bs = to_utf8(subject);
@@ -535,6 +535,37 @@ void jb_room_unlock(const char *room)
   z = xmlnode_insert_tag(y, "x");
   xmlnode_put_attrib(z, "xmlns", "jabber:x:data");
   xmlnode_put_attrib(z, "type", "submit");
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+  jb_reset_keepalive();
+}
+
+
+// Invite a user to a MUC room
+// room syntax: "room@server"
+// reason can be null.
+void jb_room_invite(const char *room, const char *jid, const char *reason)
+{
+  xmlnode x, y, z;
+  gchar *utf8_reason;
+
+  if (!online || !room || !jid) return;
+
+  if (!reason) reason = "";
+
+  x = jutil_msgnew(NULL, (char*)room, NULL, NULL);
+
+  y = xmlnode_insert_tag(x, "x");
+  xmlnode_put_attrib(y, "xmlns", "http://jabber.org/protocol/muc#user");
+
+  z = xmlnode_insert_tag(y, "invite");
+  xmlnode_put_attrib(z, "to", jid);
+
+  utf8_reason = to_utf8(reason);
+  y = xmlnode_insert_tag(z, "reason");
+  xmlnode_insert_cdata(y, utf8_reason, (unsigned) -1);
+  g_free(utf8_reason);
 
   jab_send(jc, x);
   xmlnode_free(x);

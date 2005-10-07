@@ -57,5 +57,6 @@ void jb_set_keepalive_delay(unsigned int delay);
 inline void jb_set_priority(unsigned int priority);
 void jb_room_join(const char *room, const char *nickname);
 void jb_room_unlock(const char *room);
+void jb_room_invite(const char *room, const char *jid, const char *reason);
 
 #endif /* __JABGLUE_H__ */

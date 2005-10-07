@@ -153,6 +153,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_MULTILINE, "verbatim");
 
   // Room category
+  compl_add_category_word(COMPL_ROOM, "invite");
   compl_add_category_word(COMPL_ROOM, "join");
   compl_add_category_word(COMPL_ROOM, "leave");
   compl_add_category_word(COMPL_ROOM, "names");
@@ -1081,6 +1082,36 @@ static void do_room(char *arg)
     g_free(roomname);
     buddylist_build();
     update_roster = TRUE;
+  } else if (!strncasecmp(arg, "invite", 6))  {
+    const gchar *roomname;
+    gchar*jid;
+    arg += 6;
+    if (*arg++ != ' ') {
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+      return;
+    }
+    for (; *arg && *arg == ' '; arg++)
+      ;
+    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
+      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+      return;
+    }
+    if (!*arg) {
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+      return;
+    }
+    jid = g_strdup(arg);
+    arg = strchr(jid, ' ');
+    if (arg) {
+      *arg++ = 0;
+      for (; *arg && *arg == ' '; arg++)
+        ;
+      if (!*arg) arg = NULL;
+    }
+    roomname = buddy_getjid(bud);
+    jb_room_invite(roomname, jid, arg);
+    scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>", jid);
+    g_free(jid);
   } else if (!strncasecmp(arg, "leave", 5))  {
     gchar *roomid, *utf8_nickname;
     arg += 5;
@@ -1097,7 +1128,7 @@ static void do_room(char *arg)
     g_free(roomid);
     buddy_setnickname(bud, NULL);
     buddy_del_all_resources(bud);
-    scr_LogPrint(LPRINT_NORMAL, "You have left %s", buddy_getjid(bud));
+    scr_LogPrint(LPRINT_LOGNORM, "You have left %s", buddy_getjid(bud));
   } else if (!strcasecmp(arg, "names"))  {
     if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
       scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");

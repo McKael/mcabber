@@ -201,7 +201,7 @@ Jump to the next unread message
 /add jid [nickname]
 </b></dt>
 <dd>
-        Add the <b>jid</b> Jabber user to our roster (default group), and send a
+        Add the "jid" Jabber user to our roster (default group), and send a
         notification request to this buddy.  If no nickname is specified, the
         jid is used.
 </dd>
@@ -264,7 +264,7 @@ jump to the bottom of the current buddy chat buffer
 <b>search_backward</b> text
 </td>
 <td>
-search for text in the current buddy chat buffer
+search for "text" in the current buddy chat buffer
 </td>
 </tr>
 <tr valign="top">
@@ -272,7 +272,7 @@ search for text in the current buddy chat buffer
 <b>search_forward</b>  text
 </td>
 <td>
-search for text in the current buddy chat buffer
+search for "text" in the current buddy chat buffer
 </td>
 </tr>
 <tr valign="top">
@@ -438,7 +438,7 @@ leave multi-line mode without sending the message
         the buddies to another group with the "/move" command).
 </dd>
 <dt><b>
-/room invite|join|leave|names|nick|remove|topic|unlock
+/room invite|join|leave|names|nick|privmsg|remove|topic|unlock
 </b></dt>
 <dd>
         The <b>room</b> command handles Multi-User Chat room actions.
@@ -481,6 +481,14 @@ display members of the current room
 </td>
 <td>
 change your nickname in the current room
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>privmsg</b> nick msg
+</td>
+<td>
+send private message "msg" to "nick"
 </td>
 </tr>
 <tr valign="top">
@@ -615,14 +623,14 @@ jump to the next unread message
 /say text
 </b></dt>
 <dd>
-        Send the text message to the currently selected buddy.  Can be useful
+        Send the "text" message to the currently selected buddy.  Can be useful
         if you want to send a message beginning with a slash, for example.
 </dd>
 <dt><b>
 /say_to jid text
 </b></dt>
 <dd>
-        Send the text message to the specified jid.
+        Send the "text" message to the specified jid.
         Please note that this command doesn't set the default resource for
         a contact, so if you want to send several messages to a specific
         ressource you will have to use "/say_to" for each message.
@@ -670,7 +678,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.6.9-dev<br />
-Last updated 07-Oct-2005 18:59:10 CEST
+Last updated 08-Oct-2005 00:26:22 CEST
 </p>
 </div>
 </div>

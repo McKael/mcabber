@@ -83,7 +83,7 @@ COMMANDS
 --------
 
 /add jid [nickname]::
-        Add the 'jid' Jabber user to our roster (default group), and send a
+        Add the "jid" Jabber user to our roster (default group), and send a
         notification request to this buddy.  If no nickname is specified, the
         jid is used.
 
@@ -111,8 +111,8 @@ COMMANDS
         'clear';;                clear the current buddy chat window
         'top';;                  jump to the top of the current buddy chat buffer
         'bottom';;               jump to the bottom of the current buddy chat buffer
-        'search_backward' text;; search for text in the current buddy chat buffer
-        'search_forward'  text;; search for text in the current buddy chat buffer
+        'search_backward' text;; search for "text" in the current buddy chat buffer
+        'search_forward'  text;; search for "text" in the current buddy chat buffer
         'date' date;;            jump to the first line after the specified date in the chat buffer (date format: "YYYY-mm-dd[THH:MM:SS]", "-" and ":" are optional)
         '%' n;;                  jump to position %n of the buddy chat buffer
 
@@ -176,7 +176,7 @@ COMMANDS
         This command does not work for groups, at the moment (but you can move
         the buddies to another group with the "/move" command).
 
-/room invite|join|leave|names|nick|remove|topic|unlock::
+/room invite|join|leave|names|nick|privmsg|remove|topic|unlock::
         The 'room' command handles Multi-User Chat room actions.
 
         'invite' jid [reason];; invite jid to the current room
@@ -184,6 +184,7 @@ COMMANDS
         'leave' [message];;     leave the current room
         'names';;               display members of the current room
         'nick' nick;;           change your nickname in the current room
+        'privmsg' nick msg;;    send private message "msg" to "nick"
         'remove';;              remove the current room from the roster (you must have left this room before)
         'topic';;               set topic for current room
         'unlock';;              unlock current room (if you are the owner)
@@ -206,11 +207,11 @@ COMMANDS
         'unread_next';;  jump to the next unread message
 
 /say text::
-        Send the text message to the currently selected buddy.  Can be useful
+        Send the "text" message to the currently selected buddy.  Can be useful
         if you want to send a message beginning with a slash, for example.
 
 /say_to jid text::
-        Send the text message to the specified jid.
+        Send the "text" message to the specified jid.
         Please note that this command doesn't set the default resource for
         a contact, so if you want to send several messages to a specific
         ressource you will have to use "/say_to" for each message.

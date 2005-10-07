@@ -113,7 +113,7 @@ Ctrl\-q		Jump to the next unread message
 
 .TP
 \fB/add\fR jid [nickname]
-Add the jid Jabber user to our roster (default group), and send a notification request to this buddy\&. If no nickname is specified, the jid is used\&.
+Add the "jid" Jabber user to our roster (default group), and send a notification request to this buddy\&. If no nickname is specified, the jid is used\&.
 
 .TP
 \fB/alias\fR name = command line
@@ -137,13 +137,13 @@ Example: "/bind 265 = status online" (265 is F1 for me, but it may depend on you
 \fB/buffer\fR clear|top|bottom|search_backward|search_forward
 The buffer command manipulates the current buddy's buffer (chat window)\&.
 
- \fBclear\fR    	clear the current buddy chat window
- \fBtop\fR      	jump to the top of the current buddy chat buffer
- \fBbottom\fR   	jump to the bottom of the current buddy chat buffer
- \fBsearch_backward\fR text	search for text in the current buddy chat buffer
- \fBsearch_forward\fR  text	search for text in the current buddy chat buffer
- \fBdate\fR date	jump to the first line after the specified date in the chat buffer (date format: "YYYY\-mm\-dd[THH:MM:SS]", "\-" and ":" are optional)
- \fB%\fR n      	jump to position %n of the buddy chat buffer
+ \fBclear\fR               	clear the current buddy chat window
+ \fBtop\fR                 	jump to the top of the current buddy chat buffer
+ \fBbottom\fR              	jump to the bottom of the current buddy chat buffer
+ \fBsearch_backward\fR text	search for "text" in the current buddy chat buffer
+ \fBsearch_forward\fR  text	search for "text" in the current buddy chat buffer
+ \fBdate\fR date           	jump to the first line after the specified date in the chat buffer (date format: "YYYY\-mm\-dd[THH:MM:SS]", "\-" and ":" are optional)
+ \fB%\fR n                 	jump to position %n of the buddy chat buffer
 
 .TP
 \fB/clear\fR
@@ -200,7 +200,7 @@ Rename current buddy to the given nickname\&. This command does not work for gro
 
 
 .TP
-\fB/room\fR join|leave|names|remove|topic|unlock
+\fB/room\fR invite|join|leave|names|nick|privmsg|remove|topic|unlock
 The room command handles Multi\-User Chat room actions\&.
 
  \fBinvite\fR jid [reason]	invite jid to the current room
@@ -208,6 +208,7 @@ The room command handles Multi\-User Chat room actions\&.
  \fBleave\fR [message]    	leave the current room
  \fBnames\fR              	display members of the current room
  \fBnick\fR nick          	change your nickname in the current room
+ \fBprivmsg\fR nick msg   	send private message "msg" to "nick"
  \fBremove\fR             	remove the current room from the roster (you must have left this room before)
  \fBtopic\fR              	set topic for current room
  \fBunlock\fR             	unlock current room (if you are the owner)
@@ -216,10 +217,10 @@ The room command handles Multi\-User Chat room actions\&.
 \fB/roster\fR
 The roster command manipulates the roster/buddylist\&.  Here are the available parameters:
 
- \fBbottom\fR     	jump to the bottom of the roster
- \fBtop\fR        	jump to the top of the roster
- \fBup\fR         	move up in the roster
- \fBdown\fR       	move down in the roster
+ \fBbottom\fR    	jump to the bottom of the roster
+ \fBtop\fR       	jump to the top of the roster
+ \fBup\fR        	move up in the roster
+ \fBdown\fR      	move down in the roster
  \fBhide_offline\fR	hide offline buddies
  \fBshow_offline\fR	show offline buddies
  \fBtoggle_offline\fR	toggle display of offline buddies
@@ -230,11 +231,11 @@ The roster command manipulates the roster/buddylist\&.  Here are the available p
 
 .TP
 \fB/say\fR text
-Send the text message to the currently selected buddy\&. Can be useful if you want to send a message beginning with a slash, for example\&.
+Send the "text" message to the currently selected buddy\&. Can be useful if you want to send a message beginning with a slash, for example\&.
 
 .TP
 \fB/say_to\fR jid text
-Send the text message to the specified jid\&. Please note that this command doesn't set the default resource for a contact, so if you want to send several messages to a specific ressource you will have to use "/say_to" for each message\&.
+Send the "text" message to the specified jid\&. Please note that this command doesn't set the default resource for a contact, so if you want to send several messages to a specific ressource you will have to use "/say_to" for each message\&.
 
 .TP
 \fB/status\fR [online|avail|invisible|free|dnd|notavail|away [StatusMessage]]

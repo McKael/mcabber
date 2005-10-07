@@ -159,6 +159,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROOM, "leave");
   compl_add_category_word(COMPL_ROOM, "names");
   compl_add_category_word(COMPL_ROOM, "nick");
+  compl_add_category_word(COMPL_ROOM, "privmsg");
   compl_add_category_word(COMPL_ROOM, "remove");
   compl_add_category_word(COMPL_ROOM, "topic");
   compl_add_category_word(COMPL_ROOM, "unlock");
@@ -1085,7 +1086,7 @@ static void do_room(char *arg)
     update_roster = TRUE;
   } else if (!strncasecmp(arg, "invite", 6))  {
     const gchar *roomname;
-    gchar*jid;
+    gchar* jid;
     arg += 6;
     if (*arg++ != ' ') {
       scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
@@ -1152,6 +1153,36 @@ static void do_room(char *arg)
     cmd = g_strdup_printf("join %s %s", buddy_getjid(bud), arg);
     do_room(cmd);
     g_free(cmd);
+  } else if (!strncasecmp(arg, "privmsg", 7))  {
+    gchar *nick, *cmd;
+    arg += 7;
+    if (*arg++ != ' ') {
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+      return;
+    }
+    for (; *arg && *arg == ' '; arg++)
+      ;
+    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
+      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+      return;
+    }
+    if (!*arg) {
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+      return;
+    }
+    nick = g_strdup(arg);
+    arg = strchr(nick, ' ');
+    if (!arg) {
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+      return;
+    }
+    *arg++ = 0;
+    for (; *arg && *arg == ' '; arg++)
+      ;
+    cmd = g_strdup_printf("%s/%s %s", buddy_getjid(bud), nick, arg);
+    do_say_to(cmd);
+    g_free(cmd);
+    g_free(nick);
   } else if (!strcasecmp(arg, "remove"))  {
     if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
       scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");

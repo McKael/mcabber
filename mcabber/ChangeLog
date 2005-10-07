@@ -1,17 +1,21 @@
 mcabber (0.6.9-dev)
 
+ * mcabber should build on FreeBSD
  * New /rawxml command
  * New /status_to command
+ * New /stay_to command
  * Multiple resources support
    The resources can be seen using the /info command
  * Initial Multi-User Chat support
-   New /room command (join, leave, names...)
+   New /room command (invite, join, leave, names, nick, privmsg, remove,
+   topic, unlock)
  * Warn the user when a message is received, which cannot be decoded
    (local charset unable to display some chars, for example)
  * Fix a bug when a buddy's name cannot be converted from utf-8 for
    being displayed in the roster (fall back to jid)
  * Fix: Status message is not lost anymore when using /move command
  * Add "/buffer %" and "/buffer date"
+ * A few misc bugfixes
  * Update documentation
 
  -- Mikael, ?

@@ -1,6 +1,8 @@
 
 BUGS:
 
+* /status_to, /say_to, and "/room privmsg" do not deal with resources
+  containing spaces
 * The PgUp and Ins keys do not work for some people
   Cannot reproduce, any help appreciated.
 
@@ -19,12 +21,9 @@ TODO:
 * Publish personal information
 * Show status changes in buddy window (if open)?
 * Options completion
+* MUC: improve "/room names"
 * MUC: advanced settings for room creation
-* MUC: invitation
 * MUC: join password-protected room
-* MUC: show who sends us a private anonymous message
-* MUC: do not log private anonymous messages
-* MUC: default to not logging (that's done), and add an option
 * MUC: nickname completion
 
 * File transfer? :)
@@ -33,7 +32,6 @@ TODO:
 
   - /group expand|shrink|toggle
     + rename
-  - /say_to jid blabla
   - /info [jid]
     (request info to the server if the buddy is not in the roster)
   - /server register|unregister

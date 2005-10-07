@@ -102,7 +102,8 @@ void cmd_init(void)
   cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0,
           &do_roster);
   cmd_add("say", "Say something to the selected buddy", 0, 0, &do_say);
-  cmd_add("say_to", "Say something to a specific buddy", 0, 0, &do_say_to);
+  cmd_add("say_to", "Say something to a specific buddy", COMPL_JID, 0,
+          &do_say_to);
   //cmd_add("search");
   //cmd_add("send_auth");
   cmd_add("set", "Set/query an option value", 0, 0, &do_set);

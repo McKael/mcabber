@@ -1,4 +1,4 @@
-mcabber (0.6.9-dev)
+mcabber (0.7.0)
 
  * mcabber should build on FreeBSD
  * New /rawxml command
@@ -18,7 +18,7 @@ mcabber (0.6.9-dev)
  * A few misc bugfixes
  * Update documentation
 
- -- Mikael, ?
+ -- Mikael, 2005-10-10
 
 mcabber (0.6.8)
 

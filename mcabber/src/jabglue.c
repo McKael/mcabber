@@ -1202,7 +1202,7 @@ void packethandler(jconn conn, jpacket packet)
 
           // Update room member status
           if (rname)
-            roster_setstatus(r, rname, bpprio, ust, NULL, mbrole, mbrjid);
+            roster_setstatus(r, rname, bpprio, ust, s, mbrole, mbrjid);
           else
             scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
 

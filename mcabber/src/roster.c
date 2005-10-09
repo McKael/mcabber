@@ -397,6 +397,7 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
 
   // New or updated resource
   p_res = get_or_add_resource(roster_usr, resname, prio);
+  p_res->prio = prio;
   p_res->status = bstat;
   if (p_res->status_msg) {
     g_free((gchar*)p_res->status_msg);

@@ -1,11 +1,12 @@
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__ 1
 
+#include <ctype.h>
 #include <glib.h>
 
 #include "jabglue.h"
 
-#ifndef	__USE_ISOC99
+#ifndef isblank
 # define isblank(c)  ((c) == 0x20 || (c) == 0x09)
 #endif
 

@@ -1553,172 +1553,171 @@ int scr_Getch(void)
 // Handle the pressed key, in the command line (bottom).
 int process_key(int key)
 {
-  if (isprint(key)) {
-    char tmpLine[INPUTLINE_LENGTH+1];
-
-    // Check the line isn't too long
-    if (strlen(inputLine) >= INPUTLINE_LENGTH)
-      return 0;
-
-    // Insert char
-    strcpy(tmpLine, ptr_inputline);
-    *ptr_inputline++ = key;
-    strcpy(ptr_inputline, tmpLine);
-    check_offset(1);
-  } else {
-    switch(key) {
-      case 8:     // Ctrl-h
-      case 127:   // Backspace too
-      case KEY_BACKSPACE:
-          if (ptr_inputline != (char*)&inputLine) {
-            char *c = --ptr_inputline;
-            for ( ; *c ; c++)
-              *c = *(c+1);
-            check_offset(-1);
-          }
-          break;
-      case KEY_DC:// Del
-          if (*ptr_inputline)
-            strcpy(ptr_inputline, ptr_inputline+1);
-          break;
-      case KEY_LEFT:
-          if (ptr_inputline != (char*)&inputLine) {
-            ptr_inputline--;
-            check_offset(-1);
-          }
-          break;
-      case KEY_RIGHT:
-          if (*ptr_inputline)
-            ptr_inputline++;
-            check_offset(1);
-          break;
-      case 7:     // Ctrl-g
-          scr_cancel_current_completion();
-          scr_end_current_completion();
+  switch(key) {
+    case 8:     // Ctrl-h
+    case 127:   // Backspace too
+    case KEY_BACKSPACE:
+        if (ptr_inputline != (char*)&inputLine) {
+          char *c = --ptr_inputline;
+          for ( ; *c ; c++)
+            *c = *(c+1);
           check_offset(-1);
-          break;
-      case 9:     // Tab
-          scr_handle_tab();
-          check_offset(0);
-          break;
-      case 13:    // Enter
-      case 15:    // Ctrl-o ("accept-line-and-down-history")
-          scr_CheckAutoAway(TRUE);
-          if (process_line(inputLine))
-            return 255;
-          // Add line to history
-          scr_cmdhisto_addline(inputLine);
-          // Reset the line
-          ptr_inputline = inputLine;
-          *ptr_inputline = 0;
-          inputline_offset = 0;
-
-          if (key == 13)            // Enter
-          {
-            // Reset history line pointer
-            cmdhisto_cur = NULL;
-          } else {                  // down-history
-            // Use next history line instead of a blank line
-            const char *l = scr_cmdhisto_next("", 0);
-            if (l) strcpy(inputLine, l);
-            // Reset backup history line
-            cmdhisto_backup[0] = 0;
-          }
-          break;
-      case KEY_UP:
-          {
-            const char *l = scr_cmdhisto_prev(inputLine,
-                    ptr_inputline-inputLine);
-            if (l) strcpy(inputLine, l);
-          }
-          break;
-      case KEY_DOWN:
-          {
-            const char *l = scr_cmdhisto_next(inputLine,
-                    ptr_inputline-inputLine);
-            if (l) strcpy(inputLine, l);
-          }
-          break;
-      case KEY_PPAGE:
-          scr_CheckAutoAway(TRUE);
-          scr_RosterUp();
-          break;
-      case KEY_NPAGE:
-          scr_CheckAutoAway(TRUE);
-          scr_RosterDown();
-          break;
-      case KEY_HOME:
-      case 1:
-          ptr_inputline = inputLine;
-          inputline_offset = 0;
-          break;
-      case 3:   // Ctrl-C
-          scr_handle_CtrlC();
-          break;
-      case KEY_END:
-      case 5:
-          for (; *ptr_inputline; ptr_inputline++) ;
+        }
+        break;
+    case KEY_DC:// Del
+        if (*ptr_inputline)
+          strcpy(ptr_inputline, ptr_inputline+1);
+        break;
+    case KEY_LEFT:
+        if (ptr_inputline != (char*)&inputLine) {
+          ptr_inputline--;
+          check_offset(-1);
+        }
+        break;
+    case KEY_RIGHT:
+        if (*ptr_inputline)
+          ptr_inputline++;
           check_offset(1);
-          break;
-      case 21:  // Ctrl-u
-          strcpy(inputLine, ptr_inputline);
-          ptr_inputline = inputLine;
-          inputline_offset = 0;
-          break;
-      case KEY_EOL:
-      case 11:  // Ctrl-k
-          *ptr_inputline = 0;
-          break;
-      case 16:  // Ctrl-p
-          scr_BufferScrollUpDown(-1);
-          break;
-      case 14:  // Ctrl-n
-          scr_BufferScrollUpDown(1);
-          break;
-      case 17:  // Ctrl-q
-          scr_CheckAutoAway(TRUE);
-          scr_RosterUnreadMessage(1); // next unread message
-          break;
-      case 20:  // Ctrl-t
-          readline_transpose_chars();
-          break;
-      case 23:  // Ctrl-w
-          readline_backward_kill_word();
-          break;
-      case 27:  // ESC
-          scr_CheckAutoAway(TRUE);
-          currentWindow = NULL;
-          chatmode = FALSE;
-          if (current_buddy)
-            buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-          top_panel(chatPanel);
-          top_panel(inputPanel);
-          update_panels();
-          break;
-      case 12:  // Ctrl-l
-          scr_CheckAutoAway(TRUE);
-          redrawwin(stdscr);
-      case KEY_RESIZE:
-          scr_Resize();
-          break;
-      default:
-          {
-            const gchar *boundcmd = isbound(key);
-            if (boundcmd) {
-              gchar *cmd = g_strdup_printf("/%s", boundcmd);
-              scr_CheckAutoAway(TRUE);
-              if (process_command(cmd))
-                return 255;
-              g_free(cmd);
-            } else {
-              scr_LogPrint(LPRINT_NORMAL, "Unknown key=%d", key);
-              if (utf8_mode)
-                scr_LogPrint(LPRINT_NORMAL,
-                             "WARNING: UTF-8 not yet supported!");
-            }
+        break;
+    case 7:     // Ctrl-g
+        scr_cancel_current_completion();
+        scr_end_current_completion();
+        check_offset(-1);
+        break;
+    case 9:     // Tab
+        scr_handle_tab();
+        check_offset(0);
+        break;
+    case 13:    // Enter
+    case 15:    // Ctrl-o ("accept-line-and-down-history")
+        scr_CheckAutoAway(TRUE);
+        if (process_line(inputLine))
+          return 255;
+        // Add line to history
+        scr_cmdhisto_addline(inputLine);
+        // Reset the line
+        ptr_inputline = inputLine;
+        *ptr_inputline = 0;
+        inputline_offset = 0;
+
+        if (key == 13)            // Enter
+        {
+          // Reset history line pointer
+          cmdhisto_cur = NULL;
+        } else {                  // down-history
+          // Use next history line instead of a blank line
+          const char *l = scr_cmdhisto_next("", 0);
+          if (l) strcpy(inputLine, l);
+          // Reset backup history line
+          cmdhisto_backup[0] = 0;
+        }
+        break;
+    case KEY_UP:
+        {
+          const char *l = scr_cmdhisto_prev(inputLine,
+                  ptr_inputline-inputLine);
+          if (l) strcpy(inputLine, l);
+        }
+        break;
+    case KEY_DOWN:
+        {
+          const char *l = scr_cmdhisto_next(inputLine,
+                  ptr_inputline-inputLine);
+          if (l) strcpy(inputLine, l);
+        }
+        break;
+    case KEY_PPAGE:
+        scr_CheckAutoAway(TRUE);
+        scr_RosterUp();
+        break;
+    case KEY_NPAGE:
+        scr_CheckAutoAway(TRUE);
+        scr_RosterDown();
+        break;
+    case KEY_HOME:
+    case 1:
+        ptr_inputline = inputLine;
+        inputline_offset = 0;
+        break;
+    case 3:     // Ctrl-C
+        scr_handle_CtrlC();
+        break;
+    case KEY_END:
+    case 5:
+        for (; *ptr_inputline; ptr_inputline++) ;
+        check_offset(1);
+        break;
+    case 21:    // Ctrl-u
+        strcpy(inputLine, ptr_inputline);
+        ptr_inputline = inputLine;
+        inputline_offset = 0;
+        break;
+    case KEY_EOL:
+    case 11:    // Ctrl-k
+        *ptr_inputline = 0;
+        break;
+    case 16:    // Ctrl-p
+        scr_BufferScrollUpDown(-1);
+        break;
+    case 14:    // Ctrl-n
+        scr_BufferScrollUpDown(1);
+        break;
+    case 17:    // Ctrl-q
+        scr_CheckAutoAway(TRUE);
+        scr_RosterUnreadMessage(1); // next unread message
+        break;
+    case 20:    // Ctrl-t
+        readline_transpose_chars();
+        break;
+    case 23:    // Ctrl-w
+        readline_backward_kill_word();
+        break;
+    case 27:    // ESC
+        scr_CheckAutoAway(TRUE);
+        currentWindow = NULL;
+        chatmode = FALSE;
+        if (current_buddy)
+          buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+        top_panel(chatPanel);
+        top_panel(inputPanel);
+        update_panels();
+        break;
+    case 12:    // Ctrl-l
+        scr_CheckAutoAway(TRUE);
+        redrawwin(stdscr);
+    case KEY_RESIZE:
+        scr_Resize();
+        break;
+    default:
+        if (isprint(key)) {
+          char tmpLine[INPUTLINE_LENGTH+1];
+
+          // Check the line isn't too long
+          if (strlen(inputLine) >= INPUTLINE_LENGTH)
+            return 0;
+
+          // Insert char
+          strcpy(tmpLine, ptr_inputline);
+          *ptr_inputline++ = key;
+          strcpy(ptr_inputline, tmpLine);
+          check_offset(1);
+        } else {
+          const gchar *boundcmd = isbound(key);
+          if (boundcmd) {
+            gchar *cmd = g_strdup_printf("/%s", boundcmd);
+            scr_CheckAutoAway(TRUE);
+            if (process_command(cmd))
+              return 255;
+            g_free(cmd);
+          } else {
+            scr_LogPrint(LPRINT_NORMAL, "Unknown key=%d", key);
+            if (utf8_mode)
+              scr_LogPrint(LPRINT_NORMAL,
+                           "WARNING: UTF-8 not yet supported!");
           }
-    }
+        }
   }
+
   if (completion_started && key != 9 && key != KEY_RESIZE)
     scr_end_current_completion();
   refresh_inputline();

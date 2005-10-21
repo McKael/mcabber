@@ -1,5 +1,9 @@
 # Sample ~/.mcabber/mcabberrc file
 
+# Note about this file syntax:
+# - Leading and trailing spaces are ignored.
+# - Empty lines and lines beginning with a '#' are ignored.
+
 # The jid will be the following: username@server
 # If your jid's domain name is different from the server name,
 # you can specify your complete jid as username.

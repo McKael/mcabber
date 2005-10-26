@@ -217,6 +217,9 @@ GSList *compl_get_category_list(guint cat_flags)
   if (cat_flags == COMPL_JID) {
     return compl_list(ROSTER_TYPE_USER);
   }
+  if (cat_flags == COMPL_RESOURCE) {
+    return buddy_getresources(NULL);
+  }
 
   return NULL;
 }

@@ -15,6 +15,7 @@
 #define COMPL_GROUPNAME   (1<<10)
 #define COMPL_MULTILINE   (1<<11)
 #define COMPL_ROOM        (1<<12)
+#define COMPL_RESOURCE    (1<<13)
 
 void    compl_add_category_word(guint, const char *command);
 void    compl_del_category_word(guint categ, const char *word);

@@ -21,10 +21,8 @@ TODO:
 * Publish personal information
 * Show status changes in buddy window (if open)?
 * Options completion
-* MUC: improve "/room names"
 * MUC: advanced settings for room creation
 * MUC: join password-protected room
-* MUC: nickname completion
 
 * File transfer? :)
 

@@ -1,6 +1,8 @@
 mcabber (0.7.1-dev)
 
- * 
+ * Nickname completion in a room
+ * Improved "/room names" command
+ * Minor cleanup (warnings and compilation stuff)
 
  -- Mikael, ?
 

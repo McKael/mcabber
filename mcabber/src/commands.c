@@ -838,6 +838,48 @@ static void do_info(char *arg)
   g_free(buffer);
 }
 
+// room_names() is a variation of do_info(), for chatrooms only
+static void room_names(void)
+{
+  gpointer bud;
+  const char *jid;
+  char *buffer;
+  GSList *resources;
+
+  if (!current_buddy) return;
+  bud = BUDDATA(current_buddy);
+
+  if (buddy_gettype(bud) != ROSTER_TYPE_ROOM) {
+    scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+    return;
+  }
+
+  jid    = buddy_getjid(bud);
+
+  buffer = g_new(char, 128);
+  snprintf(buffer, 127, "Room members:");
+  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+
+  resources = buddy_getresources(bud);
+  for ( ; resources ; resources = g_slist_next(resources) ) {
+    enum imstatus rstatus;
+    const char *rst_msg;
+
+    rstatus = buddy_getstatus(bud, resources->data);
+    rst_msg = buddy_getstatusmsg(bud, resources->data);
+
+    snprintf(buffer, 127, "[%c] %s", imstatus2char[rstatus],
+             (char*)resources->data);
+    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    if (rst_msg) {
+      snprintf(buffer, 127, "Status message: %s", rst_msg);
+      scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    }
+  }
+
+  g_free(buffer);
+}
+
 static void do_rename(char *arg)
 {
   gpointer bud;
@@ -1136,7 +1178,7 @@ static void do_room(char *arg)
       scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
       return;
     }
-    do_info(NULL);
+    room_names();
   } else if (!strncasecmp(arg, "nick", 4))  {
     gchar *cmd;
     arg += 4;

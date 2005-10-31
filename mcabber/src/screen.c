@@ -1363,19 +1363,26 @@ void readline_backward_kill_word()
 
 //  which_row()
 // Tells which row our cursor is in, in the command line.
-// -1 -> normal text
+// -2 -> normal text
+// -1 -> room: nickname completion
 //  0 -> command
 //  1 -> parameter 1 (etc.)
 //  If > 0, then *p_row is set to the beginning of the row
-static int which_row(char **p_row)
+static int which_row(const char **p_row)
 {
   int row = -1;
   char *p;
   int quote = FALSE;
 
   // Not a command?
-  if ((ptr_inputline == inputLine) || (inputLine[0] != '/'))
-    return -1;
+  if ((ptr_inputline == inputLine) || (inputLine[0] != '/')) {
+    if (!current_buddy) return -2;
+    if (buddy_gettype(BUDDATA(current_buddy)) == ROSTER_TYPE_ROOM) {
+      *p_row = inputLine;
+      return -1;
+    }
+    return -2;
+  }
 
   // This is a command
   row = 0;
@@ -1422,20 +1429,24 @@ static void scr_insert_text(const char *text)
 static void scr_handle_tab(void)
 {
   int nrow;
-  char *row;
+  const char *row;
   const char *cchar;
   guint compl_categ;
 
   nrow = which_row(&row);
 
-  // a) No completion if no leading slash ('cause not a command)
+  // a) No completion if no leading slash ('cause not a command),
+  //    unless this is a room (then, it is a nickname completion)
   // b) We can't have more than 2 parameters (we use 2 flags)
-  if (nrow < 0 || (nrow == 3 && !completion_started) || nrow > 3) return;
+  if ((nrow == -2) || (nrow == 3 && !completion_started) || nrow > 3)
+    return;
 
-  if (nrow == 0) {      // Command completion
+  if (nrow == 0) {          // Command completion
     row = &inputLine[1];
     compl_categ = COMPL_CMD;
-  } else {              // Other completion, depending on the command
+  } else if (nrow == -1) {  // Nickname completion
+    compl_categ = COMPL_RESOURCE;
+  } else {                  // Other completion, depending on the command
     int alias = FALSE;
     cmd *com;
     char *xpline = expandalias(inputLine);

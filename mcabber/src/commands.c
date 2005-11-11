@@ -944,6 +944,7 @@ static void do_move(char *arg)
   // clones the buddy and deletes the old one (and thus, jid and name are
   // freed)
   jb_updatebuddy(jid, name, newgroupname);
+  scr_RosterUp();
   buddy_setgroup(bud, newgroupname);
 
   g_free(newgroupname);

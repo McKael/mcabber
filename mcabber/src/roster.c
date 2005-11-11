@@ -676,16 +676,15 @@ const char *buddy_getjid(gpointer rosterdata)
 //  buddy_setgroup()
 // Change the group of current buddy
 //
-// Warning!  This function changes current_buddy!
-// Warning!  Old buddy is deleted, so you can't acces to its jid/name after
-//           calling this function.
+// Warning!  This function changes the specified buddy!
+// Warning!  Old buddy is deleted, so you can't access to its jid/name after
+//           calling this function (they are free'd).
 void buddy_setgroup(gpointer rosterdata, char *newgroupname)
 {
   roster *roster_usr = rosterdata;
   GSList **sl_group;
   GSList *sl_clone;
   roster *roster_clone;
-  int is_alternate;
 
   // A group has no group :)
   if (roster_usr->type & ROSTER_TYPE_GROUP) return;
@@ -709,16 +708,17 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   free_all_resources(&roster_usr->resource);
   g_free(roster_usr);
 
-  // If new new group is folded, the curren_buddy will be lost, and the
-  // chat window won't be correctly refreshed.  So we make sure it isn't...
-  ((roster*)((GSList*)roster_clone->list)->data)->flags &= ~ROSTER_FLAG_HIDE;
-
-  // Little trick to have current_body pointing to the cloned buddy
-  is_alternate = (alternate_buddy == current_buddy);
   buddylist = g_list_append(buddylist, roster_clone);
-  current_buddy = g_list_find(buddylist, roster_clone);
-  if (is_alternate)
-    alternate_buddy = current_buddy;
+  // We must have current_buddy pointing to the cloned buddy, if this is
+  // the one we have moved.  Same for alternate_buddy.
+  if (rosterdata == BUDDATA(current_buddy)) {
+    current_buddy = g_list_find(buddylist, roster_clone);
+    // If new new group is folded, the current_buddy will be lost, and the
+    // chat window won't be correctly refreshed.  So we make sure it isn't...
+    ((roster*)((GSList*)roster_clone->list)->data)->flags &= ~ROSTER_FLAG_HIDE;
+  }
+  if (alternate_buddy && BUDDATA(alternate_buddy) == rosterdata)
+    alternate_buddy = g_list_find(buddylist, roster_clone);
 
   buddylist_build();
 }

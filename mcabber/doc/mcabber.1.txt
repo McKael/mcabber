@@ -146,7 +146,9 @@ COMMANDS
 /move [groupname]::
         Move the current buddy to the requested group.  If no group is
         specified, then the buddy is moved to the default group.
-        This command only works with users (not agents), at the moment.
+        This command only works with users (not agents), at the moment. +
+        Tip: if the chatmode is enabled, you can use "/roster alternate"
+        to jump to the moved buddy.
 
 /msay begin|verbatim|send|abort::
         Send a multi-line message.  To write a single message with several

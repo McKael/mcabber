@@ -1182,7 +1182,9 @@ void packethandler(jconn conn, jpacket packet)
 
           // Check for departure/arrival
           if (!mbnewnick && mbrole == role_none) {
-            gchar *mbuf = g_strdup_printf("%s has left", rname);
+            gchar *mbuf;
+            if (s)  mbuf = g_strdup_printf("%s has left: %s", rname, s);
+            else    mbuf = g_strdup_printf("%s has left", rname);
             scr_WriteIncomingMessage(r, mbuf, 0, HBB_PREFIX_INFO);
             if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
             g_free(mbuf);

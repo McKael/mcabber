@@ -697,9 +697,13 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   sl_clone = roster_add_user(roster_usr->jid, roster_usr->name,
           newgroupname, roster_usr->type);
   roster_clone = (roster*)sl_clone->data;
+  roster_clone->subscription = roster_usr->subscription;
   roster_clone->flags = roster_usr->flags;
+
   roster_clone->resource = roster_usr->resource;
   roster_usr->resource = NULL;
+  roster_clone->nickname = roster_usr->nickname;
+  roster_usr->nickname = NULL;
 
   // Free old buddy
   if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);

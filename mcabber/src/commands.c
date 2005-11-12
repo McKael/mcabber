@@ -134,9 +134,11 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "unread_next");
 
   // Roster category
-  compl_add_category_word(COMPL_BUFFER, "bottom");
   compl_add_category_word(COMPL_BUFFER, "clear");
+  compl_add_category_word(COMPL_BUFFER, "bottom");
   compl_add_category_word(COMPL_BUFFER, "top");
+  compl_add_category_word(COMPL_BUFFER, "up");
+  compl_add_category_word(COMPL_BUFFER, "down");
   compl_add_category_word(COMPL_BUFFER, "search_backward");
   compl_add_category_word(COMPL_BUFFER, "search_forward");
   compl_add_category_word(COMPL_BUFFER, "date");
@@ -728,6 +730,26 @@ static void do_buffer(char *arg)
     scr_BufferTopBottom(1);
   } else if (!strcasecmp(arg, "clear")) {
     scr_BufferClear();
+  } else if (!strncasecmp(arg, "up", 2)) {
+    int nblines;
+    arg += 2;
+    if (*arg && *arg++ != ' ') {
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+      return;
+    }
+    nblines = atoi(arg);
+    if (nblines >= 0)
+      scr_BufferScrollUpDown(-1, nblines);
+  } else if (!strncasecmp(arg, "down", 4)) {
+    int nblines;
+    arg += 4;
+    if (*arg && *arg++ != ' ') {
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+      return;
+    }
+    nblines = atoi(arg);
+    if (nblines >= 0)
+      scr_BufferScrollUpDown(1, nblines);
   } else if (!strncasecmp(arg, "search_backward", 15)) {
     arg += 15;
     if (*arg++ == ' ')

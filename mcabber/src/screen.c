@@ -985,12 +985,13 @@ void scr_RosterJumpAlternate(void)
 }
 
 //  scr_BufferScrollUpDown()
-// Scroll up/down the current buddy window, half a screen.
-// (up if updown == -1, down if updown == 1)
-void scr_BufferScrollUpDown(int updown)
+// Scroll up/down the current buddy window,
+// - half a screen if nblines is 0,
+// - up if updown == -1, down if updown == 1
+void scr_BufferScrollUpDown(int updown, unsigned int nblines)
 {
   window_entry_t *win_entry;
-  int n, nblines;
+  int n, nbl;
   GList *hbuf_top;
 
   // Get win_entry
@@ -998,23 +999,27 @@ void scr_BufferScrollUpDown(int updown)
   win_entry  = scr_SearchWindow(CURRENT_JID);
   if (!win_entry) return;
 
-  // Scroll half a screen (or less)
-  nblines = CHAT_WIN_HEIGHT/2-1;
+  if (!nblines) {
+    // Scroll half a screen (or less)
+    nbl = CHAT_WIN_HEIGHT/2-1;
+  } else {
+    nbl = nblines;
+  }
   hbuf_top = win_entry->top;
 
   if (updown == -1) {   // UP
     if (!hbuf_top) {
       hbuf_top = g_list_last(win_entry->hbuf);
-      if (!win_entry->cleared)
-        nblines *= 3;
+      if (!nblines && !win_entry->cleared)
+        nbl *= 3;
       else
         win_entry->cleared = FALSE;
     }
-    for (n=0 ; hbuf_top && n < nblines && g_list_previous(hbuf_top) ; n++)
+    for (n=0 ; hbuf_top && n < nbl && g_list_previous(hbuf_top) ; n++)
       hbuf_top = g_list_previous(hbuf_top);
     win_entry->top = hbuf_top;
   } else {              // DOWN
-    for (n=0 ; hbuf_top && n < nblines ; n++)
+    for (n=0 ; hbuf_top && n < nbl ; n++)
       hbuf_top = g_list_next(hbuf_top);
     win_entry->top = hbuf_top;
     // Check if we are at the bottom
@@ -1668,10 +1673,10 @@ int process_key(int key)
         *ptr_inputline = 0;
         break;
     case 16:    // Ctrl-p
-        scr_BufferScrollUpDown(-1);
+        scr_BufferScrollUpDown(-1, 0);
         break;
     case 14:    // Ctrl-n
-        scr_BufferScrollUpDown(1);
+        scr_BufferScrollUpDown(1, 0);
         break;
     case 17:    // Ctrl-q
         scr_CheckAutoAway(TRUE);

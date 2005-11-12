@@ -59,5 +59,6 @@ void scr_BufferPercent(int pc);
 void scr_BufferDate(time_t t);
 void scr_RosterUnreadMessage(int);
 void scr_RosterJumpAlternate(void);
+void scr_BufferScrollUpDown(int updown, unsigned int nblines);
 
 #endif

@@ -57,6 +57,7 @@ void    roster_setstatus(const char *jid, const char *resname, gchar prio,
                          enum imrole role, const char *realjid);
 void    roster_setflags(const char *jid, guint flags, guint value);
 void    roster_msg_setflag(const char *jid, guint value);
+const char *roster_getname(const char *jid);
 void    roster_settype(const char *jid, guint type);
 enum imstatus roster_getstatus(const char *jid, const char *resname);
 const char   *roster_getstatusmsg(const char *jid, const char *resname);

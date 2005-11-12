@@ -145,11 +145,32 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
                             time_t timestamp, enum imstatus status,
                             const char *status_msg)
 {
+  int buddy_format;
+  char *bn = NULL;
   const char *rn = (resname ? resname : "default");
-  scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] <%s/%s> %s",
+
+  buddy_format = settings_opt_get_int("buddy_format");
+  if (buddy_format) {
+    const char *name = roster_getname(jid);
+    if (name && strcmp(name, jid)) {
+      if (buddy_format == 1)
+        bn = g_strdup_printf("%s <%s/%s>", name, jid, rn);
+      else if (buddy_format == 2)
+        bn = g_strdup_printf("%s/%s", name, rn);
+      else if (buddy_format == 3)
+        bn = g_strdup_printf("%s", name);
+    }
+  }
+
+  if (!bn) {
+    bn = g_strdup_printf("<%s/%s>", jid, rn);
+  }
+
+  scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] %s %s",
                imstatus2char[roster_getstatus(jid, resname)],
-               imstatus2char[status], jid, rn,
+               imstatus2char[status], bn,
                ((status_msg) ? status_msg : ""));
+  g_free(bn);
   roster_setstatus(jid, rn, prio, status, status_msg, role_none, NULL);
   buddylist_build();
   scr_DrawRoster();

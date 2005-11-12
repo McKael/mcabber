@@ -80,7 +80,7 @@ set resource = mcabber
 #set tracelog_level = 1
 #set tracelog_file = /home/mikael/mcabber.log
 
-#  Status messages
+# Status messages
 # The "message" value will override all others, take care!
 #set message = Unique message status
 #set message_avail     = I'm available
@@ -90,7 +90,7 @@ set resource = mcabber
 #set message_away      = I'm away
 #set message_autoaway  = Auto-away
 
-#  Colors
+# Colors
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white
 # You can use the "default" color, too (i.e. for transparent background)
 #set color_background   = blue
@@ -100,13 +100,21 @@ set resource = mcabber
 #set color_rosterselect = black
 #set color_backselected = cyan
 
-#  Aliases
+# Style
+# Buddy name format (in status window):
+# - 0: (default) "<jid/resource>"
+# - 1: "name <jid/resource>" (name is omitted if same as the jid)
+# - 2: "name/resource" (if the name is the same as the jid, use <jid/res>)
+# - 3: "name" (if the name is the same as the jid, use <jid/res>)
+#set buddy_format = 2
+
+# Aliases
 alias online   = status online
 alias away     = status away
 alias dnd      = status dnd
 alias notavail = status notavail
 
-#  Key bindings
+# Key bindings
 # Ctlr-X (24) bound to /roster alternate
 bind 24 = roster alternate
 # F5 (269) bound to /roster toggle_offline  (centericq-like, IIRC)

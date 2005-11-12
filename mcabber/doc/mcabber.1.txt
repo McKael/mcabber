@@ -109,8 +109,10 @@ COMMANDS
         (chat window).
 
         'clear';;                clear the current buddy chat window
-        'top';;                  jump to the top of the current buddy chat buffer
         'bottom';;               jump to the bottom of the current buddy chat buffer
+        'top';;                  jump to the top of the current buddy chat buffer
+        'up' [n];;               scroll the buffer up n lines (default: half a screen)
+        'down' [n];;             scroll the buffer down n lines (default: half a screen)
         'search_backward' text;; search for "text" in the current buddy chat buffer
         'search_forward'  text;; search for "text" in the current buddy chat buffer
         'date' date;;            jump to the first line after the specified date in the chat buffer (date format: "YYYY-mm-dd[THH:MM:SS]", "-" and ":" are optional)

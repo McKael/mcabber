@@ -1001,7 +1001,7 @@ void scr_BufferScrollUpDown(int updown, unsigned int nblines)
 
   if (!nblines) {
     // Scroll half a screen (or less)
-    nbl = CHAT_WIN_HEIGHT/2-1;
+    nbl = CHAT_WIN_HEIGHT/2;
   } else {
     nbl = nblines;
   }
@@ -1010,10 +1010,12 @@ void scr_BufferScrollUpDown(int updown, unsigned int nblines)
   if (updown == -1) {   // UP
     if (!hbuf_top) {
       hbuf_top = g_list_last(win_entry->hbuf);
-      if (!nblines && !win_entry->cleared)
-        nbl *= 3;
-      else
+      if (!win_entry->cleared) {
+        if (!nblines) nbl = nbl*3 - 1;
+        else nbl += CHAT_WIN_HEIGHT - 1;
+      } else {
         win_entry->cleared = FALSE;
+      }
     }
     for (n=0 ; hbuf_top && n < nbl && g_list_previous(hbuf_top) ; n++)
       hbuf_top = g_list_previous(hbuf_top);

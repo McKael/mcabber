@@ -890,7 +890,8 @@ void packethandler(jconn conn, jpacket packet)
               // Display inside the room window
               mbuf = g_strdup_printf("%s has set the topic to: %s", r,
                                      (subj_noutf8 ? subj_noutf8 : "(?)"));
-              scr_WriteIncomingMessage(s, mbuf, 0, HBB_PREFIX_INFO);
+              scr_WriteIncomingMessage(s, mbuf, 0,
+                                       HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
               if (settings_opt_get_int("log_muc_conf"))
                 hlog_write_message(s, 0, FALSE, mbuf);
               if (subj_noutf8) g_free(subj_noutf8);
@@ -1167,7 +1168,8 @@ void packethandler(jconn conn, jpacket packet)
               gchar *newname_noutf8 = from_utf8(mbnewnick);
               mbuf = g_strdup_printf("%s is now known as %s", rname,
                       (newname_noutf8 ? newname_noutf8 : "(?)"));
-              scr_WriteIncomingMessage(r, mbuf, 0, HBB_PREFIX_INFO);
+              scr_WriteIncomingMessage(r, mbuf, 0,
+                                       HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
               if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
               g_free(mbuf);
               if (newname_noutf8) {
@@ -1185,7 +1187,8 @@ void packethandler(jconn conn, jpacket packet)
             gchar *mbuf;
             if (s)  mbuf = g_strdup_printf("%s has left: %s", rname, s);
             else    mbuf = g_strdup_printf("%s has left", rname);
-            scr_WriteIncomingMessage(r, mbuf, 0, HBB_PREFIX_INFO);
+            scr_WriteIncomingMessage(r, mbuf, 0,
+                                     HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
             if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
             g_free(mbuf);
           } else if (buddy_getstatus(room_elt->data, rname) == offline &&
@@ -1197,7 +1200,8 @@ void packethandler(jconn conn, jpacket packet)
             } else {
               mbuf = g_strdup_printf("%s has joined", rname);
             }
-            scr_WriteIncomingMessage(r, mbuf, 0, HBB_PREFIX_INFO);
+            scr_WriteIncomingMessage(r, mbuf, 0,
+                                     HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
             if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
             g_free(mbuf);
           }

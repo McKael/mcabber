@@ -20,6 +20,7 @@
 #define HBB_PREFIX_AUTH     8
 #define HBB_PREFIX_INFO    16
 #define HBB_PREFIX_ERR     32
+#define HBB_PREFIX_NOFLAG  64
 
 typedef struct {
   time_t timestamp;

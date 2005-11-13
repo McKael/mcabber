@@ -528,7 +528,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     top_panel(inputPanel);
     update_panels();
     doupdate();
-  } else {
+  } else if (!(prefix_flags & HBB_PREFIX_NOFLAG)) {
     roster_msg_setflag(winId, TRUE);
     update_roster = TRUE;
   }
@@ -789,7 +789,8 @@ inline void scr_WriteMessage(const char *jid, const char *text,
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
         time_t timestamp, guint prefix)
 {
-  if (!prefix) prefix = HBB_PREFIX_IN;
+  if (!(prefix & ~HBB_PREFIX_NOFLAG))
+    prefix |= HBB_PREFIX_IN;
   // FIXME expand tabs / filter out special chars...
   scr_WriteMessage(jidfrom, text, timestamp, prefix);
   update_panels();

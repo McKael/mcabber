@@ -345,6 +345,11 @@ static window_entry_t *scr_SearchWindow(const char *winId)
   return NULL;
 }
 
+bool scr_BuddyBufferExists(const char *jid)
+{
+  return (scr_SearchWindow(jid) != NULL);
+}
+
 //  scr_UpdateWindow()
 // (Re-)Display the given chat window.
 static void scr_UpdateWindow(window_entry_t *win_entry)

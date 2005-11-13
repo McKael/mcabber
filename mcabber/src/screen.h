@@ -33,6 +33,7 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
         time_t timestamp, guint prefix);
 void scr_WriteOutgoingMessage(const char *jidto,   const char *text);
 void scr_ShowBuddyWindow(void);
+bool scr_BuddyBufferExists(const char *jid);
 inline void scr_set_chatmode(int enable);
 inline void scr_set_multimode(int enable);
 inline int  scr_get_multimode();

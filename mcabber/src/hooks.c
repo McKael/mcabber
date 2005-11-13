@@ -171,6 +171,17 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
                imstatus2char[status], bn,
                ((status_msg) ? status_msg : ""));
   g_free(bn);
+
+  // Write the status change in the buddy's buffer, only if it already exists
+  if (scr_BuddyBufferExists(jid)) {
+    bn = g_strdup_printf("Buddy status has changed: [%c>%c] %s",
+                         imstatus2char[roster_getstatus(jid, resname)],
+                         imstatus2char[status],
+                         ((status_msg) ? status_msg : ""));
+    scr_WriteIncomingMessage(jid, bn, 0, HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+    g_free(bn);
+  }
+
   roster_setstatus(jid, rn, prio, status, status_msg, role_none, NULL);
   buddylist_build();
   scr_DrawRoster();

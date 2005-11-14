@@ -204,7 +204,6 @@ static void ParseColors(void)
 
 void scr_InitCurses(void)
 {
-  int requested_lwh;
   initscr();
   raw();
   noecho();
@@ -218,25 +217,9 @@ void scr_InitCurses(void)
 
   getmaxyx(stdscr, maxY, maxX);
   Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
+  // Note scr_DrawMainWindow() should be called early after scr_InitCurses()
+  // to update Log_Win_Height and set max{X,Y}
 
-  requested_lwh = settings_opt_get_int("log_win_height");
-  if (requested_lwh > 0) {
-    if (maxY > requested_lwh + 3)
-      Log_Win_Height = requested_lwh + 2;
-    else
-      Log_Win_Height = ((maxY > 5) ? (maxY - 2) : 3);
-  } else if (requested_lwh < 0) {
-    Log_Win_Height = 3;
-  }
-
-  if (maxY < Log_Win_Height+2) {
-    if (maxY < 5) {
-      Log_Win_Height = 3;
-      maxY = Log_Win_Height+2;
-    } else {
-      Log_Win_Height = maxY - 2;
-    }
-  }
   inputLine[0] = 0;
   ptr_inputline = inputLine;
 
@@ -571,6 +554,28 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 //
 void scr_DrawMainWindow(unsigned int fullinit)
 {
+  int requested_lwh;
+
+  Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
+  requested_lwh = settings_opt_get_int("log_win_height");
+  if (requested_lwh > 0) {
+    if (maxY > requested_lwh + 3)
+      Log_Win_Height = requested_lwh + 2;
+    else
+      Log_Win_Height = ((maxY > 5) ? (maxY - 2) : 3);
+  } else if (requested_lwh < 0) {
+    Log_Win_Height = 3;
+  }
+
+  if (maxY < Log_Win_Height+2) {
+    if (maxY < 5) {
+      Log_Win_Height = 3;
+      maxY = Log_Win_Height+2;
+    } else {
+      Log_Win_Height = maxY - 2;
+    }
+  }
+
   if (fullinit) {
     /* Create windows */
     rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WIDTH, 0, 0);
@@ -653,8 +658,8 @@ void scr_Resize()
 
   // First, update the global variables
   getmaxyx(stdscr, maxY, maxX);
-  if (maxY < Log_Win_Height+2)
-    maxY = Log_Win_Height+2;
+  // scr_DrawMainWindow() will take care of maxY and Log_Win_Height
+
   // Make sure the cursor stays inside the window
   check_offset(0);
 

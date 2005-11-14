@@ -234,8 +234,6 @@ int main(int argc, char **argv)
   /* Initialize N-Curses */
   scr_LogPrint(LPRINT_DEBUG, "Initializing N-Curses...");
   scr_InitCurses();
-
-  scr_LogPrint(LPRINT_DEBUG, "Drawing main window...");
   scr_DrawMainWindow(TRUE);
 
   optval   = (settings_opt_get_int("logging") > 0);

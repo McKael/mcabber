@@ -42,6 +42,11 @@
 
 #define window_entry(n) list_entry(n, window_entry_t, list)
 
+#define DEFAULT_LOG_WIN_HEIGHT (5+2)
+#define CHAT_WIN_HEIGHT (maxY-1-Log_Win_Height)
+
+static unsigned short int Log_Win_Height;
+
 static inline void check_offset(int);
 
 LIST_HEAD(window_list);
@@ -199,6 +204,7 @@ static void ParseColors(void)
 
 void scr_InitCurses(void)
 {
+  int requested_lwh;
   initscr();
   raw();
   noecho();
@@ -211,8 +217,26 @@ void scr_InitCurses(void)
   ParseColors();
 
   getmaxyx(stdscr, maxY, maxX);
-  if (maxY < LOG_WIN_HEIGHT+2)
-    maxY = LOG_WIN_HEIGHT+2;
+  Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
+
+  requested_lwh = settings_opt_get_int("log_win_height");
+  if (requested_lwh > 0) {
+    if (maxY > requested_lwh + 3)
+      Log_Win_Height = requested_lwh + 2;
+    else
+      Log_Win_Height = ((maxY > 5) ? (maxY - 2) : 3);
+  } else if (requested_lwh < 0) {
+    Log_Win_Height = 3;
+  }
+
+  if (maxY < Log_Win_Height+2) {
+    if (maxY < 5) {
+      Log_Win_Height = 3;
+      maxY = Log_Win_Height+2;
+    } else {
+      Log_Win_Height = maxY - 2;
+    }
+  }
   inputLine[0] = 0;
   ptr_inputline = inputLine;
 
@@ -551,8 +575,8 @@ void scr_DrawMainWindow(unsigned int fullinit)
     /* Create windows */
     rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WIDTH, 0, 0);
     chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH, 0, ROSTER_WIDTH);
-    logWnd_border = newwin(LOG_WIN_HEIGHT, maxX, CHAT_WIN_HEIGHT, 0);
-    logWnd    = newwin(LOG_WIN_HEIGHT-2, maxX-2, CHAT_WIN_HEIGHT+1, 1);
+    logWnd_border = newwin(Log_Win_Height, maxX, CHAT_WIN_HEIGHT, 0);
+    logWnd    = newwin(Log_Win_Height-2, maxX-2, CHAT_WIN_HEIGHT+1, 1);
     inputWnd  = newwin(1, maxX, maxY-1, 0);
     if (!rosterWnd || !chatWnd || !logWnd || !inputWnd) {
       scr_TerminateCurses();
@@ -568,8 +592,8 @@ void scr_DrawMainWindow(unsigned int fullinit)
     wresize(rosterWnd, CHAT_WIN_HEIGHT, ROSTER_WIDTH);
     wresize(chatWnd, CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH);
 
-    wresize(logWnd_border, LOG_WIN_HEIGHT, maxX);
-    wresize(logWnd, LOG_WIN_HEIGHT-2, maxX-2);
+    wresize(logWnd_border, Log_Win_Height, maxX);
+    wresize(logWnd, Log_Win_Height-2, maxX-2);
     mvwin(logWnd_border, CHAT_WIN_HEIGHT, 0);
     mvwin(logWnd, CHAT_WIN_HEIGHT+1, 1);
 
@@ -584,7 +608,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
   mvwprintw(chatWnd, 0, 0, "This is the status window");
 
   // - Draw/clear the log window
-  scr_draw_box(logWnd_border, 0, 0, LOG_WIN_HEIGHT, maxX, COLOR_GENERAL, 0, 0);
+  scr_draw_box(logWnd_border, 0, 0, Log_Win_Height, maxX, COLOR_GENERAL, 0, 0);
   // Auto-scrolling in log window
   scrollok(logWnd, TRUE);
 
@@ -629,8 +653,8 @@ void scr_Resize()
 
   // First, update the global variables
   getmaxyx(stdscr, maxY, maxX);
-  if (maxY < LOG_WIN_HEIGHT+2)
-    maxY = LOG_WIN_HEIGHT+2;
+  if (maxY < Log_Win_Height+2)
+    maxY = Log_Win_Height+2;
   // Make sure the cursor stays inside the window
   check_offset(0);
 

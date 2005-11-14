@@ -665,7 +665,6 @@ void buddylist_build(void)
   // current_buddy initialization
   if (!current_buddy || (g_list_position(buddylist, current_buddy) == -1))
     current_buddy = g_list_first(buddylist);
-  // XXX Maybe we should set update_roster to TRUE there?
 }
 
 //  buddy_hide_group(roster, hide)

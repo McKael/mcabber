@@ -146,9 +146,12 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
                             const char *status_msg)
 {
   int buddy_format;
+  int st_in_buf;
+  enum imstatus oldstat;
   char *bn = NULL;
   const char *rn = (resname ? resname : "default");
 
+  st_in_buf = settings_opt_get_int("show_status_in_buffer");
   buddy_format = settings_opt_get_int("buddy_format");
   if (buddy_format) {
     const char *name = roster_getname(jid);
@@ -166,20 +169,22 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
     bn = g_strdup_printf("<%s/%s>", jid, rn);
   }
 
+  oldstat = roster_getstatus(jid, resname);
   scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] %s %s",
-               imstatus2char[roster_getstatus(jid, resname)],
-               imstatus2char[status], bn,
+               imstatus2char[oldstat], imstatus2char[status], bn,
                ((status_msg) ? status_msg : ""));
   g_free(bn);
 
-  // Write the status change in the buddy's buffer, only if it already exists
-  if (scr_BuddyBufferExists(jid)) {
-    bn = g_strdup_printf("Buddy status has changed: [%c>%c] %s",
-                         imstatus2char[roster_getstatus(jid, resname)],
-                         imstatus2char[status],
-                         ((status_msg) ? status_msg : ""));
-    scr_WriteIncomingMessage(jid, bn, 0, HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-    g_free(bn);
+  if (st_in_buf == 2 ||
+      (st_in_buf == 1 && (status == offline || oldstat == offline))) {
+    // Write the status change in the buddy's buffer, only if it already exists
+    if (scr_BuddyBufferExists(jid)) {
+      bn = g_strdup_printf("Buddy status has changed: [%c>%c] %s",
+                           imstatus2char[oldstat], imstatus2char[status],
+                           ((status_msg) ? status_msg : ""));
+      scr_WriteIncomingMessage(jid, bn, 0, HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+      g_free(bn);
+    }
   }
 
   roster_setstatus(jid, rn, prio, status, status_msg, role_none, NULL);

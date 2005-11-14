@@ -44,6 +44,7 @@ static unsigned int prio;
 static int s_id;
 static int regmode, regdone;
 static enum imstatus mystatus = offline;
+static gchar *mystatusmsg;
 static unsigned char online;
 
 char imstatus2char[imstatus_size+1] = {
@@ -263,6 +264,11 @@ inline enum imstatus jb_getstatus()
   return mystatus;
 }
 
+inline const char *jb_getstatusmsg()
+{
+  return mystatusmsg;
+}
+
 void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 {
   xmlnode x;
@@ -339,6 +345,9 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 
   hk_mystatuschange(0, mystatus, st, msg);
   mystatus = st;
+  if (mystatusmsg) g_free(mystatusmsg);
+  if (msg)  mystatusmsg = g_strdup(msg);
+  else      mystatusmsg = NULL;
 }
 
 void jb_send_msg(const char *jid, const char *text, int type,
@@ -798,6 +807,10 @@ void statehandler(jconn conn, int state)
 
         online = FALSE;
         mystatus = offline;
+        if (mystatusmsg) {
+          g_free(mystatusmsg);
+          mystatusmsg = NULL;
+        }
         roster_free();
         update_roster = TRUE;
         break;

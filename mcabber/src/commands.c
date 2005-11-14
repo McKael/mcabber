@@ -452,8 +452,10 @@ static void setstatus(const char *recipient, const char *arg)
 static void do_status(char *arg)
 {
   if (!arg || (!*arg)) {
-    scr_LogPrint(LPRINT_NORMAL, "Your status is: %c",
-                 imstatus2char[jb_getstatus()]);
+    const char *sm = jb_getstatusmsg();
+    scr_LogPrint(LPRINT_NORMAL, "Your status is: [%c] %s",
+                 imstatus2char[jb_getstatus()],
+                 (sm ? sm : ""));
     return;
   }
   setstatus(NULL, arg);

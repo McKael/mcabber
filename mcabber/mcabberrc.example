@@ -101,12 +101,19 @@ set resource = mcabber
 #set color_backselected = cyan
 
 # Style
+# Log window height (minimum 1, default 5)
+#set log_win_height = 5
+#
 # Buddy name format (in status window):
 # - 0: (default) "<jid/resource>"
 # - 1: "name <jid/resource>" (name is omitted if same as the jid)
 # - 2: "name/resource" (if the name is the same as the jid, use <jid/res>)
 # - 3: "name" (if the name is the same as the jid, use <jid/res>)
 #set buddy_format = 2
+#
+# Display the status changes in the chat buffers (default: 0, never)
+# Values:  0: never  1: only connect/disconnect  2: all
+#set show_status_in_buffer = 1
 
 # Aliases
 alias online   = status online

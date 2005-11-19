@@ -654,13 +654,16 @@ jump to the next unread message
         ressource you will have to use "/say_to" for each message.
 </dd>
 <dt><b>
-/status [online|avail|invisible|free|dnd|notavail|away [StatusMessage]]
+/status [online|avail|invisible|free|dnd|notavail|away [-|StatusMessage]]
 </b></dt>
 <dd>
-        Set the current status.  If no status is specified, display the
-        current status.<br />
+        Show or set the current status.<br />
+        If no status is specified, display the current status.<br />
         If a status message is specified, it will overrride the message*
-        variables.
+        variables (these variables can be set in the configuration file).
+        If no relevant message* variable is set and no status message provided,
+        the current status message is kept.  If StatusMessage is "-", the
+        current status message is cleared.
 </dd>
 <dt><b>
 /status_to jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
@@ -696,7 +699,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.7.1-dev<br />
-Last updated 12-Nov-2005 17:44:00 CEST
+Last updated 19-Nov-2005 16:44:06 CEST
 </p>
 </div>
 </div>

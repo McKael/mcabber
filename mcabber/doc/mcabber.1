@@ -240,8 +240,12 @@ Send the "text" message to the currently selected buddy\&. Can be useful if you 
 Send the "text" message to the specified jid\&. Please note that this command doesn't set the default resource for a contact, so if you want to send several messages to a specific ressource you will have to use "/say_to" for each message\&.
 
 .TP
-\fB/status\fR [online|avail|invisible|free|dnd|notavail|away [StatusMessage]]
-Set the current status\&. If no status is specified, display the current status\&. If a status message is specified, it will overrride the message* variables\&.
+\fB/status\fR [online|avail|invisible|free|dnd|notavail|away [\-|StatusMessage]]
+Show or set the current status\&.
+
+If no status is specified, display the current status\&.
+
+If a status message is specified, it will overrride the message* variables (these variables can be set in the configuration file)\&. If no relevant message* variable is set and no status message provided, the current status message is kept\&. If StatusMessage is "\-", the current status message is cleared\&.
 
 .TP
 \fB/status_to\fR jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]

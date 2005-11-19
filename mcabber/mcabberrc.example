@@ -45,6 +45,7 @@ set resource = mcabber
 # mcabber will change your status to away if no real activity is detected
 # (command, message, move in the buddylist...).  Note: auto-away only changes
 # the status when it is "available" (online) or "free_for_chat".
+# See 'message_autoaway' below.
 #set autoaway = 0
 
 # History logging
@@ -88,7 +89,11 @@ set resource = mcabber
 #set message_dnd       = Please do not disturb
 #set message_notavail  = I'm not available
 #set message_away      = I'm away
-#set message_autoaway  = Auto-away
+#
+# The auto-away message is only used when 'autoaway' is set.  The previous
+# message will be restored when leaving auto-away status.  If this message
+# isn't defined, the status message will stay unchanged.
+set message_autoaway  = Auto-away (idle)
 
 # Colors
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white

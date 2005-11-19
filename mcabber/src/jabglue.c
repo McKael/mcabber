@@ -691,11 +691,19 @@ void gotroster(xmlnode x)
       buddyname = cleanalias;
       if (name) {
         name_noutf8 = from_utf8(name);
-        if (name_noutf8) buddyname = name_noutf8;
+        if (name_noutf8)
+          buddyname = name_noutf8;
+        else
+          scr_LogPrint(LPRINT_LOG, "Decoding of buddy alias has failed: %s",
+                       name);
       }
 
-      if (group)
+      if (group) {
         group_noutf8 = from_utf8(group);
+        if (!group_noutf8)
+          scr_LogPrint(LPRINT_LOG, "Decoding of buddy group has failed: %s",
+                       group);
+      }
 
       roster_add_user(cleanalias, buddyname, group_noutf8, ROSTER_TYPE_USER);
       if (name_noutf8)  g_free(name_noutf8);
@@ -717,8 +725,10 @@ void gotmessage(char *type, const char *from, const char *body,
   jid = jidtodisp(from);
 
   if (!buffer && body) {
-    scr_LogPrint(LPRINT_LOGNORM, "Decoding of message from <%s> has failed",
+    scr_LogPrint(LPRINT_NORMAL, "Decoding of message from <%s> has failed",
                  from);
+    scr_LogPrint(LPRINT_LOG, "Decoding of message from <%s> has failed: %s",
+                 from, body);
     scr_WriteIncomingMessage(jid, "Cannot display message: "
                              "UTF-8 conversion failure",
                              0, HBB_PREFIX_ERR | HBB_PREFIX_IN);
@@ -893,7 +903,8 @@ void packethandler(jconn conn, jpacket packet)
         g_free(s);
       } else {
         *(r+1) = 0;
-        scr_LogPrint(LPRINT_LOGNORM, "Decoding of message sender has failed");
+        scr_LogPrint(LPRINT_NORMAL, "Decoding of message sender has failed");
+        scr_LogPrint(LPRINT_LOG, "Decoding of message sender has failed: %s", m);
       }
     }
   }
@@ -916,6 +927,9 @@ void packethandler(jconn conn, jpacket packet)
             if (type && !strcmp(type, TMSG_GROUPCHAT)) {  // Room topic
               gchar *mbuf;
               gchar *subj_noutf8 = from_utf8(p);
+              if (!subj_noutf8)
+                scr_LogPrint(LPRINT_LOG,
+                             "Decoding of room topic has failed: %s", p);
               // Get the room (s) and the nickname (r)
               s = g_strdup(from);
               r = strchr(s, '/');
@@ -1142,10 +1156,15 @@ void packethandler(jconn conn, jpacket packet)
         if (type && !strcmp(type, "unavailable"))
           ust = offline;
 
-        if ((x = xmlnode_get_tag(packet->x, "status")) != NULL)
-          s = from_utf8(xmlnode_get_data(x));
-        else
-          s = NULL;
+        s = NULL;
+        p = xmlnode_get_tag_data(packet->x, "status");
+        if (p) {
+          s = from_utf8(p);
+          if (!s)
+            scr_LogPrint(LPRINT_LOG,
+                        "Decoding of status message of <%s> has failed: %s",
+                        from, p);
+        }
 
         // Call hk_statuschange() if status has changed or if the
         // status message is different
@@ -1200,6 +1219,10 @@ void packethandler(jconn conn, jpacket packet)
             if (p && !strcmp(p, "303")) {
               gchar *mbuf;
               gchar *newname_noutf8 = from_utf8(mbnewnick);
+              if (!newname_noutf8)
+                scr_LogPrint(LPRINT_LOG,
+                             "Decoding of new nickname has failed: %s",
+                             mbnewnick);
               mbuf = g_strdup_printf("%s is now known as %s", rname,
                       (newname_noutf8 ? newname_noutf8 : "(?)"));
               scr_WriteIncomingMessage(r, mbuf, 0,

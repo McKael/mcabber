@@ -19,8 +19,10 @@ TODO:
 * Buddy buffer in full width (useful for copy'n paste!)
   (i.e. hide roster window)
 * Publish personal information
-* Show status changes in buddy window (if open)?
+* GPG support
+* Colors for presence
 * Options completion
+* Persistent room in the roster (join every connect)
 * MUC: advanced settings for room creation
 * MUC: join password-protected room
 

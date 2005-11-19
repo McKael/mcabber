@@ -1,7 +1,21 @@
 mcabber (0.7.1-dev)
 
- * Nickname completion in a room
- * Improved "/room names" command
+ * New option 'buddy_format' to select the way buddies are displayed in
+   the log window
+ * New option 'show_status_in_buffer' to display status changes in the
+   buffer (chat) window
+ * The "/status" command has been improved -- its behaviour has changed,
+   please read the manual page
+ * The log window height can be set
+ * Add "/buffer up" and "/buffer down" commands
+ * The "/move" command does not jump to the body in the new group anymore
+ * MUC: Nickname completion in a room
+ * MUC: Improved "/room names" command
+ * MUC: departure messages are displayed
+ * External commands: the message body can be passed to the external command
+   (see the sample configuration file and the sample eventcmd script)
+ * UTF-8 conversion failures are written to the tracelog file (if enabled)
+ * Fix a bug when moving a chatroom to another group (in the roster)
  * Minor cleanup (warnings and compilation stuff)
 
  -- Mikael, ?

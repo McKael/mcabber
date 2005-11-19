@@ -145,6 +145,28 @@ int checkset_perm(const char *name, unsigned int setmode)
   return 0;
 }
 
+const char *ut_get_tmpdir(void)
+{
+  static const char *tmpdir;
+  const char *tmpvars[] = { "MCABBERTMPDIR", "TMP", "TMPDIR", "TEMP" };
+  int i;
+
+  if (tmpdir)
+    return tmpdir;
+
+  for (i = 0; i < (sizeof(tmpvars) / sizeof(const char *)); i++) {
+    tmpdir = getenv(tmpvars[i]);
+    if (tmpdir && tmpdir[0] && tmpdir[0] == '/' && tmpdir[1]) {
+      // Looks ok.
+      return tmpdir;
+    }
+  }
+
+  // Default temporary directory
+  tmpdir = "/tmp";
+  return tmpdir;
+}
+
 //  to_iso8601(dststr, timestamp)
 // Convert timestamp to iso8601 format, and store it in dststr.
 // NOTE: dststr should be at last 19 chars long.

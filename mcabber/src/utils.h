@@ -9,6 +9,8 @@ void ut_WriteLog(unsigned int flag, const char *data);
 
 int checkset_perm(const char *name, unsigned int setmode);
 
+const char *ut_get_tmpdir(void);
+
 int    to_iso8601(char *dststr, time_t timestamp);
 time_t from_iso8601(const char *timestamp, int utc);
 

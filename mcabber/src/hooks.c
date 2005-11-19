@@ -21,6 +21,7 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "hooks.h"
 #include "screen.h"
@@ -28,6 +29,7 @@
 #include "histolog.h"
 #include "hbuf.h"
 #include "settings.h"
+#include "utils.h"
 
 static char *extcmd;
 
@@ -101,7 +103,7 @@ inline void hk_message_in(const char *jid, const char *resname,
   // - We do not call hk_ext_cmd() for history lines in MUC
   // - We do call hk_ext_cmd() for private messages in a room
   if ((is_groupchat && !timestamp) || !is_groupchat)
-    hk_ext_cmd(jid, (is_groupchat ? 'G' : 'M'), 'R', NULL);
+    hk_ext_cmd(jid, (is_groupchat ? 'G' : 'M'), 'R', wmsg);
 
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set
@@ -233,6 +235,7 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
   char *arg_info = NULL;
   char *arg_data = NULL;
   char status_str[2];
+  char *datafname = NULL;
 
   if (!extcmd) return;
 
@@ -263,8 +266,31 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
 
   if (!arg_type || !arg_info) return;
 
+  if (strchr("MG", type) && data && settings_opt_get_int("event_log_files")) {
+    int fd;
+    const char *prefix;
+    prefix = settings_opt_get("event_log_dir");
+    if (!prefix)
+      prefix = ut_get_tmpdir();
+    datafname = g_strdup_printf("%s/mcabber-%d.XXXXXX", prefix, getpid());
+    // XXX Some old systems may require us to set umask first.
+    fd = mkstemp(datafname);
+    if (fd == -1) {
+      g_free(datafname);
+      datafname = NULL;
+      scr_LogPrint(LPRINT_LOGNORM,
+                   "Unable to create temp file for external command.");
+    }
+    write(fd, data, strlen(data));
+    write(fd, "\n", 1);
+    close(fd);
+    arg_data = datafname;
+  }
+
   if ((pid=fork()) == -1) {
     scr_LogPrint(LPRINT_LOGNORM, "Fork error, cannot launch external command.");
+    if (datafname)
+      g_free(datafname);
     return;
   }
 
@@ -274,5 +300,6 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
       exit(1);
     }
   }
+  if (datafname)
+    g_free(datafname);
 }
-

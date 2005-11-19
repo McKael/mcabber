@@ -321,16 +321,32 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
             strprio, (unsigned) -1);
   }
 
-  if (!msg)
-      msg = settings_get_status_msg(st);
+  if (msg) {
+    // The status message has been specified.  We'll use it, unless it is
+    // "-" which is a special case (option meaning "no status message").
+    if (!strcmp(msg, "-"))
+      msg = "";
+  } else {
+    // No status message specified; we'll use:
+    // a) the default status message (if provided by the user);
+    // b) the current status message;
+    // c) no status message (i.e. an empty one).
+    msg = settings_get_status_msg(st);
+    if (!msg) {
+      if (mystatusmsg)
+        msg = mystatusmsg;
+      else
+        msg = "";
+    }
+  }
 
   utf8_msg = to_utf8(msg);
   xmlnode_insert_cdata(xmlnode_insert_tag(x, "status"), utf8_msg,
           (unsigned) -1);
 
   jab_send(jc, x);
-  xmlnode_free(x);
   g_free(utf8_msg);
+  xmlnode_free(x);
 
   // If we didn't change our _global_ status, we are done
   if (recipient) return;
@@ -345,9 +361,14 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 
   hk_mystatuschange(0, mystatus, st, msg);
   mystatus = st;
-  if (mystatusmsg) g_free(mystatusmsg);
-  if (msg)  mystatusmsg = g_strdup(msg);
-  else      mystatusmsg = NULL;
+  if (msg != mystatusmsg) {
+    if (mystatusmsg)
+      g_free(mystatusmsg);
+    if (*msg)
+      mystatusmsg = g_strdup(msg);
+    else
+      mystatusmsg = NULL;
+  }
 }
 
 void jb_send_msg(const char *jid, const char *text, int type,

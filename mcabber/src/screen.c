@@ -840,17 +840,30 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text)
 void inline set_autoaway(bool setaway)
 {
   static enum imstatus oldstatus;
+  static char *oldmsg;
   Autoaway = setaway;
 
   if (setaway) {
-    const char *msg;
+    const char *msg, *prevmsg;
     oldstatus = jb_getstatus();
+    if (oldmsg) {
+      g_free(oldmsg);
+      oldmsg = NULL;
+    }
+    prevmsg = jb_getstatusmsg();
     msg = settings_opt_get("message_autoaway");
-    if (!msg) msg = MSG_AUTOAWAY;
+    if (!msg)
+      msg = prevmsg;
+    if (prevmsg)
+      oldmsg = g_strdup(prevmsg);
     jb_setstatus(away, NULL, msg);
   } else {
     // Back
-    jb_setstatus(oldstatus, NULL, NULL);
+    jb_setstatus(oldstatus, NULL, (oldmsg ? oldmsg : ""));
+    if (oldmsg) {
+      g_free(oldmsg);
+      oldmsg = NULL;
+    }
   }
 }
 

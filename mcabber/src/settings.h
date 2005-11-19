@@ -11,15 +11,6 @@
 #endif
 
 
-/* Default status messages */
-#define MSG_AVAIL     "I'm here!"
-#define MSG_FREE      "Free for chat"
-#define MSG_DND       "Busy"
-#define MSG_NOTAVAIL  "Not available"
-#define MSG_AWAY      "Away"
-#define MSG_AUTOAWAY  "Auto away status (idle)"
-
-
 #define SETTINGS_TYPE_OPTION    1
 #define SETTINGS_TYPE_ALIAS     2
 #define SETTINGS_TYPE_BINDING   3

@@ -15,15 +15,26 @@ CMD_MSG_IN="/usr/bin/play /usr/share/sounds/gtkboard/machine_move.ogg"
 event=$1
 arg1=$2
 arg2=$3
+filename=$4
+# Note that the 4th argument is only provided for incoming messages
+# and when 'event_log_files' is set.
 
 if [ $event == "MSG" ]; then
   case "$arg1" in
     IN)
       # Incoming message from buddy $arg2
       $CMD_MSG_IN > /dev/null 2>&1
+      if [[ -n "$filename" && -f "$filename" ]]; then
+        # We could process filename here...
+        /bin/rm $filename
+      fi
       ;;
     MUC)
       # Groupchat message in room $arg2
+      if [[ -n "$filename" && -f "$filename" ]]; then
+        # We could process filename here...
+        /bin/rm $filename
+      fi
       ;;
     OUT)
       # Outgoing message for buddy $arg2

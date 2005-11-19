@@ -41,13 +41,6 @@ set resource = mcabber
 # in the roster.
 #set hide_offline_buddies = 0
 
-# Set the auto-away timeout, in seconds.  If set to a value >0,
-# mcabber will change your status to away if no real activity is detected
-# (command, message, move in the buddylist...).  Note: auto-away only changes
-# the status when it is "available" (online) or "free_for_chat".
-# See 'message_autoaway' below.
-#set autoaway = 0
-
 # History logging
 # You can save the messages history: set logging = 1
 # You can load (read) the messages history: set load_logs = 1
@@ -64,13 +57,24 @@ set resource = mcabber
 
 # External command for events
 # You can specify a script or process to be launched when an event occurs.
+#
+# If 'event_log_files' is set, a file is created and contains the body of
+# the message (incoming messages only); the file name is the last parameter.
+# If you enable this, you can specify the directory mcabber will use to
+# create these messages with the 'event_log_dir' variable (default is the
+# system temp dir, or MCABBERTMPDIR environment variable).  Please note
+# that mcabber won't delete these files, it's your script's job.
+#
 # The command is called the following way:
-#   $events_command MSG IN jabber@id        (when receiving a message)
+#   $events_command MSG IN jabber@id [file] (when receiving a message)
 #   $events_command MSG OUT jabber@id       (when sending a message)
-#   $events_command MSG MUC room_id         (when receiving a MUC message)
+#   $events_command MSG MUC room_id [file]  (when receiving a MUC message)
 #   $events_command STATUS X jabber@id      (new buddy status is X)
 # See sample script in contrib/ directory.
 #set events_command = /home/mikael/.mcabber/eventcmd
+#
+#set event_log_files = 0
+#set event_log_dir = /home/mikael/.mcabber/event_files
 
 # Traces logging
 # If you want advanced traces, please specify a file and a level here.
@@ -80,6 +84,13 @@ set resource = mcabber
 # Default is level 0, no trace logging
 #set tracelog_level = 1
 #set tracelog_file = /home/mikael/mcabber.log
+
+# Set the auto-away timeout, in seconds.  If set to a value >0,
+# mcabber will change your status to away if no real activity is detected
+# (command, message, move in the buddylist...).  Note: auto-away only changes
+# the status when it is "available" (online) or "free_for_chat".
+# See 'message_autoaway' below.
+#set autoaway = 0
 
 # Status messages
 # The "message" value will override all others, take care!

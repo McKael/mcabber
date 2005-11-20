@@ -12,6 +12,7 @@ mcabber (0.7.1-dev)
  * MUC: Nickname completion in a room
  * MUC: Improved "/room names" command
  * MUC: departure messages are displayed
+ * MUC: mcabber now notices when it is ejected from a room
  * External commands: the message body can be passed to the external command
    (see the sample configuration file and the sample eventcmd script)
  * UTF-8 conversion failures are written to the tracelog file (if enabled)

@@ -1224,7 +1224,7 @@ void packethandler(jconn conn, jpacket packet)
                              "Decoding of new nickname has failed: %s",
                              mbnewnick);
               mbuf = g_strdup_printf("%s is now known as %s", rname,
-                      (newname_noutf8 ? newname_noutf8 : "(?)"));
+                                     (newname_noutf8 ? newname_noutf8 : "(?)"));
               scr_WriteIncomingMessage(r, mbuf, 0,
                                        HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
               if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
@@ -1242,6 +1242,22 @@ void packethandler(jconn conn, jpacket packet)
           // Check for departure/arrival
           if (!mbnewnick && mbrole == role_none) {
             gchar *mbuf;
+
+            // If this is a leave, check if it is ourself
+            m = buddy_getnickname(room_elt->data);
+            if (m && !strcmp(rname, m)) {
+              // _We_ have left! (kicked, banned, etc.)
+              buddy_setnickname(room_elt->data, NULL);
+              buddy_del_all_resources(room_elt->data);
+              scr_LogPrint(LPRINT_LOGNORM, "You have left %s", r);
+              scr_WriteIncomingMessage(r, "You have left", 0,
+                                       HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+              g_free(r);
+              if (s) g_free(s);
+              update_roster = TRUE;
+              break;
+            }
+
             if (s)  mbuf = g_strdup_printf("%s has left: %s", rname, s);
             else    mbuf = g_strdup_printf("%s has left", rname);
             scr_WriteIncomingMessage(r, mbuf, 0,

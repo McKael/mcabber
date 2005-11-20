@@ -440,11 +440,16 @@ static void setstatus(const char *recipient, const char *arg)
     return;
   }
 
+  // Use provided message, unless requested status is "invisible"
   if (msg && st != invisible) {
     for (msg++ ; *msg && *msg == ' ' ; msg++) ;
     if (!*msg) msg = NULL;
   } else
     msg = NULL;
+
+  // If a recipient is specified, let's don't use default status messages
+  if (recipient && !msg)
+    msg = "";
 
   jb_setstatus(st, recipient, msg);
 }

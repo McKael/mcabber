@@ -104,7 +104,7 @@ set resource = mcabber
 # The auto-away message is only used when 'autoaway' is set.  The previous
 # message will be restored when leaving auto-away status.  If this message
 # isn't defined, the status message will stay unchanged.
-set message_autoaway  = Auto-away (idle)
+set message_autoaway = Auto-away (idle)
 
 # Colors
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white
@@ -136,6 +136,7 @@ alias online   = status online
 alias away     = status away
 alias dnd      = status dnd
 alias notavail = status notavail
+#alias names = room names
 
 # Key bindings
 # Ctlr-X (24) bound to /roster alternate

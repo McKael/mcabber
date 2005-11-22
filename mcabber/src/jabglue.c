@@ -40,7 +40,6 @@
 jconn jc;
 static time_t LastPingTime;
 static unsigned int KeepaliveDelay;
-static unsigned int prio;
 static int s_id;
 static int regmode, regdone;
 static enum imstatus mystatus = offline;
@@ -200,11 +199,6 @@ void jb_set_keepalive_delay(unsigned int delay)
   KeepaliveDelay = delay;
 }
 
-inline void jb_set_priority(unsigned int priority)
-{
-  prio = priority;
-}
-
 void jb_main()
 {
   xmlnode x, z;
@@ -273,6 +267,7 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 {
   xmlnode x;
   gchar *utf8_msg;
+  unsigned int prio;
 
   if (!online) return;
 
@@ -314,6 +309,7 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
         break;
   }
 
+  prio = settings_opt_get_int("priority");
   if (prio) {
     char strprio[8];
     snprintf(strprio, 8, "%u", prio);

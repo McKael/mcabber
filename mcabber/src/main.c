@@ -74,8 +74,6 @@ void mcabber_connect(void)
   ssl  = (settings_opt_get_int("ssl") > 0);
   port = (unsigned int) settings_opt_get_int("port");
 
-  jb_set_priority(settings_opt_get_int("priority"));
-
   /* Connect to server */
   scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",
                servername);

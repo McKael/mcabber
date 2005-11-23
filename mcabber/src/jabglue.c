@@ -57,6 +57,11 @@ static enum {
   STATE_LOGGED
 } jstate;
 
+struct T_presence {
+  enum imstatus st;
+  const char *msg;
+};
+
 
 void statehandler(jconn, int);
 void packethandler(jconn, jpacket);
@@ -263,11 +268,32 @@ inline const char *jb_getstatusmsg()
   return mystatusmsg;
 }
 
+static void roompresence(gpointer room, void *presencedata)
+{
+  const char *jid;
+  const char *nickname;
+  char *to;
+  struct T_presence *pres = presencedata;
+
+  if (!buddy_getresources(room)) // FIXME: that's a memory leak
+    return;
+
+  jid = buddy_getjid(room);
+  if (!jid) return;
+  nickname = buddy_getnickname(room);
+  if (!nickname) return;
+
+  to = g_strdup_printf("%s/%s", jid, nickname);
+  jb_setstatus(pres->st, to, pres->msg);
+  g_free(to);
+}
+
 void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 {
   xmlnode x;
   gchar *utf8_msg;
   unsigned int prio;
+  struct T_presence room_presence;
 
   if (!online) return;
 
@@ -347,8 +373,12 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
   // If we didn't change our _global_ status, we are done
   if (recipient) return;
 
-  // Buddy per buddy invisibility handling
-  //sendvisibility();
+  // Send presence to chatrooms
+  if (st != invisible) {
+    room_presence.st = st;
+    room_presence.msg = msg;
+    foreach_buddy(ROSTER_TYPE_ROOM, &roompresence, &room_presence);
+  }
 
   // We'll need to update the roster if we switch to/from offline because
   // we don't know the presences of buddies when offline...

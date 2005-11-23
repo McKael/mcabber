@@ -88,6 +88,9 @@ void    buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint   buddy_getflags(gpointer rosterdata);
 GList  *buddy_search_jid(char *jid);
 GList  *buddy_search(char *string);
+void    foreach_buddy(guint roster_type,
+                      void (*pfunc)(gpointer rosterdata, void *param),
+                      void *param);
 gpointer unread_msg(gpointer rosterdata);
 
 GSList *compl_list(guint type);

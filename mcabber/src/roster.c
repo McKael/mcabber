@@ -774,7 +774,7 @@ void buddy_setnickname(gpointer rosterdata, const char *newname)
 {
   roster *roster_usr = rosterdata;
 
-  if (!roster_usr->type & ROSTER_TYPE_ROOM) return;
+  if (!(roster_usr->type & ROSTER_TYPE_ROOM)) return;
 
   if (roster_usr->nickname) {
     g_free((gchar*)roster_usr->nickname);
@@ -964,6 +964,33 @@ GList *buddy_search(char *string)
   }
 }
 
+//  foreach_buddy(roster_type, pfunction, param)
+// Call pfunction(buddy, param) for each buddy from the roster with
+// type matching roster_type.
+void foreach_buddy(guint roster_type,
+                   void (*pfunc)(gpointer rosterdata, void *param),
+                   void *param)
+{
+  GSList *sl_roster_elt = groups;
+  roster *roster_elt;
+  GSList *sl_roster_usrelt;
+  roster *roster_usrelt;
+
+  while (sl_roster_elt) {       // group list loop
+    roster_elt = (roster*) sl_roster_elt->data;
+    sl_roster_usrelt = roster_elt->list;
+    while (sl_roster_usrelt) {  // user list loop
+      roster_usrelt = (roster*) sl_roster_usrelt->data;
+
+      if (roster_usrelt->type & roster_type)
+        pfunc(roster_usrelt, param);
+
+      sl_roster_usrelt = g_slist_next(sl_roster_usrelt);
+    }
+    sl_roster_elt = g_slist_next(sl_roster_elt);
+  }
+}
+
 //  compl_list(type)
 // Returns a list of jid's or groups.  (For commands completion)
 // type: ROSTER_TYPE_USER (jid's) or ROSTER_TYPE_GROUP (group names)
@@ -1011,4 +1038,3 @@ gpointer unread_msg(gpointer rosterdata)
 
   return unread_list->data;
 }
-

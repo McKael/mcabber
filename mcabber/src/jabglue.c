@@ -63,8 +63,8 @@ struct T_presence {
 };
 
 
-void statehandler(jconn, int);
-void packethandler(jconn, jpacket);
+static void statehandler(jconn, int);
+static void packethandler(jconn, jpacket);
 
 static void logger(jconn j, int io, const char *buf)
 {
@@ -98,7 +98,7 @@ static void jidsplit(const char *jid, char **user, char **host,
 //  jidtodisp(jid)
 // Strips the resource part from the jid
 // The caller should g_free the result after use.
-char *jidtodisp(const char *jid)
+static char *jidtodisp(const char *jid)
 {
   char *ptr;
   char *alias;
@@ -112,7 +112,7 @@ char *jidtodisp(const char *jid)
 }
 
 char *compose_jid(const char *username, const char *servername,
-        const char *resource)
+                  const char *resource)
 {
   char *jid = g_new(char, 3 +
                     strlen(username) + strlen(servername) + strlen(resource));
@@ -628,7 +628,7 @@ void jb_room_invite(const char *room, const char *jid, const char *reason)
   jb_reset_keepalive();
 }
 
-void postlogin()
+static void postlogin()
 {
   //int i;
 
@@ -680,7 +680,7 @@ void postlogin()
   */
 }
 
-void gotloggedin(void)
+static void gotloggedin(void)
 {
   xmlnode x;
 
@@ -695,7 +695,7 @@ void gotloggedin(void)
   xmlnode_free(x);
 }
 
-void gotroster(xmlnode x)
+static void gotroster(xmlnode x)
 {
   xmlnode y, z;
 
@@ -741,8 +741,8 @@ void gotroster(xmlnode x)
   postlogin();
 }
 
-void gotmessage(char *type, const char *from, const char *body,
-                const char *enc, time_t timestamp)
+static void gotmessage(char *type, const char *from, const char *body,
+                       const char *enc, time_t timestamp)
 {
   char *jid;
   const char *rname;
@@ -769,7 +769,7 @@ void gotmessage(char *type, const char *from, const char *body,
   g_free(buffer);
 }
 
-const char *defaulterrormsg(int code)
+static const char *defaulterrormsg(int code)
 {
   const char *desc;
 
@@ -816,7 +816,7 @@ const char *defaulterrormsg(int code)
 //  display_server_error(x)
 // Display the error to the user
 // x: error tag xmlnode pointer
-void display_server_error(xmlnode x)
+static void display_server_error(xmlnode x)
 {
   const char *desc = NULL;
   int code = 0;
@@ -851,7 +851,7 @@ void display_server_error(xmlnode x)
   scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s", code, desc);
 }
 
-void statehandler(jconn conn, int state)
+static void statehandler(jconn conn, int state)
 {
   static int previous_state = -1;
 
@@ -897,7 +897,7 @@ void statehandler(jconn conn, int state)
   previous_state = state;
 }
 
-void packethandler(jconn conn, jpacket packet)
+static void packethandler(jconn conn, jpacket packet)
 {
   char *p, *r, *s;
   const char *m, *rname;

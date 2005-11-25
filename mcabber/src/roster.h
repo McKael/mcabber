@@ -80,6 +80,7 @@ gpointer buddy_getgroup(gpointer rosterdata);
 enum imstatus buddy_getstatus(gpointer rosterdata, const char *resname);
 const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname);
 gchar   buddy_getresourceprio(gpointer rosterdata, const char *resname);
+int     buddy_isresource(gpointer rosterdata);
 GSList *buddy_getresources(gpointer rosterdata);
 void    buddy_resource_setname(gpointer rosterdata, const char *resname,
                                const char *newname);

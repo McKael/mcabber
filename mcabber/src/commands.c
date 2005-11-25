@@ -1261,7 +1261,7 @@ static void do_room(char *arg)
       return;
     }
     // Quick check: if there are resources, we haven't left
-    if (buddy_getresources(bud)) {
+    if (buddy_isresource(bud)) {
       scr_LogPrint(LPRINT_NORMAL, "You haven't left this room!");
       return;
     }

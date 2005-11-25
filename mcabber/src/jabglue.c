@@ -275,7 +275,7 @@ static void roompresence(gpointer room, void *presencedata)
   char *to;
   struct T_presence *pres = presencedata;
 
-  if (!buddy_getresources(room)) // FIXME: that's a memory leak
+  if (!buddy_isresource(room))
     return;
 
   jid = buddy_getjid(room);

@@ -785,7 +785,7 @@ void scr_DrawRoster(void)
     }
 
     if (ismuc) {
-      if (buddy_getresources(BUDDATA(buddy)))
+      if (buddy_isresource(BUDDATA(buddy)))
         status = 'C';
       else
         status = 'x';

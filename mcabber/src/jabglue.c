@@ -1332,7 +1332,8 @@ static void packethandler(jconn conn, jpacket packet)
 
         // Not a MUC message, so this is a regular buddy...
         m = roster_getstatusmsg(r, rname);
-        if ((ust != roster_getstatus(r, rname)) || (s && (!m || strcmp(s, m))))
+        if ((ust != roster_getstatus(r, rname)) ||
+            (!s && m && m[0]) || (s && (!m || strcmp(s, m))))
           hk_statuschange(r, rname, bpprio, 0, ust, s);
         g_free(r);
         if (s) g_free(s);

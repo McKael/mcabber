@@ -577,9 +577,7 @@ void jb_room_join(const char *room, const char *nickname)
   }
 
   // Send the XML request
-  x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
-  xmlnode_put_attrib(x, "from", jid_full(jc->user));
-  xmlnode_put_attrib(x, "to", roomid);
+  x = presnew(mystatus, roomid, mystatusmsg);
   y = xmlnode_insert_tag(x, "x");
   xmlnode_put_attrib(y, "xmlns", "http://jabber.org/protocol/muc");
 

@@ -1348,7 +1348,7 @@ static void packethandler(jconn conn, jpacket packet)
           r = jidtodisp(from);
           isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
           g_free(r);
-          scr_LogPrint(LPRINT_LOGNORM, "isagent=%d", isagent); // XXX DBG
+          //scr_LogPrint(LPRINT_LOGNORM, "isagent=%d", isagent); // XXX DBG
           if (!isagent) {
             scr_LogPrint(LPRINT_LOGNORM, "<%s> wants to subscribe "
                          "to your network presence updates", from);

@@ -288,14 +288,14 @@ static void roompresence(gpointer room, void *presencedata)
   g_free(to);
 }
 
-void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
+//  presnew(status, recipient, message)
+// Create an xmlnode with default presence attributes
+// Note: the caller must free the node after use
+static xmlnode presnew(enum imstatus st, const char *recipient,
+                        const char *msg)
 {
-  xmlnode x;
-  gchar *utf8_msg;
   unsigned int prio;
-  struct T_presence room_presence;
-
-  if (!online) return;
+  xmlnode x;
 
   x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
 
@@ -340,8 +340,25 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
     char strprio[8];
     snprintf(strprio, 8, "%u", prio);
     xmlnode_insert_cdata(xmlnode_insert_tag(x, "priority"),
-            strprio, (unsigned) -1);
+                         strprio, (unsigned) -1);
   }
+
+  if (msg) {
+    gchar *utf8_msg = to_utf8(msg);
+    xmlnode_insert_cdata(xmlnode_insert_tag(x, "status"), utf8_msg,
+                         (unsigned) -1);
+    g_free(utf8_msg);
+  }
+
+  return x;
+}
+
+void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
+{
+  xmlnode x;
+  struct T_presence room_presence;
+
+  if (!online) return;
 
   if (msg) {
     // The status message has been specified.  We'll use it, unless it is
@@ -362,12 +379,8 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
     }
   }
 
-  utf8_msg = to_utf8(msg);
-  xmlnode_insert_cdata(xmlnode_insert_tag(x, "status"), utf8_msg,
-          (unsigned) -1);
-
+  x = presnew(st, recipient, msg);
   jab_send(jc, x);
-  g_free(utf8_msg);
   xmlnode_free(x);
 
   // If we didn't change our _global_ status, we are done

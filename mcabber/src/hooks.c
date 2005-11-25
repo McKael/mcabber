@@ -197,15 +197,15 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
   hk_ext_cmd(jid, 'S', imstatus2char[status], NULL);
 }
 
-inline void hk_mystatuschange(time_t timestamp,
-        enum imstatus old_status, enum imstatus new_status, const char *msg)
+inline void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
+                              enum imstatus new_status, const char *msg)
 {
-  if (!msg && (old_status == new_status))
+  if (old_status == new_status)
     return;
 
   scr_LogPrint(LPRINT_LOGNORM, "Your status has changed:  [%c>%c] %s",
-          imstatus2char[old_status], imstatus2char[new_status],
-          ((msg) ? msg : ""));
+               imstatus2char[old_status], imstatus2char[new_status],
+               (msg ? msg : ""));
   //hlog_write_status(NULL, 0, status);
 }
 

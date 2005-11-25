@@ -200,10 +200,7 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
 inline void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
                               enum imstatus new_status, const char *msg)
 {
-  if (old_status == new_status)
-    return;
-
-  scr_LogPrint(LPRINT_LOGNORM, "Your status has changed:  [%c>%c] %s",
+  scr_LogPrint(LPRINT_LOGNORM, "Your status has been set: [%c>%c] %s",
                imstatus2char[old_status], imstatus2char[new_status],
                (msg ? msg : ""));
   //hlog_write_status(NULL, 0, status);

@@ -25,6 +25,9 @@ TODO:
 * Persistent room in the roster (join every connect)
 * MUC: advanced settings for room creation
 * MUC: join password-protected room
+* MUC: "/room topic" should display the current topic
+* MUC: tell the user when (s)he's been kicked/banned
+* s#^/me #*login # in the buffer windows
 
 * File transfer? :)
 

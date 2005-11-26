@@ -71,30 +71,6 @@ static void logger(jconn j, int io, const char *buf)
   scr_LogPrint(LPRINT_DEBUG, "%03s: %s", ((io == 0) ? "OUT" : "IN"), buf);
 }
 
-/*
-static void jidsplit(const char *jid, char **user, char **host,
-        char **res)
-{
-  char *tmp, *ptr;
-  tmp = strdup(jid);
-
-  if ((ptr = strchr(tmp, '/')) != NULL) {
-    *res = strdup(ptr+1);
-    *ptr = 0;
-  } else
-    *res = NULL;
-
-  if ((ptr = strchr(tmp, '@')) != NULL) {
-    *host = strdup(ptr+1);
-    *ptr = 0;
-  } else
-    *host = NULL;
-
-  *user = strdup(tmp);
-  free(tmp);
-}
-*/
-
 //  jidtodisp(jid)
 // Strips the resource part from the jid
 // The caller should g_free the result after use.
@@ -305,22 +281,22 @@ static xmlnode presnew(enum imstatus st, const char *recipient,
   switch(st) {
     case away:
         xmlnode_insert_cdata(xmlnode_insert_tag(x, "show"), "away",
-                (unsigned) -1);
+                             (unsigned) -1);
         break;
 
     case dontdisturb:
         xmlnode_insert_cdata(xmlnode_insert_tag(x, "show"), "dnd",
-                (unsigned) -1);
+                             (unsigned) -1);
         break;
 
     case freeforchat:
         xmlnode_insert_cdata(xmlnode_insert_tag(x, "show"), "chat",
-                (unsigned) -1);
+                             (unsigned) -1);
         break;
 
     case notavail:
         xmlnode_insert_cdata(xmlnode_insert_tag(x, "show"), "xa",
-                (unsigned) -1);
+                             (unsigned) -1);
         break;
 
     case invisible:
@@ -908,21 +884,465 @@ static void statehandler(jconn conn, int state)
   previous_state = state;
 }
 
+static void handle_packet_iq(jconn conn, char *type, char *from,
+                             xmlnode xmldata)
+{
+  char *p;
+  xmlnode x, y;
+  char *ns = NULL;
+  char *id=NULL;
+
+  if (!type)
+    return;
+
+  if (!strcmp(type, "result")) {
+
+    if ((p = xmlnode_get_attrib(xmldata, "id")) != NULL) {
+      int iid = atoi(p);
+
+      scr_LogPrint(LPRINT_DEBUG, "iid = %d", iid);
+      if (iid == s_id) {
+        if (!regmode) {
+          if (jstate == STATE_GETAUTH) {
+            if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
+              if (!xmlnode_get_tag(x, "digest")) {
+                jc->sid = 0;
+              }
+
+            s_id = atoi(jab_auth(jc));
+            jstate = STATE_SENDAUTH;
+          } else {
+            gotloggedin();
+            jstate = STATE_LOGGED;
+          }
+        } else {
+          regdone = TRUE;
+        }
+        return;
+      }
+
+      if (!strcmp(p, "VCARDreq")) {
+        x = xmlnode_get_firstchild(xmldata);
+        if (!x) x = xmldata;
+
+        //jhook.gotvcard(ic, x); TODO
+        scr_LogPrint(LPRINT_LOGNORM, "Got VCARD");
+        return;
+      } else if (!strcmp(p, "versionreq")) {
+        // jhook.gotversion(ic, xmldata); TODO
+        scr_LogPrint(LPRINT_LOGNORM, "Got version");
+        return;
+      }
+    }
+
+    if ((x = xmlnode_get_tag(xmldata, "query")) != NULL) {
+      p = xmlnode_get_attrib(x, "xmlns"); if (p) ns = p;
+
+      if (!strcmp(ns, NS_ROSTER)) {
+        gotroster(x);
+      } else if (!strcmp(ns, NS_AGENTS)) {
+        for (y = xmlnode_get_tag(x, "agent"); y; y = xmlnode_get_nextsibling(y)) {
+          const char *alias = xmlnode_get_attrib(y, "jid");
+
+          if (alias) {
+            const char *name = xmlnode_get_tag_data(y, "name");
+            const char *desc = xmlnode_get_tag_data(y, "description");
+            // TODO
+            // const char *service = xmlnode_get_tag_data(y, "service");
+            enum agtype atype = unknown;
+
+            if (xmlnode_get_tag(y, TMSG_GROUPCHAT))   atype = groupchat;
+            else if (xmlnode_get_tag(y, "transport")) atype = transport;
+            else if (xmlnode_get_tag(y, "search"))    atype = search;
+
+            if (atype == transport) {
+              char *cleanjid = jidtodisp(alias);
+              roster_add_user(cleanjid, NULL, JABBER_AGENT_GROUP,
+                      ROSTER_TYPE_AGENT);
+              g_free(cleanjid);
+            }
+            if (alias && name && desc) {
+              scr_LogPrint(LPRINT_LOGNORM,
+                           "Agent: %s / %s / %s / type=%d",
+                           alias, name, desc, atype);
+
+              if (atype == search) {
+                x = jutil_iqnew (JPACKET__GET, NS_SEARCH);
+                xmlnode_put_attrib(x, "to", alias);
+                xmlnode_put_attrib(x, "id", "Agent info");
+                jab_send(conn, x);
+                xmlnode_free(x);
+              }
+
+              if (xmlnode_get_tag(y, "register")) {
+                x = jutil_iqnew (JPACKET__GET, NS_REGISTER);
+                xmlnode_put_attrib(x, "to", alias);
+                xmlnode_put_attrib(x, "id", "Agent info");
+                jab_send(conn, x);
+                xmlnode_free(x);
+              }
+            }
+          }
+        }
+
+        /*
+        if (find(jhook.agents.begin(), jhook.agents.end(), DEFAULT_CONFSERV) == jhook.agents.end())
+          jhook.agents.insert(jhook.agents.begin(), agent(DEFAULT_CONFSERV, DEFAULT_CONFSERV,
+                      _("Default Jabber conference server"), agent::atGroupchat));
+
+        */
+      } else if (!strcmp(ns, NS_SEARCH) || !strcmp(ns, NS_REGISTER)) {
+        p = xmlnode_get_attrib(xmldata, "id"); id = p ? p : (char*)"";
+
+        if (!strcmp(id, "Agent info")) {
+          // jhook.gotagentinfo(xmldata); TODO
+          scr_LogPrint(LPRINT_LOGNORM, "Got agent info");
+        } else if (!strcmp(id, "Lookup")) {
+          // jhook.gotsearchresults(xmldata); TODO
+          scr_LogPrint(LPRINT_LOGNORM, "Got search results");
+        } else if (!strcmp(id, "Register")) {
+          if (!from)
+            return;
+          x = jutil_iqnew(JPACKET__GET, NS_REGISTER);
+          xmlnode_put_attrib(x, "to", from);
+          xmlnode_put_attrib(x, "id", "Agent info");
+          jab_send(conn, x);
+          xmlnode_free(x);
+        }
+
+      }
+    }
+  } else if (!strcmp(type, "get")) {
+    p = xmlnode_get_attrib(xmldata, "id");
+    if (p) {
+      xmlnode z;
+
+      id = p;
+      x = xmlnode_new_tag("iq");
+      xmlnode_put_attrib(x, "type", "result");
+      xmlnode_put_attrib(x, "to", from);
+      xmlnode_put_attrib(x, "id", id);
+      xmlnode_put_attrib(x, "type", TMSG_ERROR);
+      y = xmlnode_insert_tag(x, TMSG_ERROR);
+      xmlnode_put_attrib(y, "code", "503");
+      xmlnode_put_attrib(y, "type", "cancel");
+      z = xmlnode_insert_tag(y, "feature-not-implemented");
+      xmlnode_put_attrib(z, "xmlns",
+                         "urn:ietf:params:xml:ns:xmpp-stanzas");
+      jab_send(conn, x);
+      xmlnode_free(x);
+    }
+  } else if (!strcmp(type, "set")) {
+    /* FIXME: send error */
+  } else if (!strcmp(type, TMSG_ERROR)) {
+    if ((x = xmlnode_get_tag(xmldata, TMSG_ERROR)) != NULL)
+      display_server_error(x);
+  }
+}
+
+static void handle_packet_presence(jconn conn, char *type, char *from,
+                                   xmlnode xmldata)
+{
+  char *p, *r, *s;
+  const char *m;
+  xmlnode x, y;
+  const char *rname;
+  enum imstatus ust;
+  char bpprio;
+
+  r = jidtodisp(from);
+  if (type && !strcmp(type, TMSG_ERROR)) {
+    scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", r);
+    if ((x = xmlnode_get_tag(xmldata, TMSG_ERROR)) != NULL)
+      display_server_error(x);
+    g_free(r);
+    return;
+  }
+
+  p = xmlnode_get_tag_data(xmldata, "priority");
+  if (p && *p) bpprio = (gchar)atoi(p);
+  else         bpprio = 0;
+
+  ust = available;
+  p = xmlnode_get_tag_data(xmldata, "show");
+  if (p) {
+    if (!strcmp(p, "away"))      ust = away;
+    else if (!strcmp(p, "dnd"))  ust = dontdisturb;
+    else if (!strcmp(p, "xa"))   ust = notavail;
+    else if (!strcmp(p, "chat")) ust = freeforchat;
+  }
+
+  if (type && !strcmp(type, "unavailable"))
+    ust = offline;
+
+  s = NULL;
+  p = xmlnode_get_tag_data(xmldata, "status");
+  if (p) {
+    s = from_utf8(p);
+    if (!s)
+      scr_LogPrint(LPRINT_LOG,
+                   "Decoding of status message of <%s> has failed: %s",
+                   from, p);
+  }
+
+  // Call hk_statuschange() if status has changed or if the
+  // status message is different
+  rname = strchr(from, '/');
+  if (rname) rname++;
+
+  // Check for MUC presence packet
+  // There can be multiple <x> tags!!
+  x = xmlnode_get_firstchild(xmldata);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
+      if ((p = xmlnode_get_attrib(x, "xmlns")) &&
+          !strcasecmp(p, "http://jabber.org/protocol/muc#user"))
+        break;
+  }
+  if (x) {    // This is a MUC presence message
+    enum imrole mbrole = role_none;
+    const char *mbrjid = NULL;
+    const char *mbnewnick = NULL;
+    GSList *room_elt;
+    int log_muc_conf = settings_opt_get_int("log_muc_conf");
+
+    // Add room if it doesn't already exist
+    room_elt = roster_find(r, jidsearch, 0);
+    if (!room_elt)
+      room_elt = roster_add_user(r, NULL, NULL, ROSTER_TYPE_ROOM);
+    else // Make sure this is a room (it can be a conversion user->room)
+      buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
+
+    // Get room member's information
+    y = xmlnode_get_tag(x, "item");
+    if (y) {
+      p = xmlnode_get_attrib(y, "role");
+      if (p) {
+        if (!strcmp(p, "moderator"))        mbrole = role_moderator;
+        else if (!strcmp(p, "participant")) mbrole = role_participant;
+        else if (!strcmp(p, "visitor"))     mbrole = role_visitor;
+        else if (!strcmp(p, "none"))        mbrole = role_none;
+        else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown role \"%s\"",
+                          from, p);
+      }
+      p = xmlnode_get_attrib(y, "jid");
+      if (p) mbrjid = p;
+      p = xmlnode_get_attrib(y, "nick");
+      if (p) mbnewnick = p;
+    }
+
+    // Check for nickname change
+    y = xmlnode_get_tag(x, "status");
+    if (y && mbnewnick) {
+      p = xmlnode_get_attrib(y, "code");
+      if (p && !strcmp(p, "303")) {
+        gchar *mbuf;
+        gchar *newname_noutf8 = from_utf8(mbnewnick);
+        if (!newname_noutf8)
+          scr_LogPrint(LPRINT_LOG,
+                       "Decoding of new nickname has failed: %s",
+                       mbnewnick);
+        mbuf = g_strdup_printf("%s is now known as %s", rname,
+                               (newname_noutf8 ? newname_noutf8 : "(?)"));
+        scr_WriteIncomingMessage(r, mbuf, 0,
+                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+        if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
+        g_free(mbuf);
+        if (newname_noutf8) {
+          buddy_resource_setname(room_elt->data, rname, newname_noutf8);
+          m = buddy_getnickname(room_elt->data);
+          if (m && !strcmp(rname, m))
+            buddy_setnickname(room_elt->data, newname_noutf8);
+          g_free(newname_noutf8);
+        }
+      }
+    }
+
+    // Check for departure/arrival
+    if (!mbnewnick && mbrole == role_none) {
+      gchar *mbuf;
+
+      // If this is a leave, check if it is ourself
+      m = buddy_getnickname(room_elt->data);
+      if (m && !strcmp(rname, m)) {
+        // _We_ have left! (kicked, banned, etc.)
+        buddy_setnickname(room_elt->data, NULL);
+        buddy_del_all_resources(room_elt->data);
+        scr_LogPrint(LPRINT_LOGNORM, "You have left %s", r);
+        scr_WriteIncomingMessage(r, "You have left", 0,
+                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+        update_roster = TRUE;
+
+        goto out_packet_presence;
+      }
+
+      if (s)  mbuf = g_strdup_printf("%s has left: %s", rname, s);
+      else    mbuf = g_strdup_printf("%s has left", rname);
+      scr_WriteIncomingMessage(r, mbuf, 0,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+      if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
+      g_free(mbuf);
+    } else if (buddy_getstatus(room_elt->data, rname) == offline &&
+               ust != offline) {
+      gchar *mbuf;
+      if (buddy_getnickname(room_elt->data) == NULL) {
+        buddy_setnickname(room_elt->data, rname);
+        mbuf = g_strdup_printf("You have joined as \"%s\"", rname);
+      } else {
+        mbuf = g_strdup_printf("%s has joined", rname);
+      }
+      scr_WriteIncomingMessage(r, mbuf, 0,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+      if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
+      g_free(mbuf);
+    }
+
+    // Update room member status
+    if (rname)
+      roster_setstatus(r, rname, bpprio, ust, s, mbrole, mbrjid);
+    else
+      scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
+
+    buddylist_build();
+    scr_DrawRoster();
+
+    goto out_packet_presence;
+  }
+
+  // Not a MUC message, so this is a regular buddy...
+  m = roster_getstatusmsg(r, rname);
+  if ((ust != roster_getstatus(r, rname)) ||
+      (!s && m && m[0]) || (s && (!m || strcmp(s, m))))
+    hk_statuschange(r, rname, bpprio, 0, ust, s);
+
+out_packet_presence:
+  g_free(r);
+  if (s) g_free(s);
+}
+
+static void handle_packet_message(jconn conn, char *type, char *from,
+                                  xmlnode xmldata)
+{
+  char *p, *r, *s;
+  xmlnode x;
+  char *body=NULL;
+  char *enc = NULL;
+  char *tmp = NULL;
+  time_t timestamp = 0;
+
+  body = xmlnode_get_tag_data(xmldata, "body");
+
+  p = xmlnode_get_tag_data(xmldata, "subject");
+  if (p != NULL) {
+    if (type && !strcmp(type, TMSG_GROUPCHAT)) {  // Room topic
+      gchar *mbuf;
+      gchar *subj_noutf8 = from_utf8(p);
+      if (!subj_noutf8)
+        scr_LogPrint(LPRINT_LOG,
+                     "Decoding of room topic has failed: %s", p);
+      // Get the room (s) and the nickname (r)
+      s = g_strdup(from);
+      r = strchr(s, '/');
+      if (r) *r++ = 0;
+      else   r = s;
+      // Display inside the room window
+      mbuf = g_strdup_printf("%s has set the topic to: %s", r,
+                             (subj_noutf8 ? subj_noutf8 : "(?)"));
+      scr_WriteIncomingMessage(s, mbuf, 0,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+      if (settings_opt_get_int("log_muc_conf"))
+        hlog_write_message(s, 0, FALSE, mbuf);
+      if (subj_noutf8) g_free(subj_noutf8);
+      g_free(s);
+      g_free(mbuf);
+    } else {                                      // Chat message
+      tmp = g_new(char, (body ? strlen(body) : 0) + strlen(p) + 4);
+      *tmp = '[';
+      strcpy(tmp+1, p);
+      strcat(tmp, "]\n");
+      if (body) strcat(tmp, body);
+      body = tmp;
+    }
+  }
+
+  /* there can be multiple <x> tags. we're looking for one with
+     xmlns = jabber:x:encrypted */
+
+  x = xmlnode_get_firstchild(xmldata);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
+      if ((p = xmlnode_get_attrib(x, "xmlns")) &&
+              !strcasecmp(p, "jabber:x:encrypted"))
+        if ((p = xmlnode_get_data(x)) != NULL) {
+          enc = p;
+          break;
+        }
+  }
+
+  // Timestamp?
+  if ((x = xmlnode_get_tag(xmldata, "x")) != NULL) {
+    if ((p = xmlnode_get_attrib(x, "stamp")) != NULL)
+      timestamp = from_iso8601(p, 1);
+  }
+
+  if (type && !strcmp(type, TMSG_ERROR)) {
+    if ((x = xmlnode_get_tag(xmldata, TMSG_ERROR)) != NULL)
+      display_server_error(x);
+  }
+  if (from && body)
+    gotmessage(type, from, body, enc, timestamp);
+  if (tmp)
+    g_free(tmp);
+}
+
+static void handle_packet_s10n(jconn conn, char *type, char *from,
+                               xmlnode xmldata)
+{
+  xmlnode x;
+
+  scr_LogPrint(LPRINT_LOGNORM, "Received (un)subscription packet "
+               "(type=%s)", ((type) ? type : ""));
+
+  if (!strcmp(type, "subscribe")) {
+    char *r;
+    int isagent;
+    r = jidtodisp(from);
+    isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
+    g_free(r);
+    //scr_LogPrint(LPRINT_LOGNORM, "isagent=%d", isagent); // XXX DBG
+    if (!isagent) {
+      scr_LogPrint(LPRINT_LOGNORM, "<%s> wants to subscribe "
+                   "to your network presence updates", from);
+      // FIXME we accept everybody...
+      x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
+      jab_send(jc, x);
+      xmlnode_free(x);
+    } else {
+      x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
+      jab_send(jc, x);
+      xmlnode_free(x);
+    }
+  } else if (!strcmp(type, "unsubscribe")) {
+    x = jutil_presnew(JPACKET__UNSUBSCRIBED, from, 0);
+    jab_send(jc, x);
+    xmlnode_free(x);
+    scr_LogPrint(LPRINT_LOGNORM, "<%s> has unsubscribed to "
+                 "your presence updates", from);
+  }
+}
+
 static void packethandler(jconn conn, jpacket packet)
 {
   char *p, *r, *s;
-  const char *m, *rname;
-  xmlnode x, y;
-  char *from=NULL, *type=NULL, *body=NULL, *enc=NULL;
-  char *ns=NULL;
-  char *id=NULL;
-  enum imstatus ust;
-  char bpprio;
+  const char *m;
+  char *from=NULL, *type=NULL;
 
   jb_reset_keepalive(); // reset keepalive timeout
   jpacket_reset(packet);
 
-  p = xmlnode_get_attrib(packet->x, "type"); if (p) type = p;
+  p = xmlnode_get_attrib(packet->x, "type");
+  if (p) type = p;
+
   p = xmlnode_get_attrib(packet->x, "from");
   if (p) {   // Convert from UTF8
     // We need to be careful because from_utf8() can fail on some chars
@@ -953,426 +1373,25 @@ static void packethandler(jconn conn, jpacket packet)
 
   switch (packet->type) {
     case JPACKET_MESSAGE:
-        {
-          char *tmp = NULL;
-          time_t timestamp = 0;
-
-          body = xmlnode_get_tag_data(packet->x, "body");
-
-          p = xmlnode_get_tag_data(packet->x, "subject");
-          if (p != NULL) {
-            if (type && !strcmp(type, TMSG_GROUPCHAT)) {  // Room topic
-              gchar *mbuf;
-              gchar *subj_noutf8 = from_utf8(p);
-              if (!subj_noutf8)
-                scr_LogPrint(LPRINT_LOG,
-                             "Decoding of room topic has failed: %s", p);
-              // Get the room (s) and the nickname (r)
-              s = g_strdup(from);
-              r = strchr(s, '/');
-              if (r) *r++ = 0;
-              else   r = s;
-              // Display inside the room window
-              mbuf = g_strdup_printf("%s has set the topic to: %s", r,
-                                     (subj_noutf8 ? subj_noutf8 : "(?)"));
-              scr_WriteIncomingMessage(s, mbuf, 0,
-                                       HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-              if (settings_opt_get_int("log_muc_conf"))
-                hlog_write_message(s, 0, FALSE, mbuf);
-              if (subj_noutf8) g_free(subj_noutf8);
-              g_free(s);
-              g_free(mbuf);
-            } else {                                      // Chat message
-              tmp = g_new(char, (body ? strlen(body) : 0) + strlen(p) + 4);
-              *tmp = '[';
-              strcpy(tmp+1, p);
-              strcat(tmp, "]\n");
-              if (body) strcat(tmp, body);
-              body = tmp;
-            }
-          }
-
-          /* there can be multiple <x> tags. we're looking for one with
-             xmlns = jabber:x:encrypted */
-
-          x = xmlnode_get_firstchild(packet->x);
-          for ( ; x; x = xmlnode_get_nextsibling(x)) {
-            if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
-              if ((p = xmlnode_get_attrib(x, "xmlns")) &&
-                      !strcasecmp(p, "jabber:x:encrypted"))
-                if ((p = xmlnode_get_data(x)) != NULL) {
-                  enc = p;
-                  break;
-                }
-          }
-
-          // Timestamp?
-          if ((x = xmlnode_get_tag(packet->x, "x")) != NULL) {
-            if ((p = xmlnode_get_attrib(x, "stamp")) != NULL)
-              timestamp = from_iso8601(p, 1);
-          }
-
-          if (type && !strcmp(type, TMSG_ERROR)) {
-            if ((x = xmlnode_get_tag(packet->x, TMSG_ERROR)) != NULL)
-              display_server_error(x);
-          }
-          if (from && body)
-            gotmessage(type, from, body, enc, timestamp);
-          if (tmp)
-            g_free(tmp);
-        }
+        handle_packet_message(conn, type, from, packet->x);
         break;
 
     case JPACKET_IQ:
-        if (!strcmp(type, "result")) {
-
-          if ((p = xmlnode_get_attrib(packet->x, "id")) != NULL) {
-            int iid = atoi(p);
-
-            scr_LogPrint(LPRINT_DEBUG, "iid = %d", iid);
-            if (iid == s_id) {
-              if (!regmode) {
-                if (jstate == STATE_GETAUTH) {
-                  if ((x = xmlnode_get_tag(packet->x, "query")) != NULL)
-                    if (!xmlnode_get_tag(x, "digest")) {
-                      jc->sid = 0;
-                    }
-
-                  s_id = atoi(jab_auth(jc));
-                  jstate = STATE_SENDAUTH;
-                } else {
-                  gotloggedin();
-                  jstate = STATE_LOGGED;
-                }
-              } else {
-                regdone = TRUE;
-              }
-              return;
-            }
-
-            if (!strcmp(p, "VCARDreq")) {
-              x = xmlnode_get_firstchild(packet->x);
-              if (!x) x = packet->x;
-
-              //jhook.gotvcard(ic, x); TODO
-              scr_LogPrint(LPRINT_LOGNORM, "Got VCARD");
-              return;
-            } else if (!strcmp(p, "versionreq")) {
-              // jhook.gotversion(ic, packet->x); TODO
-              scr_LogPrint(LPRINT_LOGNORM, "Got version");
-              return;
-            }
-          }
-
-          if ((x = xmlnode_get_tag(packet->x, "query")) != NULL) {
-            p = xmlnode_get_attrib(x, "xmlns"); if (p) ns = p;
-
-            if (!strcmp(ns, NS_ROSTER)) {
-              gotroster(x);
-            } else if (!strcmp(ns, NS_AGENTS)) {
-              for (y = xmlnode_get_tag(x, "agent"); y; y = xmlnode_get_nextsibling(y)) {
-                const char *alias = xmlnode_get_attrib(y, "jid");
-
-                if (alias) {
-                  const char *name = xmlnode_get_tag_data(y, "name");
-                  const char *desc = xmlnode_get_tag_data(y, "description");
-                  // TODO
-                  // const char *service = xmlnode_get_tag_data(y, "service");
-                  enum agtype atype = unknown;
-
-                  if (xmlnode_get_tag(y, TMSG_GROUPCHAT))   atype = groupchat;
-                  else if (xmlnode_get_tag(y, "transport")) atype = transport;
-                  else if (xmlnode_get_tag(y, "search"))    atype = search;
-
-                  if (atype == transport) {
-                    char *cleanjid = jidtodisp(alias);
-                    roster_add_user(cleanjid, NULL, JABBER_AGENT_GROUP,
-                            ROSTER_TYPE_AGENT);
-                    g_free(cleanjid);
-                  }
-                  if (alias && name && desc) {
-                    scr_LogPrint(LPRINT_LOGNORM,
-                                 "Agent: %s / %s / %s / type=%d",
-                                 alias, name, desc, atype);
-
-                    if (atype == search) {
-                      x = jutil_iqnew (JPACKET__GET, NS_SEARCH);
-                      xmlnode_put_attrib(x, "to", alias);
-                      xmlnode_put_attrib(x, "id", "Agent info");
-                      jab_send(conn, x);
-                      xmlnode_free(x);
-                    }
-
-                    if (xmlnode_get_tag(y, "register")) {
-                      x = jutil_iqnew (JPACKET__GET, NS_REGISTER);
-                      xmlnode_put_attrib(x, "to", alias);
-                      xmlnode_put_attrib(x, "id", "Agent info");
-                      jab_send(conn, x);
-                      xmlnode_free(x);
-                    }
-                  }
-                }
-              }
-
-              /*
-              if (find(jhook.agents.begin(), jhook.agents.end(), DEFAULT_CONFSERV) == jhook.agents.end())
-                jhook.agents.insert(jhook.agents.begin(), agent(DEFAULT_CONFSERV, DEFAULT_CONFSERV,
-                            _("Default Jabber conference server"), agent::atGroupchat));
-
-              */
-            } else if (!strcmp(ns, NS_SEARCH) || !strcmp(ns, NS_REGISTER)) {
-              p = xmlnode_get_attrib(packet->x, "id"); id = p ? p : (char*)"";
-
-              if (!strcmp(id, "Agent info")) {
-                // jhook.gotagentinfo(packet->x); TODO
-                scr_LogPrint(LPRINT_LOGNORM, "Got agent info");
-              } else if (!strcmp(id, "Lookup")) {
-                // jhook.gotsearchresults(packet->x); TODO
-                scr_LogPrint(LPRINT_LOGNORM, "Got search results");
-              } else if (!strcmp(id, "Register")) {
-                x = jutil_iqnew(JPACKET__GET, NS_REGISTER);
-                xmlnode_put_attrib(x, "to", from);
-                xmlnode_put_attrib(x, "id", "Agent info");
-                jab_send(conn, x);
-                xmlnode_free(x);
-              }
-
-            }
-          }
-        } else if (!strcmp(type, "get")) {
-          p = xmlnode_get_attrib(packet->x, "id");
-          if (p) {
-            xmlnode z;
-
-            id = p;
-            x = xmlnode_new_tag("iq");
-            xmlnode_put_attrib(x, "type", "result");
-            xmlnode_put_attrib(x, "to", from);
-            xmlnode_put_attrib(x, "id", id);
-            xmlnode_put_attrib(x, "type", TMSG_ERROR);
-            y = xmlnode_insert_tag(x, TMSG_ERROR);
-            xmlnode_put_attrib(y, "code", "503");
-            xmlnode_put_attrib(y, "type", "cancel");
-            z = xmlnode_insert_tag(y, "feature-not-implemented");
-            xmlnode_put_attrib(z, "xmlns",
-                               "urn:ietf:params:xml:ns:xmpp-stanzas");
-            jab_send(conn, x);
-            xmlnode_free(x);
-          }
-        } else if (!strcmp(type, "set")) {
-          /* FIXME: send error */
-        } else if (!strcmp(type, TMSG_ERROR)) {
-          if ((x = xmlnode_get_tag(packet->x, TMSG_ERROR)) != NULL)
-            display_server_error(x);
-        }
+        handle_packet_iq(conn, type, from, packet->x);
         break;
 
     case JPACKET_PRESENCE:
-        r = jidtodisp(from);
-        if (type && !strcmp(type, TMSG_ERROR)) {
-          scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", r);
-          if ((x = xmlnode_get_tag(packet->x, TMSG_ERROR)) != NULL)
-            display_server_error(x);
-          g_free(r);
-          break;
-        }
-
-        p = xmlnode_get_tag_data(packet->x, "priority");
-        if (p && *p) bpprio = (gchar)atoi(p);
-        else         bpprio = 0;
-
-        ust = available;
-        p = xmlnode_get_tag_data(packet->x, "show");
-        if (p) {
-          if (!strcmp(p, "away"))      ust = away;
-          else if (!strcmp(p, "dnd"))  ust = dontdisturb;
-          else if (!strcmp(p, "xa"))   ust = notavail;
-          else if (!strcmp(p, "chat")) ust = freeforchat;
-        }
-
-        if (type && !strcmp(type, "unavailable"))
-          ust = offline;
-
-        s = NULL;
-        p = xmlnode_get_tag_data(packet->x, "status");
-        if (p) {
-          s = from_utf8(p);
-          if (!s)
-            scr_LogPrint(LPRINT_LOG,
-                        "Decoding of status message of <%s> has failed: %s",
-                        from, p);
-        }
-
-        // Call hk_statuschange() if status has changed or if the
-        // status message is different
-        rname = strchr(from, '/');
-        if (rname) rname++;
-
-        // Check for MUC presence packet
-        // There can be multiple <x> tags!!
-        x = xmlnode_get_firstchild(packet->x);
-        for ( ; x; x = xmlnode_get_nextsibling(x)) {
-          if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
-            if ((p = xmlnode_get_attrib(x, "xmlns")) &&
-                !strcasecmp(p, "http://jabber.org/protocol/muc#user"))
-              break;
-        }
-        if (x) {    // This is a MUC presence message
-          enum imrole mbrole = role_none;
-          const char *mbrjid = NULL;
-          const char *mbnewnick = NULL;
-          GSList *room_elt;
-          int log_muc_conf = settings_opt_get_int("log_muc_conf");
-
-          // Add room if it doesn't already exist
-          room_elt = roster_find(r, jidsearch, 0);
-          if (!room_elt)
-            room_elt = roster_add_user(r, NULL, NULL, ROSTER_TYPE_ROOM);
-          else // Make sure this is a room (it can be a conversion user->room)
-            buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
-
-          // Get room member's information
-          y = xmlnode_get_tag(x, "item");
-          if (y) {
-            p = xmlnode_get_attrib(y, "role");
-            if (p) {
-              if (!strcmp(p, "moderator"))        mbrole = role_moderator;
-              else if (!strcmp(p, "participant")) mbrole = role_participant;
-              else if (!strcmp(p, "visitor"))     mbrole = role_visitor;
-              else if (!strcmp(p, "none"))        mbrole = role_none;
-              else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown role \"%s\"",
-                                from, p);
-            }
-            p = xmlnode_get_attrib(y, "jid");
-            if (p) mbrjid = p;
-            p = xmlnode_get_attrib(y, "nick");
-            if (p) mbnewnick = p;
-          }
-
-          // Check for nickname change
-          y = xmlnode_get_tag(x, "status");
-          if (y && mbnewnick) {
-            p = xmlnode_get_attrib(y, "code");
-            if (p && !strcmp(p, "303")) {
-              gchar *mbuf;
-              gchar *newname_noutf8 = from_utf8(mbnewnick);
-              if (!newname_noutf8)
-                scr_LogPrint(LPRINT_LOG,
-                             "Decoding of new nickname has failed: %s",
-                             mbnewnick);
-              mbuf = g_strdup_printf("%s is now known as %s", rname,
-                                     (newname_noutf8 ? newname_noutf8 : "(?)"));
-              scr_WriteIncomingMessage(r, mbuf, 0,
-                                       HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-              if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
-              g_free(mbuf);
-              if (newname_noutf8) {
-                buddy_resource_setname(room_elt->data, rname, newname_noutf8);
-                m = buddy_getnickname(room_elt->data);
-                if (m && !strcmp(rname, m))
-                  buddy_setnickname(room_elt->data, newname_noutf8);
-                g_free(newname_noutf8);
-              }
-            }
-          }
-
-          // Check for departure/arrival
-          if (!mbnewnick && mbrole == role_none) {
-            gchar *mbuf;
-
-            // If this is a leave, check if it is ourself
-            m = buddy_getnickname(room_elt->data);
-            if (m && !strcmp(rname, m)) {
-              // _We_ have left! (kicked, banned, etc.)
-              buddy_setnickname(room_elt->data, NULL);
-              buddy_del_all_resources(room_elt->data);
-              scr_LogPrint(LPRINT_LOGNORM, "You have left %s", r);
-              scr_WriteIncomingMessage(r, "You have left", 0,
-                                       HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-              g_free(r);
-              if (s) g_free(s);
-              update_roster = TRUE;
-              break;
-            }
-
-            if (s)  mbuf = g_strdup_printf("%s has left: %s", rname, s);
-            else    mbuf = g_strdup_printf("%s has left", rname);
-            scr_WriteIncomingMessage(r, mbuf, 0,
-                                     HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-            if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
-            g_free(mbuf);
-          } else if (buddy_getstatus(room_elt->data, rname) == offline &&
-                     ust != offline) {
-            gchar *mbuf;
-            if (buddy_getnickname(room_elt->data) == NULL) {
-              buddy_setnickname(room_elt->data, rname);
-              mbuf = g_strdup_printf("You have joined as \"%s\"", rname);
-            } else {
-              mbuf = g_strdup_printf("%s has joined", rname);
-            }
-            scr_WriteIncomingMessage(r, mbuf, 0,
-                                     HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-            if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
-            g_free(mbuf);
-          }
-
-          // Update room member status
-          if (rname)
-            roster_setstatus(r, rname, bpprio, ust, s, mbrole, mbrjid);
-          else
-            scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
-
-          g_free(r);
-          if (s) g_free(s);
-
-          buddylist_build();
-          scr_DrawRoster();
-          break;
-        }
-
-        // Not a MUC message, so this is a regular buddy...
-        m = roster_getstatusmsg(r, rname);
-        if ((ust != roster_getstatus(r, rname)) ||
-            (!s && m && m[0]) || (s && (!m || strcmp(s, m))))
-          hk_statuschange(r, rname, bpprio, 0, ust, s);
-        g_free(r);
-        if (s) g_free(s);
+        handle_packet_presence(conn, type, from, packet->x);
         break;
 
     case JPACKET_S10N:
-        scr_LogPrint(LPRINT_LOGNORM, "Received (un)subscription packet "
-                     "(type=%s)", ((type) ? type : ""));
-
-        if (!strcmp(type, "subscribe")) {
-          int isagent;
-          r = jidtodisp(from);
-          isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
-          g_free(r);
-          //scr_LogPrint(LPRINT_LOGNORM, "isagent=%d", isagent); // XXX DBG
-          if (!isagent) {
-            scr_LogPrint(LPRINT_LOGNORM, "<%s> wants to subscribe "
-                         "to your network presence updates", from);
-            // FIXME we accept everybody...
-            x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
-            jab_send(jc, x);
-            xmlnode_free(x);
-          } else {
-            x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
-            jab_send(jc, x);
-            xmlnode_free(x);
-          }
-        } else if (!strcmp(type, "unsubscribe")) {
-          x = jutil_presnew(JPACKET__UNSUBSCRIBED, from, 0);
-          jab_send(jc, x);
-          xmlnode_free(x);
-          scr_LogPrint(LPRINT_LOGNORM, "<%s> has unsubscribed to "
-                       "your presence updates", from);
-        }
+        handle_packet_s10n(conn, type, from, packet->x);
         break;
 
     default:
-        break;
+        scr_LogPrint(LPRINT_LOG, "Unhandled packet type (%d)", packet->type);
   }
-  g_free(from);
+  if (from)
+    g_free(from);
 }
 

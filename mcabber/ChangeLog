@@ -1,4 +1,4 @@
-mcabber (0.7.1-dev)
+mcabber (0.7.1)
 
  * New option 'buddy_format' to select the way buddies are displayed in
    the log window
@@ -13,13 +13,15 @@ mcabber (0.7.1-dev)
  * MUC: Improved "/room names" command
  * MUC: departure messages are displayed
  * MUC: mcabber now notices when it is ejected from a room
+ * MUC: status is updated in chatrooms
  * External commands: the message body can be passed to the external command
    (see the sample configuration file and the sample eventcmd script)
  * UTF-8 conversion failures are written to the tracelog file (if enabled)
+ * The resource priority can now be changed once connected
  * Fix a bug when moving a chatroom to another group (in the roster)
- * Minor cleanup (warnings and compilation stuff)
+ * Minor cleanup (warnings, small memory leaks and compilation stuff)
 
- -- Mikael, ?
+ -- Mikael, 2005-11-26
 
 mcabber (0.7.0)
 

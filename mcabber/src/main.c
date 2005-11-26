@@ -169,7 +169,8 @@ static void ask_password(void)
 
 inline static void credits(void)
 {
-  printf("MCabber v" VERSION " -- Email: mcabber [at] lilotux [dot] net\n");
+  printf("MCabber v" PACKAGE_VERSION
+         " -- Email: mcabber [at] lilotux [dot] net\n");
 }
 
 int main(int argc, char **argv)

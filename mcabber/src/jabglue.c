@@ -1235,6 +1235,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   p = xmlnode_get_tag_data(xmldata, "subject");
   if (p != NULL) {
     if (type && !strcmp(type, TMSG_GROUPCHAT)) {  // Room topic
+      GSList *roombuddy;
       gchar *mbuf;
       gchar *subj_noutf8 = from_utf8(p);
       if (!subj_noutf8)
@@ -1245,6 +1246,10 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       r = strchr(s, '/');
       if (r) *r++ = 0;
       else   r = s;
+      // Set the new topic
+      roombuddy = roster_find(s, jidsearch, 0);
+      if (roombuddy)
+        buddy_settopic(roombuddy->data, subj_noutf8);
       // Display inside the room window
       mbuf = g_strdup_printf("%s has set the topic to: %s", r,
                              (subj_noutf8 ? subj_noutf8 : "(?)"));

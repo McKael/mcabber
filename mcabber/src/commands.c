@@ -1287,8 +1287,14 @@ static void do_room(char *arg)
   } else if (!strncasecmp(arg, "topic", 5))  {
     gchar *msg;
     arg += 5;
-    if (*arg++ != ' ') {
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+    for (; *arg && *arg == ' '; arg++)
+      ;
+    if (!*arg) {
+      const char *topic = buddy_gettopic(bud);
+      if (topic)
+        scr_LogPrint(LPRINT_NORMAL, "Topic: %s", topic);
+      else
+        scr_LogPrint(LPRINT_NORMAL, "No topic has been set");
       return;
     }
     for (; *arg && *arg == ' '; arg++)

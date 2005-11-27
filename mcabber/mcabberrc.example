@@ -132,6 +132,7 @@ set message_autoaway = Auto-away (idle)
 #set show_status_in_buffer = 1
 
 # Aliases
+alias me = say /me
 alias online   = status online
 alias away     = status away
 alias dnd      = status dnd

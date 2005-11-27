@@ -72,6 +72,8 @@ void        buddy_setname(gpointer rosterdata, char *newname);
 const char *buddy_getname(gpointer rosterdata);
 void        buddy_setnickname(gpointer rosterdata, const char *newname);
 const char *buddy_getnickname(gpointer rosterdata);
+void        buddy_settopic(gpointer rosterdata, const char *newtopic);
+const char *buddy_gettopic(gpointer rosterdata);
 void    buddy_settype(gpointer rosterdata, guint type);
 guint   buddy_gettype(gpointer rosterdata);
 void    buddy_setgroup(gpointer rosterdata, char *newgroupname);

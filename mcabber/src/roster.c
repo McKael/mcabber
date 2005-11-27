@@ -45,6 +45,7 @@ typedef struct {
   enum subscr subscription;
   GSList *resource;
   gchar *nickname; // For groupchats
+  gchar *topic;    // For groupchats
   guint flags;
   // list: user -> points to his group; group -> points to its users list
   GSList *list;
@@ -307,6 +308,7 @@ void roster_del_user(const char *jid)
   if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
   if (roster_usr->name)       g_free((gchar*)roster_usr->name);
   if (roster_usr->nickname)   g_free((gchar*)roster_usr->nickname);
+  if (roster_usr->topic)      g_free((gchar*)roster_usr->topic);
   free_all_resources(&roster_usr->resource);
   g_free(roster_usr);
 
@@ -345,6 +347,7 @@ void roster_free(void)
       if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
       if (roster_usr->name)       g_free((gchar*)roster_usr->name);
       if (roster_usr->nickname)   g_free((gchar*)roster_usr->nickname);
+      if (roster_usr->topic)      g_free((gchar*)roster_usr->topic);
       free_all_resources(&roster_usr->resource);
       g_free(roster_usr);
       sl_usr = g_slist_next(sl_usr);
@@ -717,11 +720,14 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   roster_usr->resource = NULL;
   roster_clone->nickname = roster_usr->nickname;
   roster_usr->nickname = NULL;
+  roster_clone->topic = roster_usr->topic;
+  roster_usr->topic = NULL;
 
   // Free old buddy
   if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
   if (roster_usr->name)       g_free((gchar*)roster_usr->name);
   if (roster_usr->nickname)   g_free((gchar*)roster_usr->nickname);
+  if (roster_usr->topic)      g_free((gchar*)roster_usr->topic);
   free_all_resources(&roster_usr->resource);
   g_free(roster_usr);
 
@@ -770,6 +776,8 @@ const char *buddy_getname(gpointer rosterdata)
   return roster_usr->name;
 }
 
+//  buddy_setnickname(buddy, newnickname)
+// Only for chatrooms
 void buddy_setnickname(gpointer rosterdata, const char *newname)
 {
   roster *roster_usr = rosterdata;
@@ -788,6 +796,28 @@ const char *buddy_getnickname(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->nickname;
+}
+
+//  buddy_settopic(buddy, newtopic)
+// Only for chatrooms
+void buddy_settopic(gpointer rosterdata, const char *newtopic)
+{
+  roster *roster_usr = rosterdata;
+
+  if (!(roster_usr->type & ROSTER_TYPE_ROOM)) return;
+
+  if (roster_usr->topic) {
+    g_free((gchar*)roster_usr->topic);
+    roster_usr->topic = NULL;
+  }
+  if (newtopic)
+    roster_usr->topic = g_strdup(newtopic);
+}
+
+const char *buddy_gettopic(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->topic;
 }
 
 //  buddy_getgroupname()

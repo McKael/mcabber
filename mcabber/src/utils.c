@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctype.h>
+#include <glib.h>
 
 #include <config.h>
 #include "logprint.h"
@@ -50,13 +51,13 @@ void ut_InitDebug(unsigned int level, const char *filename)
   }
 
   if (filename)
-    FName = strdup(filename);
+    FName = g_strdup(filename);
   else {
     FName = getenv("HOME");
     if (!FName)
       FName = "/tmp/mcabberlog";
     else {
-      char *tmpname = malloc(strlen(FName) + 12);
+      char *tmpname = g_new(char, strlen(FName) + 12);
       strcpy(tmpname, FName);
       strcat(tmpname, "/mcabberlog");
       FName = tmpname;
@@ -341,9 +342,104 @@ int check_jid_syntax(char *jid)
   return 0;
 }
 
+
 void mc_strtolower(char *str)
 {
   if (!str) return;
   for ( ; *str; str++)
     *str = tolower(*str);
+}
+
+//  strip_arg_special_chars(string)
+// Remove quotes and backslashes before an escaped quote
+// Only quotes need a backslash
+// Ex.: ["a b"] -> [a b]; [a\"b] -> [a"b]
+static void strip_arg_special_chars(char *s)
+{
+  int instring = FALSE;
+  int escape = FALSE;
+  char *p;
+
+  for (p = s; *p; p++) {
+    if (*p == '"') {
+      if (!escape) {
+        instring = !instring;
+        strcpy(p, p+1);
+        p--;
+      } else {
+        escape = FALSE;
+      }
+    } else if (*p == '\\') {
+      if (!escape) {
+        if (*(p+1) == '"') {
+          strcpy(p, p+1);
+          p--;
+        }
+        escape = TRUE;
+      } else {
+        escape = FALSE;
+      }
+    }
+  }
+}
+
+//  split_arg(arg, n)
+// Split the string arg into a maximum of n pieces, taking care of
+// double quotes.
+// Return a null-terminated array of strings.  This array should be freed
+// be the caller after use, for example with free_arg_lst().
+char **split_arg(const char *arg, unsigned int n)
+{
+  char **arglst;
+  const char *p, *start, *end;
+  int i = 0;
+  int instring = FALSE;
+  int escape = FALSE;
+
+  arglst = g_new0(char*, n+1);
+
+  if (!arg || !n) return arglst;
+
+  // Skip leading space
+  for (start = arg; *start && *start == ' '; start++) ;
+  // End of string pointer
+  for (end = start; *end; end++) ;
+  // Skip trailing space
+  while (end > start+1 && *(end-1) == ' ')
+    end--;
+  printf("start=|%s|\n", start);
+
+  for (p = start; p < end; p++) {
+    if (*p == '"' && !escape)
+      instring = !instring;
+    if (*p == '\\' && !escape)
+      escape = TRUE;
+    else if (escape)
+      escape = FALSE;
+    if (*p == ' ' && !instring && i+1 < n) {
+      // end of parameter
+      *(arglst+i) = g_strndup(start, p-start);
+      strip_arg_special_chars(*(arglst+i));
+      start = p+1;
+      i++;
+    }
+  }
+
+  if (start < end) {
+    *(arglst+i) = g_strndup(start, end-start);
+    strip_arg_special_chars(*(arglst+i));
+  }
+
+  return arglst;
+}
+
+//  free_arg_lst(arglst)
+// Free an array allocated by split_arg()
+void free_arg_lst(char **arglst)
+{
+  char **arg_elt;
+
+  for (arg_elt = arglst; *arg_elt; arg_elt++)
+    g_free(*arg_elt);
+  g_free(arglst);
 }

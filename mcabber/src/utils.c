@@ -354,7 +354,7 @@ void mc_strtolower(char *str)
 // Remove quotes and backslashes before an escaped quote
 // Only quotes need a backslash
 // Ex.: ["a b"] -> [a b]; [a\"b] -> [a"b]
-static void strip_arg_special_chars(char *s)
+void strip_arg_special_chars(char *s)
 {
   int instring = FALSE;
   int escape = FALSE;
@@ -383,12 +383,12 @@ static void strip_arg_special_chars(char *s)
   }
 }
 
-//  split_arg(arg, n)
+//  split_arg(arg, n, preservelast)
 // Split the string arg into a maximum of n pieces, taking care of
 // double quotes.
 // Return a null-terminated array of strings.  This array should be freed
 // be the caller after use, for example with free_arg_lst().
-char **split_arg(const char *arg, unsigned int n)
+char **split_arg(const char *arg, unsigned int n, int dontstriplast)
 {
   char **arglst;
   const char *p, *start, *end;
@@ -426,7 +426,8 @@ char **split_arg(const char *arg, unsigned int n)
 
   if (start < end) {
     *(arglst+i) = g_strndup(start, end-start);
-    strip_arg_special_chars(*(arglst+i));
+    if (!dontstriplast)
+      strip_arg_special_chars(*(arglst+i));
   }
 
   return arglst;

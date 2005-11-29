@@ -20,7 +20,8 @@ int check_jid_syntax(char *jid);
 
 void mc_strtolower(char *str);
 
-char **split_arg(const char *arg, unsigned int n);
+void strip_arg_special_chars(char *s);
+char **split_arg(const char *arg, unsigned int n, int dontstriplast);
 void free_arg_lst(char **arglst);
 
 #endif

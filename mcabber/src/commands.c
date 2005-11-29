@@ -1105,13 +1105,13 @@ static void do_rawxml(char *arg)
   }
 }
 
-//  skip_space_after_command(arg, param_needed, buddy_must_be_a_room)
+//  check_room_subcommand(arg, param_needed, buddy_must_be_a_room)
 // - Check if this is a room, if buddy_must_be_a_room is not null
 // - Check there is at least 1 parameter, if param_needed is true
 // - Return null if one of the checks fails, or a pointer to the first
 //   non-space character.
-static char *skip_space_after_command(char *arg, bool param_needed,
-                                      gpointer buddy_must_be_a_room)
+static char *check_room_subcommand(char *arg, bool param_needed,
+                                   gpointer buddy_must_be_a_room)
 {
   if (buddy_must_be_a_room &&
       !(buddy_gettype(buddy_must_be_a_room) & ROSTER_TYPE_ROOM)) {
@@ -1120,81 +1120,80 @@ static char *skip_space_after_command(char *arg, bool param_needed,
   }
 
   if (param_needed) {
-    // A parameter is given if the first char is a space char
-    // (trailing space has been stripped previously)
-    if (*arg++ != ' ') {
+    if (!arg) {
       scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
       return NULL;
     }
   }
 
-  // Skip leading space
-  for (; *arg && *arg == ' '; arg++)
-    ;
-  return arg;
+  if (arg)
+    return arg;
+  else
+    return "";
 }
 
 static void room_join(gpointer bud, char *arg)
 {
+  char **paramlst;
   char *roomname, *nick;
 
-  if (strchr(arg, '/')) {
+  paramlst = split_arg(arg, 2, 0); // roomid, nickname
+  roomname = *paramlst;
+  nick = *(paramlst+1);
+
+
+  if (!roomname || strchr(roomname, '/')) {
     scr_LogPrint(LPRINT_NORMAL, "Invalid room name");
+    free_arg_lst(paramlst);
     return;
   }
 
-  roomname = g_strdup(arg);
-  nick = strchr(roomname, ' ');
   if (!nick) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
-    g_free(roomname);
+    free_arg_lst(paramlst);
     return;
   }
 
-  *nick++ = 0;
-  while (*nick && *nick == ' ')
-    nick++;
-  if (!*nick) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
-    g_free(roomname);
-    return;
-  }
-
+  // Note that roomname is part of the array allocated by split_arg(),
+  // so we can modify it.
   mc_strtolower(roomname);
   jb_room_join(roomname, nick);
 
-  g_free(roomname);
   buddylist_build();
   update_roster = TRUE;
+  free_arg_lst(paramlst);
 }
 
 static void room_invite(gpointer bud, char *arg)
 {
+  char **paramlst;
   const gchar *roomname;
-  gchar* jid;
+  char* jid;
 
-  if (!*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+  paramlst = split_arg(arg, 2, 0); // jid, [reason]
+  jid = *paramlst;
+  arg = *(paramlst+1);
+  // An empty reason is no reason...
+  if (arg && !*arg)
+    arg = NULL;
+
+  if (!jid || !*jid) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing or incorrect parameter");
+    free_arg_lst(paramlst);
     return;
   }
-  jid = g_strdup(arg);
-  arg = strchr(jid, ' ');
-  if (arg) {
-    *arg++ = 0;
-    for (; *arg && *arg == ' '; arg++)
-      ;
-    if (!*arg) arg = NULL;
-  }
+
   roomname = buddy_getjid(bud);
   jb_room_invite(roomname, jid, arg);
   scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>", jid);
-  g_free(jid);
+  free_arg_lst(paramlst);
 }
 
 static void room_leave(gpointer bud, char *arg)
 {
   gchar *roomid, *utf8_nickname;
 
+  strip_arg_special_chars(arg);
   utf8_nickname = to_utf8(buddy_getnickname(bud));
   roomid = g_strdup_printf("%s/%s", buddy_getjid(bud), utf8_nickname);
   jb_setstatus(offline, roomid, arg);
@@ -1209,6 +1208,7 @@ static void room_nick(gpointer bud, char *arg)
 {
   gchar *cmd;
 
+  strip_arg_special_chars(arg);
   cmd = g_strdup_printf("join %s %s", buddy_getjid(bud), arg);
   do_room(cmd);
   g_free(cmd);
@@ -1216,25 +1216,23 @@ static void room_nick(gpointer bud, char *arg)
 
 static void room_privmsg(gpointer bud, char *arg)
 {
+  char **paramlst;
   gchar *nick, *cmd;
 
-  if (!*arg) {
+  paramlst = split_arg(arg, 2, 0); // nickname, message
+  nick = *paramlst;
+  arg = *(paramlst+1);
+
+  if (!nick || !*nick || !arg || !*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    free_arg_lst(paramlst);
     return;
   }
-  nick = g_strdup(arg);
-  arg = strchr(nick, ' ');
-  if (!arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
-    return;
-  }
-  *arg++ = 0;
-  for (; *arg && *arg == ' '; arg++)
-    ;
+
   cmd = g_strdup_printf("%s/%s %s", buddy_getjid(bud), nick, arg);
   do_say_to(cmd);
   g_free(cmd);
-  g_free(nick);
+  free_arg_lst(paramlst);
 }
 
 static void room_remove(gpointer bud, char *arg)
@@ -1270,6 +1268,7 @@ static void room_topic(gpointer bud, char *arg)
   }
 
   // Set the topic
+  strip_arg_special_chars(arg);
   msg = g_strdup_printf("/me has set the topic to: %s", arg);
   jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg);
   g_free(msg);
@@ -1287,6 +1286,8 @@ static void room_unlock(gpointer bud, char *arg)
 
 static void do_room(char *arg)
 {
+  char **paramlst;
+  char *subcmd;
   gpointer bud;
 
   if (!jb_getonline()) {
@@ -1294,44 +1295,51 @@ static void do_room(char *arg)
     return;
   }
 
-  if (!arg || (!*arg)) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
-    return;
-  }
-
   if (!current_buddy) return;
   bud = BUDDATA(current_buddy);
 
-  if (!strncasecmp(arg, "join", 4))  {
-    if ((arg = skip_space_after_command(arg+4, TRUE, NULL)) != NULL)
+  paramlst = split_arg(arg, 2, 1); // subcmd, arg
+  subcmd = *paramlst;
+  arg = *(paramlst+1);
+
+  if (!subcmd || !*subcmd) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if (!strcasecmp(subcmd, "join"))  {
+    if ((arg = check_room_subcommand(arg, TRUE, NULL)) != NULL)
       room_join(bud, arg);
-  } else if (!strncasecmp(arg, "invite", 6))  {
-    if ((arg = skip_space_after_command(arg+6, TRUE, bud)) != NULL)
+  } else if (!strcasecmp(subcmd, "invite"))  {
+    if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_invite(bud, arg);
-  } else if (!strncasecmp(arg, "leave", 5))  {
-    if ((arg = skip_space_after_command(arg+5, FALSE, bud)) != NULL)
+  } else if (!strcasecmp(subcmd, "leave"))  {
+    if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_leave(bud, arg);
-  } else if (!strcasecmp(arg, "names"))  {
-    if ((arg = skip_space_after_command(arg+5, FALSE, bud)) != NULL)
+  } else if (!strcasecmp(subcmd, "names"))  {
+    if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_names(bud, arg);
-  } else if (!strncasecmp(arg, "nick", 4))  {
-    if ((arg = skip_space_after_command(arg+4, TRUE, bud)) != NULL)
+  } else if (!strcasecmp(subcmd, "nick"))  {
+    if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_nick(bud, arg);
-  } else if (!strncasecmp(arg, "privmsg", 7))  {
-    if ((arg = skip_space_after_command(arg+7, TRUE, bud)) != NULL)
+  } else if (!strcasecmp(subcmd, "privmsg"))  {
+    if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_privmsg(bud, arg);
-  } else if (!strcasecmp(arg, "remove"))  {
-    if ((arg = skip_space_after_command(arg+6, FALSE, bud)) != NULL)
+  } else if (!strcasecmp(subcmd, "remove"))  {
+    if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_remove(bud, arg);
-  } else if (!strcasecmp(arg, "unlock"))  {
-    if ((arg = skip_space_after_command(arg+6, FALSE, bud)) != NULL)
+  } else if (!strcasecmp(subcmd, "unlock"))  {
+    if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_unlock(bud, arg);
-  } else if (!strncasecmp(arg, "topic", 5))  {
-    if ((arg = skip_space_after_command(arg+5, FALSE, bud)) != NULL)
+  } else if (!strcasecmp(subcmd, "topic"))  {
+    if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_topic(bud, arg);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }
+
+  free_arg_lst(paramlst);
 }
 
 static void do_connect(char *arg)

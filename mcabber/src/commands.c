@@ -1208,9 +1208,8 @@ static void room_nick(gpointer bud, char *arg)
 {
   gchar *cmd;
 
-  strip_arg_special_chars(arg);
-  cmd = g_strdup_printf("join %s %s", buddy_getjid(bud), arg);
-  do_room(cmd);
+  cmd = g_strdup_printf("%s %s", buddy_getjid(bud), arg);
+  room_join(bud, cmd);
   g_free(cmd);
 }
 

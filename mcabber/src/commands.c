@@ -877,18 +877,14 @@ static void do_info(char *arg)
 }
 
 // room_names() is a variation of do_info(), for chatrooms only
-static void room_names(void)
+static void room_names(gpointer bud, char *arg)
 {
-  gpointer bud;
   const char *jid;
   char *buffer;
   GSList *resources;
 
-  if (!current_buddy) return;
-  bud = BUDDATA(current_buddy);
-
-  if (buddy_gettype(bud) != ROSTER_TYPE_ROOM) {
-    scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+  if (*arg) {
+    scr_LogPrint(LPRINT_NORMAL, "Unknown parameter");
     return;
   }
 
@@ -1109,6 +1105,186 @@ static void do_rawxml(char *arg)
   }
 }
 
+//  skip_space_after_command(arg, param_needed, buddy_must_be_a_room)
+// - Check if this is a room, if buddy_must_be_a_room is not null
+// - Check there is at least 1 parameter, if param_needed is true
+// - Return null if one of the checks fails, or a pointer to the first
+//   non-space character.
+static char *skip_space_after_command(char *arg, bool param_needed,
+                                      gpointer buddy_must_be_a_room)
+{
+  if (buddy_must_be_a_room &&
+      !(buddy_gettype(buddy_must_be_a_room) & ROSTER_TYPE_ROOM)) {
+    scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+    return NULL;
+  }
+
+  if (param_needed) {
+    // A parameter is given if the first char is a space char
+    // (trailing space has been stripped previously)
+    if (*arg++ != ' ') {
+      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+      return NULL;
+    }
+  }
+
+  // Skip leading space
+  for (; *arg && *arg == ' '; arg++)
+    ;
+  return arg;
+}
+
+static void room_join(gpointer bud, char *arg)
+{
+  char *roomname, *nick;
+
+  if (strchr(arg, '/')) {
+    scr_LogPrint(LPRINT_NORMAL, "Invalid room name");
+    return;
+  }
+
+  roomname = g_strdup(arg);
+  nick = strchr(roomname, ' ');
+  if (!nick) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
+    g_free(roomname);
+    return;
+  }
+
+  *nick++ = 0;
+  while (*nick && *nick == ' ')
+    nick++;
+  if (!*nick) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
+    g_free(roomname);
+    return;
+  }
+
+  mc_strtolower(roomname);
+  jb_room_join(roomname, nick);
+
+  g_free(roomname);
+  buddylist_build();
+  update_roster = TRUE;
+}
+
+static void room_invite(gpointer bud, char *arg)
+{
+  const gchar *roomname;
+  gchar* jid;
+
+  if (!*arg) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    return;
+  }
+  jid = g_strdup(arg);
+  arg = strchr(jid, ' ');
+  if (arg) {
+    *arg++ = 0;
+    for (; *arg && *arg == ' '; arg++)
+      ;
+    if (!*arg) arg = NULL;
+  }
+  roomname = buddy_getjid(bud);
+  jb_room_invite(roomname, jid, arg);
+  scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>", jid);
+  g_free(jid);
+}
+
+static void room_leave(gpointer bud, char *arg)
+{
+  gchar *roomid, *utf8_nickname;
+
+  utf8_nickname = to_utf8(buddy_getnickname(bud));
+  roomid = g_strdup_printf("%s/%s", buddy_getjid(bud), utf8_nickname);
+  jb_setstatus(offline, roomid, arg);
+  g_free(utf8_nickname);
+  g_free(roomid);
+  buddy_setnickname(bud, NULL);
+  buddy_del_all_resources(bud);
+  scr_LogPrint(LPRINT_LOGNORM, "You have left %s", buddy_getjid(bud));
+}
+
+static void room_nick(gpointer bud, char *arg)
+{
+  gchar *cmd;
+
+  cmd = g_strdup_printf("join %s %s", buddy_getjid(bud), arg);
+  do_room(cmd);
+  g_free(cmd);
+}
+
+static void room_privmsg(gpointer bud, char *arg)
+{
+  gchar *nick, *cmd;
+
+  if (!*arg) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    return;
+  }
+  nick = g_strdup(arg);
+  arg = strchr(nick, ' ');
+  if (!arg) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    return;
+  }
+  *arg++ = 0;
+  for (; *arg && *arg == ' '; arg++)
+    ;
+  cmd = g_strdup_printf("%s/%s %s", buddy_getjid(bud), nick, arg);
+  do_say_to(cmd);
+  g_free(cmd);
+  g_free(nick);
+}
+
+static void room_remove(gpointer bud, char *arg)
+{
+  if (*arg) {
+    scr_LogPrint(LPRINT_NORMAL, "Unknown parameter");
+    return;
+  }
+
+  // Quick check: if there are resources, we haven't left
+  if (buddy_isresource(bud)) {
+    scr_LogPrint(LPRINT_NORMAL, "You haven't left this room!");
+    return;
+  }
+  // Delete the room
+  roster_del_user(buddy_getjid(bud));
+  buddylist_build();
+  update_roster = TRUE;
+}
+
+static void room_topic(gpointer bud, char *arg)
+{
+  gchar *msg;
+
+  // If no parameter is given, display the current topic
+  if (!*arg) {
+    const char *topic = buddy_gettopic(bud);
+    if (topic)
+      scr_LogPrint(LPRINT_NORMAL, "Topic: %s", topic);
+    else
+      scr_LogPrint(LPRINT_NORMAL, "No topic has been set");
+    return;
+  }
+
+  // Set the topic
+  msg = g_strdup_printf("/me has set the topic to: %s", arg);
+  jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg);
+  g_free(msg);
+}
+
+static void room_unlock(gpointer bud, char *arg)
+{
+  if (*arg) {
+    scr_LogPrint(LPRINT_NORMAL, "Unknown parameter");
+    return;
+  }
+
+  jb_room_unlock(buddy_getjid(bud));
+}
+
 static void do_room(char *arg)
 {
   gpointer bud;
@@ -1127,185 +1303,32 @@ static void do_room(char *arg)
   bud = BUDDATA(current_buddy);
 
   if (!strncasecmp(arg, "join", 4))  {
-    char *roomname, *nick;
-
-    arg += 4;
-    if (*arg++ != ' ') {
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-      return;
-    }
-    for (; *arg && *arg == ' '; arg++)
-      ;
-
-    if (strchr(arg, '/')) {
-      scr_LogPrint(LPRINT_NORMAL, "Invalid room name");
-      return;
-    }
-
-    roomname = g_strdup(arg);
-    nick = strchr(roomname, ' ');
-    if (!nick) {
-      scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
-      g_free(roomname);
-      return;
-    }
-
-    *nick++ = 0;
-    while (*nick && *nick == ' ')
-      nick++;
-    if (!*nick) {
-      scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
-      g_free(roomname);
-      return;
-    }
-
-    mc_strtolower(roomname);
-    jb_room_join(roomname, nick);
-
-    g_free(roomname);
-    buddylist_build();
-    update_roster = TRUE;
+    if ((arg = skip_space_after_command(arg+4, TRUE, NULL)) != NULL)
+      room_join(bud, arg);
   } else if (!strncasecmp(arg, "invite", 6))  {
-    const gchar *roomname;
-    gchar* jid;
-    arg += 6;
-    if (*arg++ != ' ') {
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-      return;
-    }
-    for (; *arg && *arg == ' '; arg++)
-      ;
-    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
-      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
-      return;
-    }
-    if (!*arg) {
-      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
-      return;
-    }
-    jid = g_strdup(arg);
-    arg = strchr(jid, ' ');
-    if (arg) {
-      *arg++ = 0;
-      for (; *arg && *arg == ' '; arg++)
-        ;
-      if (!*arg) arg = NULL;
-    }
-    roomname = buddy_getjid(bud);
-    jb_room_invite(roomname, jid, arg);
-    scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>", jid);
-    g_free(jid);
+    if ((arg = skip_space_after_command(arg+6, TRUE, bud)) != NULL)
+      room_invite(bud, arg);
   } else if (!strncasecmp(arg, "leave", 5))  {
-    gchar *roomid, *utf8_nickname;
-    arg += 5;
-    for (; *arg && *arg == ' '; arg++)
-      ;
-    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
-      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
-      return;
-    }
-    utf8_nickname = to_utf8(buddy_getnickname(bud));
-    roomid = g_strdup_printf("%s/%s", buddy_getjid(bud), utf8_nickname);
-    jb_setstatus(offline, roomid, arg);
-    g_free(utf8_nickname);
-    g_free(roomid);
-    buddy_setnickname(bud, NULL);
-    buddy_del_all_resources(bud);
-    scr_LogPrint(LPRINT_LOGNORM, "You have left %s", buddy_getjid(bud));
+    if ((arg = skip_space_after_command(arg+5, FALSE, bud)) != NULL)
+      room_leave(bud, arg);
   } else if (!strcasecmp(arg, "names"))  {
-    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
-      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
-      return;
-    }
-    room_names();
+    if ((arg = skip_space_after_command(arg+5, FALSE, bud)) != NULL)
+      room_names(bud, arg);
   } else if (!strncasecmp(arg, "nick", 4))  {
-    gchar *cmd;
-    arg += 4;
-    if (*arg++ != ' ') {
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-      return;
-    }
-    for (; *arg && *arg == ' '; arg++)
-      ;
-    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
-      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
-      return;
-    }
-    cmd = g_strdup_printf("join %s %s", buddy_getjid(bud), arg);
-    do_room(cmd);
-    g_free(cmd);
+    if ((arg = skip_space_after_command(arg+4, TRUE, bud)) != NULL)
+      room_nick(bud, arg);
   } else if (!strncasecmp(arg, "privmsg", 7))  {
-    gchar *nick, *cmd;
-    arg += 7;
-    if (*arg++ != ' ') {
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-      return;
-    }
-    for (; *arg && *arg == ' '; arg++)
-      ;
-    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
-      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
-      return;
-    }
-    if (!*arg) {
-      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
-      return;
-    }
-    nick = g_strdup(arg);
-    arg = strchr(nick, ' ');
-    if (!arg) {
-      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
-      return;
-    }
-    *arg++ = 0;
-    for (; *arg && *arg == ' '; arg++)
-      ;
-    cmd = g_strdup_printf("%s/%s %s", buddy_getjid(bud), nick, arg);
-    do_say_to(cmd);
-    g_free(cmd);
-    g_free(nick);
+    if ((arg = skip_space_after_command(arg+7, TRUE, bud)) != NULL)
+      room_privmsg(bud, arg);
   } else if (!strcasecmp(arg, "remove"))  {
-    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
-      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
-      return;
-    }
-    // Quick check: if there are resources, we haven't left
-    if (buddy_isresource(bud)) {
-      scr_LogPrint(LPRINT_NORMAL, "You haven't left this room!");
-      return;
-    }
-    // Delete the room
-    roster_del_user(buddy_getjid(bud));
-    buddylist_build();
-    update_roster = TRUE;
+    if ((arg = skip_space_after_command(arg+6, FALSE, bud)) != NULL)
+      room_remove(bud, arg);
   } else if (!strcasecmp(arg, "unlock"))  {
-    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
-      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
-      return;
-    }
-    jb_room_unlock(buddy_getjid(bud));
+    if ((arg = skip_space_after_command(arg+6, FALSE, bud)) != NULL)
+      room_unlock(bud, arg);
   } else if (!strncasecmp(arg, "topic", 5))  {
-    gchar *msg;
-    arg += 5;
-    for (; *arg && *arg == ' '; arg++)
-      ;
-    if (!*arg) {
-      const char *topic = buddy_gettopic(bud);
-      if (topic)
-        scr_LogPrint(LPRINT_NORMAL, "Topic: %s", topic);
-      else
-        scr_LogPrint(LPRINT_NORMAL, "No topic has been set");
-      return;
-    }
-    for (; *arg && *arg == ' '; arg++)
-      ;
-    if (!(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
-      scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
-      return;
-    }
-    msg = g_strdup_printf("/me has set the topic to: %s", arg);
-    jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg);
-    g_free(msg);
+    if ((arg = skip_space_after_command(arg+5, FALSE, bud)) != NULL)
+      room_topic(bud, arg);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

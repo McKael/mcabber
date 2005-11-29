@@ -407,7 +407,6 @@ char **split_arg(const char *arg, unsigned int n)
   // Skip trailing space
   while (end > start+1 && *(end-1) == ' ')
     end--;
-  printf("start=|%s|\n", start);
 
   for (p = start; p < end; p++) {
     if (*p == '"' && !escape)

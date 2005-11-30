@@ -356,6 +356,8 @@ int process_line(char *line)
 }
 
 /* Commands callback functions */
+/* All these do_*() functions will be called with a "arg" parameter */
+/* (with arg not null)                                              */
 
 static void do_roster(char *arg)
 {
@@ -412,37 +414,41 @@ static void do_roster(char *arg)
 // - arg must be "status message" (message is optional)
 static void setstatus(const char *recipient, const char *arg)
 {
-  enum imstatus st;
-  int len;
+  char **paramlst;
+  char *status;
   char *msg;
+  enum imstatus st;
 
   if (!jb_getonline()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected");
     return;
   }
 
-  msg = strchr(arg, ' ');
-  if (!msg)
-    len = strlen(arg);
-  else
-    len = msg - arg;
+  paramlst = split_arg(arg, 2, 0); // status, message
+  status = *paramlst;
+  msg = *(paramlst+1);
 
-  if      (!strncasecmp(arg, "offline",   len)) st = offline;
-  else if (!strncasecmp(arg, "online",    len)) st = available;
-  else if (!strncasecmp(arg, "avail",     len)) st = available;
-  else if (!strncasecmp(arg, "away",      len)) st = away;
-  else if (!strncasecmp(arg, "invisible", len)) st = invisible;
-  else if (!strncasecmp(arg, "dnd",       len)) st = dontdisturb;
-  else if (!strncasecmp(arg, "notavail",  len)) st = notavail;
-  else if (!strncasecmp(arg, "free",      len)) st = freeforchat;
+  if (!status) {
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if      (!strcasecmp(status, "offline"))   st = offline;
+  else if (!strcasecmp(status, "online"))    st = available;
+  else if (!strcasecmp(status, "avail"))     st = available;
+  else if (!strcasecmp(status, "away"))      st = away;
+  else if (!strcasecmp(status, "invisible")) st = invisible;
+  else if (!strcasecmp(status, "dnd"))       st = dontdisturb;
+  else if (!strcasecmp(status, "notavail"))  st = notavail;
+  else if (!strcasecmp(status, "free"))      st = freeforchat;
   else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized status!");
+    free_arg_lst(paramlst);
     return;
   }
 
   // Use provided message, unless requested status is "invisible"
   if (msg && st != invisible) {
-    for (msg++ ; *msg && *msg == ' ' ; msg++) ;
     if (!*msg) msg = NULL;
   } else
     msg = NULL;
@@ -452,11 +458,13 @@ static void setstatus(const char *recipient, const char *arg)
     msg = "";
 
   jb_setstatus(st, recipient, msg);
+
+  free_arg_lst(paramlst);
 }
 
 static void do_status(char *arg)
 {
-  if (!arg || (!*arg)) {
+  if (!*arg) {
     const char *sm = jb_getstatusmsg();
     scr_LogPrint(LPRINT_NORMAL, "Your status is: [%c] %s",
                  imstatus2char[jb_getstatus()],
@@ -468,37 +476,34 @@ static void do_status(char *arg)
 
 static void do_status_to(char *arg)
 {
-  char *id, *st;
-  if (!arg || (*arg == 0)) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
-    return;
-  }
+  char **paramlst;
+  char *jid, *st, *msg;
 
-  // Split recipient jid, status
-  id = g_strdup(arg);
-  st = strchr(id, ' ');
-  if (!st) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
-    g_free(id);
-    return;
-  }
+  paramlst = split_arg(arg, 3, 1); // jid, status, [message]
+  jid = *paramlst;
+  st = *(paramlst+1);
+  msg = *(paramlst+2);
 
-  *st++ = 0;
-  while (*st && *st == ' ')
-    st++;
-
-  if (check_jid_syntax(id)) {
-    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", id);
+  if (!jid || !st) {
+    scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
+  } else if (check_jid_syntax(jid)) {
+    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
   } else {
-    mc_strtolower(id);
-    scr_LogPrint(LPRINT_LOGNORM, "Sending to <%s> /status %s", id, st);
-    setstatus(id, st);
+    char *cmd;
+    if (!msg)
+      msg = "";
+    mc_strtolower(jid);
+    cmd = g_strdup_printf("%s %s", st, msg);
+    scr_LogPrint(LPRINT_LOGNORM, "Sending to <%s> /status %s", jid, cmd);
+    setstatus(jid, cmd);
+    g_free(cmd);
   }
-  g_free(id);
+  free_arg_lst(paramlst);
 }
 
 static void do_add(char *arg)
 {
+  char **paramlst;
   char *id, *nick;
 
   if (!jb_getonline()) {
@@ -506,21 +511,15 @@ static void do_add(char *arg)
     return;
   }
 
-  if (!arg || (!*arg)) {
-    scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
-    return;
-  }
-
-  id = g_strdup(arg);
-  nick = strchr(id, ' ');
-  if (nick) {
-    *nick++ = 0;
-    while (*nick && *nick == ' ')
-      nick++;
-  }
+  paramlst = split_arg(arg, 2, 0); // jid, [nickname]
+  id = *paramlst;
+  nick = *(paramlst+1);
 
   if (check_jid_syntax(id)) {
-    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", id);
+    if (!id)
+      scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
+    else
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", id);
   } else {
     mc_strtolower(id);
     // 2nd parameter = optional nickname
@@ -528,14 +527,14 @@ static void do_add(char *arg)
     scr_LogPrint(LPRINT_LOGNORM, "Sent presence notification request to <%s>",
                  id);
   }
-  g_free(id);
+  free_arg_lst(paramlst);
 }
 
 static void do_del(char *arg)
 {
   const char *jid;
 
-  if (arg && (*arg)) {
+  if (*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
     return;
   }
@@ -562,7 +561,7 @@ static void do_group(char *arg)
   gpointer group;
   guint leave_windowbuddy;
 
-  if (!arg || (!*arg)) {
+  if (!*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
     return;
   }
@@ -677,6 +676,7 @@ static void do_msay(char *arg)
 
 static void do_say_to(char *arg)
 {
+  char **paramlst;
   char *jid, *msg;
   char *bare_jid, *p;
 
@@ -685,24 +685,22 @@ static void do_say_to(char *arg)
     return;
   }
 
-  msg = strchr(arg, ' ');
-  if (!msg) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
-    return;
-  }
-
-  jid = g_strndup(arg, msg - arg);
+  paramlst = split_arg(arg, 2, 1); // jid, message
+  jid = *paramlst;
+  msg = *(paramlst+1);
 
   if (check_jid_syntax(jid)) {
-    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
-    g_free(jid);
+    if (!jid)
+      scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
+    else
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
+    free_arg_lst(paramlst);
     return;
   }
 
-  while (*msg == ' ') msg++;
-  if (!*msg) {
-    scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-    g_free(jid);
+  if (!msg || !*msg) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    free_arg_lst(paramlst);
     return;
   }
 
@@ -726,8 +724,9 @@ static void do_say_to(char *arg)
 
   // Network part
   jb_send_msg(jid, msg, ROSTER_TYPE_USER, NULL);
-  g_free(jid);
+
   if (p) g_free(bare_jid);
+  free_arg_lst(paramlst);
 }
 
 static void do_buffer(char *arg)
@@ -921,7 +920,7 @@ static void do_rename(char *arg)
   guint type;
   char *newname, *p;
 
-  if (!arg || (!*arg)) {
+  if (!*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
     return;
   }
@@ -942,6 +941,8 @@ static void do_rename(char *arg)
   // Remove trailing space
   for (p = newname; *p; p++) ;
   while (p > newname && *p == ' ') *p = 0;
+
+  strip_arg_special_chars(newname);
 
   buddy_setname(bud, newname);
   jb_updatebuddy(jid, newname, group);
@@ -973,6 +974,8 @@ static void do_move(char *arg)
   // Remove trailing space
   for (p = newgroupname; *p; p++) ;
   while (p > newgroupname && *p == ' ') *p = 0;
+
+  strip_arg_special_chars(newgroupname);
 
   // Call to buddy_setgroup() should be at the end, as current implementation
   // clones the buddy and deletes the old one (and thus, jid and name are
@@ -1082,27 +1085,50 @@ static void do_bind(char *arg)
 
 static void do_rawxml(char *arg)
 {
+  char **paramlst;
+  char *subcmd;
+
   if (!jb_getonline()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected");
     return;
   }
 
-  if (!strncasecmp(arg, "send ", 5))  {
-    gchar *buffer;
-    for (arg += 5; *arg && *arg == ' '; arg++)
-      ;
-    buffer = to_utf8(arg);
-    if (!buffer) {
-      scr_LogPrint(LPRINT_NORMAL, "Conversion error in XML string");
-      return;
-    }
-    scr_LogPrint(LPRINT_NORMAL, "Sending XML string");
-    jb_send_raw(buffer);
-    g_free(buffer);
-  } else {
+  paramlst = split_arg(arg, 2, 1); // subcmd, arg
+  subcmd = *paramlst;
+  arg = *(paramlst+1);
+
+  if (!subcmd || !*subcmd) {
     scr_LogPrint(LPRINT_NORMAL, "Please read the manual page"
                  " before using /rawxml :-)");
+    free_arg_lst(paramlst);
+    return;
   }
+
+  if (!strcasecmp(subcmd, "send"))  {
+    gchar *buffer;
+
+    if (!subcmd || !*subcmd) {
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+      free_arg_lst(paramlst);
+      return;
+    }
+
+    // We don't strip_arg_special_chars() here, because it would be a pain for
+    // the user to escape quotes in a XML stream...
+
+    buffer = to_utf8(arg);
+    if (buffer) {
+      scr_LogPrint(LPRINT_NORMAL, "Sending XML string");
+      jb_send_raw(buffer);
+      g_free(buffer);
+    } else {
+      scr_LogPrint(LPRINT_NORMAL, "Conversion error in XML string");
+    }
+  } else {
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
+  }
+
+  free_arg_lst(paramlst);
 }
 
 //  check_room_subcommand(arg, param_needed, buddy_must_be_a_room)

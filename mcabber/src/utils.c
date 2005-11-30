@@ -419,7 +419,7 @@ char **split_arg(const char *arg, unsigned int n, int dontstriplast)
       // end of parameter
       *(arglst+i) = g_strndup(start, p-start);
       strip_arg_special_chars(*(arglst+i));
-      start = p+1;
+      for (start = p+1; *start && *start == ' '; start++) ;
       i++;
     }
   }

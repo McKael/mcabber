@@ -1251,8 +1251,14 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       if (roombuddy)
         buddy_settopic(roombuddy->data, subj_noutf8);
       // Display inside the room window
-      mbuf = g_strdup_printf("%s has set the topic to: %s", r,
-                             (subj_noutf8 ? subj_noutf8 : "(?)"));
+      if (r == s) {
+        // No specific resource (this is certainly history)
+        mbuf = g_strdup_printf("The topic has been set to: %s",
+                               (subj_noutf8 ? subj_noutf8 : "(?)"));
+      } else {
+        mbuf = g_strdup_printf("%s has set the topic to: %s", r,
+                               (subj_noutf8 ? subj_noutf8 : "(?)"));
+      }
       scr_WriteIncomingMessage(s, mbuf, 0,
                                HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
       if (settings_opt_get_int("log_muc_conf"))

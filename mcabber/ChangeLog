@@ -1,6 +1,8 @@
 mcabber (0.7.2-dev)
 
- * 
+ * Internal changes (code cleanup)
+ * Improved commands parsing
+ * MUC: "/room topic" shows the current room topic
 
  -- Mikael, ?
 

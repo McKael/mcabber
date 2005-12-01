@@ -388,6 +388,8 @@ void strip_arg_special_chars(char *s)
 // double quotes.
 // Return a null-terminated array of strings.  This array should be freed
 // be the caller after use, for example with free_arg_lst().
+// If dontstriplast is true, the Nth argument isn't stripped (i.e. no
+// processing of quote chars)
 char **split_arg(const char *arg, unsigned int n, int dontstriplast)
 {
   char **arglst;
@@ -426,7 +428,7 @@ char **split_arg(const char *arg, unsigned int n, int dontstriplast)
 
   if (start < end) {
     *(arglst+i) = g_strndup(start, end-start);
-    if (!dontstriplast)
+    if (!dontstriplast || i+1 < n)
       strip_arg_special_chars(*(arglst+i));
   }
 

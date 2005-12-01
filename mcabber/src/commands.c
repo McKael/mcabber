@@ -729,85 +729,114 @@ static void do_say_to(char *arg)
   free_arg_lst(paramlst);
 }
 
+//  buffer_updown(updown, nblines)
+// updown: -1=up, +1=down
+inline static void buffer_updown(int updown, char *nlines)
+{
+  int nblines;
+
+  if (!nlines || !*nlines)
+    nblines = 0;
+  else
+    nblines = atoi(nlines);
+
+  if (nblines >= 0)
+    scr_BufferScrollUpDown(updown, nblines);
+}
+
+static void buffer_search(int direction, char *arg)
+{
+  if (!arg || !*arg) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    return;
+  }
+
+  strip_arg_special_chars(arg);
+  scr_BufferSearch(direction, arg);
+}
+
+static void buffer_date(char *date)
+{
+  time_t t;
+
+  if (!date || !*date) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    return;
+  }
+
+  strip_arg_special_chars(date);
+
+  t = from_iso8601(date, 0);
+  if (t)
+    scr_BufferDate(t);
+  else
+    scr_LogPrint(LPRINT_NORMAL, "Wrong parameter");
+}
+
+static void buffer_percent(char *arg1, char *arg2)
+{
+  // Basically, user has typed "%arg1 arg2"
+  // "%50"  -> arg1 = 50, arg2 null pointer
+  // "% 50" -> arg1 = \0, arg2 = 50
+
+  if (!*arg1 && (!arg2 || !*arg2)) { // No value
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    return;
+  }
+
+  if (*arg1 && arg2 && *arg2) {     // Two values
+    scr_LogPrint(LPRINT_NORMAL, "Wrong parameters");
+    return;
+  }
+
+  scr_BufferPercent(atoi((*arg1 ? arg1 : arg2)));
+}
+
 static void do_buffer(char *arg)
 {
-  int search_dir = 0;
+  char **paramlst;
+  char *subcmd;
 
   if (!current_buddy) return;
+
   if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_GROUP) {
     scr_LogPrint(LPRINT_NORMAL, "Groups have no buffer");
     return;
   }
 
-  if (!strcasecmp(arg, "top")) {
-    scr_BufferTopBottom(-1);
-  } else if (!strcasecmp(arg, "bottom")) {
-    scr_BufferTopBottom(1);
-  } else if (!strcasecmp(arg, "clear")) {
-    scr_BufferClear();
-  } else if (!strncasecmp(arg, "up", 2)) {
-    int nblines;
-    arg += 2;
-    if (*arg && *arg++ != ' ') {
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-      return;
-    }
-    nblines = atoi(arg);
-    if (nblines >= 0)
-      scr_BufferScrollUpDown(-1, nblines);
-  } else if (!strncasecmp(arg, "down", 4)) {
-    int nblines;
-    arg += 4;
-    if (*arg && *arg++ != ' ') {
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-      return;
-    }
-    nblines = atoi(arg);
-    if (nblines >= 0)
-      scr_BufferScrollUpDown(1, nblines);
-  } else if (!strncasecmp(arg, "search_backward", 15)) {
-    arg += 15;
-    if (*arg++ == ' ')
-      search_dir = -1;
-    else
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-  } else if (!strncasecmp(arg, "search_forward", 14)) {
-    arg += 14;
-    if (*arg++ == ' ')
-      search_dir = 1;
-    else
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-  } else if (!strncasecmp(arg, "date", 4)) {
-    arg += 4;
-    if (*arg++ != ' ') {
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-      return;
-    }
-    while (*arg == ' ') arg++;
-    if (*arg) {
-      time_t t = from_iso8601(arg, 0);
-      if (t)
-        scr_BufferDate(t);
-      else
-        scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-    }
-    else
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-  } else if (*arg == '%') {
-    arg++;
-    while (*arg == ' ') arg++;
-    if (*arg)
-      scr_BufferPercent(atoi(arg));
-    else
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
-  } else
-    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
+  paramlst = split_arg(arg, 2, 1); // subcmd, arg
+  subcmd = *paramlst;
+  arg = *(paramlst+1);
 
-  if (search_dir) { // It is a string search command
-    for ( ; *arg && *arg == ' ' ; arg++)
-      ;
-    scr_BufferSearch(search_dir, arg);
+  if (!subcmd || !*subcmd) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    free_arg_lst(paramlst);
+    return;
   }
+
+  if (!strcasecmp(subcmd, "top")) {
+    scr_BufferTopBottom(-1);
+  } else if (!strcasecmp(subcmd, "bottom")) {
+    scr_BufferTopBottom(1);
+  } else if (!strcasecmp(subcmd, "clear")) {
+    scr_BufferClear();
+  } else if (!strcasecmp(subcmd, "up")) {
+    buffer_updown(-1, arg);
+  } else if (!strcasecmp(subcmd, "down")) {
+    buffer_updown(1, arg);
+  } else if (!strcasecmp(subcmd, "search_backward")) {
+    buffer_search(-1, arg);
+  } else if (!strcasecmp(subcmd, "search_forward")) {
+    buffer_search(1, arg);
+  } else if (!strcasecmp(subcmd, "date")) {
+    buffer_date(arg);
+  } else if (*subcmd == '%') {
+    buffer_percent(subcmd+1, arg);
+  } else {
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
+  }
+
+  free_arg_lst(paramlst);
 }
 
 static void do_clear(char *arg)    // Alias for "/buffer clear"

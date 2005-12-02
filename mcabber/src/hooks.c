@@ -42,7 +42,7 @@ inline void hk_message_in(const char *jid, const char *resname,
   int log_muc_conf = FALSE;
   int message_flags = 0;
   guint rtype = ROSTER_TYPE_USER;
-  char *wmsg = NULL, *bmsg = NULL;
+  char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
   GSList *roster_usr;
 
   if (type && !strcmp(type, "groupchat")) {
@@ -54,8 +54,13 @@ inline void hk_message_in(const char *jid, const char *resname,
       resname = "";
     }
     wmsg = bmsg = g_strdup_printf("<%s> %s", resname, msg);
+    if (!strncmp(msg, "/me ", 4))
+      wmsg = mmsg = g_strdup_printf("*%s %s", resname, msg+4);
   } else {
-    wmsg = (char*) msg;
+    if (!strncmp(msg, "/me ", 4))
+      wmsg = mmsg = g_strdup_printf("*%s %s", jid, msg+4);
+    else
+      wmsg = (char*) msg;
   }
 
   // If this user isn't in the roster, we add it
@@ -66,6 +71,7 @@ inline void hk_message_in(const char *jid, const char *resname,
     if (!roster_usr) { // Shouldn't happen...
       scr_LogPrint(LPRINT_LOGNORM, "ERROR: unable to add buddy!");
       if (bmsg) g_free(bmsg);
+      if (mmsg) g_free(mmsg);
       return;
     }
   } else if (is_groupchat) {
@@ -77,8 +83,11 @@ inline void hk_message_in(const char *jid, const char *resname,
 
   if (!is_groupchat && is_room) {
     // This is a private message from a room participant
-    if (!resname) resname = "";
+    if (!resname)
+      resname = "";
     wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", resname, msg);
+    if (!strncmp(msg, "/me ", 4))
+      wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
   }
 
   if (type && !strcmp(type, "error")) {
@@ -90,6 +99,10 @@ inline void hk_message_in(const char *jid, const char *resname,
   // cases scr_WriteIncomingMessage() will load the history and we'd
   // have the message twice...
   scr_WriteIncomingMessage(jid, wmsg, timestamp, message_flags);
+
+  // We don't log the modified message, but the original one
+  if (wmsg == mmsg)
+    wmsg = bmsg;
 
   // - We don't log the message if it is an error message
   // - We don't log the message if it is a private conf. message
@@ -116,6 +129,7 @@ inline void hk_message_in(const char *jid, const char *resname,
   }
 
   if (bmsg) g_free(bmsg);
+  if (mmsg) g_free(mmsg);
 }
 
 //  hk_message_out()
@@ -124,10 +138,19 @@ inline void hk_message_in(const char *jid, const char *resname,
 inline void hk_message_out(const char *jid, const char *nick,
                            time_t timestamp, const char *msg)
 {
-  char *wmsg = NULL, *bmsg = NULL;
+  char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;;
 
-  if (nick) wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
-  else      wmsg = (char*)msg;
+  if (nick) {
+    wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
+  } else {
+    wmsg = (char*)msg;
+    if (!strncmp(msg, "/me ", 4)) {
+      const char *myid = settings_opt_get("username");
+      if (myid)
+        wmsg = mmsg = g_strdup_printf("*%s %s", settings_opt_get("username"),
+                                      msg+4);
+    }
+  }
 
   // Note: the hlog_write should not be called first, because in some
   // cases scr_WriteOutgoingMessage() will load the history and we'd
@@ -141,6 +164,7 @@ inline void hk_message_out(const char *jid, const char *nick,
   hk_ext_cmd(jid, 'M', 'S', NULL);
 
   if (bmsg) g_free(bmsg);
+  if (mmsg) g_free(mmsg);
 }
 
 inline void hk_statuschange(const char *jid, const char *resname, gchar prio,

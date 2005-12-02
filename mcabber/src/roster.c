@@ -282,7 +282,7 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
   roster_usr->list  = slist;    // (my_group SList element)
   // #4 Insert node (sorted)
   my_group->list = g_slist_insert_sorted(my_group->list, roster_usr,
-          (GCompareFunc)&roster_compare_name);
+                                         (GCompareFunc)&roster_compare_name);
   return roster_find(jid, jidsearch, type);
 }
 
@@ -1069,15 +1069,19 @@ gpointer unread_msg(gpointer rosterdata)
 {
   GSList *unread, *next_unread;
 
-  if (!unread_list) return NULL;
+  if (!unread_list)
+    return NULL;
+
   // First unread message
-  if (!rosterdata) return unread_list->data;
+  if (!rosterdata)
+    return unread_list->data;
 
   unread = g_slist_find(unread_list, rosterdata);
-  if (!unread) return unread_list->data;
+  if (!unread)
+    return unread_list->data;
 
   next_unread = g_slist_next(unread);
-  if (next_unread) return next_unread->data;
-
+  if (next_unread)
+    return next_unread->data;
   return unread_list->data;
 }

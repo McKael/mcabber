@@ -260,7 +260,7 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
   if (!group)  group = "";
 
   // #1 Check this user doesn't already exist
-  slist = roster_find(jid, jidsearch, type|ROSTER_TYPE_AGENT);
+  slist = roster_find(jid, jidsearch, 0);
   if (slist) return slist;
   // #2 add group if necessary
   slist = roster_add_group(group);

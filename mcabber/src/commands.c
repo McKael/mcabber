@@ -1203,7 +1203,7 @@ static void room_join(gpointer bud, char *arg)
     return;
   }
 
-  if (!nick) {
+  if (!nick || !*nick) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
     free_arg_lst(paramlst);
     return;
@@ -1261,11 +1261,18 @@ static void room_leave(gpointer bud, char *arg)
 
 static void room_nick(gpointer bud, char *arg)
 {
-  gchar *cmd;
-
-  cmd = g_strdup_printf("%s %s", buddy_getjid(bud), arg);
-  room_join(bud, cmd);
-  g_free(cmd);
+  if (!arg || !*arg) {
+    const char *nick = buddy_getnickname(bud);
+    if (nick)
+      scr_LogPrint(LPRINT_NORMAL, "Your nickname is: %s", nick);
+    else
+      scr_LogPrint(LPRINT_NORMAL, "You have no nickname");
+  } else {
+    gchar *cmd;
+    cmd = g_strdup_printf("%s %s", buddy_getjid(bud), arg);
+    room_join(bud, cmd);
+    g_free(cmd);
+  }
 }
 
 static void room_privmsg(gpointer bud, char *arg)
@@ -1375,7 +1382,7 @@ static void do_room(char *arg)
     if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_names(bud, arg);
   } else if (!strcasecmp(subcmd, "nick"))  {
-    if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
+    if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_nick(bud, arg);
   } else if (!strcasecmp(subcmd, "privmsg"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)

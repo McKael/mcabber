@@ -941,7 +941,8 @@ static void handle_packet_iq(jconn conn, char *type, char *from,
       if (!strcmp(ns, NS_ROSTER)) {
         gotroster(x);
       } else if (!strcmp(ns, NS_AGENTS)) {
-        for (y = xmlnode_get_tag(x, "agent"); y; y = xmlnode_get_nextsibling(y)) {
+        y = xmlnode_get_tag(x, "agent");
+        for (; y; y = xmlnode_get_nextsibling(y)) {
           const char *alias = xmlnode_get_attrib(y, "jid");
 
           if (alias) {
@@ -958,7 +959,7 @@ static void handle_packet_iq(jconn conn, char *type, char *from,
             if (atype == transport) {
               char *cleanjid = jidtodisp(alias);
               roster_add_user(cleanjid, NULL, JABBER_AGENT_GROUP,
-                      ROSTER_TYPE_AGENT);
+                              ROSTER_TYPE_AGENT);
               g_free(cleanjid);
             }
             if (alias && name && desc) {

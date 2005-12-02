@@ -243,7 +243,7 @@ GSList *roster_add_group(const char *name)
 
 // Returns a pointer to the new user, or existing user with that name
 GSList *roster_add_user(const char *jid, const char *name, const char *group,
-        guint type)
+                        guint type)
 {
   roster *roster_usr;
   roster *my_group;
@@ -711,7 +711,7 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
 
   // Add the buddy to its new group; actually we "clone" this buddy...
   sl_clone = roster_add_user(roster_usr->jid, roster_usr->name,
-          newgroupname, roster_usr->type);
+                             newgroupname, roster_usr->type);
   roster_clone = (roster*)sl_clone->data;
   roster_clone->subscription = roster_usr->subscription;
   roster_clone->flags = roster_usr->flags;

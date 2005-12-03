@@ -650,11 +650,8 @@ int jb_room_kickban(const char *roomid, const char *jid, const char *nick,
 void jb_room_invite(const char *room, const char *jid, const char *reason)
 {
   xmlnode x, y, z;
-  gchar *utf8_reason;
 
   if (!online || !room || !jid) return;
-
-  if (!reason) reason = "";
 
   x = jutil_msgnew(NULL, (char*)room, NULL, NULL);
 
@@ -664,10 +661,12 @@ void jb_room_invite(const char *room, const char *jid, const char *reason)
   z = xmlnode_insert_tag(y, "invite");
   xmlnode_put_attrib(z, "to", jid);
 
-  utf8_reason = to_utf8(reason);
-  y = xmlnode_insert_tag(z, "reason");
-  xmlnode_insert_cdata(y, utf8_reason, (unsigned) -1);
-  g_free(utf8_reason);
+  if (reason) {
+    gchar *utf8_reason = to_utf8(reason);
+    y = xmlnode_insert_tag(z, "reason");
+    xmlnode_insert_cdata(y, utf8_reason, (unsigned) -1);
+    g_free(utf8_reason);
+  }
 
   jab_send(jc, x);
   xmlnode_free(x);

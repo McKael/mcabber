@@ -28,14 +28,11 @@ TODO:
 * MUC: advanced settings for room creation
 * MUC: join password-protected room
 * MUC: tell the user when (s)he's been kicked/banned
-* MUC: display the roles
-* s#^/me #*login # in the buffer windows
 
 * File transfer? :)
 
 * Commands:
 
-  - IRC-like /room {kick,ban,whois}
   - /group expand|shrink|toggle
     + rename
   - /info [jid]

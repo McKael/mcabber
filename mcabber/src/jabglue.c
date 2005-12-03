@@ -584,6 +584,65 @@ void jb_room_unlock(const char *room)
   jb_reset_keepalive();
 }
 
+// Kick or ban a MUC room member
+// room syntax: "room@server"
+// Either the jid or the nickname must be set (when banning, only the jid is
+// allowed)
+// kickban: 1=kick 2=ban
+// The reason can be null
+// Return 0 if everything is ok
+int jb_room_kickban(const char *roomid, const char *jid, const char *nick,
+                    int kickban, const char *reason)
+{
+  xmlnode x, y, z;
+
+  if (!online || !roomid) return 1;
+  if (kickban != 1 && kickban != 2) return 1;
+
+  if (check_jid_syntax((char*)roomid)) {
+    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", roomid);
+    return 1;
+  }
+  if (jid && check_jid_syntax((char*)jid)) {
+    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
+    return 1;
+  }
+
+  if (kickban == 2 && !jid)
+    return 1; // Shouldn't happen
+
+  x = jutil_iqnew(JPACKET__SET, "http://jabber.org/protocol/muc#admin");
+  xmlnode_put_attrib(x, "id", "kick1"); // XXX
+  xmlnode_put_attrib(x, "to", roomid);
+  xmlnode_put_attrib(x, "type", "set");
+  y = xmlnode_get_tag(x, "query");
+  z = xmlnode_insert_tag(y, "item");
+
+  if (!jid) {
+    gchar *utf8_nickname = to_utf8(nick);
+    xmlnode_put_attrib(z, "nick", utf8_nickname);
+    g_free(utf8_nickname);
+  } else {
+    xmlnode_put_attrib(z, "jid", jid);
+    if (kickban == 2)
+      xmlnode_put_attrib(z, "affiliation", "outcast");
+  }
+  if (kickban == 1)
+    xmlnode_put_attrib(z, "role", "none");
+
+  if (reason) {
+    gchar *utf8_reason = to_utf8(reason);
+    y = xmlnode_insert_tag(z, "reason");
+    xmlnode_insert_cdata(y, utf8_reason, (unsigned) -1);
+    g_free(utf8_reason);
+  }
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+  jb_reset_keepalive();
+
+  return 0;
+}
 
 // Invite a user to a MUC room
 // room syntax: "room@server"

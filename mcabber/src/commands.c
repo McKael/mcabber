@@ -158,6 +158,7 @@ void cmd_init(void)
   // Room category
   compl_add_category_word(COMPL_ROOM, "invite");
   compl_add_category_word(COMPL_ROOM, "join");
+  compl_add_category_word(COMPL_ROOM, "kick");
   compl_add_category_word(COMPL_ROOM, "leave");
   compl_add_category_word(COMPL_ROOM, "names");
   compl_add_category_word(COMPL_ROOM, "nick");
@@ -1176,7 +1177,7 @@ static char *check_room_subcommand(char *arg, bool param_needed,
 
   if (param_needed) {
     if (!arg) {
-      scr_LogPrint(LPRINT_NORMAL, "Wrong or missing parameter");
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
       return NULL;
     }
   }
@@ -1241,6 +1242,27 @@ static void room_invite(gpointer bud, char *arg)
   roomname = buddy_getjid(bud);
   jb_room_invite(roomname, jid, arg);
   scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>", jid);
+  free_arg_lst(paramlst);
+}
+
+static void room_kick(gpointer bud, char *arg)
+{
+  char **paramlst;
+  gchar *nick;
+  const char *roomid = buddy_getjid(bud);
+
+  paramlst = split_arg(arg, 2, 1); // nickname, reason
+  nick = *paramlst;
+  arg = *(paramlst+1);
+
+  if (!nick || !*nick) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  jb_room_kickban(roomid, NULL, nick, 1, arg);
+
   free_arg_lst(paramlst);
 }
 
@@ -1376,6 +1398,9 @@ static void do_room(char *arg)
   } else if (!strcasecmp(subcmd, "invite"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_invite(bud, arg);
+  } else if (!strcasecmp(subcmd, "kick"))  {
+    if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
+      room_kick(bud, arg);
   } else if (!strcasecmp(subcmd, "leave"))  {
     if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_leave(bud, arg);

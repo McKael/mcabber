@@ -58,5 +58,7 @@ void jb_set_keepalive_delay(unsigned int delay);
 void jb_room_join(const char *room, const char *nickname);
 void jb_room_unlock(const char *room);
 void jb_room_invite(const char *room, const char *jid, const char *reason);
+int  jb_room_kickban(const char *roomid, const char *jid, const char *nick,
+                     int kickban, const char *reason);
 
 #endif /* __JABGLUE_H__ */

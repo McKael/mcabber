@@ -1396,6 +1396,7 @@ static void room_whois(gpointer bud, char *arg)
   gchar *nick, *buffer;
   const char *jid, *realjid;
   const char *rst_msg;
+  gchar rprio;
   enum imstatus rstatus;
   enum imrole role;
   enum imaffiliation affil;
@@ -1421,6 +1422,7 @@ static void room_whois(gpointer bud, char *arg)
     return;
   }
 
+  rprio   = buddy_getresourceprio(bud, nick);
   rst_msg = buddy_getstatusmsg(bud, nick);
   if (!rst_msg) rst_msg = "";
 
@@ -1432,19 +1434,22 @@ static void room_whois(gpointer bud, char *arg)
 
   snprintf(buffer, 127, "Whois [%s]", nick);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
-  snprintf(buffer, 127, "Status: [%c] %s", imstatus2char[rstatus],
+  snprintf(buffer, 127, "Status   : [%c] %s", imstatus2char[rstatus],
            rst_msg);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
 
   if (realjid) {
-    snprintf(buffer, 127, "Real jid: <%s>", realjid);
+    snprintf(buffer, 127, "JID      : <%s>", realjid);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
   }
 
-  snprintf(buffer, 127, "Role: %s", strroles[role]);
+  snprintf(buffer, 127, "Role     : %s", strroles[role]);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
-  snprintf(buffer, 127, "Affiliation: %s", straffil[affil]);
+  snprintf(buffer, 127, "Affiliat.: %s", straffil[affil]);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  snprintf(buffer, 127, "Priority : %d", rprio);
+  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(jid, "End of WHOIS", 0, HBB_PREFIX_INFO);
 
   g_free(buffer);
   free_arg_lst(paramlst);

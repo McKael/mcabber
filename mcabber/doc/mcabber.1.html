@@ -456,11 +456,22 @@ leave multi-line mode without sending the message
         the buddies to another group with the "/move" command).
 </dd>
 <dt><b>
-/room invite|join|leave|names|nick|privmsg|remove|topic|unlock
+/room join|leave|names|nick|privmsg|remove|topic|unlock
+</b></dt>
+<dt><b>
+/room invite|kick|ban
 </b></dt>
 <dd>
         The <b>room</b> command handles Multi-User Chat room actions.
 <table class="hlist">
+<tr valign="top">
+<td>
+<b>ban</b> jid [reason]
+</td>
+<td>
+ban jid from the current room
+</td>
+</tr>
 <tr valign="top">
 <td>
 <b>invite</b> jid [reason]
@@ -475,6 +486,14 @@ invite jid to the current room
 </td>
 <td>
 join "room", using "nick" as nickname
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>kick</b> nick [reason]
+</td>
+<td>
+kick "nick" from the current room
 </td>
 </tr>
 <tr valign="top">
@@ -531,6 +550,14 @@ set topic for current room
 </td>
 <td>
 unlock current room (if you are the owner)
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>whois</b> nick
+</td>
+<td>
+display MUC information about "nick"
 </td>
 </tr>
 </table>
@@ -698,8 +725,8 @@ Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com
 License (GPL).</p>
 <div id="footer">
 <p>
-Version 0.7.1<br />
-Last updated 19-Nov-2005 16:44:06 CEST
+Version 0.7.2-dev<br />
+Last updated 03-Dec-2005 23:50:16 CEST
 </p>
 </div>
 </div>

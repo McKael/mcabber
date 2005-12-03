@@ -3,13 +3,30 @@
 
 #include <glib.h>
 
-# include "jabglue.h"
+enum imstatus {
+    offline,
+    available,
+    invisible,
+    freeforchat,
+    dontdisturb,
+    notavail,
+    away,
+    imstatus_size
+};
 
 enum imrole {
   role_none,
   role_moderator,
   role_participant,
   role_visitor
+};
+
+enum imaffiliation {
+  affil_none,
+  affil_owner,
+  affil_admin,
+  affil_member,
+  affil_outcast
 };
 
 enum subscr {
@@ -54,7 +71,8 @@ void    roster_del_user(const char *jid);
 void    roster_free(void);
 void    roster_setstatus(const char *jid, const char *resname, gchar prio,
                          enum imstatus bstat, const char *status_msg,
-                         enum imrole role, const char *realjid);
+                         enum imrole role, enum imaffiliation affil,
+                         const char *realjid);
 void    roster_setflags(const char *jid, guint flags, guint value);
 void    roster_msg_setflag(const char *jid, guint value);
 const char *roster_getname(const char *jid);
@@ -86,6 +104,9 @@ int     buddy_isresource(gpointer rosterdata);
 GSList *buddy_getresources(gpointer rosterdata);
 void    buddy_resource_setname(gpointer rosterdata, const char *resname,
                                const char *newname);
+enum imrole buddy_getrole(gpointer rosterdata, const char *resname);
+enum imaffiliation buddy_getaffil(gpointer rosterdata, const char *resname);
+const char *buddy_getrjid(gpointer rosterdata, const char *resname);
 void    buddy_del_all_resources(gpointer rosterdata);
 void    buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint   buddy_getflags(gpointer rosterdata);

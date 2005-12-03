@@ -213,7 +213,8 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
     }
   }
 
-  roster_setstatus(jid, rn, prio, status, status_msg, role_none, NULL);
+  roster_setstatus(jid, rn, prio, status, status_msg, role_none, affil_none,
+                   NULL);
   buddylist_build();
   scr_DrawRoster();
   hlog_write_status(jid, 0, status, status_msg);

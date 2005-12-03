@@ -33,6 +33,7 @@ typedef struct {
   enum imstatus status;
   gchar *status_msg;
   enum imrole role;
+  enum imaffiliation affil;
   gchar *realjid;       /* for chatrooms, if buddy's real jid is known */
 } res;
 
@@ -372,10 +373,11 @@ void roster_free(void)
 }
 
 //  roster_setstatus()
-// Note: resname, role and realjid are for room members only
+// Note: resname, role, affil and realjid are for room members only
 void roster_setstatus(const char *jid, const char *resname, gchar prio,
                       enum imstatus bstat, const char *status_msg,
-                      enum imrole role, const char *realjid)
+                      enum imrole role, enum imaffiliation affil,
+                      const char *realjid)
 {
   GSList *sl_user;
   roster *roster_usr;
@@ -410,6 +412,7 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
     p_res->status_msg = g_strdup(status_msg);
 
   p_res->role = role;
+  p_res->affil = affil;
 
   if (p_res->realjid) {
     g_free((gchar*)p_res->realjid);
@@ -883,6 +886,33 @@ gchar buddy_getresourceprio(gpointer rosterdata, const char *resname)
   if (p_res)
     return p_res->prio;
   return 0;
+}
+
+enum imrole buddy_getrole(gpointer rosterdata, const char *resname)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->role;
+  return role_none;
+}
+
+enum imaffiliation buddy_getaffil(gpointer rosterdata, const char *resname)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->affil;
+  return affil_none;
+}
+
+const char *buddy_getrjid(gpointer rosterdata, const char *resname)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->realjid;
+  return NULL;
 }
 
 //  buddy_getresources(roster_data)

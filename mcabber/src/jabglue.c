@@ -588,16 +588,19 @@ void jb_room_unlock(const char *room)
 // room syntax: "room@server"
 // Either the jid or the nickname must be set (when banning, only the jid is
 // allowed)
-// kickban: 1=kick 2=ban
+// affil: new affiliation (ex. affil_none for kick, affil_outcast for ban...)
 // The reason can be null
 // Return 0 if everything is ok
-int jb_room_kickban(const char *roomid, const char *jid, const char *nick,
-                    int kickban, const char *reason)
+int jb_room_setaffil(const char *roomid, const char *jid, const char *nick,
+                     enum imaffiliation affil, const char *reason)
 {
   xmlnode x, y, z;
 
   if (!online || !roomid) return 1;
-  if (kickban != 1 && kickban != 2) return 1;
+
+  // Only none & outcast at the moment
+  if (affil != affil_none && affil != affil_outcast)
+    return 1;
 
   if (check_jid_syntax((char*)roomid)) {
     scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", roomid);
@@ -608,8 +611,8 @@ int jb_room_kickban(const char *roomid, const char *jid, const char *nick,
     return 1;
   }
 
-  if (kickban == 2 && !jid)
-    return 1; // Shouldn't happen
+  if (affil == affil_outcast && !jid)
+    return 1; // Shouldn't happen (jid mandatory when banning)
 
   x = jutil_iqnew(JPACKET__SET, "http://jabber.org/protocol/muc#admin");
   xmlnode_put_attrib(x, "id", "kick1"); // XXX
@@ -624,10 +627,10 @@ int jb_room_kickban(const char *roomid, const char *jid, const char *nick,
     g_free(utf8_nickname);
   } else {
     xmlnode_put_attrib(z, "jid", jid);
-    if (kickban == 2)
+    if (affil == affil_outcast)
       xmlnode_put_attrib(z, "affiliation", "outcast");
   }
-  if (kickban == 1)
+  if (affil == affil_none)
     xmlnode_put_attrib(z, "role", "none");
 
   if (reason) {
@@ -958,7 +961,7 @@ static void handle_packet_iq(jconn conn, char *type, char *from,
     if ((p = xmlnode_get_attrib(xmldata, "id")) != NULL) {
       int iid = atoi(p);
 
-      scr_LogPrint(LPRINT_DEBUG, "iid = %d", iid);
+      //scr_LogPrint(LPRINT_DEBUG, "iid = %d", iid);
       if (iid == s_id) {
         if (!regmode) {
           if (jstate == STATE_GETAUTH) {
@@ -1144,8 +1147,6 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
                    from, p);
   }
 
-  // Call hk_statuschange() if status has changed or if the
-  // status message is different
   rname = strchr(from, '/');
   if (rname) rname++;
 
@@ -1160,6 +1161,7 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   }
   if (x) {    // This is a MUC presence message
     enum imrole mbrole = role_none;
+    enum imaffiliation mbaffil = affil_none;
     const char *mbrjid = NULL;
     const char *mbnewnick = NULL;
     GSList *room_elt;
@@ -1175,6 +1177,16 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
     // Get room member's information
     y = xmlnode_get_tag(x, "item");
     if (y) {
+      p = xmlnode_get_attrib(y, "affiliation");
+      if (p) {
+        if (!strcmp(p, "owner"))        mbaffil = affil_owner;
+        else if (!strcmp(p, "admin"))   mbaffil = affil_admin;
+        else if (!strcmp(p, "member"))  mbaffil = affil_member;
+        else if (!strcmp(p, "outcast")) mbaffil = affil_outcast;
+        else if (!strcmp(p, "none"))    mbaffil = affil_none;
+        else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown affiliation \"%s\"",
+                          from, p);
+      }
       p = xmlnode_get_attrib(y, "role");
       if (p) {
         if (!strcmp(p, "moderator"))        mbrole = role_moderator;
@@ -1258,7 +1270,7 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
 
     // Update room member status
     if (rname)
-      roster_setstatus(r, rname, bpprio, ust, s, mbrole, mbrjid);
+      roster_setstatus(r, rname, bpprio, ust, s, mbrole, mbaffil, mbrjid);
     else
       scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
 
@@ -1269,6 +1281,8 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   }
 
   // Not a MUC message, so this is a regular buddy...
+  // Call hk_statuschange() if status has changed or if the
+  // status message is different
   m = roster_getstatusmsg(r, rname);
   if ((ust != roster_getstatus(r, rname)) ||
       (!s && m && m[0]) || (s && (!m || strcmp(s, m))))

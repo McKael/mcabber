@@ -3,6 +3,7 @@
 
 #include <glib.h>
 
+#include "roster.h"
 #include "../libjabber/jabber.h"
 
 #if HAVE_CONFIG_H
@@ -17,17 +18,6 @@ extern jconn jc;
 
 extern char imstatus2char[];
 // Status chars: '_', 'o', 'i', 'f', 'd', 'n', 'a'
-
-enum imstatus {
-    offline,
-    available,
-    invisible,
-    freeforchat,
-    dontdisturb,
-    notavail,
-    away,
-    imstatus_size
-};
 
 enum agtype {
     unknown,
@@ -58,7 +48,7 @@ void jb_set_keepalive_delay(unsigned int delay);
 void jb_room_join(const char *room, const char *nickname);
 void jb_room_unlock(const char *room);
 void jb_room_invite(const char *room, const char *jid, const char *reason);
-int  jb_room_kickban(const char *roomid, const char *jid, const char *nick,
-                     int kickban, const char *reason);
+int  jb_room_setaffil(const char *roomid, const char *jid, const char *nick,
+                      enum imaffiliation, const char *reason);
 
 #endif /* __JABGLUE_H__ */

@@ -167,6 +167,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROOM, "remove");
   compl_add_category_word(COMPL_ROOM, "topic");
   compl_add_category_word(COMPL_ROOM, "unlock");
+  compl_add_category_word(COMPL_ROOM, "whois");
 }
 
 //  expandalias(line)
@@ -1262,7 +1263,7 @@ static void room_ban(gpointer bud, char *arg)
     return;
   }
 
-  jb_room_kickban(roomid, jid, NULL, 2, arg);
+  jb_room_setaffil(roomid, jid, NULL, affil_outcast, arg);
 
   free_arg_lst(paramlst);
 }
@@ -1284,7 +1285,7 @@ static void room_kick(gpointer bud, char *arg)
     return;
   }
 
-  jb_room_kickban(roomid, NULL, nick, 1, arg);
+  jb_room_setaffil(roomid, NULL, nick, affil_none, arg);
 
   free_arg_lst(paramlst);
 }
@@ -1389,6 +1390,66 @@ static void room_unlock(gpointer bud, char *arg)
   jb_room_unlock(buddy_getjid(bud));
 }
 
+static void room_whois(gpointer bud, char *arg)
+{
+  char **paramlst;
+  gchar *nick, *buffer;
+  const char *jid, *realjid;
+  const char *rst_msg;
+  enum imstatus rstatus;
+  enum imrole role;
+  enum imaffiliation affil;
+
+  char *strroles[] = { "none", "moderator", "participant", "visitor" };
+  char *straffil[] = { "none", "owner", "admin", "member", "outcast" };
+
+  paramlst = split_arg(arg, 1, 0); // nickname
+  nick = *paramlst;
+
+  if (!nick || !*nick) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  jid = buddy_getjid(bud);
+  rstatus = buddy_getstatus(bud, nick);
+
+  if (rstatus == offline) {
+    scr_LogPrint(LPRINT_NORMAL, "No such member: %s", nick);
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  rst_msg = buddy_getstatusmsg(bud, nick);
+  if (!rst_msg) rst_msg = "";
+
+  role = buddy_getrole(bud, nick);
+  affil = buddy_getaffil(bud, nick);
+  realjid = buddy_getrjid(bud, nick);
+
+  buffer = g_new(char, 128);
+
+  snprintf(buffer, 127, "Whois [%s]", nick);
+  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  snprintf(buffer, 127, "Status: [%c] %s", imstatus2char[rstatus],
+           rst_msg);
+  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+
+  if (realjid) {
+    snprintf(buffer, 127, "Real jid: <%s>", realjid);
+    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  }
+
+  snprintf(buffer, 127, "Role: %s", strroles[role]);
+  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  snprintf(buffer, 127, "Affiliation: %s", straffil[affil]);
+  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+
+  g_free(buffer);
+  free_arg_lst(paramlst);
+}
+
 static void do_room(char *arg)
 {
   char **paramlst;
@@ -1446,6 +1507,9 @@ static void do_room(char *arg)
   } else if (!strcasecmp(subcmd, "topic"))  {
     if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_topic(bud, arg);
+  } else if (!strcasecmp(subcmd, "whois"))  {
+    if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
+      room_whois(bud, arg);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

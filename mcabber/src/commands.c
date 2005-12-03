@@ -752,7 +752,6 @@ static void buffer_search(int direction, char *arg)
     return;
   }
 
-  strip_arg_special_chars(arg);
   scr_BufferSearch(direction, arg);
 }
 
@@ -1226,7 +1225,7 @@ static void room_invite(gpointer bud, char *arg)
   const gchar *roomname;
   char* jid;
 
-  paramlst = split_arg(arg, 2, 0); // jid, [reason]
+  paramlst = split_arg(arg, 2, 1); // jid, [reason]
   jid = *paramlst;
   arg = *(paramlst+1);
   // An empty reason is no reason...
@@ -1270,7 +1269,6 @@ static void room_leave(gpointer bud, char *arg)
 {
   gchar *roomid, *utf8_nickname;
 
-  strip_arg_special_chars(arg);
   utf8_nickname = to_utf8(buddy_getnickname(bud));
   roomid = g_strdup_printf("%s/%s", buddy_getjid(bud), utf8_nickname);
   jb_setstatus(offline, roomid, arg);
@@ -1352,7 +1350,6 @@ static void room_topic(gpointer bud, char *arg)
   }
 
   // Set the topic
-  strip_arg_special_chars(arg);
   msg = g_strdup_printf("/me has set the topic to: %s", arg);
   jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg);
   g_free(msg);

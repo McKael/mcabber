@@ -156,6 +156,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_MULTILINE, "verbatim");
 
   // Room category
+  compl_add_category_word(COMPL_ROOM, "ban");
   compl_add_category_word(COMPL_ROOM, "invite");
   compl_add_category_word(COMPL_ROOM, "join");
   compl_add_category_word(COMPL_ROOM, "kick");
@@ -1244,13 +1245,36 @@ static void room_invite(gpointer bud, char *arg)
   free_arg_lst(paramlst);
 }
 
+// The expected argument is a Jabber id
+static void room_ban(gpointer bud, char *arg)
+{
+  char **paramlst;
+  gchar *jid;
+  const char *roomid = buddy_getjid(bud);
+
+  paramlst = split_arg(arg, 2, 1); // jid, [reason]
+  jid = *paramlst;
+  arg = *(paramlst+1);
+
+  if (!jid || !*jid) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (Jabber id)");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  jb_room_kickban(roomid, jid, NULL, 2, arg);
+
+  free_arg_lst(paramlst);
+}
+
+// The expected argument is a nickname
 static void room_kick(gpointer bud, char *arg)
 {
   char **paramlst;
   gchar *nick;
   const char *roomid = buddy_getjid(bud);
 
-  paramlst = split_arg(arg, 2, 1); // nickname, reason
+  paramlst = split_arg(arg, 2, 1); // nickname, [reason]
   nick = *paramlst;
   arg = *(paramlst+1);
 
@@ -1395,6 +1419,9 @@ static void do_room(char *arg)
   } else if (!strcasecmp(subcmd, "invite"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_invite(bud, arg);
+  } else if (!strcasecmp(subcmd, "ban"))  {
+    if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
+      room_ban(bud, arg);
   } else if (!strcasecmp(subcmd, "kick"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_kick(bud, arg);

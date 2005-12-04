@@ -24,6 +24,7 @@
 #define _GNU_SOURCE  /* We need glibc for strptime */
 #include "../libjabber/jabber.h"
 #include "jabglue.h"
+#include "jab_priv.h"
 #include "roster.h"
 #include "screen.h"
 #include "hooks.h"
@@ -35,33 +36,18 @@
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
 
-#define JABBER_AGENT_GROUP "Jabber Agents"
-
 jconn jc;
-static time_t LastPingTime;
-static unsigned int KeepaliveDelay;
-static int s_id;
-static int regmode, regdone;
-static enum imstatus mystatus = offline;
-static gchar *mystatusmsg;
-static unsigned char online;
+int regmode, regdone;
 
 char imstatus2char[imstatus_size+1] = {
     '_', 'o', 'i', 'f', 'd', 'n', 'a', '\0'
 };
 
-static enum {
-  STATE_CONNECTING,
-  STATE_GETAUTH,
-  STATE_SENDAUTH,
-  STATE_LOGGED
-} jstate;
-
-struct T_presence {
-  enum imstatus st;
-  const char *msg;
-};
-
+static time_t LastPingTime;
+static unsigned int KeepaliveDelay;
+static enum imstatus mystatus = offline;
+static gchar *mystatusmsg;
+static unsigned char online;
 
 static void statehandler(jconn, int);
 static void packethandler(jconn, jpacket);
@@ -74,7 +60,7 @@ static void logger(jconn j, int io, const char *buf)
 //  jidtodisp(jid)
 // Strips the resource part from the jid
 // The caller should g_free the result after use.
-static char *jidtodisp(const char *jid)
+char *jidtodisp(const char *jid)
 {
   char *ptr;
   char *alias;
@@ -676,119 +662,6 @@ void jb_room_invite(const char *room, const char *jid, const char *reason)
   jb_reset_keepalive();
 }
 
-static void postlogin()
-{
-  //int i;
-
-  //flogged = TRUE;
-  //ourstatus = available;
-
-  //setautostatus(jhook.manualstatus);
-
-  jb_setstatus(available, NULL, NULL);
-  buddylist_build();
-  /*
-  for (i = 0; i < clist.count; i++) {
-    c = (icqcontact *) clist.at(i);
-
-    if (c->getdesc().pname == proto)
-      if (ischannel(c))
-        if (c->getbasicinfo().requiresauth)
-          c->setstatus(available);
-  }
-  */
-
-  /*
-  agents.insert(agents.begin(), agent("vcard", "Jabber VCard", "", agent::atStandard));
-  agents.begin()->params[agent::ptRegister].enabled = TRUE;
-
-  string buf;
-  ifstream f(conf.getconfigfname("jabber-infoset").c_str());
-
-  if (f.is_open()) {
-    icqcontact *c = clist.get(contactroot);
-
-    c->clear();
-    icqcontact::basicinfo bi = c->getbasicinfo();
-    icqcontact::reginfo ri = c->getreginfo();
-
-    ri.service = agents.begin()->name;
-    getstring(f, buf); c->setnick(buf);
-    getstring(f, buf); bi.email = buf;
-    getstring(f, buf); bi.fname = buf;
-    getstring(f, buf); bi.lname = buf;
-    f.close();
-
-    c->setbasicinfo(bi);
-    c->setreginfo(ri);
-
-    sendupdateuserinfo(*c);
-    unlink(conf.getconfigfname("jabber-infoset").c_str());
-  }
-  */
-}
-
-static void gotloggedin(void)
-{
-  xmlnode x;
-
-  x = jutil_iqnew(JPACKET__GET, NS_AGENTS);
-  xmlnode_put_attrib(x, "id", "Agent List");
-  jab_send(jc, x);
-  xmlnode_free(x);
-
-  x = jutil_iqnew(JPACKET__GET, NS_ROSTER);
-  xmlnode_put_attrib(x, "id", "Roster");
-  jab_send(jc, x);
-  xmlnode_free(x);
-}
-
-static void gotroster(xmlnode x)
-{
-  xmlnode y, z;
-
-  for (y = xmlnode_get_tag(x, "item"); y; y = xmlnode_get_nextsibling(y)) {
-    const char *alias = xmlnode_get_attrib(y, "jid");
-    //const char *sub = xmlnode_get_attrib(y, "subscription"); // TODO Not used
-    const char *name = xmlnode_get_attrib(y, "name");
-    char *group = NULL;
-
-    z = xmlnode_get_tag(y, "group");
-    if (z) group = xmlnode_get_data(z);
-
-    if (alias) {
-      char *buddyname;
-      char *cleanalias = jidtodisp(alias);
-      gchar *name_noutf8 = NULL;
-      gchar *group_noutf8 = NULL;
-
-      buddyname = cleanalias;
-      if (name) {
-        name_noutf8 = from_utf8(name);
-        if (name_noutf8)
-          buddyname = name_noutf8;
-        else
-          scr_LogPrint(LPRINT_LOG, "Decoding of buddy alias has failed: %s",
-                       name);
-      }
-
-      if (group) {
-        group_noutf8 = from_utf8(group);
-        if (!group_noutf8)
-          scr_LogPrint(LPRINT_LOG, "Decoding of buddy group has failed: %s",
-                       group);
-      }
-
-      roster_add_user(cleanalias, buddyname, group_noutf8, ROSTER_TYPE_USER);
-      if (name_noutf8)  g_free(name_noutf8);
-      if (group_noutf8) g_free(group_noutf8);
-      g_free(cleanalias);
-    }
-  }
-
-  postlogin();
-}
-
 static void gotmessage(char *type, const char *from, const char *body,
                        const char *enc, time_t timestamp)
 {
@@ -864,7 +737,7 @@ static const char *defaulterrormsg(int code)
 //  display_server_error(x)
 // Display the error to the user
 // x: error tag xmlnode pointer
-static void display_server_error(xmlnode x)
+void display_server_error(xmlnode x)
 {
   const char *desc = NULL;
   int code = 0;
@@ -943,163 +816,6 @@ static void statehandler(jconn conn, int state)
         break;
   }
   previous_state = state;
-}
-
-static void handle_packet_iq(jconn conn, char *type, char *from,
-                             xmlnode xmldata)
-{
-  char *p;
-  xmlnode x, y;
-  char *ns = NULL;
-  char *id=NULL;
-
-  if (!type)
-    return;
-
-  if (!strcmp(type, "result")) {
-
-    if ((p = xmlnode_get_attrib(xmldata, "id")) != NULL) {
-      int iid = atoi(p);
-
-      //scr_LogPrint(LPRINT_DEBUG, "iid = %d", iid);
-      if (iid == s_id) {
-        if (!regmode) {
-          if (jstate == STATE_GETAUTH) {
-            if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
-              if (!xmlnode_get_tag(x, "digest")) {
-                jc->sid = 0;
-              }
-
-            s_id = atoi(jab_auth(jc));
-            jstate = STATE_SENDAUTH;
-          } else {
-            gotloggedin();
-            jstate = STATE_LOGGED;
-          }
-        } else {
-          regdone = TRUE;
-        }
-        return;
-      }
-
-      if (!strcmp(p, "VCARDreq")) {
-        x = xmlnode_get_firstchild(xmldata);
-        if (!x) x = xmldata;
-
-        //jhook.gotvcard(ic, x); TODO
-        scr_LogPrint(LPRINT_LOGNORM, "Got VCARD");
-        return;
-      } else if (!strcmp(p, "versionreq")) {
-        // jhook.gotversion(ic, xmldata); TODO
-        scr_LogPrint(LPRINT_LOGNORM, "Got version");
-        return;
-      }
-    }
-
-    if ((x = xmlnode_get_tag(xmldata, "query")) != NULL) {
-      p = xmlnode_get_attrib(x, "xmlns"); if (p) ns = p;
-
-      if (!strcmp(ns, NS_ROSTER)) {
-        gotroster(x);
-      } else if (!strcmp(ns, NS_AGENTS)) {
-        y = xmlnode_get_tag(x, "agent");
-        for (; y; y = xmlnode_get_nextsibling(y)) {
-          const char *alias = xmlnode_get_attrib(y, "jid");
-
-          if (alias) {
-            const char *name = xmlnode_get_tag_data(y, "name");
-            const char *desc = xmlnode_get_tag_data(y, "description");
-            // TODO
-            // const char *service = xmlnode_get_tag_data(y, "service");
-            enum agtype atype = unknown;
-
-            if (xmlnode_get_tag(y, TMSG_GROUPCHAT))   atype = groupchat;
-            else if (xmlnode_get_tag(y, "transport")) atype = transport;
-            else if (xmlnode_get_tag(y, "search"))    atype = search;
-
-            if (atype == transport) {
-              char *cleanjid = jidtodisp(alias);
-              roster_add_user(cleanjid, NULL, JABBER_AGENT_GROUP,
-                              ROSTER_TYPE_AGENT);
-              g_free(cleanjid);
-            }
-            if (alias && name && desc) {
-              scr_LogPrint(LPRINT_LOGNORM,
-                           "Agent: %s / %s / %s / type=%d",
-                           alias, name, desc, atype);
-
-              if (atype == search) {
-                x = jutil_iqnew (JPACKET__GET, NS_SEARCH);
-                xmlnode_put_attrib(x, "to", alias);
-                xmlnode_put_attrib(x, "id", "Agent info");
-                jab_send(conn, x);
-                xmlnode_free(x);
-              }
-
-              if (xmlnode_get_tag(y, "register")) {
-                x = jutil_iqnew (JPACKET__GET, NS_REGISTER);
-                xmlnode_put_attrib(x, "to", alias);
-                xmlnode_put_attrib(x, "id", "Agent info");
-                jab_send(conn, x);
-                xmlnode_free(x);
-              }
-            }
-          }
-        }
-
-        /*
-        if (find(jhook.agents.begin(), jhook.agents.end(), DEFAULT_CONFSERV) == jhook.agents.end())
-          jhook.agents.insert(jhook.agents.begin(), agent(DEFAULT_CONFSERV, DEFAULT_CONFSERV,
-                      _("Default Jabber conference server"), agent::atGroupchat));
-
-        */
-      } else if (!strcmp(ns, NS_SEARCH) || !strcmp(ns, NS_REGISTER)) {
-        p = xmlnode_get_attrib(xmldata, "id"); id = p ? p : (char*)"";
-
-        if (!strcmp(id, "Agent info")) {
-          // jhook.gotagentinfo(xmldata); TODO
-          scr_LogPrint(LPRINT_LOGNORM, "Got agent info");
-        } else if (!strcmp(id, "Lookup")) {
-          // jhook.gotsearchresults(xmldata); TODO
-          scr_LogPrint(LPRINT_LOGNORM, "Got search results");
-        } else if (!strcmp(id, "Register")) {
-          if (!from)
-            return;
-          x = jutil_iqnew(JPACKET__GET, NS_REGISTER);
-          xmlnode_put_attrib(x, "to", from);
-          xmlnode_put_attrib(x, "id", "Agent info");
-          jab_send(conn, x);
-          xmlnode_free(x);
-        }
-
-      }
-    }
-  } else if (!strcmp(type, "get")) {
-    p = xmlnode_get_attrib(xmldata, "id");
-    if (p) {
-      xmlnode z;
-
-      id = p;
-      x = xmlnode_new_tag("iq");
-      xmlnode_put_attrib(x, "type", "result");
-      xmlnode_put_attrib(x, "to", from);
-      xmlnode_put_attrib(x, "id", id);
-      xmlnode_put_attrib(x, "type", TMSG_ERROR);
-      y = xmlnode_insert_tag(x, TMSG_ERROR);
-      xmlnode_put_attrib(y, "code", "503");
-      xmlnode_put_attrib(y, "type", "cancel");
-      z = xmlnode_insert_tag(y, "feature-not-implemented");
-      xmlnode_put_attrib(z, "xmlns",
-                         "urn:ietf:params:xml:ns:xmpp-stanzas");
-      jab_send(conn, x);
-      xmlnode_free(x);
-    }
-  } else if (!strcmp(type, "set")) {
-    /* FIXME: send error */
-  } else if (!strcmp(type, TMSG_ERROR)) {
-    if ((x = xmlnode_get_tag(xmldata, TMSG_ERROR)) != NULL)
-      display_server_error(x);
-  }
 }
 
 static void handle_packet_presence(jconn conn, char *type, char *from,

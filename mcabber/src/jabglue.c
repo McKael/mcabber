@@ -818,12 +818,140 @@ static void statehandler(jconn conn, int state)
   previous_state = state;
 }
 
+static void handle_presence_muc(const char *from, xmlnode xmldata,
+                                const char *jid, const char *rname,
+                                enum imstatus ust, char *ustmsg, char bpprio)
+{
+  xmlnode y;
+  char *p;
+  const char *m;
+  enum imrole mbrole = role_none;
+  enum imaffiliation mbaffil = affil_none;
+  const char *mbrjid = NULL;
+  const char *mbnewnick = NULL;
+  GSList *room_elt;
+  //const char *actor = NULL, *reason = NULL;
+  int log_muc_conf = settings_opt_get_int("log_muc_conf");
+
+  room_elt = roster_find(jid, jidsearch, 0);
+  if (!room_elt) {
+    // Add room if it doesn't already exist
+    room_elt = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_ROOM);
+  } else {
+    // Make sure this is a room (it can be a conversion user->room)
+    buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
+  }
+
+  // Get room member's information
+  y = xmlnode_get_tag(xmldata, "item");
+  if (y) {
+    p = xmlnode_get_attrib(y, "affiliation");
+    if (p) {
+      if (!strcmp(p, "owner"))        mbaffil = affil_owner;
+      else if (!strcmp(p, "admin"))   mbaffil = affil_admin;
+      else if (!strcmp(p, "member"))  mbaffil = affil_member;
+      else if (!strcmp(p, "outcast")) mbaffil = affil_outcast;
+      else if (!strcmp(p, "none"))    mbaffil = affil_none;
+      else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown affiliation \"%s\"",
+                        from, p);
+    }
+    p = xmlnode_get_attrib(y, "role");
+    if (p) {
+      if (!strcmp(p, "moderator"))        mbrole = role_moderator;
+      else if (!strcmp(p, "participant")) mbrole = role_participant;
+      else if (!strcmp(p, "visitor"))     mbrole = role_visitor;
+      else if (!strcmp(p, "none"))        mbrole = role_none;
+      else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown role \"%s\"",
+                        from, p);
+    }
+    p = xmlnode_get_attrib(y, "jid");
+    if (p) mbrjid = p;
+    p = xmlnode_get_attrib(y, "nick");
+    if (p) mbnewnick = p;
+  }
+
+  // Check for nickname change
+  y = xmlnode_get_tag(xmldata, "status");
+  if (y) {
+    p = xmlnode_get_attrib(y, "code");
+    if (p && !strcmp(p, "303") && mbnewnick) {
+      gchar *mbuf;
+      gchar *newname_noutf8 = from_utf8(mbnewnick);
+      if (!newname_noutf8)
+        scr_LogPrint(LPRINT_LOG,
+                     "Decoding of new nickname has failed: %s",
+                     mbnewnick);
+      mbuf = g_strdup_printf("%s is now known as %s", rname,
+                             (newname_noutf8 ? newname_noutf8 : "(?)"));
+      scr_WriteIncomingMessage(jid, mbuf, 0,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+      if (log_muc_conf) hlog_write_message(jid, 0, FALSE, mbuf);
+      g_free(mbuf);
+      if (newname_noutf8) {
+        buddy_resource_setname(room_elt->data, rname, newname_noutf8);
+        m = buddy_getnickname(room_elt->data);
+        if (m && !strcmp(rname, m))
+          buddy_setnickname(room_elt->data, newname_noutf8);
+        g_free(newname_noutf8);
+      }
+    }
+  }
+
+  // Check for departure/arrival
+  if (!mbnewnick && mbrole == role_none) {
+    gchar *mbuf;
+
+    // If this is a leave, check if it is ourself
+    m = buddy_getnickname(room_elt->data);
+    if (m && !strcmp(rname, m)) {
+      // _We_ have left! (kicked, banned, etc.)
+      buddy_setnickname(room_elt->data, NULL);
+      buddy_del_all_resources(room_elt->data);
+      scr_LogPrint(LPRINT_LOGNORM, "You have left %s", jid);
+      scr_WriteIncomingMessage(jid, "You have left", 0,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+      update_roster = TRUE;
+
+      return;
+    }
+
+    if (ustmsg)  mbuf = g_strdup_printf("%s has left: %s", rname, ustmsg);
+    else         mbuf = g_strdup_printf("%s has left", rname);
+    scr_WriteIncomingMessage(jid, mbuf, 0,
+                             HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+    if (log_muc_conf) hlog_write_message(jid, 0, FALSE, mbuf);
+    g_free(mbuf);
+  } else if (buddy_getstatus(room_elt->data, rname) == offline &&
+             ust != offline) {
+    gchar *mbuf;
+    if (buddy_getnickname(room_elt->data) == NULL) {
+      buddy_setnickname(room_elt->data, rname);
+      mbuf = g_strdup_printf("You have joined as \"%s\"", rname);
+    } else {
+      mbuf = g_strdup_printf("%s has joined", rname);
+    }
+    scr_WriteIncomingMessage(jid, mbuf, 0,
+                             HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+    if (log_muc_conf) hlog_write_message(jid, 0, FALSE, mbuf);
+    g_free(mbuf);
+  }
+
+  // Update room member status
+  if (rname)
+    roster_setstatus(jid, rname, bpprio, ust, ustmsg, mbrole, mbaffil, mbrjid);
+  else
+    scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
+
+  buddylist_build();
+  scr_DrawRoster();
+}
+
 static void handle_packet_presence(jconn conn, char *type, char *from,
                                    xmlnode xmldata)
 {
-  char *p, *r, *s;
-  const char *m;
-  xmlnode x, y;
+  char *p, *r;
+  char *ustmsg;
+  xmlnode x;
   const char *rname;
   enum imstatus ust;
   char bpprio;
@@ -853,11 +981,11 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   if (type && !strcmp(type, "unavailable"))
     ust = offline;
 
-  s = NULL;
+  ustmsg = NULL;
   p = xmlnode_get_tag_data(xmldata, "status");
   if (p) {
-    s = from_utf8(p);
-    if (!s)
+    ustmsg = from_utf8(p);
+    if (!ustmsg)
       scr_LogPrint(LPRINT_LOG,
                    "Decoding of status message of <%s> has failed: %s",
                    from, p);
@@ -875,138 +1003,21 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
           !strcasecmp(p, "http://jabber.org/protocol/muc#user"))
         break;
   }
-  if (x) {    // This is a MUC presence message
-    enum imrole mbrole = role_none;
-    enum imaffiliation mbaffil = affil_none;
-    const char *mbrjid = NULL;
-    const char *mbnewnick = NULL;
-    GSList *room_elt;
-    int log_muc_conf = settings_opt_get_int("log_muc_conf");
-
-    // Add room if it doesn't already exist
-    room_elt = roster_find(r, jidsearch, 0);
-    if (!room_elt)
-      room_elt = roster_add_user(r, NULL, NULL, ROSTER_TYPE_ROOM);
-    else // Make sure this is a room (it can be a conversion user->room)
-      buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
-
-    // Get room member's information
-    y = xmlnode_get_tag(x, "item");
-    if (y) {
-      p = xmlnode_get_attrib(y, "affiliation");
-      if (p) {
-        if (!strcmp(p, "owner"))        mbaffil = affil_owner;
-        else if (!strcmp(p, "admin"))   mbaffil = affil_admin;
-        else if (!strcmp(p, "member"))  mbaffil = affil_member;
-        else if (!strcmp(p, "outcast")) mbaffil = affil_outcast;
-        else if (!strcmp(p, "none"))    mbaffil = affil_none;
-        else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown affiliation \"%s\"",
-                          from, p);
-      }
-      p = xmlnode_get_attrib(y, "role");
-      if (p) {
-        if (!strcmp(p, "moderator"))        mbrole = role_moderator;
-        else if (!strcmp(p, "participant")) mbrole = role_participant;
-        else if (!strcmp(p, "visitor"))     mbrole = role_visitor;
-        else if (!strcmp(p, "none"))        mbrole = role_none;
-        else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown role \"%s\"",
-                          from, p);
-      }
-      p = xmlnode_get_attrib(y, "jid");
-      if (p) mbrjid = p;
-      p = xmlnode_get_attrib(y, "nick");
-      if (p) mbnewnick = p;
-    }
-
-    // Check for nickname change
-    y = xmlnode_get_tag(x, "status");
-    if (y && mbnewnick) {
-      p = xmlnode_get_attrib(y, "code");
-      if (p && !strcmp(p, "303")) {
-        gchar *mbuf;
-        gchar *newname_noutf8 = from_utf8(mbnewnick);
-        if (!newname_noutf8)
-          scr_LogPrint(LPRINT_LOG,
-                       "Decoding of new nickname has failed: %s",
-                       mbnewnick);
-        mbuf = g_strdup_printf("%s is now known as %s", rname,
-                               (newname_noutf8 ? newname_noutf8 : "(?)"));
-        scr_WriteIncomingMessage(r, mbuf, 0,
-                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-        if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
-        g_free(mbuf);
-        if (newname_noutf8) {
-          buddy_resource_setname(room_elt->data, rname, newname_noutf8);
-          m = buddy_getnickname(room_elt->data);
-          if (m && !strcmp(rname, m))
-            buddy_setnickname(room_elt->data, newname_noutf8);
-          g_free(newname_noutf8);
-        }
-      }
-    }
-
-    // Check for departure/arrival
-    if (!mbnewnick && mbrole == role_none) {
-      gchar *mbuf;
-
-      // If this is a leave, check if it is ourself
-      m = buddy_getnickname(room_elt->data);
-      if (m && !strcmp(rname, m)) {
-        // _We_ have left! (kicked, banned, etc.)
-        buddy_setnickname(room_elt->data, NULL);
-        buddy_del_all_resources(room_elt->data);
-        scr_LogPrint(LPRINT_LOGNORM, "You have left %s", r);
-        scr_WriteIncomingMessage(r, "You have left", 0,
-                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-        update_roster = TRUE;
-
-        goto out_packet_presence;
-      }
-
-      if (s)  mbuf = g_strdup_printf("%s has left: %s", rname, s);
-      else    mbuf = g_strdup_printf("%s has left", rname);
-      scr_WriteIncomingMessage(r, mbuf, 0,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-      if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
-      g_free(mbuf);
-    } else if (buddy_getstatus(room_elt->data, rname) == offline &&
-               ust != offline) {
-      gchar *mbuf;
-      if (buddy_getnickname(room_elt->data) == NULL) {
-        buddy_setnickname(room_elt->data, rname);
-        mbuf = g_strdup_printf("You have joined as \"%s\"", rname);
-      } else {
-        mbuf = g_strdup_printf("%s has joined", rname);
-      }
-      scr_WriteIncomingMessage(r, mbuf, 0,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-      if (log_muc_conf) hlog_write_message(r, 0, FALSE, mbuf);
-      g_free(mbuf);
-    }
-
-    // Update room member status
-    if (rname)
-      roster_setstatus(r, rname, bpprio, ust, s, mbrole, mbaffil, mbrjid);
-    else
-      scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
-
-    buddylist_build();
-    scr_DrawRoster();
-
-    goto out_packet_presence;
+  if (x) {
+    // This is a MUC presence message
+    handle_presence_muc(from, x, r, rname, ust, ustmsg, bpprio);
+  } else {
+    // Not a MUC message, so this is a regular buddy...
+    // Call hk_statuschange() if status has changed or if the
+    // status message is different
+    const char *m = roster_getstatusmsg(r, rname);
+    if ((ust != roster_getstatus(r, rname)) ||
+        (!ustmsg && m && m[0]) || (ustmsg && (!m || strcmp(ustmsg, m))))
+      hk_statuschange(r, rname, bpprio, 0, ust, ustmsg);
   }
 
-  // Not a MUC message, so this is a regular buddy...
-  // Call hk_statuschange() if status has changed or if the
-  // status message is different
-  m = roster_getstatusmsg(r, rname);
-  if ((ust != roster_getstatus(r, rname)) ||
-      (!s && m && m[0]) || (s && (!m || strcmp(s, m))))
-    hk_statuschange(r, rname, bpprio, 0, ust, s);
-
-out_packet_presence:
   g_free(r);
-  if (s) g_free(s);
+  if (ustmsg) g_free(ustmsg);
 }
 
 static void handle_packet_message(jconn conn, char *type, char *from,

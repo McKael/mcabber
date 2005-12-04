@@ -14,3 +14,4 @@ inline void hlog_write_status(const char *jid, time_t timestamp,
 
 #endif /* __HISTOLOG_H__ */
 
+/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */

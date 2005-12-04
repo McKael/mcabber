@@ -52,3 +52,5 @@ int  jb_room_setaffil(const char *roomid, const char *jid, const char *nick,
                       enum imaffiliation, const char *reason);
 
 #endif /* __JABGLUE_H__ */
+
+/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */

@@ -40,3 +40,5 @@ GList *hbuf_jump_date(GList *hbuf, time_t t);
 GList *hbuf_jump_percent(GList *hbuf, int pc);
 
 #endif /* __HBUF_H__ */
+
+/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */

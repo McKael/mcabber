@@ -27,3 +27,5 @@ guint   cancel_completion(void);
 const char *complete(void);
 
 #endif /* __COMPL_H__ */
+
+/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */

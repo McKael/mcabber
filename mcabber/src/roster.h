@@ -120,3 +120,5 @@ gpointer unread_msg(gpointer rosterdata);
 GSList *compl_list(guint type);
 
 #endif /* __ROSTER_H__ */
+
+/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */

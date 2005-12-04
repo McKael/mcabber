@@ -325,3 +325,5 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
   if (datafname)
     g_free(datafname);
 }
+
+/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */

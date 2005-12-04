@@ -7,19 +7,19 @@
 
 #define JABBER_AGENT_GROUP "Jabber Agents"
 
-static enum {
+enum enum_jstate {
   STATE_CONNECTING,
   STATE_GETAUTH,
   STATE_SENDAUTH,
   STATE_LOGGED
-} jstate;
+};
 
 struct T_presence {
   enum imstatus st;
   const char *msg;
 };
 
-extern int regmode, regdone;
+extern enum enum_jstate jstate;
 extern int s_id;
 
 char *jidtodisp(const char *jid);

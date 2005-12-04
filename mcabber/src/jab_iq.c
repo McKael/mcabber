@@ -163,22 +163,21 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
     int iid = atoi(p);
 
     //scr_LogPrint(LPRINT_DEBUG, "iid = %d", iid);
+    scr_LogPrint(LPRINT_DEBUG, "iid = %d  sid = %d", iid, s_id); // XXX DBG XXX
+    scr_LogPrint(LPRINT_DEBUG, "jstate = %d", jstate); // XXX DBG XXX
     if (iid == s_id) {
-      if (!regmode) {
-        if (jstate == STATE_GETAUTH) {
-          if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
-            if (!xmlnode_get_tag(x, "digest")) {
-              jc->sid = 0;
-            }
+      if (jstate == STATE_GETAUTH) {
+        if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
+          if (!xmlnode_get_tag(x, "digest")) {
+            jc->sid = 0;
+          }
 
-          s_id = atoi(jab_auth(jc));
-          jstate = STATE_SENDAUTH;
-        } else {
-          gotloggedin();
-          jstate = STATE_LOGGED;
-        }
-      } else {
-        regdone = TRUE;
+        scr_LogPrint(LPRINT_DEBUG, "jc = %p", jc); // XXX DBG XXX
+        s_id = atoi(jab_auth(jc));
+        jstate = STATE_SENDAUTH;
+      } else if (jstate == STATE_SENDAUTH) {
+        gotloggedin();
+        jstate = STATE_LOGGED;
       }
       return;
     }

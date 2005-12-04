@@ -37,7 +37,7 @@
 #define JABBERSSLPORT   5223
 
 jconn jc;
-int regmode, regdone;
+enum enum_jstate jstate;
 
 char imstatus2char[imstatus_size+1] = {
     '_', 'o', 'i', 'f', 'd', 'n', 'a', '\0'

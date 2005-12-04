@@ -1206,4 +1206,4 @@ static void packethandler(jconn conn, jpacket packet)
     g_free(from);
 }
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

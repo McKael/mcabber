@@ -446,4 +446,4 @@ void free_arg_lst(char **arglst)
   g_free(arglst);
 }
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

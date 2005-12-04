@@ -281,4 +281,4 @@ inline void hlog_write_status(const char *jid, time_t timestamp,
           status_msg);
 }
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

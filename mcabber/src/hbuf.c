@@ -325,4 +325,4 @@ GList *hbuf_jump_percent(GList *hbuf, int pc)
   return g_list_nth(hbuf, pc*hlen/100);
 }
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

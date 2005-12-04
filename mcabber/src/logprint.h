@@ -13,4 +13,4 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...);
 
 #endif /* __LOGPRINT_H__ */
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

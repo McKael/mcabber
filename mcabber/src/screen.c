@@ -1792,4 +1792,4 @@ int process_key(int key)
   return 0;
 }
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

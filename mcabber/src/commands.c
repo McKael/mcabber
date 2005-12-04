@@ -1532,4 +1532,4 @@ static void do_disconnect(char *arg)
   jb_disconnect();
 }
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

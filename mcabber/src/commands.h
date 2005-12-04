@@ -21,4 +21,4 @@ extern void mcabber_connect(void);
 
 #endif /* __COMMANDS_H__ */
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

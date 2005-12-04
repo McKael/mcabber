@@ -224,4 +224,4 @@ GSList *compl_get_category_list(guint cat_flags)
   return NULL;
 }
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

@@ -21,4 +21,4 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data);
 
 #endif /* __HOOKS_H__ */
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

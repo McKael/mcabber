@@ -62,4 +62,4 @@ void scr_BufferScrollUpDown(int updown, unsigned int nblines);
 
 #endif
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

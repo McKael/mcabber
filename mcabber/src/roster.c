@@ -1116,4 +1116,4 @@ gpointer unread_msg(gpointer rosterdata)
   return unread_list->data;
 }
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

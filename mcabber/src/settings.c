@@ -332,4 +332,4 @@ const gchar *settings_get_status_msg(enum imstatus status)
   return rstatus;
 }
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

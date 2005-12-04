@@ -28,4 +28,4 @@ void display_server_error(xmlnode x);
 
 #endif /* __JAB_PRIV_H__ */
 
-/* vim: set expandtab cindent cinoptions=>2:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

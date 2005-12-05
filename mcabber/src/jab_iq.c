@@ -163,8 +163,6 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
     int iid = atoi(p);
 
     //scr_LogPrint(LPRINT_DEBUG, "iid = %d", iid);
-    scr_LogPrint(LPRINT_DEBUG, "iid = %d  sid = %d", iid, s_id); // XXX DBG XXX
-    scr_LogPrint(LPRINT_DEBUG, "jstate = %d", jstate); // XXX DBG XXX
     if (iid == s_id) {
       if (jstate == STATE_GETAUTH) {
         if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
@@ -172,7 +170,6 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
             jc->sid = 0;
           }
 
-        scr_LogPrint(LPRINT_DEBUG, "jc = %p", jc); // XXX DBG XXX
         s_id = atoi(jab_auth(jc));
         jstate = STATE_SENDAUTH;
       } else if (jstate == STATE_SENDAUTH) {

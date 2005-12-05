@@ -819,7 +819,7 @@ static void statehandler(jconn conn, int state)
 }
 
 static void handle_presence_muc(const char *from, xmlnode xmldata,
-                                const char *jid, const char *rname,
+                                const char *roomjid, const char *rname,
                                 enum imstatus ust, char *ustmsg, char bpprio)
 {
   xmlnode y;
@@ -827,16 +827,18 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   const char *m;
   enum imrole mbrole = role_none;
   enum imaffiliation mbaffil = affil_none;
-  const char *mbrjid = NULL;
-  const char *mbnewnick = NULL;
+  const char *mbjid = NULL, *mbnick = NULL;
+  const char *actorjid = NULL, *reason = NULL;
+  unsigned int statuscode = 0;
   GSList *room_elt;
-  //const char *actor = NULL, *reason = NULL;
-  int log_muc_conf = settings_opt_get_int("log_muc_conf");
+  int log_muc_conf;
 
-  room_elt = roster_find(jid, jidsearch, 0);
+  log_muc_conf = settings_opt_get_int("log_muc_conf");
+
+  room_elt = roster_find(roomjid, jidsearch, 0);
   if (!room_elt) {
     // Add room if it doesn't already exist
-    room_elt = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_ROOM);
+    room_elt = roster_add_user(roomjid, NULL, NULL, ROSTER_TYPE_ROOM);
   } else {
     // Make sure this is a room (it can be a conversion user->room)
     buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
@@ -845,6 +847,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   // Get room member's information
   y = xmlnode_get_tag(xmldata, "item");
   if (y) {
+    xmlnode z;
     p = xmlnode_get_attrib(y, "affiliation");
     if (p) {
       if (!strcmp(p, "owner"))        mbaffil = affil_owner;
@@ -864,62 +867,91 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown role \"%s\"",
                         from, p);
     }
-    p = xmlnode_get_attrib(y, "jid");
-    if (p) mbrjid = p;
-    p = xmlnode_get_attrib(y, "nick");
-    if (p) mbnewnick = p;
+    mbjid = xmlnode_get_attrib(y, "jid");
+    mbnick = xmlnode_get_attrib(y, "nick");
+    // For kick/ban, there can be actor and reason tags
+    reason = xmlnode_get_tag_data(y, "reason");
+    z = xmlnode_get_tag(y, "actor");
+    if (z)
+      actorjid = xmlnode_get_attrib(z, "jid");
   }
 
-  // Check for nickname change
+  // Get the status code
+  // 201: a room has been created
+  // 301: the user has been banned from the room
+  // 303: new room nickname
+  // 307: the user has been kicked from the room
+  // 321,322,332: the user has been removed from the room
   y = xmlnode_get_tag(xmldata, "status");
   if (y) {
     p = xmlnode_get_attrib(y, "code");
-    if (p && !strcmp(p, "303") && mbnewnick) {
-      gchar *mbuf;
-      gchar *newname_noutf8 = from_utf8(mbnewnick);
-      if (!newname_noutf8)
-        scr_LogPrint(LPRINT_LOG,
-                     "Decoding of new nickname has failed: %s",
-                     mbnewnick);
-      mbuf = g_strdup_printf("%s is now known as %s", rname,
-                             (newname_noutf8 ? newname_noutf8 : "(?)"));
-      scr_WriteIncomingMessage(jid, mbuf, 0,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-      if (log_muc_conf) hlog_write_message(jid, 0, FALSE, mbuf);
-      g_free(mbuf);
-      if (newname_noutf8) {
-        buddy_resource_setname(room_elt->data, rname, newname_noutf8);
-        m = buddy_getnickname(room_elt->data);
-        if (m && !strcmp(rname, m))
-          buddy_setnickname(room_elt->data, newname_noutf8);
-        g_free(newname_noutf8);
-      }
+    if (p)
+      statuscode = atoi(p);
+  }
+
+  // Check for nickname change
+  if (statuscode == 303 && mbnick) {
+    gchar *mbuf;
+    gchar *newname_noutf8 = from_utf8(mbnick);
+    if (!newname_noutf8)
+      scr_LogPrint(LPRINT_LOG, "Decoding of new nickname has failed: %s",
+                   mbnick);
+    mbuf = g_strdup_printf("%s is now known as %s", rname,
+                           (newname_noutf8 ? newname_noutf8 : "(?)"));
+    scr_WriteIncomingMessage(roomjid, mbuf, 0,
+                             HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+    if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
+    g_free(mbuf);
+    if (newname_noutf8) {
+      buddy_resource_setname(room_elt->data, rname, newname_noutf8);
+      m = buddy_getnickname(room_elt->data);
+      if (m && !strcmp(rname, m))
+        buddy_setnickname(room_elt->data, newname_noutf8);
+      g_free(newname_noutf8);
     }
   }
 
   // Check for departure/arrival
-  if (!mbnewnick && mbrole == role_none) {
+  if (!mbnick && mbrole == role_none) {
     gchar *mbuf;
 
     // If this is a leave, check if it is ourself
     m = buddy_getnickname(room_elt->data);
     if (m && !strcmp(rname, m)) {
       // _We_ have left! (kicked, banned, etc.)
+      gchar *mbuf;
+
       buddy_setnickname(room_elt->data, NULL);
       buddy_del_all_resources(room_elt->data);
-      scr_LogPrint(LPRINT_LOGNORM, "You have left %s", jid);
-      scr_WriteIncomingMessage(jid, "You have left", 0,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-      update_roster = TRUE;
 
+      if (statuscode == 307) {
+        if (actorjid)
+          mbuf = g_strdup_printf("You have been kicked from %s by <%s>."
+                                 "\nReason: %s", roomjid, actorjid, reason);
+        else
+          mbuf = g_strdup_printf("You have been kicked from %s.", roomjid);
+      } else if (statuscode == 301) {
+        if (actorjid)
+          mbuf = g_strdup_printf("You have been banned from %s by <%s>."
+                                 "\nReason: %s", roomjid, actorjid, reason);
+        else
+          mbuf = g_strdup_printf("You have been banned from %s.", roomjid);
+      } else {
+        mbuf = g_strdup_printf("You have left %s", roomjid);
+      }
+      scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
+      scr_WriteIncomingMessage(roomjid, mbuf, 0,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+      g_free(mbuf);
+      update_roster = TRUE;
       return;
     }
 
     if (ustmsg)  mbuf = g_strdup_printf("%s has left: %s", rname, ustmsg);
     else         mbuf = g_strdup_printf("%s has left", rname);
-    scr_WriteIncomingMessage(jid, mbuf, 0,
+    scr_WriteIncomingMessage(roomjid, mbuf, 0,
                              HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-    if (log_muc_conf) hlog_write_message(jid, 0, FALSE, mbuf);
+    if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
     g_free(mbuf);
   } else if (buddy_getstatus(room_elt->data, rname) == offline &&
              ust != offline) {
@@ -930,15 +962,16 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     } else {
       mbuf = g_strdup_printf("%s has joined", rname);
     }
-    scr_WriteIncomingMessage(jid, mbuf, 0,
+    scr_WriteIncomingMessage(roomjid, mbuf, 0,
                              HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-    if (log_muc_conf) hlog_write_message(jid, 0, FALSE, mbuf);
+    if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
     g_free(mbuf);
   }
 
   // Update room member status
   if (rname)
-    roster_setstatus(jid, rname, bpprio, ust, ustmsg, mbrole, mbaffil, mbrjid);
+    roster_setstatus(roomjid, rname, bpprio, ust, ustmsg,
+                     mbrole, mbaffil, mbjid);
   else
     scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
 

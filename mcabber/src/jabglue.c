@@ -914,44 +914,66 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   // Check for departure/arrival
   if (!mbnick && mbrole == role_none) {
     gchar *mbuf;
+    enum { leave=0, kick, ban } how;
+    bool we_left = FALSE;
+
+    if (statuscode == 307)
+      how = kick;
+    else if (statuscode == 301)
+      how = ban;
 
     // If this is a leave, check if it is ourself
     m = buddy_getnickname(room_elt->data);
-    if (m && !strcmp(rname, m)) {
-      // _We_ have left! (kicked, banned, etc.)
-      gchar *mbuf;
 
+    if (m && !strcmp(rname, m)) {
+      we_left = TRUE; // _We_ have left! (kicked, banned, etc.)
       buddy_setnickname(room_elt->data, NULL);
       buddy_del_all_resources(room_elt->data);
-
-      if (statuscode == 307) {
-        if (actorjid)
-          mbuf = g_strdup_printf("You have been kicked from %s by <%s>."
-                                 "\nReason: %s", roomjid, actorjid, reason);
-        else
-          mbuf = g_strdup_printf("You have been kicked from %s.", roomjid);
-      } else if (statuscode == 301) {
-        if (actorjid)
-          mbuf = g_strdup_printf("You have been banned from %s by <%s>."
-                                 "\nReason: %s", roomjid, actorjid, reason);
-        else
-          mbuf = g_strdup_printf("You have been banned from %s.", roomjid);
-      } else {
-        mbuf = g_strdup_printf("You have left %s", roomjid);
-      }
-      scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
-      scr_WriteIncomingMessage(roomjid, mbuf, 0,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-      g_free(mbuf);
       update_roster = TRUE;
-      return;
     }
 
-    if (ustmsg)  mbuf = g_strdup_printf("%s has left: %s", rname, ustmsg);
-    else         mbuf = g_strdup_printf("%s has left", rname);
+    // The message depends on _who_ left, and _how_
+    if (how) {
+      gchar *mbuf_end;
+      // Forced leave
+      if (actorjid) {
+        mbuf_end = g_strdup_printf("%s from %s by <%s>.\nReason: %s",
+                                   (how == ban ? "banned" : "kicked"),
+                                   roomjid, actorjid,
+                                   (reason ? reason : "None given"));
+      } else {
+        mbuf_end = g_strdup_printf("%s from %s.",
+                                   (how == ban ? "banned" : "kicked"),
+                                   roomjid);
+      }
+      if (we_left)
+        mbuf = g_strdup_printf("You have been %s", mbuf_end);
+      else
+        mbuf = g_strdup_printf("%s has been %s", rname, mbuf_end);
+
+      g_free(mbuf_end);
+    } else {
+      // Natural leave
+      if (we_left) {
+        mbuf = g_strdup_printf("You have left %s", roomjid);
+      } else {
+        if (ustmsg)
+          mbuf = g_strdup_printf("%s has left: %s", rname, ustmsg);
+        else
+          mbuf = g_strdup_printf("%s has left", rname);
+      }
+    }
+
     scr_WriteIncomingMessage(roomjid, mbuf, 0,
                              HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+
     if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
+
+    if (we_left) {
+      scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
+      g_free(mbuf);
+      return;
+    }
     g_free(mbuf);
   } else if (buddy_getstatus(room_elt->data, rname) == offline &&
              ust != offline) {

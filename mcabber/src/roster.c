@@ -25,6 +25,21 @@
 #include "roster.h"
 
 
+char *strrole[] = { /* Should match enum in roster.h */
+  "none",
+  "moderator",
+  "participant",
+  "visitor"
+};
+
+char *straffil[] = { /* Should match enum roster.h */
+  "none",
+  "owner",
+  "admin",
+  "memeber",
+  "outcast"
+};
+
 /* Resource structure */
 
 typedef struct {

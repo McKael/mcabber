@@ -570,23 +570,21 @@ void jb_room_unlock(const char *room)
   jb_reset_keepalive();
 }
 
-// Kick or ban a MUC room member
+// Change role or affiliation of a MUC user
 // room syntax: "room@server"
 // Either the jid or the nickname must be set (when banning, only the jid is
 // allowed)
-// affil: new affiliation (ex. affil_none for kick, affil_outcast for ban...)
+// ra: new role or affiliation
+//     (ex. role none for kick, affil outcast for ban...)
 // The reason can be null
 // Return 0 if everything is ok
-int jb_room_setaffil(const char *roomid, const char *jid, const char *nick,
-                     enum imaffiliation affil, const char *reason)
+int jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
+                      struct role_affil ra, const char *reason)
 {
   xmlnode x, y, z;
 
   if (!online || !roomid) return 1;
-
-  // Only none & outcast at the moment
-  if (affil != affil_none && affil != affil_outcast)
-    return 1;
+  if (!jid && !nick) return 1;
 
   if (check_jid_syntax((char*)roomid)) {
     scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", roomid);
@@ -597,27 +595,28 @@ int jb_room_setaffil(const char *roomid, const char *jid, const char *nick,
     return 1;
   }
 
-  if (affil == affil_outcast && !jid)
+  if (ra.type == type_affil && ra.val.affil == affil_outcast && !jid)
     return 1; // Shouldn't happen (jid mandatory when banning)
 
   x = jutil_iqnew(JPACKET__SET, "http://jabber.org/protocol/muc#admin");
-  xmlnode_put_attrib(x, "id", "kick1"); // XXX
+  xmlnode_put_attrib(x, "id", "roleaffil1"); // XXX
   xmlnode_put_attrib(x, "to", roomid);
   xmlnode_put_attrib(x, "type", "set");
   y = xmlnode_get_tag(x, "query");
   z = xmlnode_insert_tag(y, "item");
 
-  if (!jid) {
+  if (jid) {
+    xmlnode_put_attrib(z, "jid", jid);
+  } else { // nick
     gchar *utf8_nickname = to_utf8(nick);
     xmlnode_put_attrib(z, "nick", utf8_nickname);
     g_free(utf8_nickname);
-  } else {
-    xmlnode_put_attrib(z, "jid", jid);
-    if (affil == affil_outcast)
-      xmlnode_put_attrib(z, "affiliation", "outcast");
   }
-  if (affil == affil_none)
-    xmlnode_put_attrib(z, "role", "none");
+
+  if (ra.type == type_affil)
+    xmlnode_put_attrib(z, "affiliation", straffil[ra.val.affil]);
+  else if (ra.type == type_role)
+    xmlnode_put_attrib(z, "role", strrole[ra.val.role]);
 
   if (reason) {
     gchar *utf8_reason = to_utf8(reason);

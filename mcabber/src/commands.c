@@ -1251,6 +1251,7 @@ static void room_ban(gpointer bud, char *arg)
 {
   char **paramlst;
   gchar *jid;
+  struct role_affil ra;
   const char *roomid = buddy_getjid(bud);
 
   paramlst = split_arg(arg, 2, 1); // jid, [reason]
@@ -1263,7 +1264,10 @@ static void room_ban(gpointer bud, char *arg)
     return;
   }
 
-  jb_room_setaffil(roomid, jid, NULL, affil_outcast, arg);
+  ra.type = type_affil;
+  ra.val.affil = affil_outcast;
+
+  jb_room_setattrib(roomid, jid, NULL, ra, arg);
 
   free_arg_lst(paramlst);
 }
@@ -1273,6 +1277,7 @@ static void room_kick(gpointer bud, char *arg)
 {
   char **paramlst;
   gchar *nick;
+  struct role_affil ra;
   const char *roomid = buddy_getjid(bud);
 
   paramlst = split_arg(arg, 2, 1); // nickname, [reason]
@@ -1285,7 +1290,10 @@ static void room_kick(gpointer bud, char *arg)
     return;
   }
 
-  jb_room_setaffil(roomid, NULL, nick, affil_none, arg);
+  ra.type = type_role;
+  ra.val.affil = role_none;
+
+  jb_room_setattrib(roomid, NULL, nick, ra, arg);
 
   free_arg_lst(paramlst);
 }

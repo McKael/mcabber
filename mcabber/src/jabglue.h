@@ -48,8 +48,8 @@ void jb_set_keepalive_delay(unsigned int delay);
 void jb_room_join(const char *room, const char *nickname);
 void jb_room_unlock(const char *room);
 void jb_room_invite(const char *room, const char *jid, const char *reason);
-int  jb_room_setaffil(const char *roomid, const char *jid, const char *nick,
-                      enum imaffiliation, const char *reason);
+int  jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
+                       struct role_affil ra, const char *reason);
 
 #endif /* __JABGLUE_H__ */
 

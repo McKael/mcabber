@@ -21,6 +21,8 @@ enum imrole {
   role_visitor
 };
 
+extern char *strrole[]; // Should match enum above
+
 enum imaffiliation {
   affil_none,
   affil_owner,
@@ -28,6 +30,8 @@ enum imaffiliation {
   affil_member,
   affil_outcast
 };
+
+extern char *straffil[]; // Should match enum above
 
 enum subscr {
   sub_none,
@@ -39,6 +43,14 @@ enum subscr {
 enum findwhat {
   jidsearch,
   namesearch
+};
+
+struct role_affil {
+  enum { type_role, type_affil } type;
+  union {
+    enum imrole role;
+    enum imaffiliation affil;
+  } val;
 };
 
 // Roster_type is a set of flags, so values should be 2^n

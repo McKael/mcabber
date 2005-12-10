@@ -937,8 +937,11 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       // Forced leave
       if (actorjid) {
         gchar *rsn_noutf8 = from_utf8(reason);
-        if (!rsn_noutf8 && reason)
-          scr_LogPrint(LPRINT_LOGNORM, "UTF-8 decoding of reason has failed");
+        if (!rsn_noutf8 && reason) {
+          scr_LogPrint(LPRINT_NORMAL, "UTF-8 decoding of reason has failed");
+          scr_LogPrint(LPRINT_LOG, "UTF-8 decoding of reason has failed: %s",
+                       reason);
+        }
         mbuf_end = g_strdup_printf("%s from %s by <%s>.\nReason: %s",
                                    (how == ban ? "banned" : "kicked"),
                                    roomjid, actorjid,

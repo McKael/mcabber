@@ -913,7 +913,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   // Check for departure/arrival
   if (!mbnick && mbrole == role_none) {
     gchar *mbuf;
-    enum { leave=0, kick, ban } how;
+    enum { leave=0, kick, ban } how = leave;
     bool we_left = FALSE;
 
     if (statuscode == 307)

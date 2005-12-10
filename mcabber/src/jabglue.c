@@ -936,10 +936,15 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       gchar *mbuf_end;
       // Forced leave
       if (actorjid) {
+        gchar *rsn_noutf8 = from_utf8(reason);
+        if (!rsn_noutf8 && reason)
+          scr_LogPrint(LPRINT_LOGNORM, "UTF-8 decoding of reason has failed");
         mbuf_end = g_strdup_printf("%s from %s by <%s>.\nReason: %s",
                                    (how == ban ? "banned" : "kicked"),
                                    roomjid, actorjid,
-                                   (reason ? reason : "None given"));
+                                   (rsn_noutf8 ? rsn_noutf8 : "None given"));
+        if (rsn_noutf8)
+          g_free(rsn_noutf8);
       } else {
         mbuf_end = g_strdup_printf("%s from %s.",
                                    (how == ban ? "banned" : "kicked"),

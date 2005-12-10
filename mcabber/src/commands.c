@@ -1514,14 +1514,8 @@ static void room_whois(gpointer bud, char *arg)
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
 
   if (realjid) {
-    gchar *rjid_noutf8 = from_utf8(realjid);
-    if (!rjid_noutf8)
-      scr_LogPrint(LPRINT_LOGNORM, "Decoding of real JID has failed: %s",
-                   realjid);
-    snprintf(buffer, 127, "JID      : <%s>", rjid_noutf8);
+    snprintf(buffer, 127, "JID      : <%s>", realjid);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
-    if (rjid_noutf8)
-      g_free(rjid_noutf8);
   }
 
   snprintf(buffer, 127, "Role     : %s", strroles[role]);

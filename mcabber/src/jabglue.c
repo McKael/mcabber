@@ -254,15 +254,18 @@ static void roompresence(gpointer room, void *presencedata)
 // Create an xmlnode with default presence attributes
 // Note: the caller must free the node after use
 static xmlnode presnew(enum imstatus st, const char *recipient,
-                        const char *msg)
+                       const char *msg)
 {
   unsigned int prio;
   xmlnode x;
+  gchar *utf8_recipient = to_utf8(recipient);
 
   x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
 
-  if (recipient)
-    xmlnode_put_attrib(x, "to", recipient);
+  if (utf8_recipient) {
+    xmlnode_put_attrib(x, "to", utf8_recipient);
+    g_free(utf8_recipient);
+  }
 
   switch(st) {
     case away:
@@ -377,7 +380,8 @@ void jb_send_msg(const char *jid, const char *text, int type,
 {
   xmlnode x;
   gchar *strtype;
-  gchar *buffer = to_utf8(text);
+  gchar *utf8_jid;
+  gchar *buffer;
 
   if (!online) return;
 
@@ -386,7 +390,10 @@ void jb_send_msg(const char *jid, const char *text, int type,
   else
     strtype = TMSG_CHAT;
 
-  x = jutil_msgnew(strtype, (char*)jid, NULL, (char*)buffer);
+  buffer = to_utf8(text);
+  utf8_jid = to_utf8(jid); // Resource can require UTF-8
+
+  x = jutil_msgnew(strtype, utf8_jid, NULL, (char*)buffer);
   if (subject) {
     xmlnode y;
     char *bs = to_utf8(subject);
@@ -396,7 +403,10 @@ void jb_send_msg(const char *jid, const char *text, int type,
   }
   jab_send(jc, x);
   xmlnode_free(x);
-  g_free(buffer);
+
+  if (buffer) g_free(buffer);
+  if (utf8_jid) g_free(utf8_jid);
+
   jb_reset_keepalive();
 }
 
@@ -408,18 +418,20 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
 
   if (!online) return;
 
+  cleanjid = jidtodisp(jid);
+
   // We don't check if the jabber user already exists in the roster,
   // because it allows to re-ask for notification.
 
-  //x = jutil_presnew(JPACKET__SUBSCRIBE, jid, NULL);
-  x = jutil_presnew(JPACKET__SUBSCRIBE, (char*)jid, "online");
+  //x = jutil_presnew(JPACKET__SUBSCRIBE, cleanjid, NULL);
+  x = jutil_presnew(JPACKET__SUBSCRIBE, cleanjid, "online");
   jab_send(jc, x);
   xmlnode_free(x);
 
   x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
   y = xmlnode_get_tag(x, "query");
   z = xmlnode_insert_tag(y, "item");
-  xmlnode_put_attrib(z, "jid", jid);
+  xmlnode_put_attrib(z, "jid", cleanjid);
 
   if (name) {
     gchar *name_utf8 = to_utf8(name);
@@ -438,7 +450,6 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
   jab_send(jc, x);
   xmlnode_free(x);
 
-  cleanjid = jidtodisp(jid);
   roster_add_user(cleanjid, name, group, ROSTER_TYPE_USER);
   g_free(cleanjid);
   buddylist_build();
@@ -606,7 +617,9 @@ int jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
   z = xmlnode_insert_tag(y, "item");
 
   if (jid) {
-    xmlnode_put_attrib(z, "jid", jid);
+    gchar *utf8_jid = to_utf8(jid);
+    xmlnode_put_attrib(z, "jid", utf8_jid);
+    if (utf8_jid) g_free(utf8_jid);
   } else { // nick
     gchar *utf8_nickname = to_utf8(nick);
     xmlnode_put_attrib(z, "nick", utf8_nickname);
@@ -638,6 +651,7 @@ int jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
 void jb_room_invite(const char *room, const char *jid, const char *reason)
 {
   xmlnode x, y, z;
+  gchar *utf8_jid;
 
   if (!online || !room || !jid) return;
 
@@ -646,8 +660,10 @@ void jb_room_invite(const char *room, const char *jid, const char *reason)
   y = xmlnode_insert_tag(x, "x");
   xmlnode_put_attrib(y, "xmlns", "http://jabber.org/protocol/muc#user");
 
+  utf8_jid = to_utf8(jid); // Resource can require UTF-8
   z = xmlnode_insert_tag(y, "invite");
-  xmlnode_put_attrib(z, "to", jid);
+  xmlnode_put_attrib(z, "to", utf8_jid);
+  if (utf8_jid) g_free(utf8_jid);
 
   if (reason) {
     gchar *utf8_reason = to_utf8(reason);
@@ -998,10 +1014,13 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   }
 
   // Update room member status
-  if (rname)
+  if (rname) {
+    gchar *mbrjid_noutf8 = from_utf8(mbjid);
     roster_setstatus(roomjid, rname, bpprio, ust, ustmsg,
-                     mbrole, mbaffil, mbjid);
-  else
+                     mbrole, mbaffil, mbrjid_noutf8);
+    if (mbrjid_noutf8)
+      g_free(mbrjid_noutf8);
+  } else
     scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
 
   buddylist_build();

@@ -156,6 +156,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_MULTILINE, "verbatim");
 
   // Room category
+  compl_add_category_word(COMPL_ROOM, "affil");
   compl_add_category_word(COMPL_ROOM, "ban");
   compl_add_category_word(COMPL_ROOM, "invite");
   compl_add_category_word(COMPL_ROOM, "join");
@@ -165,6 +166,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROOM, "nick");
   compl_add_category_word(COMPL_ROOM, "privmsg");
   compl_add_category_word(COMPL_ROOM, "remove");
+  compl_add_category_word(COMPL_ROOM, "role");
   compl_add_category_word(COMPL_ROOM, "topic");
   compl_add_category_word(COMPL_ROOM, "unlock");
   compl_add_category_word(COMPL_ROOM, "whois");
@@ -1246,6 +1248,71 @@ static void room_invite(gpointer bud, char *arg)
   free_arg_lst(paramlst);
 }
 
+static void room_affil(gpointer bud, char *arg)
+{
+  char **paramlst;
+  gchar *jid, *rolename;
+  struct role_affil ra;
+  const char *roomid = buddy_getjid(bud);
+
+  paramlst = split_arg(arg, 3, 1); // jid, new_affil, [reason]
+  jid = *paramlst;
+  rolename = *(paramlst+1);
+  arg = *(paramlst+2);
+
+  if (!jid || !*jid || !rolename || !*rolename) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  ra.type = type_affil;
+  ra.val.affil = affil_none;
+  for (; ra.val.affil < imaffiliation_size; ra.val.affil++)
+    if (!strcasecmp(rolename, straffil[ra.val.affil]))
+      break;
+
+  if (ra.val.affil < imaffiliation_size)
+    jb_room_setattrib(roomid, jid, NULL, ra, arg);
+  else
+    scr_LogPrint(LPRINT_NORMAL, "Wrong affiliation parameter");
+
+  free_arg_lst(paramlst);
+}
+
+static void room_role(gpointer bud, char *arg)
+{
+  char **paramlst;
+  gchar *jid, *rolename;
+  struct role_affil ra;
+  const char *roomid = buddy_getjid(bud);
+
+  paramlst = split_arg(arg, 3, 1); // jid, new_role, [reason]
+  jid = *paramlst;
+  rolename = *(paramlst+1);
+  arg = *(paramlst+2);
+
+  if (!jid || !*jid || !rolename || !*rolename) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  ra.type = type_role;
+  ra.val.role = role_none;
+  for (; ra.val.role < imrole_size; ra.val.role++)
+    if (!strcasecmp(rolename, strrole[ra.val.role]))
+      break;
+
+  if (ra.val.role < imrole_size)
+    jb_room_setattrib(roomid, jid, NULL, ra, arg);
+  else
+    scr_LogPrint(LPRINT_NORMAL, "Wrong role parameter");
+
+  free_arg_lst(paramlst);
+}
+
+
 // The expected argument is a Jabber id
 static void room_ban(gpointer bud, char *arg)
 {
@@ -1493,6 +1560,12 @@ static void do_room(char *arg)
   } else if (!strcasecmp(subcmd, "invite"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_invite(bud, arg);
+  } else if (!strcasecmp(subcmd, "affil"))  {
+    if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
+      room_affil(bud, arg);
+  } else if (!strcasecmp(subcmd, "role"))  {
+    if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
+      room_role(bud, arg);
   } else if (!strcasecmp(subcmd, "ban"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_ban(bud, arg);

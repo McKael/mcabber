@@ -18,7 +18,8 @@ enum imrole {
   role_none,
   role_moderator,
   role_participant,
-  role_visitor
+  role_visitor,
+  imrole_size
 };
 
 extern char *strrole[]; // Should match enum above
@@ -28,7 +29,8 @@ enum imaffiliation {
   affil_owner,
   affil_admin,
   affil_member,
-  affil_outcast
+  affil_outcast,
+  imaffiliation_size
 };
 
 extern char *straffil[]; // Should match enum above

@@ -1,8 +1,11 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__ 1
 
+extern char *LocaleCharSet;
+
 #define to_utf8(s)   ((s) ? g_locale_to_utf8((s),   -1, NULL,NULL,NULL) : NULL)
-#define from_utf8(s) ((s) ? g_locale_from_utf8((s), -1, NULL,NULL,NULL) : NULL)
+#define from_utf8(s) ((s) ? g_convert_with_fallback((s), -1, LocaleCharSet, \
+                                        "UTF-8", NULL,NULL,NULL,NULL) : NULL)
 
 void ut_InitDebug(unsigned int level, const char *file);
 void ut_WriteLog(unsigned int flag, const char *data);

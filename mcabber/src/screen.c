@@ -45,6 +45,8 @@
 #define DEFAULT_LOG_WIN_HEIGHT (5+2)
 #define CHAT_WIN_HEIGHT (maxY-1-Log_Win_Height)
 
+char *LocaleCharSet = "C";
+
 static unsigned short int Log_Win_Height;
 
 static inline void check_offset(int);
@@ -224,7 +226,8 @@ void scr_InitCurses(void)
   ptr_inputline = inputLine;
 
   setlocale(LC_CTYPE, "");
-  utf8_mode = (strcmp(nl_langinfo(CODESET), "UTF-8") == 0);
+  LocaleCharSet = nl_langinfo(CODESET);
+  utf8_mode = (strcmp(LocaleCharSet, "UTF-8") == 0);
 
   return;
 }

@@ -205,10 +205,7 @@ Rename current buddy to the given nickname\&. This command does not work for gro
 \fB/room\fR
 The room command handles Multi\-User Chat room actions\&.
 
- \fBban\fR jid [reason]   	ban jid from the current room
- \fBinvite\fR jid [reason]	invite jid to the current room
  \fBjoin\fR room nick     	join "room", using "nick" as nickname
- \fBkick\fR nick [reason] 	kick "nick" from the current room
  \fBleave\fR [message]    	leave the current room
  \fBnames\fR              	display members of the current room
  \fBnick\fR nick          	change your nickname in the current room
@@ -217,6 +214,12 @@ The room command handles Multi\-User Chat room actions\&.
  \fBtopic\fR              	set topic for current room
  \fBunlock\fR             	unlock current room (if you are the owner)
  \fBwhois\fR nick         	display MUC information about "nick"
+
+ \fBinvite\fR jid [reason]	invite jid to the current room
+ \fBkick\fR nick [reason] 	kick "nick" from the current room
+ \fBban\fR jid [reason]   	ban jid from the current room
+ \fBrole\fR jid role [reason]	change jid's role (role can be "none", "visitor", "participant", "moderator")
+ \fBaffil\fR jid affil [reason]	change jid's affiliation (affil can be "none", "member", "admin", "owner")
 
 .TP
 \fB/roster\fR

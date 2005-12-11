@@ -181,13 +181,10 @@ COMMANDS
         the buddies to another group with the "/move" command).
 
 /room join|leave|names|nick|privmsg|remove|topic|unlock::
-/room invite|kick|ban::
+/room invite|kick|ban|role|affil::
         The 'room' command handles Multi-User Chat room actions.
 
-        'ban' jid [reason];;    ban jid from the current room
-        'invite' jid [reason];; invite jid to the current room
         'join' room nick;;      join "room", using "nick" as nickname
-        'kick' nick [reason];;  kick "nick" from the current room
         'leave' [message];;     leave the current room
         'names';;               display members of the current room
         'nick' nick;;           change your nickname in the current room
@@ -196,6 +193,11 @@ COMMANDS
         'topic';;               set topic for current room
         'unlock';;              unlock current room (if you are the owner)
         'whois' nick;;          display MUC information about "nick"
+        'ban' jid [reason];;    ban jid from the current room
+        'invite' jid [reason];; invite jid to the current room
+        'kick' nick [reason];;  kick "nick" from the current room
+        'role' jid role [reason];;  change jid's role (role can be "none", "visitor", "participant", "moderator")
+        'affil' jid affil [reason];; change jid's affiliation (affil can be "none", "member", "admin", "owner")
 
 /roster bottom|top|hide_offline|show_offline|toggle_offline::
 /roster alternate|unread_first|unread_next::

@@ -6,7 +6,9 @@ mcabber (0.7.2-dev)
  * MUC: "/room topic" shows the current room topic
  * MUC: "/room nick" shows the current nickname
  * MUC: Add "/room kick", "/room ban", "/room whois"
- * MUC: Multiple small fixes and improvements
+ * MUC: Add "/room affil" and "/room role"
+ * MUC: Display a message when somebody is kicked/banned from a room
+ * MUC: Multiple fixes and improvements
  * Handle messages beginning with "/me " (it is replaced with the nickname)
 
  -- Mikael, ?

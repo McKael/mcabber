@@ -1,8 +1,6 @@
 
 BUGS:
 
-* /status_to, /say_to, and "/room privmsg" do not deal with resources
-  containing spaces
 * The PgUp and Ins keys do not work for some people
   Cannot reproduce, any help appreciated.
 * mcabber does not work with gnutls
@@ -27,12 +25,12 @@ TODO:
 * Persistent room in the roster (join every connect)
 * MUC: advanced settings for room creation
 * MUC: join password-protected room
-* MUC: tell the user when (s)he's been kicked/banned
 
 * File transfer? :)
 
 * Commands:
 
+  - /room destroy
   - /group expand|shrink|toggle
     + rename
   - /info [jid]

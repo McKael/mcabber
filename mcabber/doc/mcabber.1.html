@@ -459,41 +459,17 @@ leave multi-line mode without sending the message
 /room join|leave|names|nick|privmsg|remove|topic|unlock
 </b></dt>
 <dt><b>
-/room invite|kick|ban
+/room invite|kick|ban|role|affil
 </b></dt>
 <dd>
         The <b>room</b> command handles Multi-User Chat room actions.
 <table class="hlist">
 <tr valign="top">
 <td>
-<b>ban</b> jid [reason]
-</td>
-<td>
-ban jid from the current room
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>invite</b> jid [reason]
-</td>
-<td>
-invite jid to the current room
-</td>
-</tr>
-<tr valign="top">
-<td>
 <b>join</b> room nick
 </td>
 <td>
 join "room", using "nick" as nickname
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>kick</b> nick [reason]
-</td>
-<td>
-kick "nick" from the current room
 </td>
 </tr>
 <tr valign="top">
@@ -558,6 +534,46 @@ unlock current room (if you are the owner)
 </td>
 <td>
 display MUC information about "nick"
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>ban</b> jid [reason]
+</td>
+<td>
+ban jid from the current room
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>invite</b> jid [reason]
+</td>
+<td>
+invite jid to the current room
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>kick</b> nick [reason]
+</td>
+<td>
+kick "nick" from the current room
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>role</b> jid role [reason]
+</td>
+<td>
+change jid's role (role can be "none", "visitor", "participant", "moderator")
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>affil</b> jid affil [reason]
+</td>
+<td>
+change jid's affiliation (affil can be "none", "member", "admin", "owner")
 </td>
 </tr>
 </table>
@@ -726,7 +742,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.7.2-dev<br />
-Last updated 03-Dec-2005 23:50:16 CEST
+Last updated 11-Dec-2005 11:17:53 CEST
 </p>
 </div>
 </div>

@@ -394,21 +394,6 @@ void jutil_error_xmpp(xmlnode x, xterror E)
 }
 
 /**
- * wrapper around jutil_error_xmpp for compatibility with modules for jabberd up to version 1.4.3
- *
- * @deprecated use jutil_error_xmpp instead!
- *
- * @param x the xmlnode that should become an stanza error message
- * @param E the strucutre that holds the error information
- */
-void jutil_error(xmlnode x, terror E)
-{
-    xterror xE;
-    jutil_error_map(E, &xE);
-    jutil_error_xmpp(x, xE);
-}
-
-/**
  * add a delayed delivery (JEP-0091) element to a message using the
  * present timestamp.
  * If a reason is given, this reason will be added as CDATA to the
@@ -428,74 +413,3 @@ void jutil_delay(xmlnode msg, char *reason)
     if(reason != NULL)
         xmlnode_insert_cdata(delay,reason,strlen(reason));
 }
-
-#define KEYBUF 100
-
-/**
- * create or validate a key value for stone-age jabber protocols
- *
- * Before dialback had been introduced for s2s (and therefore only in jabberd 1.0),
- * Jabber used these keys to protect some iq requests. A client first had to
- * request a key with a IQ get and use it inside the IQ set request. By being able
- * to receive the key in the IQ get response, the client (more or less) proved to be
- * who he claimed to be.
- *
- * The implementation of this function uses a static array with KEYBUF entries (default
- * value of KEYBUF is 100). Therefore a key gets invalid at the 100th key that is created
- * afterwards. It is also invalidated after it has been validated once.
- *
- * @deprecated This function is not really used anymore. jabberd14 does not check any
- * keys anymore and only creates them in the jsm's mod_register.c for compatibility. This
- * function is also used in mod_groups.c and the key is even checked there, but I do not
- * know if mod_groups.c still works at all.
- *
- * @param key for validation the key the client sent, for generation of a new key NULL
- * @param seed the seed for generating the key, must stay the same for the same user
- * @return the new key when created, the key if the key has been validated, NULL if the key is invalid
- */
-char *jutil_regkey(char *key, char *seed)
-{
-    static char keydb[KEYBUF][41];
-    static char seeddb[KEYBUF][41];
-    static int last = -1;
-    char *str, strint[32];
-    int i;
-
-    /* blanket the keydb first time */
-    if(last == -1)
-    {
-        last = 0;
-        memset(&keydb,0,KEYBUF*41);
-        memset(&seeddb,0,KEYBUF*41);
-        srand(time(NULL));
-    }
-
-    /* creation phase */
-    if(key == NULL && seed != NULL)
-    {
-        /* create a random key hash and store it */
-        sprintf(strint,"%d",rand());
-        strcpy(keydb[last],shahash(strint));
-
-        /* store a hash for the seed associated w/ this key */
-        strcpy(seeddb[last],shahash(seed));
-
-        /* return it all */
-        str = keydb[last];
-        last++;
-        if(last == KEYBUF) last = 0;
-        return str;
-    }
-
-    /* validation phase */
-    str = shahash(seed);
-    for(i=0;i<KEYBUF;i++)
-        if(j_strcmp(keydb[i],key) == 0 && j_strcmp(seeddb[i],str) == 0)
-        {
-            seeddb[i][0] = '\0'; /* invalidate this key */
-            return keydb[i];
-        }
-
-    return NULL;
-}
-

@@ -158,37 +158,40 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
   xmlnode x;
   char *p;
   char *ns;
+  int iid;
 
-  if ((p = xmlnode_get_attrib(xmldata, "id")) != NULL) {
-    int iid = atoi(p);
+  p = xmlnode_get_attrib(xmldata, "id");
+  if (!p) {
+    scr_LogPrint(LPRINT_LOG, "IQ result stanza with no ID, ignored.");
+    return;
+  }
 
-    //scr_LogPrint(LPRINT_DEBUG, "iid = %d", iid);
-    if (iid == s_id) {  // Authentication
-      if (jstate == STATE_GETAUTH) {
-        if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
-          if (!xmlnode_get_tag(x, "digest")) {
-            jc->sid = 0;
-          }
+  iid = atoi(p); // XXX
+  if (iid == s_id) {  // Authentication
+    if (jstate == STATE_GETAUTH) {
+      if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
+        if (!xmlnode_get_tag(x, "digest")) {
+          jc->sid = 0;
+        }
 
-        s_id = atoi(jab_auth(jc));
-        jstate = STATE_SENDAUTH;
-      } else if (jstate == STATE_SENDAUTH) {
-        gotloggedin();
-        jstate = STATE_LOGGED;
-      }
-      return;
+      s_id = atoi(jab_auth(jc));
+      jstate = STATE_SENDAUTH;
+    } else if (jstate == STATE_SENDAUTH) {
+      gotloggedin();
+      jstate = STATE_LOGGED;
     }
+    return;
+  }
 
-    if (!strcmp(p, "VCARDreq")) {
-      x = xmlnode_get_firstchild(xmldata);
-      if (!x) x = xmldata;
+  if (!strcmp(p, "VCARDreq")) {
+    x = xmlnode_get_firstchild(xmldata);
+    if (!x) x = xmldata;
 
-      scr_LogPrint(LPRINT_LOGNORM, "Got VCARD");    // TODO
-      return;
-    } else if (!strcmp(p, "versionreq")) {
-      scr_LogPrint(LPRINT_LOGNORM, "Got version");  // TODO
-      return;
-    }
+    scr_LogPrint(LPRINT_LOGNORM, "Got VCARD");    // TODO
+    return;
+  } else if (!strcmp(p, "versionreq")) {
+    scr_LogPrint(LPRINT_LOGNORM, "Got version");  // TODO
+    return;
   }
 
   x = xmlnode_get_tag(xmldata, "query");
@@ -239,6 +242,7 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
   xmlnode_put_attrib(y, "type", "cancel");
   z = xmlnode_insert_tag(y, "feature-not-implemented");
   xmlnode_put_attrib(z, "xmlns", NS_XMPP_STANZAS);
+
   jab_send(conn, x);
   xmlnode_free(x);
 }

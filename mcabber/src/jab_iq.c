@@ -163,7 +163,7 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
     int iid = atoi(p);
 
     //scr_LogPrint(LPRINT_DEBUG, "iid = %d", iid);
-    if (iid == s_id) {
+    if (iid == s_id) {  // Authentication
       if (jstate == STATE_GETAUTH) {
         if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
           if (!xmlnode_get_tag(x, "digest")) {
@@ -183,12 +183,10 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
       x = xmlnode_get_firstchild(xmldata);
       if (!x) x = xmldata;
 
-      //jhook.gotvcard(ic, x); TODO
-      scr_LogPrint(LPRINT_LOGNORM, "Got VCARD");
+      scr_LogPrint(LPRINT_LOGNORM, "Got VCARD");    // TODO
       return;
     } else if (!strcmp(p, "versionreq")) {
-      // jhook.gotversion(ic, xmldata); TODO
-      scr_LogPrint(LPRINT_LOGNORM, "Got version");
+      scr_LogPrint(LPRINT_LOGNORM, "Got version");  // TODO
       return;
     }
   }
@@ -208,11 +206,9 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
     if (!id) id = "";
 
     if (!strcmp(id, "Agent info")) {
-      // jhook.gotagentinfo(xmldata); TODO
-      scr_LogPrint(LPRINT_LOGNORM, "Got agent info");
+      scr_LogPrint(LPRINT_LOGNORM, "Got agent info");     // TODO
     } else if (!strcmp(id, "Lookup")) {
-      // jhook.gotsearchresults(xmldata); TODO
-      scr_LogPrint(LPRINT_LOGNORM, "Got search results");
+      scr_LogPrint(LPRINT_LOGNORM, "Got search results"); // TODO
     } else if (!strcmp(id, "Register")) {
       if (!from)
         return;
@@ -222,7 +218,6 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
       jab_send(conn, x);
       xmlnode_free(x);
     }
-
   }
 }
 
@@ -236,23 +231,39 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
 
   // Nothing implemented yet.
   x = xmlnode_new_tag("iq");
-  xmlnode_put_attrib(x, "type", "result");
   xmlnode_put_attrib(x, "to", from);
   xmlnode_put_attrib(x, "id", id);
   xmlnode_put_attrib(x, "type", TMSG_ERROR);
   y = xmlnode_insert_tag(x, TMSG_ERROR);
-  xmlnode_put_attrib(y, "code", "503");
+  xmlnode_put_attrib(y, "code", "501");
   xmlnode_put_attrib(y, "type", "cancel");
   z = xmlnode_insert_tag(y, "feature-not-implemented");
-  xmlnode_put_attrib(z, "xmlns",
-                     "urn:ietf:params:xml:ns:xmpp-stanzas");
+  xmlnode_put_attrib(z, "xmlns", NS_XMPP_STANZAS);
   jab_send(conn, x);
   xmlnode_free(x);
 }
 
 static void handle_iq_set(jconn conn, char *from, xmlnode xmldata)
 {
-  /* FIXME: send error */
+  char *id;
+  xmlnode x, y, z;
+
+  id = xmlnode_get_attrib(xmldata, "id");
+  if (!id) return;
+
+  /* Not implemented yet: send an error stanza */
+  x = xmlnode_new_tag("iq");
+  xmlnode_put_attrib(x, "to", from);
+  xmlnode_put_attrib(x, "id", id);
+  xmlnode_put_attrib(x, "type", TMSG_ERROR);
+  y = xmlnode_insert_tag(x, TMSG_ERROR);
+  xmlnode_put_attrib(y, "code", "501");
+  xmlnode_put_attrib(y, "type", "cancel");
+  z = xmlnode_insert_tag(y, "feature-not-implemented");
+  xmlnode_put_attrib(z, "xmlns", NS_XMPP_STANZAS);
+
+  jab_send(conn, x);
+  xmlnode_free(x);
 }
 
 void handle_packet_iq(jconn conn, char *type, char *from, xmlnode xmldata)

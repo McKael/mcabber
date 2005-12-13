@@ -21,7 +21,7 @@ TODO:
 * Publish personal information
 * GPG support
 * Colors for presence
-* Options completion
+* Improve the completion system
 * Persistent room in the roster (join every connect)
 * MUC: advanced settings for room creation
 * MUC: join password-protected room
@@ -30,7 +30,6 @@ TODO:
 
 * Commands:
 
-  - /room destroy
   - /group expand|shrink|toggle
     + rename
   - /info [jid]

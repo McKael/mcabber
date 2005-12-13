@@ -180,7 +180,7 @@ COMMANDS
         This command does not work for groups, at the moment (but you can move
         the buddies to another group with the "/move" command).
 
-/room join|leave|names|nick|privmsg|remove|topic|unlock::
+/room join|leave|names|nick|privmsg|remove|topic|unlock|destroy::
 /room invite|kick|ban|role|affil::
         The 'room' command handles Multi-User Chat room actions.
 
@@ -192,6 +192,7 @@ COMMANDS
         'remove';;              remove the current room from the roster (you must have left this room before)
         'topic';;               set topic for current room
         'unlock';;              unlock current room (if you are the owner)
+        'destroy' [reason];;    destroy the current room (use with care!)
         'whois' nick;;          display MUC information about "nick"
         'ban' jid [reason];;    ban jid from the current room
         'invite' jid [reason];; invite jid to the current room

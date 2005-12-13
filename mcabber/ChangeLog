@@ -1,12 +1,13 @@
 mcabber (0.7.2-dev)
 
- * Internal changes (code cleanup)
+ * Lots of internal changes (code cleanup)
  * Improved commands parsing
    Commands now handle correctly resources or nicknames containing whitespace
  * MUC: "/room topic" shows the current room topic
  * MUC: "/room nick" shows the current nickname
  * MUC: Add "/room kick", "/room ban", "/room whois"
  * MUC: Add "/room affil" and "/room role"
+ * MUC: Add "/room destroy"
  * MUC: Display a message when somebody is kicked/banned from a room
  * MUC: Multiple fixes and improvements
  * Handle messages beginning with "/me " (it is replaced with the nickname)

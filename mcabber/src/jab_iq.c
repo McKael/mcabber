@@ -144,13 +144,6 @@ static void gotagents(jconn conn, xmlnode x)
       }
     }
   }
-
-  /*
-  if (find(jhook.agents.begin(), jhook.agents.end(), DEFAULT_CONFSERV) == jhook.agents.end())
-    jhook.agents.insert(jhook.agents.begin(), agent(DEFAULT_CONFSERV, DEFAULT_CONFSERV,
-                _("Default Jabber conference server"), agent::atGroupchat));
-
-  */
 }
 
 static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
@@ -158,7 +151,6 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
   xmlnode x;
   char *p;
   char *ns;
-  int iid;
 
   p = xmlnode_get_attrib(xmldata, "id");
   if (!p) {
@@ -166,8 +158,7 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
     return;
   }
 
-  iid = atoi(p); // XXX
-  if (iid == s_id) {  // Authentication
+  if (atoi(p) == s_id) {  // Authentication  XXX
     if (jstate == STATE_GETAUTH) {
       if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
         if (!xmlnode_get_tag(x, "digest")) {

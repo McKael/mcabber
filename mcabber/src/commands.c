@@ -158,6 +158,7 @@ void cmd_init(void)
   // Room category
   compl_add_category_word(COMPL_ROOM, "affil");
   compl_add_category_word(COMPL_ROOM, "ban");
+  compl_add_category_word(COMPL_ROOM, "destroy");
   compl_add_category_word(COMPL_ROOM, "invite");
   compl_add_category_word(COMPL_ROOM, "join");
   compl_add_category_word(COMPL_ROOM, "kick");
@@ -1457,6 +1458,18 @@ static void room_topic(gpointer bud, char *arg)
   g_free(msg);
 }
 
+static void room_destroy(gpointer bud, char *arg)
+{
+  gchar *msg;
+
+  if (arg && *arg)
+    msg = arg;
+  else
+    msg = NULL;
+
+  jb_room_destroy(buddy_getjid(bud), NULL, msg);
+}
+
 static void room_unlock(gpointer bud, char *arg)
 {
   if (*arg) {
@@ -1589,6 +1602,9 @@ static void do_room(char *arg)
   } else if (!strcasecmp(subcmd, "remove"))  {
     if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_remove(bud, arg);
+  } else if (!strcasecmp(subcmd, "destroy"))  {
+    if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
+      room_destroy(bud, arg);
   } else if (!strcasecmp(subcmd, "unlock"))  {
     if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_unlock(bud, arg);

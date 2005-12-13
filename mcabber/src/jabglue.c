@@ -581,6 +581,35 @@ void jb_room_unlock(const char *room)
   jb_reset_keepalive();
 }
 
+// Destroy a MUC room
+// room syntax: "room@server"
+void jb_room_destroy(const char *room, const char *venue, const char *reason)
+{
+  xmlnode x, y, z;
+
+  if (!online || !room) return;
+
+  x = jutil_iqnew(JPACKET__SET, "http://jabber.org/protocol/muc#owner");
+  xmlnode_put_attrib(x, "id", "destroy1"); // XXX
+  xmlnode_put_attrib(x, "to", room);
+  y = xmlnode_get_tag(x, "query");
+  z = xmlnode_insert_tag(y, "destroy");
+
+  if (venue && *venue)
+    xmlnode_put_attrib(z, "jid", venue);
+
+  if (reason) {
+    gchar *utf8_reason = to_utf8(reason);
+    y = xmlnode_insert_tag(z, "reason");
+    xmlnode_insert_cdata(y, utf8_reason, (unsigned) -1);
+    g_free(utf8_reason);
+  }
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+  jb_reset_keepalive();
+}
+
 // Change role or affiliation of a MUC user
 // room syntax: "room@server"
 // Either the jid or the nickname must be set (when banning, only the jid is
@@ -979,7 +1008,11 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     } else {
       // Natural leave
       if (we_left) {
-        mbuf = g_strdup_printf("You have left %s", roomjid);
+        if (xmlnode_get_tag(xmldata, "destroy"))
+          mbuf = g_strdup_printf("You have left %s, "
+                                 "the room has been destroyed", roomjid);
+        else
+          mbuf = g_strdup_printf("You have left %s", roomjid);
       } else {
         if (ustmsg)
           mbuf = g_strdup_printf("%s has left: %s", rname, ustmsg);

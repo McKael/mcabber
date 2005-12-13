@@ -974,6 +974,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       we_left = TRUE; // _We_ have left! (kicked, banned, etc.)
       buddy_setnickname(room_elt->data, NULL);
       buddy_del_all_resources(room_elt->data);
+      buddy_settopic(room_elt->data, NULL);
       update_roster = TRUE;
     }
 

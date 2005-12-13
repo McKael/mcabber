@@ -1376,10 +1376,6 @@ static void room_leave(gpointer bud, char *arg)
   jb_setstatus(offline, roomid, arg);
   g_free(utf8_nickname);
   g_free(roomid);
-  buddy_setnickname(bud, NULL);
-  buddy_settopic(bud, NULL);
-  buddy_del_all_resources(bud);
-  scr_LogPrint(LPRINT_LOGNORM, "You have left %s", buddy_getjid(bud));
 }
 
 static void room_nick(gpointer bud, char *arg)

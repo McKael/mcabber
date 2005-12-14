@@ -252,16 +252,14 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 
   if (!flag) return;
 
-  do {
-    buffer = (char *) malloc(1088);
-  } while (!buffer);
+  buffer = g_new(char, 5184);
 
   timestamp = time(NULL);
-  strftime(buffer, 64, "[%H:%M:%S] ", localtime(&timestamp));
+  strftime(buffer, 48, "[%H:%M:%S] ", localtime(&timestamp));
   for (b2 = buffer ; *b2 ; b2++)
     ;
   va_start(ap, fmt);
-  vsnprintf(b2, 1024, fmt, ap);
+  vsnprintf(b2, 5120, fmt, ap);
   va_end(ap);
 
   if (flag & LPRINT_NORMAL) {
@@ -274,7 +272,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     }
   }
   if (flag & (LPRINT_LOG|LPRINT_DEBUG)) {
-    char *buffer2 = malloc(1088);
+    char *buffer2 = g_new(char, 5184);
 
     if (buffer2) {
       strftime(buffer2, 23, "[%Y-%m-%d %H:%M:%S] ", localtime(&timestamp));
@@ -288,7 +286,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     if (buffer2 != buffer)
       free(buffer2);
   }
-  free(buffer);
+  g_free(buffer);
 }
 
 static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)

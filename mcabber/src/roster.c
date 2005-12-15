@@ -277,7 +277,19 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
 
   // #1 Check this user doesn't already exist
   slist = roster_find(jid, jidsearch, 0);
-  if (slist) return slist;
+  if (slist) {
+    char *oldgroupname;
+    // That's an update
+    roster_usr = slist->data;
+    roster_usr->subscription = esub;
+    if (name)
+      buddy_setname(slist->data, (char*)name);
+    // Let's check if the group name has changed
+    oldgroupname = ((roster*)((GSList*)roster_usr->list)->data)->name;
+    if (group && strcmp(oldgroupname, group))
+      buddy_setgroup(slist->data, (char*)group);
+    return slist;
+  }
   // #2 add group if necessary
   slist = roster_add_group(group);
   if (!slist) return NULL;

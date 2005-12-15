@@ -164,7 +164,9 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
   if (!strcmp(ns, NS_ROSTER)) {
     handle_iq_roster(x);
 
-    // Post-login stuff   FIXME shouldn't be there
+    // Post-login stuff
+    // Usually we request the roster only at connection time
+    // so we should be there only once.  (That's ugly, however)
     jb_setstatus(available, NULL, NULL);
   }
 }
@@ -175,12 +177,16 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
   xmlnode x, y, z;
 
   id = xmlnode_get_attrib(xmldata, "id");
-  if (!id) return;
+  if (!id) {
+    scr_LogPrint(LPRINT_LOG, "IQ get stanza with no ID, ignored.");
+    return;
+  }
 
   // Nothing implemented yet.
-  x = xmlnode_new_tag("iq");
-  xmlnode_put_attrib(x, "to", from);
-  xmlnode_put_attrib(x, "id", id);
+  x = xmlnode_dup(xmldata);
+  xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
+  xmlnode_hide_attrib(x, "from");
+
   xmlnode_put_attrib(x, "type", TMSG_ERROR);
   y = xmlnode_insert_tag(x, TMSG_ERROR);
   xmlnode_put_attrib(y, "code", "501");
@@ -194,22 +200,42 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
 
 static void handle_iq_set(jconn conn, char *from, xmlnode xmldata)
 {
-  char *id;
+  char *id, *ns;
   xmlnode x, y, z;
+  guint iq_error = FALSE;
 
   id = xmlnode_get_attrib(xmldata, "id");
+  if (!id)
+    scr_LogPrint(LPRINT_LOG, "IQ set stanza with no ID...");
+
+  x = xmlnode_get_tag(xmldata, "query");
+  ns = xmlnode_get_attrib(x, "xmlns");
+  if (ns && !strcmp(ns, NS_ROSTER)) {
+    handle_iq_roster(x);
+  } else {
+    iq_error = TRUE;
+  }
+
   if (!id) return;
 
-  /* Not implemented yet: send an error stanza */
-  x = xmlnode_new_tag("iq");
-  xmlnode_put_attrib(x, "to", from);
-  xmlnode_put_attrib(x, "id", id);
-  xmlnode_put_attrib(x, "type", TMSG_ERROR);
-  y = xmlnode_insert_tag(x, TMSG_ERROR);
-  xmlnode_put_attrib(y, "code", "501");
-  xmlnode_put_attrib(y, "type", "cancel");
-  z = xmlnode_insert_tag(y, "feature-not-implemented");
-  xmlnode_put_attrib(z, "xmlns", NS_XMPP_STANZAS);
+  if (!iq_error) {
+    x = xmlnode_new_tag("iq");
+    xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
+    xmlnode_put_attrib(x, "type", "result");
+    xmlnode_put_attrib(x, "id", id);
+  } else {
+    /* Not implemented yet: send an error stanza */
+    x = xmlnode_dup(xmldata);
+    xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
+    xmlnode_hide_attrib(x, "from");
+    xmlnode_put_attrib(x, "type", "result");
+    xmlnode_put_attrib(x, "type", TMSG_ERROR);
+    y = xmlnode_insert_tag(x, TMSG_ERROR);
+    xmlnode_put_attrib(y, "code", "501");
+    xmlnode_put_attrib(y, "type", "cancel");
+    z = xmlnode_insert_tag(y, "feature-not-implemented");
+    xmlnode_put_attrib(z, "xmlns", NS_XMPP_STANZAS);
+  }
 
   jab_send(conn, x);
   xmlnode_free(x);

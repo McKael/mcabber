@@ -1019,14 +1019,14 @@ static void do_move(char *arg)
   newgroupname = g_strdup(arg);
   // Remove trailing space
   for (p = newgroupname; *p; p++) ;
-  while (p > newgroupname && *p == ' ') *p = 0;
+  while (p > newgroupname && *p == ' ') *p-- = 0;
 
   strip_arg_special_chars(newgroupname);
 
   // Call to buddy_setgroup() should be at the end, as current implementation
   // clones the buddy and deletes the old one (and thus, jid and name are
   // freed)
-  jb_updatebuddy(jid, name, newgroupname);
+  jb_updatebuddy(jid, name, *newgroupname ? newgroupname : NULL);
   scr_RosterUp();
   buddy_setgroup(bud, newgroupname);
 

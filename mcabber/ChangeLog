@@ -3,6 +3,11 @@ mcabber (0.7.2-dev)
  * Lots of internal changes (code cleanup)
  * Improved commands parsing
    Commands now handle correctly resources or nicknames containing whitespace
+ * The roster is updated in real time when receiving an update from the server
+ * /info shows subscriptions (none, from, to, both)
+ * The deprecated Agent list IQ request has been removed
+ * Empty resources are displayed (do not use the arbitrary "default" string
+   instead)
  * MUC: "/room topic" shows the current room topic
  * MUC: "/room nick" shows the current nickname
  * MUC: Add "/room kick", "/room ban", "/room whois"

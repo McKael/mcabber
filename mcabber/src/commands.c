@@ -856,6 +856,7 @@ static void do_info(char *arg)
   const char *jid, *name;
   guint type;
   char *buffer;
+  enum subscr esub;
 
   if (!current_buddy) return;
   bud = BUDDATA(current_buddy);
@@ -863,12 +864,13 @@ static void do_info(char *arg)
   jid    = buddy_getjid(bud);
   name   = buddy_getname(bud);
   type   = buddy_gettype(bud);
+  esub   = buddy_getsubscription(bud);
 
   buffer = g_new(char, 128);
 
   if (jid) {
     GSList *resources;
-    char *typestr = "unknown";
+    char *bstr = "unknown";
 
     snprintf(buffer, 127, "jid:  <%s>", jid);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
@@ -877,10 +879,19 @@ static void do_info(char *arg)
       scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
     }
 
-    if (type == ROSTER_TYPE_USER)       typestr = "user";
-    else if (type == ROSTER_TYPE_ROOM)  typestr = "chatroom";
-    else if (type == ROSTER_TYPE_AGENT) typestr = "agent";
-    snprintf(buffer, 127, "Type: %s", typestr);
+    if (type == ROSTER_TYPE_USER)       bstr = "user";
+    else if (type == ROSTER_TYPE_ROOM)  bstr = "chatroom";
+    else if (type == ROSTER_TYPE_AGENT) bstr = "agent";
+    snprintf(buffer, 127, "Type: %s", bstr);
+    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+
+    if (esub == sub_both)     bstr = "both";
+    else if (esub & sub_from) bstr = "from";
+    else if (esub & sub_to)   bstr = "to";
+    else bstr = "none";
+    snprintf(buffer, 64, "Subscription: %s", bstr);
+    if (esub & sub_pending)
+      strcat(buffer, " (pending)");
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
 
     resources = buddy_getresources(bud);

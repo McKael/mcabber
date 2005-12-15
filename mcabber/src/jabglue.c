@@ -477,8 +477,11 @@ void jb_delbuddy(const char *jid)
     xmlnode_free(x);
   }
 
-  // Unsubscribe this buddy from our presence notification
-  x = jutil_presnew(JPACKET__UNSUBSCRIBE, cleanjid, 0);
+  // Cancel the subscriptions
+  x = jutil_presnew(JPACKET__UNSUBSCRIBED, cleanjid, 0); // Cancel "from"
+  jab_send(jc, x);
+  xmlnode_free(x);
+  x = jutil_presnew(JPACKET__UNSUBSCRIBE, cleanjid, 0);  // Cancel "to"
   jab_send(jc, x);
   xmlnode_free(x);
 
@@ -1225,43 +1228,73 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
                                xmlnode xmldata)
 {
   xmlnode x;
+  char *r;
+  char *buf;
+
+  r = jidtodisp(from);
 
   if (!strcmp(type, "subscribe")) {
-    char *r;
+    /* The sender wishes to subscribe to our presence */
+    char *msg;
     int isagent;
-    r = jidtodisp(from);
+
     isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
-    g_free(r);
+
+    msg = xmlnode_get_tag_data(xmldata, "status");
     scr_LogPrint(LPRINT_LOGNORM, "<%s> wants to subscribe "
                  "to your network presence updates", from);
-    if (!isagent) {
-      // FIXME we accept everybody...
-      x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
-      jab_send(jc, x);
-      xmlnode_free(x);
-    } else {
-      x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
-      jab_send(jc, x);
-      xmlnode_free(x);
+    if (msg) {
+      char *msg_noutf8 = from_utf8(msg);
+      if (msg_noutf8) {
+        buf = g_strdup_printf("<%s> said: %s", from, msg_noutf8);
+        scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+        msg = strchr(buf, '\n');
+        if (msg) *msg = 0;
+        scr_LogPrint(LPRINT_LOGNORM, buf);
+        g_free(buf);
+        g_free(msg_noutf8);
+      }
     }
+
+    // FIXME We accept everybody...
+    x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
+    jab_send(jc, x);
+    xmlnode_free(x);
+    buf = g_strdup_printf("<%s> has subscribed to your presence updates", from);
+    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    g_free(buf);
   } else if (!strcmp(type, "unsubscribe")) {
+    /* The sender is unsubscribing from our presence */
     x = jutil_presnew(JPACKET__UNSUBSCRIBED, from, 0);
     jab_send(jc, x);
     xmlnode_free(x);
-    scr_LogPrint(LPRINT_LOGNORM, "<%s> wants to unsubscribe from "
-                 "your presence updates", from);
+    buf = g_strdup_printf("<%s> is unsubscribing from your "
+                          "presence updates", from);
+    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+    g_free(buf);
   } else if (!strcmp(type, "subscribed")) {
-    scr_LogPrint(LPRINT_LOGNORM, "<%s> has subscribed to your presence "
-                 "updates", from);
+    /* The sender has allowed us to receive their presence */
+    buf = g_strdup_printf("<%s> has allowed you to receive their "
+                          "presence updates", from);
+    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+    g_free(buf);
   } else if (!strcmp(type, "unsubscribed")) {
-    scr_LogPrint(LPRINT_LOGNORM, "<%s> has unsubscribed from your presence "
-                 "updates", from);
+    /* The subscription request has been denied or a previously-granted
+       subscription has been cancelled */
     roster_unsubscribed(from);
+    buf = g_strdup_printf("<%s> has cancelled your subscription to "
+                          "their presence updates", from);
+    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+    g_free(buf);
   } else {
-    scr_LogPrint(LPRINT_LOGNORM, "Received (un)subscription packet from <%s>"
-                 " (type=%s)", from, (type ? type : ""));
+    scr_LogPrint(LPRINT_LOGNORM, "Received unrecognized packet from <%s>, "
+                 "type=%s", from, (type ? type : ""));
 
   }
+  g_free(r);
 }
 
 static void packethandler(jconn conn, jpacket packet)

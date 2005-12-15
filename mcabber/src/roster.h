@@ -96,6 +96,7 @@ void    roster_settype(const char *jid, guint type);
 enum imstatus roster_getstatus(const char *jid, const char *resname);
 const char   *roster_getstatusmsg(const char *jid, const char *resname);
 guint   roster_gettype(const char *jid);
+void    roster_unsubscribed(const char *jid);
 
 void    buddylist_build(void);
 void    buddy_hide_group(gpointer rosterdata, int hide);

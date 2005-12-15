@@ -1256,6 +1256,7 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
   } else if (!strcmp(type, "unsubscribed")) {
     scr_LogPrint(LPRINT_LOGNORM, "<%s> has unsubscribed from your presence "
                  "updates", from);
+    roster_unsubscribed(from);
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Received (un)subscription packet from <%s>"
                  " (type=%s)", from, (type ? type : ""));

@@ -67,7 +67,7 @@ inline void hk_message_in(const char *jid, const char *resname,
   roster_usr = roster_find(jid, jidsearch, 0);
   if (!roster_usr) {
     new_guy = TRUE;
-    roster_usr = roster_add_user(jid, NULL, NULL, rtype);
+    roster_usr = roster_add_user(jid, NULL, NULL, rtype, sub_none);
     if (!roster_usr) { // Shouldn't happen...
       scr_LogPrint(LPRINT_LOGNORM, "ERROR: unable to add buddy!");
       if (bmsg) g_free(bmsg);

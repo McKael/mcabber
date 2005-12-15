@@ -978,7 +978,8 @@ void scr_RosterJumpJid(char *barejid)
                  ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
   // Create it if necessary
   if (!roster_elt)
-    roster_elt = roster_add_user(barejid, NULL, NULL, ROSTER_TYPE_USER);
+    roster_elt = roster_add_user(barejid, NULL, NULL, ROSTER_TYPE_USER,
+                                 sub_none);
   // Set a lock to see it in the buddylist
   buddy_setflags(BUDDATA(roster_elt), ROSTER_FLAG_LOCK, TRUE);
   buddylist_build();

@@ -450,7 +450,7 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
   jab_send(jc, x);
   xmlnode_free(x);
 
-  roster_add_user(cleanjid, name, group, ROSTER_TYPE_USER);
+  roster_add_user(cleanjid, name, group, ROSTER_TYPE_USER, sub_pending);
   g_free(cleanjid);
   buddylist_build();
 
@@ -883,7 +883,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   room_elt = roster_find(roomjid, jidsearch, 0);
   if (!room_elt) {
     // Add room if it doesn't already exist
-    room_elt = roster_add_user(roomjid, NULL, NULL, ROSTER_TYPE_ROOM);
+    room_elt = roster_add_user(roomjid, NULL, NULL, ROSTER_TYPE_ROOM, sub_none);
   } else {
     // Make sure this is a room (it can be a conversion user->room)
     buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
@@ -1227,19 +1227,15 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
 {
   xmlnode x;
 
-  scr_LogPrint(LPRINT_LOGNORM, "Received (un)subscription packet "
-               "(type=%s)", ((type) ? type : ""));
-
   if (!strcmp(type, "subscribe")) {
     char *r;
     int isagent;
     r = jidtodisp(from);
     isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
     g_free(r);
-    //scr_LogPrint(LPRINT_LOGNORM, "isagent=%d", isagent); // XXX DBG
+    scr_LogPrint(LPRINT_LOGNORM, "<%s> wants to subscribe "
+                 "to your network presence updates", from);
     if (!isagent) {
-      scr_LogPrint(LPRINT_LOGNORM, "<%s> wants to subscribe "
-                   "to your network presence updates", from);
       // FIXME we accept everybody...
       x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
       jab_send(jc, x);
@@ -1255,6 +1251,16 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     xmlnode_free(x);
     scr_LogPrint(LPRINT_LOGNORM, "<%s> has unsubscribed to "
                  "your presence updates", from);
+  } else if (!strcmp(type, "subscribed")) {
+    scr_LogPrint(LPRINT_LOGNORM, "<%s> has subscribed to your presence "
+                 "updates", from);
+  } else if (!strcmp(type, "unsubscribed")) {
+    scr_LogPrint(LPRINT_LOGNORM, "<%s> has unsubscribed from your presence "
+                 "updates", from);
+  } else {
+    scr_LogPrint(LPRINT_LOGNORM, "Received (un)subscription packet from <%s>"
+                 " (type=%s)", from, (type ? type : ""));
+
   }
 }
 

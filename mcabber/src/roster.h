@@ -36,10 +36,12 @@ enum imaffiliation {
 extern char *straffil[]; // Should match enum above
 
 enum subscr {
-  sub_none,
-  sub_to,
-  sub_from,
-  sub_both
+  sub_none    = 0,
+  sub_pending = 1,
+  sub_to      = 1 << 2,
+  sub_from    = 1 << 3,
+  sub_both    = sub_to|sub_from,
+  sub_remove  = 1 << 4
 };
 
 enum findwhat {
@@ -79,7 +81,7 @@ extern GList *alternate_buddy;
 // Prototypes...
 GSList *roster_add_group(const char *name);
 GSList *roster_add_user(const char *jid, const char *name, const char *group,
-        guint type);
+                        guint type, enum subscr esub);
 GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type);
 void    roster_del_user(const char *jid);
 void    roster_free(void);
@@ -108,6 +110,7 @@ void        buddy_settopic(gpointer rosterdata, const char *newtopic);
 const char *buddy_gettopic(gpointer rosterdata);
 void    buddy_settype(gpointer rosterdata, guint type);
 guint   buddy_gettype(gpointer rosterdata);
+guint   buddy_getsubscription(gpointer rosterdata);
 void    buddy_setgroup(gpointer rosterdata, char *newgroupname);
 const char *buddy_getgroupname(gpointer rosterdata);
 gpointer buddy_getgroup(gpointer rosterdata);

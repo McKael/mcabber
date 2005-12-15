@@ -259,7 +259,7 @@ GSList *roster_add_group(const char *name)
 
 // Returns a pointer to the new user, or existing user with that name
 GSList *roster_add_user(const char *jid, const char *name, const char *group,
-                        guint type)
+                        guint type, enum subscr esub)
 {
   roster *roster_usr;
   roster *my_group;
@@ -294,8 +294,9 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
     roster_usr->name = g_strdup(str);
     g_free(str);
   }
-  roster_usr->type  = type;
-  roster_usr->list  = slist;    // (my_group SList element)
+  roster_usr->type = type;
+  roster_usr->subscription = esub;
+  roster_usr->list = slist;    // (my_group SList element)
   // #4 Insert node (sorted)
   my_group->list = g_slist_insert_sorted(my_group->list, roster_usr,
                                          (GCompareFunc)&roster_compare_name);
@@ -402,7 +403,7 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   // If we can't find it, we add it
   if (sl_user == NULL)
-    sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER);
+    sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER, sub_none);
 
   // If there is no resource name, we can leave now
   if (!resname) return;
@@ -728,8 +729,8 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   *sl_group = g_slist_remove(*sl_group, rosterdata);
 
   // Add the buddy to its new group; actually we "clone" this buddy...
-  sl_clone = roster_add_user(roster_usr->jid, roster_usr->name,
-                             newgroupname, roster_usr->type);
+  sl_clone = roster_add_user(roster_usr->jid, roster_usr->name, newgroupname,
+                             roster_usr->type, roster_usr->subscription);
   roster_clone = (roster*)sl_clone->data;
   roster_clone->subscription = roster_usr->subscription;
   roster_clone->flags = roster_usr->flags;
@@ -874,6 +875,12 @@ guint buddy_gettype(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->type;
+}
+
+guint buddy_getsubscription(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->subscription;
 }
 
 enum imstatus buddy_getstatus(gpointer rosterdata, const char *resname)

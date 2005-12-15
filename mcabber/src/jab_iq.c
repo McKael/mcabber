@@ -21,11 +21,13 @@
  * USA
  */
 
+#include <glib.h>
+
 #include "jabglue.h"
 #include "jab_priv.h"
 #include "roster.h"
 #include "utils.h"
-#include "logprint.h"
+#include "screen.h"
 
 int s_id; // XXX
 
@@ -47,9 +49,11 @@ static void gotloggedin(void)
 static void gotroster(xmlnode x)
 {
   xmlnode y;
-  const char *jid, *name, *group;
+  const char *jid, *name, *group, *sub;
   char *buddyname;
   char *cleanalias;
+  enum subscr esub;
+  int need_refresh = FALSE;
 
   for (y = xmlnode_get_tag(x, "item"); y; y = xmlnode_get_nextsibling(y)) {
     gchar *name_noutf8 = NULL;
@@ -57,7 +61,7 @@ static void gotroster(xmlnode x)
 
     jid = xmlnode_get_attrib(y, "jid");
     name = xmlnode_get_attrib(y, "name");
-    //sub = xmlnode_get_attrib(y, "subscription"); // TODO Not used
+    sub = xmlnode_get_attrib(y, "subscription");
 
     group = xmlnode_get_tag_data(y, "group");
 
@@ -65,6 +69,23 @@ static void gotroster(xmlnode x)
       continue;
 
     buddyname = cleanalias = jidtodisp(jid);
+
+    esub = sub_none;
+    if (sub) {
+      if (!strcmp(sub, "to"))          esub = sub_to;
+      else if (!strcmp(sub, "from"))   esub = sub_from;
+      else if (!strcmp(sub, "both"))   esub = sub_both;
+      else if (!strcmp(sub, "remove")) esub = sub_remove;
+    }
+
+    if (esub == sub_remove) {
+      roster_del_user(cleanalias);
+      scr_LogPrint(LPRINT_LOGNORM, "Buddy <%s> has been removed "
+                   "from the roster", cleanalias);
+      g_free(cleanalias);
+      need_refresh = TRUE;
+      continue;
+    }
 
     if (name) {
       name_noutf8 = from_utf8(name);
@@ -82,15 +103,18 @@ static void gotroster(xmlnode x)
                      group);
     }
 
-    roster_add_user(cleanalias, buddyname, group_noutf8, ROSTER_TYPE_USER);
+    roster_add_user(cleanalias, buddyname, group_noutf8, ROSTER_TYPE_USER,
+                    esub);
+
     if (name_noutf8)  g_free(name_noutf8);
     if (group_noutf8) g_free(group_noutf8);
     g_free(cleanalias);
   }
 
-  // Post-login stuff
-  jb_setstatus(available, NULL, NULL);
   buddylist_build();
+  update_roster = TRUE;
+  if (need_refresh)
+    scr_ShowBuddyWindow();
 }
 
 static void gotagents(jconn conn, xmlnode x)
@@ -120,7 +144,7 @@ static void gotagents(jconn conn, xmlnode x)
     if (atype == transport) {
       char *cleanjid = jidtodisp(alias);
       roster_add_user(cleanjid, NULL, JABBER_AGENT_GROUP,
-                      ROSTER_TYPE_AGENT);
+                      ROSTER_TYPE_AGENT, sub_none);
       g_free(cleanjid);
     }
     if (alias && name && desc) {
@@ -193,6 +217,9 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
 
   if (!strcmp(ns, NS_ROSTER)) {
     gotroster(x);
+
+    // Post-login stuff   FIXME shouldn't be there
+    jb_setstatus(available, NULL, NULL);
   } else if (!strcmp(ns, NS_AGENTS)) {
     gotagents(conn, x);
   } else if (!strcmp(ns, NS_SEARCH) || !strcmp(ns, NS_REGISTER)) {

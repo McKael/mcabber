@@ -49,7 +49,7 @@ static void gotloggedin(void)
 static void gotroster(xmlnode x)
 {
   xmlnode y;
-  const char *jid, *name, *group, *sub;
+  const char *jid, *name, *group, *sub, *ask;
   char *buddyname;
   char *cleanalias;
   enum subscr esub;
@@ -62,6 +62,7 @@ static void gotroster(xmlnode x)
     jid = xmlnode_get_attrib(y, "jid");
     name = xmlnode_get_attrib(y, "name");
     sub = xmlnode_get_attrib(y, "subscription");
+    ask = xmlnode_get_attrib(y, "ask");
 
     group = xmlnode_get_tag_data(y, "group");
 
@@ -86,6 +87,9 @@ static void gotroster(xmlnode x)
       need_refresh = TRUE;
       continue;
     }
+
+    if (ask && !strcmp(ask, "subscribe"))
+      esub |= sub_pending;
 
     if (name) {
       name_noutf8 = from_utf8(name);

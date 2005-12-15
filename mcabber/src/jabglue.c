@@ -1249,7 +1249,7 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     x = jutil_presnew(JPACKET__UNSUBSCRIBED, from, 0);
     jab_send(jc, x);
     xmlnode_free(x);
-    scr_LogPrint(LPRINT_LOGNORM, "<%s> has unsubscribed to "
+    scr_LogPrint(LPRINT_LOGNORM, "<%s> wants to unsubscribe from "
                  "your presence updates", from);
   } else if (!strcmp(type, "subscribed")) {
     scr_LogPrint(LPRINT_LOGNORM, "<%s> has subscribed to your presence "

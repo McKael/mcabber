@@ -31,22 +31,15 @@
 
 int s_id; // XXX
 
-static void gotloggedin(void)
+static void request_roster(void)
 {
-  xmlnode x;
-
-  x = jutil_iqnew(JPACKET__GET, NS_AGENTS);
-  xmlnode_put_attrib(x, "id", "Agent List");
-  jab_send(jc, x);
-  xmlnode_free(x);
-
-  x = jutil_iqnew(JPACKET__GET, NS_ROSTER);
-  xmlnode_put_attrib(x, "id", "Roster");
+  xmlnode x = jutil_iqnew(JPACKET__GET, NS_ROSTER);
+  xmlnode_put_attrib(x, "id", "Roster1"); // XXX
   jab_send(jc, x);
   xmlnode_free(x);
 }
 
-static void gotroster(xmlnode x)
+static void handle_iq_roster(xmlnode x)
 {
   xmlnode y;
   const char *jid, *name, *group, *sub, *ask;
@@ -121,59 +114,6 @@ static void gotroster(xmlnode x)
     scr_ShowBuddyWindow();
 }
 
-static void gotagents(jconn conn, xmlnode x)
-{
-  xmlnode y;
-  const char *alias;
-  const char *name, *desc;
-
-  y = xmlnode_get_tag(x, "agent");
-
-  for (; y; y = xmlnode_get_nextsibling(y)) {
-    enum agtype atype = unknown;
-
-    alias = xmlnode_get_attrib(y, "jid");
-    if (!alias)
-      continue;
-
-    name = xmlnode_get_tag_data(y, "name");
-    desc = xmlnode_get_tag_data(y, "description");
-    // TODO
-    // service = xmlnode_get_tag_data(y, "service");
-
-    if (xmlnode_get_tag(y, TMSG_GROUPCHAT))   atype = groupchat;
-    else if (xmlnode_get_tag(y, "transport")) atype = transport;
-    else if (xmlnode_get_tag(y, "search"))    atype = search;
-
-    if (atype == transport) {
-      char *cleanjid = jidtodisp(alias);
-      roster_add_user(cleanjid, NULL, JABBER_AGENT_GROUP,
-                      ROSTER_TYPE_AGENT, sub_none);
-      g_free(cleanjid);
-    }
-    if (alias && name && desc) {
-      scr_LogPrint(LPRINT_LOGNORM, "Agent: %s / %s / %s / type=%d",
-                   alias, name, desc, atype);
-
-      if (atype == search) {
-        x = jutil_iqnew (JPACKET__GET, NS_SEARCH);
-        xmlnode_put_attrib(x, "to", alias);
-        xmlnode_put_attrib(x, "id", "Agent info");
-        jab_send(conn, x);
-        xmlnode_free(x);
-      }
-
-      if (xmlnode_get_tag(y, "register")) {
-        x = jutil_iqnew (JPACKET__GET, NS_REGISTER);
-        xmlnode_put_attrib(x, "to", alias);
-        xmlnode_put_attrib(x, "id", "Agent info");
-        jab_send(conn, x);
-        xmlnode_free(x);
-      }
-    }
-  }
-}
-
 static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
 {
   xmlnode x;
@@ -196,12 +136,13 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
       s_id = atoi(jab_auth(jc));
       jstate = STATE_SENDAUTH;
     } else if (jstate == STATE_SENDAUTH) {
-      gotloggedin();
+      request_roster();
       jstate = STATE_LOGGED;
     }
     return;
   }
 
+  /*
   if (!strcmp(p, "VCARDreq")) {
     x = xmlnode_get_firstchild(xmldata);
     if (!x) x = xmldata;
@@ -212,6 +153,7 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
     scr_LogPrint(LPRINT_LOGNORM, "Got version");  // TODO
     return;
   }
+  */
 
   x = xmlnode_get_tag(xmldata, "query");
   if (!x) return;
@@ -220,29 +162,10 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
   if (!ns) return;
 
   if (!strcmp(ns, NS_ROSTER)) {
-    gotroster(x);
+    handle_iq_roster(x);
 
     // Post-login stuff   FIXME shouldn't be there
     jb_setstatus(available, NULL, NULL);
-  } else if (!strcmp(ns, NS_AGENTS)) {
-    gotagents(conn, x);
-  } else if (!strcmp(ns, NS_SEARCH) || !strcmp(ns, NS_REGISTER)) {
-    char *id = xmlnode_get_attrib(xmldata, "id");
-    if (!id) id = "";
-
-    if (!strcmp(id, "Agent info")) {
-      scr_LogPrint(LPRINT_LOGNORM, "Got agent info");     // TODO
-    } else if (!strcmp(id, "Lookup")) {
-      scr_LogPrint(LPRINT_LOGNORM, "Got search results"); // TODO
-    } else if (!strcmp(id, "Register")) {
-      if (!from)
-        return;
-      x = jutil_iqnew(JPACKET__GET, NS_REGISTER);
-      xmlnode_put_attrib(x, "to", from);
-      xmlnode_put_attrib(x, "id", "Agent info");
-      jab_send(conn, x);
-      xmlnode_free(x);
-    }
   }
 }
 

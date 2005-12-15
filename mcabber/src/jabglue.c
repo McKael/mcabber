@@ -423,8 +423,7 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
   // We don't check if the jabber user already exists in the roster,
   // because it allows to re-ask for notification.
 
-  //x = jutil_presnew(JPACKET__SUBSCRIBE, cleanjid, NULL);
-  x = jutil_presnew(JPACKET__SUBSCRIBE, cleanjid, "online");
+  x = jutil_presnew(JPACKET__SUBSCRIBE, cleanjid, NULL);
   jab_send(jc, x);
   xmlnode_free(x);
 

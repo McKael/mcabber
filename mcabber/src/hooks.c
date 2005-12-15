@@ -176,7 +176,7 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
   enum imstatus oldstat;
   char *bn = NULL;
   char *logsmsg, *p;
-  const char *rn = (resname ? resname : "default");
+  const char *rn = (resname ? resname : "");
 
   st_in_buf = settings_opt_get_int("show_status_in_buffer");
   buddy_format = settings_opt_get_int("buddy_format");

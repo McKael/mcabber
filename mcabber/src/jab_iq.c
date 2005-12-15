@@ -47,6 +47,7 @@ static void handle_iq_roster(xmlnode x)
   char *cleanalias;
   enum subscr esub;
   int need_refresh = FALSE;
+  guint roster_type;
 
   for (y = xmlnode_get_tag(x, "item"); y; y = xmlnode_get_nextsibling(y)) {
     gchar *name_noutf8 = NULL;
@@ -100,8 +101,13 @@ static void handle_iq_roster(xmlnode x)
                      group);
     }
 
-    roster_add_user(cleanalias, buddyname, group_noutf8, ROSTER_TYPE_USER,
-                    esub);
+    // Tricky... :-\  My guess is that if there is no '@', this is an agent
+    if (strchr(cleanalias, '@'))
+      roster_type = ROSTER_TYPE_USER;
+    else
+      roster_type = ROSTER_TYPE_AGENT;
+
+    roster_add_user(cleanalias, buddyname, group_noutf8, roster_type, esub);
 
     if (name_noutf8)  g_free(name_noutf8);
     if (group_noutf8) g_free(group_noutf8);

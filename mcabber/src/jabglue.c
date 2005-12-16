@@ -1011,11 +1011,24 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     } else {
       // Natural leave
       if (we_left) {
-        if (xmlnode_get_tag(xmldata, "destroy"))
-          mbuf = g_strdup_printf("You have left %s, "
-                                 "the room has been destroyed", roomjid);
-        else
+        xmlnode destroynode = xmlnode_get_tag(xmldata, "destroy");
+        if (destroynode) {
+          gchar *rsn_noutf8 = NULL;
+          reason = from_utf8(xmlnode_get_tag_data(destroynode, "reason"));
+          if (reason)
+            rsn_noutf8 = from_utf8(reason);
+          if (rsn_noutf8) {
+            mbuf = g_strdup_printf("You have left %s, "
+                                   "the room has been destroyed: %s",
+                                   roomjid, rsn_noutf8);
+            g_free(rsn_noutf8);
+          } else {
+            mbuf = g_strdup_printf("You have left %s, "
+                                   "the room has been destroyed", roomjid);
+          }
+        } else {
           mbuf = g_strdup_printf("You have left %s", roomjid);
+        }
       } else {
         if (ustmsg)
           mbuf = g_strdup_printf("%s has left: %s", rname, ustmsg);

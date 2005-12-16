@@ -58,6 +58,12 @@ key.  Simply sending a message will also enable chat mode.</p>
 </li>
 <li>
 <p>
+<b>Input line history:</b>  Any message or command entered is in the input line
+  history and can be reused easily.
+</p>
+</li>
+<li>
+<p>
 <b>External actions:</b>  Some events (like receiving a message) can trigger an
   external action, for example a shell script (you need to enable it in your
   configuration file).  A sample events script ("eventcmd") is provided with
@@ -84,6 +90,9 @@ key.  Simply sending a message will also enable chat mode.</p>
 <p>Text typing occurs in the <b>input line</b>; basic operations are supported
 (left arrow, right arrow, home/end keys, insert, delete, backspace&#8230;).</p>
 <p>PageUp and PageDown keys are used to move in the roster.</p>
+<p>Up and Down arrow keys can be used to move in the input line history; they
+jump to the previous/next line from the history beginning with the same string
+(from first column to the cursor column).</p>
 <p>To send a message, move to the choosen buddy in the buddylist, type your
 message and hit enter.  If the line begins with a slash, this will be
 interpreted as a command (see the COMMAND section below).  Hit escape to
@@ -111,7 +120,15 @@ Go to the end of the input line
 Ctrl-l
 </td>
 <td>
-Force a resize
+Force a refresh
+</td>
+</tr>
+<tr valign="top">
+<td>
+Up/Down
+</td>
+<td>
+Move in the input line history
 </td>
 </tr>
 <tr valign="top">
@@ -216,6 +233,39 @@ Jump to the next unread message
         Example: "/alias away = status away".
 </dd>
 <dt><b>
+/authorization allow|cancel|request [jid]
+</b></dt>
+<dd>
+        Manage the presence subscriptions.<br />
+        If no jid is provided, the current buddy is used.
+<table class="hlist">
+<tr valign="top">
+<td>
+<b>allow</b>
+</td>
+<td>
+allow the buddy to receive your presence updates
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>cancel</b>
+</td>
+<td>
+cancel the buddy' subscription to your presence updates
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>request</b>
+</td>
+<td>
+request a subscription to the buddy's presence updates
+</td>
+</tr>
+</table>
+</dd>
+<dt><b>
 /bind keycode = command line
 </b></dt>
 <dd>
@@ -229,7 +279,7 @@ Jump to the next unread message
         depend on your ncurses installation).
 </dd>
 <dt><b>
-/buffer clear|top|bottom|search_backward|search_forward|date|%
+/buffer clear|top|bottom|date|%|search_backward|search_forward
 </b></dt>
 <dd>
         The <b>buffer</b> command manipulates the current buddy's buffer
@@ -277,22 +327,6 @@ scroll the buffer down n lines (default: half a screen)
 </tr>
 <tr valign="top">
 <td>
-<b>search_backward</b> text
-</td>
-<td>
-search for "text" in the current buddy chat buffer
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>search_forward</b>  text
-</td>
-<td>
-search for "text" in the current buddy chat buffer
-</td>
-</tr>
-<tr valign="top">
-<td>
 <b>date</b> date
 </td>
 <td>
@@ -305,6 +339,22 @@ jump to the first line after the specified date in the chat buffer (date format:
 </td>
 <td>
 jump to position %n of the buddy chat buffer
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>search_backward</b> text
+</td>
+<td>
+search for "text" in the current buddy chat buffer
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>search_forward</b>  text
+</td>
+<td>
+search for "text" in the current buddy chat buffer
 </td>
 </tr>
 </table>
@@ -750,7 +800,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.7.2-dev<br />
-Last updated 14-Dec-2005 00:04:31 CEST
+Last updated 16-Dec-2005 16:12:33 CEST
 </p>
 </div>
 </div>

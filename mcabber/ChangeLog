@@ -5,6 +5,8 @@ mcabber (0.7.2-dev)
    Commands now handle correctly resources or nicknames containing whitespace
  * The roster is updated in real time when receiving an update from the server
  * /info shows subscriptions (none, from, to, both)
+ * Add "/authorization" command, to manage subscriptions
+ * mcabber now answers IQ requests
  * The deprecated Agent list IQ request has been removed
  * Empty resources are displayed (do not use the arbitrary "default" string
    instead)
@@ -14,8 +16,11 @@ mcabber (0.7.2-dev)
  * MUC: Add "/room affil" and "/room role"
  * MUC: Add "/room destroy"
  * MUC: Display a message when somebody is kicked/banned from a room
- * MUC: Multiple fixes and improvements
+ * MUC: Display a message (and the reason, if there is one) when a room has
+   been destroyed
+ * MUC: Multiple other fixes and improvements
  * Handle messages beginning with "/me " (it is replaced with the nickname)
+ * Documentation update
 
  -- Mikael, ?
 

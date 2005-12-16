@@ -37,6 +37,8 @@ Here are some of the features of `mcabber`:
   `mcabber` can save discussions to history log files.
 - 'Commands completion:'  If possible, `mcabber` will try to complete your
   command line if you hit the Tab key.
+- 'Input line history:'  Any message or command entered is in the input line
+  history and can be reused easily.
 - 'External actions:'  Some events (like receiving a message) can trigger an
   external action, for example a shell script (you need to enable it in your
   configuration file).  A sample events script ("eventcmd") is provided with
@@ -58,6 +60,10 @@ Text typing occurs in the 'input line'; basic operations are supported
 
 PageUp and PageDown keys are used to move in the roster.
 
+Up and Down arrow keys can be used to move in the input line history; they
+jump to the previous/next line from the history beginning with the same string
+(from first column to the cursor column).
+
 To send a message, move to the choosen buddy in the buddylist, type your
 message and hit enter.  If the line begins with a slash, this will be
 interpreted as a command (see the COMMAND section below).  Hit escape to
@@ -67,7 +73,8 @@ Here is a quick description of the key bindings:
 
 Ctrl-a::        Go to the beginning of the input line
 Ctrl-e::        Go to the end of the input line
-Ctrl-l::        Force a resize
+Ctrl-l::        Force a refresh
+Up/Down::       Move in the input line history
 PgUp/PgDown::   Move inside the roster (buddylist)
 Tab::           Complete current word, in the input line
 Ctrl-g::        Cancel completion / ctrl-g
@@ -94,6 +101,14 @@ COMMANDS
         "/alias name =" unsets the "name" alias. +
         Example: "/alias away = status away".
 
+/authorization allow|cancel|request [jid]::
+        Manage the presence subscriptions. +
+        If no jid is provided, the current buddy is used.
+
+        'allow';;   allow the buddy to receive your presence updates
+        'cancel';;  cancel the buddy' subscription to your presence updates
+        'request';; request a subscription to the buddy's presence updates
+
 /bind keycode = command line::
         Bind a command line to the key with the "keycode" code number. +
         Keycodes of unused keys are displayed by `mcabber` in the log window
@@ -104,7 +119,7 @@ COMMANDS
         Example: "/bind 265 = status online" (265 is F1 for me, but it may
         depend on your ncurses installation).
 
-/buffer clear|top|bottom|search_backward|search_forward|date|%::
+/buffer clear|top|bottom|date|%|search_backward|search_forward::
         The 'buffer' command manipulates the current buddy's buffer
         (chat window).
 
@@ -113,10 +128,10 @@ COMMANDS
         'top';;                  jump to the top of the current buddy chat buffer
         'up' [n];;               scroll the buffer up n lines (default: half a screen)
         'down' [n];;             scroll the buffer down n lines (default: half a screen)
-        'search_backward' text;; search for "text" in the current buddy chat buffer
-        'search_forward'  text;; search for "text" in the current buddy chat buffer
         'date' date;;            jump to the first line after the specified date in the chat buffer (date format: "YYYY-mm-dd[THH:MM:SS]", "-" and ":" are optional)
         '%' n;;                  jump to position %n of the buddy chat buffer
+        'search_backward' text;; search for "text" in the current buddy chat buffer
+        'search_forward'  text;; search for "text" in the current buddy chat buffer
 
 /clear::
         The 'clear' command is actually an alias for "/buffer clear".

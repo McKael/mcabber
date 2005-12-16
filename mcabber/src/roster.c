@@ -759,6 +759,15 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   sl_group = &((roster*)((GSList*)roster_usr->list)->data)->list;
   *sl_group = g_slist_remove(*sl_group, rosterdata);
 
+  // Remove old group if it is empty
+  if (!*sl_group) {
+    roster *roster_grp = (roster*)((GSList*)roster_usr->list)->data;
+    if (roster_grp->jid)  g_free((gchar*)roster_grp->jid);
+    if (roster_grp->name) g_free((gchar*)roster_grp->name);
+    g_free(roster_grp);
+    groups = g_slist_remove(groups, roster_grp);
+  }
+
   // Add the buddy to its new group
   roster_usr->list = sl_newgroup;    // (my_newgroup SList element)
   my_newgroup->list = g_slist_insert_sorted(my_newgroup->list, roster_usr,

@@ -54,6 +54,7 @@ static void do_disconnect(char *arg);
 static void do_rawxml(char *arg);
 static void do_room(char *arg);
 static void do_authorization(char *arg);
+static void do_version(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -111,6 +112,7 @@ void cmd_init(void)
   cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status);
   cmd_add("status_to", "Show or set your status for one recipient",
           COMPL_JID, COMPL_STATUS, &do_status_to);
+  cmd_add("version", "Show mcabber version", 0, 0, &do_version);
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");
@@ -1703,6 +1705,11 @@ static void do_authorization(char *arg)
   }
 
   free_arg_lst(paramlst);
+}
+
+static void do_version(char *arg)
+{
+  scr_LogPrint(LPRINT_NORMAL, "This is mcabber version %s", PACKAGE_VERSION);
 }
 
 static void do_connect(char *arg)

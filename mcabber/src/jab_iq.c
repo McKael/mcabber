@@ -4,6 +4,7 @@
  * Copyright (C) 2005 Mikael Berthe <bmikael@lists.lilotux.net>
  * Some parts initially came from the centericq project:
  * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
+ * Some small parts come from the Gaim project <http://gaim.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@
  * USA
  */
 
+#include <sys/utsname.h>
 #include <glib.h>
 
 #include "jabglue.h"
@@ -28,6 +30,7 @@
 #include "roster.h"
 #include "utils.h"
 #include "screen.h"
+#include "settings.h"
 
 int s_id; // XXX
 
@@ -177,10 +180,90 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
   }
 }
 
+static void handle_iq_version(jconn conn, char *from, const char *id,
+                              xmlnode xmldata)
+{
+  xmlnode senderquery, x;
+  xmlnode myquery;
+  char *os = NULL;
+
+  // "from" has already been converted to user locale
+  scr_LogPrint(LPRINT_LOGNORM, "Received an IQ version request from <%s>", from);
+
+  senderquery = xmlnode_get_tag(xmldata, "query");
+  if (!settings_opt_get_int("iq_version_hide_os")) {
+    struct utsname osinfo;
+    uname(&osinfo);
+    os = g_strdup_printf("%s %s %s", osinfo.sysname, osinfo.release,
+                         osinfo.machine);
+  }
+
+  x = jutil_iqnew(JPACKET__RESULT, NS_VERSION);
+  xmlnode_put_attrib(x, "id", id);
+  xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
+  myquery = xmlnode_get_tag(x, "query");
+
+  xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "name"), PACKAGE, -1);
+  xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "version"), VERSION, -1);
+  if (os) {
+    xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "os"), os, -1);
+    g_free(os);
+  }
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+}
+
+// This function borrows some code from the Gaim project
+static void handle_iq_time(jconn conn, char *from, const char *id,
+                              xmlnode xmldata)
+{
+  xmlnode senderquery, x;
+  xmlnode myquery;
+  char *buf, *utf8_buf;
+  time_t now_t;
+  struct tm *now;
+
+  time(&now_t);
+  now = localtime(&now_t);
+
+  // "from" has already been converted to user locale
+  scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>", from);
+
+  buf = g_new0(char, 512);
+  senderquery = xmlnode_get_tag(xmldata, "query");
+
+  x = jutil_iqnew(JPACKET__RESULT, NS_TIME);
+  xmlnode_put_attrib(x, "id", id);
+  xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
+  myquery = xmlnode_get_tag(x, "query");
+
+  strftime(buf, 512, "%Y%m%dT%T", now);
+  xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "utc"), buf, -1);
+
+  strftime(buf, 512, "%Z", now);
+  if ((utf8_buf = to_utf8(buf))) {
+    xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "tz"), utf8_buf, -1);
+    g_free(utf8_buf);
+  }
+
+  strftime(buf, 512, "%d %b %Y %T", now);
+  if ((utf8_buf = to_utf8(buf))) {
+    xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "display"), utf8_buf, -1);
+    g_free(utf8_buf);
+  }
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+  g_free(buf);
+}
+
+// This function borrows some code from the Gaim project
 static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
 {
-  char *id;
+  const char *id, *ns;
   xmlnode x, y, z;
+  guint iq_not_implemented = FALSE;
 
   id = xmlnode_get_attrib(xmldata, "id");
   if (!id) {
@@ -188,7 +271,20 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
     return;
   }
 
-  // Nothing implemented yet.
+  x = xmlnode_get_tag(xmldata, "query");
+  ns = xmlnode_get_attrib(x, "xmlns");
+  if (ns && !strcmp(ns, NS_VERSION)) {
+    handle_iq_version(conn, from, id, xmldata);
+  } else if (ns && !strcmp(ns, NS_TIME)) {
+    handle_iq_time(conn, from, id, xmldata);
+  } else {
+    iq_not_implemented = TRUE;
+  }
+
+  if (!iq_not_implemented)
+    return;
+
+  // Not implemented.
   x = xmlnode_dup(xmldata);
   xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
   xmlnode_hide_attrib(x, "from");
@@ -206,9 +302,9 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
 
 static void handle_iq_set(jconn conn, char *from, xmlnode xmldata)
 {
-  char *id, *ns;
+  const char *id, *ns;
   xmlnode x, y, z;
-  guint iq_error = FALSE;
+  guint iq_not_implemented = FALSE;
 
   id = xmlnode_get_attrib(xmldata, "id");
   if (!id)
@@ -219,12 +315,12 @@ static void handle_iq_set(jconn conn, char *from, xmlnode xmldata)
   if (ns && !strcmp(ns, NS_ROSTER)) {
     handle_iq_roster(x);
   } else {
-    iq_error = TRUE;
+    iq_not_implemented = TRUE;
   }
 
   if (!id) return;
 
-  if (!iq_error) {
+  if (!iq_not_implemented) {
     x = xmlnode_new_tag("iq");
     xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
     xmlnode_put_attrib(x, "type", "result");

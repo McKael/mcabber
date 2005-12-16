@@ -1006,7 +1006,7 @@ static void do_rename(char *arg)
 static void do_move(char *arg)
 {
   gpointer bud;
-  const char *jid, *name;
+  const char *jid, *name, *oldgroupname;
   guint type;
   char *newgroupname, *p;
 
@@ -1016,6 +1016,8 @@ static void do_move(char *arg)
   jid  = buddy_getjid(bud);
   name = buddy_getname(bud);
   type = buddy_gettype(bud);
+
+  oldgroupname = buddy_getgroupname(bud);
 
   if (type & ROSTER_TYPE_GROUP) {
     scr_LogPrint(LPRINT_NORMAL, "You can't move groups!");
@@ -1029,12 +1031,11 @@ static void do_move(char *arg)
 
   strip_arg_special_chars(newgroupname);
 
-  // Call to buddy_setgroup() should be at the end, as current implementation
-  // clones the buddy and deletes the old one (and thus, jid and name are
-  // freed)
-  jb_updatebuddy(jid, name, *newgroupname ? newgroupname : NULL);
-  scr_RosterUp();
-  buddy_setgroup(bud, newgroupname);
+  if (strcmp(oldgroupname, newgroupname)) {
+    jb_updatebuddy(jid, name, *newgroupname ? newgroupname : NULL);
+    scr_RosterUp();
+    buddy_setgroup(bud, newgroupname);
+  }
 
   g_free(newgroupname);
   update_roster = TRUE;

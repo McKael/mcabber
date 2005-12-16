@@ -739,56 +739,30 @@ const char *buddy_getjid(gpointer rosterdata)
 //  buddy_setgroup()
 // Change the group of current buddy
 //
-// Warning!  This function changes the specified buddy!
-// Warning!  Old buddy is deleted, so you can't access to its jid/name after
-//           calling this function (they are free'd).
 void buddy_setgroup(gpointer rosterdata, char *newgroupname)
 {
   roster *roster_usr = rosterdata;
   GSList **sl_group;
-  GSList *sl_clone;
-  roster *roster_clone;
+  GSList *sl_newgroup;
+  roster *my_newgroup;
 
   // A group has no group :)
   if (roster_usr->type & ROSTER_TYPE_GROUP) return;
+
+  // Add newgroup if necessary
+  if (!newgroupname)  newgroupname = "";
+  sl_newgroup = roster_add_group(newgroupname);
+  if (!sl_newgroup) return;
+  my_newgroup = (roster*)sl_newgroup->data;
 
   // Remove the buddy from current group
   sl_group = &((roster*)((GSList*)roster_usr->list)->data)->list;
   *sl_group = g_slist_remove(*sl_group, rosterdata);
 
-  // Add the buddy to its new group; actually we "clone" this buddy...
-  sl_clone = roster_add_user(roster_usr->jid, roster_usr->name, newgroupname,
-                             roster_usr->type, roster_usr->subscription);
-  roster_clone = (roster*)sl_clone->data;
-  roster_clone->subscription = roster_usr->subscription;
-  roster_clone->flags = roster_usr->flags;
-
-  roster_clone->resource = roster_usr->resource;
-  roster_usr->resource = NULL;
-  roster_clone->nickname = roster_usr->nickname;
-  roster_usr->nickname = NULL;
-  roster_clone->topic = roster_usr->topic;
-  roster_usr->topic = NULL;
-
-  // Free old buddy
-  if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
-  if (roster_usr->name)       g_free((gchar*)roster_usr->name);
-  if (roster_usr->nickname)   g_free((gchar*)roster_usr->nickname);
-  if (roster_usr->topic)      g_free((gchar*)roster_usr->topic);
-  free_all_resources(&roster_usr->resource);
-  g_free(roster_usr);
-
-  buddylist = g_list_append(buddylist, roster_clone);
-  // We must have current_buddy pointing to the cloned buddy, if this is
-  // the one we have moved.  Same for alternate_buddy.
-  if (rosterdata == BUDDATA(current_buddy)) {
-    current_buddy = g_list_find(buddylist, roster_clone);
-    // If new new group is folded, the current_buddy will be lost, and the
-    // chat window won't be correctly refreshed.  So we make sure it isn't...
-    ((roster*)((GSList*)roster_clone->list)->data)->flags &= ~ROSTER_FLAG_HIDE;
-  }
-  if (alternate_buddy && BUDDATA(alternate_buddy) == rosterdata)
-    alternate_buddy = g_list_find(buddylist, roster_clone);
+  // Add the buddy to its new group
+  roster_usr->list = sl_newgroup;    // (my_newgroup SList element)
+  my_newgroup->list = g_slist_insert_sorted(my_newgroup->list, roster_usr,
+                                            (GCompareFunc)&roster_compare_name);
 
   buddylist_build();
 }

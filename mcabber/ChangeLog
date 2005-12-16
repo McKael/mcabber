@@ -20,6 +20,7 @@ mcabber (0.7.2-dev)
    been destroyed
  * MUC: Multiple other fixes and improvements
  * Handle messages beginning with "/me " (it is replaced with the nickname)
+ * New "/version" command
  * Documentation update
 
  -- Mikael, ?

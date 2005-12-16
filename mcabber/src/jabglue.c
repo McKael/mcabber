@@ -410,6 +410,45 @@ void jb_send_msg(const char *jid, const char *text, int type,
   jb_reset_keepalive();
 }
 
+//  jb_subscr_send_auth(jid)
+// Allow jid to receive our presence updates
+void jb_subscr_send_auth(const char *jid)
+{
+  xmlnode x;
+  char *utf8_jid = to_utf8(jid);
+
+  x = jutil_presnew(JPACKET__SUBSCRIBED, utf8_jid, NULL);
+  jab_send(jc, x);
+  xmlnode_free(x);
+  g_free(utf8_jid);
+}
+
+//  jb_subscr_cancel_auth(jid)
+// Cancel jid's subscription to our presence updates
+void jb_subscr_cancel_auth(const char *jid)
+{
+  xmlnode x;
+  char *utf8_jid = to_utf8(jid);
+
+  x = jutil_presnew(JPACKET__UNSUBSCRIBED, utf8_jid, NULL);
+  jab_send(jc, x);
+  xmlnode_free(x);
+  g_free(utf8_jid);
+}
+
+//  jb_subscr_request_auth(jid)
+// Request a subscription to jid's presence updates
+void jb_subscr_request_auth(const char *jid)
+{
+  xmlnode x;
+  char *utf8_jid = to_utf8(jid);
+
+  x = jutil_presnew(JPACKET__SUBSCRIBE, utf8_jid, NULL);
+  jab_send(jc, x);
+  xmlnode_free(x);
+  g_free(utf8_jid);
+}
+
 // Note: the caller should check the jid is correct
 void jb_addbuddy(const char *jid, const char *name, const char *group)
 {
@@ -445,9 +484,7 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
   jab_send(jc, x);
   xmlnode_free(x);
 
-  x = jutil_presnew(JPACKET__SUBSCRIBE, cleanjid, NULL);
-  jab_send(jc, x);
-  xmlnode_free(x);
+  jb_subscr_request_auth(cleanjid);
 
   roster_add_user(cleanjid, name, group, ROSTER_TYPE_USER, sub_pending);
   g_free(cleanjid);
@@ -1240,7 +1277,6 @@ static void handle_packet_message(jconn conn, char *type, char *from,
 static void handle_packet_s10n(jconn conn, char *type, char *from,
                                xmlnode xmldata)
 {
-  xmlnode x;
   char *r;
   char *buf;
 
@@ -1252,10 +1288,14 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     int isagent;
 
     isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
-
     msg = xmlnode_get_tag_data(xmldata, "status");
-    scr_LogPrint(LPRINT_LOGNORM, "<%s> wants to subscribe "
-                 "to your network presence updates", from);
+
+    buf = g_strdup_printf("<%s> wants to subscribe to your presence updates",
+                          from);
+    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+    g_free(buf);
+
     if (msg) {
       char *msg_noutf8 = from_utf8(msg);
       if (msg_noutf8) {
@@ -1270,17 +1310,15 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     }
 
     // FIXME We accept everybody...
-    x = jutil_presnew(JPACKET__SUBSCRIBED, from, 0);
-    jab_send(jc, x);
-    xmlnode_free(x);
-    buf = g_strdup_printf("<%s> has subscribed to your presence updates", from);
+    jb_subscr_send_auth(from);
+    buf = g_strdup_printf("<%s> is allowed to receive your presence updates",
+                          from);
     scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);
   } else if (!strcmp(type, "unsubscribe")) {
     /* The sender is unsubscribing from our presence */
-    x = jutil_presnew(JPACKET__UNSUBSCRIBED, from, 0);
-    jab_send(jc, x);
-    xmlnode_free(x);
+    jb_subscr_cancel_auth(from);
     buf = g_strdup_printf("<%s> is unsubscribing from your "
                           "presence updates", from);
     scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);

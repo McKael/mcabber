@@ -33,6 +33,9 @@ jconn jb_connect(const char *jid, const char *server, unsigned int port,
 inline unsigned char jb_getonline(void);
 void jb_disconnect(void);
 void jb_main();
+void jb_subscr_send_auth(const char *jid);
+void jb_subscr_cancel_auth(const char *jid);
+void jb_subscr_request_auth(const char *jid);
 void jb_addbuddy(const char *jid, const char *name, const char *group);
 void jb_delbuddy(const char *jid);
 void jb_updatebuddy(const char *jid, const char *name, const char *group);

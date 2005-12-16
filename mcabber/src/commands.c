@@ -53,6 +53,7 @@ static void do_connect(char *arg);
 static void do_disconnect(char *arg);
 static void do_rawxml(char *arg);
 static void do_room(char *arg);
+static void do_authorization(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -80,6 +81,8 @@ void cmd_init(void)
 {
   cmd_add("add", "Add a jabber user", COMPL_JID, 0, &do_add);
   cmd_add("alias", "Add an alias", 0, 0, &do_alias);
+  cmd_add("authorization", "Manage subscription authorizations",
+          COMPL_AUTH, COMPL_JID, &do_authorization);
   cmd_add("bind", "Add an key binding", 0, 0, &do_bind);
   cmd_add("buffer", "Manipulate current buddy's buffer (chat window)",
           COMPL_BUFFER, 0, &do_buffer);
@@ -98,14 +101,12 @@ void cmd_init(void)
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
-  //cmd_add("request_auth");
   cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0,
           &do_roster);
   cmd_add("say", "Say something to the selected buddy", 0, 0, &do_say);
   cmd_add("say_to", "Say something to a specific buddy", COMPL_JID, 0,
           &do_say_to);
   //cmd_add("search");
-  //cmd_add("send_auth");
   cmd_add("set", "Set/query an option value", 0, 0, &do_set);
   cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status);
   cmd_add("status_to", "Show or set your status for one recipient",
@@ -171,6 +172,11 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROOM, "topic");
   compl_add_category_word(COMPL_ROOM, "unlock");
   compl_add_category_word(COMPL_ROOM, "whois");
+
+  // Authorization category
+  compl_add_category_word(COMPL_AUTH, "allow");
+  compl_add_category_word(COMPL_AUTH, "cancel");
+  compl_add_category_word(COMPL_AUTH, "request");
 }
 
 //  expandalias(line)
@@ -1621,6 +1627,76 @@ static void do_room(char *arg)
   } else if (!strcasecmp(subcmd, "whois"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_whois(bud, arg);
+  } else {
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
+  }
+
+  free_arg_lst(paramlst);
+}
+
+static void do_authorization(char *arg)
+{
+  char **paramlst;
+  char *subcmd;
+
+  if (!jb_getonline()) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    return;
+  }
+
+  paramlst = split_arg(arg, 2, 0); // subcmd, [jid]
+  subcmd = *paramlst;
+  arg = *(paramlst+1);
+
+  if (!subcmd || !*subcmd) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  // Use the provided jid, if it looks valid
+  if (arg) {
+    if (!*arg) {
+      // If no jid is provided, we use the current selected buddy
+      arg = NULL;
+    } else {
+      if (check_jid_syntax(arg)) {
+        scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", arg);
+        free_arg_lst(paramlst);
+        return;
+      }
+    }
+  }
+
+  if (!arg) {       // Use the current selected buddy's jid
+    gpointer bud;
+    guint type;
+
+    if (!current_buddy) return;
+    bud = BUDDATA(current_buddy);
+
+    arg  = (char*)buddy_getjid(bud);
+    type = buddy_gettype(bud);
+
+    if (!(type & (ROSTER_TYPE_USER|ROSTER_TYPE_AGENT))) {
+      scr_LogPrint(LPRINT_NORMAL, "Invalid buddy");
+      return;
+    }
+  }
+
+  if (!strcasecmp(subcmd, "allow"))  {
+    jb_subscr_send_auth(arg);
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "<%s> is allowed to receive your presence updates", arg);
+  } else if (!strcasecmp(subcmd, "cancel"))  {
+    jb_subscr_cancel_auth(arg);
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "<%s> is no more allowed to receive your presence updates",
+                 arg);
+  } else if (!strcasecmp(subcmd, "request"))  {
+    jb_subscr_request_auth(arg);
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "Sent presence notification request to <%s>", arg);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

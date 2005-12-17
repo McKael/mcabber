@@ -907,16 +907,25 @@ static void do_info(char *arg)
       gchar rprio;
       enum imstatus rstatus;
       const char *rst_msg;
+      time_t rst_time;
 
       rprio   = buddy_getresourceprio(bud, resources->data);
       rstatus = buddy_getstatus(bud, resources->data);
       rst_msg = buddy_getstatusmsg(bud, resources->data);
+      rst_time = buddy_getstatustime(bud, resources->data);
 
       snprintf(buffer, 127, "Resource: [%c] (%d) %s", imstatus2char[rstatus],
                rprio, (char*)resources->data);
       scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
       if (rst_msg) {
         snprintf(buffer, 127, "Status message: %s", rst_msg);
+        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+      }
+      if (rst_time) {
+        char tbuf[256];
+
+        strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
+        snprintf(buffer, 127, "Status timestamp: %s", tbuf);
         scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
       }
     }
@@ -1506,6 +1515,7 @@ static void room_whois(gpointer bud, char *arg)
   enum imstatus rstatus;
   enum imrole role;
   enum imaffiliation affil;
+  time_t rst_time;
 
   char *strroles[] = { "none", "moderator", "participant", "visitor" };
   char *straffil[] = { "none", "owner", "admin", "member", "outcast" };
@@ -1528,6 +1538,7 @@ static void room_whois(gpointer bud, char *arg)
     return;
   }
 
+  rst_time = buddy_getstatustime(bud, nick);
   rprio   = buddy_getresourceprio(bud, nick);
   rst_msg = buddy_getstatusmsg(bud, nick);
   if (!rst_msg) rst_msg = "";
@@ -1544,6 +1555,14 @@ static void room_whois(gpointer bud, char *arg)
            rst_msg);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
 
+  if (rst_time) {
+    char tbuf[256];
+
+    strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
+    snprintf(buffer, 127, "Timestamp: %s", tbuf);
+    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  }
+
   if (realjid) {
     snprintf(buffer, 127, "JID      : <%s>", realjid);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
@@ -1555,6 +1574,7 @@ static void room_whois(gpointer bud, char *arg)
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
   snprintf(buffer, 127, "Priority : %d", rprio);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+
   scr_WriteIncomingMessage(jid, "End of WHOIS", 0, HBB_PREFIX_INFO);
 
   g_free(buffer);

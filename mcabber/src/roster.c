@@ -47,6 +47,7 @@ typedef struct {
   gchar prio;
   enum imstatus status;
   gchar *status_msg;
+  time_t status_timestamp;
   enum imrole role;
   enum imaffiliation affil;
   gchar *realjid;       /* for chatrooms, if buddy's real jid is known */
@@ -404,6 +405,7 @@ void roster_free(void)
 // Note: resname, role, affil and realjid are for room members only
 void roster_setstatus(const char *jid, const char *resname, gchar prio,
                       enum imstatus bstat, const char *status_msg,
+                      time_t status_time,
                       enum imrole role, enum imaffiliation affil,
                       const char *realjid)
 {
@@ -438,6 +440,9 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
   }
   if (status_msg)
     p_res->status_msg = g_strdup(status_msg);
+  if (!status_time)
+    time(&status_time);
+  p_res->status_timestamp = status_time;
 
   p_res->role = role;
   p_res->affil = affil;
@@ -910,6 +915,15 @@ const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname)
   if (p_res)
     return p_res->status_msg;
   return NULL;
+}
+
+time_t buddy_getstatustime(gpointer rosterdata, const char *resname)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->status_timestamp;
+  return 0;
 }
 
 gchar buddy_getresourceprio(gpointer rosterdata, const char *resname)

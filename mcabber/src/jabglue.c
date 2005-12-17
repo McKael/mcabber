@@ -902,9 +902,27 @@ static void statehandler(jconn conn, int state)
   previous_state = state;
 }
 
+static time_t xml_get_timestamp(xmlnode xmldata)
+{
+  xmlnode x;
+  char *p;
+
+  x = xmlnode_get_firstchild(xmldata);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
+      if ((p = xmlnode_get_attrib(x, "xmlns")) && !strcmp(p, NS_DELAY)) {
+        break;
+    }
+  }
+  if ((p = xmlnode_get_attrib(x, "stamp")) != NULL)
+    return from_iso8601(p, 1);
+  return 0;
+}
+
 static void handle_presence_muc(const char *from, xmlnode xmldata,
                                 const char *roomjid, const char *rname,
-                                enum imstatus ust, char *ustmsg, char bpprio)
+                                enum imstatus ust, char *ustmsg,
+                                time_t usttime, char bpprio)
 {
   xmlnode y;
   char *p;
@@ -1102,7 +1120,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   // Update room member status
   if (rname) {
     gchar *mbrjid_noutf8 = from_utf8(mbjid);
-    roster_setstatus(roomjid, rname, bpprio, ust, ustmsg,
+    roster_setstatus(roomjid, rname, bpprio, ust, ustmsg, usttime,
                      mbrole, mbaffil, mbrjid_noutf8);
     if (mbrjid_noutf8)
       g_free(mbrjid_noutf8);
@@ -1122,6 +1140,7 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   const char *rname;
   enum imstatus ust;
   char bpprio;
+  time_t timestamp = 0;
 
   r = jidtodisp(from);
   if (type && !strcmp(type, TMSG_ERROR)) {
@@ -1161,18 +1180,21 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   rname = strchr(from, '/');
   if (rname) rname++;
 
+  // Timestamp?
+  timestamp = xml_get_timestamp(xmldata);
+
   // Check for MUC presence packet
   // There can be multiple <x> tags!!
   x = xmlnode_get_firstchild(xmldata);
   for ( ; x; x = xmlnode_get_nextsibling(x)) {
     if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
       if ((p = xmlnode_get_attrib(x, "xmlns")) &&
-          !strcasecmp(p, "http://jabber.org/protocol/muc#user"))
+          !strcmp(p, "http://jabber.org/protocol/muc#user"))
         break;
   }
   if (x) {
     // This is a MUC presence message
-    handle_presence_muc(from, x, r, rname, ust, ustmsg, bpprio);
+    handle_presence_muc(from, x, r, rname, ust, ustmsg, timestamp, bpprio);
   } else {
     // Not a MUC message, so this is a regular buddy...
     // Call hk_statuschange() if status has changed or if the
@@ -1180,7 +1202,7 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
     const char *m = roster_getstatusmsg(r, rname);
     if ((ust != roster_getstatus(r, rname)) ||
         (!ustmsg && m && m[0]) || (ustmsg && (!m || strcmp(ustmsg, m))))
-      hk_statuschange(r, rname, bpprio, 0, ust, ustmsg);
+      hk_statuschange(r, rname, bpprio, timestamp, ust, ustmsg);
   }
 
   g_free(r);
@@ -1249,8 +1271,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   x = xmlnode_get_firstchild(xmldata);
   for ( ; x; x = xmlnode_get_nextsibling(x)) {
     if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
-      if ((p = xmlnode_get_attrib(x, "xmlns")) &&
-              !strcasecmp(p, "jabber:x:encrypted"))
+      if ((p = xmlnode_get_attrib(x, "xmlns")) && !strcmp(p, NS_ENCRYPTED))
         if ((p = xmlnode_get_data(x)) != NULL) {
           enc = p;
           break;
@@ -1258,10 +1279,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   }
 
   // Timestamp?
-  if ((x = xmlnode_get_tag(xmldata, "x")) != NULL) {
-    if ((p = xmlnode_get_attrib(x, "stamp")) != NULL)
-      timestamp = from_iso8601(p, 1);
-  }
+  timestamp = xml_get_timestamp(xmldata);
 
   if (type && !strcmp(type, TMSG_ERROR)) {
     if ((x = xmlnode_get_tag(xmldata, TMSG_ERROR)) != NULL)

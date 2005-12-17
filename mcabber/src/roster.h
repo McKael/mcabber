@@ -2,6 +2,7 @@
 #define __ROSTER_H__ 1
 
 #include <glib.h>
+#include <time.h>
 
 enum imstatus {
     offline,
@@ -87,6 +88,7 @@ void    roster_del_user(const char *jid);
 void    roster_free(void);
 void    roster_setstatus(const char *jid, const char *resname, gchar prio,
                          enum imstatus bstat, const char *status_msg,
+                         time_t timestamp,
                          enum imrole role, enum imaffiliation affil,
                          const char *realjid);
 void    roster_setflags(const char *jid, guint flags, guint value);
@@ -117,6 +119,7 @@ const char *buddy_getgroupname(gpointer rosterdata);
 gpointer buddy_getgroup(gpointer rosterdata);
 enum imstatus buddy_getstatus(gpointer rosterdata, const char *resname);
 const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname);
+time_t  buddy_getstatustime(gpointer rosterdata, const char *resname);
 gchar   buddy_getresourceprio(gpointer rosterdata, const char *resname);
 int     buddy_isresource(gpointer rosterdata);
 GSList *buddy_getresources(gpointer rosterdata);

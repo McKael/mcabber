@@ -1051,8 +1051,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
         xmlnode destroynode = xmlnode_get_tag(xmldata, "destroy");
         if (destroynode) {
           gchar *rsn_noutf8 = NULL;
-          reason = from_utf8(xmlnode_get_tag_data(destroynode, "reason"));
-          if (reason)
+          if ((reason = xmlnode_get_tag_data(destroynode, "reason")))
             rsn_noutf8 = from_utf8(reason);
           if (rsn_noutf8) {
             mbuf = g_strdup_printf("You have left %s, "

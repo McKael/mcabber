@@ -874,16 +874,16 @@ static void do_info(char *arg)
   type   = buddy_gettype(bud);
   esub   = buddy_getsubscription(bud);
 
-  buffer = g_new(char, 128);
+  buffer = g_new(char, 4096);
 
   if (jid) {
     GSList *resources;
     char *bstr = "unknown";
 
-    snprintf(buffer, 127, "jid:  <%s>", jid);
+    snprintf(buffer, 4095, "jid:  <%s>", jid);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
     if (name) {
-      snprintf(buffer, 127, "Name: %s", name);
+      snprintf(buffer, 4095, "Name: %s", name);
       scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
     }
 
@@ -914,15 +914,15 @@ static void do_info(char *arg)
       rst_msg = buddy_getstatusmsg(bud, resources->data);
       rst_time = buddy_getstatustime(bud, resources->data);
 
-      snprintf(buffer, 127, "Resource: [%c] (%d) %s", imstatus2char[rstatus],
+      snprintf(buffer, 4095, "Resource: [%c] (%d) %s", imstatus2char[rstatus],
                rprio, (char*)resources->data);
       scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
       if (rst_msg) {
-        snprintf(buffer, 127, "Status message: %s", rst_msg);
+        snprintf(buffer, 4095, "Status message: %s", rst_msg);
         scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
       }
       if (rst_time) {
-        char tbuf[256];
+        char tbuf[128];
 
         strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
         snprintf(buffer, 127, "Status timestamp: %s", tbuf);
@@ -952,8 +952,8 @@ static void room_names(gpointer bud, char *arg)
 
   jid    = buddy_getjid(bud);
 
-  buffer = g_new(char, 128);
-  snprintf(buffer, 127, "Room members:");
+  buffer = g_new(char, 4096);
+  strncpy(buffer, "Room members:", 127);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
 
   resources = buddy_getresources(bud);
@@ -964,11 +964,11 @@ static void room_names(gpointer bud, char *arg)
     rstatus = buddy_getstatus(bud, resources->data);
     rst_msg = buddy_getstatusmsg(bud, resources->data);
 
-    snprintf(buffer, 127, "[%c] %s", imstatus2char[rstatus],
+    snprintf(buffer, 4095, "[%c] %s", imstatus2char[rstatus],
              (char*)resources->data);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
     if (rst_msg) {
-      snprintf(buffer, 127, "Status message: %s", rst_msg);
+      snprintf(buffer, 4095, "Status message: %s", rst_msg);
       scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
     }
   }
@@ -1547,16 +1547,16 @@ static void room_whois(gpointer bud, char *arg)
   affil = buddy_getaffil(bud, nick);
   realjid = buddy_getrjid(bud, nick);
 
-  buffer = g_new(char, 128);
+  buffer = g_new(char, 4096);
 
-  snprintf(buffer, 127, "Whois [%s]", nick);
+  snprintf(buffer, 4095, "Whois [%s]", nick);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
-  snprintf(buffer, 127, "Status   : [%c] %s", imstatus2char[rstatus],
+  snprintf(buffer, 4095, "Status   : [%c] %s", imstatus2char[rstatus],
            rst_msg);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
 
   if (rst_time) {
-    char tbuf[256];
+    char tbuf[128];
 
     strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
     snprintf(buffer, 127, "Timestamp: %s", tbuf);
@@ -1564,15 +1564,15 @@ static void room_whois(gpointer bud, char *arg)
   }
 
   if (realjid) {
-    snprintf(buffer, 127, "JID      : <%s>", realjid);
+    snprintf(buffer, 4095, "JID      : <%s>", realjid);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
   }
 
-  snprintf(buffer, 127, "Role     : %s", strroles[role]);
+  snprintf(buffer, 4095, "Role     : %s", strroles[role]);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
-  snprintf(buffer, 127, "Affiliat.: %s", straffil[affil]);
+  snprintf(buffer, 4095, "Affiliat.: %s", straffil[affil]);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
-  snprintf(buffer, 127, "Priority : %d", rprio);
+  snprintf(buffer, 4095, "Priority : %d", rprio);
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
 
   scr_WriteIncomingMessage(jid, "End of WHOIS", 0, HBB_PREFIX_INFO);

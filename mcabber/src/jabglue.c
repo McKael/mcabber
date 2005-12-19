@@ -463,20 +463,19 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
   // because it allows to re-ask for notification.
 
   x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
-  y = xmlnode_get_tag(x, "query");
-  z = xmlnode_insert_tag(y, "item");
-  xmlnode_put_attrib(z, "jid", cleanjid);
+  y = xmlnode_insert_tag(xmlnode_get_tag(x, "query"), "item");
+
+  xmlnode_put_attrib(y, "jid", cleanjid);
 
   if (name) {
     gchar *name_utf8 = to_utf8(name);
-    z = xmlnode_insert_tag(z, "name");
-    xmlnode_insert_cdata(z, name_utf8, (unsigned) -1);
+    xmlnode_put_attrib(y, "name", name_utf8);
     g_free(name_utf8);
   }
 
   if (group) {
     char *group_utf8 = to_utf8(group);
-    z = xmlnode_insert_tag(z, "group");
+    z = xmlnode_insert_tag(y, "group");
     xmlnode_insert_cdata(z, group_utf8, (unsigned) -1);
     g_free(group_utf8);
   }

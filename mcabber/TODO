@@ -25,6 +25,7 @@ TODO:
 * Persistent room in the roster (join every connect)
 * MUC: advanced settings for room creation
 * MUC: join password-protected room
+* JEP-0022: Message events (composing, etc.)
 
 * File transfer? :)
 
@@ -35,7 +36,6 @@ TODO:
   - /info [jid]
     (request info to the server if the buddy is not in the roster)
   - /server register|unregister
-  - /auth request|send [jid]
   - /search <jid>|name
     (server search)
   - /help

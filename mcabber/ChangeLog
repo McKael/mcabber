@@ -1,10 +1,11 @@
-mcabber (0.7.2-dev)
+mcabber (0.7.2)
 
  * Lots of internal changes (code cleanup)
  * Improved commands parsing
    Commands now handle correctly resources or nicknames containing whitespace
  * The roster is updated in real time when receiving an update from the server
- * /info shows subscriptions (none, from, to, both)
+ * "/info" shows subscriptions (none, from, to, both)
+ * "/info" and "/room whois" show presence timestamp
  * Add "/authorization" command, to manage subscriptions
  * mcabber now answers IQ requests
  * The deprecated Agent list IQ request has been removed
@@ -21,9 +22,9 @@ mcabber (0.7.2-dev)
  * MUC: Multiple other fixes and improvements
  * Handle messages beginning with "/me " (it is replaced with the nickname)
  * New "/version" command
- * Documentation update
+ * Documentation updates
 
- -- Mikael, ?
+ -- Mikael, 2005-12-19
 
 mcabber (0.7.1)
 

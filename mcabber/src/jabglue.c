@@ -999,7 +999,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
                    mbnick);
     mbuf = g_strdup_printf("%s is now known as %s", rname,
                            (newname_noutf8 ? newname_noutf8 : "(?)"));
-    scr_WriteIncomingMessage(roomjid, mbuf, 0,
+    scr_WriteIncomingMessage(roomjid, mbuf, usttime,
                              HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
     if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
     g_free(mbuf);
@@ -1090,7 +1090,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       }
     }
 
-    scr_WriteIncomingMessage(roomjid, mbuf, 0,
+    scr_WriteIncomingMessage(roomjid, mbuf, usttime,
                              HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
 
     if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
@@ -1110,7 +1110,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     } else {
       mbuf = g_strdup_printf("%s has joined", rname);
     }
-    scr_WriteIncomingMessage(roomjid, mbuf, 0,
+    scr_WriteIncomingMessage(roomjid, mbuf, usttime,
                              HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
     if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
     g_free(mbuf);

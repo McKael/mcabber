@@ -132,10 +132,13 @@ void jb_disconnect(void)
 {
   if (!jc) return;
 
-  // announce it to  everyone else
+  // Announce it to  everyone else
   jb_setstatus(offline, NULL, "");
 
-  // announce it to the user
+  // End the XML flow
+  jb_send_raw("</stream:stream>");
+
+  // Announce it to the user
   statehandler(jc, JCONN_STATE_OFF);
 
   jab_delete(jc);

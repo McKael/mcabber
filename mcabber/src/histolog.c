@@ -32,6 +32,7 @@
 #include "jabglue.h"
 #include "utils.h"
 #include "logprint.h"
+#include "settings.h"
 
 static guint UseFileLogging;
 static guint FileLoadLogs;
@@ -131,6 +132,10 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   guint ln = 0; // line number
 
   if (!FileLoadLogs) return;
+
+  if ((roster_gettype(jid) & ROSTER_TYPE_ROOM) &&
+      (settings_opt_get_int("load_muc_logs") != 1))
+    return;
 
   data = g_new(char, HBB_BLOCKSIZE+32);
   if (!data) {

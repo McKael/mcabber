@@ -53,7 +53,11 @@ set resource = mcabber
 #set logging_dir = /home/mikael/.mcabber/histo/
 
 # Set log_muc_conf to 1 to enable MUC chatrooms logging (default = 0)
-# set log_muc_conf = 1
+#set log_muc_conf = 1
+# Set load_muc_logs to 1 to read MUC chatrooms logs (default = 0).  These
+# logs will be displayed in the buffer window _before_ any history received
+# from the server.
+#set load_muc_logs = 0
 
 # IQ settings
 # Set iq_version_hide_os to 1 if you do not want to allow people to retrieve

@@ -1106,6 +1106,10 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     gchar *mbuf;
     if (buddy_getnickname(room_elt->data) == NULL) {
       buddy_setnickname(room_elt->data, rname);
+      // Add a message to the tracelog file
+      mbuf = g_strdup_printf("You have joined %s as \"%s\"", roomjid, rname);
+      scr_LogPrint(LPRINT_LOG, "%s", mbuf);
+      g_free(mbuf);
       mbuf = g_strdup_printf("You have joined as \"%s\"", rname);
     } else {
       mbuf = g_strdup_printf("%s has joined", rname);

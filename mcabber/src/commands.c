@@ -156,6 +156,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_MULTILINE, "abort");
   compl_add_category_word(COMPL_MULTILINE, "begin");
   compl_add_category_word(COMPL_MULTILINE, "send");
+  compl_add_category_word(COMPL_MULTILINE, "send_to");
   compl_add_category_word(COMPL_MULTILINE, "verbatim");
 
   // Room category
@@ -249,7 +250,7 @@ cmd *cmd_get(const char *command)
 //  send_message(msg)
 // Write the message in the buddy's window and send the message on
 // the network.
-void send_message(const char *msg)
+static void send_message(const char *msg)
 {
   const char *jid;
 
@@ -611,6 +612,48 @@ static void do_group(char *arg)
   if (leave_windowbuddy) scr_ShowBuddyWindow();
 }
 
+static int send_message_to(const char *jid, const char *msg)
+{
+  char *bare_jid, *rp;
+
+  if (!jid || !*jid) {
+    scr_LogPrint(LPRINT_NORMAL, "JID is missing");
+    return 1;
+  }
+  if (!msg || !*msg) {
+    scr_LogPrint(LPRINT_NORMAL, "Message is missing");
+    return 1;
+  }
+  if (check_jid_syntax((char*)jid)) {
+    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
+    return 1;
+  }
+
+  // We must use the bare jid in hk_message_out()
+  rp = strchr(jid, '/');
+  if (rp) bare_jid = g_strndup(jid, rp - jid);
+  else   bare_jid = (char*)jid;
+
+  // Jump to window, create one if needed
+  scr_RosterJumpJid(bare_jid);
+
+  // Check if we're sending a message to a conference room
+  // If not, we must make sure rp is NULL, for hk_message_out()
+  if (rp) {
+    if (roster_find(bare_jid, jidsearch, ROSTER_TYPE_ROOM)) rp++;
+    else rp = NULL;
+  }
+
+  // local part (UI, logging, etc.)
+  hk_message_out(bare_jid, rp, 0, msg);
+
+  // Network part
+  jb_send_msg(jid, msg, ROSTER_TYPE_USER, NULL);
+
+  if (rp) g_free(bare_jid);
+  return 0;
+}
+
 static void do_say(char *arg)
 {
   gpointer bud;
@@ -635,16 +678,32 @@ static void do_say(char *arg)
 
 static void do_msay(char *arg)
 {
-  /* Parameters: begin verbatim abort send */
-  gpointer bud;
+  /* Parameters: begin verbatim abort send send_to */
+  char **paramlst;
+  char *subcmd;
 
-  if (!strcasecmp(arg, "abort")) {
+  paramlst = split_arg(arg, 2, 1); // subcmd, arg
+  subcmd = *paramlst;
+  arg = *(paramlst+1);
+
+  if (!subcmd || !*subcmd) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Please read the manual before using "
+                 "the /msay command.");
+    scr_LogPrint(LPRINT_NORMAL, "(Use \"/msay begin\" to enter "
+                 "multi-line mode...)");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if (!strcasecmp(subcmd, "abort")) {
     if (scr_get_multimode())
       scr_LogPrint(LPRINT_NORMAL, "Leaving multi-line message mode");
     scr_set_multimode(FALSE);
     return;
-  } else if ((!strcasecmp(arg, "begin")) || (!strcasecmp(arg, "verbatim"))) {
-    if (!strcasecmp(arg, "verbatim"))
+  } else if ((!strcasecmp(subcmd, "begin")) ||
+             (!strcasecmp(subcmd, "verbatim"))) {
+    if (!strcasecmp(subcmd, "verbatim"))
       scr_set_multimode(2);
     else
       scr_set_multimode(1);
@@ -653,18 +712,12 @@ static void do_msay(char *arg)
     scr_LogPrint(LPRINT_NORMAL, "Select a buddy and use \"/msay send\" "
                  "when your message is ready.");
     return;
-  } else if (!*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Please read the manual before using "
-                 "the /msay command.");
-    scr_LogPrint(LPRINT_NORMAL, "(Use \"/msay begin\" to enter "
-                 "multi-line mode...)");
-    return;
-  } else if (strcasecmp(arg, "send")) {
+  } else if (strcasecmp(subcmd, "send") && strcasecmp(subcmd, "send_to")) {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
     return;
   }
 
-  // send command
+  /* send/send_to command */
 
   if (!scr_get_multimode()) {
     scr_LogPrint(LPRINT_NORMAL, "No message to send.  "
@@ -674,19 +727,28 @@ static void do_msay(char *arg)
 
   scr_set_chatmode(TRUE);
 
-  if (!current_buddy) {
-    scr_LogPrint(LPRINT_NORMAL, "Who are you talking to??");
-    return;
-  }
+  if (!strcasecmp(subcmd, "send_to")) {
+    // Let's send to the specified JID.  We leave now if there
+    // has been an error (so we don't leave multi-line mode).
+    if (send_message_to(arg, scr_get_multiline()))
+      return;
+  } else { // Send to currently selected buddy
+    gpointer bud;
 
-  bud = BUDDATA(current_buddy);
-  if (!(buddy_gettype(bud) & (ROSTER_TYPE_USER|ROSTER_TYPE_ROOM))) {
-    scr_LogPrint(LPRINT_NORMAL, "This is not a user");
-    return;
-  }
+    if (!current_buddy) {
+      scr_LogPrint(LPRINT_NORMAL, "Who are you talking to??");
+      return;
+    }
 
-  buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
-  send_message(scr_get_multiline());
+    bud = BUDDATA(current_buddy);
+    if (!(buddy_gettype(bud) & (ROSTER_TYPE_USER|ROSTER_TYPE_ROOM))) {
+      scr_LogPrint(LPRINT_NORMAL, "This is not a user");
+      return;
+    }
+
+    buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
+    send_message(scr_get_multiline());
+  }
   scr_set_multimode(FALSE);
 }
 
@@ -694,7 +756,6 @@ static void do_say_to(char *arg)
 {
   char **paramlst;
   char *jid, *msg;
-  char *bare_jid, *p;
 
   if (!jb_getonline()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected");
@@ -705,43 +766,13 @@ static void do_say_to(char *arg)
   jid = *paramlst;
   msg = *(paramlst+1);
 
-  if (check_jid_syntax(jid)) {
-    if (!jid)
-      scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
-    else
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
+  if (!jid) {
+    scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
     free_arg_lst(paramlst);
     return;
   }
 
-  if (!msg || !*msg) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
-    free_arg_lst(paramlst);
-    return;
-  }
-
-  // We must use the bare jid in hk_message_out()
-  p = strchr(jid, '/');
-  if (p) bare_jid = g_strndup(jid, p - jid);
-  else   bare_jid = jid;
-
-  // Jump to window, create one if needed
-  scr_RosterJumpJid(bare_jid);
-
-  // Check if we're sending a message to a conference room
-  // If not, we must make sure p is NULL, for hk_message_out()
-  if (p) {
-    if (roster_find(bare_jid, jidsearch, ROSTER_TYPE_ROOM)) p++;
-    else p = NULL;
-  }
-
-  // local part (UI, logging, etc.)
-  hk_message_out(bare_jid, p, 0, msg);
-
-  // Network part
-  jb_send_msg(jid, msg, ROSTER_TYPE_USER, NULL);
-
-  if (p) g_free(bare_jid);
+  send_message_to(jid, msg);
   free_arg_lst(paramlst);
 }
 

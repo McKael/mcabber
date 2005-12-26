@@ -151,7 +151,7 @@ COMMANDS
 /group fold|unfold|toggle::
         The 'group' command changes the current group display.
 
-        'fold';; fold (shrink) the current group tree in the roster
+        'fold';;   fold (shrink) the current group tree in the roster
         'unfold';; unfold (expand) the current group tree in the roster
         'toggle';; toggle the state (fold/unfold) of the current tree
 
@@ -166,7 +166,7 @@ COMMANDS
         Tip: if the chatmode is enabled, you can use "/roster alternate"
         to jump to the moved buddy.
 
-/msay begin|verbatim|send|abort::
+/msay begin|verbatim|send|send_to|abort::
         Send a multi-line message.  To write a single message with several
         lines, the 'multi-line mode' should be used. +
         In multi-line mode, each line (except command lines) typed in the input
@@ -178,10 +178,11 @@ COMMANDS
         command (with send or abort parameters) can be used to exit verbatim
         mode.
 
-        'begin';; enter multi-line mode
-        'verbatim';; enter verbatim multi-line mode
-        'send';; send the current multi-line message to the currently selected buddy
-        'abort';; leave multi-line mode without sending the message
+        'begin';;       enter multi-line mode
+        'verbatim';;    enter verbatim multi-line mode
+        'send';;        send the current multi-line message to the currently selected buddy
+        'send_to' jid;; send the current multi-line message to "jid"
+        'abort';;       leave multi-line mode without sending the message
 
 /quit::
         Disconnect and leave `mcabber(1)`.

@@ -506,7 +506,7 @@ static void do_status_to(char *arg)
   }
 
   // Allow things like /status_to "" away
-  if (!*jid)
+  if (!*jid || !strcmp(jid, "."))
     jid = NULL;
 
   if (jid) {
@@ -554,7 +554,7 @@ static void do_add(char *arg)
 
   if (!id)
     nick = NULL; // Allow things like: /add "" nick
-  else if (!*id)
+  else if (!*id || !strcmp(id, "."))
     id = NULL;
 
   if (id) {

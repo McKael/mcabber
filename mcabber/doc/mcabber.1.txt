@@ -89,10 +89,11 @@ Ctrl-q::        Jump to the next unread message
 COMMANDS
 --------
 
-/add jid [nickname]::
+/add [jid [nickname]]::
         Add the "jid" Jabber user to our roster (default group), and send a
         notification request to this buddy.  If no nickname is specified, the
-        jid is used.
+        jid is used.  If no jid is provided (or jid is empty ""), the
+        current buddy is used.
 
 /alias name = command line::
         Add "name" as an alias for "command line". +

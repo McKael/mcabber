@@ -215,12 +215,13 @@ Jump to the next unread message
 <h2>COMMANDS</h2>
 <dl>
 <dt><b>
-/add jid [nickname]
+/add [jid [nickname]]
 </b></dt>
 <dd>
         Add the "jid" Jabber user to our roster (default group), and send a
         notification request to this buddy.  If no nickname is specified, the
-        jid is used.
+        jid is used.  If no jid is provided (or jid is empty ""), the
+        current buddy is used.
 </dd>
 <dt><b>
 /alias name = command line
@@ -813,7 +814,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.7.3-dev<br />
-Last updated 26-Dec-2005 19:35:42 CEST
+Last updated 28-Dec-2005 11:02:09 CEST
 </p>
 </div>
 </div>

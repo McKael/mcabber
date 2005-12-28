@@ -501,9 +501,31 @@ static void do_status_to(char *arg)
 
   if (!jid || !st) {
     scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
-  } else if (check_jid_syntax(jid)) {
-    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  // Allow things like /status_to "" away
+  if (!*jid)
+    jid = NULL;
+
+  if (jid) {
+    // The JID has been specified.  Quick check...
+    if (check_jid_syntax(jid)) {
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
+      jid = NULL;
+    } else {
+      mc_strtolower(jid);
+    }
   } else {
+    // Add the current buddy
+    if (current_buddy)
+      jid = (char*)buddy_getjid(BUDDATA(current_buddy));
+    if (!jid)
+      scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber id");
+  }
+
+  if (jid) {
     char *cmd;
     if (!msg)
       msg = "";

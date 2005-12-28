@@ -530,13 +530,28 @@ static void do_add(char *arg)
   id = *paramlst;
   nick = *(paramlst+1);
 
-  if (check_jid_syntax(id)) {
-    if (!id)
-      scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
-    else
+  if (!id)
+    nick = NULL; // Allow things like: /add "" nick
+  else if (!*id)
+    id = NULL;
+
+  if (id) {
+    // The JID has been specified.  Quick check...
+    if (check_jid_syntax(id)) {
       scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", id);
+      id = NULL;
+    } else {
+      mc_strtolower(id);
+    }
   } else {
-    mc_strtolower(id);
+    // Add the current buddy
+    if (current_buddy)
+      id = (char*)buddy_getjid(BUDDATA(current_buddy));
+    if (!id)
+      scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber id");
+  }
+
+  if (id) {
     // 2nd parameter = optional nickname
     jb_addbuddy(id, nick, NULL);
     scr_LogPrint(LPRINT_LOGNORM, "Sent presence notification request to <%s>",

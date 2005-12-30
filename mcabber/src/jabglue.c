@@ -1394,14 +1394,20 @@ static void packethandler(jconn conn, jpacket packet)
     if (m++) {
       s = from_utf8(m);
       if (s) {
-        // The length should be enough because from_utf should only
-        // reduce the string length
+        // In some cases the allocated memory size could be too small because
+        // when chars cannot be converted strings like "\uxxxx" or "\Uxxxxyyyy"
+        // are used.
+        if (strlen(r+1) < strlen(s)) {
+          from = g_realloc(from, 1+m-p+strlen(s));
+          r = strchr(from, '/');
+        }
         strcpy(r+1, s);
         g_free(s);
       } else {
         *(r+1) = 0;
         scr_LogPrint(LPRINT_NORMAL, "Decoding of message sender has failed");
-        scr_LogPrint(LPRINT_LOG, "Decoding of message sender has failed: %s", m);
+        scr_LogPrint(LPRINT_LOG, "Decoding of message sender has failed: %s",
+                     m);
       }
     }
   }

@@ -575,14 +575,12 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
 void jb_room_join(const char *room, const char *nickname)
 {
   xmlnode x, y;
-  gchar *roomid, *utf8_nickname;
+  gchar *roomid;
 
   if (!online || !room) return;
   if (!nickname)        return;
 
-  utf8_nickname = to_utf8(nickname);
-  roomid = g_strdup_printf("%s/%s", room, utf8_nickname);
-  g_free(utf8_nickname);
+  roomid = g_strdup_printf("%s/%s", room, nickname);
   if (check_jid_syntax(roomid)) {
     scr_LogPrint(LPRINT_NORMAL, "<%s/%s> is not a valid Jabber room", room,
                  nickname);

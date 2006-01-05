@@ -61,9 +61,15 @@ typedef struct {
   guint type;
   enum subscr subscription;
   GSList *resource;
-  gchar *nickname; // For groupchats
-  gchar *topic;    // For groupchats
+
+  /* For groupchats */
+  gchar *nickname;
+  gchar *topic;
+  guint8 inside_room;
+
+  /* Flag used for the UI */
   guint flags;
+
   // list: user -> points to his group; group -> points to its users list
   GSList *list;
 } roster;
@@ -831,6 +837,23 @@ const char *buddy_getnickname(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->nickname;
+}
+
+//  buddy_setinsideroom(buddy, inside)
+// Only for chatrooms
+void buddy_setinsideroom(gpointer rosterdata, guint8 inside)
+{
+  roster *roster_usr = rosterdata;
+
+  if (!(roster_usr->type & ROSTER_TYPE_ROOM)) return;
+
+  roster_usr->inside_room = inside;
+}
+
+guint8 buddy_getinsideroom(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->inside_room;
 }
 
 //  buddy_settopic(buddy, newtopic)

@@ -1483,7 +1483,7 @@ static void room_nick(gpointer bud, char *arg)
     if (nick)
       scr_LogPrint(LPRINT_NORMAL, "Your nickname is: %s", nick);
     else
-      scr_LogPrint(LPRINT_NORMAL, "You have no nickname");
+      scr_LogPrint(LPRINT_NORMAL, "You have no nickname in this room");
   } else {
     gchar *cmd;
     cmd = g_strdup_printf("%s %s", buddy_getjid(bud), arg);

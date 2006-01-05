@@ -576,6 +576,7 @@ void jb_room_join(const char *room, const char *nickname)
 {
   xmlnode x, y;
   gchar *roomid;
+  GSList *room_elt;
 
   if (!online || !room) return;
   if (!nickname)        return;
@@ -586,6 +587,16 @@ void jb_room_join(const char *room, const char *nickname)
                  nickname);
     g_free(roomid);
     return;
+  }
+
+  room_elt = roster_find(room, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_ROOM);
+  // Add room if it doesn't already exist
+  if (!room_elt)
+    room_elt = roster_add_user(room, NULL, NULL, ROSTER_TYPE_ROOM, sub_none);
+  // If insideroom is TRUE, this is a nickname change and we don't care here
+  if (!buddy_getinsideroom(room_elt->data)) {
+    // We're trying to enter a room
+    buddy_setnickname(room_elt->data, nickname);
   }
 
   // Send the XML request
@@ -902,7 +913,7 @@ static void statehandler(jconn conn, int state)
   previous_state = state;
 }
 
-static time_t xml_get_timestamp(xmlnode xmldata)
+inline static xmlnode xml_get_xmlns(xmlnode xmldata, const char *xmlns)
 {
   xmlnode x;
   char *p;
@@ -910,10 +921,19 @@ static time_t xml_get_timestamp(xmlnode xmldata)
   x = xmlnode_get_firstchild(xmldata);
   for ( ; x; x = xmlnode_get_nextsibling(x)) {
     if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
-      if ((p = xmlnode_get_attrib(x, "xmlns")) && !strcmp(p, NS_DELAY)) {
+      if ((p = xmlnode_get_attrib(x, "xmlns")) && !strcmp(p, xmlns)) {
         break;
     }
   }
+  return x;
+}
+
+static time_t xml_get_timestamp(xmlnode xmldata)
+{
+  xmlnode x;
+  char *p;
+
+  x = xml_get_xmlns(xmldata, NS_DELAY);
   if ((p = xmlnode_get_attrib(x, "stamp")) != NULL)
     return from_iso8601(p, 1);
   return 0;
@@ -939,7 +959,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
 
   room_elt = roster_find(roomjid, jidsearch, 0);
   if (!room_elt) {
-    // Add room if it doesn't already exist
+    // Add room if it doesn't already exist  FIXME shouldn't happen!
     room_elt = roster_add_user(roomjid, NULL, NULL, ROSTER_TYPE_ROOM, sub_none);
   } else {
     // Make sure this is a room (it can be a conversion user->room)
@@ -1029,6 +1049,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
 
     if (m && !strcmp(rname, m)) {
       we_left = TRUE; // _We_ have left! (kicked, banned, etc.)
+      buddy_setinsideroom(room_elt->data, FALSE);
       buddy_setnickname(room_elt->data, NULL);
       buddy_del_all_resources(room_elt->data);
       buddy_settopic(room_elt->data, NULL);
@@ -1105,13 +1126,37 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   } else if (buddy_getstatus(room_elt->data, rname) == offline &&
              ust != offline) {
     gchar *mbuf;
-    if (buddy_getnickname(room_elt->data) == NULL) {
-      buddy_setnickname(room_elt->data, rname);
+    if (!buddy_getinsideroom(room_elt->data)) {
+      const char *ournick = buddy_getnickname(room_elt->data);
+      // We weren't inside the room yet.  Now we are.
+      // However, this could be a presence packet from another room member
+
+      if (!ournick) {
+        // I think it shouldn't happen, but let's put a warning for a while...
+        scr_LogPrint(LPRINT_LOGNORM, "MUC ERR: you have no nickname, "
+                     "please send a bug report!");
+        ournick = "";
+        buddylist_build();
+        scr_DrawRoster();
+        return;
+      }
+
+      buddy_setinsideroom(room_elt->data, TRUE);
       // Add a message to the tracelog file
-      mbuf = g_strdup_printf("You have joined %s as \"%s\"", roomjid, rname);
+      mbuf = g_strdup_printf("You have joined %s as \"%s\"", roomjid, ournick);
       scr_LogPrint(LPRINT_LOG, "%s", mbuf);
       g_free(mbuf);
-      mbuf = g_strdup_printf("You have joined as \"%s\"", rname);
+      mbuf = g_strdup_printf("You have joined as \"%s\"", ournick);
+
+      // The 1st presence message could be for another room member
+      if (strcmp(ournick, rname)) {
+        // Display current mbuf and create a new message for the member
+        scr_WriteIncomingMessage(roomjid, mbuf, usttime,
+                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+        if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
+        g_free(mbuf);
+        mbuf = g_strdup_printf("%s has joined", rname);
+      }
     } else {
       mbuf = g_strdup_printf("%s has joined", rname);
     }
@@ -1140,17 +1185,38 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
 {
   char *p, *r;
   char *ustmsg;
-  xmlnode x;
   const char *rname;
   enum imstatus ust;
   char bpprio;
   time_t timestamp = 0;
+  xmlnode muc_packet;
+
+  rname = strchr(from, '/');
+  if (rname) rname++;
 
   r = jidtodisp(from);
+
+  // Check for MUC presence packet
+  muc_packet = xml_get_xmlns(xmldata, "http://jabber.org/protocol/muc#user");
+
   if (type && !strcmp(type, TMSG_ERROR)) {
+    xmlnode x;
     scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", r);
     if ((x = xmlnode_get_tag(xmldata, TMSG_ERROR)) != NULL)
       display_server_error(x);
+
+    // Let's check it isn't a nickname conflict.
+    // XXX Note: We should handle the <conflict/> string condition.
+    if ((p = xmlnode_get_attrib(x, "code")) != NULL) {
+      if (atoi(p) == 409) {
+        // 409 = conlict (nickname is in use or registered by another user)
+        // If we are not inside this room, we should reset the nickname
+        GSList *room_elt = roster_find(r, jidsearch, 0);
+        if (room_elt && !buddy_getinsideroom(room_elt->data))
+          buddy_setnickname(room_elt->data, NULL);
+      }
+    }
+
     g_free(r);
     return;
   }
@@ -1181,24 +1247,13 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
                    from, p);
   }
 
-  rname = strchr(from, '/');
-  if (rname) rname++;
-
   // Timestamp?
   timestamp = xml_get_timestamp(xmldata);
 
-  // Check for MUC presence packet
-  // There can be multiple <x> tags!!
-  x = xmlnode_get_firstchild(xmldata);
-  for ( ; x; x = xmlnode_get_nextsibling(x)) {
-    if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
-      if ((p = xmlnode_get_attrib(x, "xmlns")) &&
-          !strcmp(p, "http://jabber.org/protocol/muc#user"))
-        break;
-  }
-  if (x) {
+  if (muc_packet) {
     // This is a MUC presence message
-    handle_presence_muc(from, x, r, rname, ust, ustmsg, timestamp, bpprio);
+    handle_presence_muc(from, muc_packet, r, rname,
+                        ust, ustmsg, timestamp, bpprio);
   } else {
     // Not a MUC message, so this is a regular buddy...
     // Call hk_statuschange() if status has changed or if the
@@ -1269,17 +1324,10 @@ static void handle_packet_message(jconn conn, char *type, char *from,
     }
   }
 
-  /* there can be multiple <x> tags. we're looking for one with
-     xmlns = jabber:x:encrypted */
-
-  x = xmlnode_get_firstchild(xmldata);
-  for ( ; x; x = xmlnode_get_nextsibling(x)) {
-    if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
-      if ((p = xmlnode_get_attrib(x, "xmlns")) && !strcmp(p, NS_ENCRYPTED))
-        if ((p = xmlnode_get_data(x)) != NULL) {
-          enc = p;
-          break;
-        }
+  // Not used yet...
+  x = xml_get_xmlns(xmldata, NS_ENCRYPTED);
+  if (x && (p = xmlnode_get_data(x)) != NULL) {
+    enc = p;
   }
 
   // Timestamp?

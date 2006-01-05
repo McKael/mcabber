@@ -1126,20 +1126,23 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   } else if (buddy_getstatus(room_elt->data, rname) == offline &&
              ust != offline) {
     gchar *mbuf;
+    const char *ournick = buddy_getnickname(room_elt->data);
+
+    if (!ournick) {
+      // I think it shouldn't happen, but let's put a warning for a while...
+      mbuf = g_strdup_printf("MUC ERR: you have no nickname, "
+                             "please send a bug report!");
+      scr_LogPrint(LPRINT_LOGNORM, mbuf);
+      scr_WriteIncomingMessage(roomjid, mbuf, 0, HBB_PREFIX_INFO);
+      g_free(mbuf);
+      buddylist_build();
+      scr_DrawRoster();
+      return;
+    }
+
     if (!buddy_getinsideroom(room_elt->data)) {
-      const char *ournick = buddy_getnickname(room_elt->data);
       // We weren't inside the room yet.  Now we are.
       // However, this could be a presence packet from another room member
-
-      if (!ournick) {
-        // I think it shouldn't happen, but let's put a warning for a while...
-        scr_LogPrint(LPRINT_LOGNORM, "MUC ERR: you have no nickname, "
-                     "please send a bug report!");
-        ournick = "";
-        buddylist_build();
-        scr_DrawRoster();
-        return;
-      }
 
       buddy_setinsideroom(room_elt->data, TRUE);
       // Add a message to the tracelog file
@@ -1158,12 +1161,18 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
         mbuf = g_strdup_printf("%s has joined", rname);
       }
     } else {
-      mbuf = g_strdup_printf("%s has joined", rname);
+      if (strcmp(ournick, rname))
+        mbuf = g_strdup_printf("%s has joined", rname);
+      else
+        mbuf = NULL;
     }
-    scr_WriteIncomingMessage(roomjid, mbuf, usttime,
-                             HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-    if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
-    g_free(mbuf);
+
+    if (mbuf) {
+      scr_WriteIncomingMessage(roomjid, mbuf, usttime,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+      if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
+      g_free(mbuf);
+    }
   }
 
   // Update room member status

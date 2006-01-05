@@ -52,8 +52,11 @@ inline void hk_message_in(const char *jid, const char *resname,
     if (!resname) {
       message_flags = HBB_PREFIX_INFO;
       resname = "";
+      bmsg = g_strdup_printf("~ %s", msg);
+    } else {
+      bmsg = g_strdup_printf("<%s> %s", resname, msg);
     }
-    wmsg = bmsg = g_strdup_printf("<%s> %s", resname, msg);
+    wmsg = bmsg;
     if (!strncmp(msg, "/me ", 4))
       wmsg = mmsg = g_strdup_printf("*%s %s", resname, msg+4);
   } else {

@@ -350,8 +350,8 @@ int process_line(char *line)
       return 0;
     }
     if (current_buddy) {
+      // Enter chat mode
       scr_set_chatmode(TRUE);
-      buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
       scr_ShowBuddyWindow();
     }
     return 0;
@@ -949,6 +949,10 @@ static void do_info(char *arg)
     GSList *resources;
     char *bstr = "unknown";
 
+    // Enter chat mode
+    scr_set_chatmode(TRUE);
+    scr_ShowBuddyWindow();
+
     snprintf(buffer, 4095, "jid:  <%s>", jid);
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
     if (name) {
@@ -1018,6 +1022,10 @@ static void room_names(gpointer bud, char *arg)
     scr_LogPrint(LPRINT_NORMAL, "Unknown parameter");
     return;
   }
+
+  // Enter chat mode
+  scr_set_chatmode(TRUE);
+  scr_ShowBuddyWindow();
 
   jid    = buddy_getjid(bud);
 
@@ -1597,6 +1605,10 @@ static void room_whois(gpointer bud, char *arg)
     free_arg_lst(paramlst);
     return;
   }
+
+  // Enter chat mode
+  scr_set_chatmode(TRUE);
+  scr_ShowBuddyWindow();
 
   jid = buddy_getjid(bud);
   rstatus = buddy_getstatus(bud, nick);

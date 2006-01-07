@@ -35,6 +35,7 @@ bool scr_BuddyBufferExists(const char *jid);
 inline void scr_set_chatmode(int enable);
 inline void scr_set_multimode(int enable);
 inline int  scr_get_multimode();
+void scr_setmsgflag_if_needed(const char *jid);
 void scr_append_multiline(const char *line);
 inline const char *scr_get_multiline();
 

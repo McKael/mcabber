@@ -1149,6 +1149,8 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       // However, this could be a presence packet from another room member
 
       buddy_setinsideroom(room_elt->data, TRUE);
+      // Set the message flag unless we're already in the room buffer window
+      scr_setmsgflag_if_needed(roomjid);
       // Add a message to the tracelog file
       mbuf = g_strdup_printf("You have joined %s as \"%s\"", roomjid, ournick);
       scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);

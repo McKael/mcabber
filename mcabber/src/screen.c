@@ -1241,6 +1241,15 @@ inline int scr_get_multimode()
   return multimode;
 }
 
+//  scr_setmsgflag_if_needed(jid)
+// Set the message flag unless we're already in the jid buffer window
+void scr_setmsgflag_if_needed(const char *jid)
+{
+  if (!chatmode || !current_buddy ||
+      strcmp(jid, buddy_getjid(BUDDATA(current_buddy))))
+    roster_msg_setflag(jid, TRUE);
+}
+
 //  scr_set_multimode()
 // Public function to (un)set multimode...
 // Convention:

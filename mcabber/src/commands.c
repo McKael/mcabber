@@ -598,7 +598,7 @@ static void do_del(char *arg)
   if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_ROOM) {
     // This is a chatroom
     // If there are resources, we haven't left
-    if (buddy_isresource(BUDDATA(current_buddy))) {
+    if (buddy_getinsideroom(BUDDATA(current_buddy))) {
       scr_LogPrint(LPRINT_NORMAL, "You haven't left this room!");
       return;
     }
@@ -1541,7 +1541,7 @@ static void room_remove(gpointer bud, char *arg)
   }
 
   // Quick check: if there are resources, we haven't left
-  if (buddy_isresource(bud)) {
+  if (buddy_getinsideroom(bud)) {
     scr_LogPrint(LPRINT_NORMAL, "You haven't left this room!");
     return;
   }

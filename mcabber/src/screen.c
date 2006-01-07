@@ -786,7 +786,7 @@ void scr_DrawRoster(void)
     }
 
     if (ismuc) {
-      if (buddy_isresource(BUDDATA(buddy)))
+      if (buddy_getinsideroom(BUDDATA(buddy)))
         status = 'C';
       else
         status = 'x';

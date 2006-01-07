@@ -1004,6 +1004,7 @@ GSList *buddy_getresources(gpointer rosterdata)
   return reslist;
 }
 
+/*
 //  buddy_isresource(roster_data)
 // Return true if there is at least one resource
 // (which means, for a room, that it isn't empty)
@@ -1016,6 +1017,7 @@ int buddy_isresource(gpointer rosterdata)
     return TRUE;
   return FALSE;
 }
+*/
 
 //  buddy_resource_setname(roster_data, oldname, newname)
 // Useful for nickname change in a MUC room

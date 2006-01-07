@@ -240,7 +240,7 @@ static void roompresence(gpointer room, void *presencedata)
   char *to;
   struct T_presence *pres = presencedata;
 
-  if (!buddy_isresource(room))
+  if (!buddy_getinsideroom(room))
     return;
 
   jid = buddy_getjid(room);

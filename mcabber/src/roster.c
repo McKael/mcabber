@@ -823,7 +823,7 @@ void buddy_setnickname(gpointer rosterdata, const char *newname)
 {
   roster *roster_usr = rosterdata;
 
-  if (!(roster_usr->type & ROSTER_TYPE_ROOM)) return;
+  if (!(roster_usr->type & ROSTER_TYPE_ROOM)) return; // XXX Error message?
 
   if (roster_usr->nickname) {
     g_free((gchar*)roster_usr->nickname);

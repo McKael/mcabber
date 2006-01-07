@@ -591,8 +591,12 @@ void jb_room_join(const char *room, const char *nickname)
 
   room_elt = roster_find(room, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_ROOM);
   // Add room if it doesn't already exist
-  if (!room_elt)
+  if (!room_elt) {
     room_elt = roster_add_user(room, NULL, NULL, ROSTER_TYPE_ROOM, sub_none);
+  } else {
+    // Make sure this is a room (it can be a conversion user->room)
+    buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
+  }
   // If insideroom is TRUE, this is a nickname change and we don't care here
   if (!buddy_getinsideroom(room_elt->data)) {
     // We're trying to enter a room

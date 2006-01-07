@@ -50,7 +50,7 @@ inline void hk_message_in(const char *jid, const char *resname,
     is_groupchat = TRUE;
     log_muc_conf = settings_opt_get_int("log_muc_conf");
     if (!resname) {
-      message_flags = HBB_PREFIX_INFO;
+      message_flags = HBB_PREFIX_INFO | HBB_PREFIX_NOFLAG;
       resname = "";
       bmsg = g_strdup_printf("~ %s", msg);
     } else {

@@ -1326,6 +1326,8 @@ static void room_join(gpointer bud, char *arg)
   mc_strtolower(roomname);
   jb_room_join(roomname, nick);
 
+  scr_LogPrint(LPRINT_LOGNORM, "Sent a join request to <%s>", roomname);
+
   buddylist_build();
   update_roster = TRUE;
   free_arg_lst(paramlst);

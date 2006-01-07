@@ -1151,7 +1151,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       buddy_setinsideroom(room_elt->data, TRUE);
       // Add a message to the tracelog file
       mbuf = g_strdup_printf("You have joined %s as \"%s\"", roomjid, ournick);
-      scr_LogPrint(LPRINT_LOG, "%s", mbuf);
+      scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
       g_free(mbuf);
       mbuf = g_strdup_printf("You have joined as \"%s\"", ournick);
 

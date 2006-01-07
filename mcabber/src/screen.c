@@ -162,7 +162,7 @@ static void ParseColors(void)
     NULL
   };
 
-  char *tmp = malloc(1024);
+  char *tmp = g_new(char, 512);
   const char *color;
   const char *background   = settings_opt_get("color_background");
   const char *backselected = settings_opt_get("color_backselected");
@@ -173,7 +173,7 @@ static void ParseColors(void)
   if (!backselected) backselected = "cyan";
 
   while (colors[i]) {
-    sprintf(tmp, "color_%s", colors[i]);
+    snprintf(tmp, 512, "color_%s", colors[i]);
     color = settings_opt_get(tmp);
 
     switch (i + 1) {
@@ -272,7 +272,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     }
   }
   if (flag & (LPRINT_LOG|LPRINT_DEBUG)) {
-    char *buffer2 = g_new(char, 5184);
+    char *buffer2 = g_try_new(char, 5184);
 
     if (buffer2) {
       strftime(buffer2, 23, "[%Y-%m-%d %H:%M:%S] ", localtime(&timestamp));
@@ -284,7 +284,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     strcat(buffer2, "\n");
     ut_WriteLog(flag, buffer2);
     if (buffer2 != buffer)
-      free(buffer2);
+      g_free(buffer2);
   }
   g_free(buffer);
 }
@@ -297,9 +297,7 @@ static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   int cols;
   window_entry_t *tmp;
 
-  do {
-    tmp = calloc(1, sizeof(window_entry_t));
-  } while (!tmp);
+  tmp = g_new0(window_entry_t, 1);
 
   // Dimensions
   x = ROSTER_WIDTH;
@@ -314,8 +312,7 @@ static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   }
   wbkgd(tmp->win, COLOR_PAIR(COLOR_GENERAL));
   tmp->panel = new_panel(tmp->win);
-  tmp->name = (char *) calloc(1, 96);
-  strncpy(tmp->name, title, 96);
+  tmp->name = g_strdup(title);
 
   if (!dont_show) {
     currentWindow = tmp;

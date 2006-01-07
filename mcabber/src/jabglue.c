@@ -1387,8 +1387,7 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
       if (msg_noutf8) {
         buf = g_strdup_printf("<%s> said: %s", from, msg_noutf8);
         scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
-        msg = strchr(buf, '\n');
-        if (msg) *msg = 0;
+        replace_nl_with_dots(buf);
         scr_LogPrint(LPRINT_LOGNORM, buf);
         g_free(buf);
         g_free(msg_noutf8);

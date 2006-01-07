@@ -27,6 +27,8 @@ void strip_arg_special_chars(char *s);
 char **split_arg(const char *arg, unsigned int n, int dontstriplast);
 void free_arg_lst(char **arglst);
 
+void replace_nl_with_dots(char *bufstr);
+
 #endif
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

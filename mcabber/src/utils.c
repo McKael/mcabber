@@ -446,4 +446,17 @@ void free_arg_lst(char **arglst)
   g_free(arglst);
 }
 
+//  replace_nl_with_dots(bufstr)
+// Replace '\n' with "(...)" (or with a NUL if the string is too short)
+void replace_nl_with_dots(char *bufstr)
+{
+  char *p = strchr(bufstr, '\n');
+  if (p) {
+    if (strlen(p) >= 5)
+      strcpy(p, "(...)");
+    else
+      *p = 0;
+  }
+}
+
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

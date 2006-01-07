@@ -178,7 +178,7 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
   int st_in_buf;
   enum imstatus oldstat;
   char *bn = NULL;
-  char *logsmsg, *p;
+  char *logsmsg;
   const char *rn = (resname ? resname : "");
 
   st_in_buf = settings_opt_get_int("show_status_in_buffer");
@@ -200,8 +200,7 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
   }
 
   logsmsg = g_strdup(status_msg ? status_msg : "");
-  if ((p = strchr(logsmsg, '\n')) != NULL)
-    *p = 0;
+  replace_nl_with_dots(logsmsg);
 
   oldstat = roster_getstatus(jid, resname);
   scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] %s %s",

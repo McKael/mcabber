@@ -1476,8 +1476,15 @@ static void room_kick(gpointer bud, char *arg)
 static void room_leave(gpointer bud, char *arg)
 {
   gchar *roomid, *utf8_nickname;
+  const char *nickname;
 
-  utf8_nickname = to_utf8(buddy_getnickname(bud));
+  nickname = buddy_getnickname(bud);
+  if (!nickname) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not in this room");
+    return;
+  }
+
+  utf8_nickname = to_utf8(nickname);
   roomid = g_strdup_printf("%s/%s", buddy_getjid(bud), utf8_nickname);
   jb_setstatus(offline, roomid, arg);
   g_free(utf8_nickname);
@@ -1486,6 +1493,11 @@ static void room_leave(gpointer bud, char *arg)
 
 static void room_nick(gpointer bud, char *arg)
 {
+  if (!buddy_getinsideroom(bud)) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not in this room");
+    return;
+  }
+
   if (!arg || !*arg) {
     const char *nick = buddy_getnickname(bud);
     if (nick)
@@ -1543,6 +1555,11 @@ static void room_remove(gpointer bud, char *arg)
 static void room_topic(gpointer bud, char *arg)
 {
   gchar *msg;
+
+  if (!buddy_getinsideroom(bud)) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not in this room");
+    return;
+  }
 
   // If no parameter is given, display the current topic
   if (!*arg) {

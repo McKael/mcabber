@@ -272,19 +272,13 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     }
   }
   if (flag & (LPRINT_LOG|LPRINT_DEBUG)) {
-    char *buffer2 = g_try_new(char, 5184);
+    char *buffer2 = g_new(char, 5184);
 
-    if (buffer2) {
-      strftime(buffer2, 23, "[%Y-%m-%d %H:%M:%S] ", localtime(&timestamp));
-      strcat(buffer2, b2);
-    } else {
-      buffer2 = buffer;
-    }
-
+    strftime(buffer2, 23, "[%Y-%m-%d %H:%M:%S] ", localtime(&timestamp));
+    strcat(buffer2, b2);
     strcat(buffer2, "\n");
     ut_WriteLog(flag, buffer2);
-    if (buffer2 != buffer)
-      g_free(buffer2);
+    g_free(buffer2);
   }
   g_free(buffer);
 }

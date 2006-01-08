@@ -92,8 +92,8 @@ COMMANDS
 /add [jid [nickname]]::
         Add the "jid" Jabber user to our roster (default group), and send a
         notification request to this buddy.  If no nickname is specified, the
-        jid is used.  If no jid is provided (or jid is empty ""), the
-        current buddy is used.
+        jid is used.  If no jid (or an empty string "") is provided or if jid
+        is ".", the current buddy is used.
 
 /alias name = command line::
         Add "name" as an alias for "command line". +
@@ -200,7 +200,7 @@ COMMANDS
 /room invite|kick|ban|role|affil::
         The 'room' command handles Multi-User Chat room actions.
 
-        'join' room nick;;      join "room", using "nick" as nickname
+        'join' room [nick];;    join "room", using "nick" as nickname.  If no nickname is provided, the "nickname" option value is used (see sample configuration file)
         'leave' [message];;     leave the current room
         'names';;               display members of the current room
         'nick' nick;;           change your nickname in the current room
@@ -254,6 +254,7 @@ COMMANDS
 
 /status_to jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]::
         Send the requested status to the specified Jabber user. +
+        If the specified jid is ".", the current buddy is used. +
         Note: this status will be overridden by subsequent "/status" commands.
         If you are using the auto-away feature, the status will overridden
         too. +

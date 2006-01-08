@@ -121,7 +121,7 @@ Ctrl\-q		Jump to the next unread message
 
 .TP
 \fB/add\fR [jid [nickname]]
-Add the "jid" Jabber user to our roster (default group), and send a notification request to this buddy\&. If no nickname is specified, the jid is used\&. If no jid is provided (or jid is empty ""), the current buddy is used\&.
+Add the "jid" Jabber user to our roster (default group), and send a notification request to this buddy\&. If no nickname is specified, the jid is used\&. If no jid (or an empty string "") is provided or if jid is "\&.", the current buddy is used\&.
 
 .TP
 \fB/alias\fR name = command line
@@ -224,7 +224,7 @@ Rename current buddy to the given nickname\&. This command does not work for gro
 \fB/room\fR
 The room command handles Multi\-User Chat room actions\&.
 
- \fBjoin\fR room nick     	join "room", using "nick" as nickname
+ \fBjoin\fR room nick     	join "room", using "nick" as nickname\&. If no nickname is provided, the "nickname" option value is used (see sample configuration file)
  \fBleave\fR [message]    	leave the current room
  \fBnames\fR              	display members of the current room
  \fBnick\fR nick          	change your nickname in the current room
@@ -276,6 +276,8 @@ If a status message is specified, it will overrride the message* variables (thes
 .TP
 \fB/status_to\fR jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
 Send the requested status to the specified Jabber user\&.
+
+If the specified jid is "\&.", the current buddy is used\&.
 
 Note: this status will be overridden by subsequent "/status" commands\&. If you are using the auto\-away feature, the status will overridden too\&.
 

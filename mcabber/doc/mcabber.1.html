@@ -220,8 +220,8 @@ Jump to the next unread message
 <dd>
         Add the "jid" Jabber user to our roster (default group), and send a
         notification request to this buddy.  If no nickname is specified, the
-        jid is used.  If no jid is provided (or jid is empty ""), the
-        current buddy is used.
+        jid is used.  If no jid (or an empty string "") is provided or if jid
+        is ".", the current buddy is used.
 </dd>
 <dt><b>
 /alias name = command line
@@ -524,10 +524,10 @@ leave multi-line mode without sending the message
 <table class="hlist">
 <tr valign="top">
 <td>
-<b>join</b> room nick
+<b>join</b> room [nick]
 </td>
 <td>
-join "room", using "nick" as nickname
+join "room", using "nick" as nickname.  If no nickname is provided, the "nickname" option value is used (see sample configuration file)
 </td>
 </tr>
 <tr valign="top">
@@ -779,6 +779,7 @@ jump to the next unread message
 </b></dt>
 <dd>
         Send the requested status to the specified Jabber user.<br />
+        If the specified jid is ".", the current buddy is used.<br />
         Note: this status will be overridden by subsequent "/status" commands.
         If you are using the auto-away feature, the status will overridden
         too.<br />
@@ -814,7 +815,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.7.3-dev<br />
-Last updated 28-Dec-2005 11:02:09 CEST
+Last updated 08-Jan-2006 22:19:10 CEST
 </p>
 </div>
 </div>

@@ -1,6 +1,19 @@
 mcabber (0.7.3-dev)
 
- * 
+ * Fix a segfault when a resource contains non-representable chars
+ * Fix an UTF-8 encoding issue when joining a room
+ * Fix an eventcmd issue
+ * Chat Mode is automatically enabled when some commands are entered
+   ("/info", "/room names", "/room whois")
+ * Messages can be sent to agents
+ * MUC: server messages do not set the new_message flag anymore
+ * New "load_muc_logs" option, logfiles are not loaded for MUC room by default
+ * New "nickname" option, to set the default nickname in chatrooms
+ * Add "/msay send_to" command
+ * "/add" and "/status_to" can be used with special jid "." for the current
+   selected buddy
+ * Lots of misc. bugfixes
+ * Documentation updates
 
  -- Mikael, ?
 

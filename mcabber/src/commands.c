@@ -1303,6 +1303,7 @@ static void room_join(gpointer bud, char *arg)
 {
   char **paramlst;
   char *roomname, *nick;
+  char *tmpnick = NULL;
 
   paramlst = split_arg(arg, 2, 0); // roomid, nickname
   roomname = *paramlst;
@@ -1315,6 +1316,21 @@ static void room_join(gpointer bud, char *arg)
     return;
   }
 
+  // If no nickname is provided with the /join command,
+  // we try the "nickname" option, then the username part of the jid.
+  if (!nick || !*nick) {
+    nick = (char*)settings_opt_get("nickname");
+    if (!nick) {
+      nick = (char*)settings_opt_get("username");
+      if (nick && (strchr(nick, '@') > nick)) {
+        char *p;
+        nick = tmpnick = g_strdup(nick);
+        p = strchr(nick, '@');
+        *p = 0;
+      }
+    }
+  }
+  // If we still have no nickname, give up
   if (!nick || !*nick) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
     free_arg_lst(paramlst);
@@ -1331,6 +1347,8 @@ static void room_join(gpointer bud, char *arg)
   buddylist_build();
   update_roster = TRUE;
   free_arg_lst(paramlst);
+  if (tmpnick)
+    g_free(tmpnick);
 }
 
 static void room_invite(gpointer bud, char *arg)

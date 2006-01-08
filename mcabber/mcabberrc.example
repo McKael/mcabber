@@ -23,6 +23,12 @@ set ssl = 0
 set resource = mcabber
 #set priority = 3
 
+# Conference nickname
+# This nickname is used when joining a room, when no nick is explicitly
+# specified by the user.  Note that when the nickname option is not set,
+# the username variable can be used.
+#set nickname = Abitbol
+
 # Proxy
 # mcabber can use a proxy if it supports the CONNECT method
 # The proxy_user/proxy_pass variables are optional.

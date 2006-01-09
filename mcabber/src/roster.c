@@ -80,9 +80,13 @@ typedef struct {
 static int hide_offline_buddies;
 static GSList *groups;
 static GSList *unread_list;
+static GHashTable *unread_jids;
 GList *buddylist;
 GList *current_buddy;
 GList *alternate_buddy;
+
+void unread_jid_add(const char *jid);
+int  unread_jid_del(const char *jid);
 
 
 /* ### Resources functions ### */
@@ -313,6 +317,11 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
     roster_usr->name = g_strdup(str);
     g_free(str);
   }
+  if (unread_jid_del(jid)) {
+    roster_usr->flags |= ROSTER_FLAG_MSG;
+    // Append the roster_usr to unread_list
+    unread_list = g_slist_append(unread_list, roster_usr);
+  }
   roster_usr->type = type;
   roster_usr->subscription = esub;
   roster_usr->list = slist;    // (my_group SList element)
@@ -339,6 +348,9 @@ void roster_del_user(const char *jid)
   // Remove (if present) from unread messages list
   node = g_slist_find(unread_list, roster_usr);
   if (node) unread_list = g_slist_delete_link(unread_list, node);
+  // If there is a pending unread message, keep track of it
+  if (roster_usr->flags & ROSTER_FLAG_MSG)
+    unread_jid_add(roster_usr->jid);
 
   // Let's free memory (jid, name, status message)
   if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
@@ -379,6 +391,9 @@ void roster_free(void)
     // Walk through this group users
     while (sl_usr) {
       roster *roster_usr = (roster*)sl_usr->data;
+      // If there is a pending unread message, keep track of it
+      if (roster_usr->flags & ROSTER_FLAG_MSG)
+        unread_jid_add(roster_usr->jid);
       // Free name and jid
       if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
       if (roster_usr->name)       g_free((gchar*)roster_usr->name);
@@ -1186,6 +1201,37 @@ gpointer unread_msg(gpointer rosterdata)
   if (next_unread)
     return next_unread->data;
   return unread_list->data;
+}
+
+
+/* ### "unread_jids" functions ###
+ *
+ * The unread_jids hash table is used to keep track of the buddies with
+ * unread messages when a disconnection occurs.
+ * When removing a buddy with an unread message from the roster, the
+ * jid should be added to the unread_jids table.  When adding a buddy to
+ * the roster, we check if (s)he had a pending unread message.
+ */
+
+//  unread_jid_add(jid)
+// Add jid to the unread_jids hash table
+void unread_jid_add(const char *jid)
+{
+  if (!unread_jids) {
+    // Initialize unread_jids hash table
+    unread_jids = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+  }
+  // The 2nd unread_jids is an arbitrary non-null pointer:
+  g_hash_table_insert(unread_jids, g_strdup(jid), unread_jids);
+}
+
+//  unread_jid_del(jid)
+// Return TRUE if jid is found in the table (and remove it), FALSE if not
+int unread_jid_del(const char *jid)
+{
+  if (!unread_jids)
+    return FALSE;
+  return g_hash_table_remove(unread_jids, jid);
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

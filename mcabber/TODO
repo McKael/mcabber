@@ -10,7 +10,6 @@ TODO:
 
 * UTF-8 support (Can somebody help me?)
 * Implement automatic reconnection after network failure
-  Note: "New message" flags are currently lost on connection failure
 * Presence notification is always accepted.  We should ask...
 * Display status / chat mode (a status line would be great)
 * Pending message flag is not displayed when buddy is outside Contact window,
@@ -25,7 +24,9 @@ TODO:
 * Persistent room in the roster (join every connect)
 * MUC: advanced settings for room creation
 * MUC: join password-protected room
-* JEP-0022: Message events (composing, etc.)
+* MUC: display roles of room members
+* JEP-0022/0085: Message events / chat states (composing, etc.)
+* Add a way to lock the buffer scrolling
 
 * File transfer? :)
 

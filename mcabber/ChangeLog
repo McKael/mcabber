@@ -6,6 +6,7 @@ mcabber (0.7.3-dev)
  * Chat Mode is automatically enabled when some commands are entered
    ("/info", "/room names", "/room whois")
  * Messages can be sent to agents
+ * The unread_message flags are not reset when the server connection is lost
  * MUC: server messages do not set the new_message flag anymore
  * New "load_muc_logs" option, logfiles are not loaded for MUC room by default
  * New "nickname" option, to set the default nickname in chatrooms

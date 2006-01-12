@@ -1,4 +1,4 @@
-mcabber (0.7.3-dev)
+mcabber (0.7.3)
 
  * Fix a segfault when a resource contains non-representable chars
  * Fix an UTF-8 encoding issue when joining a room
@@ -16,7 +16,7 @@ mcabber (0.7.3-dev)
  * Lots of misc. bugfixes
  * Documentation updates
 
- -- Mikael, ?
+ -- Mikael, 2006-01-12
 
 mcabber (0.7.2)
 

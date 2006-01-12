@@ -27,6 +27,7 @@ TODO:
 * MUC: display roles of room members
 * JEP-0022/0085: Message events / chat states (composing, etc.)
 * Add a way to lock the buffer scrolling
+* "Offline roster" (when disconnected)
 
 * File transfer? :)
 

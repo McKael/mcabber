@@ -255,8 +255,11 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
 GSList *roster_add_group(const char *name)
 {
   roster *roster_grp;
+  GSList *p_group;
+
   // #1 Check name doesn't already exist
-  if (!roster_find(name, namesearch, ROSTER_TYPE_GROUP)) {
+  p_group = roster_find(name, namesearch, ROSTER_TYPE_GROUP);
+  if (!p_group) {
     // #2 Create the group node
     roster_grp = g_new0(roster, 1);
     roster_grp->name = g_strdup(name);
@@ -264,8 +267,10 @@ GSList *roster_add_group(const char *name)
     // #3 Insert (sorted)
     groups = g_slist_insert_sorted(groups, roster_grp,
             (GCompareFunc)&roster_compare_name);
+    p_group = roster_find(name, namesearch, ROSTER_TYPE_GROUP);
   }
-  return roster_find(name, namesearch, ROSTER_TYPE_GROUP);
+  return p_group;
+
 }
 
 // Returns a pointer to the new user, or existing user with that name

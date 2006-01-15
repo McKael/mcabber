@@ -207,6 +207,13 @@ static gint roster_compare_jid_type(roster *a, roster *b) {
   return strcasecmp(a->jid, b->jid);
 }
 
+// Comparison function used to search in the roster (compares names and types)
+static gint roster_compare_name_type(roster *a, roster *b) {
+  if (! (a->type & b->type))
+    return -1; // arbitrary (but should be != 0, of course)
+  return strcasecmp(a->name, b->name);
+}
+
 // Comparison function used to sort the roster (by name)
 static gint roster_compare_name(roster *a, roster *b) {
   return strcasecmp(a->name, b->name);
@@ -234,7 +241,7 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
     comp = (GCompareFunc)&roster_compare_jid_type;
   } else if (type == namesearch) {
     sample.name = (gchar*)jidname;
-    comp = (GCompareFunc)&roster_compare_name;
+    comp = (GCompareFunc)&roster_compare_name_type;
   } else
     return NULL;    // should not happen
 

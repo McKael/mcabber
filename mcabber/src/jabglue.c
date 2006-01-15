@@ -1442,6 +1442,11 @@ static void packethandler(jconn conn, jpacket packet)
   jb_reset_keepalive(); // reset keepalive timeout
   jpacket_reset(packet);
 
+  if (!packet->type) {
+    scr_LogPrint(LPRINT_LOG, "Packet type = 0");
+    return;
+  }
+
   p = xmlnode_get_attrib(packet->x, "type");
   if (p) type = p;
 

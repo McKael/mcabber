@@ -1,8 +1,9 @@
-mcabber (0.7.4-dev)
+mcabber (0.7.4)
 
- * 
+ * Fix a segfault when reconnecting to the server or rejoining a room
+ * Fix a segfault when a group and a contact have the same name
 
- -- Mikael, ?
+ -- Mikael, 2006-01-17
 
 mcabber (0.7.3)
 

@@ -1,3 +1,9 @@
+mcabber (0.7.5-dev)
+
+ * 
+
+ -- Mikael, ?
+
 mcabber (0.7.4)
 
  * Fix a segfault when reconnecting to the server or rejoining a room

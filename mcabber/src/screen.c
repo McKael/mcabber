@@ -242,6 +242,11 @@ void scr_TerminateCurses(void)
   return;
 }
 
+inline void scr_Beep(void)
+{
+  beep();
+}
+
 //  scr_LogPrint(...)
 // Display a message in the log window.
 void scr_LogPrint(unsigned int flag, const char *fmt, ...)

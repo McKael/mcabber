@@ -39,6 +39,7 @@ void scr_setmsgflag_if_needed(const char *jid);
 void scr_append_multiline(const char *line);
 inline const char *scr_get_multiline();
 
+inline void scr_Beep(void);
 int scr_Getch(void);
 
 int process_key(int);

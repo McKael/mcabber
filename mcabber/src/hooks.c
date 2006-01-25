@@ -121,6 +121,10 @@ inline void hk_message_in(const char *jid, const char *resname,
   if ((is_groupchat && !timestamp) || !is_groupchat)
     hk_ext_cmd(jid, (is_groupchat ? 'G' : 'M'), 'R', wmsg);
 
+  // Beep, if enabled
+  if (settings_opt_get_int("beep_on_message"))
+    scr_Beep();
+
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set
   if (new_guy ||

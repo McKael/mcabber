@@ -70,6 +70,12 @@ set resource = mcabber
 # your OS version
 #set iq_version_hide_os = 0
 
+# Beep
+# Set beep_on_message to 1 if you want mcabber to beep when receiving
+# a new message (except in chatrooms).  If you want a more sophisticated
+# system (e.g. play a sound), have a look at 'events_command' below.
+#set beep_on_message = 0
+
 # External command for events
 # You can specify a script or process to be launched when an event occurs.
 #

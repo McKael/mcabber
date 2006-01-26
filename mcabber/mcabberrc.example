@@ -97,6 +97,12 @@ set resource = mcabber
 #set event_log_files = 0
 #set event_log_dir = /home/mikael/.mcabber/event_files
 
+# External command status check
+# You can request mcabber to inspect exit status value after each
+# events_command.  If this option is set, mcabber will beep if the
+# exit value is 2.
+#set eventcmd_checkstatus = 0
+
 # Traces logging
 # If you want advanced traces, please specify a file and a level here.
 # There are currently 2 traceloglog levels:

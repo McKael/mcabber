@@ -122,6 +122,15 @@ void sig_handler(int signum)
     pid_t pid;
     do {
       pid = waitpid (WAIT_ANY, &status, WNOHANG);
+      // Check the exit status value if 'eventcmd_checkstatus' is set
+      if (settings_opt_get_int("eventcmd_checkstatus")) {
+        if (pid > 0) {
+          // exit status 2 -> beep
+          if (WIFEXITED(status) && WEXITSTATUS(status) == 2) {
+            scr_Beep();
+          }
+        }
+      }
     } while (pid > 0);
     //if (pid < 0)
     //  scr_LogPrint(LPRINT_LOGNORM, "Error in waitpid: errno=%d", errno);

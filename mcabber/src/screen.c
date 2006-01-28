@@ -713,7 +713,7 @@ void scr_DrawRoster(void)
   update_roster = FALSE;
 
   getmaxyx(rosterWnd, maxy, maxx);
-  maxx --;  // last char is for vertical border
+  maxx--;  // last char is for vertical border
   name[ROSTER_WIDTH-7] = 0;
 
   // cleanup of roster window
@@ -732,6 +732,11 @@ void scr_DrawRoster(void)
   }
 
   // Update offset if necessary
+  // a) Try to show as many buddylist items as possible
+  i = g_list_length(buddylist) - maxy;
+  if (0 <= i && i < offset)
+    offset = i;
+  // b) Make sure the current_buddy is visible
   i = g_list_position(buddylist, current_buddy);
   if (i == -1) { // This is bad
     scr_LogPrint(LPRINT_NORMAL, "Doh! Can't find current selected buddy!!");

@@ -462,11 +462,10 @@ static void setstatus(const char *recipient, const char *arg)
     return;
   }
 
-  // Use provided message, unless requested status is "invisible"
-  if (msg && st != invisible) {
-    if (!*msg) msg = NULL;
-  } else
+  // Use provided message
+  if (msg && !*msg) {
     msg = NULL;
+  }
 
   // If a recipient is specified, let's don't use default status messages
   if (recipient && !msg)

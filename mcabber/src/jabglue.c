@@ -347,7 +347,7 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
     }
   }
 
-  x = presnew(st, recipient, msg);
+  x = presnew(st, recipient, (st != invisible ? msg : NULL));
   jab_send(jc, x);
   xmlnode_free(x);
 
@@ -366,7 +366,7 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
   if (mystatus == offline || st == offline)
     update_roster = TRUE;
 
-  hk_mystatuschange(0, mystatus, st, msg);
+  hk_mystatuschange(0, mystatus, st, (st != invisible ? msg : ""));
   mystatus = st;
   if (msg != mystatusmsg) {
     if (mystatusmsg)

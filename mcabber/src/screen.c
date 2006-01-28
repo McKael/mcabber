@@ -607,7 +607,8 @@ void scr_DrawMainWindow(unsigned int fullinit)
 
   /* Draw/init windows */
 
-  mvwprintw(chatWnd, 0, 0, "This is the status window");
+  mvwprintw(chatWnd, 0, 0, "Thanks for using mcabber.\n");
+  mvwprintw(chatWnd, 1, 0, "http://www.lilotux.net/~mikael/mcabber/");
 
   // - Draw/clear the log window
   scr_draw_box(logWnd_border, 0, 0, Log_Win_Height, maxX, COLOR_GENERAL, 0, 0);

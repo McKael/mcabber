@@ -1428,7 +1428,6 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Received unrecognized packet from <%s>, "
                  "type=%s", from, (type ? type : ""));
-
   }
   g_free(r);
 }

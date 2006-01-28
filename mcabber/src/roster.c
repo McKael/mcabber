@@ -518,8 +518,10 @@ void roster_msg_setflag(const char *jid, guint value)
 
   sl_user = roster_find(jid, jidsearch,
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
-  if (sl_user == NULL)
-    return;
+  // If we can't find it, we add it
+  if (sl_user == NULL) {
+    sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER, sub_none);
+  }
 
   roster_usr = (roster*)sl_user->data;
   roster_grp = (roster*)roster_usr->list->data;

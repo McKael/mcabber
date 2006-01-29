@@ -93,7 +93,7 @@ void cmd_init(void)
   cmd_add("disconnect", "Disconnect from server", 0, 0, &do_disconnect);
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
   //cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
-  cmd_add("info", "Show basic infos on current buddy", 0, 0, &do_info);
+  cmd_add("info", "Show basic info on current buddy", 0, 0, &do_info);
   cmd_add("move", "Move the current buddy to another group", COMPL_GROUPNAME,
           0, &do_move);
   cmd_add("msay", "Send a multi-lines message to the selected buddy",
@@ -255,18 +255,18 @@ static void send_message(const char *msg)
   const char *jid;
 
   if (!jb_getonline()) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
 
   if (!current_buddy) {
-    scr_LogPrint(LPRINT_NORMAL, "No buddy currently selected.");
+    scr_LogPrint(LPRINT_NORMAL, "No buddy is currently selected.");
     return;
   }
 
   jid = CURRENT_JID;
   if (!jid) {
-    scr_LogPrint(LPRINT_NORMAL, "No buddy currently selected.");
+    scr_LogPrint(LPRINT_NORMAL, "No buddy is currently selected.");
     return;
   }
 
@@ -316,12 +316,14 @@ int process_command(char *line)
   curcmd = cmd_get(xpline);
 
   if (!curcmd) {
-    scr_LogPrint(LPRINT_NORMAL, "Unrecognized command, sorry.");
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized command.  "
+                 "Please see the manual for a list of known commands.");
     if (xpline != line) g_free(xpline);
     return 0;
   }
   if (!curcmd->func) {
-    scr_LogPrint(LPRINT_NORMAL, "Not yet implemented, sorry.");
+    scr_LogPrint(LPRINT_NORMAL,
+                 "This functionality is not yet implemented, sorry.");
     if (xpline != line) g_free(xpline);
     return 0;
   }
@@ -410,7 +412,7 @@ static void do_roster(char *arg)
     while (*string == ' ')
       string++;
     if (!*string) {
-      scr_LogPrint(LPRINT_NORMAL, "What name or jid are you looking for?");
+      scr_LogPrint(LPRINT_NORMAL, "What name or JID are you looking for?");
       return;
     }
     scr_RosterSearch(string);
@@ -435,7 +437,7 @@ static void setstatus(const char *recipient, const char *arg)
   enum imstatus st;
 
   if (!jb_getonline()) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
 
@@ -499,7 +501,8 @@ static void do_status_to(char *arg)
   msg = *(paramlst+2);
 
   if (!jid || !st) {
-    scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
+    scr_LogPrint(LPRINT_NORMAL,
+                 "Please specify both a Jabber ID and a status.");
     free_arg_lst(paramlst);
     return;
   }
@@ -511,7 +514,7 @@ static void do_status_to(char *arg)
   if (jid) {
     // The JID has been specified.  Quick check...
     if (check_jid_syntax(jid)) {
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", jid);
       jid = NULL;
     } else {
       mc_strtolower(jid);
@@ -521,7 +524,7 @@ static void do_status_to(char *arg)
     if (current_buddy)
       jid = (char*)buddy_getjid(BUDDATA(current_buddy));
     if (!jid)
-      scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber id");
+      scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
   }
 
   if (jid) {
@@ -543,7 +546,7 @@ static void do_add(char *arg)
   char *id, *nick;
 
   if (!jb_getonline()) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
 
@@ -559,7 +562,7 @@ static void do_add(char *arg)
   if (id) {
     // The JID has been specified.  Quick check...
     if (check_jid_syntax(id)) {
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", id);
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", id);
       id = NULL;
     } else {
       mc_strtolower(id);
@@ -569,13 +572,13 @@ static void do_add(char *arg)
     if (current_buddy)
       id = (char*)buddy_getjid(BUDDATA(current_buddy));
     if (!id)
-      scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber id");
+      scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
   }
 
   if (id) {
     // 2nd parameter = optional nickname
     jb_addbuddy(id, nick, NULL);
-    scr_LogPrint(LPRINT_LOGNORM, "Sent presence notification request to <%s>",
+    scr_LogPrint(LPRINT_LOGNORM, "Sent presence notification request to <%s>.",
                  id);
   }
   free_arg_lst(paramlst);
@@ -586,7 +589,8 @@ static void do_del(char *arg)
   const char *jid;
 
   if (*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
+    scr_LogPrint(LPRINT_NORMAL, "This action does not require a parameter; "
+                 "the currently-selected buddy will be deleted.");
     return;
   }
 
@@ -614,7 +618,7 @@ static void do_group(char *arg)
   guint leave_windowbuddy;
 
   if (!*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
     return;
   }
 
@@ -627,7 +631,7 @@ static void do_group(char *arg)
   leave_windowbuddy = (group != BUDDATA(current_buddy));
 
   if (!(buddy_gettype(group) & ROSTER_TYPE_GROUP)) {
-    scr_LogPrint(LPRINT_NORMAL, "You need to select a group");
+    scr_LogPrint(LPRINT_NORMAL, "You need to select a group.");
     return;
   }
 
@@ -653,15 +657,15 @@ static int send_message_to(const char *jid, const char *msg)
   char *bare_jid, *rp;
 
   if (!jid || !*jid) {
-    scr_LogPrint(LPRINT_NORMAL, "JID is missing");
+    scr_LogPrint(LPRINT_NORMAL, "You must specify a Jabber ID.");
     return 1;
   }
   if (!msg || !*msg) {
-    scr_LogPrint(LPRINT_NORMAL, "Message is missing");
+    scr_LogPrint(LPRINT_NORMAL, "You must specify a message.");
     return 1;
   }
   if (check_jid_syntax((char*)jid)) {
-    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", jid);
+    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", jid);
     return 1;
   }
 
@@ -697,14 +701,15 @@ static void do_say(char *arg)
   scr_set_chatmode(TRUE);
 
   if (!current_buddy) {
-    scr_LogPrint(LPRINT_NORMAL, "Who are you talking to??");
+    scr_LogPrint(LPRINT_NORMAL,
+                 "Whom are you talking to?  Please select a buddy.");
     return;
   }
 
   bud = BUDDATA(current_buddy);
   if (!(buddy_gettype(bud) &
         (ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM))) {
-    scr_LogPrint(LPRINT_NORMAL, "This is not a user");
+    scr_LogPrint(LPRINT_NORMAL, "This is not a user.");
     return;
   }
 
@@ -723,7 +728,7 @@ static void do_msay(char *arg)
   arg = *(paramlst+1);
 
   if (!subcmd || !*subcmd) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
     scr_LogPrint(LPRINT_NORMAL, "Please read the manual before using "
                  "the /msay command.");
     scr_LogPrint(LPRINT_NORMAL, "(Use \"/msay begin\" to enter "
@@ -734,7 +739,7 @@ static void do_msay(char *arg)
 
   if (!strcasecmp(subcmd, "abort")) {
     if (scr_get_multimode())
-      scr_LogPrint(LPRINT_NORMAL, "Leaving multi-line message mode");
+      scr_LogPrint(LPRINT_NORMAL, "Leaving multi-line message mode.");
     scr_set_multimode(FALSE);
     return;
   } else if ((!strcasecmp(subcmd, "begin")) ||
@@ -772,13 +777,13 @@ static void do_msay(char *arg)
     gpointer bud;
 
     if (!current_buddy) {
-      scr_LogPrint(LPRINT_NORMAL, "Who are you talking to??");
+      scr_LogPrint(LPRINT_NORMAL, "Whom are you talking to?");
       return;
     }
 
     bud = BUDDATA(current_buddy);
     if (!(buddy_gettype(bud) & (ROSTER_TYPE_USER|ROSTER_TYPE_ROOM))) {
-      scr_LogPrint(LPRINT_NORMAL, "This is not a user");
+      scr_LogPrint(LPRINT_NORMAL, "This is not a user.");
       return;
     }
 
@@ -794,7 +799,7 @@ static void do_say_to(char *arg)
   char *jid, *msg;
 
   if (!jb_getonline()) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
 
@@ -803,7 +808,7 @@ static void do_say_to(char *arg)
   msg = *(paramlst+1);
 
   if (!jid) {
-    scr_LogPrint(LPRINT_NORMAL, "Wrong usage");
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
     free_arg_lst(paramlst);
     return;
   }
@@ -830,7 +835,7 @@ inline static void buffer_updown(int updown, char *nlines)
 static void buffer_search(int direction, char *arg)
 {
   if (!arg || !*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
     return;
   }
 
@@ -842,7 +847,7 @@ static void buffer_date(char *date)
   time_t t;
 
   if (!date || !*date) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
     return;
   }
 
@@ -852,7 +857,8 @@ static void buffer_date(char *date)
   if (t)
     scr_BufferDate(t);
   else
-    scr_LogPrint(LPRINT_NORMAL, "Wrong parameter");
+    scr_LogPrint(LPRINT_NORMAL, "The date you specified is "
+                 "not correctly formatted or invalid.");
 }
 
 static void buffer_percent(char *arg1, char *arg2)
@@ -862,12 +868,12 @@ static void buffer_percent(char *arg1, char *arg2)
   // "% 50" -> arg1 = \0, arg2 = 50
 
   if (!*arg1 && (!arg2 || !*arg2)) { // No value
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
     return;
   }
 
   if (*arg1 && arg2 && *arg2) {     // Two values
-    scr_LogPrint(LPRINT_NORMAL, "Wrong parameters");
+    scr_LogPrint(LPRINT_NORMAL, "Wrong parameters.");
     return;
   }
 
@@ -882,7 +888,7 @@ static void do_buffer(char *arg)
   if (!current_buddy) return;
 
   if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_GROUP) {
-    scr_LogPrint(LPRINT_NORMAL, "Groups have no buffer");
+    scr_LogPrint(LPRINT_NORMAL, "Groups have no buffer.");
     return;
   }
 
@@ -891,7 +897,7 @@ static void do_buffer(char *arg)
   arg = *(paramlst+1);
 
   if (!subcmd || !*subcmd) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1018,7 +1024,7 @@ static void room_names(gpointer bud, char *arg)
   GSList *resources;
 
   if (*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Unknown parameter");
+    scr_LogPrint(LPRINT_NORMAL, "This action does not require a parameter.");
     return;
   }
 
@@ -1060,7 +1066,7 @@ static void do_rename(char *arg)
   char *newname, *p;
 
   if (!*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID to rename.");
     return;
   }
 
@@ -1072,7 +1078,7 @@ static void do_rename(char *arg)
   type  = buddy_gettype(bud);
 
   if (type & ROSTER_TYPE_GROUP) {
-    scr_LogPrint(LPRINT_NORMAL, "You can't rename groups");
+    scr_LogPrint(LPRINT_NORMAL, "You can't rename groups.");
     return;
   }
 
@@ -1135,7 +1141,7 @@ static void do_set(char *arg)
 
   assign = parse_assigment(arg, &option, &value);
   if (!option) {
-    scr_LogPrint(LPRINT_NORMAL, "Huh?");
+    scr_LogPrint(LPRINT_NORMAL, "Set what option?");
     return;
   }
   if (!assign) {
@@ -1165,7 +1171,7 @@ static void do_alias(char *arg)
 
   assign = parse_assigment(arg, &alias, &value);
   if (!alias) {
-    scr_LogPrint(LPRINT_NORMAL, "Huh?");
+    scr_LogPrint(LPRINT_NORMAL, "Alias what?");
     return;
   }
   if (!assign) {
@@ -1204,7 +1210,7 @@ static void do_bind(char *arg)
 
   assign = parse_assigment(arg, &keycode, &value);
   if (!keycode) {
-    scr_LogPrint(LPRINT_NORMAL, "Huh?");
+    scr_LogPrint(LPRINT_NORMAL, "Bind what keycode?");
     return;
   }
   if (!assign) {
@@ -1213,7 +1219,7 @@ static void do_bind(char *arg)
     if (value) {
       scr_LogPrint(LPRINT_NORMAL, "Key %s is bound to: %s", keycode, value);
     } else
-      scr_LogPrint(LPRINT_NORMAL, "Key %s is not bound", keycode);
+      scr_LogPrint(LPRINT_NORMAL, "Key %s is not bound.", keycode);
     return;
   }
   // Update the key binding
@@ -1229,7 +1235,7 @@ static void do_rawxml(char *arg)
   char *subcmd;
 
   if (!jb_getonline()) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
 
@@ -1248,7 +1254,7 @@ static void do_rawxml(char *arg)
     gchar *buffer;
 
     if (!subcmd || !*subcmd) {
-      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
       free_arg_lst(paramlst);
       return;
     }
@@ -1262,7 +1268,7 @@ static void do_rawxml(char *arg)
       jb_send_raw(buffer);
       g_free(buffer);
     } else {
-      scr_LogPrint(LPRINT_NORMAL, "Conversion error in XML string");
+      scr_LogPrint(LPRINT_NORMAL, "Conversion error in XML string.");
     }
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
@@ -1281,13 +1287,13 @@ static char *check_room_subcommand(char *arg, bool param_needed,
 {
   if (buddy_must_be_a_room &&
       !(buddy_gettype(buddy_must_be_a_room) & ROSTER_TYPE_ROOM)) {
-    scr_LogPrint(LPRINT_NORMAL, "This isn't a chatroom");
+    scr_LogPrint(LPRINT_NORMAL, "This isn't a conference room.");
     return NULL;
   }
 
   if (param_needed) {
     if (!arg) {
-      scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
       return NULL;
     }
   }
@@ -1310,7 +1316,7 @@ static void room_join(gpointer bud, char *arg)
 
 
   if (!roomname || strchr(roomname, '/')) {
-    scr_LogPrint(LPRINT_NORMAL, "Invalid room name");
+    scr_LogPrint(LPRINT_NORMAL, "Invalid room name.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1331,7 +1337,7 @@ static void room_join(gpointer bud, char *arg)
   }
   // If we still have no nickname, give up
   if (!nick || !*nick) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a nickname.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1341,7 +1347,7 @@ static void room_join(gpointer bud, char *arg)
   mc_strtolower(roomname);
   jb_room_join(roomname, nick);
 
-  scr_LogPrint(LPRINT_LOGNORM, "Sent a join request to <%s>", roomname);
+  scr_LogPrint(LPRINT_LOGNORM, "Sent a join request to <%s>...", roomname);
 
   buddylist_build();
   update_roster = TRUE;
@@ -1364,14 +1370,14 @@ static void room_invite(gpointer bud, char *arg)
     arg = NULL;
 
   if (!jid || !*jid) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing or incorrect parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing or incorrect Jabber ID.");
     free_arg_lst(paramlst);
     return;
   }
 
   roomname = buddy_getjid(bud);
   jb_room_invite(roomname, jid, arg);
-  scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>", jid);
+  scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>...", jid);
   free_arg_lst(paramlst);
 }
 
@@ -1388,7 +1394,7 @@ static void room_affil(gpointer bud, char *arg)
   arg = *(paramlst+2);
 
   if (!jid || !*jid || !rolename || !*rolename) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Please specify both a Jabber ID and a role.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1402,7 +1408,7 @@ static void room_affil(gpointer bud, char *arg)
   if (ra.val.affil < imaffiliation_size)
     jb_room_setattrib(roomid, jid, NULL, ra, arg);
   else
-    scr_LogPrint(LPRINT_NORMAL, "Wrong affiliation parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Wrong affiliation parameter.");
 
   free_arg_lst(paramlst);
 }
@@ -1420,7 +1426,7 @@ static void room_role(gpointer bud, char *arg)
   arg = *(paramlst+2);
 
   if (!jid || !*jid || !rolename || !*rolename) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Please specify both a Jabber ID and a role.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1434,7 +1440,7 @@ static void room_role(gpointer bud, char *arg)
   if (ra.val.role < imrole_size)
     jb_room_setattrib(roomid, jid, NULL, ra, arg);
   else
-    scr_LogPrint(LPRINT_NORMAL, "Wrong role parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Wrong role parameter.");
 
   free_arg_lst(paramlst);
 }
@@ -1453,7 +1459,7 @@ static void room_ban(gpointer bud, char *arg)
   arg = *(paramlst+1);
 
   if (!jid || !*jid) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (Jabber id)");
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1479,7 +1485,7 @@ static void room_kick(gpointer bud, char *arg)
   arg = *(paramlst+1);
 
   if (!nick || !*nick) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a nickname.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1499,7 +1505,7 @@ static void room_leave(gpointer bud, char *arg)
 
   nickname = buddy_getnickname(bud);
   if (!nickname) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not in this room");
+    scr_LogPrint(LPRINT_NORMAL, "You are not in this room.");
     return;
   }
 
@@ -1513,7 +1519,7 @@ static void room_leave(gpointer bud, char *arg)
 static void room_nick(gpointer bud, char *arg)
 {
   if (!buddy_getinsideroom(bud)) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not in this room");
+    scr_LogPrint(LPRINT_NORMAL, "You are not in this room.");
     return;
   }
 
@@ -1522,7 +1528,7 @@ static void room_nick(gpointer bud, char *arg)
     if (nick)
       scr_LogPrint(LPRINT_NORMAL, "Your nickname is: %s", nick);
     else
-      scr_LogPrint(LPRINT_NORMAL, "You have no nickname in this room");
+      scr_LogPrint(LPRINT_NORMAL, "You have no nickname in this room.");
   } else {
     gchar *cmd;
     cmd = g_strdup_printf("%s %s", buddy_getjid(bud), arg);
@@ -1541,7 +1547,8 @@ static void room_privmsg(gpointer bud, char *arg)
   arg = *(paramlst+1);
 
   if (!nick || !*nick || !arg || !*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL,
+                 "Please specify both a Jabber ID and a message.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1555,7 +1562,8 @@ static void room_privmsg(gpointer bud, char *arg)
 static void room_remove(gpointer bud, char *arg)
 {
   if (*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Unknown parameter");
+    scr_LogPrint(LPRINT_NORMAL, "This action does not require a parameter; "
+                 "the currently-selected room will be removed.");
     return;
   }
 
@@ -1576,7 +1584,7 @@ static void room_topic(gpointer bud, char *arg)
   gchar *msg;
 
   if (!buddy_getinsideroom(bud)) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not in this room");
+    scr_LogPrint(LPRINT_NORMAL, "You are not in this room.");
     return;
   }
 
@@ -1586,7 +1594,7 @@ static void room_topic(gpointer bud, char *arg)
     if (topic)
       scr_LogPrint(LPRINT_NORMAL, "Topic: %s", topic);
     else
-      scr_LogPrint(LPRINT_NORMAL, "No topic has been set");
+      scr_LogPrint(LPRINT_NORMAL, "No topic has been set.");
     return;
   }
 
@@ -1611,7 +1619,7 @@ static void room_destroy(gpointer bud, char *arg)
 static void room_unlock(gpointer bud, char *arg)
 {
   if (*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Unknown parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Unknown parameter.");
     return;
   }
 
@@ -1637,7 +1645,7 @@ static void room_whois(gpointer bud, char *arg)
   nick = *paramlst;
 
   if (!nick || !*nick) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (nickname)");
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a nickname.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1705,7 +1713,7 @@ static void do_room(char *arg)
   gpointer bud;
 
   if (!jb_getonline()) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
 
@@ -1717,7 +1725,7 @@ static void do_room(char *arg)
   arg = *(paramlst+1);
 
   if (!subcmd || !*subcmd) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1780,7 +1788,7 @@ static void do_authorization(char *arg)
   char *subcmd;
 
   if (!jb_getonline()) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not connected");
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
 
@@ -1789,7 +1797,7 @@ static void do_authorization(char *arg)
   arg = *(paramlst+1);
 
   if (!subcmd || !*subcmd) {
-    scr_LogPrint(LPRINT_NORMAL, "Missing parameter");
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1801,7 +1809,7 @@ static void do_authorization(char *arg)
       arg = NULL;
     } else {
       if (check_jid_syntax(arg)) {
-        scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber id", arg);
+        scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", arg);
         free_arg_lst(paramlst);
         return;
       }
@@ -1819,7 +1827,7 @@ static void do_authorization(char *arg)
     type = buddy_gettype(bud);
 
     if (!(type & (ROSTER_TYPE_USER|ROSTER_TYPE_AGENT))) {
-      scr_LogPrint(LPRINT_NORMAL, "Invalid buddy");
+      scr_LogPrint(LPRINT_NORMAL, "Invalid buddy.");
       return;
     }
   }
@@ -1827,16 +1835,16 @@ static void do_authorization(char *arg)
   if (!strcasecmp(subcmd, "allow"))  {
     jb_subscr_send_auth(arg);
     scr_LogPrint(LPRINT_LOGNORM,
-                 "<%s> is allowed to receive your presence updates", arg);
+                 "<%s> is now allowed to receive your presence updates.", arg);
   } else if (!strcasecmp(subcmd, "cancel"))  {
     jb_subscr_cancel_auth(arg);
     scr_LogPrint(LPRINT_LOGNORM,
-                 "<%s> is no more allowed to receive your presence updates",
+                 "<%s> will no longer receive your presence updates.",
                  arg);
   } else if (!strcasecmp(subcmd, "request"))  {
     jb_subscr_request_auth(arg);
     scr_LogPrint(LPRINT_LOGNORM,
-                 "Sent presence notification request to <%s>", arg);
+                 "Sent presence notification request to <%s>...", arg);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }
@@ -1846,7 +1854,7 @@ static void do_authorization(char *arg)
 
 static void do_version(char *arg)
 {
-  scr_LogPrint(LPRINT_NORMAL, "This is mcabber version %s", PACKAGE_VERSION);
+  scr_LogPrint(LPRINT_NORMAL, "This is mcabber version %s.", PACKAGE_VERSION);
 }
 
 static void do_connect(char *arg)

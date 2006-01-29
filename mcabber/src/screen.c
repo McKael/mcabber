@@ -734,7 +734,9 @@ void scr_DrawRoster(void)
   // Update offset if necessary
   // a) Try to show as many buddylist items as possible
   i = g_list_length(buddylist) - maxy;
-  if (0 <= i && i < offset)
+  if (i < 0)
+    i = 0;
+  if (i < offset)
     offset = i;
   // b) Make sure the current_buddy is visible
   i = g_list_position(buddylist, current_buddy);

@@ -455,7 +455,8 @@ void jb_subscr_request_auth(const char *jid)
 // Note: the caller should check the jid is correct
 void jb_addbuddy(const char *jid, const char *name, const char *group)
 {
-  xmlnode x, y, z;
+  xmlnode y, z;
+  iqs *iqn;
   char *cleanjid;
 
   if (!online) return;
@@ -465,8 +466,8 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
   // We don't check if the jabber user already exists in the roster,
   // because it allows to re-ask for notification.
 
-  x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
-  y = xmlnode_insert_tag(xmlnode_get_tag(x, "query"), "item");
+  iqn = iqs_new(JPACKET__SET, NS_ROSTER, NULL, IQS_DEFAULT_TIMEOUT);
+  y = xmlnode_insert_tag(xmlnode_get_tag(iqn->xmldata, "query"), "item");
 
   xmlnode_put_attrib(y, "jid", cleanjid);
 
@@ -483,8 +484,8 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
     g_free(group_utf8);
   }
 
-  jab_send(jc, x);
-  xmlnode_free(x);
+  jab_send(jc, iqn->xmldata);
+  iqs_del(iqn->id); // XXX
 
   jb_subscr_request_auth(cleanjid);
 
@@ -498,6 +499,7 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
 void jb_delbuddy(const char *jid)
 {
   xmlnode x, y, z;
+  iqs *iqn;
   char *cleanjid;
 
   if (!online) return;
@@ -508,12 +510,12 @@ void jb_delbuddy(const char *jid)
   if (roster_gettype(cleanjid) == ROSTER_TYPE_AGENT) {
     scr_LogPrint(LPRINT_LOGNORM, "Unregistering from the %s agent", cleanjid);
 
-    x = jutil_iqnew(JPACKET__SET, NS_REGISTER);
-    xmlnode_put_attrib(x, "to", cleanjid);
-    y = xmlnode_get_tag(x, "query");
+    iqn = iqs_new(JPACKET__SET, NS_REGISTER, NULL, IQS_DEFAULT_TIMEOUT);
+    xmlnode_put_attrib(iqn->xmldata, "to", cleanjid);
+    y = xmlnode_get_tag(iqn->xmldata, "query");
     xmlnode_insert_tag(y, "remove");
-    jab_send(jc, x);
-    xmlnode_free(x);
+    jab_send(jc, iqn->xmldata);
+    iqs_del(iqn->id); // XXX
   }
 
   // Cancel the subscriptions
@@ -525,13 +527,13 @@ void jb_delbuddy(const char *jid)
   xmlnode_free(x);
 
   // Ask for removal from roster
-  x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
-  y = xmlnode_get_tag(x, "query");
+  iqn = iqs_new(JPACKET__SET, NS_ROSTER, NULL, IQS_DEFAULT_TIMEOUT);
+  y = xmlnode_get_tag(iqn->xmldata, "query");
   z = xmlnode_insert_tag(y, "item");
   xmlnode_put_attrib(z, "jid", cleanjid);
   xmlnode_put_attrib(z, "subscription", "remove");
-  jab_send(jc, x);
-  xmlnode_free(x);
+  jab_send(jc, iqn->xmldata);
+  iqs_del(iqn->id); // XXX
 
   roster_del_user(cleanjid);
   g_free(cleanjid);
@@ -542,7 +544,8 @@ void jb_delbuddy(const char *jid)
 
 void jb_updatebuddy(const char *jid, const char *name, const char *group)
 {
-  xmlnode x, y;
+  xmlnode y;
+  iqs *iqn;
   char *cleanjid;
   gchar *name_utf8;
 
@@ -553,8 +556,8 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
   cleanjid = jidtodisp(jid);
   name_utf8 = to_utf8(name);
 
-  x = jutil_iqnew(JPACKET__SET, NS_ROSTER);
-  y = xmlnode_insert_tag(xmlnode_get_tag(x, "query"), "item");
+  iqn = iqs_new(JPACKET__SET, NS_ROSTER, NULL, IQS_DEFAULT_TIMEOUT);
+  y = xmlnode_insert_tag(xmlnode_get_tag(iqn->xmldata, "query"), "item");
   xmlnode_put_attrib(y, "jid", cleanjid);
   xmlnode_put_attrib(y, "name", name_utf8);
 
@@ -565,8 +568,8 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
     g_free(group_utf8);
   }
 
-  jab_send(jc, x);
-  xmlnode_free(x);
+  jab_send(jc, iqn->xmldata);
+  iqs_del(iqn->id); // XXX
   g_free(name_utf8);
   g_free(cleanjid);
 }
@@ -618,20 +621,21 @@ void jb_room_join(const char *room, const char *nickname)
 // room syntax: "room@server"
 void jb_room_unlock(const char *room)
 {
-  xmlnode x, y, z;
+  xmlnode y, z;
+  iqs *iqn;
 
   if (!online || !room) return;
 
-  x = jutil_iqnew(JPACKET__SET, "http://jabber.org/protocol/muc#owner");
-  xmlnode_put_attrib(x, "id", "unlock1"); // XXX
-  xmlnode_put_attrib(x, "to", room);
-  y = xmlnode_get_tag(x, "query");
+  iqn = iqs_new(JPACKET__SET, "http://jabber.org/protocol/muc#owner",
+                "unlock", IQS_DEFAULT_TIMEOUT);
+  xmlnode_put_attrib(iqn->xmldata, "to", room);
+  y = xmlnode_get_tag(iqn->xmldata, "query");
   z = xmlnode_insert_tag(y, "x");
   xmlnode_put_attrib(z, "xmlns", "jabber:x:data");
   xmlnode_put_attrib(z, "type", "submit");
 
-  jab_send(jc, x);
-  xmlnode_free(x);
+  jab_send(jc, iqn->xmldata);
+  iqs_del(iqn->id); // XXX
   jb_reset_keepalive();
 }
 
@@ -639,14 +643,15 @@ void jb_room_unlock(const char *room)
 // room syntax: "room@server"
 void jb_room_destroy(const char *room, const char *venue, const char *reason)
 {
-  xmlnode x, y, z;
+  xmlnode y, z;
+  iqs *iqn;
 
   if (!online || !room) return;
 
-  x = jutil_iqnew(JPACKET__SET, "http://jabber.org/protocol/muc#owner");
-  xmlnode_put_attrib(x, "id", "destroy1"); // XXX
-  xmlnode_put_attrib(x, "to", room);
-  y = xmlnode_get_tag(x, "query");
+  iqn = iqs_new(JPACKET__SET, "http://jabber.org/protocol/muc#owner",
+                "destroy", IQS_DEFAULT_TIMEOUT);
+  xmlnode_put_attrib(iqn->xmldata, "to", room);
+  y = xmlnode_get_tag(iqn->xmldata, "query");
   z = xmlnode_insert_tag(y, "destroy");
 
   if (venue && *venue)
@@ -659,8 +664,8 @@ void jb_room_destroy(const char *room, const char *venue, const char *reason)
     g_free(utf8_reason);
   }
 
-  jab_send(jc, x);
-  xmlnode_free(x);
+  jab_send(jc, iqn->xmldata);
+  iqs_del(iqn->id); // XXX
   jb_reset_keepalive();
 }
 
@@ -675,7 +680,8 @@ void jb_room_destroy(const char *room, const char *venue, const char *reason)
 int jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
                       struct role_affil ra, const char *reason)
 {
-  xmlnode x, y, z;
+  xmlnode y, z;
+  iqs *iqn;
 
   if (!online || !roomid) return 1;
   if (!jid && !nick) return 1;
@@ -692,11 +698,11 @@ int jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
   if (ra.type == type_affil && ra.val.affil == affil_outcast && !jid)
     return 1; // Shouldn't happen (jid mandatory when banning)
 
-  x = jutil_iqnew(JPACKET__SET, "http://jabber.org/protocol/muc#admin");
-  xmlnode_put_attrib(x, "id", "roleaffil1"); // XXX
-  xmlnode_put_attrib(x, "to", roomid);
-  xmlnode_put_attrib(x, "type", "set");
-  y = xmlnode_get_tag(x, "query");
+  iqn = iqs_new(JPACKET__SET, "http://jabber.org/protocol/muc#admin",
+                "roleaffil", IQS_DEFAULT_TIMEOUT);
+  xmlnode_put_attrib(iqn->xmldata, "to", roomid);
+  xmlnode_put_attrib(iqn->xmldata, "type", "set");
+  y = xmlnode_get_tag(iqn->xmldata, "query");
   z = xmlnode_insert_tag(y, "item");
 
   if (jid) {
@@ -721,8 +727,8 @@ int jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
     g_free(utf8_reason);
   }
 
-  jab_send(jc, x);
-  xmlnode_free(x);
+  jab_send(jc, iqn->xmldata);
+  iqs_del(iqn->id); // XXX
   jb_reset_keepalive();
 
   return 0;

@@ -144,10 +144,9 @@ void iqs_check_timeout(void)
 
 static void request_roster(void)
 {
-  xmlnode x = jutil_iqnew(JPACKET__GET, NS_ROSTER);
-  xmlnode_put_attrib(x, "id", "Roster1"); // XXX
-  jab_send(jc, x);
-  xmlnode_free(x);
+  iqs *iqn = iqs_new(JPACKET__GET, NS_ROSTER, "Roster", IQS_DEFAULT_TIMEOUT);
+  jab_send(jc, iqn->xmldata);
+  iqs_del(iqn->id); // XXX
 }
 
 static void handle_iq_roster(xmlnode x)

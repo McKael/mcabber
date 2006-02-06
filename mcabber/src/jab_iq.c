@@ -33,8 +33,6 @@
 #include "settings.h"
 
 
-int s_id; // XXX
-
 static GSList *iqs_list;
 
 
@@ -230,6 +228,28 @@ static void handle_iq_roster(xmlnode x)
     scr_ShowBuddyWindow();
 }
 
+void iqscallback_auth(iqs *iqp, xmlnode xml_result)
+{
+  if (jstate == STATE_GETAUTH) {
+    iqs *iqn;
+
+    if (xml_result) {
+      xmlnode x = xmlnode_get_tag(xml_result, "query");
+      if (x && !xmlnode_get_tag(x, "digest"))
+        jc->sid = 0;
+    }
+
+    iqn = iqs_new(JPACKET__SET, NS_AUTH, "auth", IQS_DEFAULT_TIMEOUT);
+    iqn->callback = &iqscallback_auth;
+    jab_auth_mcabber(jc, iqn->xmldata);
+    jab_send(jc, iqn->xmldata);
+    jstate = STATE_SENDAUTH;
+  } else if (jstate == STATE_SENDAUTH) {
+    request_roster();
+    jstate = STATE_LOGGED;
+  }
+}
+
 static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
 {
   xmlnode x;
@@ -239,22 +259,6 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
   id = xmlnode_get_attrib(xmldata, "id");
   if (!id) {
     scr_LogPrint(LPRINT_LOG, "IQ result stanza with no ID, ignored.");
-    return;
-  }
-
-  if (atoi(id) == s_id) {  // Authentication  XXX
-    if (jstate == STATE_GETAUTH) {
-      if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
-        if (!xmlnode_get_tag(x, "digest")) {
-          jc->sid = 0;
-        }
-
-      s_id = atoi(jab_auth(jc));
-      jstate = STATE_SENDAUTH;
-    } else if (jstate == STATE_SENDAUTH) {
-      request_roster();
-      jstate = STATE_LOGGED;
-    }
     return;
   }
 

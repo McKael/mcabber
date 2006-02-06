@@ -109,7 +109,6 @@ jconn jb_connect(const char *jid, const char *server, unsigned int port,
   utf8_jid = to_utf8(jid);
   if (!utf8_jid) return jc;
 
-  s_id = 1;
   jc = jab_new(utf8_jid, (char*)pass, (char*)server, port, ssl);
   g_free(utf8_jid);
 
@@ -171,9 +170,6 @@ void jb_set_keepalive_delay(unsigned int delay)
 
 void jb_main()
 {
-  xmlnode x, z;
-  char *cid;
-
   if (!online) {
     safe_usleep(10000);
     return;
@@ -189,15 +185,16 @@ void jb_main()
 
   if (jstate == STATE_CONNECTING) {
     if (jc) {
-      x = jutil_iqnew(JPACKET__GET, NS_AUTH);
-      cid = jab_getid(jc);
-      xmlnode_put_attrib(x, "id", cid);
-      // id = atoi(cid);
+      iqs *iqn;
+      xmlnode z;
 
-      z = xmlnode_insert_tag(xmlnode_get_tag(x, "query"), "username");
+      iqn = iqs_new(JPACKET__GET, NS_AUTH, "auth", IQS_DEFAULT_TIMEOUT);
+      iqn->callback = &iqscallback_auth;
+
+      z = xmlnode_insert_tag(xmlnode_get_tag(iqn->xmldata, "query"),
+                             "username");
       xmlnode_insert_cdata(z, jc->user->user, (unsigned) -1);
-      jab_send(jc, x);
-      xmlnode_free(x);
+      jab_send(jc, iqn->xmldata);
 
       jstate = STATE_GETAUTH;
     }

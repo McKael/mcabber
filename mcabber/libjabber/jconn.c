@@ -432,6 +432,53 @@ char *jab_auth(jconn j)
 }
 
 /*
+ *  jab_auth_mcabber -- authorize user
+ *
+ *  parameters
+ *      j -- connection
+ *      x -- xmlnode iq packet
+ *
+ *  returns
+ *      non-zero in case of failure
+ */
+int jab_auth_mcabber(jconn j, xmlnode x)
+{
+    xmlnode y,z;
+    char *hash, *user;
+
+    if(!j) return -1;
+
+    y = xmlnode_get_tag(x, "query");
+
+    user = j->user->user;
+
+    if (user)
+    {
+	z = xmlnode_insert_tag(y, "username");
+	xmlnode_insert_cdata(z, user, -1);
+    }
+
+    z = xmlnode_insert_tag(y, "resource");
+    xmlnode_insert_cdata(z, j->user->resource, -1);
+
+    if (j->sid)
+    {
+	z = xmlnode_insert_tag(y, "digest");
+	hash = pmalloc(x->p, strlen(j->sid)+strlen(j->pass)+1);
+	strcpy(hash, j->sid);
+	strcat(hash, j->pass);
+	hash = shahash(hash);
+	xmlnode_insert_cdata(z, hash, 40);
+    }
+    else
+    {
+	z = xmlnode_insert_tag(y, "password");
+	xmlnode_insert_cdata(z, j->pass, -1);
+    }
+    return 0;
+}
+
+/*
  *  jab_reg -- register user
  *
  *  parameters

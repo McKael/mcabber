@@ -35,7 +35,6 @@ typedef struct {
 
 
 extern enum enum_jstate jstate;
-extern int s_id;
 
 
 char *jidtodisp(const char *jid);
@@ -45,6 +44,7 @@ iqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout);
 int  iqs_del(const char *iqid);
 int  iqs_callback(const char *iqid, xmlnode xml_anwser);
 void iqs_check_timeout(void);
+void iqscallback_auth(iqs *iqp, xmlnode xml_result);
 
 #endif /* __JAB_PRIV_H__ */
 

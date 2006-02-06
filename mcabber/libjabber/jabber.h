@@ -384,6 +384,7 @@ void jab_recv(jconn j);
 void jab_poll(jconn j, int timeout);
 
 char *jab_auth(jconn j);
+int   jab_auth_mcabber(jconn j, xmlnode x);
 char *jab_reg(jconn j);
 
 #ifdef __cplusplus

@@ -233,16 +233,16 @@ static void handle_iq_roster(xmlnode x)
 static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
 {
   xmlnode x;
-  char *p;
+  char *id;
   char *ns;
 
-  p = xmlnode_get_attrib(xmldata, "id");
-  if (!p) {
+  id = xmlnode_get_attrib(xmldata, "id");
+  if (!id) {
     scr_LogPrint(LPRINT_LOG, "IQ result stanza with no ID, ignored.");
     return;
   }
 
-  if (atoi(p) == s_id) {  // Authentication  XXX
+  if (atoi(id) == s_id) {  // Authentication  XXX
     if (jstate == STATE_GETAUTH) {
       if ((x = xmlnode_get_tag(xmldata, "query")) != NULL)
         if (!xmlnode_get_tag(x, "digest")) {
@@ -258,14 +258,17 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
     return;
   }
 
+  if (!iqs_callback(id, xmldata))
+    return;
+
   /*
-  if (!strcmp(p, "VCARDreq")) {
+  if (!strcmp(id, "VCARDreq")) {
     x = xmlnode_get_firstchild(xmldata);
     if (!x) x = xmldata;
 
     scr_LogPrint(LPRINT_LOGNORM, "Got VCARD");    // TODO
     return;
-  } else if (!strcmp(p, "versionreq")) {
+  } else if (!strcmp(id, "versionreq")) {
     scr_LogPrint(LPRINT_LOGNORM, "Got version");  // TODO
     return;
   }

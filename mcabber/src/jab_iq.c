@@ -32,7 +32,115 @@
 #include "screen.h"
 #include "settings.h"
 
+
 int s_id; // XXX
+
+static GSList *iqs_list;
+
+
+//  iqs_new(type, namespace, prefix, timeout)
+// Create a query (GET, SET) IQ structure.  This function should not be used
+// for RESULT packets.
+iqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout)
+{
+  static guint iqs_idn;
+  iqs *new_iqs;
+  time_t now_t;
+
+  iqs_idn++;
+
+  new_iqs = g_new0(iqs, 1);
+  time(&now_t);
+  new_iqs->ts_create = now_t;
+  if (timeout)
+    new_iqs->ts_expire = now_t + timeout;
+  new_iqs->type = type;
+  new_iqs->xmldata = jutil_iqnew(type, (char*)ns);
+  if (prefix)
+    new_iqs->id = g_strdup_printf("%s%d", prefix, iqs_idn);
+  else
+    new_iqs->id = g_strdup_printf("%d", iqs_idn);
+  xmlnode_put_attrib(new_iqs->xmldata, "id", new_iqs->id);
+
+  iqs_list = g_slist_append(iqs_list, new_iqs);
+  return new_iqs;
+}
+
+int iqs_del(const char *iqid)
+{
+  GSList *p;
+  iqs *i;
+
+  if (!iqid) return 1;
+
+  for (p = iqs_list; p; p = g_slist_next(p)) {
+    i = p->data;
+    if (!strcmp(iqid, i->id))
+      break;
+  }
+  if (p) {
+    g_free(i->id);
+    if (i->xmldata) xmlnode_free(i->xmldata);
+    // XXX Should we free i->data?
+    g_free(i);
+    iqs_list = g_slist_remove(iqs_list, p->data);
+    return 0; // Ok, deleted
+  }
+  return -1;  // Not found
+}
+
+static iqs *iqs_find(const char *iqid)
+{
+  GSList *p;
+  iqs *i;
+
+  if (!iqid) return NULL;
+
+  for (p = iqs_list; p; p = g_slist_next(p)) {
+    i = p->data;
+    if (!strcmp(iqid, i->id))
+      return i;
+  }
+  return NULL;
+}
+
+//  iqs_callback(iqid, xml_result)
+// Callback processing for the iqid message.
+// If we've received an answer, xml_result should point to the xmldata packet.
+// If this is a timeout, xml_result should be NULL.
+// Return 0 in case of success, -1 if the iqid hasn't been found.
+int iqs_callback(const char *iqid, xmlnode xml_result)
+{
+  iqs *i;
+
+  i = iqs_find(iqid);
+  if (!i) return -1;
+
+  // IQ processing
+  // Note: If xml_result is NULL, this is a timeout
+  if (i->callback)
+    (*i->callback)(i, xml_result);
+
+  iqs_del(iqid);
+  return 0;
+}
+
+void iqs_check_timeout(void)
+{
+  GSList *p;
+  iqs *i;
+  time_t now_t;
+
+  time(&now_t);
+
+  for (p = iqs_list; p; p = g_slist_next(p)) {
+    i = p->data;
+    if ((!i->ts_expire && now_t > i->ts_create + IQS_MAX_TIMEOUT) ||
+        (i->ts_expire && now_t > i->ts_expire)) {
+      iqs_callback(i->id, NULL);
+    }
+  }
+}
 
 static void request_roster(void)
 {

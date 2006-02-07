@@ -55,7 +55,7 @@ iqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout)
   new_iqs->type = type;
   new_iqs->xmldata = jutil_iqnew(type, (char*)ns);
   if (prefix)
-    new_iqs->id = g_strdup_printf("%s%d", prefix, iqs_idn);
+    new_iqs->id = g_strdup_printf("%s_%d", prefix, iqs_idn);
   else
     new_iqs->id = g_strdup_printf("%d", iqs_idn);
   xmlnode_put_attrib(new_iqs->xmldata, "id", new_iqs->id);

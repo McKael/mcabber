@@ -571,6 +571,11 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
   g_free(cleanjid);
 }
 
+void jb_request_time(const char *fulljid)
+{
+  request_time(fulljid);
+}
+
 // Join a MUC room
 void jb_room_join(const char *room, const char *nickname)
 {

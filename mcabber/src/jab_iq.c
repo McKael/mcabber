@@ -304,6 +304,69 @@ void request_version(const char *fulljid)
   jab_send(jc, iqn->xmldata);
 }
 
+void iqscallback_time(iqs *iqp, xmlnode xml_result)
+{
+  xmlnode ansqry;
+  char *p, *p_noutf8;
+
+  // xml_result is null for timeouts and errors
+  if (!xml_result) return;
+
+  ansqry = xmlnode_get_tag(xml_result, "query");
+  if (!ansqry) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result!");
+    return;
+  }
+  // Display IQ result sender...
+  p = xmlnode_get_attrib(xml_result, "from");
+  if (!p) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result (no sender name).");
+    return;
+  }
+  p_noutf8 = from_utf8(p);
+  if (p_noutf8) {
+    scr_LogPrint(LPRINT_LOGNORM, "IQ:time from <%s>", p_noutf8);
+    g_free(p_noutf8);
+  }
+  // Get result data...
+  p = xmlnode_get_tag_data(ansqry, "utc");
+  if (p) {
+    p_noutf8 = from_utf8(p);
+    if (p_noutf8) {
+      scr_LogPrint(LPRINT_LOGNORM, "UTC:  %s", p_noutf8);
+      g_free(p_noutf8);
+    }
+  }
+  p = xmlnode_get_tag_data(ansqry, "tz");
+  if (p) {
+    p_noutf8 = from_utf8(p);
+    if (p_noutf8) {
+      scr_LogPrint(LPRINT_LOGNORM, "TZ:   %s", p_noutf8);
+      g_free(p_noutf8);
+    }
+  }
+  p = xmlnode_get_tag_data(ansqry, "display");
+  if (p) {
+    p_noutf8 = from_utf8(p);
+    if (p_noutf8) {
+      scr_LogPrint(LPRINT_LOGNORM, "Time: %s", p_noutf8);
+      g_free(p_noutf8);
+    }
+  }
+}
+
+void request_time(const char *fulljid)
+{
+  iqs *iqn;
+  gchar *utf8_jid = to_utf8(fulljid);
+
+  iqn = iqs_new(JPACKET__GET, NS_TIME, "time", IQS_DEFAULT_TIMEOUT);
+  xmlnode_put_attrib(iqn->xmldata, "to", utf8_jid);
+  if (utf8_jid) g_free(utf8_jid);
+  iqn->callback = &iqscallback_time;
+  jab_send(jc, iqn->xmldata);
+}
+
 void iqscallback_auth(iqs *iqp, xmlnode xml_result)
 {
   if (jstate == STATE_GETAUTH) {

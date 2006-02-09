@@ -441,7 +441,8 @@ static void handle_iq_version(jconn conn, char *from, const char *id,
   char *os = NULL;
 
   // "from" has already been converted to user locale
-  scr_LogPrint(LPRINT_LOGNORM, "Received an IQ version request from <%s>", from);
+  scr_LogPrint(LPRINT_LOGNORM, "Received an IQ version request from <%s>",
+               from);
 
   senderquery = xmlnode_get_tag(xmldata, "query");
   if (!settings_opt_get_int("iq_version_hide_os")) {

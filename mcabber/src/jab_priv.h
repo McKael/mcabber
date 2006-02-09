@@ -45,6 +45,7 @@ int  iqs_del(const char *iqid);
 int  iqs_callback(const char *iqid, xmlnode xml_anwser);
 void iqs_check_timeout(void);
 void iqscallback_auth(iqs *iqp, xmlnode xml_result);
+void request_version(const char *fulljid);
 
 #endif /* __JAB_PRIV_H__ */
 

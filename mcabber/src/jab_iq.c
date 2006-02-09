@@ -472,6 +472,7 @@ void handle_packet_iq(jconn conn, char *type, char *from, xmlnode xmldata)
     xmlnode x = xmlnode_get_tag(xmldata, TMSG_ERROR);
     if (x)
       display_server_error(x);
+    iqs_callback(xmlnode_get_attrib(xmldata, "id"), NULL);
   }
 }
 

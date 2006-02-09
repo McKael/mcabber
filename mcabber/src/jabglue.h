@@ -54,6 +54,7 @@ void jb_room_destroy(const char *room, const char *venue, const char *reason);
 void jb_room_invite(const char *room, const char *jid, const char *reason);
 int  jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
                        struct role_affil ra, const char *reason);
+void jb_iqs_display_list(void);
 
 #endif /* __JABGLUE_H__ */
 

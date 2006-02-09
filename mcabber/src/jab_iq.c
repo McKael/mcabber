@@ -140,6 +140,19 @@ void iqs_check_timeout(void)
   }
 }
 
+void jb_iqs_display_list(void)
+{
+  GSList *p;
+  iqs *i;
+
+  scr_LogPrint(LPRINT_LOGNORM, "IQ list:");
+  for (p = iqs_list; p; p = g_slist_next(p)) {
+    i = p->data;
+    scr_LogPrint(LPRINT_LOGNORM, "Id [%s]", i->id);
+  }
+  scr_LogPrint(LPRINT_LOGNORM, "End of IQ list.");
+}
+
 static void request_roster(void)
 {
   iqs *iqn = iqs_new(JPACKET__GET, NS_ROSTER, "Roster", IQS_DEFAULT_TIMEOUT);

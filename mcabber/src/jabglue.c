@@ -593,7 +593,8 @@ void jb_request(const char *jid, enum iqreq_type reqtype)
   // The resource has not been specified
   roster_elt = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_ROOM);
   if (!roster_elt) {
-    scr_LogPrint(LPRINT_NORMAL, "User <%s> isn't in the roster.");
+    scr_LogPrint(LPRINT_NORMAL, "No known resource for <%s>...", jid);
+    request_version(jid); // Let's send a request anyway...
     return;
   }
 

@@ -1880,6 +1880,12 @@ static void do_request(char *arg)
       numtype = iqreq_version;
     else if (!strcasecmp(type, "time"))
       numtype = iqreq_time;
+    else if (!strcasecmp(type, "show_list")) {
+      // Undocumented command, for debugging purposes only
+      jb_iqs_display_list();
+      free_arg_lst(paramlst);
+      return;
+    }
   }
 
   if (!type || !numtype) {

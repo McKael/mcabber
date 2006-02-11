@@ -20,10 +20,16 @@ extern char imstatus2char[];
 // Status chars: '_', 'o', 'i', 'f', 'd', 'n', 'a'
 
 enum agtype {
-    unknown,
-    groupchat,
-    transport,
-    search
+  unknown,
+  groupchat,
+  transport,
+  search
+};
+
+enum iqreq_type {
+  iqreq_none,
+  iqreq_version,
+  iqreq_time
 };
 
 char *compose_jid(const char *username, const char *servername,
@@ -55,6 +61,7 @@ void jb_room_invite(const char *room, const char *jid, const char *reason);
 int  jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
                        struct role_affil ra, const char *reason);
 void jb_iqs_display_list(void);
+void jb_request(const char *jid, enum iqreq_type reqtype);
 
 #endif /* __JABGLUE_H__ */
 

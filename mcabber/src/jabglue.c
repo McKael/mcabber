@@ -571,9 +571,46 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
   g_free(cleanjid);
 }
 
-void jb_request_time(const char *fulljid)
+void jb_request(const char *jid, enum iqreq_type reqtype)
 {
-  request_time(fulljid);
+  GSList *resources;
+  GSList *roster_elt;
+
+  if (reqtype == iqreq_none) return;
+
+  if (strchr(jid, '/')) {
+    // This is a full JID
+    if (reqtype == iqreq_version) {
+      request_version(jid);
+      scr_LogPrint(LPRINT_NORMAL, "Sent version request to <%s>", jid);
+    } else if (reqtype == iqreq_time) {
+      request_time(jid);
+      scr_LogPrint(LPRINT_NORMAL, "Sent time request to <%s>", jid);
+    }
+    return;
+  }
+
+  // The resource has not been specified
+  roster_elt = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_ROOM);
+  if (!roster_elt) {
+    scr_LogPrint(LPRINT_NORMAL, "User <%s> isn't in the roster.");
+    return;
+  }
+
+  // Send a request to each resource
+  resources = buddy_getresources(roster_elt->data);
+  for ( ; resources ; resources = g_slist_next(resources) ) {
+    gchar *fulljid;
+    fulljid = g_strdup_printf("%s/%s", jid, (char*)resources->data);
+    if (reqtype == iqreq_version) {
+      request_version(fulljid);
+      scr_LogPrint(LPRINT_NORMAL, "Sent version request to <%s>", fulljid);
+    } else if (reqtype == iqreq_time) {
+      request_time(fulljid);
+      scr_LogPrint(LPRINT_NORMAL, "Sent time request to <%s>", fulljid);
+    }
+    g_free(fulljid);
+  }
 }
 
 // Join a MUC room

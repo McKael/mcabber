@@ -55,6 +55,7 @@ static void do_rawxml(char *arg);
 static void do_room(char *arg);
 static void do_authorization(char *arg);
 static void do_version(char *arg);
+static void do_request(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -99,6 +100,8 @@ void cmd_init(void)
   cmd_add("msay", "Send a multi-lines message to the selected buddy",
           COMPL_MULTILINE, 0, &do_msay);
   cmd_add("room", "MUC actions command", COMPL_ROOM, 0, &do_room);
+  cmd_add("request", "Send a Jabber IQ request", COMPL_REQUEST, COMPL_JID,
+          &do_request);
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
@@ -180,6 +183,10 @@ void cmd_init(void)
   compl_add_category_word(COMPL_AUTH, "allow");
   compl_add_category_word(COMPL_AUTH, "cancel");
   compl_add_category_word(COMPL_AUTH, "request");
+
+  // Request (query) category
+  compl_add_category_word(COMPL_REQUEST, "time");
+  compl_add_category_word(COMPL_REQUEST, "version");
 }
 
 //  expandalias(line)
@@ -1855,6 +1862,67 @@ static void do_authorization(char *arg)
 static void do_version(char *arg)
 {
   scr_LogPrint(LPRINT_NORMAL, "This is mcabber version %s.", PACKAGE_VERSION);
+}
+
+static void do_request(char *arg)
+{
+  char **paramlst;
+  char *jid, *type;
+  enum iqreq_type numtype;
+
+  paramlst = split_arg(arg, 2, 0); // type, jid
+  type = *paramlst;
+  jid = *(paramlst+1);
+
+  if (type) {
+    // Quick check...
+    if (!strcasecmp(type, "version"))
+      numtype = iqreq_version;
+    else if (!strcasecmp(type, "time"))
+      numtype = iqreq_time;
+  }
+
+  if (!type || !numtype) {
+    scr_LogPrint(LPRINT_NORMAL,
+                 "Please specify a query type (version, time).");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  // Allow special jid "" or "." (current buddy)
+  if (jid && (!*jid || !strcmp(jid, ".")))
+    jid = NULL;
+
+  if (jid) {
+    // The JID has been specified.  Quick check...
+    if (check_jid_syntax(jid)) {
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", jid);
+      jid = NULL;
+    } else {
+      // Convert jid to lowercase
+      char *p = jid;
+      for ( ; *p && *p != '/'; p++)
+        *p = tolower(*p);
+    }
+  } else {
+    // Add the current buddy
+    if (current_buddy)
+      jid = (char*)buddy_getjid(BUDDATA(current_buddy));
+    if (!jid)
+      scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
+  }
+
+  if (jid) {
+    switch (numtype) {
+      case iqreq_version:
+      case iqreq_time:
+          jb_request(jid, numtype);
+          break;
+      default:
+          break;
+    }
+  }
+  free_arg_lst(paramlst);
 }
 
 static void do_connect(char *arg)

@@ -15,6 +15,7 @@ TODO:
 * Pending message flag is not displayed when buddy is outside Contact window,
   maybe we could show it someway (maybe just a flag?).
 * Show number of online contacts in folded groups
+* Configure buddylist width
 * Buddy buffer in full width (useful for copy'n paste!)
   (i.e. hide roster window)
 * Publish personal information
@@ -33,8 +34,8 @@ TODO:
 
 * Commands:
 
-  - /group expand|shrink|toggle
-    + rename
+  - /group rename
+  - /roster enable|disable xml|status
   - /info [jid]
     (request info to the server if the buddy is not in the roster)
   - /server register|unregister

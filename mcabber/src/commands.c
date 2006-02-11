@@ -524,7 +524,10 @@ static void do_status_to(char *arg)
       scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", jid);
       jid = NULL;
     } else {
-      mc_strtolower(jid);
+      // Convert jid to lowercase
+      char *p = jid;
+      for ( ; *p && *p != '/'; p++)
+        *p = tolower(*p);
     }
   } else {
     // Add the current buddy
@@ -538,7 +541,6 @@ static void do_status_to(char *arg)
     char *cmd;
     if (!msg)
       msg = "";
-    mc_strtolower(jid);
     cmd = g_strdup_printf("%s %s", st, msg);
     scr_LogPrint(LPRINT_LOGNORM, "Sending to <%s> /status %s", jid, cmd);
     setstatus(jid, cmd);

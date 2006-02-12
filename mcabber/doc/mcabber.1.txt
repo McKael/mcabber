@@ -196,6 +196,11 @@ COMMANDS
         This command does not work for groups, at the moment (but you can move
         the buddies to another group with the "/move" command).
 
+/request time|version [jid]::
+        Send a "IQ" query to the current buddy, or to the specified Jabber
+        user.  If the resource is not provided with the jid, mcabber will
+        send the query to all known resources for this user.
+
 /room join|leave|names|nick|privmsg|remove|topic|unlock|destroy::
 /room invite|kick|ban|role|affil::
         The 'room' command handles Multi-User Chat room actions.
@@ -291,7 +296,7 @@ http://www.lilotux.net/~mikael/mcabber/[Main web site]
 
 COPYING
 -------
-Copyright (C) 2005 Mikael Berthe. +
+Copyright (C) 2005, 2006 Mikael Berthe. +
 Some portions are Copyright (C) 2002-2004 mailto:cabber@ajmacias.com[].
 
 Free use of this software is granted under the terms of the GNU General Public

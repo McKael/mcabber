@@ -219,6 +219,9 @@ The \fIverbatim\fR multi\-line mode disables commands, so that it is possible to
 \fB/rename\fR nickname
 Rename current buddy to the given nickname\&. This command does not work for groups, at the moment (but you can move the buddies to another group with the "/move" command)\&.
 
+.TP
+\fB/request\fR time|version [jid]
+Send a "IQ" query to the current buddy, or to the specified Jabber user\&. If the resource is not provided with the jid, mcabber will send the query to all known resources for this user\&.
 
 .TP
 \fB/room\fR
@@ -324,9 +327,9 @@ Main web site: <\fIhttp://www.lilotux.net/~mikael/mcabber/\fR>
 .SH "COPYING"
 
 
-Copyright (C) 2005 Mikael Berthe\&.
+Copyright © 2005, 2006 Mikael Berthe\&.
 
-Some portions are Copyright (C) 2002\-2004 <cabber@ajmacias\&.com>\&.
+Some portions are Copyright © 2002\-2004 <cabber@ajmacias\&.com>\&.
 
 
 Free use of this software is granted under the terms of the GNU General Public License (GPL)\&.

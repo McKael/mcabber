@@ -102,12 +102,12 @@ static iqs *iqs_find(const char *iqid)
   return NULL;
 }
 
-//  iqs_callback(iqid, xml_result)
+//  iqs_callback(iqid, xml_result, iqcontext)
 // Callback processing for the iqid message.
 // If we've received an answer, xml_result should point to the xmldata packet.
 // If this is a timeout, xml_result should be NULL.
 // Return 0 in case of success, -1 if the iqid hasn't been found.
-int iqs_callback(const char *iqid, xmlnode xml_result)
+int iqs_callback(const char *iqid, xmlnode xml_result, guint iqcontext)
 {
   iqs *i;
 
@@ -117,7 +117,7 @@ int iqs_callback(const char *iqid, xmlnode xml_result)
   // IQ processing
   // Note: If xml_result is NULL, this is a timeout
   if (i->callback)
-    (*i->callback)(i, xml_result);
+    (*i->callback)(i, xml_result, iqcontext);
 
   iqs_del(iqid);
   return 0;
@@ -135,7 +135,7 @@ void iqs_check_timeout(void)
     i = p->data;
     if ((!i->ts_expire && now_t > i->ts_create + IQS_MAX_TIMEOUT) ||
         (i->ts_expire && now_t > i->ts_expire)) {
-      iqs_callback(i->id, NULL);
+      iqs_callback(i->id, NULL, IQS_CONTEXT_TIMEOUT);
     }
   }
 }
@@ -241,13 +241,13 @@ static void handle_iq_roster(xmlnode x)
     scr_ShowBuddyWindow();
 }
 
-void iqscallback_version(iqs *iqp, xmlnode xml_result)
+void iqscallback_version(iqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p, *p_noutf8;
 
-  // xml_result is null for timeouts and errors
-  if (!xml_result) return;
+  // Leave now if we cannot process xml_result
+  if (!xml_result || iqcontext) return;
 
   ansqry = xmlnode_get_tag(xml_result, "query");
   if (!ansqry) {
@@ -304,13 +304,13 @@ void request_version(const char *fulljid)
   jab_send(jc, iqn->xmldata);
 }
 
-void iqscallback_time(iqs *iqp, xmlnode xml_result)
+void iqscallback_time(iqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p, *p_noutf8;
 
-  // xml_result is null for timeouts and errors
-  if (!xml_result) return;
+  // Leave now if we cannot process xml_result
+  if (!xml_result || iqcontext) return;
 
   ansqry = xmlnode_get_tag(xml_result, "query");
   if (!ansqry) {
@@ -401,7 +401,7 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
     return;
   }
 
-  if (!iqs_callback(id, xmldata))
+  if (!iqs_callback(id, xmldata, IQS_CONTEXT_RESULT))
     return;
 
   /*
@@ -612,7 +612,7 @@ void handle_packet_iq(jconn conn, char *type, char *from, xmlnode xmldata)
     xmlnode x = xmlnode_get_tag(xmldata, TMSG_ERROR);
     if (x)
       display_server_error(x);
-    iqs_callback(xmlnode_get_attrib(xmldata, "id"), NULL);
+    iqs_callback(xmlnode_get_attrib(xmldata, "id"), NULL, IQS_CONTEXT_ERROR);
   }
 }
 

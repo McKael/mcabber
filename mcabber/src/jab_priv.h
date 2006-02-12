@@ -23,6 +23,11 @@ struct T_presence {
 #define IQS_DEFAULT_TIMEOUT 40
 #define IQS_MAX_TIMEOUT     600
 
+#define IQS_CONTEXT_RESULT  0   /* Normal result should be zero */
+#define IQS_CONTEXT_TIMEOUT 1
+#define IQS_CONTEXT_ERROR   2
+
+
 typedef struct {
   char *id;
   time_t ts_create;
@@ -42,7 +47,7 @@ void handle_packet_iq(jconn conn, char *type, char *from, xmlnode xmldata);
 void display_server_error(xmlnode x);
 iqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout);
 int  iqs_del(const char *iqid);
-int  iqs_callback(const char *iqid, xmlnode xml_anwser);
+int  iqs_callback(const char *iqid, xmlnode xml_result, guint iqcontext);
 void iqs_check_timeout(void);
 void iqscallback_auth(iqs *iqp, xmlnode xml_result);
 void request_version(const char *fulljid);

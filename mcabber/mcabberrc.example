@@ -144,8 +144,14 @@ set message_autoaway = Auto-away (idle)
 #set color_backselected = cyan
 
 # Style
+# Note: the "log_win_height" and "roster_width" values below can be set
+# in real time when mcabber is running.  Refresh the screen (Ctrl-l) to
+# use the new values.
+#
 # Log window height (minimum 1, default 5)
 #set log_win_height = 5
+# Buddylist window width (minimum 2, default 24)
+#set roster_width=24
 #
 # Buddy name format (in status window):
 # - 0: (default) "<jid/resource>"

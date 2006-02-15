@@ -479,7 +479,6 @@ static void handle_iq_time(jconn conn, char *from, const char *id,
   struct tm *now;
 
   time(&now_t);
-  now = localtime(&now_t);
 
   // "from" has already been converted to user locale
   scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>", from);
@@ -492,8 +491,12 @@ static void handle_iq_time(jconn conn, char *from, const char *id,
   xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
   myquery = xmlnode_get_tag(x, "query");
 
+  now = gmtime(&now_t);
+
   strftime(buf, 512, "%Y%m%dT%T", now);
   xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "utc"), buf, -1);
+
+  now = localtime(&now_t);
 
   strftime(buf, 512, "%Z", now);
   if ((utf8_buf = to_utf8(buf))) {

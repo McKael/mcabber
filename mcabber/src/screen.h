@@ -11,7 +11,7 @@
 #define COLOR_BD_DESSEL 5
 #define COLOR_BD_DES    6
 
-#define ROSTER_WIDTH    24
+// Length of the timestamp & flag prefix in the chat buffer window
 #define PREFIX_WIDTH    17
 
 #define INPUTLINE_LENGTH  1024

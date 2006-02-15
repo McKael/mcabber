@@ -43,11 +43,13 @@
 #define window_entry(n) list_entry(n, window_entry_t, list)
 
 #define DEFAULT_LOG_WIN_HEIGHT (5+2)
+#define DEFAULT_ROSTER_WIDTH    24
 #define CHAT_WIN_HEIGHT (maxY-1-Log_Win_Height)
 
 char *LocaleCharSet = "C";
 
 static unsigned short int Log_Win_Height;
+static unsigned short int Roster_Width;
 
 static inline void check_offset(int);
 
@@ -299,10 +301,11 @@ static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   tmp = g_new0(window_entry_t, 1);
 
   // Dimensions
-  x = ROSTER_WIDTH;
+  x = Roster_Width;
   y = 0;
   lines = CHAT_WIN_HEIGHT;
-  cols = maxX - ROSTER_WIDTH;
+  cols = maxX - Roster_Width;
+  if (cols < 1) cols = 1;
 
   tmp->win = newwin(lines, cols, y, x);
   while (!tmp->win) {
@@ -324,7 +327,7 @@ static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   update_panels();
 
   // Load buddy history from file (if enabled)
-  hlog_read_history(title, &tmp->hbuf, maxX - ROSTER_WIDTH - PREFIX_WIDTH);
+  hlog_read_history(title, &tmp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
 
   list_add_tail(&tmp->list, &window_list);
 
@@ -512,7 +515,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     win_entry->top = g_list_last(win_entry->hbuf);
 
   hbuf_add_line(&win_entry->hbuf, text, timestamp, prefix_flags,
-                maxX - ROSTER_WIDTH - PREFIX_WIDTH);
+                maxX - Roster_Width - PREFIX_WIDTH);
 
   if (win_entry->cleared) {
     win_entry->cleared = FALSE;
@@ -551,16 +554,16 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 //
 void scr_DrawMainWindow(unsigned int fullinit)
 {
-  int requested_lwh;
+  int requested_size;
 
   Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
-  requested_lwh = settings_opt_get_int("log_win_height");
-  if (requested_lwh > 0) {
-    if (maxY > requested_lwh + 3)
-      Log_Win_Height = requested_lwh + 2;
+  requested_size = settings_opt_get_int("log_win_height");
+  if (requested_size > 0) {
+    if (maxY > requested_size + 3)
+      Log_Win_Height = requested_size + 2;
     else
       Log_Win_Height = ((maxY > 5) ? (maxY - 2) : 3);
-  } else if (requested_lwh < 0) {
+  } else if (requested_size < 0) {
     Log_Win_Height = 3;
   }
 
@@ -573,10 +576,18 @@ void scr_DrawMainWindow(unsigned int fullinit)
     }
   }
 
+  requested_size = settings_opt_get_int("roster_width");
+  if (requested_size > 1)
+    Roster_Width = requested_size;
+  else if (requested_size == 1)
+    Roster_Width = 2;
+  else
+    Roster_Width = DEFAULT_ROSTER_WIDTH;
+
   if (fullinit) {
     /* Create windows */
-    rosterWnd = newwin(CHAT_WIN_HEIGHT, ROSTER_WIDTH, 0, 0);
-    chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH, 0, ROSTER_WIDTH);
+    rosterWnd = newwin(CHAT_WIN_HEIGHT, Roster_Width, 0, 0);
+    chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - Roster_Width, 0, Roster_Width);
     logWnd_border = newwin(Log_Win_Height, maxX, CHAT_WIN_HEIGHT, 0);
     logWnd    = newwin(Log_Win_Height-2, maxX-2, CHAT_WIN_HEIGHT+1, 1);
     inputWnd  = newwin(1, maxX, maxY-1, 0);
@@ -590,9 +601,10 @@ void scr_DrawMainWindow(unsigned int fullinit)
     wbkgd(logWnd_border,  COLOR_PAIR(COLOR_GENERAL));
     wbkgd(logWnd,         COLOR_PAIR(COLOR_GENERAL));
   } else {
-    /* Resize windows */
-    wresize(rosterWnd, CHAT_WIN_HEIGHT, ROSTER_WIDTH);
-    wresize(chatWnd, CHAT_WIN_HEIGHT, maxX - ROSTER_WIDTH);
+    /* Resize/move windows */
+    wresize(rosterWnd, CHAT_WIN_HEIGHT, Roster_Width);
+    wresize(chatWnd, CHAT_WIN_HEIGHT, maxX - Roster_Width);
+    mvwin(chatWnd, 0, Roster_Width);
 
     wresize(logWnd_border, Log_Win_Height, maxX);
     wresize(logWnd, Log_Win_Height-2, maxX-2);
@@ -665,17 +677,19 @@ void scr_Resize()
   scr_DrawMainWindow(FALSE);
 
   // Resize all buddy windows
-  x = ROSTER_WIDTH;
+  x = Roster_Width;
   y = 0;
   lines = CHAT_WIN_HEIGHT;
-  cols = maxX - ROSTER_WIDTH;
+  cols = maxX - Roster_Width;
+  if (cols < 1) cols = 1;
 
   list_for_each_safe(pos, n, &window_list) {
     search_entry = window_entry(pos);
     if (search_entry->win) {
       GList *rescue_top;
-      // Resize buddy window (no need to move it)
+      // Resize/move buddy window
       wresize(search_entry->win, lines, cols);
+      mvwin(search_entry->win, 0, Roster_Width);
       werase(search_entry->win);
       // If a panel exists, replace the old window with the new
       if (search_entry->panel) {
@@ -684,7 +698,7 @@ void scr_Resize()
       // Redo line wrapping
       rescue_top = hbuf_previous_persistent(search_entry->top);
       hbuf_rebuild(&search_entry->hbuf,
-              maxX - ROSTER_WIDTH - PREFIX_WIDTH);
+              maxX - Roster_Width - PREFIX_WIDTH);
       if (g_list_position(g_list_first(search_entry->hbuf),
                           search_entry->top) == -1) {
         search_entry->top = rescue_top;
@@ -702,7 +716,7 @@ void scr_Resize()
 void scr_DrawRoster(void)
 {
   static guint offset = 0;
-  char name[ROSTER_WIDTH];
+  char *name, *rline;
   int maxx, maxy;
   GList *buddy;
   int i, n;
@@ -713,15 +727,14 @@ void scr_DrawRoster(void)
   update_roster = FALSE;
 
   getmaxyx(rosterWnd, maxy, maxx);
-  maxx--;  // last char is for vertical border
-  name[ROSTER_WIDTH-7] = 0;
+  maxx--;  // Last char is for vertical border
 
-  // cleanup of roster window
+  // Cleanup of roster window
   werase(rosterWnd);
   // Redraw the vertical line (not very good...)
   wattrset(rosterWnd, COLOR_PAIR(COLOR_GENERAL));
   for (i=0 ; i < CHAT_WIN_HEIGHT ; i++)
-    mvwaddch(rosterWnd, i, ROSTER_WIDTH-1, ACS_VLINE);
+    mvwaddch(rosterWnd, i, Roster_Width-1, ACS_VLINE);
 
   // Leave now if buddylist is empty
   if (!buddylist) {
@@ -730,6 +743,8 @@ void scr_DrawRoster(void)
     doupdate();
     return;
   }
+
+  name = g_new0(char, Roster_Width);
 
   // Update offset if necessary
   // a) Try to show as many buddylist items as possible
@@ -742,6 +757,7 @@ void scr_DrawRoster(void)
   i = g_list_position(buddylist, current_buddy);
   if (i == -1) { // This is bad
     scr_LogPrint(LPRINT_NORMAL, "Doh! Can't find current selected buddy!!");
+    g_free(name);
     return;
   } else if (i < offset) {
     offset = i;
@@ -749,11 +765,12 @@ void scr_DrawRoster(void)
     offset = i + 1 - maxy;
   }
 
+  rline = g_new0(char, Roster_Width+1);
+
   buddy = buddylist;
   rOffset = offset;
 
   for (i=0; i<maxy && buddy; buddy = g_list_next(buddy)) {
-
     char status = '?';
     char pending = ' ';
     enum imstatus budstate;
@@ -796,21 +813,28 @@ void scr_DrawRoster(void)
         status = 'x';
     }
 
-    strncpy(name, buddy_getname(BUDDATA(buddy)), ROSTER_WIDTH-7);
+    if (Roster_Width > 7)
+      strncpy(name, buddy_getname(BUDDATA(buddy)), Roster_Width-7);
+    else
+      name[0] = 0;
+
     if (isgrp) {
       char *sep;
       if (ishid)
         sep = "+++";
       else
         sep = "---";
-      mvwprintw(rosterWnd, i, 0, " %c%s %s", pending, sep, name);
+      snprintf(rline, Roster_Width, " %c%s %s", pending, sep, name);
+    } else {
+      snprintf(rline, Roster_Width, " %c[%c] %s", pending, status, name);
     }
-    else
-      mvwprintw(rosterWnd, i, 0, " %c[%c] %s", pending, status, name);
 
+    mvwprintw(rosterWnd, i, 0, "%s", rline);
     i++;
   }
 
+  g_free(rline);
+  g_free(name);
   top_panel(inputPanel);
   update_panels();
   doupdate();
@@ -1770,7 +1794,9 @@ int process_key(int key)
         break;
     case 12:    // Ctrl-l
         scr_CheckAutoAway(TRUE);
+        scr_Resize();
         redrawwin(stdscr);
+        break;
     case KEY_RESIZE:
         scr_Resize();
         break;

@@ -31,6 +31,7 @@
 #include "utils.h"
 #include "screen.h"
 #include "settings.h"
+#include "hbuf.h"
 
 
 static GSList *iqs_list;
@@ -245,6 +246,8 @@ void iqscallback_version(iqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p, *p_noutf8;
+  char *bjid;
+  char *buf;
 
   // Leave now if we cannot process xml_result
   if (!xml_result || iqcontext) return;
@@ -260,36 +263,55 @@ void iqscallback_version(iqs *iqp, xmlnode xml_result, guint iqcontext)
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
     return;
   }
-  p_noutf8 = from_utf8(p);
-  if (p_noutf8) {
-    scr_LogPrint(LPRINT_LOGNORM, "IQ:version from <%s>", p_noutf8);
-    g_free(p_noutf8);
+  bjid = from_utf8(p);
+  if (!bjid) {
+    scr_LogPrint(LPRINT_LOGNORM, "UTF-8 decoding error in IQ:version result "
+                 "(sender name).");
+    return;
   }
+
+  buf = g_strdup_printf("IQ:version result from <%s>", bjid);
+  scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+
+  // bjid should now really be the "bare JID", let's strip the resource
+  p = strchr(bjid, '/');
+  if (p) *p = '\0';
+
+  scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+  g_free(buf);
+
   // Get result data...
   p = xmlnode_get_tag_data(ansqry, "name");
   if (p) {
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
-      scr_LogPrint(LPRINT_LOGNORM, "Name:    %s", p_noutf8);
+      buf = g_strdup_printf("Name:    %s", p_noutf8);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
       g_free(p_noutf8);
+      g_free(buf);
     }
   }
   p = xmlnode_get_tag_data(ansqry, "version");
   if (p) {
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
-      scr_LogPrint(LPRINT_LOGNORM, "Version: %s", p_noutf8);
+      buf = g_strdup_printf("Version: %s", p_noutf8);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
       g_free(p_noutf8);
+      g_free(buf);
     }
   }
   p = xmlnode_get_tag_data(ansqry, "os");
   if (p) {
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
-      scr_LogPrint(LPRINT_LOGNORM, "OS:      %s", p_noutf8);
+      buf = g_strdup_printf("OS:      %s", p_noutf8);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
       g_free(p_noutf8);
+      g_free(buf);
     }
   }
+  g_free(bjid);
 }
 
 void request_version(const char *fulljid)
@@ -308,6 +330,8 @@ void iqscallback_time(iqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p, *p_noutf8;
+  char *bjid;
+  char *buf;
 
   // Leave now if we cannot process xml_result
   if (!xml_result || iqcontext) return;
@@ -323,36 +347,55 @@ void iqscallback_time(iqs *iqp, xmlnode xml_result, guint iqcontext)
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result (no sender name).");
     return;
   }
-  p_noutf8 = from_utf8(p);
-  if (p_noutf8) {
-    scr_LogPrint(LPRINT_LOGNORM, "IQ:time from <%s>", p_noutf8);
-    g_free(p_noutf8);
+  bjid = from_utf8(p);
+  if (!bjid) {
+    scr_LogPrint(LPRINT_LOGNORM, "UTF-8 decoding error in IQ:time result "
+                 "(sender name).");
+    return;
   }
+
+  buf = g_strdup_printf("IQ:time result from <%s>", bjid);
+  scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+
+  // bjid should now really be the "bare JID", let's strip the resource
+  p = strchr(bjid, '/');
+  if (p) *p = '\0';
+
+  scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+  g_free(buf);
+
   // Get result data...
   p = xmlnode_get_tag_data(ansqry, "utc");
   if (p) {
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
-      scr_LogPrint(LPRINT_LOGNORM, "UTC:  %s", p_noutf8);
+      buf = g_strdup_printf("UTC:  %s", p_noutf8);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
       g_free(p_noutf8);
+      g_free(buf);
     }
   }
   p = xmlnode_get_tag_data(ansqry, "tz");
   if (p) {
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
-      scr_LogPrint(LPRINT_LOGNORM, "TZ:   %s", p_noutf8);
+      buf = g_strdup_printf("TZ:   %s", p_noutf8);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
       g_free(p_noutf8);
+      g_free(buf);
     }
   }
   p = xmlnode_get_tag_data(ansqry, "display");
   if (p) {
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
-      scr_LogPrint(LPRINT_LOGNORM, "Time: %s", p_noutf8);
+      buf = g_strdup_printf("Time: %s", p_noutf8);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
       g_free(p_noutf8);
+      g_free(buf);
     }
   }
+  g_free(bjid);
 }
 
 void request_time(const char *fulljid)

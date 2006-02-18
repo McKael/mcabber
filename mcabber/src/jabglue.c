@@ -170,6 +170,9 @@ void jb_set_keepalive_delay(unsigned int delay)
 
 void jb_main()
 {
+  time_t now;
+  static time_t last_iqs_check = 0;
+
   if (!online) {
     safe_usleep(10000);
     return;
@@ -211,10 +214,16 @@ void jb_main()
     statehandler(jc, JCONN_STATE_OFF);
   }
 
+  time(&now);
+
+  // Check for IQ requests timeouts
+  if (now > last_iqs_check + 20) {
+    iqs_check_timeout(now);
+    last_iqs_check = now;
+  }
+
   // Keepalive
   if (KeepaliveDelay) {
-    time_t now;
-    time(&now);
     if (now > LastPingTime + KeepaliveDelay)
       jb_keepalive();
   }

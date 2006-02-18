@@ -124,16 +124,18 @@ int iqs_callback(const char *iqid, xmlnode xml_result, guint iqcontext)
   return 0;
 }
 
-void iqs_check_timeout(void)
+void iqs_check_timeout(time_t now_t)
 {
   GSList *p;
   iqs *i;
-  time_t now_t;
 
-  time(&now_t);
-
-  for (p = iqs_list; p; p = g_slist_next(p)) {
+  p = iqs_list;
+  while (p) {
     i = p->data;
+    // We must get next iqs element now because the current one
+    // could be freed.
+    p = g_slist_next(p);
+
     if ((!i->ts_expire && now_t > i->ts_create + IQS_MAX_TIMEOUT) ||
         (i->ts_expire && now_t > i->ts_expire)) {
       iqs_callback(i->id, NULL, IQS_CONTEXT_TIMEOUT);

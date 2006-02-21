@@ -131,6 +131,9 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "top");
   compl_add_category_word(COMPL_ROSTER, "up");
   compl_add_category_word(COMPL_ROSTER, "down");
+  compl_add_category_word(COMPL_ROSTER, "hide");
+  compl_add_category_word(COMPL_ROSTER, "show");
+  compl_add_category_word(COMPL_ROSTER, "toggle");
   compl_add_category_word(COMPL_ROSTER, "hide_offline");
   compl_add_category_word(COMPL_ROSTER, "show_offline");
   compl_add_category_word(COMPL_ROSTER, "toggle_offline");
@@ -391,6 +394,12 @@ static void do_roster(char *arg)
   } else if (!strcasecmp(arg, "bottom")) {
     scr_RosterBottom();
     update_roster = TRUE;
+  } else if (!strcasecmp(arg, "hide")) {
+    scr_RosterVisibility(0);
+  } else if (!strcasecmp(arg, "show")) {
+    scr_RosterVisibility(1);
+  } else if (!strcasecmp(arg, "toggle")) {
+    scr_RosterVisibility(-1);
   } else if (!strcasecmp(arg, "hide_offline")) {
     buddylist_set_hide_offline_buddies(TRUE);
     if (current_buddy)

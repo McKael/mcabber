@@ -73,6 +73,7 @@ static PANEL *logPanel, *logPanel_border;
 static int maxY, maxX;
 static window_entry_t *currentWindow;
 
+static int roster_hidden;
 static int chatmode;
 static int multimode;
 static char *multiline;
@@ -576,13 +577,17 @@ void scr_DrawMainWindow(unsigned int fullinit)
     }
   }
 
-  requested_size = settings_opt_get_int("roster_width");
-  if (requested_size > 1)
-    Roster_Width = requested_size;
-  else if (requested_size == 1)
-    Roster_Width = 2;
-  else
-    Roster_Width = DEFAULT_ROSTER_WIDTH;
+  if (roster_hidden) {
+    Roster_Width = 0;
+  } else {
+    requested_size = settings_opt_get_int("roster_width");
+    if (requested_size > 1)
+      Roster_Width = requested_size;
+    else if (requested_size == 1)
+      Roster_Width = 2;
+    else
+      Roster_Width = DEFAULT_ROSTER_WIDTH;
+  }
 
   if (fullinit) {
     /* Create windows */
@@ -731,14 +736,19 @@ void scr_DrawRoster(void)
 
   // Cleanup of roster window
   werase(rosterWnd);
-  // Redraw the vertical line (not very good...)
-  wattrset(rosterWnd, COLOR_PAIR(COLOR_GENERAL));
-  for (i=0 ; i < CHAT_WIN_HEIGHT ; i++)
-    mvwaddch(rosterWnd, i, Roster_Width-1, ACS_VLINE);
 
-  // Leave now if buddylist is empty
-  if (!buddylist) {
+  if (Roster_Width) {
+    // Redraw the vertical line (not very good...)
+    wattrset(rosterWnd, COLOR_PAIR(COLOR_GENERAL));
+    for (i=0 ; i < CHAT_WIN_HEIGHT ; i++)
+      mvwaddch(rosterWnd, i, Roster_Width-1, ACS_VLINE);
+  }
+
+  if (!buddylist)
     offset = 0;
+
+  // Leave now if buddylist is empty or the roster is hidden
+  if (!buddylist || !Roster_Width) {
     update_panels();
     doupdate();
     return;
@@ -838,6 +848,25 @@ void scr_DrawRoster(void)
   top_panel(inputPanel);
   update_panels();
   doupdate();
+}
+
+//  scr_RosterVisibility(status)
+// Set the roster visibility:
+// status=1   Show roster
+// status=0   Hide roster
+// status=-1  Toggle roster status
+void scr_RosterVisibility(int status)
+{
+  if (status > 0)
+    roster_hidden = FALSE;
+  else if (status == 0)
+    roster_hidden = TRUE;
+  else
+    roster_hidden = !roster_hidden;
+
+  // Recalculate windows size and redraw
+  scr_Resize();
+  redrawwin(stdscr);
 }
 
 inline void scr_WriteMessage(const char *jid, const char *text,

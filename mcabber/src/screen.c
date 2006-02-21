@@ -867,6 +867,20 @@ void scr_RosterVisibility(int status)
     roster_hidden = !roster_hidden;
 
   if (roster_hidden != old_roster_status) {
+    if (roster_hidden) {
+      // The requested status is hidden.
+      // Let's check it makes sense...
+      if ((!current_buddy) ||
+          ((buddy_gettype(BUDDATA(current_buddy)) &
+            (ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT)) == 0)) {
+        // We should not hide the roster.
+        roster_hidden = FALSE;
+        return; // No need to refresh, a priori.
+      }
+      // Enter chat mode
+      scr_set_chatmode(TRUE);
+      scr_ShowBuddyWindow();
+    }
     // Recalculate windows size and redraw
     scr_Resize();
     redrawwin(stdscr);
@@ -966,6 +980,9 @@ static void set_current_buddy(GList *newbuddy)
 
   if (!current_buddy || !newbuddy)  return;
   if (newbuddy == current_buddy)    return;
+
+  // We're changing the selected buddy, the roster must be displayed.
+  scr_RosterVisibility(1);
 
   prev_st = buddy_getstatus(BUDDATA(current_buddy), NULL);
   buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
@@ -1821,6 +1838,7 @@ int process_key(int key)
         chatmode = FALSE;
         if (current_buddy)
           buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+        scr_RosterVisibility(1);
         top_panel(chatPanel);
         top_panel(inputPanel);
         update_panels();

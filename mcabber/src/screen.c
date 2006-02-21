@@ -857,6 +857,8 @@ void scr_DrawRoster(void)
 // status=-1  Toggle roster status
 void scr_RosterVisibility(int status)
 {
+  int old_roster_status = roster_hidden;
+
   if (status > 0)
     roster_hidden = FALSE;
   else if (status == 0)
@@ -864,9 +866,11 @@ void scr_RosterVisibility(int status)
   else
     roster_hidden = !roster_hidden;
 
-  // Recalculate windows size and redraw
-  scr_Resize();
-  redrawwin(stdscr);
+  if (roster_hidden != old_roster_status) {
+    // Recalculate windows size and redraw
+    scr_Resize();
+    redrawwin(stdscr);
+  }
 }
 
 inline void scr_WriteMessage(const char *jid, const char *text,

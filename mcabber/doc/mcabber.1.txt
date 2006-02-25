@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.7.5-dev, January 2006
+v0.7.5-dev, February 2006
 
 NAME
 ----
@@ -222,6 +222,7 @@ COMMANDS
         'affil' jid affil [reason];; change jid's affiliation (affil can be "none", "member", "admin", "owner")
 
 /roster bottom|top|hide_offline|show_offline|toggle_offline::
+/roster hide|show|toggle::
 /roster alternate|unread_first|unread_next::
 /roster search bud::
         The 'roster' command manipulates the roster/buddylist.  Here are the available parameters:
@@ -233,6 +234,9 @@ COMMANDS
         'hide_offline';; hide offline buddies
         'show_offline';; show offline buddies
         'toggle_offline';; toggle display of offline buddies
+        'hide';;         hide roster (full-width chat window)
+        'show';;         show roster
+        'toggle';;       toggle roster visibility
         'search' bud;;   search for a buddy with a name or buddy containing "bud" (only in the displayed buddylist)
         'alternate';;    jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
         'unread_first';; jump to the first unread message

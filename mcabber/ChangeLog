@@ -2,11 +2,16 @@ mcabber (0.7.5-dev)
 
  * New IQ system, for Jabber IQ request
  * Add "/request time|version" commands
+ * Add "/roster hide|show|toggle" commands
+   This allows having a full-width chat window.
  * We try to display as many roster items as possible in the buddylist
  * New "beep_on_message" option
  * New "eventcmd_checkstatus" option
+ * New "roster_width" option
  * Improved English messages (thanks to Philip M. White)
  * Fix a small issue with resources containing uppercase chars in /status_to
+ * Fix iq:time handling: really return UTC time when answering a request
+ * Documentation updates
 
  -- Mikael, ?
 

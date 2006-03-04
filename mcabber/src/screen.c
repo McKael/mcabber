@@ -131,17 +131,17 @@ static void ParseColors(void)
     "", "",
     "general",
     "status",
-    "newmsg",
-    "rosterselect",
-    "rosternormal",
+    "roster",
+    "rostersel",
+    "rosternewmsg",
     NULL
   };
 
   char *tmp = g_new(char, 512);
   const char *color;
   const char *background   = settings_opt_get("color_background");
-  const char *backselected = settings_opt_get("color_backselected");
-  const char *backstatus   = settings_opt_get("color_backstatus");
+  const char *backselected = settings_opt_get("color_bgrostersel");
+  const char *backstatus   = settings_opt_get("color_bgstatus");
   int i = 0;
 
   // Default values
@@ -168,16 +168,16 @@ static void ParseColors(void)
       init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
                 FindColor(backstatus));
       break;
-    case COLOR_NMSG:
-      init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
+    case COLOR_ROSTER:
+      init_pair(i+1, ((color) ? FindColor(color) : COLOR_GREEN),
                 FindColor(background));
       break;
-    case COLOR_BD_DESSEL:
+    case COLOR_ROSTERSEL:
       init_pair(i+1, ((color) ? FindColor(color) : COLOR_BLUE),
                 FindColor(backselected));
       break;
-    case COLOR_BD_DES:
-      init_pair(i+1, ((color) ? FindColor(color) : COLOR_GREEN),
+    case COLOR_ROSTERNMSG:
+      init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
                 FindColor(background));
       break;
     }
@@ -789,16 +789,16 @@ void scr_DrawRoster(void)
     if (budstate >= 0 && budstate < imstatus_size && currentstatus != offline)
       status = imstatus2char[budstate];
     if (buddy == current_buddy) {
-      wattrset(rosterWnd, COLOR_PAIR(COLOR_BD_DESSEL));
+      wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTERSEL));
       // The 3 following lines aim to color the whole line
       wmove(rosterWnd, i, 0);
       for (n = 0; n < maxx; n++)
         waddch(rosterWnd, ' ');
     } else {
       if (pending == '#')
-        wattrset(rosterWnd, COLOR_PAIR(COLOR_NMSG));
+        wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTERNMSG));
       else
-        wattrset(rosterWnd, COLOR_PAIR(COLOR_BD_DES));
+        wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTER));
     }
 
     if (ismuc) {

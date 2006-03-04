@@ -189,4 +189,8 @@ alias notavail = status notavail
 bind 24 = roster alternate
 # F5 (269) bound to /roster toggle_offline  (centericq-like, IIRC)
 bind 269 = roster toggle_offline
+# F12 (276) bound to /roster toggle
+bind 276 = roster toggle
 
+# Sample alias to join mcabber channel with "/jmc"
+#alias jmc = room join mcabber@conf.lilotux.net

@@ -1,5 +1,7 @@
 mcabber (0.7.5-dev)
 
+ * UI change: Add two status/info lines
+ * Name change for the color options
  * New IQ system, for Jabber IQ request
  * Add "/request time|version" commands
  * Add "/roster hide|show|toggle" commands

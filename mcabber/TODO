@@ -11,13 +11,7 @@ TODO:
 * UTF-8 support (Can somebody help me?)
 * Implement automatic reconnection after network failure
 * Presence notification is always accepted.  We should ask...
-* Display status / chat mode (a status line would be great)
-* Pending message flag is not displayed when buddy is outside Contact window,
-  maybe we could show it someway (maybe just a flag?).
 * Show number of online contacts in folded groups
-* Configure buddylist width
-* Buddy buffer in full width (useful for copy'n paste!)
-  (i.e. hide roster window)
 * Publish personal information
 * GPG support
 * Colors for presence

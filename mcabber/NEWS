@@ -1,3 +1,11 @@
+mcabber (0.7.5)
+
+ * The names of the color options have changed, please check your
+   configuration file if you have customized your colors.
+   The sample config. file has been updated.
+
+ -- Mikael, ?
+
 mcabber (0.6.5)
 
  * The "debug" option has been replaced with the tracelog_level and

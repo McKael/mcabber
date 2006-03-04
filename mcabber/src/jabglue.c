@@ -1115,6 +1115,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       buddy_setnickname(room_elt->data, NULL);
       buddy_del_all_resources(room_elt->data);
       buddy_settopic(room_elt->data, NULL);
+      scr_UpdateChatStatus(FALSE);
       update_roster = TRUE;
     }
 

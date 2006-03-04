@@ -716,10 +716,10 @@ void scr_Resize()
     scr_ShowBuddyWindow();
 }
 
-//  update_chat_status_window(forceupdate)
+//  scr_UpdateChatStatus(forceupdate)
 // Redraw the buddy status bar.
 // Set forceupdate to TRUE if doupdate() must be called.
-static void update_chat_status_window(int forceupdate)
+void scr_UpdateChatStatus(int forceupdate)
 {
   unsigned short btype, isgrp, ismuc;
   const char *fullname;
@@ -771,6 +771,8 @@ static void update_chat_status_window(int forceupdate)
     GSList *resources = buddy_getresources(BUDDATA(current_buddy));
     if (resources)
       msg = buddy_getstatusmsg(BUDDATA(current_buddy), resources->data);
+  } else if (ismuc) {
+    msg = buddy_gettopic(BUDDATA(current_buddy));
   }
   if (!msg)
     msg = "";
@@ -821,7 +823,7 @@ void scr_DrawRoster(void)
   if (!buddylist)
     offset = 0;
   else
-    update_chat_status_window(FALSE);
+    scr_UpdateChatStatus(FALSE);
 
   // Leave now if buddylist is empty or the roster is hidden
   if (!buddylist || !Roster_Width) {
@@ -1383,7 +1385,7 @@ void scr_BufferDate(time_t t)
 inline void scr_set_chatmode(int enable)
 {
   chatmode = enable;
-  update_chat_status_window(TRUE);
+  scr_UpdateChatStatus(TRUE);
 }
 
 //  scr_get_multimode()
@@ -1913,7 +1915,7 @@ int process_key(int key)
         if (current_buddy)
           buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
         scr_RosterVisibility(1);
-        update_chat_status_window(FALSE);
+        scr_UpdateChatStatus(FALSE);
         top_panel(chatPanel);
         top_panel(inputPanel);
         update_panels();

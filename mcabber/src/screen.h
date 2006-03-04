@@ -7,9 +7,10 @@
 #include "logprint.h"
 
 #define COLOR_GENERAL   3
-#define COLOR_NMSG      4
-#define COLOR_BD_DESSEL 5
-#define COLOR_BD_DES    6
+#define COLOR_STATUS    4
+#define COLOR_NMSG      5
+#define COLOR_BD_DESSEL 6
+#define COLOR_BD_DES    7
 
 // Length of the timestamp & flag prefix in the chat buffer window
 #define PREFIX_WIDTH    17

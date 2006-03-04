@@ -66,10 +66,11 @@ typedef struct _window_entry_t {
 } window_entry_t;
 
 
-static WINDOW *rosterWnd, *chatWnd, *inputWnd;
-static WINDOW *logWnd, *logWnd_border;
+static WINDOW *rosterWnd, *chatWnd, *inputWnd, *logWnd;
+static WINDOW *mainstatusWnd, *chatstatusWnd;
 static PANEL *rosterPanel, *chatPanel, *inputPanel;
-static PANEL *logPanel, *logPanel_border;
+static PANEL *mainstatusPanel, *chatstatusPanel;
+static PANEL *logPanel;
 static int maxY, maxX;
 static window_entry_t *currentWindow;
 
@@ -98,36 +99,6 @@ static int scr_WindowWidth(WINDOW * win)
   int x, y;
   getmaxyx(win, y, x);
   return x;
-}
-
-static void scr_draw_box(WINDOW * win, int y, int x, int height, int width,
-                         int Color, chtype box, chtype border)
-{
-  int i, j;
-
-  wattrset(win, COLOR_PAIR(Color));
-  for (i = 0; i < height; i++) {
-    wmove(win, y + i, x);
-    for (j = 0; j < width; j++)
-      if (!i && !j)
-	waddch(win, border | ACS_ULCORNER);
-      else if (i == height - 1 && !j)
-	waddch(win, border | ACS_LLCORNER);
-      else if (!i && j == width - 1)
-	waddch(win, box | ACS_URCORNER);
-      else if (i == height - 1 && j == width - 1)
-	waddch(win, box | ACS_LRCORNER);
-      else if (!i)
-	waddch(win, border | ACS_HLINE);
-      else if (i == height - 1)
-	waddch(win, box | ACS_HLINE);
-      else if (!j)
-	waddch(win, border | ACS_VLINE);
-      else if (j == width - 1)
-	waddch(win, box | ACS_VLINE);
-      else
-	waddch(win, box | ' ');
-  }
 }
 
 static int FindColor(const char *name)
@@ -159,6 +130,7 @@ static void ParseColors(void)
   const char *colors[8] = {
     "", "",
     "general",
+    "status",
     "newmsg",
     "rosterselect",
     "rosternormal",
@@ -169,11 +141,13 @@ static void ParseColors(void)
   const char *color;
   const char *background   = settings_opt_get("color_background");
   const char *backselected = settings_opt_get("color_backselected");
+  const char *backstatus   = settings_opt_get("color_backstatus");
   int i = 0;
 
   // Default values
-  if (!background)   background   = "blue";
+  if (!background)   background   = "black";
   if (!backselected) backselected = "cyan";
+  if (!backstatus)   backstatus   = "blue";
 
   while (colors[i]) {
     snprintf(tmp, 512, "color_%s", colors[i]);
@@ -186,20 +160,24 @@ static void ParseColors(void)
     case 2:
       init_pair(2, COLOR_WHITE, COLOR_BLACK);
       break;
-    case 3:
-      init_pair(3, ((color) ? FindColor(color) : COLOR_WHITE),
+    case COLOR_GENERAL:
+      init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
                 FindColor(background));
       break;
-    case 4:
-      init_pair(4, ((color) ? FindColor(color) : COLOR_RED),
+    case COLOR_STATUS:
+      init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
+                FindColor(backstatus));
+      break;
+    case COLOR_NMSG:
+      init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
                 FindColor(background));
       break;
-    case 5:
-      init_pair(5, ((color) ? FindColor(color) : COLOR_BLACK),
+    case COLOR_BD_DESSEL:
+      init_pair(i+1, ((color) ? FindColor(color) : COLOR_BLUE),
                 FindColor(backselected));
       break;
-    case 6:
-      init_pair(6, ((color) ? FindColor(color) : COLOR_MAGENTA),
+    case COLOR_BD_DES:
+      init_pair(i+1, ((color) ? FindColor(color) : COLOR_GREEN),
                 FindColor(background));
       break;
     }
@@ -593,8 +571,9 @@ void scr_DrawMainWindow(unsigned int fullinit)
     /* Create windows */
     rosterWnd = newwin(CHAT_WIN_HEIGHT, Roster_Width, 0, 0);
     chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - Roster_Width, 0, Roster_Width);
-    logWnd_border = newwin(Log_Win_Height, maxX, CHAT_WIN_HEIGHT, 0);
-    logWnd    = newwin(Log_Win_Height-2, maxX-2, CHAT_WIN_HEIGHT+1, 1);
+    logWnd    = newwin(Log_Win_Height-2, maxX, CHAT_WIN_HEIGHT+1, 0);
+    chatstatusWnd = newwin(1, maxX, CHAT_WIN_HEIGHT, 0);
+    mainstatusWnd = newwin(1, maxX, maxY-2, 0);
     inputWnd  = newwin(1, maxX, maxY-1, 0);
     if (!rosterWnd || !chatWnd || !logWnd || !inputWnd) {
       scr_TerminateCurses();
@@ -603,19 +582,25 @@ void scr_DrawMainWindow(unsigned int fullinit)
     }
     wbkgd(rosterWnd,      COLOR_PAIR(COLOR_GENERAL));
     wbkgd(chatWnd,        COLOR_PAIR(COLOR_GENERAL));
-    wbkgd(logWnd_border,  COLOR_PAIR(COLOR_GENERAL));
     wbkgd(logWnd,         COLOR_PAIR(COLOR_GENERAL));
+    wbkgd(chatstatusWnd,  COLOR_PAIR(COLOR_STATUS));
+    wbkgd(mainstatusWnd,  COLOR_PAIR(COLOR_STATUS));
   } else {
     /* Resize/move windows */
     wresize(rosterWnd, CHAT_WIN_HEIGHT, Roster_Width);
     wresize(chatWnd, CHAT_WIN_HEIGHT, maxX - Roster_Width);
     mvwin(chatWnd, 0, Roster_Width);
 
-    wresize(logWnd_border, Log_Win_Height, maxX);
-    wresize(logWnd, Log_Win_Height-2, maxX-2);
-    mvwin(logWnd_border, CHAT_WIN_HEIGHT, 0);
-    mvwin(logWnd, CHAT_WIN_HEIGHT+1, 1);
+    wresize(logWnd, Log_Win_Height-2, maxX);
+    mvwin(logWnd, CHAT_WIN_HEIGHT+1, 0);
 
+    // Resize & move chat status window
+    wresize(chatstatusWnd, 1, maxX);
+    mvwin(chatstatusWnd, CHAT_WIN_HEIGHT, 0);
+    // Resize & move main status window
+    wresize(mainstatusWnd, 1, maxX);
+    mvwin(mainstatusWnd, maxY-2, 0);
+    // Resize & move input line window
     wresize(inputWnd, 1, maxX);
     mvwin(inputWnd, maxY-1, 0);
 
@@ -627,8 +612,6 @@ void scr_DrawMainWindow(unsigned int fullinit)
   mvwprintw(chatWnd, 0, 0, "Thanks for using mcabber.\n");
   mvwprintw(chatWnd, 1, 0, "http://www.lilotux.net/~mikael/mcabber/");
 
-  // - Draw/clear the log window
-  scr_draw_box(logWnd_border, 0, 0, Log_Win_Height, maxX, COLOR_GENERAL, 0, 0);
   // Auto-scrolling in log window
   scrollok(logWnd, TRUE);
 
@@ -641,8 +624,9 @@ void scr_DrawMainWindow(unsigned int fullinit)
     // Create panels
     rosterPanel = new_panel(rosterWnd);
     chatPanel   = new_panel(chatWnd);
-    logPanel_border = new_panel(logWnd_border);
     logPanel    = new_panel(logWnd);
+    chatstatusPanel = new_panel(chatstatusWnd);
+    mainstatusPanel = new_panel(mainstatusWnd);
     inputPanel  = new_panel(inputWnd);
 
     if (utf8_mode)
@@ -652,7 +636,8 @@ void scr_DrawMainWindow(unsigned int fullinit)
     replace_panel(rosterPanel, rosterWnd);
     replace_panel(chatPanel, chatWnd);
     replace_panel(logPanel, logWnd);
-    replace_panel(logPanel_border, logWnd_border);
+    replace_panel(chatstatusPanel, chatstatusWnd);
+    replace_panel(mainstatusPanel, mainstatusWnd);
     replace_panel(inputPanel, inputWnd);
   }
 

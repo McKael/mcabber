@@ -726,6 +726,7 @@ static void update_chat_status_window(void)
     char status;
     char *buf;
 
+    fullname = buddy_getname(BUDDATA(current_buddy));
     btype = buddy_gettype(BUDDATA(current_buddy));
 
     isgrp = btype & ROSTER_TYPE_GROUP;
@@ -734,7 +735,10 @@ static void update_chat_status_window(void)
     // Clear the line
     werase(chatstatusWnd);
 
-    if (isgrp) return;
+    if (isgrp) {
+      mvwprintw(chatstatusWnd, 0, 5, "Group: %s", fullname);
+      return;
+    }
 
     status = '?';
 
@@ -749,8 +753,6 @@ static void update_chat_status_window(void)
       if (budstate >= 0 && budstate < imstatus_size)
         status = imstatus2char[budstate];
     }
-
-    fullname = buddy_getname(BUDDATA(current_buddy));
 
     // No status message for groups & MUC rooms
     if (!isgrp && !ismuc) {

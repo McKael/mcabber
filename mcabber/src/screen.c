@@ -721,65 +721,65 @@ void scr_Resize()
 // Set forceupdate to TRUE if doupdate() must be called.
 static void update_chat_status_window(int forceupdate)
 {
-    unsigned short btype, isgrp, ismuc;
-    const char *fullname;
-    const char *msg = NULL;
-    char status;
-    char *buf;
+  unsigned short btype, isgrp, ismuc;
+  const char *fullname;
+  const char *msg = NULL;
+  char status;
+  char *buf;
 
-    fullname = buddy_getname(BUDDATA(current_buddy));
-    btype = buddy_gettype(BUDDATA(current_buddy));
+  fullname = buddy_getname(BUDDATA(current_buddy));
+  btype = buddy_gettype(BUDDATA(current_buddy));
 
-    isgrp = btype & ROSTER_TYPE_GROUP;
-    ismuc = btype & ROSTER_TYPE_ROOM;
+  isgrp = btype & ROSTER_TYPE_GROUP;
+  ismuc = btype & ROSTER_TYPE_ROOM;
 
-    // Clear the line
-    werase(chatstatusWnd);
+  // Clear the line
+  werase(chatstatusWnd);
 
-    if (chatmode)
-      wprintw(chatstatusWnd, "©");
+  if (chatmode)
+    wprintw(chatstatusWnd, "©");
 
-    if (isgrp) {
-      mvwprintw(chatstatusWnd, 0, 5, "Group: %s", fullname);
-      if (forceupdate) {
-        update_panels();
-        doupdate();
-      }
-      return;
-    }
-
-    status = '?';
-
-    if (ismuc) {
-      if (buddy_getinsideroom(BUDDATA(current_buddy)))
-        status = 'C';
-      else
-        status = 'x';
-    } else if (jb_getstatus() != offline) {
-      enum imstatus budstate;
-      budstate = buddy_getstatus(BUDDATA(current_buddy), NULL);
-      if (budstate >= 0 && budstate < imstatus_size)
-        status = imstatus2char[budstate];
-    }
-
-    // No status message for groups & MUC rooms
-    if (!isgrp && !ismuc) {
-      GSList *resources = buddy_getresources(BUDDATA(current_buddy));
-      if (resources)
-        msg = buddy_getstatusmsg(BUDDATA(current_buddy), resources->data);
-    }
-    if (!msg)
-      msg = "";
-
-    buf = g_strdup_printf("[%c] Buddy: %s -- %s", status, fullname, msg);
-    replace_nl_with_dots(buf);
-    mvwprintw(chatstatusWnd, 0, 1, "%s", buf);
-    g_free(buf);
-
+  if (isgrp) {
+    mvwprintw(chatstatusWnd, 0, 5, "Group: %s", fullname);
     if (forceupdate) {
       update_panels();
       doupdate();
     }
+    return;
+  }
+
+  status = '?';
+
+  if (ismuc) {
+    if (buddy_getinsideroom(BUDDATA(current_buddy)))
+      status = 'C';
+    else
+      status = 'x';
+  } else if (jb_getstatus() != offline) {
+    enum imstatus budstate;
+    budstate = buddy_getstatus(BUDDATA(current_buddy), NULL);
+    if (budstate >= 0 && budstate < imstatus_size)
+      status = imstatus2char[budstate];
+  }
+
+  // No status message for groups & MUC rooms
+  if (!isgrp && !ismuc) {
+    GSList *resources = buddy_getresources(BUDDATA(current_buddy));
+    if (resources)
+      msg = buddy_getstatusmsg(BUDDATA(current_buddy), resources->data);
+  }
+  if (!msg)
+    msg = "";
+
+  buf = g_strdup_printf("[%c] Buddy: %s -- %s", status, fullname, msg);
+  replace_nl_with_dots(buf);
+  mvwprintw(chatstatusWnd, 0, 1, "%s", buf);
+  g_free(buf);
+
+  if (forceupdate) {
+    update_panels();
+    doupdate();
+  }
 }
 
 //  scr_DrawRoster()

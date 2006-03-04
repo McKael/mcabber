@@ -525,6 +525,20 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   }
 }
 
+//  scr_UpdateMainStatus()
+// Redraw the main (bottom) status line.
+void scr_UpdateMainStatus(void)
+{
+  const char *sm = jb_getstatusmsg();
+
+  werase(mainstatusWnd);
+  mvwprintw(mainstatusWnd, 0, 1,
+            "[%c] %s", imstatus2char[jb_getstatus()], (sm ? sm : ""));
+  top_panel(inputPanel);
+  update_panels();
+  doupdate();
+}
+
 //  scr_DrawMainWindow()
 // Set fullinit to TRUE to also create panels.  Set it to FALSE for a resize.
 //
@@ -641,6 +655,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
     replace_panel(inputPanel, inputWnd);
   }
 
+  scr_UpdateMainStatus();
   // We'll need to redraw the roster
   update_roster = TRUE;
   return;
@@ -701,6 +716,57 @@ void scr_Resize()
     scr_ShowBuddyWindow();
 }
 
+//  update_chat_status_window()
+// Redraw the buddy status bar.
+static void update_chat_status_window(void)
+{
+    unsigned short btype, isgrp, ismuc;
+    const char *fullname;
+    const char *msg = NULL;
+    char status;
+    char *buf;
+
+    btype = buddy_gettype(BUDDATA(current_buddy));
+
+    isgrp = btype & ROSTER_TYPE_GROUP;
+    ismuc = btype & ROSTER_TYPE_ROOM;
+
+    // Clear the line
+    werase(chatstatusWnd);
+
+    if (isgrp) return;
+
+    status = '?';
+
+    if (ismuc) {
+      if (buddy_getinsideroom(BUDDATA(current_buddy)))
+        status = 'C';
+      else
+        status = 'x';
+    } else if (jb_getstatus() != offline) {
+      enum imstatus budstate;
+      budstate = buddy_getstatus(BUDDATA(current_buddy), NULL);
+      if (budstate >= 0 && budstate < imstatus_size)
+        status = imstatus2char[budstate];
+    }
+
+    fullname = buddy_getname(BUDDATA(current_buddy));
+
+    // No status message for groups & MUC rooms
+    if (!isgrp && !ismuc) {
+      GSList *resources = buddy_getresources(BUDDATA(current_buddy));
+      if (resources)
+        msg = buddy_getstatusmsg(BUDDATA(current_buddy), resources->data);
+    }
+    if (!msg)
+      msg = "";
+
+    buf = g_strdup_printf("[%c] Buddy: %s -- %s", status, fullname, msg);
+    replace_nl_with_dots(buf);
+    mvwprintw(chatstatusWnd, 0, 1, "%s", buf);
+    g_free(buf);
+}
+
 //  scr_DrawRoster()
 // Display the buddylist (not really the roster) on the screen
 void scr_DrawRoster(void)
@@ -711,6 +777,8 @@ void scr_DrawRoster(void)
   GList *buddy;
   int i, n;
   int rOffset;
+  int cursor_backup;
+  char status, pending;
   enum imstatus currentstatus = jb_getstatus();
 
   // We can reset update_roster
@@ -718,6 +786,8 @@ void scr_DrawRoster(void)
 
   getmaxyx(rosterWnd, maxy, maxx);
   maxx--;  // Last char is for vertical border
+
+  cursor_backup = curs_set(0);
 
   // Cleanup of roster window
   werase(rosterWnd);
@@ -731,11 +801,14 @@ void scr_DrawRoster(void)
 
   if (!buddylist)
     offset = 0;
+  else
+    update_chat_status_window();
 
   // Leave now if buddylist is empty or the roster is hidden
   if (!buddylist || !Roster_Width) {
     update_panels();
     doupdate();
+    curs_set(cursor_backup);
     return;
   }
 
@@ -753,6 +826,7 @@ void scr_DrawRoster(void)
   if (i == -1) { // This is bad
     scr_LogPrint(LPRINT_NORMAL, "Doh! Can't find current selected buddy!!");
     g_free(name);
+    curs_set(cursor_backup);
     return;
   } else if (i < offset) {
     offset = i;
@@ -766,18 +840,23 @@ void scr_DrawRoster(void)
   rOffset = offset;
 
   for (i=0; i<maxy && buddy; buddy = g_list_next(buddy)) {
-    char status = '?';
-    char pending = ' ';
-    enum imstatus budstate;
-    unsigned short ismsg = buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_MSG;
-    unsigned short isgrp = buddy_gettype(BUDDATA(buddy)) & ROSTER_TYPE_GROUP;
-    unsigned short ismuc = buddy_gettype(BUDDATA(buddy)) & ROSTER_TYPE_ROOM;
-    unsigned short ishid = buddy_getflags(BUDDATA(buddy)) & ROSTER_FLAG_HIDE;
+    unsigned short bflags, btype, ismsg, isgrp, ismuc, ishid;
+
+    bflags = buddy_getflags(BUDDATA(buddy));
+    btype = buddy_gettype(BUDDATA(buddy));
+
+    ismsg = bflags & ROSTER_FLAG_MSG;
+    ishid = bflags & ROSTER_FLAG_HIDE;
+    isgrp = btype  & ROSTER_TYPE_GROUP;
+    ismuc = btype  & ROSTER_TYPE_ROOM;
 
     if (rOffset > 0) {
       rOffset--;
       continue;
     }
+
+    status = '?';
+    pending = ' ';
 
     // Display message notice if there is a message flag, but not
     // for unfolded groups.
@@ -785,9 +864,17 @@ void scr_DrawRoster(void)
       pending = '#';
     }
 
-    budstate = buddy_getstatus(BUDDATA(buddy), NULL);
-    if (budstate >= 0 && budstate < imstatus_size && currentstatus != offline)
-      status = imstatus2char[budstate];
+    if (ismuc) {
+      if (buddy_getinsideroom(BUDDATA(buddy)))
+        status = 'C';
+      else
+        status = 'x';
+    } else if (currentstatus != offline) {
+      enum imstatus budstate;
+      budstate = buddy_getstatus(BUDDATA(buddy), NULL);
+      if (budstate >= 0 && budstate < imstatus_size)
+        status = imstatus2char[budstate];
+    }
     if (buddy == current_buddy) {
       wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTERSEL));
       // The 3 following lines aim to color the whole line
@@ -799,13 +886,6 @@ void scr_DrawRoster(void)
         wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTERNMSG));
       else
         wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTER));
-    }
-
-    if (ismuc) {
-      if (buddy_getinsideroom(BUDDATA(buddy)))
-        status = 'C';
-      else
-        status = 'x';
     }
 
     if (Roster_Width > 7)
@@ -833,6 +913,7 @@ void scr_DrawRoster(void)
   top_panel(inputPanel);
   update_panels();
   doupdate();
+  curs_set(cursor_backup);
 }
 
 //  scr_RosterVisibility(status)

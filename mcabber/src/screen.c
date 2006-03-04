@@ -716,9 +716,10 @@ void scr_Resize()
     scr_ShowBuddyWindow();
 }
 
-//  update_chat_status_window()
+//  update_chat_status_window(forceupdate)
 // Redraw the buddy status bar.
-static void update_chat_status_window(void)
+// Set forceupdate to TRUE if doupdate() must be called.
+static void update_chat_status_window(int forceupdate)
 {
     unsigned short btype, isgrp, ismuc;
     const char *fullname;
@@ -735,8 +736,15 @@ static void update_chat_status_window(void)
     // Clear the line
     werase(chatstatusWnd);
 
+    if (chatmode)
+      wprintw(chatstatusWnd, "©");
+
     if (isgrp) {
       mvwprintw(chatstatusWnd, 0, 5, "Group: %s", fullname);
+      if (forceupdate) {
+        update_panels();
+        doupdate();
+      }
       return;
     }
 
@@ -767,6 +775,11 @@ static void update_chat_status_window(void)
     replace_nl_with_dots(buf);
     mvwprintw(chatstatusWnd, 0, 1, "%s", buf);
     g_free(buf);
+
+    if (forceupdate) {
+      update_panels();
+      doupdate();
+    }
 }
 
 //  scr_DrawRoster()
@@ -804,7 +817,7 @@ void scr_DrawRoster(void)
   if (!buddylist)
     offset = 0;
   else
-    update_chat_status_window();
+    update_chat_status_window(FALSE);
 
   // Leave now if buddylist is empty or the roster is hidden
   if (!buddylist || !Roster_Width) {
@@ -1366,6 +1379,7 @@ void scr_BufferDate(time_t t)
 inline void scr_set_chatmode(int enable)
 {
   chatmode = enable;
+  update_chat_status_window(TRUE);
 }
 
 //  scr_get_multimode()
@@ -1895,6 +1909,7 @@ int process_key(int key)
         if (current_buddy)
           buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
         scr_RosterVisibility(1);
+        update_chat_status_window(FALSE);
         top_panel(chatPanel);
         top_panel(inputPanel);
         update_panels();

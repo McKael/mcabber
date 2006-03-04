@@ -741,7 +741,7 @@ static void update_chat_status_window(int forceupdate)
   werase(chatstatusWnd);
 
   if (chatmode)
-    wprintw(chatstatusWnd, "©");
+    wprintw(chatstatusWnd, "~");
 
   if (isgrp) {
     mvwprintw(chatstatusWnd, 0, 5, "Group: %s", fullname);

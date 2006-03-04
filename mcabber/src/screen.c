@@ -532,8 +532,9 @@ void scr_UpdateMainStatus(void)
   const char *sm = jb_getstatusmsg();
 
   werase(mainstatusWnd);
-  mvwprintw(mainstatusWnd, 0, 1,
-            "[%c] %s", imstatus2char[jb_getstatus()], (sm ? sm : ""));
+  mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s", 
+            (unread_msg(NULL) ? '#' : ' '),
+            imstatus2char[jb_getstatus()], (sm ? sm : ""));
   top_panel(inputPanel);
   update_panels();
   doupdate();
@@ -655,7 +656,6 @@ void scr_DrawMainWindow(unsigned int fullinit)
     replace_panel(inputPanel, inputWnd);
   }
 
-  scr_UpdateMainStatus();
   // We'll need to redraw the roster
   update_roster = TRUE;
   return;
@@ -726,6 +726,10 @@ static void update_chat_status_window(int forceupdate)
   const char *msg = NULL;
   char status;
   char *buf;
+
+  // Usually we need to update the bottom status line too,
+  // at least to refresh the pending message flag.
+  scr_UpdateMainStatus();
 
   fullname = buddy_getname(BUDDATA(current_buddy));
   btype = buddy_gettype(BUDDATA(current_buddy));

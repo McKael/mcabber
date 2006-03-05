@@ -987,12 +987,38 @@ inline void scr_WriteMessage(const char *jid, const char *text,
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
         time_t timestamp, guint prefix)
 {
+  char *p, *xtext;
+  guint8 n =0;
+
   if (!(prefix & ~HBB_PREFIX_NOFLAG))
     prefix |= HBB_PREFIX_IN;
-  // FIXME expand tabs / filter out special chars...
-  scr_WriteMessage(jidfrom, text, timestamp, prefix);
+
+  xtext = (char*)text;
+
+  // Expand tabs
+  for (p=xtext; *p; p++)
+    if (*p == '\t') n++;
+  if (n) {
+    char *q;
+    xtext = g_new(char, strlen(text) + 1 + 8*n);
+    p = (char*)text;
+    q = xtext;
+    do {
+      if (*p == '\t') {
+        do { *q++ = ' '; } while ((q-xtext)%8);
+      } else {
+        *q++ = *p;
+      }
+    } while (*p++);
+  }
+
+  // FIXME Filter out special chars...
+  scr_WriteMessage(jidfrom, xtext, timestamp, prefix);
   update_panels();
   doupdate();
+
+  if (xtext != (char*)text)
+    g_free(xtext);
 }
 
 void scr_WriteOutgoingMessage(const char *jidto, const char *text)

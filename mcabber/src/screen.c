@@ -978,20 +978,10 @@ void scr_RosterVisibility(int status)
 inline void scr_WriteMessage(const char *jid, const char *text,
                              time_t timestamp, guint prefix_flags)
 {
-  if (!timestamp) timestamp = time(NULL);
-
-  scr_WriteInWindow(jid, text, timestamp, prefix_flags, FALSE);
-}
-
-// If prefix is NULL, HBB_PREFIX_IN is supposed.
-void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
-        time_t timestamp, guint prefix)
-{
   char *p, *xtext;
   guint8 n =0;
 
-  if (!(prefix & ~HBB_PREFIX_NOFLAG))
-    prefix |= HBB_PREFIX_IN;
+  if (!timestamp) timestamp = time(NULL);
 
   xtext = (char*)text;
 
@@ -1012,13 +1002,24 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
     } while (*p++);
   }
 
-  // FIXME Filter out special chars...
-  scr_WriteMessage(jidfrom, xtext, timestamp, prefix);
-  update_panels();
-  doupdate();
+  // XXX Are there other special chars we should filter out?
+
+  scr_WriteInWindow(jid, xtext, timestamp, prefix_flags, FALSE);
 
   if (xtext != (char*)text)
     g_free(xtext);
+}
+
+// If prefix is NULL, HBB_PREFIX_IN is supposed.
+void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
+        time_t timestamp, guint prefix)
+{
+  if (!(prefix & ~HBB_PREFIX_NOFLAG))
+    prefix |= HBB_PREFIX_IN;
+
+  scr_WriteMessage(jidfrom, text, timestamp, prefix);
+  update_panels();
+  doupdate();
 }
 
 void scr_WriteOutgoingMessage(const char *jidto, const char *text)

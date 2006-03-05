@@ -127,12 +127,13 @@ static int FindColor(const char *name)
 
 static void ParseColors(void)
 {
-  const char *colors[8] = {
+  const char *colors[9] = {
     "", "",
     "general",
     "status",
     "roster",
     "rostersel",
+    "rosterselmsg",
     "rosternewmsg",
     NULL
   };
@@ -174,6 +175,10 @@ static void ParseColors(void)
       break;
     case COLOR_ROSTERSEL:
       init_pair(i+1, ((color) ? FindColor(color) : COLOR_BLUE),
+                FindColor(backselected));
+      break;
+    case COLOR_ROSTERSELNMSG:
+      init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
                 FindColor(backselected));
       break;
     case COLOR_ROSTERNMSG:
@@ -897,8 +902,11 @@ void scr_DrawRoster(void)
         status = imstatus2char[budstate];
     }
     if (buddy == current_buddy) {
-      wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTERSEL));
-      // The 3 following lines aim to color the whole line
+      if (pending == '#')
+        wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTERSELNMSG));
+      else
+        wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTERSEL));
+      // The 3 following lines aim at coloring the whole line
       wmove(rosterWnd, i, 0);
       for (n = 0; n < maxx; n++)
         waddch(rosterWnd, ' ');

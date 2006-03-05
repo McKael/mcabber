@@ -144,6 +144,7 @@ set message_autoaway = Auto-away (idle)
 # roster:     text color of the roster (buddylist) normal items
 # bgrostersel: background color of the selected roster item
 # rostersel:   text color of the selected roster item
+# rosterselmsg:text color of the selected roster item, if there is a new msg
 # rosternewmsg: text color of items with unread messages
 #
 #set color_background   = blue
@@ -153,6 +154,7 @@ set message_autoaway = Auto-away (idle)
 #set color_roster       = green
 #set color_bgrostersel  = cyan
 #set color_rostersel    = blue
+#set color_rosterselmsg = red
 #set color_rosternewmsg = red
 
 # Style

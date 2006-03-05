@@ -446,10 +446,10 @@ char *xstream_header_char(xmlnode x);
  */
 
 typedef struct {
-  unsigned long H[5];
-  unsigned long W[80];
+  uint32_t H[5];
+  uint32_t W[80];
   int lenW;
-  unsigned long sizeHi,sizeLo;
+  uint32_t sizeHi,sizeLo;
 } SHA_CTX;
 
 

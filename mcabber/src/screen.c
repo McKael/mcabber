@@ -978,29 +978,11 @@ void scr_RosterVisibility(int status)
 inline void scr_WriteMessage(const char *jid, const char *text,
                              time_t timestamp, guint prefix_flags)
 {
-  char *p, *xtext;
-  guint8 n =0;
+  char *xtext;
 
   if (!timestamp) timestamp = time(NULL);
 
-  xtext = (char*)text;
-
-  // Expand tabs
-  for (p=xtext; *p; p++)
-    if (*p == '\t') n++;
-  if (n) {
-    char *q;
-    xtext = g_new(char, strlen(text) + 1 + 8*n);
-    p = (char*)text;
-    q = xtext;
-    do {
-      if (*p == '\t') {
-        do { *q++ = ' '; } while ((q-xtext)%8);
-      } else {
-        *q++ = *p;
-      }
-    } while (*p++);
-  }
+  xtext = ut_expand_tabs(text); // Expand tabs
 
   // XXX Are there other special chars we should filter out?
 

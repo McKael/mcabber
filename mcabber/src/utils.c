@@ -459,4 +459,38 @@ void replace_nl_with_dots(char *bufstr)
   }
 }
 
+//  ut_expand_tabs(text)
+// Expand tabs in string text.
+// If there is no tab in the string, a pointer to text is returned (be
+// careful _not_ to free the pointer in this case).
+// If there are some tabs, a new string with expanded chars is returned; this
+// is up to the caller to free this string after use.
+char *ut_expand_tabs(const char *text)
+{
+  char *xtext;
+  char *p, *q;
+  guint8 n=0;
+
+  xtext = (char*)text;
+  for (p=xtext; *p; p++)
+    if (*p == '\t') n++;
+
+  if (!n)
+    return (char*)text;
+
+  xtext = g_new(char, strlen(text) + 1 + 8*n);
+  p = (char*)text;
+  q = xtext;
+  do {
+    if (*p == '\t') {
+      do { *q++ = ' '; } while ((q-xtext)%8);
+    } else {
+      *q++ = *p;
+    }
+  } while (*p++);
+
+  return xtext;
+}
+
+
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

@@ -33,6 +33,7 @@
 #include "utils.h"
 #include "logprint.h"
 #include "settings.h"
+#include "utils.h"
 
 static guint UseFileLogging;
 static guint FileLoadLogs;
@@ -123,6 +124,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   char *filename;
   guchar type, info;
   char *data, *tail;
+  char *xtext;
   time_t timestamp;
   guint prefix_flags;
   guint len;
@@ -217,8 +219,10 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
         prefix_flags = HBB_PREFIX_OUT;
       else
         prefix_flags = HBB_PREFIX_IN;
-      hbuf_add_line(p_buddyhbuf, &data[26], timestamp,
-                    prefix_flags, width);
+      xtext = ut_expand_tabs(&data[26]); // Expand tabs
+      hbuf_add_line(p_buddyhbuf, xtext, timestamp, prefix_flags, width);
+      if (xtext != &data[26])
+        g_free(xtext);
       err = 0;
     }
   }

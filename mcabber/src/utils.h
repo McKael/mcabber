@@ -28,6 +28,7 @@ char **split_arg(const char *arg, unsigned int n, int dontstriplast);
 void free_arg_lst(char **arglst);
 
 void replace_nl_with_dots(char *bufstr);
+char *ut_expand_tabs(const char *text);
 
 #endif
 

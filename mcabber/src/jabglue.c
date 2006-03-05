@@ -384,7 +384,7 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
   }
 
   // Update status line
-  scr_UpdateMainStatus();
+  scr_UpdateMainStatus(TRUE);
 }
 
 void jb_send_msg(const char *jid, const char *text, int type,

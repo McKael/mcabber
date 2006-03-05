@@ -532,17 +532,19 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 
 //  scr_UpdateMainStatus()
 // Redraw the main (bottom) status line.
-void scr_UpdateMainStatus(void)
+void scr_UpdateMainStatus(int forceupdate)
 {
   const char *sm = jb_getstatusmsg();
 
   werase(mainstatusWnd);
-  mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s", 
+  mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s",
             (unread_msg(NULL) ? '#' : ' '),
             imstatus2char[jb_getstatus()], (sm ? sm : ""));
-  top_panel(inputPanel);
-  update_panels();
-  doupdate();
+  if (forceupdate) {
+    top_panel(inputPanel);
+    update_panels();
+    doupdate();
+  }
 }
 
 //  scr_DrawMainWindow()
@@ -734,7 +736,7 @@ void scr_UpdateChatStatus(int forceupdate)
 
   // Usually we need to update the bottom status line too,
   // at least to refresh the pending message flag.
-  scr_UpdateMainStatus();
+  scr_UpdateMainStatus(FALSE);
 
   fullname = buddy_getname(BUDDATA(current_buddy));
   btype = buddy_gettype(BUDDATA(current_buddy));
@@ -815,6 +817,11 @@ void scr_DrawRoster(void)
 
   cursor_backup = curs_set(0);
 
+  if (!buddylist)
+    offset = 0;
+  else
+    scr_UpdateChatStatus(FALSE);
+
   // Cleanup of roster window
   werase(rosterWnd);
 
@@ -824,11 +831,6 @@ void scr_DrawRoster(void)
     for (i=0 ; i < CHAT_WIN_HEIGHT ; i++)
       mvwaddch(rosterWnd, i, Roster_Width-1, ACS_VLINE);
   }
-
-  if (!buddylist)
-    offset = 0;
-  else
-    scr_UpdateChatStatus(FALSE);
 
   // Leave now if buddylist is empty or the roster is hidden
   if (!buddylist || !Roster_Width) {

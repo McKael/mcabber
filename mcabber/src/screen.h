@@ -29,7 +29,7 @@ void scr_InitCurses(void);
 void scr_TerminateCurses(void);
 void scr_DrawMainWindow(unsigned int fullinit);
 void scr_DrawRoster(void);
-void scr_UpdateMainStatus(void);
+void scr_UpdateMainStatus(int forceupdate);
 void scr_UpdateChatStatus(int forceupdate);
 void scr_RosterVisibility(int status);
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
@@ -39,10 +39,10 @@ void scr_ShowBuddyWindow(void);
 bool scr_BuddyBufferExists(const char *jid);
 inline void scr_set_chatmode(int enable);
 inline void scr_set_multimode(int enable);
-inline int  scr_get_multimode();
+inline int  scr_get_multimode(void);
 void scr_setmsgflag_if_needed(const char *jid);
 void scr_append_multiline(const char *line);
-inline const char *scr_get_multiline();
+inline const char *scr_get_multiline(void);
 
 inline void scr_Beep(void);
 int scr_Getch(void);

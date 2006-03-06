@@ -406,11 +406,17 @@ static void scr_UpdateWindow(window_entry_t *win_entry)
         else if (line->flags & HBB_PREFIX_OUT)
           dir = '>';
         wprintw(win_entry->win, "%.11s #%c# ", date, dir);
-      } else if (line->flags & HBB_PREFIX_IN)
-        wprintw(win_entry->win, "%.11s <== ", date);
-      else if (line->flags & HBB_PREFIX_OUT)
-        wprintw(win_entry->win, "%.11s --> ", date);
-      else {
+      } else if (line->flags & HBB_PREFIX_IN) {
+        wprintw(win_entry->win, "%.11s", date);
+        if (line->flags & HBB_PREFIX_HLIGHT) wattron(win_entry->win, A_BOLD);
+        wprintw(win_entry->win, " <== ", date);
+        if (line->flags & HBB_PREFIX_HLIGHT) wattroff(win_entry->win, A_BOLD);
+      } else if (line->flags & HBB_PREFIX_OUT) {
+        wprintw(win_entry->win, "%.11s", date);
+        wattron(win_entry->win, A_BOLD);
+        wprintw(win_entry->win, " --> ", date);
+        wattroff(win_entry->win, A_BOLD);
+      } else {
         wprintw(win_entry->win, "%.11s     ", date);
       }
       wprintw(win_entry->win, "%s", line->text);      // line
@@ -996,7 +1002,7 @@ inline void scr_WriteMessage(const char *jid, const char *text,
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
         time_t timestamp, guint prefix)
 {
-  if (!(prefix & ~HBB_PREFIX_NOFLAG))
+  if (!(prefix & ~HBB_PREFIX_NOFLAG & ~HBB_PREFIX_HLIGHT))
     prefix |= HBB_PREFIX_IN;
 
   scr_WriteMessage(jidfrom, text, timestamp, prefix);

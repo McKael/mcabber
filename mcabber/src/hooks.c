@@ -84,13 +84,23 @@ inline void hk_message_in(const char *jid, const char *resname,
 
   is_room = !!(buddy_gettype(roster_usr->data) & ROSTER_TYPE_ROOM);
 
-  if (!is_groupchat && is_room) {
-    // This is a private message from a room participant
-    if (!resname)
-      resname = "";
-    wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", resname, msg);
-    if (!strncmp(msg, "/me ", 4))
-      wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
+  if (is_room) {
+    if (!is_groupchat) {
+      // This is a private message from a room participant
+      if (!resname)
+        resname = "";
+      wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", resname, msg);
+      if (!strncmp(msg, "/me ", 4))
+        wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
+      message_flags |= HBB_PREFIX_HLIGHT;
+    } else {
+      // This is a regular chatroom message.
+      // Let's see if we are the message sender, in which case we'll
+      // highlight it.
+      const char *nick = buddy_getnickname(roster_usr->data);
+      if (resname && nick && !strcmp(resname, nick))
+        message_flags |= HBB_PREFIX_HLIGHT;
+    }
   }
 
   if (type && !strcmp(type, "error")) {

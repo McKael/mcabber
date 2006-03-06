@@ -150,7 +150,7 @@ set message_autoaway = Auto-away (idle)
 #
 #set color_background   = blue
 #set color_general      = white
-#set color_highlight    = yellow
+#set color_highlight    = cyan
 #set color_bgstatus     = blue
 #set color_status       = white
 #set color_roster       = green

@@ -167,7 +167,7 @@ static void ParseColors(void)
                 FindColor(background));
       break;
     case COLOR_HIGHLIGHT:
-      init_pair(i+1, ((color) ? FindColor(color) : COLOR_YELLOW),
+      init_pair(i+1, ((color) ? FindColor(color) : COLOR_CYAN),
                 FindColor(background));
       break;
     case COLOR_STATUS:

@@ -216,7 +216,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
 
     if (type == 'M') {
       if (info == 'S')
-        prefix_flags = HBB_PREFIX_OUT;
+        prefix_flags = HBB_PREFIX_OUT | HBB_PREFIX_HLIGHT;
       else
         prefix_flags = HBB_PREFIX_IN;
       xtext = ut_expand_tabs(&data[26]); // Expand tabs

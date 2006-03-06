@@ -407,19 +407,18 @@ static void scr_UpdateWindow(window_entry_t *win_entry)
           dir = '>';
         wprintw(win_entry->win, "%.11s #%c# ", date, dir);
       } else if (line->flags & HBB_PREFIX_IN) {
-        wprintw(win_entry->win, "%.11s", date);
-        if (line->flags & HBB_PREFIX_HLIGHT) wattron(win_entry->win, A_BOLD);
-        wprintw(win_entry->win, " <== ", date);
-        if (line->flags & HBB_PREFIX_HLIGHT) wattroff(win_entry->win, A_BOLD);
+        wprintw(win_entry->win, "%.11s <== ", date);
       } else if (line->flags & HBB_PREFIX_OUT) {
-        wprintw(win_entry->win, "%.11s", date);
-        wattron(win_entry->win, A_BOLD);
-        wprintw(win_entry->win, " --> ", date);
-        wattroff(win_entry->win, A_BOLD);
+        wprintw(win_entry->win, "%.11s --> ", date);
       } else {
         wprintw(win_entry->win, "%.11s     ", date);
       }
-      wprintw(win_entry->win, "%s", line->text);      // line
+
+      // Display line
+      if (line->flags & HBB_PREFIX_HLIGHT) wattron(win_entry->win, A_BOLD);
+      wprintw(win_entry->win, "%s", line->text);
+      if (line->flags & HBB_PREFIX_HLIGHT) wattroff(win_entry->win, A_BOLD);
+
       wclrtoeol(win_entry->win);
       g_free(line->text);
     } else {
@@ -1012,7 +1011,7 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
 
 void scr_WriteOutgoingMessage(const char *jidto, const char *text)
 {
-  scr_WriteMessage(jidto, text, 0, HBB_PREFIX_OUT);
+  scr_WriteMessage(jidto, text, 0, HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT);
   scr_ShowWindow(jidto);
 }
 

@@ -248,19 +248,35 @@ GList *hbuf_previous_persistent(GList *l_line)
 hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
 {
   unsigned int i;
+  hbuf_block *blk;
+  guchar last_persist_prefixflags = 0;
+  GList *last_persist;
+
+  last_persist = hbuf_previous_persistent(hbuf);
+  if (last_persist && last_persist != hbuf) {
+    blk = (hbuf_block*)(last_persist->data);
+    last_persist_prefixflags = blk->prefix.flags;
+  }
 
   hbb_line **array = g_new0(hbb_line*, n);
   hbb_line **array_elt = array;
 
   for (i=0 ; i < n ; i++) {
     if (hbuf) {
-      hbuf_block *blk = (hbuf_block*)(hbuf->data);
       int maxlen;
+      blk = (hbuf_block*)(hbuf->data);
       maxlen = blk->ptr_end - blk->ptr;
       *array_elt = (hbb_line*)g_new(hbb_line, 1);
       (*array_elt)->timestamp = blk->prefix.timestamp;
       (*array_elt)->flags     = blk->prefix.flags;
       (*array_elt)->text      = g_strndup(blk->ptr, maxlen);
+
+      if (blk->flags & HBB_FLAG_PERSISTENT) {
+        last_persist_prefixflags = blk->prefix.flags;
+      } else {
+        // Propagate hilighting flag
+        (*array_elt)->flags |= last_persist_prefixflags & HBB_PREFIX_HLIGHT;
+      }
 
       hbuf = g_list_next(hbuf);
     } else

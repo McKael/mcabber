@@ -139,6 +139,7 @@ set message_autoaway = Auto-away (idle)
 #
 # background: background color of the chat window and the log window
 # general:    text color in the chat window and the log window
+# highlight:  text color in the chat window for highlighted lines
 # bgstatus:   background color of the status lines
 # status:     text color of the status lines
 # roster:     text color of the roster (buddylist) normal items
@@ -149,6 +150,7 @@ set message_autoaway = Auto-away (idle)
 #
 #set color_background   = blue
 #set color_general      = white
+#set color_highlight    = yellow
 #set color_bgstatus     = blue
 #set color_status       = white
 #set color_roster       = green

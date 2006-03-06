@@ -127,9 +127,10 @@ static int FindColor(const char *name)
 
 static void ParseColors(void)
 {
-  const char *colors[9] = {
+  const char *colors[10] = {
     "", "",
     "general",
+    "highlight",
     "status",
     "roster",
     "rostersel",
@@ -163,6 +164,10 @@ static void ParseColors(void)
       break;
     case COLOR_GENERAL:
       init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
+                FindColor(background));
+      break;
+    case COLOR_HIGHLIGHT:
+      init_pair(i+1, ((color) ? FindColor(color) : COLOR_YELLOW),
                 FindColor(background));
       break;
     case COLOR_STATUS:
@@ -388,6 +393,9 @@ static void scr_UpdateWindow(window_entry_t *win_entry)
     // NOTE: update PREFIX_WIDTH if you change the date format!!
     // You need to set it to the whole prefix length + 1
     if (line) {
+      if (line->flags & HBB_PREFIX_HLIGHT)
+        wattrset(win_entry->win, COLOR_PAIR(COLOR_HIGHLIGHT));
+
       if (line->timestamp) {
         strftime(date, 30, "%m-%d %H:%M", localtime(&line->timestamp));
       } else
@@ -414,11 +422,10 @@ static void scr_UpdateWindow(window_entry_t *win_entry)
         wprintw(win_entry->win, "%.11s     ", date);
       }
 
-      // Display line
-      if (line->flags & HBB_PREFIX_HLIGHT) wattron(win_entry->win, A_BOLD);
-      wprintw(win_entry->win, "%s", line->text);
-      if (line->flags & HBB_PREFIX_HLIGHT) wattroff(win_entry->win, A_BOLD);
+      wprintw(win_entry->win, "%s", line->text); // Display text line
 
+      if (line->flags & HBB_PREFIX_HLIGHT)
+        wattrset(win_entry->win, COLOR_PAIR(COLOR_GENERAL));
       wclrtoeol(win_entry->win);
       g_free(line->text);
     } else {

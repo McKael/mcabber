@@ -7,11 +7,12 @@
 #include "logprint.h"
 
 #define COLOR_GENERAL       3
-#define COLOR_STATUS        4
-#define COLOR_ROSTER        5
-#define COLOR_ROSTERSEL     6
-#define COLOR_ROSTERSELNMSG 7
-#define COLOR_ROSTERNMSG    8
+#define COLOR_HIGHLIGHT     4
+#define COLOR_STATUS        5
+#define COLOR_ROSTER        6
+#define COLOR_ROSTERSEL     7
+#define COLOR_ROSTERSELNMSG 8
+#define COLOR_ROSTERNMSG    9
 
 // Length of the timestamp & flag prefix in the chat buffer window
 #define PREFIX_WIDTH    17

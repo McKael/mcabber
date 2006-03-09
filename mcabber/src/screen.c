@@ -811,7 +811,7 @@ void scr_UpdateChatStatus(int forceupdate)
 // Display the buddylist (not really the roster) on the screen
 void scr_DrawRoster(void)
 {
-  static guint offset = 0;
+  static int offset = 0;
   char *name, *rline;
   int maxx, maxy;
   GList *buddy;
@@ -1022,7 +1022,7 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text)
   scr_ShowWindow(jidto);
 }
 
-void inline set_autoaway(bool setaway)
+inline void set_autoaway(bool setaway)
 {
   static enum imstatus oldstatus;
   static char *oldmsg;
@@ -1071,7 +1071,7 @@ void scr_CheckAutoAway(bool activity)
   if (!activity) {
     time_t now;
     time(&now);
-    if (!Autoaway && (now > LastActivity + autoaway_timeout))
+    if (!Autoaway && (now > LastActivity + (time_t)autoaway_timeout))
       set_autoaway(TRUE);
   }
 }

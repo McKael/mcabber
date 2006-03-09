@@ -60,7 +60,7 @@ void new_completion(char *prefix, GSList *compl_cat)
 {
   compl *c;
   GSList *sl_cat;
-  int len = strlen(prefix);
+  size_t len = strlen(prefix);
 
   if (InputCompl) { // This should not happen, but hey...
     cancel_completion();

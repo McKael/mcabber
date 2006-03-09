@@ -95,7 +95,6 @@ inline void hk_message_in(const char *jid, const char *resname,
         if (!strncmp(msg, "/me ", 4))
           wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
       }
-      /*message_flags |= HBB_PREFIX_HLIGHT;*/
     } else {
       // This is a regular chatroom message.
       // Let's see if we are the message sender, in which case we'll

@@ -150,7 +150,7 @@ const char *ut_get_tmpdir(void)
 {
   static const char *tmpdir;
   const char *tmpvars[] = { "MCABBERTMPDIR", "TMP", "TMPDIR", "TEMP" };
-  int i;
+  unsigned int i;
 
   if (tmpdir)
     return tmpdir;
@@ -394,7 +394,7 @@ char **split_arg(const char *arg, unsigned int n, int dontstriplast)
 {
   char **arglst;
   const char *p, *start, *end;
-  int i = 0;
+  unsigned int i = 0;
   int instring = FALSE;
   int escape = FALSE;
 

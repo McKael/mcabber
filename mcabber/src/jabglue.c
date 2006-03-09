@@ -224,7 +224,7 @@ void jb_main()
 
   // Keepalive
   if (KeepaliveDelay) {
-    if (now > LastPingTime + KeepaliveDelay)
+    if (now > LastPingTime + (time_t)KeepaliveDelay)
       jb_keepalive();
   }
 }

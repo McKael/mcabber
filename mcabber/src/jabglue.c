@@ -1390,6 +1390,8 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       if (subj_noutf8) g_free(subj_noutf8);
       g_free(s);
       g_free(mbuf);
+      // The topic is displayed in the chat status line, so refresh now.
+      scr_UpdateChatStatus(TRUE);
     } else {                                      // Chat message
       tmp = g_new(char, (body ? strlen(body) : 0) + strlen(p) + 4);
       *tmp = '[';

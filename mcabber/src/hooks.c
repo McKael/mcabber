@@ -87,11 +87,14 @@ inline void hk_message_in(const char *jid, const char *resname,
   if (is_room) {
     if (!is_groupchat) {
       // This is a private message from a room participant
-      if (!resname)
+      if (!resname) {
         resname = "";
-      wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", resname, msg);
-      if (!strncmp(msg, "/me ", 4))
-        wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
+        wmsg = bmsg = g_strdup(msg);
+      } else {
+        wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", resname, msg);
+        if (!strncmp(msg, "/me ", 4))
+          wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
+      }
       /*message_flags |= HBB_PREFIX_HLIGHT;*/
     } else {
       // This is a regular chatroom message.

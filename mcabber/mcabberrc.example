@@ -148,7 +148,7 @@ set message_autoaway = Auto-away (idle)
 # rosterselmsg:text color of the selected roster item, if there is a new msg
 # rosternewmsg: text color of items with unread messages
 #
-#set color_background   = blue
+#set color_background   = black
 #set color_general      = white
 #set color_highlight    = cyan
 #set color_bgstatus     = blue

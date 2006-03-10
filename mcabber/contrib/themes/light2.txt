@@ -1,0 +1,15 @@
+# Sample color config.
+# Copy this file in your ~/.mcabber/mcabberrc
+
+set color_background   = white
+set color_general      = black
+set color_highlight    = blue
+set color_bgstatus     = black
+set color_status       = brightcyan
+set color_roster       = magenta
+set color_bgrostersel  = black
+set color_rostersel    = brightgreen
+set color_rosterselmsg = red
+set color_rosternewmsg = red
+
+# vim:set ft=conf:

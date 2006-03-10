@@ -1701,6 +1701,7 @@ static void scr_handle_tab(void)
   const char *cchar;
   guint compl_categ;
 
+  row = inputLine; // (Kills a GCC warning)
   nrow = which_row(&row);
 
   // a) No completion if no leading slash ('cause not a command),

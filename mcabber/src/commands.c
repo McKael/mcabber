@@ -1879,7 +1879,7 @@ static void do_request(char *arg)
 {
   char **paramlst;
   char *jid, *type;
-  enum iqreq_type numtype;
+  enum iqreq_type numtype = iqreq_none;
 
   paramlst = split_arg(arg, 2, 0); // type, jid
   type = *paramlst;

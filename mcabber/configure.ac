@@ -26,7 +26,9 @@ AC_CHECK_DECLS([strptime],,,
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h stdlib.h string.h strings.h sys/socket.h sys/time.h syslog.h termios.h unistd.h ncurses.h panel.h getopt.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h
+                  stdlib.h string.h strings.h sys/socket.h sys/time.h
+                  syslog.h termios.h unistd.h ncurses.h panel.h getopt.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -45,51 +47,53 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([alarm bzero gethostbyname gethostname inet_ntoa isascii memmove memset modf select setlocale socket strcasecmp strchr strdup strncasecmp strrchr strstr])
+AC_CHECK_FUNCS([alarm bzero gethostbyname gethostname inet_ntoa isascii
+                memmove memset modf select setlocale socket strcasecmp
+                strchr strdup strncasecmp strrchr strstr])
 
 # Check for glib
 AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),[g_list_append])
 
 AC_ARG_WITH(ssl, [  --with-ssl              enable SSL secured connections using either OpenSSL
-			  or GnuTLS],
-	[with_ssl=$withval])
+                          or GnuTLS],
+        [with_ssl=$withval])
 
 if test "$with_ssl" != "no"; then
     AC_ARG_WITH(openssl,
-	[  --with-openssl=[DIR]      enable SSL secured connections using the OpenSSL
-			  library in DIR (optional)],
-	[with_openssl=$withval])
+        [  --with-openssl=[DIR]      enable SSL secured connections using the OpenSSL
+                          library in DIR (optional)],
+        [with_openssl=$withval])
 
     if test -z "$with_openssl"; then
-	for ac_dir in /usr/local /usr; do
-	    if test -f "$ac_dir/include/openssl/ssl.h"; then
-		with_openssl=$ac_dir
-		break;
-	    fi
-	done
+        for ac_dir in /usr/local /usr; do
+            if test -f "$ac_dir/include/openssl/ssl.h"; then
+                with_openssl=$ac_dir
+                break;
+            fi
+        done
     fi
 
     AC_MSG_CHECKING(for OpenSSL)
 
     if test -n "$with_openssl" -a "$with_openssl" != "no"; then
-	if test "$with_openssl" = "yes"; then with_openssl="/usr"; fi
-	CFLAGS="$CFLAGS -I${with_openssl}"
-	AC_DEFINE([HAVE_OPENSSL], [], [OpenSSL])
-	AC_MSG_RESULT([found in $with_openssl])
-	AC_CHECK_LIB(crypto, main, [
-		AC_CHECK_LIB(crypto, SSLeay_add_all_algorithms, [
-		    AC_DEFINE([HAVE_SSLEAY], [], [SSLeay])
-		])
-	    ])
-	AC_CHECK_LIB(ssl, main)
+        if test "$with_openssl" = "yes"; then with_openssl="/usr"; fi
+        CFLAGS="$CFLAGS -I${with_openssl}"
+        AC_DEFINE([HAVE_OPENSSL], [], [OpenSSL])
+        AC_MSG_RESULT([found in $with_openssl])
+        AC_CHECK_LIB(crypto, main, [
+                AC_CHECK_LIB(crypto, SSLeay_add_all_algorithms, [
+                    AC_DEFINE([HAVE_SSLEAY], [], [SSLeay])
+                ])
+            ])
+        AC_CHECK_LIB(ssl, main)
     else
-	AC_MSG_RESULT([not found or disabled])
+        AC_MSG_RESULT([not found or disabled])
 
-	AM_PATH_LIBGNUTLS_EXTRA(0.0.1, [
-	    CXXFLAGS="$CXXFLAGS $LIBGNUTLS_CFLAGS"
-	    LIBS="$LIBS $LIBGNUTLS_LIBS -lgnutls-extra -lgnutls-openssl"
-	    AC_DEFINE([HAVE_GNUTLS], [], [GNU TLS])
-	])
+        AM_PATH_LIBGNUTLS_EXTRA(0.0.1, [
+            CXXFLAGS="$CXXFLAGS $LIBGNUTLS_CFLAGS"
+            LIBS="$LIBS $LIBGNUTLS_LIBS -lgnutls-extra -lgnutls-openssl"
+            AC_DEFINE([HAVE_GNUTLS], [], [GNU TLS])
+        ])
     fi
 fi
 

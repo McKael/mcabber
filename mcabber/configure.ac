@@ -95,6 +95,16 @@ fi
 
 AC_DEFINE(BUILD_JABBER, 1, [build with jabber support])
 
+AC_ARG_ENABLE(debug,
+    [AC_HELP_STRING(--enable-debug, Add development compilation options)],
+    debug=$enableval, debug="")
+if test "${debug}" = "yes"; then
+    AC_DEFINE_UNQUOTED([DEBUG_ENABLE],[1],[Devel compilation options])
+    CFLAGS="$CFLAGS -Wextra -Wno-unused-parameter -pedantic -std=gnu99 -O0 -g"
+else
+    CFLAGS="$CFLAGS -O2"
+fi
+
 AC_CONFIG_FILES([connwrap/Makefile
                  libjabber/Makefile
                  src/Makefile

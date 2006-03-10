@@ -41,6 +41,7 @@
 #include "list.h"
 
 #define window_entry(n) list_entry(n, window_entry_t, list)
+#define get_color(col)  (COLOR_PAIR(col)|COLOR_ATTRIB[col])
 
 #define DEFAULT_LOG_WIN_HEIGHT (5+2)
 #define DEFAULT_ROSTER_WIDTH    24
@@ -122,12 +123,13 @@ static int FindColor(const char *name)
   if (!strcmp(name, "white"))
     return COLOR_WHITE;
 
+  scr_LogPrint(LPRINT_LOGNORM, "ERROR: Wrong color: %s", name);
   return -1;
 }
 
 static void ParseColors(void)
 {
-  const char *colors[10] = {
+  const char *colors[] = {
     "", "",
     "general",
     "highlight",
@@ -139,59 +141,69 @@ static void ParseColors(void)
     NULL
   };
 
-  char *tmp = g_new(char, 512);
   const char *color;
   const char *background   = settings_opt_get("color_background");
   const char *backselected = settings_opt_get("color_bgrostersel");
   const char *backstatus   = settings_opt_get("color_bgstatus");
-  int i = 0;
+  char *tmp;
+  int i;
+
+  // Initialize color attributes
+  memset(COLOR_ATTRIB, 0, sizeof(COLOR_ATTRIB));
 
   // Default values
   if (!background)   background   = "black";
   if (!backselected) backselected = "cyan";
   if (!backstatus)   backstatus   = "blue";
 
-  while (colors[i]) {
-    snprintf(tmp, 512, "color_%s", colors[i]);
+  for (i=0; colors[i]; i++) {
+    tmp = g_strdup_printf("color_%s", colors[i]);
     color = settings_opt_get(tmp);
+    g_free(tmp);
+
+    if (color) {
+      if (!strncmp(color, "bright", 6)) {
+        COLOR_ATTRIB[i+1] = A_BOLD;
+        color += 6;
+      }
+    }
 
     switch (i + 1) {
-    case 1:
-      init_pair(1, COLOR_BLACK, COLOR_WHITE);
-      break;
-    case 2:
-      init_pair(2, COLOR_WHITE, COLOR_BLACK);
-      break;
-    case COLOR_GENERAL:
-      init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
-                FindColor(background));
-      break;
-    case COLOR_HIGHLIGHT:
-      init_pair(i+1, ((color) ? FindColor(color) : COLOR_CYAN),
-                FindColor(background));
-      break;
-    case COLOR_STATUS:
-      init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
-                FindColor(backstatus));
-      break;
-    case COLOR_ROSTER:
-      init_pair(i+1, ((color) ? FindColor(color) : COLOR_GREEN),
-                FindColor(background));
-      break;
-    case COLOR_ROSTERSEL:
-      init_pair(i+1, ((color) ? FindColor(color) : COLOR_BLUE),
-                FindColor(backselected));
-      break;
-    case COLOR_ROSTERSELNMSG:
-      init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
-                FindColor(backselected));
-      break;
-    case COLOR_ROSTERNMSG:
-      init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
-                FindColor(background));
-      break;
+      case 1:
+          init_pair(1, COLOR_BLACK, COLOR_WHITE);
+          break;
+      case 2:
+          init_pair(2, COLOR_WHITE, COLOR_BLACK);
+          break;
+      case COLOR_GENERAL:
+          init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
+                    FindColor(background));
+          break;
+      case COLOR_HIGHLIGHT:
+          init_pair(i+1, ((color) ? FindColor(color) : COLOR_CYAN),
+                    FindColor(background));
+          break;
+      case COLOR_STATUS:
+          init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
+                    FindColor(backstatus));
+          break;
+      case COLOR_ROSTER:
+          init_pair(i+1, ((color) ? FindColor(color) : COLOR_GREEN),
+                    FindColor(background));
+          break;
+      case COLOR_ROSTERSEL:
+          init_pair(i+1, ((color) ? FindColor(color) : COLOR_BLUE),
+                    FindColor(backselected));
+          break;
+      case COLOR_ROSTERSELNMSG:
+          init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
+                    FindColor(backselected));
+          break;
+      case COLOR_ROSTERNMSG:
+          init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
+                    FindColor(background));
+          break;
     }
-    i++;
   }
 }
 
@@ -301,7 +313,7 @@ static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
     safe_usleep(250);
     tmp->win = newwin(lines, cols, y, x);
   }
-  wbkgd(tmp->win, COLOR_PAIR(COLOR_GENERAL));
+  wbkgd(tmp->win, get_color(COLOR_GENERAL));
   tmp->panel = new_panel(tmp->win);
   tmp->name = g_strdup(title);
 
@@ -394,7 +406,7 @@ static void scr_UpdateWindow(window_entry_t *win_entry)
     // You need to set it to the whole prefix length + 1
     if (line) {
       if (line->flags & HBB_PREFIX_HLIGHT)
-        wattrset(win_entry->win, COLOR_PAIR(COLOR_HIGHLIGHT));
+        wattrset(win_entry->win, get_color(COLOR_HIGHLIGHT));
 
       if (line->timestamp) {
         strftime(date, 30, "%m-%d %H:%M", localtime(&line->timestamp));
@@ -425,7 +437,7 @@ static void scr_UpdateWindow(window_entry_t *win_entry)
       wprintw(win_entry->win, "%s", line->text); // Display text line
 
       if (line->flags & HBB_PREFIX_HLIGHT)
-        wattrset(win_entry->win, COLOR_PAIR(COLOR_GENERAL));
+        wattrset(win_entry->win, get_color(COLOR_GENERAL));
       wclrtoeol(win_entry->win);
       g_free(line->text);
     } else {
@@ -614,11 +626,11 @@ void scr_DrawMainWindow(unsigned int fullinit)
       fprintf(stderr, "Cannot create windows!\n");
       exit(EXIT_FAILURE);
     }
-    wbkgd(rosterWnd,      COLOR_PAIR(COLOR_GENERAL));
-    wbkgd(chatWnd,        COLOR_PAIR(COLOR_GENERAL));
-    wbkgd(logWnd,         COLOR_PAIR(COLOR_GENERAL));
-    wbkgd(chatstatusWnd,  COLOR_PAIR(COLOR_STATUS));
-    wbkgd(mainstatusWnd,  COLOR_PAIR(COLOR_STATUS));
+    wbkgd(rosterWnd,      get_color(COLOR_GENERAL));
+    wbkgd(chatWnd,        get_color(COLOR_GENERAL));
+    wbkgd(logWnd,         get_color(COLOR_GENERAL));
+    wbkgd(chatstatusWnd,  get_color(COLOR_STATUS));
+    wbkgd(mainstatusWnd,  get_color(COLOR_STATUS));
   } else {
     /* Resize/move windows */
     wresize(rosterWnd, CHAT_WIN_HEIGHT, Roster_Width);
@@ -839,7 +851,7 @@ void scr_DrawRoster(void)
 
   if (Roster_Width) {
     // Redraw the vertical line (not very good...)
-    wattrset(rosterWnd, COLOR_PAIR(COLOR_GENERAL));
+    wattrset(rosterWnd, get_color(COLOR_GENERAL));
     for (i=0 ; i < CHAT_WIN_HEIGHT ; i++)
       mvwaddch(rosterWnd, i, Roster_Width-1, ACS_VLINE);
   }
@@ -917,18 +929,18 @@ void scr_DrawRoster(void)
     }
     if (buddy == current_buddy) {
       if (pending == '#')
-        wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTERSELNMSG));
+        wattrset(rosterWnd, get_color(COLOR_ROSTERSELNMSG));
       else
-        wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTERSEL));
+        wattrset(rosterWnd, get_color(COLOR_ROSTERSEL));
       // The 3 following lines aim at coloring the whole line
       wmove(rosterWnd, i, 0);
       for (n = 0; n < maxx; n++)
         waddch(rosterWnd, ' ');
     } else {
       if (pending == '#')
-        wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTERNMSG));
+        wattrset(rosterWnd, get_color(COLOR_ROSTERNMSG));
       else
-        wattrset(rosterWnd, COLOR_PAIR(COLOR_ROSTER));
+        wattrset(rosterWnd, get_color(COLOR_ROSTER));
     }
 
     if (Roster_Width > 7)

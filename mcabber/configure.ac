@@ -26,8 +26,8 @@ AC_CHECK_DECLS([strptime],,,
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h
-                  stdlib.h string.h strings.h sys/socket.h sys/time.h
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h \
+                  stdlib.h string.h strings.h sys/socket.h sys/time.h \
                   syslog.h termios.h unistd.h ncurses.h panel.h getopt.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -47,8 +47,8 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([alarm bzero gethostbyname gethostname inet_ntoa isascii
-                memmove memset modf select setlocale socket strcasecmp
+AC_CHECK_FUNCS([alarm bzero gethostbyname gethostname inet_ntoa isascii \
+                memmove memset modf select setlocale socket strcasecmp \
                 strchr strdup strncasecmp strrchr strstr])
 
 # Check for glib

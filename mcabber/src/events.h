@@ -11,6 +11,10 @@
 #define EVS_CONTEXT_CANCEL  1
 #define EVS_CONTEXT_USER    2
 
+typedef enum {
+  EVS_TYPE_SUBSCRIPTION = 1
+} evs_type;
+
 /* Common structure for events (evs) and IQ requests (iqs) */
 typedef struct {
   char *id;

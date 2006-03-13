@@ -1421,6 +1421,50 @@ static void handle_packet_message(jconn conn, char *type, char *from,
     g_free(tmp);
 }
 
+static void evscallback_subcription(eviqs *evp, guint evcontext)
+{
+  char *barejid;
+  char *buf;
+
+  if (evcontext == EVS_CONTEXT_TIMEOUT) {
+    scr_LogPrint(LPRINT_LOGNORM, "Event %s timed out, cancelled.",
+                 evp->id);
+    return;
+  }
+  if (evcontext == EVS_CONTEXT_CANCEL) {
+    scr_LogPrint(LPRINT_LOGNORM, "Event %s cancelled.", evp->id);
+    return;
+  }
+  if (!(evcontext & EVS_CONTEXT_USER))
+    return;
+
+  // Sanity check
+  if (!evp->data) {
+    // Shouldn't happen, data should be set to the barejid.
+    scr_LogPrint(LPRINT_LOGNORM, "Error in evs callback.");
+    return;
+  }
+
+  // Ok, let's work now.
+  // evcontext: 0, 1 == reject, accept
+
+  barejid = evp->data;
+
+  if (evcontext & ~EVS_CONTEXT_USER) {
+    // Accept subscription request
+    jb_subscr_send_auth(barejid);
+    buf = g_strdup_printf("<%s> is allowed to receive your presence updates",
+                          barejid);
+  } else {
+    // Reject subscription request
+    jb_subscr_cancel_auth(barejid);
+    buf = g_strdup_printf("<%s> won't receive your presence updates", barejid);
+  }
+  scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);
+  scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+  g_free(buf);
+}
+
 static void handle_packet_s10n(jconn conn, char *type, char *from,
                                xmlnode xmldata)
 {
@@ -1433,6 +1477,7 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     /* The sender wishes to subscribe to our presence */
     char *msg;
     int isagent;
+    eviqs *evn;
 
     isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
     msg = xmlnode_get_tag_data(xmldata, "status");
@@ -1455,10 +1500,12 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
       }
     }
 
-    // FIXME We accept everybody...
-    jb_subscr_send_auth(from);
-    buf = g_strdup_printf("<%s> is allowed to receive your presence updates",
-                          from);
+    // Create a new event item
+    evn = evs_new(EVS_TYPE_SUBSCRIPTION, EVS_MAX_TIMEOUT);
+    evn->callback = &evscallback_subcription;
+    evn->data = g_strdup(r);
+
+    buf = g_strdup_printf("Please use /event %s accept|reject", evn->id);
     scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);

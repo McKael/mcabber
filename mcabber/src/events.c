@@ -25,6 +25,7 @@
 
 static GSList *evs_list; // Events list
 
+static eviqs *evs_find(const char *evid);
 
 //  evs_new(type, timeout)
 // Create an events structure.
@@ -33,10 +34,17 @@ eviqs *evs_new(guint8 type, time_t timeout)
   static guint evs_idn;
   eviqs *new_evs;
   time_t now_t;
+  char *stridn;
 
   if (!++evs_idn)
     evs_idn = 1;
-  /* TODO: check for wrapping, we shouldn't reuse ids */
+  /* Check for wrapping, we shouldn't reuse ids */
+  stridn = g_strdup_printf("%d", evs_idn);
+  if (evs_find(stridn))  {
+    g_free(stridn);
+    // We could try another id but for now giving up should be fine...
+    return NULL;
+  }
 
   new_evs = g_new0(eviqs, 1);
   time(&now_t);
@@ -44,7 +52,7 @@ eviqs *evs_new(guint8 type, time_t timeout)
   if (timeout)
     new_evs->ts_expire = now_t + timeout;
   new_evs->type = type;
-  new_evs->id = g_strdup_printf("%d", evs_idn);
+  new_evs->id = stridn;
 
   evs_list = g_slist_append(evs_list, new_evs);
   return new_evs;

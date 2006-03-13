@@ -1502,10 +1502,13 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
 
     // Create a new event item
     evn = evs_new(EVS_TYPE_SUBSCRIPTION, EVS_MAX_TIMEOUT);
-    evn->callback = &evscallback_subcription;
-    evn->data = g_strdup(r);
-
-    buf = g_strdup_printf("Please use /event %s accept|reject", evn->id);
+    if (evn) {
+      evn->callback = &evscallback_subcription;
+      evn->data = g_strdup(r);
+      buf = g_strdup_printf("Please use /event %s accept|reject", evn->id);
+    } else {
+      buf = g_strdup_printf("Unable to create a new event!");
+    }
     scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);

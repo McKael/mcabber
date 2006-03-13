@@ -5,7 +5,7 @@
 
 
 #define EVS_DEFAULT_TIMEOUT 90
-#define EVS_MAX_TIMEOUT     600
+#define EVS_MAX_TIMEOUT     432000
 
 #define EVS_CONTEXT_USER    0
 #define EVS_CONTEXT_TIMEOUT 1

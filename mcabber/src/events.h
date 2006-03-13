@@ -7,8 +7,9 @@
 #define EVS_DEFAULT_TIMEOUT 90
 #define EVS_MAX_TIMEOUT     432000
 
-#define EVS_CONTEXT_USER    0
-#define EVS_CONTEXT_TIMEOUT 1
+#define EVS_CONTEXT_TIMEOUT 0
+#define EVS_CONTEXT_CANCEL  1
+#define EVS_CONTEXT_USER    2
 
 /* Common structure for events (evs) and IQ requests (iqs) */
 typedef struct {
@@ -21,6 +22,11 @@ typedef struct {
   xmlnode xmldata;
 } eviqs;
 
+eviqs *evs_new(guint8 type, time_t timeout);
+int    evs_del(const char *evid);
+int    evs_callback(const char *evid, guint evcontext);
+void   evs_check_timeout(time_t now_t);
+void   evs_display_list(void);
 
 #endif /* __EVENTS_H__ */
 

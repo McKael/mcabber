@@ -30,6 +30,7 @@
 #include "hbuf.h"
 #include "utils.h"
 #include "settings.h"
+#include "events.h"
 
 // Commands callbacks
 static void do_roster(char *arg);
@@ -56,6 +57,7 @@ static void do_room(char *arg);
 static void do_authorization(char *arg);
 static void do_version(char *arg);
 static void do_request(char *arg);
+static void do_event(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -92,6 +94,7 @@ void cmd_init(void)
   cmd_add("connect", "Connect to the server", 0, 0, &do_connect);
   cmd_add("del", "Delete the current buddy", 0, 0, &do_del);
   cmd_add("disconnect", "Disconnect from server", 0, 0, &do_disconnect);
+  cmd_add("event", "Process an event", 0, 0, &do_event);
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
   //cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
   cmd_add("info", "Show basic info on current buddy", 0, 0, &do_info);
@@ -1939,6 +1942,43 @@ static void do_request(char *arg)
           break;
     }
   }
+  free_arg_lst(paramlst);
+}
+
+static void do_event(char *arg)
+{
+  char **paramlst;
+  char *evid, *subcmd;
+  int action = -1;
+
+  paramlst = split_arg(arg, 2, 0); // id, subcmd
+  evid = *paramlst;
+  subcmd = *(paramlst+1);
+
+  if (!evid || !subcmd) {
+    // Special case: /event list
+    if (evid && !strcasecmp(evid, "list"))
+      evs_display_list();
+    else
+      scr_LogPrint(LPRINT_NORMAL,
+                   "Missing parameter.  Usage: /event num action");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if (!strcasecmp(subcmd, "reject"))
+    action = 0;
+  else if (!strcasecmp(subcmd, "accept"))
+    action = 1;
+
+  if (action == -1) {
+    scr_LogPrint(LPRINT_NORMAL, "Wrong action parameter.");
+  } else if (action == 0 || action == 1) {
+    if (evs_callback(evid, EVS_CONTEXT_USER + action) == -1) {
+      scr_LogPrint(LPRINT_NORMAL, "Event %s not found.", evid);
+    }
+  }
+
   free_arg_lst(paramlst);
 }
 

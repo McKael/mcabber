@@ -188,7 +188,7 @@ void jb_main()
 
   if (jstate == STATE_CONNECTING) {
     if (jc) {
-      iqs *iqn;
+      eviqs *iqn;
       xmlnode z;
 
       iqn = iqs_new(JPACKET__GET, NS_AUTH, "auth", IQS_DEFAULT_TIMEOUT);
@@ -465,7 +465,7 @@ void jb_subscr_request_auth(const char *jid)
 void jb_addbuddy(const char *jid, const char *name, const char *group)
 {
   xmlnode y, z;
-  iqs *iqn;
+  eviqs *iqn;
   char *cleanjid;
 
   if (!online) return;
@@ -508,7 +508,7 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
 void jb_delbuddy(const char *jid)
 {
   xmlnode x, y, z;
-  iqs *iqn;
+  eviqs *iqn;
   char *cleanjid;
 
   if (!online) return;
@@ -554,7 +554,7 @@ void jb_delbuddy(const char *jid)
 void jb_updatebuddy(const char *jid, const char *name, const char *group)
 {
   xmlnode y;
-  iqs *iqn;
+  eviqs *iqn;
   char *cleanjid;
   gchar *name_utf8;
 
@@ -674,7 +674,7 @@ void jb_room_join(const char *room, const char *nickname)
 void jb_room_unlock(const char *room)
 {
   xmlnode y, z;
-  iqs *iqn;
+  eviqs *iqn;
 
   if (!online || !room) return;
 
@@ -696,7 +696,7 @@ void jb_room_unlock(const char *room)
 void jb_room_destroy(const char *room, const char *venue, const char *reason)
 {
   xmlnode y, z;
-  iqs *iqn;
+  eviqs *iqn;
 
   if (!online || !room) return;
 
@@ -733,7 +733,7 @@ int jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
                       struct role_affil ra, const char *reason)
 {
   xmlnode y, z;
-  iqs *iqn;
+  eviqs *iqn;
 
   if (!online || !roomid) return 1;
   if (!jid && !nick) return 1;

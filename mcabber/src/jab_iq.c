@@ -40,15 +40,15 @@ static GSList *iqs_list;
 //  iqs_new(type, namespace, prefix, timeout)
 // Create a query (GET, SET) IQ structure.  This function should not be used
 // for RESULT packets.
-iqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout)
+eviqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout)
 {
   static guint iqs_idn;
-  iqs *new_iqs;
+  eviqs *new_iqs;
   time_t now_t;
 
   iqs_idn++;
 
-  new_iqs = g_new0(iqs, 1);
+  new_iqs = g_new0(eviqs, 1);
   time(&now_t);
   new_iqs->ts_create = now_t;
   if (timeout)
@@ -68,7 +68,7 @@ iqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout)
 int iqs_del(const char *iqid)
 {
   GSList *p;
-  iqs *i;
+  eviqs *i;
 
   if (!iqid) return 1;
 
@@ -88,10 +88,10 @@ int iqs_del(const char *iqid)
   return -1;  // Not found
 }
 
-static iqs *iqs_find(const char *iqid)
+static eviqs *iqs_find(const char *iqid)
 {
   GSList *p;
-  iqs *i;
+  eviqs *i;
 
   if (!iqid) return NULL;
 
@@ -110,7 +110,7 @@ static iqs *iqs_find(const char *iqid)
 // Return 0 in case of success, -1 if the iqid hasn't been found.
 int iqs_callback(const char *iqid, xmlnode xml_result, guint iqcontext)
 {
-  iqs *i;
+  eviqs *i;
 
   i = iqs_find(iqid);
   if (!i) return -1;
@@ -127,12 +127,12 @@ int iqs_callback(const char *iqid, xmlnode xml_result, guint iqcontext)
 void iqs_check_timeout(time_t now_t)
 {
   GSList *p;
-  iqs *i;
+  eviqs *i;
 
   p = iqs_list;
   while (p) {
     i = p->data;
-    // We must get next iqs element now because the current one
+    // We must get next IQ eviqs element now because the current one
     // could be freed.
     p = g_slist_next(p);
 
@@ -146,7 +146,7 @@ void iqs_check_timeout(time_t now_t)
 void jb_iqs_display_list(void)
 {
   GSList *p;
-  iqs *i;
+  eviqs *i;
 
   scr_LogPrint(LPRINT_LOGNORM, "IQ list:");
   for (p = iqs_list; p; p = g_slist_next(p)) {
@@ -158,7 +158,7 @@ void jb_iqs_display_list(void)
 
 static void request_roster(void)
 {
-  iqs *iqn = iqs_new(JPACKET__GET, NS_ROSTER, "Roster", IQS_DEFAULT_TIMEOUT);
+  eviqs *iqn = iqs_new(JPACKET__GET, NS_ROSTER, "Roster", IQS_DEFAULT_TIMEOUT);
   jab_send(jc, iqn->xmldata);
   iqs_del(iqn->id); // XXX
 }
@@ -244,7 +244,7 @@ static void handle_iq_roster(xmlnode x)
     scr_ShowBuddyWindow();
 }
 
-void iqscallback_version(iqs *iqp, xmlnode xml_result, guint iqcontext)
+void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p, *p_noutf8;
@@ -318,7 +318,7 @@ void iqscallback_version(iqs *iqp, xmlnode xml_result, guint iqcontext)
 
 void request_version(const char *fulljid)
 {
-  iqs *iqn;
+  eviqs *iqn;
   gchar *utf8_jid = to_utf8(fulljid);
 
   iqn = iqs_new(JPACKET__GET, NS_VERSION, "version", IQS_DEFAULT_TIMEOUT);
@@ -328,7 +328,7 @@ void request_version(const char *fulljid)
   jab_send(jc, iqn->xmldata);
 }
 
-void iqscallback_time(iqs *iqp, xmlnode xml_result, guint iqcontext)
+void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p, *p_noutf8;
@@ -402,7 +402,7 @@ void iqscallback_time(iqs *iqp, xmlnode xml_result, guint iqcontext)
 
 void request_time(const char *fulljid)
 {
-  iqs *iqn;
+  eviqs *iqn;
   gchar *utf8_jid = to_utf8(fulljid);
 
   iqn = iqs_new(JPACKET__GET, NS_TIME, "time", IQS_DEFAULT_TIMEOUT);
@@ -412,10 +412,10 @@ void request_time(const char *fulljid)
   jab_send(jc, iqn->xmldata);
 }
 
-void iqscallback_auth(iqs *iqp, xmlnode xml_result)
+void iqscallback_auth(eviqs *iqp, xmlnode xml_result)
 {
   if (jstate == STATE_GETAUTH) {
-    iqs *iqn;
+    eviqs *iqn;
 
     if (xml_result) {
       xmlnode x = xmlnode_get_tag(xml_result, "query");

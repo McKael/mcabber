@@ -33,6 +33,7 @@
 
 #include "compl.h"
 #include "roster.h"
+#include "events.h"
 
 // Completion structure
 typedef struct {
@@ -219,6 +220,9 @@ GSList *compl_get_category_list(guint cat_flags)
   }
   if (cat_flags == COMPL_RESOURCE) {
     return buddy_getresources(NULL);
+  }
+  if (cat_flags == COMPL_EVENTSID) {
+    return evs_geteventscomplist();
   }
 
   return NULL;

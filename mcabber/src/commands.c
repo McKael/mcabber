@@ -94,7 +94,7 @@ void cmd_init(void)
   cmd_add("connect", "Connect to the server", 0, 0, &do_connect);
   cmd_add("del", "Delete the current buddy", 0, 0, &do_del);
   cmd_add("disconnect", "Disconnect from server", 0, 0, &do_disconnect);
-  cmd_add("event", "Process an event", 0, COMPL_EVENTS, &do_event);
+  cmd_add("event", "Process an event", COMPL_EVENTSID, COMPL_EVENTS, &do_event);
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
   //cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
   cmd_add("info", "Show basic info on current buddy", 0, 0, &do_info);

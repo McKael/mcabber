@@ -149,4 +149,22 @@ void evs_display_list(void)
   scr_LogPrint(LPRINT_LOGNORM, "End of events list.");
 }
 
+//  evs_geteventscomplist()
+// Return a singly-linked-list of events ids, for the completion system.
+// Note: the caller should free the list (and data) after use.
+GSList *evs_geteventscomplist(void)
+{
+  GSList *evidlist = NULL, *p;
+  eviqs *i;
+
+  for (p = evs_list; p; p = g_slist_next(p)) {
+    i = p->data;
+    evidlist = g_slist_append(evidlist, g_strdup(i->id));
+  }
+
+  // Last item is the "list" subcommand.
+  evidlist = g_slist_append(evidlist, g_strdup("list"));
+  return evidlist;
+}
+
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

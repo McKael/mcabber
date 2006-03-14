@@ -19,6 +19,7 @@
 #define COMPL_AUTH        (1<<14)
 #define COMPL_REQUEST     (1<<15)
 #define COMPL_EVENTS      (1<<16)
+#define COMPL_EVENTSID    (1<<17)
 
 void    compl_add_category_word(guint, const char *command);
 void    compl_del_category_word(guint categ, const char *word);

@@ -74,6 +74,7 @@ int evs_del(const char *evid)
     g_free(i->id);
     if (i->xmldata) xmlnode_free(i->xmldata);
     if (i->data)    g_free(i->data);
+    if (i->desc)    g_free(i->desc);
     g_free(i);
     evs_list = g_slist_remove(evs_list, p->data);
     return 0; // Ok, deleted
@@ -142,7 +143,8 @@ void evs_display_list(void)
   scr_LogPrint(LPRINT_LOGNORM, "Events list:");
   for (p = evs_list; p; p = g_slist_next(p)) {
     i = p->data;
-    scr_LogPrint(LPRINT_LOGNORM, "Id: %s", i->id);
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "Id: %-3s %s", i->id, (i->desc ? i->desc : ""));
   }
   scr_LogPrint(LPRINT_LOGNORM, "End of events list.");
 }

@@ -24,6 +24,7 @@ typedef struct {
   gpointer data;
   void (*callback)();
   xmlnode xmldata;
+  char *desc;
 } eviqs;
 
 eviqs *evs_new(guint8 type, time_t timeout);

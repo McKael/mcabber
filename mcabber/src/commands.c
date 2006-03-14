@@ -196,6 +196,7 @@ void cmd_init(void)
 
   // Events category
   compl_add_category_word(COMPL_EVENTS, "accept");
+  compl_add_category_word(COMPL_EVENTS, "ignore");
   compl_add_category_word(COMPL_EVENTS, "reject");
 }
 
@@ -1974,11 +1975,18 @@ static void do_event(char *arg)
     action = 0;
   else if (!strcasecmp(subcmd, "accept"))
     action = 1;
+  else if (!strcasecmp(subcmd, "ignore"))
+    action = 2;
 
   if (action == -1) {
     scr_LogPrint(LPRINT_NORMAL, "Wrong action parameter.");
-  } else if (action == 0 || action == 1) {
-    if (evs_callback(evid, EVS_CONTEXT_USER + action) == -1) {
+  } else if (action >= 0 && action <= 2) {
+    if (action == 2) {
+      action = EVS_CONTEXT_CANCEL;
+    } else {
+      action += EVS_CONTEXT_USER;
+    }
+    if (evs_callback(evid, action) == -1) {
       scr_LogPrint(LPRINT_NORMAL, "Event %s not found.", evid);
     }
   }

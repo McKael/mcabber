@@ -1421,7 +1421,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
     g_free(tmp);
 }
 
-static void evscallback_subcription(eviqs *evp, guint evcontext)
+static void evscallback_subscription(eviqs *evp, guint evcontext)
 {
   char *barejid;
   char *buf;
@@ -1503,7 +1503,7 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     // Create a new event item
     evn = evs_new(EVS_TYPE_SUBSCRIPTION, EVS_MAX_TIMEOUT);
     if (evn) {
-      evn->callback = &evscallback_subcription;
+      evn->callback = &evscallback_subscription;
       evn->data = g_strdup(r);
       buf = g_strdup_printf("Please use /event %s accept|reject", evn->id);
     } else {

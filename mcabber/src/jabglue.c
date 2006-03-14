@@ -171,7 +171,7 @@ void jb_set_keepalive_delay(unsigned int delay)
 void jb_main()
 {
   time_t now;
-  static time_t last_iqs_check = 0;
+  static time_t last_eviqs_check = 0;
 
   if (!online) {
     safe_usleep(10000);
@@ -216,10 +216,11 @@ void jb_main()
 
   time(&now);
 
-  // Check for IQ requests timeouts
-  if (now > last_iqs_check + 20) {
+  // Check for EV & IQ requests timeouts
+  if (now > last_eviqs_check + 20) {
     iqs_check_timeout(now);
-    last_iqs_check = now;
+    evs_check_timeout(now);
+    last_eviqs_check = now;
   }
 
   // Keepalive

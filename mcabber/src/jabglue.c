@@ -1505,6 +1505,8 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     if (evn) {
       evn->callback = &evscallback_subscription;
       evn->data = g_strdup(r);
+      evn->desc = g_strdup_printf("<%s> wants to subscribe to your "
+                                  "presence updates", r);
       buf = g_strdup_printf("Please use /event %s accept|reject", evn->id);
     } else {
       buf = g_strdup_printf("Unable to create a new event!");

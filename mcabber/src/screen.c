@@ -1610,11 +1610,12 @@ void readline_backward_kill_word()
 
   if (ptr_inputline == inputLine) return;
 
-  for (c = ptr_inputline-1 ; c > inputLine ; c--)
+  for (c = ptr_inputline-1 ; c > inputLine ; c--) {
     if (!isalnum(*c)) {
       if (*c == ' ')
         if (!spaceallowed) break;
     } else spaceallowed = 0;
+  }
 
   if (c != inputLine || *c != ' ')
     if ((c < ptr_inputline-1) && (!isalnum(*c)))
@@ -1627,6 +1628,46 @@ void readline_backward_kill_word()
     if (!*c++) break;
   }
   check_offset(-1);
+}
+
+//  readline_backward_word()
+// Move  back  to the start of the current or previous word
+void readline_backward_word()
+{
+  char *old_ptr_inputLine = ptr_inputline;
+  int spaceallowed = 1;
+
+  if (ptr_inputline == inputLine) return;
+
+  for (ptr_inputline-- ; ptr_inputline > inputLine ; ptr_inputline--) {
+    if (!isalnum(*ptr_inputline)) {
+      if (*ptr_inputline == ' ')
+        if (!spaceallowed) break;
+    } else spaceallowed = 0;
+  }
+
+  if (ptr_inputline < old_ptr_inputLine-1
+      && *ptr_inputline == ' ' && *(ptr_inputline+1) != ' ')
+    ptr_inputline++;
+
+  check_offset(-1);
+}
+
+//  readline_forward_word()
+// Move forward to the end of the next word
+void readline_forward_word()
+{
+  int spaceallowed = 1;
+
+  while (*ptr_inputline) {
+    ptr_inputline++;
+    if (!isalnum(*ptr_inputline)) {
+      if (*ptr_inputline == ' ')
+        if (!spaceallowed) break;
+    } else spaceallowed = 0;
+  }
+
+  check_offset(1);
 }
 
 //  which_row()
@@ -1973,6 +2014,12 @@ int process_key(int key)
         break;
     case 23:    // Ctrl-w
         readline_backward_kill_word();
+        break;
+    case 516:   // Ctrl-Left
+        readline_backward_word();
+        break;
+    case 518:   // Ctrl-Right
+        readline_forward_word();
         break;
     case 12:    // Ctrl-l
         scr_CheckAutoAway(TRUE);

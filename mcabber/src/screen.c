@@ -1824,16 +1824,38 @@ void scr_handle_CtrlC(void)
 
 int scr_Getch(void)
 {
-  int ch;
-  ch = wgetch(inputWnd);
-  return ch;
+  return wgetch(inputWnd);
 }
 
 //  process_key(key)
 // Handle the pressed key, in the command line (bottom).
 int process_key(int key)
 {
-  switch(key) {
+  if (key == 27) {
+    key = scr_Getch();
+    if (key == -1 || key == 27) {
+      // This is a "real" escape...
+      scr_CheckAutoAway(TRUE);
+      currentWindow = NULL;
+      chatmode = FALSE;
+      if (current_buddy)
+        buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+      scr_RosterVisibility(1);
+      scr_UpdateChatStatus(FALSE);
+      top_panel(chatPanel);
+      top_panel(inputPanel);
+      update_panels();
+    } else { // Meta
+      switch (key) {
+        default:
+            scr_LogPrint(LPRINT_NORMAL, "Unknown key=M%d", key);
+      }
+    }
+    key = -1;
+  }
+  switch (key) {
+    case -1:
+        break;
     case 8:     // Ctrl-h
     case 127:   // Backspace too
     case KEY_BACKSPACE:
@@ -1951,18 +1973,6 @@ int process_key(int key)
         break;
     case 23:    // Ctrl-w
         readline_backward_kill_word();
-        break;
-    case 27:    // ESC
-        scr_CheckAutoAway(TRUE);
-        currentWindow = NULL;
-        chatmode = FALSE;
-        if (current_buddy)
-          buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-        scr_RosterVisibility(1);
-        scr_UpdateChatStatus(FALSE);
-        top_panel(chatPanel);
-        top_panel(inputPanel);
-        update_panels();
         break;
     case 12:    // Ctrl-l
         scr_CheckAutoAway(TRUE);

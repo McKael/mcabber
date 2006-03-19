@@ -200,6 +200,9 @@ bind 24 = roster alternate
 bind 269 = roster toggle_offline
 # F12 (276) bound to /roster toggle
 bind 276 = roster toggle
+# Ctrl-Up/Ctrl-Down bound to /buffer up/down  (like Ctrl-p/Ctrl-n)
+bind 521 = buffer up
+bind 514 = buffer down
 
 # Sample alias to join mcabber channel with "/jmc"
 #alias jmc = room join mcabber@conf.lilotux.net

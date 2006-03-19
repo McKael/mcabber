@@ -2191,11 +2191,9 @@ int process_key(keycode kcode)
         *ptr_inputline = 0;
         break;
     case 16:    // Ctrl-p
-    case 521:   // Ctrl-Up
         scr_BufferScrollUpDown(-1, 0);
         break;
     case 14:    // Ctrl-n
-    case 514:   // Ctrl-Down
         scr_BufferScrollUpDown(1, 0);
         break;
     case 17:    // Ctrl-q

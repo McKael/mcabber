@@ -218,9 +218,8 @@ static void ParseColors(void)
   }
 }
 
-void scr_InitCurses(void)
+static void init_keycodes(void)
 {
-  /* Key sequences initialization */
   add_keyseq("O5A", MKEY_EQUIV, 521); // Ctrl-Up
   add_keyseq("O5B", MKEY_EQUIV, 514); // Ctrl-Down
   add_keyseq("O5C", MKEY_EQUIV, 518); // Ctrl-Right
@@ -261,6 +260,14 @@ void scr_InitCurses(void)
   add_keyseq("[b", MKEY_EQUIV, 513); // Shift-Down
   add_keyseq("[c", MKEY_EQUIV, 402); // Shift-Right
   add_keyseq("[d", MKEY_EQUIV, 393); // Shift-Left
+  add_keyseq("[5$", MKEY_SHIFT_PGUP, 0);   // Shift-PageUp
+  add_keyseq("[6$", MKEY_SHIFT_PGDOWN, 0); // Shift-PageDown
+}
+
+void scr_InitCurses(void)
+{
+  /* Key sequences initialization */
+  init_keycodes();
 
   initscr();
   raw();

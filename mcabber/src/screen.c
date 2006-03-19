@@ -92,6 +92,17 @@ static GList *cmdhisto;
 static GList *cmdhisto_cur;
 static char   cmdhisto_backup[INPUTLINE_LENGTH+1];
 
+#define MAX_KEYSEQ_LENGTH 8
+
+typedef struct {
+  char *seqstr;
+  guint mkeycode;
+  gint  value;
+} keyseq;
+
+GSList *keyseqlist;
+static void add_keyseq(char *seqstr, guint mkeycode, gint value);
+
 
 /* Functions */
 
@@ -209,6 +220,26 @@ static void ParseColors(void)
 
 void scr_InitCurses(void)
 {
+  /* Key sequences initialization */
+  add_keyseq("O5A", MKEY_EQUIV, 521); // Ctrl-Up
+  add_keyseq("O5B", MKEY_EQUIV, 514); // Ctrl-Down
+  add_keyseq("O5C", MKEY_EQUIV, 518); // Ctrl-Right
+  add_keyseq("O5D", MKEY_EQUIV, 516); // Ctrl-Left
+  add_keyseq("O6A", MKEY_EQUIV, 520); // Ctrl-Shift-Up
+  add_keyseq("O6B", MKEY_EQUIV, 513); // Ctrl-Shift-Down
+  add_keyseq("O6C", MKEY_EQUIV, 402); // Ctrl-Shift-Right
+  add_keyseq("O6D", MKEY_EQUIV, 393); // Ctrl-Shift-Left
+
+  // Xterm
+  add_keyseq("[1;5A", MKEY_EQUIV, 521); // Ctrl-Up
+  add_keyseq("[1;5B", MKEY_EQUIV, 514); // Ctrl-Down
+  add_keyseq("[1;5C", MKEY_EQUIV, 518); // Ctrl-Right
+  add_keyseq("[1;5D", MKEY_EQUIV, 516); // Ctrl-Left
+  add_keyseq("[1;6A", MKEY_EQUIV, 520); // Ctrl-Shift-Up
+  add_keyseq("[1;6B", MKEY_EQUIV, 513); // Ctrl-Shift-Down
+  add_keyseq("[1;6C", MKEY_EQUIV, 402); // Ctrl-Shift-Right
+  add_keyseq("[1;6D", MKEY_EQUIV, 393); // Ctrl-Shift-Left
+
   initscr();
   raw();
   noecho();
@@ -1863,39 +1894,140 @@ void scr_handle_CtrlC(void)
   refresh_inputline();
 }
 
-int scr_Getch(void)
+static void add_keyseq(char *seqstr, guint mkeycode, gint value)
 {
-  return wgetch(inputWnd);
+  keyseq *ks;
+
+  // Let's make sure the length is correct
+  if (strlen(seqstr) > MAX_KEYSEQ_LENGTH) {
+    scr_LogPrint(LPRINT_LOGNORM, "add_keyseq(): key sequence is too long!");
+    return;
+  }
+
+  ks = g_new0(keyseq, 1);
+  ks->seqstr = g_strdup(seqstr);
+  ks->mkeycode = mkeycode;
+  ks->value = value;
+  keyseqlist = g_slist_append(keyseqlist, ks);
+}
+
+//  match_keyseq(iseq, &ret)
+// Check if "iseq" is a known key escape sequence.
+// Return value:
+// -1  if "seq" matches no known sequence
+//  0  if "seq" could match 1 or more known sequences
+// >0  if "seq" matches a key sequence; the mkey code is returned
+//     and *ret is set to the matching keyseq structure.
+static inline guint match_keyseq(int *iseq, keyseq **ret)
+{
+  GSList *ksl;
+  keyseq *ksp;
+  char *p, c;
+  int *i;
+  int needmore = FALSE;
+
+  for (ksl = keyseqlist; ksl; ksl = g_slist_next(ksl)) {
+    ksp = ksl->data;
+    p = ksp->seqstr;
+    i = iseq;
+    while (1) {
+      c = (unsigned char)*i;
+      if (!*p && !c) { // Match
+        (*ret) = ksp;
+        return ksp->mkeycode;
+      }
+      if (!c) {
+        // iseq is too short
+        needmore = TRUE;
+        break;
+      } else if (!*p || c != *p) {
+        // This isn't a match
+        break;
+      }
+      p++; i++;
+    }
+  }
+
+  if (needmore)
+    return 0;
+  return -1;
+}
+
+void scr_Getch(keycode *kcode)
+{
+  keyseq *mks;
+  int  ks[MAX_KEYSEQ_LENGTH+1];
+  int i;
+
+  memset(kcode, 0, sizeof(keycode));
+  memset(ks,  0, sizeof(ks));
+
+  kcode->value = wgetch(inputWnd);
+  if (kcode->value != 27)
+    return;
+
+  // Check for escape key sequence
+  for (i=0; i < MAX_KEYSEQ_LENGTH; i++) {
+    int match;
+    ks[i] = wgetch(inputWnd);
+    if (ks[i] == ERR) break;
+    match = match_keyseq(ks, &mks);
+    if (match == -1) {
+      // No such key sequence.  Let's increment i as it is a valid key.
+      i++;
+      break;
+    }
+    if (match > 0) {
+      // We have a matching sequence
+      kcode->mcode = mks->mkeycode;
+      kcode->value = mks->value;
+      return;
+    }
+  }
+
+  // No match.  Let's return a meta-key.
+  if (i > 0) {
+    kcode->mcode = MKEY_META;
+    kcode->value = ks[0];
+  }
+  if (i > 1) {
+    // We need to push some keys back to the keyboard buffer
+    while (i-- > 1)
+      ungetch(ks[i]);
+  }
+  return;
 }
 
 //  process_key(key)
 // Handle the pressed key, in the command line (bottom).
-int process_key(int key)
+int process_key(keycode kcode)
 {
-  if (key == 27) {
-    key = scr_Getch();
-    if (key == -1 || key == 27) {
-      // This is a "real" escape...
-      scr_CheckAutoAway(TRUE);
-      currentWindow = NULL;
-      chatmode = FALSE;
-      if (current_buddy)
-        buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-      scr_RosterVisibility(1);
-      scr_UpdateChatStatus(FALSE);
-      top_panel(chatPanel);
-      top_panel(inputPanel);
-      update_panels();
-    } else { // Meta
-      switch (key) {
-        default:
-            scr_LogPrint(LPRINT_NORMAL, "Unknown key=M%d", key);
-      }
-    }
-    key = -1;
+  int key = kcode.value;
+
+  switch (kcode.mcode) {
+    case 0:
+        break;
+    case MKEY_EQUIV:
+        key = kcode.value;
+        break;
+    case MKEY_META:
+        key = ERR;
+        switch (kcode.value) {
+          case 27:
+              key = 27;
+              break;
+          default:
+              scr_LogPrint(LPRINT_NORMAL, "Unknown key=M%d", kcode.value);
+        }
+        break;
+    default:
+        scr_LogPrint(LPRINT_NORMAL, "Unknown mkeycode! (%d)", kcode.mcode);
+        key = ERR;
   }
+
   switch (key) {
-    case -1:
+    case 0:
+    case ERR:
         break;
     case 8:     // Ctrl-h
     case 127:   // Backspace too
@@ -2030,6 +2162,18 @@ int process_key(int key)
         break;
     case KEY_RESIZE:
         scr_Resize();
+        break;
+    case 27:    // ESC
+        scr_CheckAutoAway(TRUE);
+        currentWindow = NULL;
+        chatmode = FALSE;
+        if (current_buddy)
+          buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+        scr_RosterVisibility(1);
+        scr_UpdateChatStatus(FALSE);
+        top_panel(chatPanel);
+        top_panel(inputPanel);
+        update_panels();
         break;
     default:
         if (isprint(key)) {

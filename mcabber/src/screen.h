@@ -6,6 +6,16 @@
 
 #include "logprint.h"
 
+// Length of the timestamp & flag prefix in the chat buffer window
+#define PREFIX_WIDTH    17
+
+#define INPUTLINE_LENGTH  1024
+
+// Only used in screen.c; this is the maximum line number
+// in a multi-line message.  Should be < 1000
+// Note: message length is limited by the HBB_BLOCKSIZE size too
+#define MULTILINE_MAX_LINE_NUMBER 299
+
 enum colors {
   COLOR_GENERAL = 3,
   COLOR_HIGHLIGHT,
@@ -19,17 +29,18 @@ enum colors {
 
 int COLOR_ATTRIB[COLOR_max];
 
-// Length of the timestamp & flag prefix in the chat buffer window
-#define PREFIX_WIDTH    17
-
-#define INPUTLINE_LENGTH  1024
-
-// Only used in screen.c; this is the maximum line number
-// in a multi-line message.  Should be < 1000
-// Note: message length is limited by the HBB_BLOCKSIZE size too
-#define MULTILINE_MAX_LINE_NUMBER 299
-
 extern int update_roster;
+
+typedef struct {
+  int value;
+  enum {
+    MKEY_META = 1,
+    MKEY_EQUIV
+  } mcode;
+} keycode;
+
+void scr_Getch(keycode *kcode);
+int process_key(keycode kcode);
 
 void scr_InitCurses(void);
 void scr_TerminateCurses(void);
@@ -51,9 +62,6 @@ void scr_append_multiline(const char *line);
 inline const char *scr_get_multiline(void);
 
 inline void scr_Beep(void);
-int scr_Getch(void);
-
-int process_key(int);
 
 void scr_CheckAutoAway(bool activity);
 

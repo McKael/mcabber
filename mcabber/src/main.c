@@ -191,6 +191,7 @@ int main(int argc, char **argv)
   unsigned int ping;
   int ret;
   unsigned int refresh = 0;
+  keycode kcode;
 
   credits();
 
@@ -271,7 +272,8 @@ int main(int argc, char **argv)
   scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
 
   for (ret = 0 ; ret != 255 ; ) {
-    key = scr_Getch();
+    scr_Getch(&kcode);
+    key = kcode.value;
 
     /* The refresh is really an ugly hack, but we need to call doupdate()
        from time to time to catch the RESIZE events, because getch keep
@@ -279,7 +281,7 @@ int main(int argc, char **argv)
        However, it allows us to handle an autoaway check here...
      */
     if (key != ERR) {
-      ret = process_key(key);
+      ret = process_key(kcode);
       refresh = 0;
     } else if (refresh++ > 1) {
       doupdate();

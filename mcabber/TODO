@@ -1,8 +1,6 @@
 
 BUGS:
 
-* The PgUp and Ins keys do not work for some people
-  Cannot reproduce, any help appreciated.
 * mcabber does not work with gnutls
 
 
@@ -10,7 +8,6 @@ TODO:
 
 * UTF-8 support (Can somebody help me?)
 * Implement automatic reconnection after network failure
-* Presence notification is always accepted.  We should ask...
 * Show number of online contacts in folded groups
 * Publish personal information
 * GPG support

@@ -1,7 +1,14 @@
 mcabber (0.7.5-dev)
 
  * UI change: Add two status/info lines
- * Name change for the color options
+ * Meta keys can be used (and bound to a command)
+ * Add Ctrl-left/right to move 1 word backward/forward in the input line
+ * Outgoing messages can be colorized
+ * The color options names have changed, several colors have been added.
+   Bright (bold) colors can be used for the text.
+   A theme directory has been created.
+ * New "/event" command.
+   Subscription requests are not automatically accepted anymore.
  * New IQ system, for Jabber IQ request
  * Add "/request time|version" commands
  * Add "/roster hide|show|toggle" commands
@@ -13,6 +20,8 @@ mcabber (0.7.5-dev)
  * Improved English messages (thanks to Philip M. White)
  * Fix a small issue with resources containing uppercase chars in /status_to
  * Fix iq:time handling: really return UTC time when answering a request
+ * Sync libjabber with upstream
+ * A lot of small bugfixes
  * Documentation updates
 
  -- Mikael, ?

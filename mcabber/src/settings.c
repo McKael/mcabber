@@ -284,14 +284,6 @@ int settings_get_int(guint type, const gchar *key)
   return 0;
 }
 
-// Return the command the key is bound to, or NULL.
-const gchar *isbound(int key)
-{
-  gchar asciikey[16];
-  g_snprintf(asciikey, 15, "%d", key);
-  return settings_get(SETTINGS_TYPE_BINDING, asciikey);
-}
-
 //  settings_get_status_msg(status)
 // Return a string with the current status message:
 // - if there is a user-defined message ("message" option),

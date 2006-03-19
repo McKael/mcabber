@@ -2020,6 +2020,34 @@ void scr_Getch(keycode *kcode)
   return;
 }
 
+static int bindcommand(keycode kcode) {
+  gchar asciikey[16];
+  const gchar *boundcmd;
+
+  if (!kcode.mcode || kcode.mcode == MKEY_EQUIV)
+    g_snprintf(asciikey, 15, "%d", kcode.value);
+  else if (kcode.mcode == MKEY_META)
+    g_snprintf(asciikey, 15, "M%d", kcode.value);
+  else
+    g_snprintf(asciikey, 15, "MK%d", kcode.mcode);
+
+  boundcmd = settings_get(SETTINGS_TYPE_BINDING, asciikey);
+
+  if (boundcmd) {
+    gchar *cmd = g_strdup_printf("/%s", boundcmd);
+    scr_CheckAutoAway(TRUE);
+    if (process_command(cmd))
+      return 255; // Quit
+    g_free(cmd);
+    return 0;
+  }
+
+  scr_LogPrint(LPRINT_NORMAL, "Unknown key=%s", asciikey);
+  if (utf8_mode)
+    scr_LogPrint(LPRINT_NORMAL, "WARNING: UTF-8 not yet supported!");
+  return -1;
+}
+
 //  process_key(key)
 // Handle the pressed key, in the command line (bottom).
 int process_key(keycode kcode)
@@ -2039,12 +2067,14 @@ int process_key(keycode kcode)
               key = 27;
               break;
           default:
-              scr_LogPrint(LPRINT_NORMAL, "Unknown key=M%d", kcode.value);
+              if (bindcommand(kcode) == 255)
+                return 255;
         }
         break;
     default:
-        scr_LogPrint(LPRINT_NORMAL, "Unknown mkeycode! (%d)", kcode.mcode);
-        key = ERR;
+        if (bindcommand(kcode) == 255)
+          return 255;
+        key = ERR; // Do not process any further
   }
 
   switch (key) {
@@ -2211,19 +2241,9 @@ int process_key(keycode kcode)
           strcpy(ptr_inputline, tmpLine);
           check_offset(1);
         } else {
-          const gchar *boundcmd = isbound(key);
-          if (boundcmd) {
-            gchar *cmd = g_strdup_printf("/%s", boundcmd);
-            scr_CheckAutoAway(TRUE);
-            if (process_command(cmd))
-              return 255;
-            g_free(cmd);
-          } else {
-            scr_LogPrint(LPRINT_NORMAL, "Unknown key=%d", key);
-            if (utf8_mode)
-              scr_LogPrint(LPRINT_NORMAL,
-                           "WARNING: UTF-8 not yet supported!");
-          }
+          // Look for a key binding.
+          if (bindcommand(kcode) == 255)
+            return 255;
         }
   }
 

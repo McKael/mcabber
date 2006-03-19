@@ -240,6 +240,16 @@ void scr_InitCurses(void)
   add_keyseq("[1;6C", MKEY_EQUIV, 402); // Ctrl-Shift-Right
   add_keyseq("[1;6D", MKEY_EQUIV, 393); // Ctrl-Shift-Left
 
+  // screen
+  add_keyseq("Oa", MKEY_EQUIV, 521); // Ctrl-Up
+  add_keyseq("Ob", MKEY_EQUIV, 514); // Ctrl-Down
+  add_keyseq("Oc", MKEY_EQUIV, 518); // Ctrl-Right
+  add_keyseq("Od", MKEY_EQUIV, 516); // Ctrl-Left
+  add_keyseq("[a", MKEY_EQUIV, 520); // Ctrl-Shift-Up
+  add_keyseq("[b", MKEY_EQUIV, 513); // Ctrl-Shift-Down
+  add_keyseq("[c", MKEY_EQUIV, 402); // Ctrl-Shift-Right
+  add_keyseq("[d", MKEY_EQUIV, 393); // Ctrl-Shift-Left
+
   initscr();
   raw();
   noecho();

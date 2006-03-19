@@ -225,10 +225,18 @@ void scr_InitCurses(void)
   add_keyseq("O5B", MKEY_EQUIV, 514); // Ctrl-Down
   add_keyseq("O5C", MKEY_EQUIV, 518); // Ctrl-Right
   add_keyseq("O5D", MKEY_EQUIV, 516); // Ctrl-Left
-  add_keyseq("O6A", MKEY_EQUIV, 520); // Ctrl-Shift-Up
-  add_keyseq("O6B", MKEY_EQUIV, 513); // Ctrl-Shift-Down
-  add_keyseq("O6C", MKEY_EQUIV, 402); // Ctrl-Shift-Right
-  add_keyseq("O6D", MKEY_EQUIV, 393); // Ctrl-Shift-Left
+  add_keyseq("O6A", MKEY_EQUIV, 520); // Shift-Up
+  add_keyseq("O6B", MKEY_EQUIV, 513); // Shift-Down
+  add_keyseq("O6C", MKEY_EQUIV, 402); // Shift-Right
+  add_keyseq("O6D", MKEY_EQUIV, 393); // Shift-Left
+  add_keyseq("O2A", MKEY_EQUIV, 520); // Shift-Up
+  add_keyseq("O2B", MKEY_EQUIV, 513); // Shift-Down
+  add_keyseq("O2C", MKEY_EQUIV, 402); // Shift-Right
+  add_keyseq("O2D", MKEY_EQUIV, 393); // Shift-Left
+  add_keyseq("[5^", MKEY_CTRL_PGUP, 0);   // Ctrl-PageUp
+  add_keyseq("[6^", MKEY_CTRL_PGDOWN, 0); // Ctrl-PageDown
+  add_keyseq("[5@", MKEY_CTRL_SHIFT_PGUP, 0);   // Ctrl-Shift-PageUp
+  add_keyseq("[6@", MKEY_CTRL_SHIFT_PGDOWN, 0); // Ctrl-Shift-PageDown
 
   // Xterm
   add_keyseq("[1;5A", MKEY_EQUIV, 521); // Ctrl-Up
@@ -239,16 +247,20 @@ void scr_InitCurses(void)
   add_keyseq("[1;6B", MKEY_EQUIV, 513); // Ctrl-Shift-Down
   add_keyseq("[1;6C", MKEY_EQUIV, 402); // Ctrl-Shift-Right
   add_keyseq("[1;6D", MKEY_EQUIV, 393); // Ctrl-Shift-Left
+  add_keyseq("[1;2A", MKEY_EQUIV, 521); // Shift-Up
+  add_keyseq("[1;2B", MKEY_EQUIV, 514); // Shift-Down
+  add_keyseq("[5;5~", MKEY_CTRL_PGUP, 0);   // Ctrl-PageUp
+  add_keyseq("[6;5~", MKEY_CTRL_PGDOWN, 0); // Ctrl-PageDown
 
   // screen
   add_keyseq("Oa", MKEY_EQUIV, 521); // Ctrl-Up
   add_keyseq("Ob", MKEY_EQUIV, 514); // Ctrl-Down
   add_keyseq("Oc", MKEY_EQUIV, 518); // Ctrl-Right
   add_keyseq("Od", MKEY_EQUIV, 516); // Ctrl-Left
-  add_keyseq("[a", MKEY_EQUIV, 520); // Ctrl-Shift-Up
-  add_keyseq("[b", MKEY_EQUIV, 513); // Ctrl-Shift-Down
-  add_keyseq("[c", MKEY_EQUIV, 402); // Ctrl-Shift-Right
-  add_keyseq("[d", MKEY_EQUIV, 393); // Ctrl-Shift-Left
+  add_keyseq("[a", MKEY_EQUIV, 520); // Shift-Up
+  add_keyseq("[b", MKEY_EQUIV, 513); // Shift-Down
+  add_keyseq("[c", MKEY_EQUIV, 402); // Shift-Right
+  add_keyseq("[d", MKEY_EQUIV, 393); // Shift-Left
 
   initscr();
   raw();

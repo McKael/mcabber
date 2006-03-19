@@ -35,7 +35,11 @@ typedef struct {
   int value;
   enum {
     MKEY_META = 1,
-    MKEY_EQUIV
+    MKEY_EQUIV,
+    MKEY_CTRL_PGUP,
+    MKEY_CTRL_PGDOWN,
+    MKEY_CTRL_SHIFT_PGUP,
+    MKEY_CTRL_SHIFT_PGDOWN
   } mcode;
 } keycode;
 

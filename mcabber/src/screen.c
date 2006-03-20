@@ -1984,7 +1984,7 @@ static inline guint match_keyseq(int *iseq, keyseq **ret)
 
 void scr_Getch(keycode *kcode)
 {
-  keyseq *mks;
+  keyseq *mks = NULL;
   int  ks[MAX_KEYSEQ_LENGTH+1];
   int i;
 

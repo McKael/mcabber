@@ -251,6 +251,12 @@ static void init_keycodes(void)
   add_keyseq("[5;5~", MKEY_CTRL_PGUP, 0);   // Ctrl-PageUp
   add_keyseq("[6;5~", MKEY_CTRL_PGDOWN, 0); // Ctrl-PageDown
 
+  // PuTTY
+  add_keyseq("[A", MKEY_EQUIV, 521); // Ctrl-Up
+  add_keyseq("[B", MKEY_EQUIV, 514); // Ctrl-Down
+  add_keyseq("[C", MKEY_EQUIV, 518); // Ctrl-Right
+  add_keyseq("[D", MKEY_EQUIV, 516); // Ctrl-Left
+
   // screen
   add_keyseq("Oa", MKEY_EQUIV, 521); // Ctrl-Up
   add_keyseq("Ob", MKEY_EQUIV, 514); // Ctrl-Down

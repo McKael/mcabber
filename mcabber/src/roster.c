@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "roster.h"
+#include "utils.h"
 
 
 char *strrole[] = { /* Should match enum in roster.h */
@@ -1123,15 +1124,29 @@ GList *buddy_search(char *string)
   roster *roster_usr;
   if (!buddylist || !current_buddy) return NULL;
   for (;;) {
+    gchar *jid_locale, *name_locale;
+    char *found = NULL;
+
     buddy = g_list_next(buddy);
     if (!buddy)
       buddy = buddylist;
 
     roster_usr = (roster*)buddy->data;
-    if (roster_usr->jid && strcasestr(roster_usr->jid, string))
-      return buddy;
-    if (roster_usr->name && strcasestr(roster_usr->name, string))
-      return buddy;
+
+    jid_locale = from_utf8(roster_usr->jid);
+    if (jid_locale) {
+      found = strcasestr(jid_locale, string);
+      g_free(jid_locale);
+      if (found)
+        return buddy;
+    }
+    name_locale = from_utf8(roster_usr->name);
+    if (name_locale) {
+      found = strcasestr(name_locale, string);
+      g_free(name_locale);
+      if (found)
+        return buddy;
+    }
 
     if (buddy == current_buddy)
       return NULL; // Back to the beginning, and no match found
@@ -1181,12 +1196,12 @@ GSList *compl_list(guint type)
       if (btype == ROSTER_TYPE_GROUP) {
         const char *bname = buddy_getname(BUDDATA(buddy));
         if ((bname) && (*bname))
-          list = g_slist_append(list, g_strdup(bname));
+          list = g_slist_append(list, from_utf8(bname));
       }
     } else { // ROSTER_TYPE_USER (jid) (or agent, or chatroom...)
         const char *bjid = buddy_getjid(BUDDATA(buddy));
         if (bjid)
-          list = g_slist_append(list, g_strdup(bjid));
+          list = g_slist_append(list, from_utf8(bjid));
     }
   }
 

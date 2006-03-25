@@ -215,14 +215,19 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
       *(tail-1) = 0;
 
     if (type == 'M') {
+      char *converted;
       if (info == 'S')
         prefix_flags = HBB_PREFIX_OUT | HBB_PREFIX_HLIGHT;
       else
         prefix_flags = HBB_PREFIX_IN;
-      xtext = ut_expand_tabs(&data[26]); // Expand tabs
-      hbuf_add_line(p_buddyhbuf, xtext, timestamp, prefix_flags, width);
-      if (xtext != &data[26])
-        g_free(xtext);
+      converted = from_utf8(&data[26]);
+      if (converted) {
+        xtext = ut_expand_tabs(converted); // Expand tabs
+        hbuf_add_line(p_buddyhbuf, xtext, timestamp, prefix_flags, width);
+        if (xtext != converted)
+          g_free(xtext);
+        g_free(converted);
+      }
       err = 0;
     }
   }

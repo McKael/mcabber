@@ -576,6 +576,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
         unsigned int prefix_flags, int force_show)
 {
   window_entry_t *win_entry;
+  char *text_locale;
   int dont_show = FALSE;
 
   // Look for the window entry.
@@ -596,8 +597,10 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   if (win_entry->cleared)
     win_entry->top = g_list_last(win_entry->hbuf);
 
-  hbuf_add_line(&win_entry->hbuf, text, timestamp, prefix_flags,
+  text_locale = from_utf8(text);
+  hbuf_add_line(&win_entry->hbuf, text_locale, timestamp, prefix_flags,
                 maxX - Roster_Width - PREFIX_WIDTH);
+  g_free(text_locale);
 
   if (win_entry->cleared) {
     win_entry->cleared = FALSE;
@@ -1591,8 +1594,8 @@ void scr_append_multiline(const char *line)
     } else
       return;
   }
-  scr_LogPrint(LPRINT_NORMAL, "Multi-line mode: line #%d added  [%.25s...",
-               num, line);
+  scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
+               "Multi-line mode: line #%d added  [%.25s...", num, line);
 }
 
 //  scr_cmdhisto_addline()
@@ -2055,10 +2058,13 @@ static int bindcommand(keycode kcode) {
   boundcmd = settings_get(SETTINGS_TYPE_BINDING, asciikey);
 
   if (boundcmd) {
-    gchar *cmd = g_strdup_printf("/%s", boundcmd);
+    gchar *cmd, *boundcmd_locale;
+    boundcmd_locale = from_utf8(boundcmd);
+    cmd = g_strdup_printf("/%s", boundcmd_locale);
     scr_CheckAutoAway(TRUE);
     if (process_command(cmd))
       return 255; // Quit
+    g_free(boundcmd_locale);
     g_free(cmd);
     return 0;
   }

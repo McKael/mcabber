@@ -96,7 +96,6 @@ inline unsigned char jb_getonline(void)
 jconn jb_connect(const char *jid, const char *server, unsigned int port,
                  int ssl, const char *pass)
 {
-  char *utf8_jid;
   if (!port) {
     if (ssl)
       port = JABBERSSLPORT;
@@ -106,11 +105,9 @@ jconn jb_connect(const char *jid, const char *server, unsigned int port,
 
   jb_disconnect();
 
-  utf8_jid = to_utf8(jid);
-  if (!utf8_jid) return jc;
+  if (!jid) return jc;
 
-  jc = jab_new(utf8_jid, (char*)pass, (char*)server, port, ssl);
-  g_free(utf8_jid);
+  jc = jab_new((char*)jid, (char*)pass, (char*)server, port, ssl);
 
   /* These 3 functions can deal with a NULL jc, no worry... */
   jab_logger(jc, logger);
@@ -268,13 +265,11 @@ static xmlnode presnew(enum imstatus st, const char *recipient,
 {
   unsigned int prio;
   xmlnode x;
-  gchar *utf8_recipient = to_utf8(recipient);
 
   x = jutil_presnew(JPACKET__UNKNOWN, 0, 0);
 
-  if (utf8_recipient) {
-    xmlnode_put_attrib(x, "to", utf8_recipient);
-    g_free(utf8_recipient);
+  if (recipient) {
+    xmlnode_put_attrib(x, "to", recipient);
   }
 
   switch(st) {
@@ -318,12 +313,8 @@ static xmlnode presnew(enum imstatus st, const char *recipient,
                          strprio, (unsigned) -1);
   }
 
-  if (msg) {
-    gchar *utf8_msg = to_utf8(msg);
-    xmlnode_insert_cdata(xmlnode_insert_tag(x, "status"), utf8_msg,
-                         (unsigned) -1);
-    g_free(utf8_msg);
-  }
+  if (msg)
+    xmlnode_insert_cdata(xmlnode_insert_tag(x, "status"), msg, (unsigned) -1);
 
   return x;
 }
@@ -393,8 +384,6 @@ void jb_send_msg(const char *jid, const char *text, int type,
 {
   xmlnode x;
   gchar *strtype;
-  gchar *utf8_jid;
-  gchar *buffer;
 
   if (!online) return;
 
@@ -403,22 +392,14 @@ void jb_send_msg(const char *jid, const char *text, int type,
   else
     strtype = TMSG_CHAT;
 
-  buffer = to_utf8(text);
-  utf8_jid = to_utf8(jid); // Resource can require UTF-8
-
-  x = jutil_msgnew(strtype, utf8_jid, NULL, (char*)buffer);
+  x = jutil_msgnew(strtype, (char*)jid, NULL, (char*)text);
   if (subject) {
     xmlnode y;
-    char *bs = to_utf8(subject);
     y = xmlnode_insert_tag(x, "subject");
-    xmlnode_insert_cdata(y, bs, (unsigned) -1);
-    if (bs) g_free(bs);
+    xmlnode_insert_cdata(y, subject, (unsigned) -1);
   }
   jab_send(jc, x);
   xmlnode_free(x);
-
-  if (buffer) g_free(buffer);
-  if (utf8_jid) g_free(utf8_jid);
 
   jb_reset_keepalive();
 }
@@ -428,12 +409,10 @@ void jb_send_msg(const char *jid, const char *text, int type,
 void jb_subscr_send_auth(const char *jid)
 {
   xmlnode x;
-  char *utf8_jid = to_utf8(jid);
 
-  x = jutil_presnew(JPACKET__SUBSCRIBED, utf8_jid, NULL);
+  x = jutil_presnew(JPACKET__SUBSCRIBED, (char *)jid, NULL);
   jab_send(jc, x);
   xmlnode_free(x);
-  g_free(utf8_jid);
 }
 
 //  jb_subscr_cancel_auth(jid)
@@ -441,12 +420,10 @@ void jb_subscr_send_auth(const char *jid)
 void jb_subscr_cancel_auth(const char *jid)
 {
   xmlnode x;
-  char *utf8_jid = to_utf8(jid);
 
-  x = jutil_presnew(JPACKET__UNSUBSCRIBED, utf8_jid, NULL);
+  x = jutil_presnew(JPACKET__UNSUBSCRIBED, (char *)jid, NULL);
   jab_send(jc, x);
   xmlnode_free(x);
-  g_free(utf8_jid);
 }
 
 //  jb_subscr_request_auth(jid)
@@ -454,12 +431,10 @@ void jb_subscr_cancel_auth(const char *jid)
 void jb_subscr_request_auth(const char *jid)
 {
   xmlnode x;
-  char *utf8_jid = to_utf8(jid);
 
-  x = jutil_presnew(JPACKET__SUBSCRIBE, utf8_jid, NULL);
+  x = jutil_presnew(JPACKET__SUBSCRIBE, (char *)jid, NULL);
   jab_send(jc, x);
   xmlnode_free(x);
-  g_free(utf8_jid);
 }
 
 // Note: the caller should check the jid is correct
@@ -481,17 +456,12 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
 
   xmlnode_put_attrib(y, "jid", cleanjid);
 
-  if (name) {
-    gchar *name_utf8 = to_utf8(name);
-    xmlnode_put_attrib(y, "name", name_utf8);
-    g_free(name_utf8);
-  }
+  if (name)
+    xmlnode_put_attrib(y, "name", name);
 
   if (group) {
-    char *group_utf8 = to_utf8(group);
     z = xmlnode_insert_tag(y, "group");
-    xmlnode_insert_cdata(z, group_utf8, (unsigned) -1);
-    g_free(group_utf8);
+    xmlnode_insert_cdata(z, group, (unsigned) -1);
   }
 
   jab_send(jc, iqn->xmldata);
@@ -557,30 +527,25 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group)
   xmlnode y;
   eviqs *iqn;
   char *cleanjid;
-  gchar *name_utf8;
 
   if (!online) return;
 
   // XXX We should check name's and group's correctness
 
   cleanjid = jidtodisp(jid);
-  name_utf8 = to_utf8(name);
 
   iqn = iqs_new(JPACKET__SET, NS_ROSTER, NULL, IQS_DEFAULT_TIMEOUT);
   y = xmlnode_insert_tag(xmlnode_get_tag(iqn->xmldata, "query"), "item");
   xmlnode_put_attrib(y, "jid", cleanjid);
-  xmlnode_put_attrib(y, "name", name_utf8);
+  xmlnode_put_attrib(y, "name", name);
 
   if (group) {
-    gchar *group_utf8 = to_utf8(group);
     y = xmlnode_insert_tag(y, "group");
-    xmlnode_insert_cdata(y, group_utf8, (unsigned) -1);
-    g_free(group_utf8);
+    xmlnode_insert_cdata(y, group, (unsigned) -1);
   }
 
   jab_send(jc, iqn->xmldata);
   iqs_del(iqn->id); // XXX
-  g_free(name_utf8);
   g_free(cleanjid);
 }
 
@@ -711,10 +676,8 @@ void jb_room_destroy(const char *room, const char *venue, const char *reason)
     xmlnode_put_attrib(z, "jid", venue);
 
   if (reason) {
-    gchar *utf8_reason = to_utf8(reason);
     y = xmlnode_insert_tag(z, "reason");
-    xmlnode_insert_cdata(y, utf8_reason, (unsigned) -1);
-    g_free(utf8_reason);
+    xmlnode_insert_cdata(y, reason, (unsigned) -1);
   }
 
   jab_send(jc, iqn->xmldata);
@@ -759,13 +722,9 @@ int jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
   z = xmlnode_insert_tag(y, "item");
 
   if (jid) {
-    gchar *utf8_jid = to_utf8(jid);
-    xmlnode_put_attrib(z, "jid", utf8_jid);
-    if (utf8_jid) g_free(utf8_jid);
-  } else { // nick
-    gchar *utf8_nickname = to_utf8(nick);
-    xmlnode_put_attrib(z, "nick", utf8_nickname);
-    g_free(utf8_nickname);
+    xmlnode_put_attrib(z, "jid", jid);
+  } else { // nickname
+    xmlnode_put_attrib(z, "nick", nick);
   }
 
   if (ra.type == type_affil)
@@ -774,10 +733,8 @@ int jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
     xmlnode_put_attrib(z, "role", strrole[ra.val.role]);
 
   if (reason) {
-    gchar *utf8_reason = to_utf8(reason);
     y = xmlnode_insert_tag(z, "reason");
-    xmlnode_insert_cdata(y, utf8_reason, (unsigned) -1);
-    g_free(utf8_reason);
+    xmlnode_insert_cdata(y, reason, (unsigned) -1);
   }
 
   jab_send(jc, iqn->xmldata);
@@ -793,7 +750,6 @@ int jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
 void jb_room_invite(const char *room, const char *jid, const char *reason)
 {
   xmlnode x, y, z;
-  gchar *utf8_jid;
 
   if (!online || !room || !jid) return;
 
@@ -802,16 +758,12 @@ void jb_room_invite(const char *room, const char *jid, const char *reason)
   y = xmlnode_insert_tag(x, "x");
   xmlnode_put_attrib(y, "xmlns", "http://jabber.org/protocol/muc#user");
 
-  utf8_jid = to_utf8(jid); // Resource can require UTF-8
   z = xmlnode_insert_tag(y, "invite");
-  xmlnode_put_attrib(z, "to", utf8_jid);
-  if (utf8_jid) g_free(utf8_jid);
+  xmlnode_put_attrib(z, "to", jid);
 
   if (reason) {
-    gchar *utf8_reason = to_utf8(reason);
     y = xmlnode_insert_tag(z, "reason");
-    xmlnode_insert_cdata(y, utf8_reason, (unsigned) -1);
-    g_free(utf8_reason);
+    xmlnode_insert_cdata(y, reason, (unsigned) -1);
   }
 
   jab_send(jc, x);
@@ -824,27 +776,13 @@ static void gotmessage(char *type, const char *from, const char *body,
 {
   char *jid;
   const char *rname;
-  gchar *buffer = from_utf8(body);
 
   jid = jidtodisp(from);
 
-  if (!buffer && body) {
-    scr_LogPrint(LPRINT_NORMAL, "Decoding of message from <%s> has failed",
-                 from);
-    scr_LogPrint(LPRINT_LOG, "Decoding of message from <%s> has failed: %s",
-                 from, body);
-    scr_WriteIncomingMessage(jid, "Cannot display message: "
-                             "UTF-8 conversion failure",
-                             0, HBB_PREFIX_ERR | HBB_PREFIX_IN);
-    g_free(jid);
-    return;
-  }
-
   rname = strchr(from, '/');
   if (rname) rname++;
-  hk_message_in(jid, rname, timestamp, buffer, type);
+  hk_message_in(jid, rname, timestamp, body, type);
   g_free(jid);
-  g_free(buffer);
 }
 
 static const char *defaulterrormsg(int code)
@@ -924,7 +862,7 @@ void display_server_error(xmlnode x)
 
   // And sometimes there is a text message
   s = xmlnode_get_tag_data(x, "text");
-  if (s && *s) desc = s; // FIXME utf8??
+  if (s && *s) desc = s;
 
   scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s", code, desc);
 }
@@ -1077,23 +1015,16 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   // Check for nickname change
   if (statuscode == 303 && mbnick) {
     gchar *mbuf;
-    gchar *newname_noutf8 = from_utf8(mbnick);
-    if (!newname_noutf8)
-      scr_LogPrint(LPRINT_LOG, "Decoding of new nickname has failed: %s",
-                   mbnick);
-    mbuf = g_strdup_printf("%s is now known as %s", rname,
-                           (newname_noutf8 ? newname_noutf8 : "(?)"));
+    mbuf = g_strdup_printf("%s is now known as %s", rname, mbnick);
     scr_WriteIncomingMessage(roomjid, mbuf, usttime,
                              HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
     if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
     g_free(mbuf);
-    if (newname_noutf8) {
-      buddy_resource_setname(room_elt->data, rname, newname_noutf8);
-      m = buddy_getnickname(room_elt->data);
-      if (m && !strcmp(rname, m))
-        buddy_setnickname(room_elt->data, newname_noutf8);
-      g_free(newname_noutf8);
-    }
+    buddy_resource_setname(room_elt->data, rname, mbnick);
+    // Maybe it's _our_ nickname...
+    m = buddy_getnickname(room_elt->data);
+    if (m && !strcmp(rname, m))
+      buddy_setnickname(room_elt->data, mbnick);
   }
 
   // Check for departure/arrival
@@ -1125,18 +1056,9 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       gchar *mbuf_end;
       // Forced leave
       if (actorjid) {
-        gchar *rsn_noutf8 = from_utf8(reason);
-        if (!rsn_noutf8 && reason) {
-          scr_LogPrint(LPRINT_NORMAL, "UTF-8 decoding of reason has failed");
-          scr_LogPrint(LPRINT_LOG, "UTF-8 decoding of reason has failed: %s",
-                       reason);
-        }
         mbuf_end = g_strdup_printf("%s from %s by <%s>.\nReason: %s",
                                    (how == ban ? "banned" : "kicked"),
-                                   roomjid, actorjid,
-                                   (rsn_noutf8 ? rsn_noutf8 : "None given"));
-        if (rsn_noutf8)
-          g_free(rsn_noutf8);
+                                   roomjid, actorjid, reason);
       } else {
         mbuf_end = g_strdup_printf("%s from %s.",
                                    (how == ban ? "banned" : "kicked"),
@@ -1153,14 +1075,10 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       if (we_left) {
         xmlnode destroynode = xmlnode_get_tag(xmldata, "destroy");
         if (destroynode) {
-          gchar *rsn_noutf8 = NULL;
-          if ((reason = xmlnode_get_tag_data(destroynode, "reason")))
-            rsn_noutf8 = from_utf8(reason);
-          if (rsn_noutf8) {
+          if ((reason = xmlnode_get_tag_data(destroynode, "reason"))) {
             mbuf = g_strdup_printf("You have left %s, "
                                    "the room has been destroyed: %s",
-                                   roomjid, rsn_noutf8);
-            g_free(rsn_noutf8);
+                                   roomjid, reason);
           } else {
             mbuf = g_strdup_printf("You have left %s, "
                                    "the room has been destroyed", roomjid);
@@ -1196,7 +1114,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       // I think it shouldn't happen, but let's put a warning for a while...
       mbuf = g_strdup_printf("MUC ERR: you have no nickname, "
                              "please send a bug report!");
-      scr_LogPrint(LPRINT_LOGNORM, mbuf);
+      scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
       scr_WriteIncomingMessage(roomjid, mbuf, 0, HBB_PREFIX_INFO);
       g_free(mbuf);
       buddylist_build();
@@ -1245,11 +1163,8 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
 
   // Update room member status
   if (rname) {
-    gchar *mbrjid_noutf8 = from_utf8(mbjid);
     roster_setstatus(roomjid, rname, bpprio, ust, ustmsg, usttime,
-                     mbrole, mbaffil, mbrjid_noutf8);
-    if (mbrjid_noutf8)
-      g_free(mbrjid_noutf8);
+                     mbrole, mbaffil, mbjid);
   } else
     scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
 
@@ -1314,15 +1229,7 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   if (type && !strcmp(type, "unavailable"))
     ust = offline;
 
-  ustmsg = NULL;
-  p = xmlnode_get_tag_data(xmldata, "status");
-  if (p) {
-    ustmsg = from_utf8(p);
-    if (!ustmsg)
-      scr_LogPrint(LPRINT_LOG,
-                   "Decoding of status message of <%s> has failed: %s",
-                   from, p);
-  }
+  ustmsg = xmlnode_get_tag_data(xmldata, "status");
 
   // Timestamp?
   timestamp = xml_get_timestamp(xmldata);
@@ -1342,7 +1249,6 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   }
 
   g_free(r);
-  if (ustmsg) g_free(ustmsg);
 }
 
 static void handle_packet_message(jconn conn, char *type, char *from,
@@ -1362,10 +1268,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
     if (type && !strcmp(type, TMSG_GROUPCHAT)) {  // Room topic
       GSList *roombuddy;
       gchar *mbuf;
-      gchar *subj_noutf8 = from_utf8(p);
-      if (!subj_noutf8)
-        scr_LogPrint(LPRINT_LOG,
-                     "Decoding of room topic has failed: %s", p);
+      gchar *subj = p;
       // Get the room (s) and the nickname (r)
       s = g_strdup(from);
       r = strchr(s, '/');
@@ -1374,21 +1277,18 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       // Set the new topic
       roombuddy = roster_find(s, jidsearch, 0);
       if (roombuddy)
-        buddy_settopic(roombuddy->data, subj_noutf8);
+        buddy_settopic(roombuddy->data, subj);
       // Display inside the room window
       if (r == s) {
         // No specific resource (this is certainly history)
-        mbuf = g_strdup_printf("The topic has been set to: %s",
-                               (subj_noutf8 ? subj_noutf8 : "(?)"));
+        mbuf = g_strdup_printf("The topic has been set to: %s", subj);
       } else {
-        mbuf = g_strdup_printf("%s has set the topic to: %s", r,
-                               (subj_noutf8 ? subj_noutf8 : "(?)"));
+        mbuf = g_strdup_printf("%s has set the topic to: %s", r, subj);
       }
       scr_WriteIncomingMessage(s, mbuf, 0,
                                HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
       if (settings_opt_get_int("log_muc_conf"))
         hlog_write_message(s, 0, FALSE, mbuf);
-      if (subj_noutf8) g_free(subj_noutf8);
       g_free(s);
       g_free(mbuf);
       // The topic is displayed in the chat status line, so refresh now.
@@ -1490,15 +1390,11 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     g_free(buf);
 
     if (msg) {
-      char *msg_noutf8 = from_utf8(msg);
-      if (msg_noutf8) {
-        buf = g_strdup_printf("<%s> said: %s", from, msg_noutf8);
-        scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
-        replace_nl_with_dots(buf);
-        scr_LogPrint(LPRINT_LOGNORM, buf);
-        g_free(buf);
-        g_free(msg_noutf8);
-      }
+      buf = g_strdup_printf("<%s> said: %s", from, msg);
+      scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+      replace_nl_with_dots(buf);
+      scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+      g_free(buf);
     }
 
     // Create a new event item
@@ -1548,8 +1444,11 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
 
 static void packethandler(jconn conn, jpacket packet)
 {
-  char *p, *r, *s;
+  char *p;
+  /*
+  char *r, *s;
   const char *m;
+  */
   char *from=NULL, *type=NULL;
 
   jb_reset_keepalive(); // reset keepalive timeout
@@ -1564,33 +1463,7 @@ static void packethandler(jconn conn, jpacket packet)
   if (p) type = p;
 
   p = xmlnode_get_attrib(packet->x, "from");
-  if (p) {   // Convert from UTF8
-    // We need to be careful because from_utf8() can fail on some chars
-    // Thus we only convert the resource part
-    from = g_new0(char, strlen(p)+1);
-    strcpy(from, p);
-    r = strchr(from, '/');
-    m = strchr(p, '/');
-    if (m++) {
-      s = from_utf8(m);
-      if (s) {
-        // In some cases the allocated memory size could be too small because
-        // when chars cannot be converted strings like "\uxxxx" or "\Uxxxxyyyy"
-        // are used.
-        if (strlen(r+1) < strlen(s)) {
-          from = g_realloc(from, 1+m-p+strlen(s));
-          r = strchr(from, '/');
-        }
-        strcpy(r+1, s);
-        g_free(s);
-      } else {
-        *(r+1) = 0;
-        scr_LogPrint(LPRINT_NORMAL, "Decoding of message sender has failed");
-        scr_LogPrint(LPRINT_LOG, "Decoding of message sender has failed: %s",
-                     m);
-      }
-    }
-  }
+  if (p) from = p;
 
   if (!from && packet->type != JPACKET_IQ) {
     scr_LogPrint(LPRINT_LOGNORM, "Error in packet (could be UTF8-related)");
@@ -1617,8 +1490,6 @@ static void packethandler(jconn conn, jpacket packet)
     default:
         scr_LogPrint(LPRINT_LOG, "Unhandled packet type (%d)", packet->type);
   }
-  if (from)
-    g_free(from);
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

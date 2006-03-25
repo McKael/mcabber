@@ -132,8 +132,6 @@ void sig_handler(int signum)
         }
       }
     } while (pid > 0);
-    //if (pid < 0)
-    //  scr_LogPrint(LPRINT_LOGNORM, "Error in waitpid: errno=%d", errno);
     signal(SIGCHLD, sig_handler);
   } else if (signum == SIGTERM) {
     mcabber_disconnect("Killed by SIGTERM");

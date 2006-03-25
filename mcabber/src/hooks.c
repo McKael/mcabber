@@ -157,7 +157,7 @@ inline void hk_message_in(const char *jid, const char *resname,
 inline void hk_message_out(const char *jid, const char *nick,
                            time_t timestamp, const char *msg)
 {
-  char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;;
+  char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
 
   if (nick) {
     wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
@@ -314,10 +314,14 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
   if (strchr("MG", type) && data && settings_opt_get_int("event_log_files")) {
     int fd;
     const char *prefix;
+    char *data_locale;
+
+    data_locale = from_utf8(data);
     prefix = settings_opt_get("event_log_dir");
     if (!prefix)
       prefix = ut_get_tmpdir();
     datafname = g_strdup_printf("%s/mcabber-%d.XXXXXX", prefix, getpid());
+
     // XXX Some old systems may require us to set umask first.
     fd = mkstemp(datafname);
     if (fd == -1) {
@@ -326,10 +330,11 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
       scr_LogPrint(LPRINT_LOGNORM,
                    "Unable to create temp file for external command.");
     }
-    write(fd, data, strlen(data));
+    write(fd, data_locale, strlen(data_locale));
     write(fd, "\n", 1);
     close(fd);
     arg_data = datafname;
+    g_free(data_locale);
   }
 
   if ((pid=fork()) == -1) {

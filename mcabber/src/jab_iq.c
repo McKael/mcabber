@@ -167,15 +167,12 @@ static void handle_iq_roster(xmlnode x)
 {
   xmlnode y;
   const char *jid, *name, *group, *sub, *ask;
-  char *buddyname;
   char *cleanalias;
   enum subscr esub;
   int need_refresh = FALSE;
   guint roster_type;
 
   for (y = xmlnode_get_tag(x, "item"); y; y = xmlnode_get_nextsibling(y)) {
-    gchar *name_noutf8 = NULL;
-    gchar *group_noutf8 = NULL;
 
     jid = xmlnode_get_attrib(y, "jid");
     name = xmlnode_get_attrib(y, "name");
@@ -187,7 +184,7 @@ static void handle_iq_roster(xmlnode x)
     if (!jid)
       continue;
 
-    buddyname = cleanalias = jidtodisp(jid);
+    cleanalias = jidtodisp(jid);
 
     esub = sub_none;
     if (sub) {
@@ -209,21 +206,8 @@ static void handle_iq_roster(xmlnode x)
     if (ask && !strcmp(ask, "subscribe"))
       esub |= sub_pending;
 
-    if (name) {
-      name_noutf8 = from_utf8(name);
-      if (name_noutf8)
-        buddyname = name_noutf8;
-      else
-        scr_LogPrint(LPRINT_LOG, "Decoding of buddy alias has failed: %s",
-                     name);
-    }
-
-    if (group) {
-      group_noutf8 = from_utf8(group);
-      if (!group_noutf8)
-        scr_LogPrint(LPRINT_LOG, "Decoding of buddy group has failed: %s",
-                     group);
-    }
+    if (!name)
+      name = cleanalias;
 
     // Tricky... :-\  My guess is that if there is no '@', this is an agent
     if (strchr(cleanalias, '@'))
@@ -231,10 +215,8 @@ static void handle_iq_roster(xmlnode x)
     else
       roster_type = ROSTER_TYPE_AGENT;
 
-    roster_add_user(cleanalias, buddyname, group_noutf8, roster_type, esub);
+    roster_add_user(cleanalias, name, group, roster_type, esub);
 
-    if (name_noutf8)  g_free(name_noutf8);
-    if (group_noutf8) g_free(group_noutf8);
     g_free(cleanalias);
   }
 
@@ -244,7 +226,7 @@ static void handle_iq_roster(xmlnode x)
     scr_ShowBuddyWindow();
 }
 
-void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
+static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p, *p_noutf8;
@@ -265,12 +247,7 @@ void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
     return;
   }
-  bjid = from_utf8(p);
-  if (!bjid) {
-    scr_LogPrint(LPRINT_LOGNORM, "UTF-8 decoding error in IQ:version result "
-                 "(sender name).");
-    return;
-  }
+  bjid = p;
 
   buf = g_strdup_printf("IQ:version result from <%s>", bjid);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
@@ -313,22 +290,19 @@ void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
       g_free(buf);
     }
   }
-  g_free(bjid);
 }
 
 void request_version(const char *fulljid)
 {
   eviqs *iqn;
-  gchar *utf8_jid = to_utf8(fulljid);
 
   iqn = iqs_new(JPACKET__GET, NS_VERSION, "version", IQS_DEFAULT_TIMEOUT);
-  xmlnode_put_attrib(iqn->xmldata, "to", utf8_jid);
-  if (utf8_jid) g_free(utf8_jid);
+  xmlnode_put_attrib(iqn->xmldata, "to", fulljid);
   iqn->callback = &iqscallback_version;
   jab_send(jc, iqn->xmldata);
 }
 
-void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
+static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p, *p_noutf8;
@@ -349,12 +323,7 @@ void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result (no sender name).");
     return;
   }
-  bjid = from_utf8(p);
-  if (!bjid) {
-    scr_LogPrint(LPRINT_LOGNORM, "UTF-8 decoding error in IQ:time result "
-                 "(sender name).");
-    return;
-  }
+  bjid = p;
 
   buf = g_strdup_printf("IQ:time result from <%s>", bjid);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
@@ -397,17 +366,14 @@ void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
       g_free(buf);
     }
   }
-  g_free(bjid);
 }
 
 void request_time(const char *fulljid)
 {
   eviqs *iqn;
-  gchar *utf8_jid = to_utf8(fulljid);
 
   iqn = iqs_new(JPACKET__GET, NS_TIME, "time", IQS_DEFAULT_TIMEOUT);
-  xmlnode_put_attrib(iqn->xmldata, "to", utf8_jid);
-  if (utf8_jid) g_free(utf8_jid);
+  xmlnode_put_attrib(iqn->xmldata, "to", fulljid);
   iqn->callback = &iqscallback_time;
   jab_send(jc, iqn->xmldata);
 }

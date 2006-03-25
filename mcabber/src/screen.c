@@ -635,7 +635,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 // Redraw the main (bottom) status line.
 void scr_UpdateMainStatus(int forceupdate)
 {
-  const char *sm = jb_getstatusmsg();
+  char *sm = from_utf8(jb_getstatusmsg());
 
   werase(mainstatusWnd);
   mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s",
@@ -646,6 +646,7 @@ void scr_UpdateMainStatus(int forceupdate)
     update_panels();
     doupdate();
   }
+  g_free(sm);
 }
 
 //  scr_DrawMainWindow()
@@ -833,7 +834,7 @@ void scr_UpdateChatStatus(int forceupdate)
   const char *fullname;
   const char *msg = NULL;
   char status;
-  char *buf;
+  char *buf, *buf_locale;
 
   // Usually we need to update the bottom status line too,
   // at least to refresh the pending message flag.
@@ -852,7 +853,9 @@ void scr_UpdateChatStatus(int forceupdate)
     wprintw(chatstatusWnd, "~");
 
   if (isgrp) {
-    mvwprintw(chatstatusWnd, 0, 5, "Group: %s", fullname);
+    buf_locale = from_utf8(fullname);
+    mvwprintw(chatstatusWnd, 0, 5, "Group: %s", buf_locale);
+    g_free(buf_locale);
     if (forceupdate) {
       update_panels();
       doupdate();
@@ -887,7 +890,9 @@ void scr_UpdateChatStatus(int forceupdate)
 
   buf = g_strdup_printf("[%c] Buddy: %s -- %s", status, fullname, msg);
   replace_nl_with_dots(buf);
-  mvwprintw(chatstatusWnd, 0, 1, "%s", buf);
+  buf_locale = from_utf8(buf);
+  mvwprintw(chatstatusWnd, 0, 1, "%s", buf_locale);
+  g_free(buf_locale);
   g_free(buf);
 
   if (forceupdate) {
@@ -970,6 +975,7 @@ void scr_DrawRoster(void)
 
   for (i=0; i<maxy && buddy; buddy = g_list_next(buddy)) {
     unsigned short bflags, btype, ismsg, isgrp, ismuc, ishid;
+    gchar *rline_locale;
 
     bflags = buddy_getflags(BUDDATA(buddy));
     btype = buddy_gettype(BUDDATA(buddy));
@@ -1036,7 +1042,9 @@ void scr_DrawRoster(void)
       snprintf(rline, Roster_Width, " %c[%c] %s", pending, status, name);
     }
 
-    mvwprintw(rosterWnd, i, 0, "%s", rline);
+    rline_locale = from_utf8(rline);
+    mvwprintw(rosterWnd, i, 0, "%s", rline_locale);
+    g_free(rline_locale);
     i++;
   }
 

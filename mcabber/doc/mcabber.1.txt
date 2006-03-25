@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.7.5-dev, February 2006
+v0.7.5-dev, March 2006
 
 NAME
 ----
@@ -24,6 +24,11 @@ The `mcabber(1)` screen is divided into 4 regions.
 The 'roster', alias 'buddylist', is on the left.  The 'chat window', or chat
 buffer, is on the right.  The 'input line' lies at the bottom of the screen,
 under a small 'log window'.
+
+Two status lines surround the log window.  The bottom status line is the
+"main status line" and reflects mcabber general status.  The other line
+is the "chat status line" and shows the status of the currently selected
+buddy.
 
 To display buddies chat buffers, you will have to enter 'chat mode'.
 You can enter chat mode by pressing enter, and leave chat mode with the ESC
@@ -79,6 +84,8 @@ PgUp/PgDown::   Move inside the roster (buddylist)
 Tab::           Complete current word, in the input line
 Ctrl-g::        Cancel completion / ctrl-g
 Ctrl-p/Ctrl-n:: Scroll up/down half a screen in the buffer window (chat mode)
+Ctrl-Left::     Move the cursor back to the start of the current or previous word
+Ctrl-Right::    Move the cursor forward to the end of the current or next word
 Ctrl-u::        Delete from beginning of the line to the cursor
 Ctrl-k::        Delete from the cursor to the end of line
 Ctrl-w::        Backward kill word
@@ -148,6 +155,15 @@ COMMANDS
         Terminate connection to the Jabber server.  Note: the roster is only
         available when the connection to the server is active, so the
         buddylist is empty when disconnected.
+
+/event #n accept|ignore|reject::
+/event list::
+        Tell mcabber what to do about a pending event.
+
+        'accept';;  accept the event #n
+        'ignore';;  remove the event #n from the list
+        'reject';;  reject the event #n
+        'list';;    list all pending events
 
 /group fold|unfold|toggle::
         The 'group' command changes the current group display.

@@ -29,6 +29,10 @@ it cannot (un)register accounts yet.</p>
 The <b>roster</b>, alias <b>buddylist</b>, is on the left.  The <b>chat window</b>, or chat
 buffer, is on the right.  The <b>input line</b> lies at the bottom of the screen,
 under a small <b>log window</b>.</p>
+<p>Two status lines surround the log window.  The bottom status line is the
+"main status line" and reflects mcabber general status.  The other line
+is the "chat status line" and shows the status of the currently selected
+buddy.</p>
 <p>To display buddies chat buffers, you will have to enter <b>chat mode</b>.
 You can enter chat mode by pressing enter, and leave chat mode with the ESC
 key.  Simply sending a message will also enable chat mode.</p>
@@ -161,6 +165,22 @@ Ctrl-p/Ctrl-n
 </td>
 <td>
 Scroll up/down half a screen in the buffer window (chat mode)
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-Left
+</td>
+<td>
+Move the cursor back to the start of the current or previous word
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-Right
+</td>
+<td>
+Move the cursor forward to the end of the current or next word
 </td>
 </tr>
 <tr valign="top">
@@ -386,6 +406,49 @@ search for "text" in the current buddy chat buffer
         Terminate connection to the Jabber server.  Note: the roster is only
         available when the connection to the server is active, so the
         buddylist is empty when disconnected.
+</dd>
+<dt><b>
+/event #n accept|ignore|reject
+</b></dt>
+<dt><b>
+/event list
+</b></dt>
+<dd>
+        Tell mcabber what to do about a pending event.
+<table class="hlist">
+<tr valign="top">
+<td>
+<b>accept</b>
+</td>
+<td>
+accept the event #n
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>ignore</b>
+</td>
+<td>
+remove the event #n from the list
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>reject</b>
+</td>
+<td>
+reject the event #n
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>list</b>
+</td>
+<td>
+list all pending events
+</td>
+</tr>
+</table>
 </dd>
 <dt><b>
 /group fold|unfold|toggle
@@ -850,7 +913,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.7.5-dev<br />
-Last updated 25-Feb-2006 23:01:21 CEST
+Last updated 25-Mar-2006 19:50:02 CEST
 </p>
 </div>
 </div>

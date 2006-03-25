@@ -1,5 +1,11 @@
 mcabber (0.7.5)
 
+ * History log files are stored using UTF-8 format.
+   If you have enabled history logging, you need to convert your existing
+   logfiles.  For example, you can use the following command to convert
+   all ISO-8859-15 files in directory $histodir to UTF-8:
+   $ recode iso-8859-15..utf-8 $histodir/*
+   (There are other tools: convmv, utrac...)
  * The names of the color options have changed, please check your
    configuration file if you have customized your colors.
    The sample config. file has been updated.

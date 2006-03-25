@@ -1,5 +1,7 @@
 mcabber (0.7.5-dev)
 
+ * History files now use UTF-8 encoding
+   See file "NEWS" for an example to convert existing log files
  * UI change: Add two status/info lines
  * Meta keys can be used (and bound to a command)
  * Add Ctrl-left/right to move 1 word backward/forward in the input line

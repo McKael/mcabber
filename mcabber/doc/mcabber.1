@@ -37,6 +37,9 @@ You also need to have an existing Jabber account to use this software, as it can
 The mcabber(1) screen is divided into 4 regions\&. The \fIroster\fR, alias \fIbuddylist\fR, is on the left\&. The \fIchat window\fR, or chat buffer, is on the right\&. The \fIinput line\fR lies at the bottom of the screen, under a small \fIlog window\fR\&.
 
 
+Two status lines surround the log window\&. The bottom status line is the "main status line" and reflects mcabber general status\&. The other line is the "chat status line" and shows the status of the currently selected buddy\&.
+
+
 To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter, and leave chat mode with the ESC key\&. Simply sending a message will also enable chat mode\&.
 
 
@@ -103,6 +106,10 @@ Tab    		Complete current word, in the input line
 Ctrl\-g		Cancel completion / ctrl\-g
 
 Ctrl\-p/Ctrl\-n	Scroll up/down half a screen in the buffer window (chat mode)
+
+Ctrl\-Left 	Move the cursor back to the start of the current or previous word
+
+Ctrl\-Right	Move the cursor forward to the end of the current or next word
 
 Ctrl\-u		Delete from beginning of the line to the cursor
 
@@ -180,6 +187,14 @@ Delete the current buddy from our roster, unsubscribe from its presence notifica
 .TP
 \fB/disconnect\fR
 Terminate connection to the Jabber server\&. Note: the roster is only available when the connection to the server is active, so the buddylist is empty when disconnected\&.
+
+.TP
+\fB/event #n accept|ignore|reject\fR, \fB/event list\fR
+Tell mcabber what to do about a pending event\&.
+ \fBaccept\fR	accept the event #n
+ \fBignore\fR	remove the event #n from the list
+ \fBreject\fR	reject the event #n
+ \fBlist\fR	list all pending events
 
 .TP
 \fB/group\fR fold|unfold|toggle

@@ -73,8 +73,8 @@ int evs_del(const char *evid)
   if (p) {
     g_free(i->id);
     if (i->xmldata) xmlnode_free(i->xmldata);
-    if (i->data)    g_free(i->data);
-    if (i->desc)    g_free(i->desc);
+    g_free(i->data);
+    g_free(i->desc);
     g_free(i);
     evs_list = g_slist_remove(evs_list, p->data);
     return 0; // Ok, deleted

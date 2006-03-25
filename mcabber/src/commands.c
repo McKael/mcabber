@@ -1467,7 +1467,7 @@ static void room_invite(gpointer bud, char *arg)
   reason_utf8 = to_utf8(arg);
   jb_room_invite(roomname, jid, reason_utf8);
   scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>...", jid);
-  if (reason_utf8) g_free(reason_utf8);
+  g_free(reason_utf8);
   free_arg_lst(paramlst);
 }
 
@@ -1500,8 +1500,8 @@ static void room_affil(gpointer bud, char *arg)
     jid_utf8 = to_utf8(jid);
     reason_utf8 = to_utf8(arg);
     jb_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
-    if (jid_utf8) g_free(jid_utf8);
-    if (reason_utf8) g_free(reason_utf8);
+    g_free(jid_utf8);
+    g_free(reason_utf8);
   } else
     scr_LogPrint(LPRINT_NORMAL, "Wrong affiliation parameter.");
 
@@ -1537,8 +1537,8 @@ static void room_role(gpointer bud, char *arg)
     jid_utf8 = to_utf8(jid);
     reason_utf8 = to_utf8(arg);
     jb_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
-    if (jid_utf8) g_free(jid_utf8);
-    if (reason_utf8) g_free(reason_utf8);
+    g_free(jid_utf8);
+    g_free(reason_utf8);
   } else
     scr_LogPrint(LPRINT_NORMAL, "Wrong role parameter.");
 
@@ -1571,8 +1571,8 @@ static void room_ban(gpointer bud, char *arg)
   jid_utf8 = to_utf8(jid);
   reason_utf8 = to_utf8(arg);
   jb_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
-  if (jid_utf8) g_free(jid_utf8);
-  if (reason_utf8) g_free(reason_utf8);
+  g_free(jid_utf8);
+  g_free(reason_utf8);
 
   free_arg_lst(paramlst);
 }
@@ -1602,8 +1602,8 @@ static void room_kick(gpointer bud, char *arg)
   nick_utf8 = to_utf8(nick);
   reason_utf8 = to_utf8(arg);
   jb_room_setattrib(roomid, NULL, nick_utf8, ra, reason_utf8);
-  if (nick_utf8) g_free(nick_utf8);
-  if (reason_utf8) g_free(reason_utf8);
+  g_free(nick_utf8);
+  g_free(reason_utf8);
 
   free_arg_lst(paramlst);
 }
@@ -1726,7 +1726,7 @@ static void room_destroy(gpointer bud, char *arg)
     msg = NULL;
 
   jb_room_destroy(buddy_getjid(bud), NULL, msg);
-  if (msg) g_free(msg);
+  g_free(msg);
 }
 
 static void room_unlock(gpointer bud, char *arg)

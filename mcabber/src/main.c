@@ -221,7 +221,7 @@ int main(int argc, char **argv)
   /* Parsing config file... */
   ret = cfg_read_file(configFile);
   /* free() configFile if it has been allocated during options parsing */
-  if (configFile) g_free(configFile);
+  g_free(configFile);
   /* Leave if there was an error in the config. file */
   if (ret)
     exit(EXIT_FAILURE);

@@ -367,8 +367,7 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
   hk_mystatuschange(0, mystatus, st, (st != invisible ? msg : ""));
   mystatus = st;
   if (msg != mystatusmsg) {
-    if (mystatusmsg)
-      g_free(mystatusmsg);
+    g_free(mystatusmsg);
     if (*msg)
       mystatusmsg = g_strdup(msg);
     else
@@ -1318,8 +1317,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   }
   if (from && body)
     gotmessage(type, from, body, enc, timestamp);
-  if (tmp)
-    g_free(tmp);
+  g_free(tmp);
 }
 
 static void evscallback_subscription(eviqs *evp, guint evcontext)

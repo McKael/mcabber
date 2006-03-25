@@ -99,15 +99,9 @@ static void free_all_resources(GSList **reslist)
 
   for ( lip = *reslist; lip ; lip = g_slist_next(lip)) {
     p_res = (res*)lip->data;
-    if (p_res->status_msg) {
-      g_free((gchar*)p_res->status_msg);
-    }
-    if (p_res->name) {
-      g_free((gchar*)p_res->name);
-    }
-    if (p_res->realjid) {
-      g_free((gchar*)p_res->realjid);
-    }
+    g_free((gchar*)p_res->status_msg);
+    g_free((gchar*)p_res->name);
+    g_free((gchar*)p_res->realjid);
   }
   // Free all nodes but the first (which is static)
   g_slist_free(*reslist);
@@ -191,9 +185,9 @@ static void del_resource(roster *rost, const char *resname)
 
   p_res = p_res_elt->data;
   // Free allocations and delete resource node
-  if (p_res->name)        g_free(p_res->name);
-  if (p_res->status_msg)  g_free(p_res->status_msg);
-  if (p_res->realjid)     g_free(p_res->realjid);
+  g_free(p_res->name);
+  g_free(p_res->status_msg);
+  g_free(p_res->realjid);
   rost->resource = g_slist_delete_link(rost->resource, p_res_elt);
   return;
 }
@@ -366,10 +360,10 @@ void roster_del_user(const char *jid)
     unread_jid_add(roster_usr->jid);
 
   // Let's free memory (jid, name, status message)
-  if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
-  if (roster_usr->name)       g_free((gchar*)roster_usr->name);
-  if (roster_usr->nickname)   g_free((gchar*)roster_usr->nickname);
-  if (roster_usr->topic)      g_free((gchar*)roster_usr->topic);
+  g_free((gchar*)roster_usr->jid);
+  g_free((gchar*)roster_usr->name);
+  g_free((gchar*)roster_usr->nickname);
+  g_free((gchar*)roster_usr->topic);
   free_all_resources(&roster_usr->resource);
   g_free(roster_usr);
 
@@ -408,10 +402,10 @@ void roster_free(void)
       if (roster_usr->flags & ROSTER_FLAG_MSG)
         unread_jid_add(roster_usr->jid);
       // Free name and jid
-      if (roster_usr->jid)        g_free((gchar*)roster_usr->jid);
-      if (roster_usr->name)       g_free((gchar*)roster_usr->name);
-      if (roster_usr->nickname)   g_free((gchar*)roster_usr->nickname);
-      if (roster_usr->topic)      g_free((gchar*)roster_usr->topic);
+      g_free((gchar*)roster_usr->jid);
+      g_free((gchar*)roster_usr->name);
+      g_free((gchar*)roster_usr->nickname);
+      g_free((gchar*)roster_usr->topic);
       free_all_resources(&roster_usr->resource);
       g_free(roster_usr);
       sl_usr = g_slist_next(sl_usr);
@@ -420,8 +414,8 @@ void roster_free(void)
     if (roster_grp->list)
       g_slist_free(roster_grp->list);
     // Free group's name and jid
-    if (roster_grp->jid)  g_free((gchar*)roster_grp->jid);
-    if (roster_grp->name) g_free((gchar*)roster_grp->name);
+    g_free((gchar*)roster_grp->jid);
+    g_free((gchar*)roster_grp->name);
     g_free(roster_grp);
     sl_grp = g_slist_next(sl_grp);
   }
@@ -803,8 +797,8 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   // Remove old group if it is empty
   if (!*sl_group) {
     roster *roster_grp = (roster*)((GSList*)roster_usr->list)->data;
-    if (roster_grp->jid)  g_free((gchar*)roster_grp->jid);
-    if (roster_grp->name) g_free((gchar*)roster_grp->name);
+    g_free((gchar*)roster_grp->jid);
+    g_free((gchar*)roster_grp->name);
     g_free(roster_grp);
     groups = g_slist_remove(groups, roster_grp);
   }

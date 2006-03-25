@@ -165,7 +165,7 @@ int cfg_read_file(char *filename)
 // If this isn't a assignment (no = char), the function will set *pval
 // to NULL and return FALSE.
 //
-// The called should g_free() *pkey and *pval (if not NULL) after use.
+// The caller should g_free() *pkey and *pval (if not NULL) after use.
 guint parse_assigment(gchar *assignment, const gchar **pkey, const gchar **pval)
 {
   char *key, *val, *t, *p;
@@ -239,8 +239,7 @@ void settings_set(guint type, const gchar *key, const gchar *value)
   if (sptr) {
     // The setting has been found.  We will update it or delete it.
     setting = (T_setting*)sptr->data;
-    if (setting->value)
-      g_free(setting->value);
+    g_free(setting->value);
     if (!value) {
       // Let's remove the setting
       g_free(setting->name);

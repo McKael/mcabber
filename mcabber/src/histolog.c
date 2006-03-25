@@ -275,8 +275,7 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
       UseFileLogging = FileLoadLogs = FALSE;
     }
   } else {  // Disable history logging
-    if (RootDir)
-      g_free(RootDir);
+    g_free(RootDir);
   }
 }
 

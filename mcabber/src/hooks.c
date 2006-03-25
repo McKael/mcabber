@@ -73,8 +73,8 @@ inline void hk_message_in(const char *jid, const char *resname,
     roster_usr = roster_add_user(jid, NULL, NULL, rtype, sub_none);
     if (!roster_usr) { // Shouldn't happen...
       scr_LogPrint(LPRINT_LOGNORM, "ERROR: unable to add buddy!");
-      if (bmsg) g_free(bmsg);
-      if (mmsg) g_free(mmsg);
+      g_free(bmsg);
+      g_free(mmsg);
       return;
     }
   } else if (is_groupchat) {
@@ -147,8 +147,8 @@ inline void hk_message_in(const char *jid, const char *resname,
     update_roster = TRUE;
   }
 
-  if (bmsg) g_free(bmsg);
-  if (mmsg) g_free(mmsg);
+  g_free(bmsg);
+  g_free(mmsg);
 }
 
 //  hk_message_out()
@@ -182,8 +182,8 @@ inline void hk_message_out(const char *jid, const char *nick,
   // External command
   hk_ext_cmd(jid, 'M', 'S', NULL);
 
-  if (bmsg) g_free(bmsg);
-  if (mmsg) g_free(mmsg);
+  g_free(bmsg);
+  g_free(mmsg);
 }
 
 inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
@@ -339,8 +339,7 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
 
   if ((pid=fork()) == -1) {
     scr_LogPrint(LPRINT_LOGNORM, "Fork error, cannot launch external command.");
-    if (datafname)
-      g_free(datafname);
+    g_free(datafname);
     return;
   }
 
@@ -354,8 +353,7 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
       exit(1);
     }
   }
-  if (datafname)
-    g_free(datafname);
+  g_free(datafname);
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

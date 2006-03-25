@@ -79,8 +79,8 @@ int iqs_del(const char *iqid)
   }
   if (p) {
     g_free(i->id);
-    if (i->xmldata) xmlnode_free(i->xmldata);
-    if (i->data)    g_free(i->data);
+    xmlnode_free(i->xmldata);
+    g_free(i->data);
     g_free(i);
     iqs_list = g_slist_remove(iqs_list, p->data);
     return 0; // Ok, deleted

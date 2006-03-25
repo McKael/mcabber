@@ -468,8 +468,10 @@ static void handle_iq_version(jconn conn, char *from, const char *id,
   xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
   myquery = xmlnode_get_tag(x, "query");
 
-  xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "name"), PACKAGE, -1);
-  xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "version"), VERSION, -1);
+  xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "name"),
+                       PACKAGE_NAME, -1);
+  xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "version"),
+                       PACKAGE_VERSION, -1);
   if (os) {
     xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "os"), os, -1);
     g_free(os);

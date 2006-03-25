@@ -318,13 +318,14 @@ inline void scr_Beep(void)
 
 //  scr_LogPrint(...)
 // Display a message in the log window.
+// This function will convert from UTF-8 unless the LPRINT_NOTUTF8 flag is set.
 void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 {
   time_t timestamp;
   char *buffer, *b2;
   va_list ap;
 
-  if (!flag) return;
+  if (!(flag & ~LPRINT_NOTUTF8)) return; // Shouldn't happen
 
   buffer = g_new(char, 5184);
 
@@ -337,13 +338,20 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
   va_end(ap);
 
   if (flag & LPRINT_NORMAL) {
+    char *buffer_locale;
+    if (!(flag & LPRINT_NOTUTF8))
+      buffer_locale = from_utf8(buffer);
+    else
+      buffer_locale = buffer;
     if (Curses) {
-      wprintw(logWnd, "\n%s", buffer);
+      wprintw(logWnd, "\n%s", buffer_locale);
       update_panels();
       doupdate();
     } else {
-      printf("%s\n", buffer);
+      printf("%s\n", buffer_locale);
     }
+    if (!(flag & LPRINT_NOTUTF8))
+      g_free(buffer_locale);
   }
   if (flag & (LPRINT_LOG|LPRINT_DEBUG)) {
     char *buffer2 = g_new(char, 5184);

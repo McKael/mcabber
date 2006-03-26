@@ -1974,7 +1974,9 @@ static void do_authorization(char *arg)
 
 static void do_version(char *arg)
 {
-  scr_LogPrint(LPRINT_NORMAL, "This is mcabber version %s.", PACKAGE_VERSION);
+  gchar *ver = mcabber_version();
+  scr_LogPrint(LPRINT_NORMAL, "This is mcabber version %s.", ver);
+  g_free(ver);
 }
 
 static void do_request(char *arg)

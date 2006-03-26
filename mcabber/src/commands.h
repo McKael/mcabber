@@ -17,6 +17,7 @@ int  process_line(char *line);
 int  process_command(char *line);
 char *expandalias(char *line);
 
+extern char *mcabber_version(void);
 extern void mcabber_connect(void);
 
 #endif /* __COMMANDS_H__ */

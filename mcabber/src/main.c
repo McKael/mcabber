@@ -40,7 +40,19 @@
 #include "histolog.h"
 #include "hooks.h"
 #include "utils.h"
+#include "hgcset.h"
 
+
+char *mcabber_version(void)
+{
+  char *ver;
+#ifdef HGCSET
+  ver = g_strdup_printf("%s (%s)", PACKAGE_VERSION, HGCSET);
+#else
+  ver = g_strdup(PACKAGE_VERSION);
+#endif
+  return ver;
+}
 
 void mcabber_connect(void)
 {

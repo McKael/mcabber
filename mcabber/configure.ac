@@ -89,11 +89,11 @@ if test "$with_ssl" != "no"; then
     else
         AC_MSG_RESULT([not found or disabled])
 
-        AM_PATH_LIBGNUTLS_EXTRA(0.0.1, [
-            CXXFLAGS="$CXXFLAGS $LIBGNUTLS_CFLAGS"
-            LIBS="$LIBS $LIBGNUTLS_LIBS -lgnutls-extra -lgnutls-openssl"
-            AC_DEFINE([HAVE_GNUTLS], [], [GNU TLS])
-        ])
+        # AM_PATH_LIBGNUTLS_EXTRA(0.0.1, [
+        #     CXXFLAGS="$CXXFLAGS $LIBGNUTLS_CFLAGS"
+        #     LIBS="$LIBS $LIBGNUTLS_LIBS -lgnutls-extra -lgnutls-openssl"
+        #     AC_DEFINE([HAVE_GNUTLS], [], [GNU TLS])
+        # ])
     fi
 fi
 

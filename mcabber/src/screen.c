@@ -270,6 +270,13 @@ static void init_keycodes(void)
   add_keyseq("[6$", MKEY_SHIFT_PGDOWN, 0); // Shift-PageDown
 }
 
+void scr_InitLocaleCharSet(void)
+{
+  setlocale(LC_CTYPE, "");
+  LocaleCharSet = nl_langinfo(CODESET);
+  utf8_mode = (strcmp(LocaleCharSet, "UTF-8") == 0);
+}
+
 void scr_InitCurses(void)
 {
   /* Key sequences initialization */
@@ -293,10 +300,6 @@ void scr_InitCurses(void)
 
   inputLine[0] = 0;
   ptr_inputline = inputLine;
-
-  setlocale(LC_CTYPE, "");
-  LocaleCharSet = nl_langinfo(CODESET);
-  utf8_mode = (strcmp(LocaleCharSet, "UTF-8") == 0);
 
   return;
 }

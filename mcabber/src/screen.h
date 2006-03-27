@@ -48,6 +48,7 @@ typedef struct {
 void scr_Getch(keycode *kcode);
 int process_key(keycode kcode);
 
+void scr_InitLocaleCharSet(void);
 void scr_InitCurses(void);
 void scr_TerminateCurses(void);
 void scr_DrawMainWindow(unsigned int fullinit);

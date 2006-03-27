@@ -229,6 +229,8 @@ int main(int argc, char **argv)
 
   /* Initialize commands system */
   cmd_init();
+  /* Initialize charset */
+  scr_InitLocaleCharSet();
 
   /* Parsing config file... */
   ret = cfg_read_file(configFile);

@@ -101,7 +101,7 @@ int cfg_read_file(char *filename)
     g_free(filename);
   } else {
     if ((fp = fopen(filename, "r")) == NULL) {
-      perror("fopen (cfg_file())");
+      perror("Cannot open configuration file");
       return -1;
     }
     // Check configuration file permissions (see above)

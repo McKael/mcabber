@@ -40,7 +40,10 @@
 #include "histolog.h"
 #include "hooks.h"
 #include "utils.h"
-#include "hgcset.h"
+
+#ifdef ENABLE_HGCSET
+# include "hgcset.h"
+#endif
 
 
 char *mcabber_version(void)

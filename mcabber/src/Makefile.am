@@ -11,8 +11,10 @@ LDADD = $(GLIB_LIBS) -lncurses -lpanel \
 
 INCLUDES = $(GLIB_CFLAGS)
 
-BUILT_SOURCES = hgcset.h
 CLEANFILES = hgcset.h
+
+if HGCSET
+BUILT_SOURCES = hgcset.h
 
 #mcabber_DEPENDENCIES = hgcset.h \
 #	../libjabber/liblibjabber.a ../connwrap/libconnwrap.a
@@ -20,6 +22,7 @@ CLEANFILES = hgcset.h
 hgcset.h:
 	../hgcset.sh
 
-#SUBDIRS =
-
 .PHONY: hgcset.h
+endif
+
+#SUBDIRS =

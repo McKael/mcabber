@@ -109,6 +109,14 @@ else
     CFLAGS="$CFLAGS -O2"
 fi
 
+AC_ARG_ENABLE(hgcset,
+    [AC_HELP_STRING(--enable-hgcset, Add Mercurial changeset)],
+    hgcset=$enableval, hgcset="")
+AM_CONDITIONAL(HGCSET, test x$hgcset = xyes)
+if test "${hgcset}" = "yes"; then
+    AC_DEFINE(ENABLE_HGCSET, 1, [Use Mercurial changeset])
+fi
+
 AC_CONFIG_FILES([connwrap/Makefile
                  libjabber/Makefile
                  src/Makefile

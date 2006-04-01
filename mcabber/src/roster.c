@@ -206,12 +206,12 @@ static gint roster_compare_jid_type(roster *a, roster *b) {
 static gint roster_compare_name_type(roster *a, roster *b) {
   if (! (a->type & b->type))
     return -1; // arbitrary (but should be != 0, of course)
-  return strcasecmp(a->name, b->name);
+  return strcmp(a->name, b->name);
 }
 
 // Comparison function used to sort the roster (by name)
 static gint roster_compare_name(roster *a, roster *b) {
-  return strcasecmp(a->name, b->name);
+  return strcmp(a->name, b->name);
 }
 
 // Finds a roster element (user, group, agent...), by jid or name
@@ -243,7 +243,7 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
   while (sl_roster_elt) {
     roster *roster_elt = (roster*)sl_roster_elt->data;
     if (roster_type & ROSTER_TYPE_GROUP) {
-      if ((type == namesearch) && !strcasecmp(jidname, roster_elt->name))
+      if ((type == namesearch) && !strcmp(jidname, roster_elt->name))
         return sl_roster_elt;
     }
     res = g_slist_find_custom(roster_elt->list, &sample, comp);

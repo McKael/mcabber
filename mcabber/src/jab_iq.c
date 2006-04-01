@@ -249,7 +249,7 @@ static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   }
   bjid = p;
 
-  buf = g_strdup_printf("IQ:version result from <%s>", bjid);
+  buf = g_strdup_printf("Received IQ:version result from <%s>", bjid);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
 
   // bjid should now really be the "bare JID", let's strip the resource
@@ -325,7 +325,7 @@ static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   }
   bjid = p;
 
-  buf = g_strdup_printf("IQ:time result from <%s>", bjid);
+  buf = g_strdup_printf("Received IQ:time result from <%s>", bjid);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
 
   // bjid should now really be the "bare JID", let's strip the resource

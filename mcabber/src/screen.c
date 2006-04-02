@@ -143,7 +143,7 @@ static void ParseColors(void)
   const char *colors[] = {
     "", "",
     "general",
-    "highlight",
+    "msgout",
     "status",
     "roster",
     "rostersel",
@@ -190,7 +190,7 @@ static void ParseColors(void)
           init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
                     FindColor(background));
           break;
-      case COLOR_HIGHLIGHT:
+      case COLOR_MSGOUT:
           init_pair(i+1, ((color) ? FindColor(color) : COLOR_CYAN),
                     FindColor(background));
           break;
@@ -483,7 +483,7 @@ static void scr_UpdateWindow(window_entry_t *win_entry)
     // You need to set it to the whole prefix length + 1
     if (line) {
       if (line->flags & HBB_PREFIX_HLIGHT)
-        wattrset(win_entry->win, get_color(COLOR_HIGHLIGHT));
+        wattrset(win_entry->win, get_color(COLOR_MSGOUT));
 
       if (line->timestamp) {
         strftime(date, 30, "%m-%d %H:%M", localtime(&line->timestamp));

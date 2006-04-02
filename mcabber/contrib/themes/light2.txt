@@ -3,7 +3,7 @@
 
 set color_background   = white
 set color_general      = black
-set color_highlight    = blue
+set color_msgout       = blue
 set color_bgstatus     = black
 set color_status       = brightcyan
 set color_roster       = magenta

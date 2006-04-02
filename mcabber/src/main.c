@@ -189,10 +189,11 @@ static void ask_password(void)
   return;
 }
 
-inline static void credits(void)
+static void credits(void)
 {
-  printf("MCabber v" PACKAGE_VERSION
-         " -- Email: mcabber [at] lilotux [dot] net\n");
+  char *v = mcabber_version();
+  printf("MCabber %s -- Email: mcabber [at] lilotux [dot] net\n", v);
+  g_free(v);
 }
 
 int main(int argc, char **argv)

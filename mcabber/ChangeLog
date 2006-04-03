@@ -1,4 +1,4 @@
-mcabber (0.7.5-dev)
+mcabber (0.7.5)
 
  * History files now use UTF-8 encoding
    See file "NEWS" for an example to convert existing log files
@@ -15,6 +15,10 @@ mcabber (0.7.5-dev)
  * Add "/request time|version" commands
  * Add "/roster hide|show|toggle" commands
    This allows having a full-width chat window.
+ * Group names are now case sensitive
+ * Add "--enable-hgcset" option to the ./configure script, for people using
+   the Mercurial repository.  If used, the /version command will display
+   the Mercurial changeset.
  * We try to display as many roster items as possible in the buddylist
  * New "beep_on_message" option
  * New "eventcmd_checkstatus" option
@@ -26,7 +30,7 @@ mcabber (0.7.5-dev)
  * A lot of small bugfixes
  * Documentation updates
 
- -- Mikael, ?
+ -- Mikael, 2006-04-03
 
 mcabber (0.7.4)
 

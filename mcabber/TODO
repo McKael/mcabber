@@ -23,6 +23,7 @@ TODO:
 * Maybe cache iq:version and show version in /info, if available
 * Sort roster by status
 * 2-levels roster display (jids, resources)
+* "Ignore list" (privacy lists)
 
 * File transfer? :)
 

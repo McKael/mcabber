@@ -75,7 +75,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
     hbuf_block_elt->ptr    = hbuf_b_prev->ptr_end;
     hbuf_block_elt->flags  = HBB_FLAG_PERSISTENT;
     hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
-    g_list_append(*p_hbuf, hbuf_block_elt);
+    *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
   }
 
   if (strlen(text) >= HBB_BLOCKSIZE) {
@@ -113,7 +113,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
       hbuf_block_elt->ptr_end  = end;
       hbuf_block_elt->flags    = HBB_FLAG_PERSISTENT;
       hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
-      g_list_append(*p_hbuf, hbuf_block_elt);
+      *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
       line = hbuf_block_elt->ptr;
     } else {
       // We need to break where we can find a space char
@@ -131,7 +131,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
       hbuf_block_elt->ptr_end  = end;
       hbuf_block_elt->flags    = 0;
       hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
-      g_list_append(*p_hbuf, hbuf_block_elt);
+      *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
       line = hbuf_block_elt->ptr;
     }
     cr = strchr(line, '\n');
@@ -182,7 +182,7 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
     if (!(hbuf_b_next->flags & HBB_FLAG_PERSISTENT)) {
       hbuf_b_curr->ptr_end = hbuf_b_next->ptr_end;
       g_free(hbuf_b_next);
-      g_list_delete_link(curr_elt, next_elt);
+      curr_elt = g_list_delete_link(curr_elt, next_elt);
     } else
       curr_elt = next_elt;
   }

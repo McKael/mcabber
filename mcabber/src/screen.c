@@ -876,7 +876,7 @@ void scr_UpdateChatStatus(int forceupdate)
   } else if (jb_getstatus() != offline) {
     enum imstatus budstate;
     budstate = buddy_getstatus(BUDDATA(current_buddy), NULL);
-    if (budstate >= 0 && budstate < imstatus_size)
+    if (budstate < imstatus_size)
       status = imstatus2char[budstate];
   }
 
@@ -1010,7 +1010,7 @@ void scr_DrawRoster(void)
     } else if (currentstatus != offline) {
       enum imstatus budstate;
       budstate = buddy_getstatus(BUDDATA(buddy), NULL);
-      if (budstate >= 0 && budstate < imstatus_size)
+      if (budstate < imstatus_size)
         status = imstatus2char[budstate];
     }
     if (buddy == current_buddy) {

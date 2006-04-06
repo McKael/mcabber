@@ -46,6 +46,8 @@
 #endif
 
 
+static struct termios *backup_termios;
+
 char *mcabber_version(void)
 {
   char *ver;
@@ -124,6 +126,11 @@ void mcabber_disconnect(const char *msg)
 {
   jb_disconnect();
   scr_TerminateCurses();
+
+  // Restore term settings, if needed.
+  if (backup_termios)
+    tcsetattr(fileno(stdin), TCSAFLUSH, backup_termios);
+
   if (msg)
     fprintf(stderr, "%s\n", msg);
   printf("Bye!\n");
@@ -167,6 +174,8 @@ static void ask_password(void)
 
   /* Turn echoing off and fail if we can't. */
   if (tcgetattr(fileno(stdin), &orig) != 0) return;
+  backup_termios = &orig;
+
   new = orig;
   new.c_lflag &= ~ECHO;
   if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) return;
@@ -178,6 +187,7 @@ static void ask_password(void)
   /* Restore terminal. */
   tcsetattr(fileno(stdin), TCSAFLUSH, &orig);
   printf("\n");
+  backup_termios = NULL;
 
   for (p = (char*)password; *p; p++)
     ;

@@ -1763,6 +1763,8 @@ static void room_whois(gpointer bud, char *arg)
     return;
   }
 
+  nick = to_utf8(nick);
+
   // Enter chat mode
   scr_set_chatmode(TRUE);
   scr_ShowBuddyWindow();
@@ -1773,6 +1775,7 @@ static void room_whois(gpointer bud, char *arg)
   if (rstatus == offline) {
     scr_LogPrint(LPRINT_NORMAL, "No such member: %s", nick);
     free_arg_lst(paramlst);
+    g_free(nick);
     return;
   }
 
@@ -1816,6 +1819,7 @@ static void room_whois(gpointer bud, char *arg)
   scr_WriteIncomingMessage(jid, "End of WHOIS", 0, HBB_PREFIX_INFO);
 
   g_free(buffer);
+  g_free(nick);
   free_arg_lst(paramlst);
 }
 

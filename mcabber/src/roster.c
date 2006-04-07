@@ -1028,6 +1028,26 @@ GSList *buddy_getresources(gpointer rosterdata)
   return reslist;
 }
 
+//  buddy_getresources_locale(roster_data)
+// Same as buddy_getresources() but names are converted to user's locale
+// Note: the caller should free the list (and data) after use
+GSList *buddy_getresources_locale(gpointer rosterdata)
+{
+  GSList *reslist, *lp;
+
+  reslist = buddy_getresources(rosterdata);
+  // Convert each item to UI's locale
+  for (lp = reslist; lp; lp = g_slist_next(lp)) {
+    gchar *oldname = lp->data;
+    lp->data = from_utf8(oldname);
+    if (lp->data)
+      g_free(oldname);
+    else
+      lp->data = oldname;
+  }
+  return reslist;
+}
+
 /*
 //  buddy_isresource(roster_data)
 // Return true if there is at least one resource

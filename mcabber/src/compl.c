@@ -219,7 +219,7 @@ GSList *compl_get_category_list(guint cat_flags)
     return compl_list(ROSTER_TYPE_USER);
   }
   if (cat_flags == COMPL_RESOURCE) {
-    return buddy_getresources(NULL);
+    return buddy_getresources_locale(NULL);
   }
   if (cat_flags == COMPL_EVENTSID) {
     return evs_geteventscomplist();

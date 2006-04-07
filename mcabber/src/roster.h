@@ -125,6 +125,7 @@ time_t  buddy_getstatustime(gpointer rosterdata, const char *resname);
 gchar   buddy_getresourceprio(gpointer rosterdata, const char *resname);
 //int   buddy_isresource(gpointer rosterdata);
 GSList *buddy_getresources(gpointer rosterdata);
+GSList *buddy_getresources_locale(gpointer rosterdata);
 void    buddy_resource_setname(gpointer rosterdata, const char *resname,
                                const char *newname);
 enum imrole buddy_getrole(gpointer rosterdata, const char *resname);

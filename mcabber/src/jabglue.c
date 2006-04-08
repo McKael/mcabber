@@ -552,18 +552,22 @@ void jb_request(const char *jid, enum iqreq_type reqtype)
 {
   GSList *resources;
   GSList *roster_elt;
+  void (*request_fn)(const char *);
+  const char *strreqtype;
 
-  if (reqtype == iqreq_none) return;
+  if (reqtype == iqreq_version) {
+    request_fn = &request_version;
+    strreqtype = "version";
+  } else if (reqtype == iqreq_time) {
+    request_fn = &request_time;
+    strreqtype = "time";
+  } else
+    return;
 
   if (strchr(jid, '/')) {
     // This is a full JID
-    if (reqtype == iqreq_version) {
-      request_version(jid);
-      scr_LogPrint(LPRINT_NORMAL, "Sent version request to <%s>", jid);
-    } else if (reqtype == iqreq_time) {
-      request_time(jid);
-      scr_LogPrint(LPRINT_NORMAL, "Sent time request to <%s>", jid);
-    }
+    (*request_fn)(jid);
+    scr_LogPrint(LPRINT_NORMAL, "Sent %s request to <%s>", strreqtype, jid);
     return;
   }
 
@@ -571,22 +575,23 @@ void jb_request(const char *jid, enum iqreq_type reqtype)
   roster_elt = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_ROOM);
   if (!roster_elt) {
     scr_LogPrint(LPRINT_NORMAL, "No known resource for <%s>...", jid);
-    request_version(jid); // Let's send a request anyway...
+    (*request_fn)(jid); // Let's send a request anyway...
+    scr_LogPrint(LPRINT_NORMAL, "Sent %s request to <%s>", strreqtype, jid);
     return;
   }
 
   // Send a request to each resource
   resources = buddy_getresources(roster_elt->data);
+  if (!resources) {
+    scr_LogPrint(LPRINT_NORMAL, "No known resource for <%s>...", jid);
+    (*request_fn)(jid); // Let's send a request anyway...
+    scr_LogPrint(LPRINT_NORMAL, "Sent %s request to <%s>", strreqtype, jid);
+  }
   for ( ; resources ; resources = g_slist_next(resources) ) {
     gchar *fulljid;
     fulljid = g_strdup_printf("%s/%s", jid, (char*)resources->data);
-    if (reqtype == iqreq_version) {
-      request_version(fulljid);
-      scr_LogPrint(LPRINT_NORMAL, "Sent version request to <%s>", fulljid);
-    } else if (reqtype == iqreq_time) {
-      request_time(fulljid);
-      scr_LogPrint(LPRINT_NORMAL, "Sent time request to <%s>", fulljid);
-    }
+    (*request_fn)(fulljid);
+    scr_LogPrint(LPRINT_NORMAL, "Sent %s request to <%s>", strreqtype, fulljid);
     g_free(fulljid);
   }
 }

@@ -236,6 +236,10 @@ static void init_keycodes(void)
   add_keyseq("[6^", MKEY_CTRL_PGDOWN, 0); // Ctrl-PageDown
   add_keyseq("[5@", MKEY_CTRL_SHIFT_PGUP, 0);   // Ctrl-Shift-PageUp
   add_keyseq("[6@", MKEY_CTRL_SHIFT_PGDOWN, 0); // Ctrl-Shift-PageDown
+  add_keyseq("[8^", MKEY_CTRL_END, 0);  // Ctrl-End
+  add_keyseq("[7^", MKEY_CTRL_HOME, 0); // Ctrl-Home
+  add_keyseq("[2^", MKEY_CTRL_INS, 0);  // Ctrl-Insert
+  add_keyseq("[3^", MKEY_CTRL_DEL, 0);  // Ctrl-Delete
 
   // Xterm
   add_keyseq("[1;5A", MKEY_EQUIV, 521); // Ctrl-Up
@@ -250,6 +254,10 @@ static void init_keycodes(void)
   add_keyseq("[1;2B", MKEY_EQUIV, 514); // Shift-Down
   add_keyseq("[5;5~", MKEY_CTRL_PGUP, 0);   // Ctrl-PageUp
   add_keyseq("[6;5~", MKEY_CTRL_PGDOWN, 0); // Ctrl-PageDown
+  add_keyseq("[1;5F", MKEY_CTRL_END, 0);  // Ctrl-End
+  add_keyseq("[1;5H", MKEY_CTRL_HOME, 0); // Ctrl-Home
+  add_keyseq("[2;5~", MKEY_CTRL_INS, 0);  // Ctrl-Insert
+  add_keyseq("[3;5~", MKEY_CTRL_DEL, 0);  // Ctrl-Delete
 
   // PuTTY
   add_keyseq("[A", MKEY_EQUIV, 521); // Ctrl-Up

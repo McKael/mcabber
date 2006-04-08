@@ -41,7 +41,11 @@ typedef struct {
     MKEY_SHIFT_PGUP,
     MKEY_SHIFT_PGDOWN,
     MKEY_CTRL_SHIFT_PGUP,
-    MKEY_CTRL_SHIFT_PGDOWN
+    MKEY_CTRL_SHIFT_PGDOWN,
+    MKEY_CTRL_HOME,
+    MKEY_CTRL_END,
+    MKEY_CTRL_INS,
+    MKEY_CTRL_DEL
   } mcode;
 } keycode;
 

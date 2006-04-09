@@ -822,14 +822,16 @@ static void do_msay(char *arg)
   scr_set_chatmode(TRUE);
 
   if (!strcasecmp(subcmd, "send_to")) {
-    int err;
+    int err = FALSE;
     gchar *msg_utf8;
     // Let's send to the specified JID.  We leave now if there
     // has been an error (so we don't leave multi-line mode).
     arg = to_utf8(arg);
     msg_utf8 = to_utf8(scr_get_multiline());
-    err = send_message_to(arg, msg_utf8);
-    g_free(msg_utf8);
+    if (msg_utf8) {
+      err = send_message_to(arg, msg_utf8);
+      g_free(msg_utf8);
+    }
     g_free(arg);
     if (err)
       return;
@@ -850,10 +852,13 @@ static void do_msay(char *arg)
 
     buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
     msg_utf8 = to_utf8(scr_get_multiline());
-    send_message(msg_utf8);
-    g_free(msg_utf8);
+    if (msg_utf8) {
+      send_message(msg_utf8);
+      g_free(msg_utf8);
+    }
   }
   scr_set_multimode(FALSE);
+  scr_LogPrint(LPRINT_NORMAL, "You have left multi-line message mode.");
 }
 
 static void do_say_to(char *arg)

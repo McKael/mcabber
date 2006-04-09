@@ -1568,7 +1568,7 @@ inline const char *scr_get_multiline()
   if (multimode && multiline)
     return multiline;
   else
-    return "";
+    return NULL;
 }
 
 //  scr_append_multiline(line)

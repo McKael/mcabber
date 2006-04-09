@@ -4,6 +4,7 @@ Makefile
 Makefile.in
 *.[oa]
 .deps
+mcabber/src/hgcset.h
 mcabber/src/mcabber
 
 autom4te.cache
@@ -22,5 +23,5 @@ config.{log,cache,guess,status}
 
 *.sw?
 cscope.out
-mcabber/lastchange
+mcabber/ptodo
 

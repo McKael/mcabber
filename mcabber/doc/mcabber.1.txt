@@ -183,7 +183,7 @@ COMMANDS
         Tip: if the chatmode is enabled, you can use "/roster alternate"
         to jump to the moved buddy.
 
-/msay begin|verbatim|send|send_to|abort::
+/msay begin|verbatim|send|send_to|toggle|abort::
         Send a multi-line message.  To write a single message with several
         lines, the 'multi-line mode' should be used. +
         In multi-line mode, each line (except command lines) typed in the input
@@ -193,12 +193,16 @@ COMMANDS
         The 'verbatim' multi-line mode disables commands, so that it is
         possible to enter lines starting with a slash.  Only the "/msay"
         command (with send or abort parameters) can be used to exit verbatim
-        mode.
+        mode. +
+        The 'toggle' subcommand can be bound to a key to use the multi-line
+        mode quickly (for example, "bind M13 = msay toggle" to switch using
+        the Meta-Enter combination).
 
         'begin';;       enter multi-line mode
         'verbatim';;    enter verbatim multi-line mode
         'send';;        send the current multi-line message to the currently selected buddy
         'send_to' jid;; send the current multi-line message to "jid"
+        'toggle';;      switch to/from multi-line mode (begin/send)
         'abort';;       leave multi-line mode without sending the message
 
 /quit::

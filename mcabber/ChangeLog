@@ -1,6 +1,13 @@
 mcabber (0.7.6-dev)
 
- * 
+ * Correctly restore term settings when interrupting the password query
+ * Fix a small bug in the /request command (reported by pmw)
+ * MUC: Fix "/room whois" with UTF-8 nickname
+ * MUC: Fix completion for UTF-8 nicknames
+ * Improve support for long messages
+ * Add "/msay toggle" command
+ * Multi-line mode: Do not send empty messages
+ * Update documentation
 
  -- Mikael, ?
 

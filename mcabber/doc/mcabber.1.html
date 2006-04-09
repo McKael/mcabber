@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-<meta name="generator" content="AsciiDoc 7.0.2" />
+<meta name="generator" content="AsciiDoc 7.1.2" />
 <meta name="author" content="Mikael BERTHE" />
 <meta name="author-email" content="mcabber@lilotux.net" />
 <link rel="stylesheet" href="./manpage.css" type="text/css" />
@@ -500,7 +500,7 @@ toggle the state (fold/unfold) of the current tree
         to jump to the moved buddy.
 </dd>
 <dt><b>
-/msay begin|verbatim|send|send_to|abort
+/msay begin|verbatim|send|send_to|toggle|abort
 </b></dt>
 <dd>
         Send a multi-line message.  To write a single message with several
@@ -512,7 +512,10 @@ toggle the state (fold/unfold) of the current tree
         The <b>verbatim</b> multi-line mode disables commands, so that it is
         possible to enter lines starting with a slash.  Only the "/msay"
         command (with send or abort parameters) can be used to exit verbatim
-        mode.
+        mode.<br />
+        The <b>toggle</b> subcommand can be bound to a key to use the multi-line
+        mode quickly (for example, "bind M13 = msay toggle" to switch using
+        the Meta-Enter combination).
 <table class="hlist">
 <tr valign="top">
 <td>
@@ -544,6 +547,14 @@ send the current multi-line message to the currently selected buddy
 </td>
 <td>
 send the current multi-line message to "jid"
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>toggle</b>
+</td>
+<td>
+switch to/from multi-line mode (begin/send)
 </td>
 </tr>
 <tr valign="top">
@@ -912,8 +923,8 @@ Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com
 License (GPL).</p>
 <div id="footer">
 <p>
-Version 0.7.5<br />
-Last updated 25-Mar-2006 19:50:02 CEST
+Version 0.7.6-dev<br />
+Last updated 09-Apr-2006 09:54:39 CEST
 </p>
 </div>
 </div>

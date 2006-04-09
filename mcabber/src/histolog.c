@@ -160,6 +160,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
 
   /* See write_histo_line() for line format... */
   while (!feof(fp)) {
+    guint dataoffset = 25;
     if (fgets(data, HBB_BLOCKSIZE+27, fp) == NULL) break;
     ln++;
 
@@ -170,16 +171,18 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
 
     if ((type != 'M' && type != 'S') ||
         ((data[11] != 'T') || (data[20] != 'Z') ||
-         (data[21] != ' ') || (data[25] != ' '))) {
+         (data[21] != ' ') ||
+         (data[25] != ' ' && data[26] != ' '))) {
       if (!err) {
-        scr_LogPrint(LPRINT_LOGNORM, "Error in history file format (%s), l.%u",
-                     jid, ln);
+        scr_LogPrint(LPRINT_LOGNORM,
+                     "Error in history file format (%s), l.%u", jid, ln);
         err = 1;
       }
-      //break;
       continue;
     }
-    data[21] = data[25] = 0;
+    // The number of lines can be written with 3 or 4 bytes.
+    if (data[25] != ' ') dataoffset = 26;
+    data[21] = data[dataoffset] = 0;
     timestamp = from_iso8601(&data[3], 1);
     len = (guint) atoi(&data[22]);
 
@@ -191,7 +194,6 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
                      jid, ln);
         err = 1;
       }
-      //break;
       continue;
     }
 
@@ -204,14 +206,14 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
       while (*tail) tail++;
     }
     // Small check for too long messages
-    if (tail >= HBB_BLOCKSIZE+26 + data) {
+    if (tail >= HBB_BLOCKSIZE+dataoffset+1 + data) {
       // Maybe we will have a parse error on next, because this
       // message is big (maybe too big).
       scr_LogPrint(LPRINT_LOGNORM, "A message could be too big "
                    "in history file...");
     }
     // Remove last CR (we keep it if the line is empty, too)
-    if ((tail > data+26) && (*(tail-1) == '\n'))
+    if ((tail > data+dataoffset+1) && (*(tail-1) == '\n'))
       *(tail-1) = 0;
 
     if (type == 'M') {
@@ -220,7 +222,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
         prefix_flags = HBB_PREFIX_OUT | HBB_PREFIX_HLIGHT;
       else
         prefix_flags = HBB_PREFIX_IN;
-      converted = from_utf8(&data[26]);
+      converted = from_utf8(&data[dataoffset+1]);
       if (converted) {
         xtext = ut_expand_tabs(converted); // Expand tabs
         hbuf_add_line(p_buddyhbuf, xtext, timestamp, prefix_flags, width);

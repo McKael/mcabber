@@ -6,7 +6,7 @@
 
 // With current implementation a message must fit in a hbuf block,
 // so we shouldn't choose a too small size.
-#define HBB_BLOCKSIZE   4096    // > 20 please
+#define HBB_BLOCKSIZE   8192    // > 20 please
 
 // Flags:
 // - ALLOC: the ptr data has been allocated, it can be freed

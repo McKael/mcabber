@@ -25,6 +25,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+
+/* For Cygwin (thanks go to Yitzchak Scott-Thoennes) */
+#ifdef __CYGWIN__
+#  define timezonevar
+   extern long timezone;
+#endif
 #include <time.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -187,9 +193,10 @@ int to_iso8601(char *dststr, time_t timestamp)
 }
 
 //  from_iso8601(timestamp, utc)
-// This function comes from the Gaim project, gaim_str_to_time().
+// This function came from the Gaim project, gaim_str_to_time().
 // (Actually date may not be pure iso-8601)
 // Thanks, guys!
+// ** Modified by somian 10 Apr 2006 with advice from ysth.
 time_t from_iso8601(const char *timestamp, int utc)
 {
   struct tm t;
@@ -197,6 +204,7 @@ time_t from_iso8601(const char *timestamp, int utc)
   char buf[32];
   char *c;
   int tzoff = 0;
+  int hms_succ = 0;
 
   time(&retval);
   localtime_r(&retval, &t);
@@ -230,10 +238,20 @@ time_t from_iso8601(const char *timestamp, int utc)
     c++; /* skip the "T" */
 
     /* 2 digit hour */
-    if (sscanf(c, "%02d:%02d:%02d", &t.tm_hour, &t.tm_min, &t.tm_sec) == 3 ||
-        sscanf(c, "%02d%02d%02d", &t.tm_hour, &t.tm_min, &t.tm_sec) == 3) {
+    if (sscanf(c, "%02d:%02d:%02d", &t.tm_hour, &t.tm_min, &t.tm_sec) == 3)
+    {
+      hms_succ = 1;
+      c += 8;
+    }
+    else if (sscanf(c, "%02d%02d%02d", &t.tm_hour, &t.tm_min, &t.tm_sec) == 3)
+    {
+       hms_succ = 1;
+       c += 6;
+    }
+
+    if (hms_succ) {
       int tzhrs, tzmins;
-      c+=8;
+
       if (*c == '.') /* dealing with precision we don't care about */
         c += 4;
 
@@ -245,15 +263,14 @@ time_t from_iso8601(const char *timestamp, int utc)
       }
 
       if (tzoff || utc) {
-
-//#ifdef HAVE_TM_GMTOFF
+#ifdef HAVE_TM_GMTOFF
         tzoff += t.tm_gmtoff;
-//#else
-//#   ifdef HAVE_TIMEZONE
-//        tzset();    /* making sure */
-//        tzoff -= timezone;
-//#   endif
-//#endif
+#else
+#  ifdef HAVE_TIMEZONE
+        tzset();    /* making sure */
+        tzoff -= timezone;
+#  endif
+#endif
       }
     }
   }

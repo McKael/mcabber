@@ -29,6 +29,7 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h \
                   stdlib.h string.h strings.h sys/socket.h sys/time.h \
                   syslog.h termios.h unistd.h ncurses.h panel.h getopt.h])
+AC_VAR_TIMEZONE_EXTERNALS
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -49,7 +50,10 @@ AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm bzero gethostbyname gethostname inet_ntoa isascii \
                 memmove memset modf select setlocale socket strcasecmp \
-                strchr strdup strncasecmp strrchr strstr])
+                strchr strdup strncasecmp strrchr strstr strcasestr])
+
+# Check for tm_gmtoff
+MC_TM_GMTOFF
 
 # Check for glib
 AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),[g_list_append])

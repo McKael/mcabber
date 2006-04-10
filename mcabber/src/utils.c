@@ -510,4 +510,118 @@ char *ut_expand_tabs(const char *text)
 }
 
 
+/* Cygwin's newlib does not have strcasestr() */
+/* The author of the code before the endif is
+ *    Jeffrey Stedfast <fejj@ximian.com>
+ * and this code is reusable in compliance with the GPL v2. -- somian */
+
+#if !defined(HAVE_STRCASESTR)
+
+#  define lowercase(c)  (isupper ((int) (c)) ? tolower ((int) (c)) : (int) (c))
+#  define bm_index(c, icase)      ((icase) ? lowercase (c) : (int) (c))
+#  define bm_equal(c1, c2, icase) ((icase) ? lowercase (c1) == lowercase (c2) : (c1) == (c2))
+
+/* FIXME: this is just a guess... should really do some performace tests to get an accurate measure */
+#  define bm_optimal(hlen, nlen)  (((hlen) ? (hlen) > 20 : 1) && (nlen) > 10 ? 1 : 0)
+
+static unsigned char *
+__boyer_moore (const unsigned char *haystack, size_t haystacklen,
+               const unsigned char *needle, size_t needlelen, int icase)
+{
+  register unsigned char *hc_ptr, *nc_ptr;
+  unsigned char *he_ptr, *ne_ptr, *h_ptr;
+  size_t skiptable[256], n;
+  register int i;
+
+#ifdef BOYER_MOORE_CHECKS
+  /* we don't need to do these checks since memmem/strstr/etc do it already */
+  /* if the haystack is shorter than the needle then we can't possibly match */
+  if (haystacklen < needlelen)
+    return NULL;
+
+  /* instant match if the pattern buffer is 0-length */
+  if (needlelen == 0)
+    return (unsigned char *) haystack;
+#endif /* BOYER_MOORE_CHECKS */
+
+  /* set a pointer at the end of each string */
+  ne_ptr = (unsigned char *) needle + needlelen - 1;
+  he_ptr = (unsigned char *) haystack + haystacklen - 1;
+
+  /* create our skip table */
+  for (i = 0; i < 256; i++)
+    skiptable[i] = needlelen;
+  for (nc_ptr = (unsigned char *) needle; nc_ptr < ne_ptr; nc_ptr++)
+    skiptable[bm_index (*nc_ptr, icase)] = (size_t) (ne_ptr - nc_ptr);
+
+  h_ptr = (unsigned char *) haystack;
+  while (haystacklen >= needlelen) {
+    hc_ptr = h_ptr + needlelen - 1;   /* set the haystack compare pointer */
+    nc_ptr = ne_ptr;                  /* set the needle compare pointer */
+
+    /* work our way backwards till they don't match */
+    for (i = 0; nc_ptr > (unsigned char *) needle; nc_ptr--, hc_ptr--, i++)
+      if (!bm_equal (*nc_ptr, *hc_ptr, icase))
+        break;
+
+    if (!bm_equal (*nc_ptr, *hc_ptr, icase)) {
+      n = skiptable[bm_index (*hc_ptr, icase)];
+      if (n == needlelen && i)
+        if (bm_equal (*ne_ptr, ((unsigned char *) needle)[0], icase))
+          n--;
+      h_ptr += n;
+      haystacklen -= n;
+    } else
+      return (unsigned char *) h_ptr;
+  }
+
+  return NULL;
+}
+
+/*
+ * strcasestr:
+ * @haystack: string to search
+ * @needle: substring to search for
+ *
+ * Finds the first occurence of the substring @needle within the
+ * string @haystack ignoring case.
+ *
+ * Returns a pointer to the beginning of the substring match within
+ * @haystack, or NULL if the substring is not found.
+ **/
+char *
+strcasestr (const char *haystack, const char *needle)
+{
+  register unsigned char *h, *n, *hc, *nc;
+  size_t needlelen;
+
+  needlelen = strlen (needle);
+
+  if (needlelen == 0) {
+    return (char *) haystack;
+  } else if (bm_optimal (0, needlelen)) {
+    return (char *) __boyer_moore ((const unsigned char *) haystack,
+                                   strlen (haystack),
+                                   (const unsigned char *) needle,
+                                   needlelen, 1);
+  }
+
+  h = (unsigned char *) haystack;
+  n = (unsigned char *) needle;
+
+  while (*(h + needlelen - 1)) {
+    if (lowercase (*h) == lowercase (*n)) {
+      for (hc = h + 1, nc = n + 1; *hc && *nc; hc++, nc++)
+        if (lowercase (*hc) != lowercase (*nc))
+          break;
+
+      if (!*nc)
+        return (char *) h;
+    }
+    h++;
+  }
+  return NULL;
+}
+#endif /* !HAVE_STRCASESTR */
+
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

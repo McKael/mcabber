@@ -1,6 +1,8 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__ 1
 
+#include <config.h>
+
 extern char *LocaleCharSet;
 
 #define to_utf8(s)   ((s) ? g_locale_to_utf8((s),   -1, NULL,NULL,NULL) : NULL)
@@ -30,6 +32,10 @@ void free_arg_lst(char **arglst);
 void replace_nl_with_dots(char *bufstr);
 char *ut_expand_tabs(const char *text);
 
+#if !defined (HAVE_STRCASESTR)
+char *strcasestr(const char *haystack, const char *needle);
 #endif
+
+#endif // __UTILS_H__
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

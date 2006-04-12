@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "hbuf.h"
+#include "utils.h"
 
 
 /* This is a private structure type */

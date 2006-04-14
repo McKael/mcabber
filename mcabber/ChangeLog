@@ -1,15 +1,20 @@
-mcabber (0.7.6-dev)
+mcabber (0.7.6)
 
+ * Initial Cygwin port (Soren Andersen)
+ * Fix a segfault when mcabber is not connected to a Jabber server
+   (reported by Mario Iseli)
  * Correctly restore term settings when interrupting the password query
  * Fix a small bug in the /request command (reported by pmw)
  * MUC: Fix "/room whois" with UTF-8 nickname
  * MUC: Fix completion for UTF-8 nicknames
  * Improve support for long messages
- * Add "/msay toggle" command
+ * Add command "/msay toggle"
+ * Allow messages with a subject (with /msay)
+ * New option "log_display_sender"
  * Multi-line mode: Do not send empty messages
  * Update documentation
 
- -- Mikael, ?
+ -- Mikael, 2006-04-14
 
 mcabber (0.7.5)
 

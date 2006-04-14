@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.7.6-dev, April 2006
+v0.7.6, April 2006
 
 NAME
 ----
@@ -190,6 +190,8 @@ COMMANDS
         line will be added to the multi-line message.  Once the message is
         finished, it can be sent to the current selected buddy with the "/msay
         send" command. +
+        The 'begin' subcommand enables multi-line mode.  Note that it allows
+        a message subject to be specified. +
         The 'verbatim' multi-line mode disables commands, so that it is
         possible to enter lines starting with a slash.  Only the "/msay"
         command (with send or abort parameters) can be used to exit verbatim
@@ -198,12 +200,12 @@ COMMANDS
         mode quickly (for example, "bind M13 = msay toggle" to switch using
         the Meta-Enter combination).
 
-        'begin';;       enter multi-line mode
-        'verbatim';;    enter verbatim multi-line mode
-        'send';;        send the current multi-line message to the currently selected buddy
-        'send_to' jid;; send the current multi-line message to "jid"
-        'toggle';;      switch to/from multi-line mode (begin/send)
-        'abort';;       leave multi-line mode without sending the message
+        'begin' [subject];; enter multi-line mode
+        'verbatim';;        enter verbatim multi-line mode
+        'send';;            send the current multi-line message to the currently selected buddy
+        'send_to' jid;;     send the current multi-line message to "jid"
+        'toggle';;          switch to/from multi-line mode (begin/send)
+        'abort';;           leave multi-line mode without sending the message
 
 /quit::
         Disconnect and leave `mcabber(1)`.

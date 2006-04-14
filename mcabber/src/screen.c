@@ -851,17 +851,25 @@ void scr_UpdateChatStatus(int forceupdate)
   // at least to refresh the pending message flag.
   scr_UpdateMainStatus(FALSE);
 
-  fullname = buddy_getname(BUDDATA(current_buddy));
-  btype = buddy_gettype(BUDDATA(current_buddy));
-
-  isgrp = btype & ROSTER_TYPE_GROUP;
-  ismuc = btype & ROSTER_TYPE_ROOM;
-
   // Clear the line
   werase(chatstatusWnd);
 
   if (chatmode)
     wprintw(chatstatusWnd, "~");
+
+  if (!current_buddy) {
+    if (forceupdate) {
+      update_panels();
+      doupdate();
+    }
+    return;
+  }
+
+  fullname = buddy_getname(BUDDATA(current_buddy));
+  btype = buddy_gettype(BUDDATA(current_buddy));
+
+  isgrp = btype & ROSTER_TYPE_GROUP;
+  ismuc = btype & ROSTER_TYPE_ROOM;
 
   if (isgrp) {
     buf_locale = from_utf8(fullname);

@@ -78,7 +78,7 @@ static window_entry_t *currentWindow;
 static int roster_hidden;
 static int chatmode;
 static int multimode;
-static char *multiline;
+static char *multiline, *multimode_subj;
 int update_roster;
 int utf8_mode = 0;
 static bool Autoaway;
@@ -1560,23 +1560,36 @@ void scr_setmsgflag_if_needed(const char *jid)
 // Public function to (un)set multimode...
 // Convention:
 //  0 = disabled / 1 = multimode / 2 = multimode verbatim (commands disabled)
-inline void scr_set_multimode(int enable)
+inline void scr_set_multimode(int enable, char *subject)
 {
-  if (multiline) {
-    g_free(multiline);
-    multiline = NULL;
-  }
+  g_free(multiline);
+  multiline = NULL;
+
+  g_free(multimode_subj);
+  if (enable && subject)
+    multimode_subj = g_strdup(subject);
+  else
+    multimode_subj = NULL;
+
   multimode = enable;
 }
 
 //  scr_get_multiline()
 // Public function to get the current multi-line.
-inline const char *scr_get_multiline()
+inline const char *scr_get_multiline(void)
 {
   if (multimode && multiline)
     return multiline;
-  else
-    return NULL;
+  return NULL;
+}
+
+//  scr_get_multimode_subj()
+// Public function to get the multi-line subject, if any.
+inline const char *scr_get_multimode_subj(void)
+{
+  if (multimode)
+    return multimode_subj;
+  return NULL;
 }
 
 //  scr_append_multiline(line)

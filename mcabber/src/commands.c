@@ -269,7 +269,7 @@ cmd *cmd_get(const char *command)
 //  send_message(msg)
 // Write the message in the buddy's window and send the message on
 // the network.
-static void send_message(const char *msg)
+static void send_message(const char *msg, const char *subj)
 {
   const char *jid;
 
@@ -291,11 +291,17 @@ static void send_message(const char *msg)
 
   if (buddy_gettype(BUDDATA(current_buddy)) != ROSTER_TYPE_ROOM) {
     // local part (UI, logging, etc.)
-    hk_message_out(jid, NULL, 0, msg);
+    gchar *hmsg;
+    if (subj)
+      hmsg = g_strdup_printf("[%s]\n%s", subj, msg);
+    else
+      hmsg = (char*)msg;
+    hk_message_out(jid, NULL, 0, hmsg);
+    if (hmsg != msg) g_free(hmsg);
   }
 
   // Network part
-  jb_send_msg(jid, msg, buddy_gettype(BUDDATA(current_buddy)), NULL);
+  jb_send_msg(jid, msg, buddy_gettype(BUDDATA(current_buddy)), subj);
 }
 
 //  process_command(line)
@@ -696,9 +702,10 @@ static void do_group(char *arg)
   if (leave_windowbuddy) scr_ShowBuddyWindow();
 }
 
-static int send_message_to(const char *jid, const char *msg)
+static int send_message_to(const char *jid, const char *msg, const char *subj)
 {
   char *bare_jid, *rp;
+  char *hmsg;
 
   if (!jid || !*jid) {
     scr_LogPrint(LPRINT_NORMAL, "You must specify a Jabber ID.");
@@ -729,10 +736,16 @@ static int send_message_to(const char *jid, const char *msg)
   }
 
   // local part (UI, logging, etc.)
-  hk_message_out(bare_jid, rp, 0, msg);
+  if (subj)
+    hmsg = g_strdup_printf("[%s]\n%s", subj, msg);
+  else
+    hmsg = (char*)msg;
+
+  hk_message_out(bare_jid, rp, 0, hmsg);
+  if (hmsg != msg) g_free(hmsg);
 
   // Network part
-  jb_send_msg(jid, msg, ROSTER_TYPE_USER, NULL);
+  jb_send_msg(jid, msg, ROSTER_TYPE_USER, subj);
 
   if (rp) g_free(bare_jid);
   return 0;
@@ -759,7 +772,7 @@ static void do_say(char *arg)
 
   buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
   arg = to_utf8(arg);
-  send_message(arg);
+  send_message(arg, NULL);
   g_free(arg);
 }
 
@@ -793,18 +806,20 @@ static void do_msay(char *arg)
   if (!strcasecmp(subcmd, "abort")) {
     if (scr_get_multimode())
       scr_LogPrint(LPRINT_NORMAL, "Leaving multi-line message mode.");
-    scr_set_multimode(FALSE);
+    scr_set_multimode(FALSE, NULL);
     return;
   } else if ((!strcasecmp(subcmd, "begin")) ||
              (!strcasecmp(subcmd, "verbatim"))) {
+    gchar *subj_utf8 = to_utf8(arg);
     if (!strcasecmp(subcmd, "verbatim"))
-      scr_set_multimode(2);
+      scr_set_multimode(2, subj_utf8);
     else
-      scr_set_multimode(1);
+      scr_set_multimode(1, subj_utf8);
 
     scr_LogPrint(LPRINT_NORMAL, "Entered multi-line message mode.");
     scr_LogPrint(LPRINT_NORMAL, "Select a buddy and use \"/msay send\" "
                  "when your message is ready.");
+    g_free(subj_utf8);
     return;
   } else if (strcasecmp(subcmd, "send") && strcasecmp(subcmd, "send_to")) {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
@@ -829,7 +844,7 @@ static void do_msay(char *arg)
     arg = to_utf8(arg);
     msg_utf8 = to_utf8(scr_get_multiline());
     if (msg_utf8) {
-      err = send_message_to(arg, msg_utf8);
+      err = send_message_to(arg, msg_utf8, scr_get_multimode_subj());
       g_free(msg_utf8);
     }
     g_free(arg);
@@ -853,11 +868,11 @@ static void do_msay(char *arg)
     buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
     msg_utf8 = to_utf8(scr_get_multiline());
     if (msg_utf8) {
-      send_message(msg_utf8);
+      send_message(msg_utf8, scr_get_multimode_subj());
       g_free(msg_utf8);
     }
   }
-  scr_set_multimode(FALSE);
+  scr_set_multimode(FALSE, NULL);
   scr_LogPrint(LPRINT_NORMAL, "You have left multi-line message mode.");
 }
 
@@ -884,7 +899,7 @@ static void do_say_to(char *arg)
   jid = to_utf8(jid);
   msg = to_utf8(msg);
 
-  send_message_to(jid, msg);
+  send_message_to(jid, msg, NULL);
 
   g_free(jid);
   g_free(msg);

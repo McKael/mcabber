@@ -133,6 +133,15 @@ inline void hk_message_in(const char *jid, const char *resname,
   if ((is_groupchat && !timestamp) || !is_groupchat)
     hk_ext_cmd(jid, (is_groupchat ? 'G' : 'M'), 'R', wmsg);
 
+  // Display the sender in the log window
+  if ((!is_groupchat) && !(message_flags & HBB_PREFIX_ERR) &&
+      settings_opt_get_int("log_display_sender")) {
+    const char *name = roster_getname(jid);
+    if (!name) name = "";
+    scr_LogPrint(LPRINT_NORMAL, "Message received from %s <%s/%s>",
+                 name, jid, resname);
+  }
+
   // Beep, if enabled
   if (settings_opt_get_int("beep_on_message"))
     scr_Beep();

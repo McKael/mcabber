@@ -184,6 +184,10 @@ set message_autoaway = Auto-away (idle)
 # Display the status changes in the chat buffers (default: 0, never)
 # Values:  0: never  1: only connect/disconnect  2: all
 #set show_status_in_buffer = 1
+#
+# Set "log_display_sender" to 1 to display the message sender's jid in the
+# log window (default: 0, no)
+#set log_display_sender = 0
 
 # Aliases
 alias me = say /me

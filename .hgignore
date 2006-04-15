@@ -6,6 +6,7 @@ Makefile.in
 .deps
 mcabber/src/hgcset.h
 mcabber/src/mcabber
+mcabber/src/mcabber.exe
 
 autom4te.cache
 mcabber/aclocal.m4

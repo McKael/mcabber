@@ -94,6 +94,14 @@ void mcabber_connect(void)
   ssl  = (settings_opt_get_int("ssl") > 0);
   port = (unsigned int) settings_opt_get_int("port");
 
+#if !defined(HAVE_OPENSSL) && !defined(HAVE_GNUTLS)
+  if (ssl) {
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "** Warning: SSL is NOT available, ignoring 'ssl' value");
+    ssl = 0;
+  }
+#endif
+
   /* Connect to server */
   scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",
                servername);

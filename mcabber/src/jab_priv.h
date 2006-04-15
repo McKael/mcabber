@@ -30,6 +30,8 @@ struct T_presence {
 
 extern enum enum_jstate jstate;
 
+extern char *mcabber_version(void);
+
 
 char *jidtodisp(const char *jid);
 void handle_packet_iq(jconn conn, char *type, char *from, xmlnode xmldata);

@@ -1374,8 +1374,11 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
 {
   char *r;
   char *buf;
+  int newbuddy;
 
   r = jidtodisp(from);
+
+  newbuddy = !roster_find(r, jidsearch, 0);
 
   if (!strcmp(type, "subscribe")) {
     /* The sender wishes to subscribe to our presence */
@@ -1441,6 +1444,12 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Received unrecognized packet from <%s>, "
                  "type=%s", from, (type ? type : ""));
+    newbuddy = FALSE;
+  }
+
+  if (newbuddy) {
+    buddylist_build();
+    update_roster = TRUE;
   }
   g_free(r);
 }

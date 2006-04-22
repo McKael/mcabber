@@ -32,7 +32,7 @@ int     evs_del(const char *evid);
 int     evs_callback(const char *evid, guint evcontext);
 void    evs_check_timeout(time_t now_t);
 void    evs_display_list(void);
-GSList *evs_geteventscomplist(void);
+GSList *evs_geteventslist(int forcompl);
 
 #endif /* __EVENTS_H__ */
 

@@ -222,7 +222,7 @@ GSList *compl_get_category_list(guint cat_flags)
     return buddy_getresources_locale(NULL);
   }
   if (cat_flags == COMPL_EVENTSID) {
-    return evs_geteventscomplist();
+    return evs_geteventslist(TRUE);
   }
 
   return NULL;

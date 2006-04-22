@@ -149,10 +149,11 @@ void evs_display_list(void)
   scr_LogPrint(LPRINT_LOGNORM, "End of events list.");
 }
 
-//  evs_geteventscomplist()
+//  evs_geteventslist(bool comp)
 // Return a singly-linked-list of events ids, for the completion system.
+// If comp is true, the string "list" is added (it's a completion argument).
 // Note: the caller should free the list (and data) after use.
-GSList *evs_geteventscomplist(void)
+GSList *evs_geteventslist(int compl)
 {
   GSList *evidlist = NULL, *p;
   eviqs *i;
@@ -162,8 +163,10 @@ GSList *evs_geteventscomplist(void)
     evidlist = g_slist_append(evidlist, g_strdup(i->id));
   }
 
-  // Last item is the "list" subcommand.
-  evidlist = g_slist_append(evidlist, g_strdup("list"));
+  if (compl) {
+    // Last item is the "list" subcommand.
+    evidlist = g_slist_append(evidlist, g_strdup("list"));
+  }
   return evidlist;
 }
 

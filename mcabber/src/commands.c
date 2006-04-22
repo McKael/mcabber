@@ -2086,6 +2086,7 @@ static void do_event(char *arg)
   char **paramlst;
   char *evid, *subcmd;
   int action = -1;
+  GSList *evidlst;
 
   paramlst = split_arg(arg, 2, 0); // id, subcmd
   evid = *paramlst;
@@ -2112,14 +2113,28 @@ static void do_event(char *arg)
   if (action == -1) {
     scr_LogPrint(LPRINT_NORMAL, "Wrong action parameter.");
   } else if (action >= 0 && action <= 2) {
+    GSList *p;
+
     if (action == 2) {
       action = EVS_CONTEXT_CANCEL;
     } else {
       action += EVS_CONTEXT_USER;
     }
-    if (evs_callback(evid, action) == -1) {
-      scr_LogPrint(LPRINT_NORMAL, "Event %s not found.", evid);
+
+    if (!strcmp(evid, "*")) {
+      // Use completion list
+      evidlst = evs_geteventslist(FALSE);
+    } else {
+      // Let's create a slist with the provided event id
+      evidlst = g_slist_append(NULL, g_strdup(evid));
     }
+    for (p = evidlst; p; p = g_slist_next(p)) {
+      if (evs_callback(p->data, action) == -1) {
+        scr_LogPrint(LPRINT_NORMAL, "Event %s not found.", p->data);
+      }
+      g_free(p->data);
+    }
+    g_slist_free(evidlst);
   }
 
   free_arg_lst(paramlst);

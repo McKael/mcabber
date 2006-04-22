@@ -630,6 +630,18 @@ guint roster_gettype(const char *jid)
   return roster_usr->type;
 }
 
+guint roster_getsubscription(const char *jid)
+{
+  GSList *sl_user;
+  roster *roster_usr;
+
+  if ((sl_user = roster_find(jid, jidsearch, 0)) == NULL)
+    return 0;
+
+  roster_usr = (roster*)sl_user->data;
+  return roster_usr->subscription;
+}
+
 //  roster_unsubscribed()
 // We have lost buddy's presence updates; this function clears the status
 // message, sets the buddy offline and frees the resources

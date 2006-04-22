@@ -785,7 +785,16 @@ static void gotmessage(char *type, const char *from, const char *body,
 
   rname = strchr(from, '/');
   if (rname) rname++;
-  hk_message_in(jid, rname, timestamp, body, type);
+
+  // We don't call the message_in hook if 'block_unsubscribed' is true and
+  // this is a regular message from an unsubscribed user.
+  if (!settings_opt_get_int("block_unsubscribed") ||
+      (roster_getsubscription(jid) & sub_from) ||
+      (type && strcmp(type, "chat"))) {
+    hk_message_in(jid, rname, timestamp, body, type);
+  } else {
+    scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", jid);
+  }
   g_free(jid);
 }
 

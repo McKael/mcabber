@@ -38,9 +38,7 @@
 #include "histolog.h"
 #include "settings.h"
 #include "utils.h"
-#include "list.h"
 
-#define window_entry(n) list_entry(n, window_entry_t, list)
 #define get_color(col)  (COLOR_PAIR(col)|COLOR_ATTRIB[col])
 
 #define DEFAULT_LOG_WIN_HEIGHT (5+2)
@@ -54,17 +52,16 @@ static unsigned short int Roster_Width;
 
 static inline void check_offset(int);
 
-LIST_HEAD(window_list);
+static GSList *winbuflst;
 
-typedef struct _window_entry_t {
+typedef struct {
   WINDOW *win;
   PANEL  *panel;
   char   *name;
   GList  *hbuf;
   GList  *top;      // If top is NULL, we'll display the last lines
   char    cleared;  // For ex, user has issued a /clear command...
-  struct list_head list;
-} window_entry_t;
+} winbuf;
 
 
 static WINDOW *rosterWnd, *chatWnd, *inputWnd, *logWnd;
@@ -73,7 +70,7 @@ static PANEL *rosterPanel, *chatPanel, *inputPanel;
 static PANEL *mainstatusPanel, *chatstatusPanel;
 static PANEL *logPanel;
 static int maxY, maxX;
-static window_entry_t *currentWindow;
+static winbuf *currentWindow;
 
 static int roster_hidden;
 static int chatmode;
@@ -376,15 +373,15 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
   g_free(buffer);
 }
 
-static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
+static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
 {
   int x;
   int y;
   int lines;
   int cols;
-  window_entry_t *tmp;
+  winbuf *tmp;
 
-  tmp = g_new0(window_entry_t, 1);
+  tmp = g_new0(winbuf, 1);
 
   // Dimensions
   x = Roster_Width;
@@ -415,24 +412,22 @@ static window_entry_t *scr_CreateBuddyPanel(const char *title, int dont_show)
   // Load buddy history from file (if enabled)
   hlog_read_history(title, &tmp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
 
-  list_add_tail(&tmp->list, &window_list);
-
+  winbuflst = g_slist_append(winbuflst, tmp);
   return tmp;
 }
 
-static window_entry_t *scr_SearchWindow(const char *winId)
+static winbuf *scr_SearchWindow(const char *winId)
 {
-  struct list_head *pos, *n;
-  window_entry_t *search_entry = NULL;
+  GSList *wblp;
+  winbuf *wbp;
 
   if (!winId) return NULL;
 
-  list_for_each_safe(pos, n, &window_list) {
-    search_entry = window_entry(pos);
-    if (search_entry->name) {
-      if (!strcasecmp(search_entry->name, winId)) {
-	return search_entry;
-      }
+  for (wblp = winbuflst; wblp; wblp = g_slist_next(wblp)) {
+    wbp = wblp->data;
+    if (wbp->name) {
+      if (!strcasecmp(wbp->name, winId))
+	return wbp;
     }
   }
   return NULL;
@@ -445,7 +440,7 @@ bool scr_BuddyBufferExists(const char *jid)
 
 //  scr_UpdateWindow()
 // (Re-)Display the given chat window.
-static void scr_UpdateWindow(window_entry_t *win_entry)
+static void scr_UpdateWindow(winbuf *win_entry)
 {
   int n;
   int width;
@@ -537,7 +532,7 @@ static void scr_UpdateWindow(window_entry_t *win_entry)
 // Display the chat window with the given identifier.
 static void scr_ShowWindow(const char *winId)
 {
-  window_entry_t *win_entry = scr_SearchWindow(winId);
+  winbuf *win_entry = scr_SearchWindow(winId);
 
   if (!win_entry)
     win_entry = scr_CreateBuddyPanel(winId, FALSE);
@@ -586,7 +581,7 @@ void scr_ShowBuddyWindow(void)
 void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
         unsigned int prefix_flags, int force_show)
 {
-  window_entry_t *win_entry;
+  winbuf *win_entry;
   char *text_locale;
   int dont_show = FALSE;
 
@@ -787,9 +782,9 @@ void scr_DrawMainWindow(unsigned int fullinit)
 // - Rewrap lines in each buddy buffer
 void scr_Resize()
 {
-  struct list_head *pos, *n;
-  window_entry_t *search_entry;
   int x, y, lines, cols;
+  GSList *wblp;
+  winbuf *wbp;
 
   // First, update the global variables
   getmaxyx(stdscr, maxY, maxX);
@@ -808,25 +803,22 @@ void scr_Resize()
   cols = maxX - Roster_Width;
   if (cols < 1) cols = 1;
 
-  list_for_each_safe(pos, n, &window_list) {
-    search_entry = window_entry(pos);
-    if (search_entry->win) {
+  for (wblp = winbuflst; wblp; wblp = g_slist_next(wblp)) {
+    wbp = wblp->data;
+    if (wbp->win) {
       GList *rescue_top;
       // Resize/move buddy window
-      wresize(search_entry->win, lines, cols);
-      mvwin(search_entry->win, 0, Roster_Width);
-      werase(search_entry->win);
+      wresize(wbp->win, lines, cols);
+      mvwin(wbp->win, 0, Roster_Width);
+      werase(wbp->win);
       // If a panel exists, replace the old window with the new
-      if (search_entry->panel) {
-        replace_panel(search_entry->panel, search_entry->win);
-      }
+      if (wbp->panel)
+        replace_panel(wbp->panel, wbp->win);
       // Redo line wrapping
-      rescue_top = hbuf_previous_persistent(search_entry->top);
-      hbuf_rebuild(&search_entry->hbuf,
-              maxX - Roster_Width - PREFIX_WIDTH);
-      if (g_list_position(g_list_first(search_entry->hbuf),
-                          search_entry->top) == -1) {
-        search_entry->top = rescue_top;
+      rescue_top = hbuf_previous_persistent(wbp->top);
+      hbuf_rebuild(&wbp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
+      if (g_list_position(g_list_first(wbp->hbuf), wbp->top) == -1) {
+        wbp->top = rescue_top;
       }
     }
   }
@@ -1340,7 +1332,7 @@ void scr_RosterJumpAlternate(void)
 // - up if updown == -1, down if updown == 1
 void scr_BufferScrollUpDown(int updown, unsigned int nblines)
 {
-  window_entry_t *win_entry;
+  winbuf *win_entry;
   int n, nbl;
   GList *hbuf_top;
 
@@ -1393,11 +1385,11 @@ void scr_BufferScrollUpDown(int updown, unsigned int nblines)
 // Clear the current buddy window (used for the /clear command)
 void scr_BufferClear(void)
 {
-  window_entry_t *win_entry;
+  winbuf *win_entry;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry  = scr_SearchWindow(CURRENT_JID);
+  win_entry = scr_SearchWindow(CURRENT_JID);
   if (!win_entry) return;
 
   win_entry->cleared = TRUE;
@@ -1416,11 +1408,11 @@ void scr_BufferClear(void)
 // (top if topbottom == -1, bottom topbottom == 1)
 void scr_BufferTopBottom(int topbottom)
 {
-  window_entry_t *win_entry;
+  winbuf *win_entry;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry  = scr_SearchWindow(CURRENT_JID);
+  win_entry = scr_SearchWindow(CURRENT_JID);
   if (!win_entry) return;
 
   win_entry->cleared = FALSE;
@@ -1442,12 +1434,12 @@ void scr_BufferTopBottom(int topbottom)
 // (backward search if direction == -1, forward if topbottom == 1)
 void scr_BufferSearch(int direction, const char *text)
 {
-  window_entry_t *win_entry;
+  winbuf *win_entry;
   GList *current_line, *search_res;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry  = scr_SearchWindow(CURRENT_JID);
+  win_entry = scr_SearchWindow(CURRENT_JID);
   if (!win_entry) return;
 
   if (win_entry->top)
@@ -1475,12 +1467,12 @@ void scr_BufferSearch(int direction, const char *text)
 // Jump to the specified position in the buffer, in %
 void scr_BufferPercent(int pc)
 {
-  window_entry_t *win_entry;
+  winbuf *win_entry;
   GList *search_res;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry  = scr_SearchWindow(CURRENT_JID);
+  win_entry = scr_SearchWindow(CURRENT_JID);
   if (!win_entry) return;
 
   if (pc < 0 || pc > 100) {
@@ -1506,12 +1498,12 @@ void scr_BufferPercent(int pc)
 // t is a date in seconds since `00:00:00 1970-01-01 UTC'
 void scr_BufferDate(time_t t)
 {
-  window_entry_t *win_entry;
+  winbuf *win_entry;
   GList *search_res;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry  = scr_SearchWindow(CURRENT_JID);
+  win_entry = scr_SearchWindow(CURRENT_JID);
   if (!win_entry) return;
 
   search_res = hbuf_jump_date(win_entry->hbuf, t);

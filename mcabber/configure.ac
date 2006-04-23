@@ -9,12 +9,22 @@ AM_CONFIG_HEADER(config.h)
 
 AC_PROG_RANLIB
 
-CFLAGS="$CFLAGS -Wall"
-
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
+
+if test "x$GCC" = "xyes"; then
+    dnl Get gcc version
+    AC_MSG_CHECKING([gcc version])
+        gccver=$($CC -dumpversion)
+        gccvermajor=$(echo $gccver | cut -d . -f1)
+        gccverminor=$(echo $gccver | cut -d . -f2)
+        gccvernum=$(expr $gccvermajor "*" 100 + $gccverminor)
+    AC_MSG_RESULT($gccver)
+
+    CFLAGS="$CFLAGS -Wall"
+fi
 
 # Checks for libraries.
 AC_CHECK_LIB([ncurses], [initscr])
@@ -108,7 +118,15 @@ AC_ARG_ENABLE(debug,
     debug=$enableval, debug="")
 if test "${debug}" = "yes"; then
     AC_DEFINE_UNQUOTED([DEBUG_ENABLE],[1],[Devel compilation options])
-    CFLAGS="$CFLAGS -Wextra -Wno-unused-parameter -pedantic -std=gnu99 -O0 -g"
+    if test "x$GCC" = "xyes"; then
+        if test "$gccvernum" -ge "400"; then
+            CFLAGS="$CFLAGS -Wextra"
+        else
+            CFLAGS="$CFLAGS -W"
+        fi
+        CFLAGS="$CFLAGS -Wno-unused-parameter -pedantic -std=gnu99 -O0"
+    fi # gcc
+    CFLAGS="$CFLAGS -g"
 else
     CFLAGS="$CFLAGS -O2"
 fi

@@ -1372,6 +1372,11 @@ static void evscallback_subscription(eviqs *evp, guint evcontext)
     // Reject subscription request
     jb_subscr_cancel_auth(barejid);
     buf = g_strdup_printf("<%s> won't receive your presence updates", barejid);
+    if (settings_opt_get_int("delete_on_reject")) {
+      // Remove the buddy from the roster if there is no current subscription
+      if (roster_getsubscription(barejid) == sub_none)
+        jb_delbuddy(barejid);
+    }
   }
   scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);

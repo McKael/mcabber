@@ -120,9 +120,17 @@ set resource = mcabber
 #set autoaway = 0
 
 # Message blocking
-# Set the 'block_unsubscribed' to 1 if you want to block (drop) incoming
+# Set 'block_unsubscribed' to 1 if you want to block (drop) incoming
 # messages from people you haven't authorized. (default: 0)
 #set block_unsubscribed = 0
+#
+# Set 'delete_on_reject' to 1 if you want to delete buddies from your
+# roster when you reject their subscription request. (default: 0)
+# (See documentation for /event)
+# The buddy is actually deleted only if there is no other subscription,
+# so for example if you are subscribed to this buddy's presence updates it
+# won't be deleted.
+#set delete_on_reject = 0
 
 # Status messages
 # The "message" value will override all others, take care!

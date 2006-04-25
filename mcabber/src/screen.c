@@ -1050,7 +1050,20 @@ void scr_DrawRoster(void)
         sep = "---";
       snprintf(rline, Roster_Width, " %c%s %s", pending, sep, name);
     } else {
-      snprintf(rline, Roster_Width, " %c[%c] %s", pending, status, name);
+      char sepleft  = '[';
+      char sepright = ']';
+      if (btype & ROSTER_TYPE_USER) {
+        guint subtype = buddy_getsubscription(BUDDATA(buddy));
+        if (!(subtype & sub_to))
+          status = '?';
+        if (!(subtype & sub_from)) {
+          sepleft  = '{';
+          sepright = '}';
+        }
+      }
+
+      snprintf(rline, Roster_Width,
+               " %c%c%c%c %s", pending, sepleft, status, sepright, name);
     }
 
     rline_locale = from_utf8(rline);

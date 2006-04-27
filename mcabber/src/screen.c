@@ -2279,6 +2279,7 @@ int process_key(keycode kcode)
         break;
     case 12:    // Ctrl-l
         scr_CheckAutoAway(TRUE);
+        ParseColors();
         scr_Resize();
         redrawwin(stdscr);
         break;

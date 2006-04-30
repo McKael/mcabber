@@ -2188,7 +2188,19 @@ int process_key(keycode kcode)
         check_offset(-1);
         break;
     case 9:     // Tab
-        scr_handle_tab();
+        if (scr_get_multimode() != 2) {
+          // Not in verbatim multi-line mode
+          scr_handle_tab();
+        } else {
+          // Verbatim multi-line mode: expand tab
+          char tabstr[9];
+          int i, n;
+          n = 8 - (ptr_inputline - inputLine) % 8;
+          for (i = 0; i < n; i++)
+            tabstr[i] = ' ';
+          tabstr[i] = '\0';
+          scr_insert_text(tabstr);
+        }
         check_offset(0);
         break;
     case 13:    // Enter

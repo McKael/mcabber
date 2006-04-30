@@ -233,6 +233,8 @@ static void init_keycodes(void)
   add_keyseq("[6^", MKEY_CTRL_PGDOWN, 0); // Ctrl-PageDown
   add_keyseq("[5@", MKEY_CTRL_SHIFT_PGUP, 0);   // Ctrl-Shift-PageUp
   add_keyseq("[6@", MKEY_CTRL_SHIFT_PGDOWN, 0); // Ctrl-Shift-PageDown
+  add_keyseq("[7@", MKEY_CTRL_SHIFT_HOME, 0); // Ctrl-Shift-Home
+  add_keyseq("[8@", MKEY_CTRL_SHIFT_END, 0);  // Ctrl-Shift-End
   add_keyseq("[8^", MKEY_CTRL_END, 0);  // Ctrl-End
   add_keyseq("[7^", MKEY_CTRL_HOME, 0); // Ctrl-Home
   add_keyseq("[2^", MKEY_CTRL_INS, 0);  // Ctrl-Insert
@@ -247,6 +249,8 @@ static void init_keycodes(void)
   add_keyseq("[1;6B", MKEY_EQUIV, 513); // Ctrl-Shift-Down
   add_keyseq("[1;6C", MKEY_EQUIV, 402); // Ctrl-Shift-Right
   add_keyseq("[1;6D", MKEY_EQUIV, 393); // Ctrl-Shift-Left
+  add_keyseq("[1;6H", MKEY_CTRL_SHIFT_HOME, 0); // Ctrl-Shift-Home
+  add_keyseq("[1;6F", MKEY_CTRL_SHIFT_END, 0);  // Ctrl-Shift-End
   add_keyseq("[1;2A", MKEY_EQUIV, 521); // Shift-Up
   add_keyseq("[1;2B", MKEY_EQUIV, 514); // Shift-Down
   add_keyseq("[5;5~", MKEY_CTRL_PGUP, 0);   // Ctrl-PageUp

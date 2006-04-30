@@ -1,6 +1,19 @@
 mcabber (0.7.7-dev)
 
- * 
+ * Fix a small buddylist bug when receiving a subscription request
+   (the buddylist wasn't always refreshed)
+ * Fix a bug (hang) in the input line
+ * Display incomplete subscriptions in the roster
+ * Extand "/event" to allow a wildchar '*'
+ * New option "block_unsubscribed"
+   When set, messages from people who don't have a subscription to our
+   presence updates are blocked.
+ * New option "delete_on_reject"
+   When set, people are automatically removed from the roster if their
+   subscription request is rejected.
+ * Ctrl-l now reread color option values
+ * Tab characters are expanded when the "verbatim multi-line mode" is enabled
+ * Disable file permission checks on Cygwin
 
  -- Mikael, ?
 

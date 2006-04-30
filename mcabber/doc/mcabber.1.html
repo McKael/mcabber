@@ -408,13 +408,15 @@ search for "text" in the current buddy chat buffer
         buddylist is empty when disconnected.
 </dd>
 <dt><b>
-/event #n accept|ignore|reject
+/event #n|* accept|ignore|reject
 </b></dt>
 <dt><b>
 /event list
 </b></dt>
 <dd>
-        Tell mcabber what to do about a pending event.
+        Tell mcabber what to do about a pending event.<br />
+        If the first parameter is "*", the command will apply to all
+        queued events.
 <table class="hlist">
 <tr valign="top">
 <td>
@@ -925,8 +927,8 @@ Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com
 License (GPL).</p>
 <div id="footer">
 <p>
-Version 0.7.6<br />
-Last updated 14-Apr-2006 23:06:34 CEST
+Version 0.7.7-dev<br />
+Last updated 30-Apr-2006 14:49:22 CEST
 </p>
 </div>
 </div>

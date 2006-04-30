@@ -38,4 +38,5 @@ TODO:
     (server search)
   - /help
   - /roster enable|disable xml|status
+  - /authorization request_unsubscribe
 

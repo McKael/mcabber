@@ -189,8 +189,9 @@ Delete the current buddy from our roster, unsubscribe from its presence notifica
 Terminate connection to the Jabber server\&. Note: the roster is only available when the connection to the server is active, so the buddylist is empty when disconnected\&.
 
 .TP
-\fB/event #n accept|ignore|reject\fR, \fB/event list\fR
-Tell mcabber what to do about a pending event\&.
+\fB/event\fR #n|* accept|ignore|reject, \fB/event\fR list
+Tell mcabber what to do about a pending event\&. If the first parameter is "*", the command will apply to all queued events\&.
+
  \fBaccept\fR	accept the event #n
  \fBignore\fR	remove the event #n from the list
  \fBreject\fR	reject the event #n

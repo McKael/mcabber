@@ -1959,7 +1959,8 @@ static inline void check_offset(int direction)
         inputline_offset -= 5;
         if (inputline_offset < 0)
           inputline_offset = 0;
-      }
+      } else
+        break;
     }
   }
   // Right side

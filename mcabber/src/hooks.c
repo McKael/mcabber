@@ -240,7 +240,8 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
       bn = g_strdup_printf("Buddy status has changed: [%c>%c] %s",
                            imstatus2char[oldstat], imstatus2char[status],
                            ((status_msg) ? status_msg : ""));
-      scr_WriteIncomingMessage(jid, bn, 0, HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+      scr_WriteIncomingMessage(jid, bn, timestamp,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
       g_free(bn);
     }
   }
@@ -249,7 +250,7 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
                    role_none, affil_none, NULL);
   buddylist_build();
   scr_DrawRoster();
-  hlog_write_status(jid, 0, status, status_msg);
+  hlog_write_status(jid, timestamp, status, status_msg);
   // External command
   hk_ext_cmd(jid, 'S', imstatus2char[status], NULL);
 }

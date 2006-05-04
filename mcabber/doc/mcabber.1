@@ -215,7 +215,7 @@ Display info on the selected entry (user, agent, group...)\&. For users, resourc
 Move the current buddy to the requested group\&. If no group is specified, then the buddy is moved to the default group\&. Tip: if the chatmode is enabled, you can use "/roster alternate" to jump to the moved buddy\&.
 
 .TP
-\fB/msay\fR begin|verbatim|send|send_to|toggle|abort
+\fB/msay\fR begin|verbatim|send|send_to|toggle|toggle_verbatim|abort
 Send a multi\-line message\&. To write a single message with several lines, the \fImulti\-line mode\fR should be used\&.
 
 The \fIbegin\fR subcommand enables multi\-line mode\&. Note that it allows a message subject to be specified\&.
@@ -224,13 +224,14 @@ In multi\-line mode, each line (except command lines) typed in the input line wi
 
 The \fIverbatim\fR multi\-line mode disables commands, so that it is possible to enter lines starting with a slash\&. Only the "/msay" command (with send or abort parameters) can be used to exit verbatim mode\&.
 
-The \fItoggle\fR subcommand can be bound to a key to use the multi\-line mode quickly (for example, "bind M13 = msay toggle" to switch using the Meta\-Enter combination)\&.
+The \fItoggle\fR and \fItoggle_verbatim\fR subcommands can be bound to a key to use the multi\-line mode quickly (for example, "bind M109 = msay toggle" to switch using the Meta\-m combination)\&.
 
  \fBbegin\fR [subject]	enter multi\-line mode
  \fBverbatim\fR       	enter verbatim multi\-line mode
  \fBsend\fR           	send the current multi\-line message to the currently selected buddy
  \fBsend_to\fR jid    	send the current multi\-line message to "jid"
  \fBtoggle\fR         	switch to/from multi\-line mode (begin/send)
+ \fBtoggle_verbatim\fR	same with verbatim multi\-line mode
  \fBabort\fR          	leave multi\-line mode without sending the message
 
 .TP

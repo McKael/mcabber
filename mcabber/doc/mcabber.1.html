@@ -510,7 +510,7 @@ toggle the state (fold/unfold) of the current tree
         to jump to the moved buddy.
 </dd>
 <dt><b>
-/msay begin|verbatim|send|send_to|toggle|abort
+/msay begin|verbatim|send|send_to|toggle|toggle_verbatim|abort
 </b></dt>
 <dd>
         Send a multi-line message.  To write a single message with several
@@ -525,9 +525,9 @@ toggle the state (fold/unfold) of the current tree
         possible to enter lines starting with a slash.  Only the "/msay"
         command (with send or abort parameters) can be used to exit verbatim
         mode.<br />
-        The <b>toggle</b> subcommand can be bound to a key to use the multi-line
-        mode quickly (for example, "bind M13 = msay toggle" to switch using
-        the Meta-Enter combination).
+        The <b>toggle</b> and <b>toggle_verbatim</b> subcommands can be bound to a key to
+        use the multi-line mode quickly (for example, "bind M109 = msay toggle"
+        to switch using the Meta-m combination).
 <table class="hlist">
 <tr valign="top">
 <td>
@@ -567,6 +567,14 @@ send the current multi-line message to "jid"
 </td>
 <td>
 switch to/from multi-line mode (begin/send)
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>toggle_verbatim</b>
+</td>
+<td>
+same with verbatim multi-line mode
 </td>
 </tr>
 <tr valign="top">
@@ -936,7 +944,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.7.7-dev<br />
-Last updated 04-May-2006 17:47:25 CEST
+Last updated 04-May-2006 18:51:26 CEST
 </p>
 </div>
 </div>

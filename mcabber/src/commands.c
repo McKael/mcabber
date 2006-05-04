@@ -167,6 +167,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_MULTILINE, "send");
   compl_add_category_word(COMPL_MULTILINE, "send_to");
   compl_add_category_word(COMPL_MULTILINE, "toggle");
+  compl_add_category_word(COMPL_MULTILINE, "toggle_verbatim");
   compl_add_category_word(COMPL_MULTILINE, "verbatim");
 
   // Room category
@@ -802,6 +803,11 @@ static void do_msay(char *arg)
       subcmd = "send";
     else
       subcmd = "begin";
+  } else if (!strcasecmp(subcmd, "toggle_verbatim")) {
+    if (scr_get_multimode())
+      subcmd = "send";
+    else
+      subcmd = "verbatim";
   }
 
   if (!strcasecmp(subcmd, "abort")) {

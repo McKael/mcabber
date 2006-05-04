@@ -250,7 +250,7 @@ Send a "IQ" query to the current buddy, or to the specified Jabber user\&. If th
 \fB/room\fR
 The room command handles Multi\-User Chat room actions\&.
 
- \fBjoin\fR room nick     	join "room", using "nick" as nickname\&. If no nickname is provided, the "nickname" option value is used (see sample configuration file)
+ \fBjoin\fR [room [nick]] 	join "room", using "nick" as nickname\&. If no nickname is provided, the "nickname" option value is used (see sample configuration file)\&. If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "\&." can be used instead of the full room id\&.
  \fBleave\fR [message]    	leave the current room
  \fBnames\fR              	display members of the current room
  \fBnick\fR nick          	change your nickname in the current room

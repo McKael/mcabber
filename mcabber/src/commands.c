@@ -1432,15 +1432,25 @@ static char *check_room_subcommand(char *arg, bool param_needed,
 static void room_join(gpointer bud, char *arg)
 {
   char **paramlst;
-  char *roomname, *nick;
+  char *roomname, *nick, *roomname_tmp;
   char *tmpnick = NULL;
 
   paramlst = split_arg(arg, 2, 0); // roomid, nickname
   roomname = *paramlst;
   nick = *(paramlst+1);
 
-
-  if (!roomname || strchr(roomname, '/')) {
+  if (!roomname || !strcmp(roomname, ".")) {
+    // If the current_buddy is recognized as a room, the room name
+    // can be omitted (or "." can be used).
+    if (!bud || !(buddy_gettype(bud) & ROSTER_TYPE_ROOM)) {
+      scr_LogPrint(LPRINT_NORMAL, "Please specify a room name.");
+      free_arg_lst(paramlst);
+      return;
+    }
+    if (!roomname)
+      nick = NULL;
+    roomname = (char*)buddy_getjid(bud);
+  } else if (strchr(roomname, '/')) {
     scr_LogPrint(LPRINT_NORMAL, "Invalid room name.");
     free_arg_lst(paramlst);
     return;
@@ -1470,10 +1480,11 @@ static void room_join(gpointer bud, char *arg)
     return;
   }
 
-  // Note that roomname is part of the array allocated by split_arg(),
-  // so we can modify it.
-  mc_strtolower(roomname);
-  roomname = to_utf8(roomname);
+  roomname_tmp = g_strdup(roomname);
+  mc_strtolower(roomname_tmp);
+  roomname = to_utf8(roomname_tmp);
+  g_free(roomname_tmp);
+
   jb_room_join(roomname, nick);
 
   scr_LogPrint(LPRINT_LOGNORM, "Sent a join request to <%s>...", roomname);
@@ -1897,7 +1908,7 @@ static void do_room(char *arg)
   }
 
   if (!strcasecmp(subcmd, "join"))  {
-    if ((arg = check_room_subcommand(arg, TRUE, NULL)) != NULL)
+    if ((arg = check_room_subcommand(arg, FALSE, NULL)) != NULL)
       room_join(bud, arg);
   } else if (!strcasecmp(subcmd, "invite"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)

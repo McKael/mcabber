@@ -1768,7 +1768,7 @@ static void room_unlock(gpointer bud, char *arg)
   jb_room_unlock(buddy_getjid(bud));
 }
 
-static void room_whois(gpointer bud, char *arg)
+void room_whois(gpointer bud, char *arg)
 {
   char **paramlst;
   gchar *nick, *buffer;

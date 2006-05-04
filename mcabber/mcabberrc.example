@@ -132,6 +132,11 @@ set resource = mcabber
 # won't be deleted.
 #set delete_on_reject = 0
 
+# MUC
+# Set 'muc_auto_whois' to 1 if you want to call /room whois each time
+# somebody joins a room. (default: 0)
+#set muc_auto_whois = 0
+
 # Status messages
 # The "message" value will override all others, take care!
 #set message = Unique message status

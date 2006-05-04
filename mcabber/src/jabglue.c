@@ -32,6 +32,7 @@
 #include "settings.h"
 #include "hbuf.h"
 #include "histolog.h"
+#include "commands.h"
 
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
@@ -972,6 +973,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   enum imaffiliation mbaffil = affil_none;
   const char *mbjid = NULL, *mbnick = NULL;
   const char *actorjid = NULL, *reason = NULL;
+  bool new_member = FALSE; // True if somebody else joins the room (not us)
   unsigned int statuscode = 0;
   GSList *room_elt;
   int log_muc_conf;
@@ -1165,11 +1167,13 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
         if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
         g_free(mbuf);
         mbuf = g_strdup_printf("%s has joined", rname);
+        new_member = TRUE;
       }
     } else {
-      if (strcmp(ournick, rname))
+      if (strcmp(ournick, rname)) {
         mbuf = g_strdup_printf("%s has joined", rname);
-      else
+        new_member = TRUE;
+      } else
         mbuf = NULL;
     }
 
@@ -1185,6 +1189,12 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   if (rname) {
     roster_setstatus(roomjid, rname, bpprio, ust, ustmsg, usttime,
                      mbrole, mbaffil, mbjid);
+    if (new_member && settings_opt_get_int("muc_auto_whois")) {
+      // FIXME: This will fail for some UTF-8 nicknames.
+      gchar *joiner_nick = from_utf8(rname);
+      room_whois(room_elt->data, joiner_nick);
+      g_free(joiner_nick);
+    }
   } else
     scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
 

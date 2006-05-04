@@ -20,6 +20,8 @@ char *expandalias(char *line);
 extern char *mcabber_version(void);
 extern void mcabber_connect(void);
 
+void room_whois(gpointer bud, char *nick_locale);
+
 #endif /* __COMMANDS_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

@@ -817,15 +817,22 @@ static void do_msay(char *arg)
     return;
   } else if ((!strcasecmp(subcmd, "begin")) ||
              (!strcasecmp(subcmd, "verbatim"))) {
+    bool verbat;
     gchar *subj_utf8 = to_utf8(arg);
-    if (!strcasecmp(subcmd, "verbatim"))
+    if (!strcasecmp(subcmd, "verbatim")) {
       scr_set_multimode(2, subj_utf8);
-    else
+      verbat = TRUE;
+    } else {
       scr_set_multimode(1, subj_utf8);
+      verbat = FALSE;
+    }
 
-    scr_LogPrint(LPRINT_NORMAL, "Entered multi-line message mode.");
+    scr_LogPrint(LPRINT_NORMAL, "Entered %smulti-line message mode.",
+                 verbat ? "VERBATIM " : "");
     scr_LogPrint(LPRINT_NORMAL, "Select a buddy and use \"/msay send\" "
                  "when your message is ready.");
+    if (verbat)
+      scr_LogPrint(LPRINT_NORMAL, "Use \"/msay abort\" to abort this mode.");
     g_free(subj_utf8);
     return;
   } else if (strcasecmp(subcmd, "send") && strcasecmp(subcmd, "send_to")) {

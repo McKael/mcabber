@@ -42,6 +42,7 @@ void jb_main();
 void jb_subscr_send_auth(const char *jid);
 void jb_subscr_cancel_auth(const char *jid);
 void jb_subscr_request_auth(const char *jid);
+void jb_subscr_request_cancel(const char *jid);
 void jb_addbuddy(const char *jid, const char *name, const char *group);
 void jb_delbuddy(const char *jid);
 void jb_updatebuddy(const char *jid, const char *name, const char *group);

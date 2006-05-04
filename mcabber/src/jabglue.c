@@ -436,6 +436,17 @@ void jb_subscr_request_auth(const char *jid)
   xmlnode_free(x);
 }
 
+//  jb_subscr_request_cancel(jid)
+// Request to cancel jour subscription to jid's presence updates
+void jb_subscr_request_cancel(const char *jid)
+{
+  xmlnode x;
+
+  x = jutil_presnew(JPACKET__UNSUBSCRIBE, (char *)jid, NULL);
+  jab_send(jc, x);
+  xmlnode_free(x);
+}
+
 // Note: the caller should check the jid is correct
 void jb_addbuddy(const char *jid, const char *name, const char *group)
 {
@@ -477,7 +488,7 @@ void jb_addbuddy(const char *jid, const char *name, const char *group)
 
 void jb_delbuddy(const char *jid)
 {
-  xmlnode x, y, z;
+  xmlnode y, z;
   eviqs *iqn;
   char *cleanjid;
 
@@ -498,12 +509,8 @@ void jb_delbuddy(const char *jid)
   }
 
   // Cancel the subscriptions
-  x = jutil_presnew(JPACKET__UNSUBSCRIBED, cleanjid, 0); // Cancel "from"
-  jab_send(jc, x);
-  xmlnode_free(x);
-  x = jutil_presnew(JPACKET__UNSUBSCRIBE, cleanjid, 0);  // Cancel "to"
-  jab_send(jc, x);
-  xmlnode_free(x);
+  jb_subscr_cancel_auth(cleanjid);    // Cancel "from"
+  jb_subscr_request_cancel(cleanjid); // Cancel "to"
 
   // Ask for removal from roster
   iqn = iqs_new(JPACKET__SET, NS_ROSTER, NULL, IQS_DEFAULT_TIMEOUT);

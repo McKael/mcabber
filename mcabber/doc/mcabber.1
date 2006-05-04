@@ -139,7 +139,7 @@ Aliases are expanded only once, thus they can not be chained\&. "/alias name" di
 Example: "/alias away = status away"\&.
 
 .TP
-\fB/authorization\fR allow|cancel|request [jid]
+\fB/authorization\fR allow|cancel|request|request_unsubscribe [jid]
 Manage the presence subscriptions\&.
 
 If no jid is provided, the current buddy is used\&.
@@ -147,6 +147,7 @@ If no jid is provided, the current buddy is used\&.
  \fBallow\fR  	allow the buddy to receive your presence updates
  \fBcancel\fR 	cancel the buddy' subscription to your presence updates
  \fBrequest\fR	request a subscription to the buddy's presence updates
+ \fBrequest_unsubscribe\fR request unsubscription from the buddy's presence updates
 
 .TP
 \fB/bind\fR keycode = command line

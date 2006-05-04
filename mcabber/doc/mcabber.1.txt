@@ -109,13 +109,14 @@ COMMANDS
         "/alias name =" unsets the "name" alias. +
         Example: "/alias away = status away".
 
-/authorization allow|cancel|request [jid]::
+/authorization allow|cancel|request|request_unsubscribe [jid]::
         Manage the presence subscriptions. +
         If no jid is provided, the current buddy is used.
 
         'allow';;   allow the buddy to receive your presence updates
         'cancel';;  cancel the buddy' subscription to your presence updates
         'request';; request a subscription to the buddy's presence updates
+        'request_unsubscribe';; request unsubscription from the buddy's presence updates
 
 /bind keycode = command line::
         Bind a command line to the key with the "keycode" code number. +

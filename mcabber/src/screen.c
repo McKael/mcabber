@@ -810,7 +810,6 @@ void scr_Resize()
   for (wblp = winbuflst; wblp; wblp = g_slist_next(wblp)) {
     wbp = wblp->data;
     if (wbp->win) {
-      GList *rescue_top;
       // Resize/move buddy window
       wresize(wbp->win, lines, cols);
       mvwin(wbp->win, 0, Roster_Width);
@@ -819,11 +818,8 @@ void scr_Resize()
       if (wbp->panel)
         replace_panel(wbp->panel, wbp->win);
       // Redo line wrapping
-      rescue_top = hbuf_previous_persistent(wbp->top);
+      wbp->top = hbuf_previous_persistent(wbp->top);
       hbuf_rebuild(&wbp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
-      if (g_list_position(g_list_first(wbp->hbuf), wbp->top) == -1) {
-        wbp->top = rescue_top;
-      }
     }
   }
 

@@ -1058,7 +1058,7 @@ void scr_DrawRoster(void)
       char sepright = ']';
       if (btype & ROSTER_TYPE_USER) {
         guint subtype = buddy_getsubscription(BUDDATA(buddy));
-        if (!(subtype & sub_to))
+        if (status == '_' && !(subtype & sub_to))
           status = '?';
         if (!(subtype & sub_from)) {
           sepleft  = '{';

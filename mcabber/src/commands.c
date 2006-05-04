@@ -190,6 +190,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_AUTH, "allow");
   compl_add_category_word(COMPL_AUTH, "cancel");
   compl_add_category_word(COMPL_AUTH, "request");
+  compl_add_category_word(COMPL_AUTH, "request_unsubscribe");
 
   // Request (query) category
   compl_add_category_word(COMPL_REQUEST, "time");
@@ -2001,6 +2002,11 @@ static void do_authorization(char *arg)
     jb_subscr_request_auth(jid_utf8);
     scr_LogPrint(LPRINT_LOGNORM,
                  "Sent presence notification request to <%s>...", jid_utf8);
+  } else if (!strcasecmp(subcmd, "request_unsubscribe"))  {
+    jb_subscr_request_cancel(jid_utf8);
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "Sent presence notification ubsubscription request to <%s>...",
+                 jid_utf8);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

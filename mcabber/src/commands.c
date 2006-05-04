@@ -1862,9 +1862,6 @@ static void do_room(char *arg)
     return;
   }
 
-  if (!current_buddy) return;
-  bud = BUDDATA(current_buddy);
-
   paramlst = split_arg(arg, 2, 1); // subcmd, arg
   subcmd = *paramlst;
   arg = *(paramlst+1);
@@ -1873,6 +1870,16 @@ static void do_room(char *arg)
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
     free_arg_lst(paramlst);
     return;
+  }
+
+  if (current_buddy) {
+    bud = BUDDATA(current_buddy);
+  } else {
+    if (strcasecmp(subcmd, "join"))
+      return;
+    // "room join" is a special case, we don't need to have a valid
+    // current_buddy.
+    bud = NULL;
   }
 
   if (!strcasecmp(subcmd, "join"))  {

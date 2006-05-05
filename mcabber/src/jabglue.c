@@ -309,7 +309,7 @@ static xmlnode presnew(enum imstatus st, const char *recipient,
   prio = settings_opt_get_int("priority");
   if (prio) {
     char strprio[8];
-    snprintf(strprio, 8, "%u", prio);
+    snprintf(strprio, 8, "%d", (int)prio);
     xmlnode_insert_cdata(xmlnode_insert_tag(x, "priority"),
                          strprio, (unsigned) -1);
   }

@@ -891,8 +891,8 @@ void scr_UpdateChatStatus(int forceupdate)
   // No status message for groups & MUC rooms
   if (!isgrp && !ismuc) {
     GSList *resources = buddy_getresources(BUDDATA(current_buddy));
-    if (resources)
-      msg = buddy_getstatusmsg(BUDDATA(current_buddy), resources->data);
+    msg = buddy_getstatusmsg(BUDDATA(current_buddy),
+                             resources ? resources->data : "");
   } else if (ismuc) {
     msg = buddy_gettopic(BUDDATA(current_buddy));
   }

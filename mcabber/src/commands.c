@@ -1084,6 +1084,14 @@ static void do_info(char *arg)
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
 
     resources = buddy_getresources(bud);
+    if (!resources && type == ROSTER_TYPE_USER) {
+      // No resource; display last status message, if any.
+      const char *rst_msg = buddy_getstatusmsg(bud, "");
+      if (rst_msg) {
+        snprintf(buffer, 4095, "Last status message: %s", rst_msg);
+        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+      }
+    }
     for ( ; resources ; resources = g_slist_next(resources) ) {
       gchar rprio;
       enum imstatus rstatus;

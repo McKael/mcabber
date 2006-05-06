@@ -68,6 +68,9 @@ typedef struct {
   gchar *topic;
   guint8 inside_room;
 
+  /* To keep track of last status message */
+  gchar *offline_status_message;
+
   /* Flag used for the UI */
   guint flags;
 
@@ -184,6 +187,14 @@ static void del_resource(roster *rost, const char *resname)
   if (!p_res_elt) return;   // Resource not found
 
   p_res = p_res_elt->data;
+
+  // Keep a copy of the status message when a buddy goes offline
+  if (g_slist_length(rost->resource) == 1) {
+    g_free(rost->offline_status_message);
+    rost->offline_status_message = p_res->status_msg;
+    p_res->status_msg = NULL;
+  }
+
   // Free allocations and delete resource node
   g_free(p_res->name);
   g_free(p_res->status_msg);
@@ -364,6 +375,7 @@ void roster_del_user(const char *jid)
   g_free((gchar*)roster_usr->name);
   g_free((gchar*)roster_usr->nickname);
   g_free((gchar*)roster_usr->topic);
+  g_free((gchar*)roster_usr->offline_status_message);
   free_all_resources(&roster_usr->resource);
   g_free(roster_usr);
 
@@ -406,6 +418,7 @@ void roster_free(void)
       g_free((gchar*)roster_usr->name);
       g_free((gchar*)roster_usr->nickname);
       g_free((gchar*)roster_usr->topic);
+      g_free((gchar*)roster_usr->offline_status_message);
       free_all_resources(&roster_usr->resource);
       g_free(roster_usr);
       sl_usr = g_slist_next(sl_usr);
@@ -452,12 +465,6 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
 
   roster_usr = (roster*)sl_user->data;
 
-  // If bstat is offline, we MUST delete the resource, actually
-  if (bstat == offline) {
-    del_resource(roster_usr, resname);
-    return;
-  }
-
   // New or updated resource
   p_res = get_or_add_resource(roster_usr, resname, prio);
   p_res->prio = prio;
@@ -481,6 +488,12 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
   }
   if (realjid)
     p_res->realjid = g_strdup(realjid);
+
+  // If bstat is offline, we MUST delete the resource, actually
+  if (bstat == offline) {
+    del_resource(roster_usr, resname);
+    return;
+  }
 }
 
 //  roster_setflags()
@@ -615,7 +628,7 @@ const char *roster_getstatusmsg(const char *jid, const char *resname)
   p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->status_msg;
-  return NULL;
+  return roster_usr->offline_status_message;
 }
 
 guint roster_gettype(const char *jid)
@@ -973,7 +986,7 @@ const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname)
   res *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->status_msg;
-  return NULL;
+  return roster_usr->offline_status_message;
 }
 
 time_t buddy_getstatustime(gpointer rosterdata, const char *resname)

@@ -904,7 +904,7 @@ static void do_say_to(char *arg)
   jid = *paramlst;
   msg = *(paramlst+1);
 
-  if (!jid) {
+  if (!jid || !strcmp(jid, ".")) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
     free_arg_lst(paramlst);
     return;

@@ -1178,7 +1178,7 @@ static void do_rename(char *arg)
   char *name_utf8;
 
   if (!*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID to rename.");
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a new name.");
     return;
   }
 

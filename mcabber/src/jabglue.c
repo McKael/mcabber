@@ -1109,10 +1109,17 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
           mbuf = g_strdup_printf("You have left %s", roomjid);
         }
       } else {
-        if (ustmsg)
-          mbuf = g_strdup_printf("%s has left: %s", rname, ustmsg);
-        else
-          mbuf = g_strdup_printf("%s has left", rname);
+        if (ust != offline) {
+          // This can happen when a network failure occurs,
+          // this isn't an official leave but the user isn't there anymore.
+          mbuf = g_strdup_printf("%s has disappeared!", rname);
+          ust = offline;
+        } else {
+          if (ustmsg)
+            mbuf = g_strdup_printf("%s has left: %s", rname, ustmsg);
+          else
+            mbuf = g_strdup_printf("%s has left", rname);
+        }
       }
     }
 

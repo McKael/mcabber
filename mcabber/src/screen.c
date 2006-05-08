@@ -833,7 +833,7 @@ void scr_Resize()
 // Set forceupdate to TRUE if doupdate() must be called.
 void scr_UpdateChatStatus(int forceupdate)
 {
-  unsigned short btype, isgrp, ismuc;
+  unsigned short btype, isgrp, ismuc, isspe;
   const char *fullname;
   const char *msg = NULL;
   char status;
@@ -862,10 +862,14 @@ void scr_UpdateChatStatus(int forceupdate)
 
   isgrp = btype & ROSTER_TYPE_GROUP;
   ismuc = btype & ROSTER_TYPE_ROOM;
+  isspe = btype  & ROSTER_TYPE_SPECIAL;
 
-  if (isgrp) {
+  if (isgrp || isspe) {
     buf_locale = from_utf8(fullname);
-    mvwprintw(chatstatusWnd, 0, 5, "Group: %s", buf_locale);
+    if (isgrp)
+      mvwprintw(chatstatusWnd, 0, 5, "Group: %s", buf_locale);
+    else
+      mvwprintw(chatstatusWnd, 0, 5, "Special buffer: %s", buf_locale);
     g_free(buf_locale);
     if (forceupdate) {
       update_panels();
@@ -985,7 +989,7 @@ void scr_DrawRoster(void)
   rOffset = offset;
 
   for (i=0; i<maxy && buddy; buddy = g_list_next(buddy)) {
-    unsigned short bflags, btype, ismsg, isgrp, ismuc, ishid;
+    unsigned short bflags, btype, ismsg, isgrp, ismuc, ishid, isspe;
     gchar *rline_locale;
 
     bflags = buddy_getflags(BUDDATA(buddy));
@@ -995,6 +999,7 @@ void scr_DrawRoster(void)
     ishid = bflags & ROSTER_FLAG_HIDE;
     isgrp = btype  & ROSTER_TYPE_GROUP;
     ismuc = btype  & ROSTER_TYPE_ROOM;
+    isspe = btype  & ROSTER_TYPE_SPECIAL;
 
     if (rOffset > 0) {
       rOffset--;
@@ -1049,6 +1054,8 @@ void scr_DrawRoster(void)
       else
         sep = "---";
       snprintf(rline, Roster_Width, " %c%s %s", pending, sep, name);
+    } else if (isspe) {
+      snprintf(rline, Roster_Width, " %c%s", pending, name);
     } else {
       char sepleft  = '[';
       char sepright = ']';

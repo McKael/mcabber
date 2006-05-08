@@ -63,6 +63,7 @@ struct role_affil {
 #define ROSTER_TYPE_GROUP   2
 #define ROSTER_TYPE_AGENT   4
 #define ROSTER_TYPE_ROOM    8
+#define ROSTER_TYPE_SPECIAL 16
 
 // Flags:
 #define ROSTER_FLAG_MSG     1   // Message not read
@@ -80,6 +81,7 @@ extern GList *alternate_buddy;
 #define CURRENT_JID         buddy_getjid(BUDDATA(current_buddy))
 
 // Prototypes...
+void    roster_init(void);
 GSList *roster_add_group(const char *name);
 GSList *roster_add_user(const char *jid, const char *name, const char *group,
                         guint type, enum subscr esub);

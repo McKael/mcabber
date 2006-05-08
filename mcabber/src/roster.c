@@ -89,9 +89,19 @@ GList *buddylist;
 GList *current_buddy;
 GList *alternate_buddy;
 
+static roster roster_special;
+
 void unread_jid_add(const char *jid);
 int  unread_jid_del(const char *jid);
 
+
+/* ### Initialization ### */
+
+void roster_init(void)
+{
+  roster_special.name = "[status]";
+  roster_special.type = ROSTER_TYPE_SPECIAL;
+}
 
 /* ### Resources functions ### */
 
@@ -715,6 +725,8 @@ void buddylist_build(void)
     buddylist = NULL;
   }
 
+  buddylist = g_list_append(buddylist, &roster_special);
+
   // Create the new list
   while (sl_roster_elt) {
     GSList *sl_roster_usrelt;
@@ -936,6 +948,9 @@ const char *buddy_getgroupname(gpointer rosterdata)
   if (roster_usr->type & ROSTER_TYPE_GROUP)
     return roster_usr->name;
 
+  if (roster_usr->type & ROSTER_TYPE_SPECIAL)
+    return NULL;
+
   // This is a user
   return ((roster*)((GSList*)roster_usr->list)->data)->name;
 }
@@ -948,6 +963,9 @@ gpointer buddy_getgroup(gpointer rosterdata)
 
   if (roster_usr->type & ROSTER_TYPE_GROUP)
     return rosterdata;
+
+  if (roster_usr->type & ROSTER_TYPE_SPECIAL)
+    return NULL;
 
   // This is a user
   return (gpointer)((GSList*)roster_usr->list)->data;
@@ -1206,6 +1224,8 @@ void foreach_buddy(guint roster_type,
 
   while (sl_roster_elt) {       // group list loop
     roster_elt = (roster*) sl_roster_elt->data;
+    if (roster_elt->type & ROSTER_TYPE_SPECIAL)
+      continue; // Skip special items
     sl_roster_usrelt = roster_elt->list;
     while (sl_roster_usrelt) {  // user list loop
       roster_usrelt = (roster*) sl_roster_usrelt->data;

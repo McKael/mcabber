@@ -1121,7 +1121,8 @@ static void do_info(char *arg)
   } else {
     if (name) scr_LogPrint(LPRINT_NORMAL, "Name: %s", name);
     scr_LogPrint(LPRINT_NORMAL, "Type: %s",
-                 ((type == ROSTER_TYPE_GROUP) ? "group" : "unknown"));
+                 type == ROSTER_TYPE_GROUP ? "group" :
+                 (type == ROSTER_TYPE_SPECIAL ? "special" : "unknown"));
   }
 
   g_free(buffer);
@@ -1193,6 +1194,10 @@ static void do_rename(char *arg)
     scr_LogPrint(LPRINT_NORMAL, "You can't rename groups.");
     return;
   }
+  if (type & ROSTER_TYPE_SPECIAL) {
+    scr_LogPrint(LPRINT_NORMAL, "You can't rename this item.");
+    return;
+  }
 
   newname = g_strdup(arg);
   // Remove trailing space
@@ -1229,6 +1234,10 @@ static void do_move(char *arg)
 
   if (type & ROSTER_TYPE_GROUP) {
     scr_LogPrint(LPRINT_NORMAL, "You can't move groups!");
+    return;
+  }
+  if (type & ROSTER_TYPE_SPECIAL) {
+    scr_LogPrint(LPRINT_NORMAL, "You can't move this item.");
     return;
   }
 

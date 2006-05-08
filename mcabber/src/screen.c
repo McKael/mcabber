@@ -70,6 +70,7 @@ static PANEL *rosterPanel, *chatPanel, *inputPanel;
 static PANEL *mainstatusPanel, *chatstatusPanel;
 static PANEL *logPanel;
 static int maxY, maxX;
+static winbuf *statusWindow;
 static winbuf *currentWindow;
 
 static int roster_hidden;
@@ -377,6 +378,8 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
   g_free(buffer);
 }
 
+//  scr_CreateBuddyPanel(title, dontshow)
+// Note: title (aka winId) can be NULL for special buffers
 static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
 {
   int x;
@@ -413,19 +416,26 @@ static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
   }
   update_panels();
 
-  // Load buddy history from file (if enabled)
-  hlog_read_history(title, &tmp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
+  // If title is NULL, this is a special buffer
+  if (title) {
+    // Load buddy history from file (if enabled)
+    hlog_read_history(title, &tmp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
 
-  winbuflst = g_slist_append(winbuflst, tmp);
+    winbuflst = g_slist_append(winbuflst, tmp);
+  }
   return tmp;
 }
 
-static winbuf *scr_SearchWindow(const char *winId)
+static winbuf *scr_SearchWindow(const char *winId, int special)
 {
   GSList *wblp;
   winbuf *wbp;
 
-  if (!winId) return NULL;
+  if (special)
+    return statusWindow; // Only one special window atm.
+
+  if (!winId)
+    return NULL;
 
   for (wblp = winbuflst; wblp; wblp = g_slist_next(wblp)) {
     wbp = wblp->data;
@@ -439,7 +449,7 @@ static winbuf *scr_SearchWindow(const char *winId)
 
 bool scr_BuddyBufferExists(const char *jid)
 {
-  return (scr_SearchWindow(jid) != NULL);
+  return (scr_SearchWindow(jid, FALSE) != NULL);
 }
 
 //  scr_UpdateWindow()
@@ -534,19 +544,33 @@ static void scr_UpdateWindow(winbuf *win_entry)
 
 //  scr_ShowWindow()
 // Display the chat window with the given identifier.
-static void scr_ShowWindow(const char *winId)
+// "special" must be true if this is a special buffer window.
+static void scr_ShowWindow(const char *winId, int special)
 {
-  winbuf *win_entry = scr_SearchWindow(winId);
+  winbuf *win_entry;
 
-  if (!win_entry)
-    win_entry = scr_CreateBuddyPanel(winId, FALSE);
+  win_entry = scr_SearchWindow(winId, special);
+
+  if (!win_entry) {
+    if (special) {
+      if (!statusWindow) {
+        statusWindow = scr_CreateBuddyPanel(NULL, FALSE);
+        // We could set statusWindow->name here...
+      }
+      win_entry = statusWindow;
+    } else {
+      win_entry = scr_CreateBuddyPanel(winId, FALSE);
+    }
+  }
 
   top_panel(win_entry->panel);
   currentWindow = win_entry;
   chatmode = TRUE;
-  roster_msg_setflag(winId, FALSE);
-  roster_setflags(winId, ROSTER_FLAG_LOCK, TRUE);
-  update_roster = TRUE;
+  if (!special) {
+    roster_msg_setflag(winId, FALSE);
+    roster_setflags(winId, ROSTER_FLAG_LOCK, TRUE);
+    update_roster = TRUE;
+  }
 
   // Refresh the window
   scr_UpdateWindow(win_entry);
@@ -563,10 +587,15 @@ void scr_ShowBuddyWindow(void)
 {
   const gchar *jid;
 
-  if (!current_buddy)
+  if (!current_buddy) {
     jid = NULL;
-  else
+  } else {
     jid = CURRENT_JID;
+    if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL) {
+      scr_ShowWindow(buddy_getname(BUDDATA(current_buddy)), TRUE);
+      return;
+    }
+  }
 
   if (!jid) {
     top_panel(chatPanel);
@@ -575,11 +604,12 @@ void scr_ShowBuddyWindow(void)
     return;
   }
 
-  scr_ShowWindow(jid);
+  scr_ShowWindow(jid, FALSE);
 }
 
 //  scr_WriteInWindow()
 // Write some text in the winId window (this usually is a jid).
+// Use winId == NULL for the special status buffer.
 // Lines are splitted when they are too long to fit in the chat window.
 // If this window doesn't exist, it is created.
 void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
@@ -588,9 +618,11 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   winbuf *win_entry;
   char *text_locale;
   int dont_show = FALSE;
+  int special;
 
   // Look for the window entry.
-  win_entry = scr_SearchWindow(winId);
+  special = (winId == NULL);
+  win_entry = scr_SearchWindow(winId, special);
 
   // Do we have to really show the window?
   if (!chatmode)
@@ -599,8 +631,16 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     dont_show = TRUE;
 
   // If the window entry doesn't exist yet, let's create it.
-  if (win_entry == NULL) {
-    win_entry = scr_CreateBuddyPanel(winId, dont_show);
+  if (!win_entry) {
+    if (special) {
+      if (!statusWindow) {
+        statusWindow = scr_CreateBuddyPanel(NULL, dont_show);
+        // We could set statusWindow->name here...
+      }
+      win_entry = statusWindow;
+    } else {
+      win_entry = scr_CreateBuddyPanel(winId, dont_show);
+    }
   }
 
   // The message must be displayed -> update top pointer
@@ -635,7 +675,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     top_panel(inputPanel);
     update_panels();
     doupdate();
-  } else if (!(prefix_flags & HBB_PREFIX_NOFLAG)) {
+  } else if (!special && !(prefix_flags & HBB_PREFIX_NOFLAG)) {
     roster_msg_setflag(winId, TRUE);
     update_roster = TRUE;
   }
@@ -763,6 +803,10 @@ void scr_DrawMainWindow(unsigned int fullinit)
     mainstatusPanel = new_panel(mainstatusWnd);
     inputPanel  = new_panel(inputWnd);
 
+    // Build the buddylist at least once, to make sure the special buffer
+    // is added
+    buddylist_build();
+
     if (utf8_mode)
       scr_LogPrint(LPRINT_NORMAL, "WARNING: UTF-8 not yet supported!");
   } else {
@@ -778,6 +822,21 @@ void scr_DrawMainWindow(unsigned int fullinit)
   // We'll need to redraw the roster
   update_roster = TRUE;
   return;
+}
+
+static inline void resize_win_buffer(winbuf *wbp, int x, int y,
+                                     int lines, int cols)
+{
+  // Resize/move buddy window
+  wresize(wbp->win, lines, cols);
+  mvwin(wbp->win, 0, Roster_Width);
+  werase(wbp->win);
+  // If a panel exists, replace the old window with the new
+  if (wbp->panel)
+    replace_panel(wbp->panel, wbp->win);
+  // Redo line wrapping
+  wbp->top = hbuf_previous_persistent(wbp->top);
+  hbuf_rebuild(&wbp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
 }
 
 //  scr_Resize()
@@ -809,19 +868,13 @@ void scr_Resize()
 
   for (wblp = winbuflst; wblp; wblp = g_slist_next(wblp)) {
     wbp = wblp->data;
-    if (wbp->win) {
-      // Resize/move buddy window
-      wresize(wbp->win, lines, cols);
-      mvwin(wbp->win, 0, Roster_Width);
-      werase(wbp->win);
-      // If a panel exists, replace the old window with the new
-      if (wbp->panel)
-        replace_panel(wbp->panel, wbp->win);
-      // Redo line wrapping
-      wbp->top = hbuf_previous_persistent(wbp->top);
-      hbuf_rebuild(&wbp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
-    }
+    if (wbp->win)
+      resize_win_buffer(wbp, x, y, lines, cols);
   }
+
+  // Resize/move special status buffer
+  if (statusWindow)
+    resize_win_buffer(statusWindow, x, y, lines, cols);
 
   // Refresh current buddy window
   if (chatmode)
@@ -1147,7 +1200,7 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
 void scr_WriteOutgoingMessage(const char *jidto, const char *text)
 {
   scr_WriteMessage(jidto, text, 0, HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT);
-  scr_ShowWindow(jidto);
+  scr_ShowWindow(jidto, FALSE);
 }
 
 inline void set_autoaway(bool setaway)
@@ -1355,10 +1408,13 @@ void scr_BufferScrollUpDown(int updown, unsigned int nblines)
   winbuf *win_entry;
   int n, nbl;
   GList *hbuf_top;
+  guint isspe;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry  = scr_SearchWindow(CURRENT_JID);
+
+  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  win_entry  = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   if (!nblines) {
@@ -1406,10 +1462,12 @@ void scr_BufferScrollUpDown(int updown, unsigned int nblines)
 void scr_BufferClear(void)
 {
   winbuf *win_entry;
+  guint isspe;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry = scr_SearchWindow(CURRENT_JID);
+  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   win_entry->cleared = TRUE;
@@ -1429,10 +1487,12 @@ void scr_BufferClear(void)
 void scr_BufferTopBottom(int topbottom)
 {
   winbuf *win_entry;
+  guint isspe;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry = scr_SearchWindow(CURRENT_JID);
+  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   win_entry->cleared = FALSE;
@@ -1456,10 +1516,12 @@ void scr_BufferSearch(int direction, const char *text)
 {
   winbuf *win_entry;
   GList *current_line, *search_res;
+  guint isspe;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry = scr_SearchWindow(CURRENT_JID);
+  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   if (win_entry->top)
@@ -1489,10 +1551,12 @@ void scr_BufferPercent(int pc)
 {
   winbuf *win_entry;
   GList *search_res;
+  guint isspe;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry = scr_SearchWindow(CURRENT_JID);
+  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   if (pc < 0 || pc > 100) {
@@ -1520,10 +1584,12 @@ void scr_BufferDate(time_t t)
 {
   winbuf *win_entry;
   GList *search_res;
+  guint isspe;
 
   // Get win_entry
   if (!current_buddy) return;
-  win_entry = scr_SearchWindow(CURRENT_JID);
+  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   search_res = hbuf_jump_date(win_entry->hbuf, t);
@@ -1559,6 +1625,9 @@ inline int scr_get_multimode()
 void scr_setmsgflag_if_needed(const char *jid)
 {
   const char *current_jid;
+
+  if (!jid)
+    return;
 
   if (current_buddy)
     current_jid = buddy_getjid(BUDDATA(current_buddy));

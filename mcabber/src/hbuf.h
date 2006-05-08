@@ -14,14 +14,15 @@
 #define HBB_FLAG_ALLOC      1
 #define HBB_FLAG_PERSISTENT 2
 
-#define HBB_PREFIX_IN       1
-#define HBB_PREFIX_OUT      2
-#define HBB_PREFIX_STATUS   4
-#define HBB_PREFIX_AUTH     8
-#define HBB_PREFIX_INFO    16
-#define HBB_PREFIX_ERR     32
-#define HBB_PREFIX_NOFLAG  64
-#define HBB_PREFIX_HLIGHT 128
+#define HBB_PREFIX_IN          1
+#define HBB_PREFIX_OUT         2
+#define HBB_PREFIX_STATUS      4
+#define HBB_PREFIX_AUTH        8
+#define HBB_PREFIX_INFO       16
+#define HBB_PREFIX_ERR        32
+#define HBB_PREFIX_NOFLAG     64
+#define HBB_PREFIX_HLIGHT    128
+#define HBB_PREFIX_NONE      256
 
 typedef struct {
   time_t timestamp;

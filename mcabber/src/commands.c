@@ -1108,14 +1108,14 @@ static void do_info(char *arg)
       scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
       if (rst_msg) {
         snprintf(buffer, 4095, "Status message: %s", rst_msg);
-        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
       }
       if (rst_time) {
         char tbuf[128];
 
         strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
         snprintf(buffer, 127, "Status timestamp: %s", tbuf);
-        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
       }
     }
   } else {
@@ -1162,7 +1162,7 @@ static void room_names(gpointer bud, char *arg)
     scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
     if (rst_msg) {
       snprintf(buffer, 4095, "Status message: %s", rst_msg);
-      scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
     }
   }
 
@@ -1855,27 +1855,27 @@ void room_whois(gpointer bud, char *arg)
   scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
   snprintf(buffer, 4095, "Status   : [%c] %s", imstatus2char[rstatus],
            rst_msg);
-  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
 
   if (rst_time) {
     char tbuf[128];
 
     strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
     snprintf(buffer, 127, "Timestamp: %s", tbuf);
-    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
   }
 
   if (realjid) {
     snprintf(buffer, 4095, "JID      : <%s>", realjid);
-    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
   }
 
   snprintf(buffer, 4095, "Role     : %s", strroles[role]);
-  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
   snprintf(buffer, 4095, "Affiliat.: %s", straffil[affil]);
-  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
   snprintf(buffer, 4095, "Priority : %d", rprio);
-  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
 
   scr_WriteIncomingMessage(jid, "End of WHOIS", 0, HBB_PREFIX_INFO);
 

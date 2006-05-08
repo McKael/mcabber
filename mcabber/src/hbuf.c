@@ -38,7 +38,7 @@ typedef struct {
   // (for ex. when HBB_FLAG_PERSISTENT is set).
   struct { // hbuf_line_info
     time_t timestamp;
-    guchar flags;
+    guint  flags;
   } prefix;
 } hbuf_block;
 

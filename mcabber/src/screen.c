@@ -101,6 +101,9 @@ typedef struct {
 GSList *keyseqlist;
 static void add_keyseq(char *seqstr, guint mkeycode, gint value);
 
+void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
+                       unsigned int prefix_flags, int force_show);
+
 
 /* Functions */
 
@@ -357,9 +360,18 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     else
       buffer_locale = buffer;
     if (Curses) {
+      char *buf_specialwindow;
       wprintw(logWnd, "\n%s", buffer_locale);
       update_panels();
       doupdate();
+      if (flag & LPRINT_NOTUTF8)
+        buf_specialwindow = to_utf8(b2);
+      else
+        buf_specialwindow = b2;
+      scr_WriteInWindow(NULL, buf_specialwindow, timestamp,
+                        HBB_PREFIX_SPECIAL, FALSE);
+      if (buf_specialwindow != b2)
+        g_free(buf_specialwindow);
     } else {
       printf("%s\n", buffer_locale);
     }
@@ -460,7 +472,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
   int width;
   hbb_line **lines, *line;
   GList *hbuf_head;
-  char date[32];
+  char date[64];
 
   width = scr_WindowWidth(win_entry->win);
 
@@ -502,7 +514,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
       if (line->flags & HBB_PREFIX_HLIGHT)
         wattrset(win_entry->win, get_color(COLOR_MSGOUT));
 
-      if (line->timestamp) {
+      if (line->timestamp && !(line->flags & HBB_PREFIX_SPECIAL)) {
         strftime(date, 30, "%m-%d %H:%M", localtime(&line->timestamp));
       } else
         strcpy(date, "           ");
@@ -524,6 +536,9 @@ static void scr_UpdateWindow(winbuf *win_entry)
         wprintw(win_entry->win, "%.11s <== ", date);
       } else if (line->flags & HBB_PREFIX_OUT) {
         wprintw(win_entry->win, "%.11s --> ", date);
+      } else if (line->flags & HBB_PREFIX_SPECIAL) {
+        strftime(date, 30, "%m-%d %H:%M:%S", localtime(&line->timestamp));
+        wprintw(win_entry->win, "%.14s  ", date);
       } else {
         wprintw(win_entry->win, "%.11s     ", date);
       }
@@ -613,7 +628,7 @@ void scr_ShowBuddyWindow(void)
 // Lines are splitted when they are too long to fit in the chat window.
 // If this window doesn't exist, it is created.
 void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
-        unsigned int prefix_flags, int force_show)
+                       unsigned int prefix_flags, int force_show)
 {
   winbuf *win_entry;
   char *text_locale;

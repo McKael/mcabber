@@ -23,10 +23,11 @@
 #define HBB_PREFIX_NOFLAG     64
 #define HBB_PREFIX_HLIGHT    128
 #define HBB_PREFIX_NONE      256
+#define HBB_PREFIX_SPECIAL   512
 
 typedef struct {
   time_t timestamp;
-  guchar flags;
+  guint flags;
   char *text;
 } hbb_line;
 

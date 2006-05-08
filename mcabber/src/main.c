@@ -213,7 +213,9 @@ static void ask_password(void)
 static void credits(void)
 {
   char *v = mcabber_version();
-  printf("MCabber %s -- Email: mcabber [at] lilotux [dot] net\n", v);
+  const char *v_fmt = "MCabber %s -- Email: mcabber [at] lilotux [dot] net\n";
+  printf(v_fmt, v);
+  scr_LogPrint(LPRINT_LOGNORM|LPRINT_NOTUTF8, v_fmt, v);
   g_free(v);
 }
 

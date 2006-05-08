@@ -72,6 +72,7 @@ static PANEL *logPanel;
 static int maxY, maxX;
 static winbuf *statusWindow;
 static winbuf *currentWindow;
+static GList  *statushbuf;
 
 static int roster_hidden;
 static int chatmode;
@@ -355,26 +356,35 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 
   if (flag & LPRINT_NORMAL) {
     char *buffer_locale;
+    char *buf_specialwindow;
+
+    // Convert buffer to current locale for wprintw()
     if (!(flag & LPRINT_NOTUTF8))
       buffer_locale = from_utf8(buffer);
     else
       buffer_locale = buffer;
+
+    // For the special status buffer, we need utf-8, but without the timestamp
+    if (flag & LPRINT_NOTUTF8)
+      buf_specialwindow = to_utf8(b2);
+    else
+      buf_specialwindow = b2;
+
     if (Curses) {
-      char *buf_specialwindow;
       wprintw(logWnd, "\n%s", buffer_locale);
       update_panels();
       doupdate();
-      if (flag & LPRINT_NOTUTF8)
-        buf_specialwindow = to_utf8(b2);
-      else
-        buf_specialwindow = b2;
       scr_WriteInWindow(NULL, buf_specialwindow, timestamp,
                         HBB_PREFIX_SPECIAL, FALSE);
-      if (buf_specialwindow != b2)
-        g_free(buf_specialwindow);
     } else {
       printf("%s\n", buffer_locale);
+      // ncurses are not initialized yet, so we call directly hbuf routine
+      hbuf_add_line(&statushbuf, buf_specialwindow, timestamp,
+        HBB_PREFIX_SPECIAL, 0);
     }
+
+    if (buf_specialwindow != b2)
+      g_free(buf_specialwindow);
     if (!(flag & LPRINT_NOTUTF8))
       g_free(buffer_locale);
   }
@@ -570,7 +580,8 @@ static void scr_ShowWindow(const char *winId, int special)
     if (special) {
       if (!statusWindow) {
         statusWindow = scr_CreateBuddyPanel(NULL, FALSE);
-        // We could set statusWindow->name here...
+        statusWindow->hbuf = statushbuf;
+        statusWindow->name = g_strdup(winId);
       }
       win_entry = statusWindow;
     } else {
@@ -650,7 +661,8 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     if (special) {
       if (!statusWindow) {
         statusWindow = scr_CreateBuddyPanel(NULL, dont_show);
-        // We could set statusWindow->name here...
+        statusWindow->hbuf = statushbuf;
+        //statusWindow->name = g_strdup(winId); // (winId NULL)
       }
       win_entry = statusWindow;
     } else {
@@ -821,6 +833,8 @@ void scr_DrawMainWindow(unsigned int fullinit)
     // Build the buddylist at least once, to make sure the special buffer
     // is added
     buddylist_build();
+    // Wrap existing status buffer lines
+    hbuf_rebuild(&statushbuf, maxX - Roster_Width - PREFIX_WIDTH);
 
     if (utf8_mode)
       scr_LogPrint(LPRINT_NORMAL, "WARNING: UTF-8 not yet supported!");

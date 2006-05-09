@@ -252,6 +252,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
   hbuf_block *blk;
   guchar last_persist_prefixflags = 0;
   GList *last_persist;  // last persistent flags
+  hbb_line **array, **array_elt;
 
   // To be able to correctly highlight multi-line messages,
   // we need to look at the last non-null prefix, which should be the first
@@ -266,10 +267,10 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
     last_persist = g_list_previous(last_persist);
   }
 
-  hbb_line **array = g_new0(hbb_line*, n);
-  hbb_line **array_elt = array;
+  array = g_new0(hbb_line*, n);
+  array_elt = array;
 
-  for (i=0 ; i < n ; i++) {
+  for (i = 0 ; i < n ; i++) {
     if (hbuf) {
       int maxlen;
       blk = (hbuf_block*)(hbuf->data);
@@ -282,7 +283,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
       if ((blk->flags & HBB_FLAG_PERSISTENT) && blk->prefix.flags) {
         last_persist_prefixflags = blk->prefix.flags;
       } else {
-        // Propagate hilighting flag
+        // Propagate highlighting flag
         (*array_elt)->flags |= last_persist_prefixflags & HBB_PREFIX_HLIGHT;
       }
 

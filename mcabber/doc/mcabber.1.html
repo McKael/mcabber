@@ -25,17 +25,6 @@ For now it needs a configuration file to start, so please copy the sample
 mcabberrc file and adapt your connection settings.</p>
 <p>You also need to have an existing Jabber account to use this software, as
 it cannot (un)register accounts yet.</p>
-<p>The <tt>mcabber(1)</tt> screen is divided into 4 regions.
-The <b>roster</b>, alias <b>buddylist</b>, is on the left.  The <b>chat window</b>, or chat
-buffer, is on the right.  The <b>input line</b> lies at the bottom of the screen,
-under a small <b>log window</b>.</p>
-<p>Two status lines surround the log window.  The bottom status line is the
-"main status line" and reflects mcabber general status.  The other line
-is the "chat status line" and shows the status of the currently selected
-buddy.</p>
-<p>To display buddies chat buffers, you will have to enter <b>chat mode</b>.
-You can enter chat mode by pressing enter, and leave chat mode with the ESC
-key.  Simply sending a message will also enable chat mode.</p>
 <p>Here are some of the features of <tt>mcabber</tt>:</p>
 <ul>
 <li>
@@ -69,8 +58,8 @@ key.  Simply sending a message will also enable chat mode.</p>
 <li>
 <p>
 <b>External actions:</b>  Some events (like receiving a message) can trigger an
-  external action, for example a shell script (you need to enable it in your
-  configuration file).  A sample events script ("eventcmd") is provided with
+  external action such as a shell script if you enable it in your
+  configuration file.  A sample events script ("eventcmd") is provided with
   <tt>mcabber</tt> source code, in the contrib directory.
 </p>
 </li>
@@ -90,6 +79,26 @@ key.  Simply sending a message will also enable chat mode.</p>
         Use configuration file <b>configfile</b>
 </dd>
 </dl>
+<h2>WINDOWS/PANES</h2>
+<p>The <tt>mcabber(1)</tt> screen is divided into 4 regions.
+The <b>roster</b>, alias <b>buddylist</b>, is on the left.  The <b>chat window</b>, or chat
+buffer, is on the right.  The <b>input line</b> lies at the bottom of the screen,
+under a small <b>log window</b>.</p>
+<p>Two status lines surround the log window.  The bottom status line is the
+"main status line" and reflects mcabber general status.  The other line
+is the "chat status line" and shows the status of the currently selected
+buddy.</p>
+<p>To display buddies chat buffers, you will have to enter <b>chat mode</b>.
+You can enter chat mode by pressing enter, and leave chat mode with the ESC
+key.  Simply sending a message will also enable chat mode.</p>
+<p>There are several advantages to the two-mode implementation: first, it allows
+accurate "unread" message functionality, as described in the next section;
+without this, merely scrolling to a specific buddy will "read" the new
+messages of all buddies in-between.  Second, it allows quickly hiding the
+conversation with a single keystroke.  Third, it allows jumping between
+the few buddies with whom you are conversing with the <b>/roster alternate</b>
+command described in another section, without having to manually scroll
+back and forth.</p>
 <h2>KEYS</h2>
 <p>Text typing occurs in the <b>input line</b>; basic operations are supported
 (left arrow, right arrow, home/end keys, insert, delete, backspace&#8230;).</p>
@@ -232,17 +241,155 @@ Jump to the next unread message
 </td>
 </tr>
 </table>
-<h2>COMMANDS</h2>
+<p>Additional key bindings may be specified using the /bind command described
+in the COMMANDS section.</p>
+<h2>MCABBER'S ROSTER</h2>
+<p>The first listed resource on the roster is <b>[status]</b>, which keeps a log of
+everything that appears in the short log window below the main chat area.
+While the log window was designed for showing the latest few elements, the
+dedicated <b>[status]</b> buffer allows more comfortable viewing of the log, as
+well as scrolling it in a standard manner.</p>
+<p>Group names are displayed above the resources that are within them, and are
+indicated by <b>---</b> to the left of the name.</p>
+<p>For every real Jabber resource, the roster displays four pieces of information:
+the resource's name or alias, its online status, its authorization status, and
+whether there are unread messages from the resource waiting for you.</p>
+<p>The online status is one of the following:</p>
+<table class="hlist">
+<tr valign="top">
+<td>
+<b>o</b>
+</td>
+<td>
+online
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>f</b>
+</td>
+<td>
+free for chat
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>a</b>
+</td>
+<td>
+away
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>n</b>
+</td>
+<td>
+not available (labeled <b>extended away</b> in some clients)
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>d</b>
+</td>
+<td>
+do not disturb
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>i</b>
+</td>
+<td>
+invisible (displayed only for your resource)
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>_</b>
+</td>
+<td>
+offline (or invisible to you)
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>?</b>
+</td>
+<td>
+unknown, usually meaning you are not authorized to see this resource's status
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>x</b>
+</td>
+<td>
+a conference room in which you are not participating
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>C</b>
+</td>
+<td>
+a conference room in which you are participating
+</td>
+</tr>
+</table>
+<p>The authorization status indicates whether a resource is authorized to receive
+your online status updates, and is displayed by the brackets surrounding the
+resource's online status.  Square brackets, like <b>[o]</b>, indicate that this
+resource is authorized to receive your status.  Curly braces, like <b>{o}</b>,
+indicate that they are not authorized to receive your status.</p>
+<p>When there are unread messages from the resource which you have not looked at,
+a hash mark (<b>#</b>) appears in the leftmost section of the roster for that
+resource.  The hash mark disappears once you view that resource's message log.</p>
+<p>Examples:</p>
+<table class="hlist">
+<tr valign="top">
+<td>
+<b> --- Buds</b>
+</td>
+<td>
+This is a group named <b>Buds</b>
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>#[o] John</b>
+</td>
+<td>
+John is online, can see your status, and sent you a message that you did not read yet
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b> {?} Sally</b>
+</td>
+<td>
+Neither you nor Sally have authorized each other to see your online status
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b> {a} Jane</b>
+</td>
+<td>
+Jane is away, but she cannot see your online status
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>#[C] x@y.c</b>
+</td>
+<td>
+You are participating in x@y.c conference room, and there are unread messages
+</td>
+</tr>
+</table>
+<h2>COMMANDS RELATED TO MCABBER</h2>
 <dl>
-<dt><b>
-/add [jid [nickname]]
-</b></dt>
-<dd>
-        Add the "jid" Jabber user to our roster (default group), and send a
-        notification request to this buddy.  If no nickname is specified, the
-        jid is used.  If no jid (or an empty string "") is provided or if jid
-        is ".", the current buddy is used.
-</dd>
 <dt><b>
 /alias name = command line
 </b></dt>
@@ -252,47 +399,6 @@ Jump to the next unread message
         "/alias name" displays the value associated with the "name" alias;
         "/alias name =" unsets the "name" alias.<br />
         Example: "/alias away = status away".
-</dd>
-<dt><b>
-/authorization allow|cancel|request|request_unsubscribe [jid]
-</b></dt>
-<dd>
-        Manage the presence subscriptions.<br />
-        If no jid is provided, the current buddy is used.
-<table class="hlist">
-<tr valign="top">
-<td>
-<b>allow</b>
-</td>
-<td>
-allow the buddy to receive your presence updates
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>cancel</b>
-</td>
-<td>
-cancel the buddy' subscription to your presence updates
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>request</b>
-</td>
-<td>
-request a subscription to the buddy's presence updates
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>request_unsubscribe</b>
-</td>
-<td>
-request unsubscription from the buddy's presence updates
-</td>
-</tr>
-</table>
 </dd>
 <dt><b>
 /bind keycode = command line
@@ -395,17 +501,25 @@ search for "text" in the current buddy chat buffer
         The <b>clear</b> command is actually an alias for "/buffer clear".
 </dd>
 <dt><b>
+/quit
+</b></dt>
+<dd>
+        Disconnect and leave <tt>mcabber(1)</tt>.
+</dd>
+<dt><b>
+/version
+</b></dt>
+<dd>
+        Display mcabber version
+</dd>
+</dl>
+<h2>COMMANDS RELATED TO THE SERVER AND CONNECTION</h2>
+<dl>
+<dt><b>
 /connect
 </b></dt>
 <dd>
         Establish connection to the Jabber server.
-</dd>
-<dt><b>
-/del
-</b></dt>
-<dd>
-        Delete the current buddy from our roster, unsubscribe from its presence
-        notification and unsubscribe it from ours.
 </dd>
 <dt><b>
 /disconnect
@@ -459,6 +573,72 @@ list all pending events
 </td>
 </tr>
 </table>
+</dd>
+<dt><b>
+/rawxml send
+</b></dt>
+<dd>
+        <b>send</b> string: send string (raw XML format) to the Jabber server.  No check is done on the string provided.  BEWARE! Use this only if you know what you are doing, or you could terminate the connection.
+</dd>
+</dl>
+<h2>COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES</h2>
+<dl>
+<dt><b>
+/add [jid [nickname]]
+</b></dt>
+<dd>
+        Add the "jid" Jabber user to our roster (default group), and send a
+        notification request to this buddy.  If no nickname is specified, the
+        jid is used.  If no jid (or an empty string "") is provided or if jid
+        is ".", the current buddy is used.
+</dd>
+<dt><b>
+/authorization allow|cancel|request|request_unsubscribe [jid]
+</b></dt>
+<dd>
+        Manage the presence subscriptions.<br />
+        If no jid is provided, the current buddy is used.
+<table class="hlist">
+<tr valign="top">
+<td>
+<b>allow</b>
+</td>
+<td>
+allow the buddy to receive your presence updates
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>cancel</b>
+</td>
+<td>
+cancel the buddy' subscription to your presence updates
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>request</b>
+</td>
+<td>
+request a subscription to the buddy's presence updates
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>request_unsubscribe</b>
+</td>
+<td>
+request unsubscription from the buddy's presence updates
+</td>
+</tr>
+</table>
+</dd>
+<dt><b>
+/del
+</b></dt>
+<dd>
+        Delete the current buddy from our roster, unsubscribe from its presence
+        notification and unsubscribe it from ours.
 </dd>
 <dt><b>
 /group fold|unfold|toggle
@@ -586,18 +766,6 @@ leave multi-line mode without sending the message
 </td>
 </tr>
 </table>
-</dd>
-<dt><b>
-/quit
-</b></dt>
-<dd>
-        Disconnect and leave <tt>mcabber(1)</tt>.
-</dd>
-<dt><b>
-/rawxml send
-</b></dt>
-<dd>
-        <b>send</b> string: send string (raw XML format) to the Jabber server.  No check is done on the string provided.  BEWARE! Use this only if you know what you are doing, or you could terminate the connection.
 </dd>
 <dt><b>
 /rename nickname
@@ -914,15 +1082,9 @@ jump to the next unread message
         too.<br />
         Note: The jid can include a resource (i.e. user@server/resource).
 </dd>
-<dt><b>
-/version
-</b></dt>
-<dd>
-        Display mcabber version
-</dd>
 </dl>
 <h2>CONFIGURATION FILE</h2>
-<p>See the provided sample configuration file, which should be self-documented.</p>
+<p>See the provided sample configuration file, which should be self-documenting.</p>
 <h2>FILES</h2>
 <p>The following files can be used by <tt>mcabber(1)</tt>:</p>
 <div class="literalparagraph"><pre>$HOME/.mcabber/mcabberrc    Default configuration file
@@ -944,7 +1106,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.7.7-dev<br />
-Last updated 04-May-2006 20:19:47 CEST
+Last updated 13-May-2006 12:23:01 CEST
 </p>
 </div>
 </div>

@@ -34,15 +34,6 @@ mcabber(1) is a small Jabber console client\&. For now it needs a configuration 
 You also need to have an existing Jabber account to use this software, as it cannot (un)register accounts yet\&.
 
 
-The mcabber(1) screen is divided into 4 regions\&. The \fIroster\fR, alias \fIbuddylist\fR, is on the left\&. The \fIchat window\fR, or chat buffer, is on the right\&. The \fIinput line\fR lies at the bottom of the screen, under a small \fIlog window\fR\&.
-
-
-Two status lines surround the log window\&. The bottom status line is the "main status line" and reflects mcabber general status\&. The other line is the "chat status line" and shows the status of the currently selected buddy\&.
-
-
-To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter, and leave chat mode with the ESC key\&. Simply sending a message will also enable chat mode\&.
-
-
 Here are some of the features of mcabber:
 
 .TP 3
@@ -62,7 +53,7 @@ Here are some of the features of mcabber:
  Input line history: Any message or command entered is in the input line history and can be reused easily\&.
 .TP
 \(bu
- External actions: Some events (like receiving a message) can trigger an external action, for example a shell script (you need to enable it in your configuration file)\&. A sample events script ("eventcmd") is provided with mcabber source code, in the contrib directory\&.
+ External actions: Some events (like receiving a message) can trigger an external action such as a shell script if you enable it in your configuration file\&. A sample events script ("eventcmd") is provided with mcabber source code, in the contrib directory\&.
 .LP
 
 .SH "OPTIONS"
@@ -73,7 +64,21 @@ Quick help usage message
 
 .TP
 \-f configfile
-Use configuration file configfile 
+Use configuration file configfile
+
+.SH "WINDOWS/PANES"
+
+
+The mcabber(1) screen is divided into 4 regions\&. The \fIroster\fR, alias \fIbuddylist\fR, is on the left\&. The \fIchat window\fR, or chat buffer, is on the right\&. The \fIinput line\fR lies at the bottom of the screen, under a small \fIlog window\fR\&.
+
+
+Two status lines surround the log window\&. The bottom status line is the "main status line" and reflects mcabber general status\&. The other line is the "chat status line" and shows the status of the currently selected buddy\&.
+
+
+To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter, and leave chat mode with the ESC key\&. Simply sending a message will also enable chat mode\&.
+
+
+There are several advantages to the two\-mode implementation: first, it allows accurate "unread" message functionality, as described in the next section; without this, merely scrolling to a specific buddy will "read" the new messages of all buddies in\-between\&. Second, it allows quickly hiding the conversation with a single keystroke\&. Third, it allows jumping between the few buddies with whom you are conversing with the \fI/roster alternate\fR command described in another section, without having to manually scroll back and forth\&.
 
 .SH "KEYS"
 
@@ -88,6 +93,7 @@ Up and Down arrow keys can be used to move in the input line history; they jump 
 
 
 To send a message, move to the choosen buddy in the buddylist, type your message and hit enter\&. If the line begins with a slash, this will be interpreted as a command (see the COMMAND section below)\&. Hit escape to leave the chat mode\&.
+
 
 Here is a quick description of the key bindings:
 
@@ -123,12 +129,51 @@ Ctrl\-o		Accept line and put the next history line in the input line (accept\-li
 
 Ctrl\-q		Jump to the next unread message
 
+Additional key bindings may be specified using the /bind command described
+in the COMMANDS section\&.
 
-.SH "COMMANDS"
+.SH "MCABBER'S ROSTER"
 
-.TP
-\fB/add\fR [jid [nickname]]
-Add the "jid" Jabber user to our roster (default group), and send a notification request to this buddy\&. If no nickname is specified, the jid is used\&. If no jid (or an empty string "") is provided or if jid is "\&.", the current buddy is used\&.
+
+The first listed resource on the roster is \fI[status]\fR, which keeps a log of everything that appears in the short log window below the main chat area\&. While the log window was designed for showing the latest few elements, the dedicated \fI[status]\fR buffer allows more comfortable viewing of the log, as well as scrolling it in a standard manner\&.
+
+
+Group names are displayed above the resources that are within them, and are indicated by \fI\-\-\-\fR to the left of the name\&.
+
+
+For every real Jabber resource, the roster displays four pieces of information: the resource's name or alias, its online status, its authorization status, and whether there are unread messages from the resource waiting for you\&.
+
+
+The online status is one of the following:
+
+ \fBo\fR	online
+ \fBf\fR	free for chat
+ \fBa\fR	away
+ \fBn\fR	not available (labeled \fIextended away\fR in some clients)
+ \fBd\fR	do not disturb
+ \fBi\fR	invisible (displayed only for your resource)
+ \fB_\fR	offline (or invisible to you)
+ \fB?\fR	unknown, usually meaning you are not authorized to see this resource's status
+ \fBx\fR	a conference room in which you are not participating
+ \fBC\fR	a conference room in which you are participating
+
+
+The authorization status indicates whether a resource is authorized to receive your online status updates, and is displayed by the brackets surrounding the resource's online status\&. Square brackets, like \fI[o]\fR, indicate that this resource is authorized to receive your status\&. Curly braces, like \fI{o}\fR, indicate that they are not authorized to receive your status\&.
+
+
+When there are unread messages from the resource which you have not looked at, a hash mark (\fI#\fR) appears in the leftmost section of the roster for that resource\&. The hash mark disappears once you view that resource's message log\&.
+
+
+Examples:
+
+ \fB \-\-\- Buds\fR	This is a group named \fIBuds\fR
+ \fB#[o] John\fR   	John is online, can see your status, and sent you a message that you did not read yet
+ \fB {?} Sally\fR  	Neither you nor Sally have authorized each other to see your online status
+ \fB {a} Jane\fR   	Jane is away, but she cannot see your online status
+ \fB#[C] x@y\&.c\fR	You are participating in x@y\&.c conference room, and there are unread messages
+
+
+.SH "COMMANDS RELATED TO MCABBER"
 
 .TP
 \fB/alias\fR name = command line
@@ -137,17 +182,6 @@ Add "name" as an alias for "command line"\&.
 Aliases are expanded only once, thus they can not be chained\&. "/alias name" displays the value associated with the "name" alias; "/alias name =" unsets the "name" alias\&.
 
 Example: "/alias away = status away"\&.
-
-.TP
-\fB/authorization\fR allow|cancel|request|request_unsubscribe [jid]
-Manage the presence subscriptions\&.
-
-If no jid is provided, the current buddy is used\&.
-
- \fBallow\fR  	allow the buddy to receive your presence updates
- \fBcancel\fR 	cancel the buddy' subscription to your presence updates
- \fBrequest\fR	request a subscription to the buddy's presence updates
- \fBrequest_unsubscribe\fR request unsubscription from the buddy's presence updates
 
 .TP
 \fB/bind\fR keycode = command line
@@ -178,12 +212,18 @@ The buffer command manipulates the current buddy's buffer (chat window)\&.
 The clear command is actually an alias for "/buffer clear"\&.
 
 .TP
-\fB/connect\fR
-Establish connection to the Jabber server\&.
+\fB/quit\fR
+Disconnect and leave mcabber(1)\&.
 
 .TP
-\fB/del\fR
-Delete the current buddy from our roster, unsubscribe from its presence notification and unsubscribe it from ours\&.
+\fB/version\fR
+Display mcabber version
+
+.SH "COMMANDS RELATED TO THE SERVER AND CONNECTION"
+
+.TP
+\fB/connect\fR
+Establish connection to the Jabber server\&.
 
 .TP
 \fB/disconnect\fR
@@ -197,6 +237,31 @@ Tell mcabber what to do about a pending event\&. If the first parameter is "*", 
  \fBignore\fR	remove the event #n from the list
  \fBreject\fR	reject the event #n
  \fBlist\fR	list all pending events
+
+.TP
+\fB/rawxml\fR send
+ \fBsend\fR string: send string (raw XML format) to the Jabber server\&. No check is done on the string provided\&. BEWARE! Use this only if you know what you are doing, or you could terminate the connection\&.
+
+.SH "COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES"
+
+.TP
+\fB/add\fR [jid [nickname]]
+Add the "jid" Jabber user to our roster (default group), and send a notification request to this buddy\&. If no nickname is specified, the jid is used\&. If no jid (or an empty string "") is provided or if jid is "\&.", the current buddy is used\&.
+
+.TP
+\fB/authorization\fR allow|cancel|request|request_unsubscribe [jid]
+Manage the presence subscriptions\&.
+
+If no jid is provided, the current buddy is used\&.
+
+ \fBallow\fR  	allow the buddy to receive your presence updates
+ \fBcancel\fR 	cancel the buddy' subscription to your presence updates
+ \fBrequest\fR	request a subscription to the buddy's presence updates
+ \fBrequest_unsubscribe\fR request unsubscription from the buddy's presence updates
+
+.TP
+\fB/del\fR
+Delete the current buddy from our roster, unsubscribe from its presence notification and unsubscribe it from ours\&.
 
 .TP
 \fB/group\fR fold|unfold|toggle
@@ -233,10 +298,6 @@ The \fItoggle\fR and \fItoggle_verbatim\fR subcommands can be bound to a key to 
  \fBtoggle\fR         	switch to/from multi\-line mode (begin/send)
  \fBtoggle_verbatim\fR	same with verbatim multi\-line mode
  \fBabort\fR          	leave multi\-line mode without sending the message
-
-.TP
-\fB/rawxml\fR send
- \fBsend\fR string: send string (raw XML format) to the Jabber server\&. No check is done on the string provided\&. BEWARE! Use this only if you know what you are doing, or you could terminate the connection\&.
 
 .TP
 \fB/rename\fR nickname
@@ -312,14 +373,10 @@ Note: this status will be overridden by subsequent "/status" commands\&. If you 
 
 Note: The jid can include a resource (i\&.e\&. user@server/resource)\&.
 
-.TP
-\fB/version\fR
-Display mcabber version
-
 .SH "CONFIGURATION FILE"
 
 
-See the provided sample configuration file, which should be self\-documented\&.
+See the provided sample configuration file, which should be self\-documenting\&.
 
 .SH "FILES"
 
@@ -327,11 +384,9 @@ See the provided sample configuration file, which should be self\-documented\&.
 The following files can be used by mcabber(1):
 
 .nf
-
 $HOME/\&.mcabber/mcabberrc    Default configuration file
 $HOME/\&.mcabberrc            Configuration file used if no other has been found
 $HOME/\&.mcabber/histo/       Default directory for storing chat history files, if enabled
-
 .fi
 
 .SH "BUGS"

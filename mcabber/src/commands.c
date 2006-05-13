@@ -677,6 +677,8 @@ static void do_group(char *arg)
   if (!current_buddy) return;
 
   group = buddy_getgroup(BUDDATA(current_buddy));
+  if (!group) return;
+
   // We'll have to redraw the chat window if we're not currently on the group
   // entry itself, because it means we'll have to leave the current buddy
   // chat window.

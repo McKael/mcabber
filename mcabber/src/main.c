@@ -275,8 +275,13 @@ int main(int argc, char **argv)
   /* If no password is stored, we ask for it before entering
      ncurses mode */
   if (!settings_opt_get("password")) {
-    if (settings_opt_get("server"))
-      printf("Server: %s\n", settings_opt_get("server"));
+    const char *p;
+    p = settings_opt_get("server");
+    if (p)
+      printf("Server: %s\n", p);
+    p = settings_opt_get("username");
+    if (p)
+      printf("Username: %s\n", p);
     ask_password();
   }
 

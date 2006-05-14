@@ -139,7 +139,7 @@ inline void hk_message_in(const char *jid, const char *resname,
     const char *name = roster_getname(jid);
     if (!name) name = "";
     scr_LogPrint(LPRINT_NORMAL, "Message received from %s <%s/%s>",
-                 name, jid, resname);
+                 name, jid, (resname ? resname : ""));
   }
 
   // Beep, if enabled

@@ -339,20 +339,19 @@ inline void scr_Beep(void)
 void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 {
   time_t timestamp;
+  char strtimestamp[64];
   char *buffer, *b2;
   va_list ap;
 
   if (!(flag & ~LPRINT_NOTUTF8)) return; // Shouldn't happen
 
-  buffer = g_new(char, 5184);
-
   timestamp = time(NULL);
-  strftime(buffer, 48, "[%H:%M:%S] ", localtime(&timestamp));
-  for (b2 = buffer ; *b2 ; b2++)
-    ;
+  strftime(strtimestamp, 48, "[%H:%M:%S]", localtime(&timestamp));
   va_start(ap, fmt);
-  vsnprintf(b2, 5120, fmt, ap);
+  b2 = g_strdup_vprintf(fmt, ap);
   va_end(ap);
+
+  buffer = g_strdup_printf("%s %s", strtimestamp, b2);
 
   if (flag & LPRINT_NORMAL) {
     char *buffer_locale;
@@ -388,16 +387,14 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     if (!(flag & LPRINT_NOTUTF8))
       g_free(buffer_locale);
   }
-  if (flag & (LPRINT_LOG|LPRINT_DEBUG)) {
-    char *buffer2 = g_new(char, 5184);
-
-    strftime(buffer2, 23, "[%Y-%m-%d %H:%M:%S] ", localtime(&timestamp));
-    strcat(buffer2, b2);
-    strcat(buffer2, "\n");
-    ut_WriteLog(flag, buffer2);
-    g_free(buffer2);
-  }
   g_free(buffer);
+
+  if (flag & (LPRINT_LOG|LPRINT_DEBUG)) {
+    strftime(strtimestamp, 23, "[%Y-%m-%d %H:%M:%S]", localtime(&timestamp));
+    buffer = g_strdup_printf("%s %s\n", strtimestamp, b2);
+    ut_WriteLog(flag, buffer);
+    g_free(buffer);
+  }
 }
 
 //  scr_CreateBuddyPanel(title, dontshow)

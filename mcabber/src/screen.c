@@ -340,7 +340,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 {
   time_t timestamp;
   char strtimestamp[64];
-  char *buffer, *b2;
+  char *buffer, *btext;
   va_list ap;
 
   if (!(flag & ~LPRINT_NOTUTF8)) return; // Shouldn't happen
@@ -348,14 +348,14 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
   timestamp = time(NULL);
   strftime(strtimestamp, 48, "[%H:%M:%S]", localtime(&timestamp));
   va_start(ap, fmt);
-  b2 = g_strdup_vprintf(fmt, ap);
+  btext = g_strdup_vprintf(fmt, ap);
   va_end(ap);
-
-  buffer = g_strdup_printf("%s %s", strtimestamp, b2);
 
   if (flag & LPRINT_NORMAL) {
     char *buffer_locale;
     char *buf_specialwindow;
+
+    buffer = g_strdup_printf("%s %s", strtimestamp, btext);
 
     // Convert buffer to current locale for wprintw()
     if (!(flag & LPRINT_NOTUTF8))
@@ -365,9 +365,9 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 
     // For the special status buffer, we need utf-8, but without the timestamp
     if (flag & LPRINT_NOTUTF8)
-      buf_specialwindow = to_utf8(b2);
+      buf_specialwindow = to_utf8(btext);
     else
-      buf_specialwindow = b2;
+      buf_specialwindow = btext;
 
     if (Curses) {
       wprintw(logWnd, "\n%s", buffer_locale);
@@ -382,16 +382,17 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
         HBB_PREFIX_SPECIAL, 0);
     }
 
-    if (buf_specialwindow != b2)
+    if (buf_specialwindow != btext)
       g_free(buf_specialwindow);
     if (!(flag & LPRINT_NOTUTF8))
       g_free(buffer_locale);
+
+    g_free(buffer);
   }
-  g_free(buffer);
 
   if (flag & (LPRINT_LOG|LPRINT_DEBUG)) {
     strftime(strtimestamp, 23, "[%Y-%m-%d %H:%M:%S]", localtime(&timestamp));
-    buffer = g_strdup_printf("%s %s\n", strtimestamp, b2);
+    buffer = g_strdup_printf("%s %s\n", strtimestamp, btext);
     ut_WriteLog(flag, buffer);
     g_free(buffer);
   }

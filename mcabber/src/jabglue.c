@@ -1474,6 +1474,7 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     /* The subscription request has been denied or a previously-granted
        subscription has been cancelled */
     roster_unsubscribed(from);
+    update_roster = TRUE;
     buf = g_strdup_printf("<%s> has cancelled your subscription to "
                           "their presence updates", from);
     scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);

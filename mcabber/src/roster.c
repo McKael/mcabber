@@ -533,12 +533,14 @@ void roster_msg_setflag(const char *jid, guint value)
 {
   GSList *sl_user;
   roster *roster_usr, *roster_grp;
+  int new_roster_item = FALSE;
 
   sl_user = roster_find(jid, jidsearch,
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   // If we can't find it, we add it
   if (sl_user == NULL) {
     sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER, sub_none);
+    new_roster_item = TRUE;
   }
 
   roster_usr = (roster*)sl_user->data;
@@ -579,6 +581,9 @@ void roster_msg_setflag(const char *jid, guint value)
       // Actually the "else" part is useless, because the group
       // ROSTER_FLAG_MSG should already be set...
   }
+
+  if (buddylist && new_roster_item)
+    buddylist_build();
 }
 
 const char *roster_getname(const char *jid)

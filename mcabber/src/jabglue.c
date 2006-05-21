@@ -323,7 +323,6 @@ static xmlnode presnew(enum imstatus st, const char *recipient,
 void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 {
   xmlnode x;
-  struct T_presence room_presence;
 
   if (!online) return;
 
@@ -355,6 +354,7 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 
   // Send presence to chatrooms
   if (st != invisible) {
+    struct T_presence room_presence;
     room_presence.st = st;
     room_presence.msg = msg;
     foreach_buddy(ROSTER_TYPE_ROOM, &roompresence, &room_presence);

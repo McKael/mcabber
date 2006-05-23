@@ -794,6 +794,37 @@ static void gotmessage(char *type, const char *from, const char *body,
   rname = strchr(from, '/');
   if (rname) rname++;
 
+  // Check for unexpected groupchat messages
+  // If we receive a groupchat message from a room we're not a member of,
+  // this is probably a server issue and the best we can do is to send
+  // a type unavailable.
+  if (type && !strcmp(type, "groupchat") && !roster_getnickname(jid)) {
+    // It shouldn't happen, probably a server issue
+    GSList *room_elt;
+    char *mbuf;
+
+    mbuf = g_strdup_printf("Unexpected groupchat packet!");
+    scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
+    scr_WriteIncomingMessage(jid, mbuf, 0, HBB_PREFIX_INFO);
+    g_free(mbuf);
+
+    // Send back an unavailable packet
+    jb_setstatus(offline, jid, "");
+
+    // MUC
+    // Make sure this is a room (it can be a conversion user->room)
+    room_elt = roster_find(jid, jidsearch, 0);
+    if (!room_elt) {
+      room_elt = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_ROOM, sub_none);
+    } else {
+      buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
+    }
+
+    buddylist_build();
+    scr_DrawRoster();
+    return;
+  }
+
   // We don't call the message_in hook if 'block_unsubscribed' is true and
   // this is a regular message from an unsubscribed user.
   if (!settings_opt_get_int("block_unsubscribed") ||
@@ -978,7 +1009,8 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
 {
   xmlnode y;
   char *p;
-  const char *m;
+  char *mbuf;
+  const char *ournick;
   enum imrole mbrole = role_none;
   enum imaffiliation mbaffil = affil_none;
   const char *mbjid = NULL, *mbnick = NULL;
@@ -992,8 +1024,11 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
 
   room_elt = roster_find(roomjid, jidsearch, 0);
   if (!room_elt) {
-    // Add room if it doesn't already exist  FIXME shouldn't happen!
+    // Add room if it doesn't already exist
+    // It shouldn't happen, there is probably something wrong (server or
+    // network issue?)
     room_elt = roster_add_user(roomjid, NULL, NULL, ROSTER_TYPE_ROOM, sub_none);
+    scr_LogPrint(LPRINT_LOGNORM, "Strange MUC presence message");
   } else {
     // Make sure this is a room (it can be a conversion user->room)
     buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
@@ -1031,6 +1066,23 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       actorjid = xmlnode_get_attrib(z, "jid");
   }
 
+  // Get our room nickname
+  ournick = buddy_getnickname(room_elt->data);
+
+  if (!ournick) {
+    // It shouldn't happen, probably a server issue
+    mbuf = g_strdup_printf("Unexpected groupchat packet!");
+
+    scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
+    scr_WriteIncomingMessage(roomjid, mbuf, 0, HBB_PREFIX_INFO);
+    g_free(mbuf);
+    // Send back an unavailable packet
+    jb_setstatus(offline, roomjid, "");
+    buddylist_build();
+    scr_DrawRoster();
+    return;
+  }
+
   // Get the status code
   // 201: a room has been created
   // 301: the user has been banned from the room
@@ -1046,7 +1098,6 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
 
   // Check for nickname change
   if (statuscode == 303 && mbnick) {
-    gchar *mbuf;
     mbuf = g_strdup_printf("%s is now known as %s", rname, mbnick);
     scr_WriteIncomingMessage(roomjid, mbuf, usttime,
                              HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
@@ -1054,14 +1105,12 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     g_free(mbuf);
     buddy_resource_setname(room_elt->data, rname, mbnick);
     // Maybe it's _our_ nickname...
-    m = buddy_getnickname(room_elt->data);
-    if (m && !strcmp(rname, m))
+    if (ournick && !strcmp(rname, ournick))
       buddy_setnickname(room_elt->data, mbnick);
   }
 
   // Check for departure/arrival
   if (!mbnick && mbrole == role_none) {
-    gchar *mbuf;
     enum { leave=0, kick, ban } how = leave;
     bool we_left = FALSE;
 
@@ -1071,9 +1120,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       how = ban;
 
     // If this is a leave, check if it is ourself
-    m = buddy_getnickname(room_elt->data);
-
-    if (m && !strcmp(rname, m)) {
+    if (ournick && !strcmp(rname, ournick)) {
       we_left = TRUE; // _We_ have left! (kicked, banned, etc.)
       buddy_setinsideroom(room_elt->data, FALSE);
       buddy_setnickname(room_elt->data, NULL);
@@ -1146,20 +1193,6 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     g_free(mbuf);
   } else if (buddy_getstatus(room_elt->data, rname) == offline &&
              ust != offline) {
-    gchar *mbuf;
-    const char *ournick = buddy_getnickname(room_elt->data);
-
-    if (!ournick) {
-      // I think it shouldn't happen, but let's put a warning for a while...
-      mbuf = g_strdup_printf("MUC ERR: you have no nickname, "
-                             "please send a bug report!");
-      scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
-      scr_WriteIncomingMessage(roomjid, mbuf, 0, HBB_PREFIX_INFO);
-      g_free(mbuf);
-      buddylist_build();
-      scr_DrawRoster();
-      return;
-    }
 
     if (!buddy_getinsideroom(room_elt->data)) {
       // We weren't inside the room yet.  Now we are.

@@ -1523,6 +1523,37 @@ void scr_BufferClear(void)
   doupdate();
 }
 
+//  scr_BufferPurge()
+// Purge/Drop the current buddy buffer
+void scr_BufferPurge(void)
+{
+  winbuf *win_entry;
+  guint isspe;
+
+  // Get win_entry
+  if (!current_buddy) return;
+  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
+  if (!win_entry) return;
+
+  // Delete the current hbuf
+  hbuf_free(&win_entry->hbuf);
+  if (isspe) {
+    // Currently it can only be the status buffer
+    statushbuf = NULL;
+  }
+
+  win_entry->cleared = FALSE;
+  win_entry->top = NULL;
+
+  // Refresh the window
+  scr_UpdateBuddyWindow();
+
+  // Finished :)
+  update_panels();
+  doupdate();
+}
+
 //  scr_BufferTopBottom()
 // Jump to the head/tail of the current buddy window
 // (top if topbottom == -1, bottom topbottom == 1)

@@ -155,6 +155,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_BUFFER, "search_forward");
   compl_add_category_word(COMPL_BUFFER, "date");
   compl_add_category_word(COMPL_BUFFER, "%");
+  compl_add_category_word(COMPL_BUFFER, "purge");
 
   // Group category
   compl_add_category_word(COMPL_GROUP, "fold");
@@ -1012,6 +1013,8 @@ static void do_buffer(char *arg)
     scr_BufferTopBottom(1);
   } else if (!strcasecmp(subcmd, "clear")) {
     scr_BufferClear();
+  } else if (!strcasecmp(subcmd, "purge")) {
+    scr_BufferPurge();
   } else if (!strcasecmp(subcmd, "up")) {
     buffer_updown(-1, arg);
   } else if (!strcasecmp(subcmd, "down")) {

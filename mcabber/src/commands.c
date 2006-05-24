@@ -660,7 +660,7 @@ static void do_del(char *arg)
 
   scr_LogPrint(LPRINT_LOGNORM, "Removing <%s>...", jid);
   jb_delbuddy(jid);
-  scr_ShowBuddyWindow();
+  scr_UpdateBuddyWindow();
 }
 
 static void do_group(char *arg)
@@ -1755,7 +1755,7 @@ static void room_remove(gpointer bud, char *arg)
   }
   // Delete the room
   roster_del_user(buddy_getjid(bud));
-  scr_ShowBuddyWindow();
+  scr_UpdateBuddyWindow();
   buddylist_build();
   update_roster = TRUE;
 }

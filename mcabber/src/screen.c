@@ -631,6 +631,21 @@ void scr_ShowBuddyWindow(void)
   scr_ShowWindow(jid, FALSE);
 }
 
+//  scr_UpdateBuddyWindow()
+// (Re)Display the current window.
+// If chatmode is enabled, call scr_ShowBuddyWindow(),
+// else display the chat window.
+inline void scr_UpdateBuddyWindow(void)
+{
+  if (chatmode) {
+    scr_ShowBuddyWindow();
+    return;
+  }
+
+  top_panel(chatPanel);
+  top_panel(inputPanel);
+}
+
 //  scr_WriteInWindow()
 // Write some text in the winId window (this usually is a jid).
 // Use winId == NULL for the special status buffer.

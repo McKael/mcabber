@@ -948,7 +948,7 @@ static void statehandler(jconn conn, int state)
         }
         roster_free();
         update_roster = TRUE;
-        scr_ShowBuddyWindow();
+        scr_UpdateBuddyWindow();
         break;
 
     case JCONN_STATE_CONNECTED:

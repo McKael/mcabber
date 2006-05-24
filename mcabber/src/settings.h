@@ -26,6 +26,9 @@ void    settings_del(guint type, const gchar *key);
 const gchar *settings_get(guint type, const gchar *key);
 int     settings_get_int(guint type, const gchar *key);
 const gchar *settings_get_status_msg(enum imstatus status);
+void    settings_foreach(guint type,
+                         void (*pfunc)(void *param, char *k, char *v),
+                         void *param);
 
 const gchar *isbound(int key);
 

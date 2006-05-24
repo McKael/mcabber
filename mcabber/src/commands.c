@@ -1300,6 +1300,11 @@ static void do_set(char *arg)
   g_free(option_utf8);
 }
 
+static void dump_alias(void *param, char *k, char *v)
+{
+  scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8, "Alias %s = %s", k, v);
+}
+
 static void do_alias(char *arg)
 {
   guint assign;
@@ -1307,7 +1312,7 @@ static void do_alias(char *arg)
 
   assign = parse_assigment(arg, &alias, &value);
   if (!alias) {
-    scr_LogPrint(LPRINT_NORMAL, "Alias what?");
+    settings_foreach(SETTINGS_TYPE_ALIAS, &dump_alias, NULL);
     return;
   }
   if (!assign) {
@@ -1346,6 +1351,11 @@ static void do_alias(char *arg)
   }
 }
 
+static void dump_bind(void *param, char *k, char *v)
+{
+  scr_LogPrint(LPRINT_NORMAL, "Key %4s is bound to: %s", k, v);
+}
+
 static void do_bind(char *arg)
 {
   guint assign;
@@ -1353,7 +1363,7 @@ static void do_bind(char *arg)
 
   assign = parse_assigment(arg, &keycode, &value);
   if (!keycode) {
-    scr_LogPrint(LPRINT_NORMAL, "Bind what keycode?");
+    settings_foreach(SETTINGS_TYPE_BINDING, &dump_bind, NULL);
     return;
   }
   if (!assign) {

@@ -323,4 +323,23 @@ const gchar *settings_get_status_msg(enum imstatus status)
   return rstatus;
 }
 
+//  settings_foreach(type, pfunction, param)
+// Call pfunction(param, key, value) for each setting with requested type.
+void settings_foreach(guint type, void (*pfunc)(void *param, char *k, char *v),
+                      void *param)
+{
+  GSList **plist;
+  GSList *ptr;
+  T_setting *setting;
+
+  plist = get_list_ptr(type);
+
+  if (!*plist) return;
+
+  for (ptr = *plist ; ptr; ptr = g_slist_next(ptr)) {
+    setting = ptr->data;
+    pfunc(param, setting->name, setting->value);
+  }
+}
+
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

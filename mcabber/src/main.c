@@ -265,7 +265,7 @@ int main(int argc, char **argv)
   /* free() configFile if it has been allocated during options parsing */
   g_free(configFile);
   /* Leave if there was an error in the config. file */
-  if (ret)
+  if (ret == -2)
     exit(EXIT_FAILURE);
 
   optstring = settings_opt_get("tracelog_file");
@@ -273,8 +273,8 @@ int main(int argc, char **argv)
     ut_InitDebug(settings_opt_get_int("tracelog_level"), optstring);
 
   /* If no password is stored, we ask for it before entering
-     ncurses mode */
-  if (!settings_opt_get("password")) {
+     ncurses mode -- unless the username is unknown. */
+  if (settings_opt_get("username") && !settings_opt_get("password")) {
     const char *p;
     p = settings_opt_get("server");
     if (p)
@@ -308,11 +308,13 @@ int main(int argc, char **argv)
   if (settings_opt_get_int("hide_offline_buddies") > 0)
     buddylist_set_hide_offline_buddies(TRUE);
 
-  /* Connection */
-  if (settings_opt_get("password"))
+  if (ret < 0) {
+    scr_LogPrint(LPRINT_NORMAL, "No configuration file has been found.");
+    scr_ShowBuddyWindow();
+  } else {
+    /* Connection */
     mcabber_connect();
-  else
-    scr_LogPrint(LPRINT_LOGNORM, "Can't connect: no password supplied");
+  }
 
   scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
 

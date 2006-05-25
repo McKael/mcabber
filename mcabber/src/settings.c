@@ -102,7 +102,7 @@ int cfg_read_file(char *filename)
   } else {
     if ((fp = fopen(filename, "r")) == NULL) {
       perror("Cannot open configuration file");
-      return -1;
+      return -2;
     }
     // Check configuration file permissions (see above)
     checkset_perm(filename, TRUE);

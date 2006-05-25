@@ -24,5 +24,6 @@ config.{log,cache,guess,status}
 
 *.sw?
 cscope.out
+tags
 mcabber/ptodo
 

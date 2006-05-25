@@ -265,7 +265,7 @@ static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
       buf = g_strdup_printf("Name:    %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
       g_free(p_noutf8);
       g_free(buf);
     }
@@ -275,7 +275,7 @@ static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
       buf = g_strdup_printf("Version: %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
       g_free(p_noutf8);
       g_free(buf);
     }
@@ -285,7 +285,7 @@ static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
       buf = g_strdup_printf("OS:      %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
       g_free(p_noutf8);
       g_free(buf);
     }
@@ -341,7 +341,7 @@ static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
       buf = g_strdup_printf("UTC:  %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
       g_free(p_noutf8);
       g_free(buf);
     }
@@ -351,7 +351,7 @@ static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
       buf = g_strdup_printf("TZ:   %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
       g_free(p_noutf8);
       g_free(buf);
     }
@@ -361,7 +361,7 @@ static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     p_noutf8 = from_utf8(p);
     if (p_noutf8) {
       buf = g_strdup_printf("Time: %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
       g_free(p_noutf8);
       g_free(buf);
     }

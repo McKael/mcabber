@@ -154,28 +154,31 @@ Examples:
 
 COMMANDS RELATED TO MCABBER
 ---------------------------
-/alias name = command line::
+/alias [name [= command line]]::
         Add "name" as an alias for "command line". +
         Aliases are expanded only once, thus they can not be chained. +
-        "/alias name" displays the value associated with the "name" alias;
+        "/alias name" displays the value associated with the "name" alias; +
         "/alias name =" unsets the "name" alias. +
+        "/alias" displays a list of the existing aliases. +
         Example: "/alias away = status away".
 
-/bind keycode = command line::
+/bind [keycode [= command line]]::
         Bind a command line to the key with the "keycode" code number. +
         Keycodes of unused keys are displayed by `mcabber` in the log window
         when pressing the key, for example "Unknown key=265". +
-        "/bind keycode" displays the command line bound to the given keycode;
-        "/bind keycode" unbinds the given keycode. +
+        "/bind keycode" displays the command line bound to the given keycode; +
+        "/bind keycode =" unbinds the given keycode. +
+        "/bind" displays a list of the bound keycodes. +
         Note: aliases can be used in key bindings. +
         Example: "/bind 265 = status online" (265 is F1 for me, but it may
         depend on your ncurses installation).
 
-/buffer clear|top|bottom|date|%|search_backward|search_forward::
+/buffer clear|purge|top|bottom|date|%|search_backward|search_forward::
         The 'buffer' command manipulates the current buddy's buffer
         (chat window).
 
         'clear';;                clear the current buddy chat window
+        'purge';;                purge the current buddy chat window
         'bottom';;               jump to the bottom of the current buddy chat buffer
         'top';;                  jump to the top of the current buddy chat buffer
         'up' [n];;               scroll the buffer up n lines (default: half a screen)
@@ -187,6 +190,9 @@ COMMANDS RELATED TO MCABBER
 
 /clear::
         The 'clear' command is actually an alias for "/buffer clear".
+
+/help [command]::
+        Display generic help or help about a specific mcabber command.
 
 /quit::
         Disconnect and leave `mcabber(1)`.

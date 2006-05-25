@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "commands.h"
+#include "help.h"
 #include "jabglue.h"
 #include "roster.h"
 #include "screen.h"
@@ -58,6 +59,7 @@ static void do_authorization(char *arg);
 static void do_version(char *arg);
 static void do_request(char *arg);
 static void do_event(char *arg);
+static void do_help(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -96,7 +98,7 @@ void cmd_init(void)
   cmd_add("disconnect", "Disconnect from server", 0, 0, &do_disconnect);
   cmd_add("event", "Process an event", COMPL_EVENTSID, COMPL_EVENTS, &do_event);
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
-  //cmd_add("help", "Display some help", COMPL_CMD, 0, NULL);
+  cmd_add("help", "Display some help", COMPL_CMD, 0, &do_help);
   cmd_add("info", "Show basic info on current buddy", 0, 0, &do_info);
   cmd_add("move", "Move the current buddy to another group", COMPL_GROUPNAME,
           0, &do_move);
@@ -2216,6 +2218,11 @@ static void do_connect(char *arg)
 static void do_disconnect(char *arg)
 {
   jb_disconnect();
+}
+
+static void do_help(char *arg)
+{
+  help_process(arg);
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

@@ -113,6 +113,13 @@ fi
 
 AC_DEFINE(BUILD_JABBER, 1, [build with jabber support])
 
+AC_ARG_WITH(datadir,
+    [AC_HELP_STRING(--with-datadir, Read-only data (help files))],
+    datadir=$withval, datadir="")
+if test x"${datadir}" != x""; then
+    AC_DEFINE_UNQUOTED(DATA_DIR, "${datadir}", [Data files directory])
+fi
+
 AC_ARG_ENABLE(debug,
     [AC_HELP_STRING(--enable-debug, Add development compilation options)],
     debug=$enableval, debug="")

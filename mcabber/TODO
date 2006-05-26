@@ -18,7 +18,6 @@ TODO:
 * MUC: join password-protected room
 * MUC: display roles of room members
 * JEP-0022/0085: Message events / chat states (composing, etc.)
-* Add a way to lock the buffer scrolling
 * "Offline roster" (when disconnected)
 * Maybe cache iq:version and show version in /info, if available
 * Sort roster by status
@@ -30,13 +29,10 @@ TODO:
 * Commands:
 
   - /group rename
-  - /roster enable|disable xml|status
+  - /roster enable|disable xml
   - /info [jid]
     (request info to the server if the buddy is not in the roster)
   - /server register|unregister
   - /search <jid>|name
     (server search)
-  - /help
-  - /roster enable|disable xml|status
-  - /authorization request_unsubscribe
 

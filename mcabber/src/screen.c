@@ -598,8 +598,8 @@ static void scr_ShowWindow(const char *winId, int special)
     if (!win_entry->lock)
       roster_msg_setflag(winId, FALSE);
     roster_setflags(winId, ROSTER_FLAG_LOCK, TRUE);
-    update_roster = TRUE;
   }
+  update_roster = TRUE;
 
   // Refresh the window
   scr_UpdateWindow(win_entry);
@@ -969,6 +969,13 @@ void scr_UpdateChatStatus(int forceupdate)
   isgrp = btype & ROSTER_TYPE_GROUP;
   ismuc = btype & ROSTER_TYPE_ROOM;
   isspe = btype  & ROSTER_TYPE_SPECIAL;
+
+  if (chatmode && !isgrp) {
+    winbuf *win_entry;
+    win_entry = scr_SearchWindow(buddy_getjid(BUDDATA(current_buddy)), isspe);
+    if (win_entry && win_entry->lock)
+      mvwprintw(chatstatusWnd, 0, 0, "*");
+  }
 
   if (isgrp || isspe) {
     buf_locale = from_utf8(fullname);

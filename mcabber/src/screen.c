@@ -61,6 +61,7 @@ typedef struct {
   GList  *hbuf;
   GList  *top;      // If top is NULL, we'll display the last lines
   char    cleared;  // For ex, user has issued a /clear command...
+  char    lock;
 } winbuf;
 
 
@@ -506,6 +507,9 @@ static void scr_UpdateWindow(winbuf *win_entry)
       hbuf_head = g_list_previous(hbuf_head);
       n++;
     }
+    // If the buffer is locked, remember current "top" line for the next time.
+    if (win_entry->lock)
+      win_entry->top = hbuf_head;
   } else
     hbuf_head = win_entry->top;
 
@@ -591,7 +595,8 @@ static void scr_ShowWindow(const char *winId, int special)
   currentWindow = win_entry;
   chatmode = TRUE;
   if (!special) {
-    roster_msg_setflag(winId, FALSE);
+    if (!win_entry->lock)
+      roster_msg_setflag(winId, FALSE);
     roster_setflags(winId, ROSTER_FLAG_LOCK, TRUE);
     update_roster = TRUE;
   }
@@ -658,6 +663,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   char *text_locale;
   int dont_show = FALSE;
   int special;
+  bool setmsgflg = FALSE;
 
   // Look for the window entry.
   special = (winId == NULL);
@@ -684,7 +690,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   }
 
   // The message must be displayed -> update top pointer
-  if (win_entry->cleared)
+  if (!win_entry->lock && win_entry->cleared)
     win_entry->top = g_list_last(win_entry->hbuf);
 
   text_locale = from_utf8(text);
@@ -692,14 +698,14 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
                 maxX - Roster_Width - PREFIX_WIDTH);
   g_free(text_locale);
 
-  if (win_entry->cleared) {
+  if (!win_entry->lock && win_entry->cleared) {
     win_entry->cleared = FALSE;
     if (g_list_next(win_entry->top))
       win_entry->top = g_list_next(win_entry->top);
   }
 
   // Make sure the last line appears in the window; update top if necessary
-  if (win_entry->top) {
+  if (!win_entry->lock && win_entry->top) {
     int dist;
     GList *first = g_list_first(win_entry->hbuf);
     dist = g_list_position(first, g_list_last(win_entry->hbuf)) -
@@ -709,13 +715,18 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   }
 
   if (!dont_show) {
+    if (win_entry->lock)
+      setmsgflg = TRUE;
     // Show and refresh the window
     top_panel(win_entry->panel);
     scr_UpdateWindow(win_entry);
     top_panel(inputPanel);
     update_panels();
     doupdate();
-  } else if (!special && !(prefix_flags & HBB_PREFIX_NOFLAG)) {
+  } else if (!(prefix_flags & HBB_PREFIX_NOFLAG)) {
+    setmsgflg = TRUE;
+  }
+  if (setmsgflg && !special) {
     roster_msg_setflag(winId, TRUE);
     update_roster = TRUE;
   }
@@ -1554,6 +1565,50 @@ void scr_BufferPurge(void)
   doupdate();
 }
 
+//  scr_BufferScrollLock(lock)
+// Lock/unlock the current buddy buffer
+// lock = 1 : lock
+// lock = 0 : unlock
+// lock = -1: toggle lock status
+void scr_BufferScrollLock(int lock)
+{
+  winbuf *win_entry;
+  guint isspe;
+
+  // Get win_entry
+  if (!current_buddy) return;
+  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
+  if (!win_entry) return;
+
+  if (lock == -1)
+    lock = !win_entry->lock;
+
+  if (lock) {
+    win_entry->lock = TRUE;
+  } else {
+    win_entry->lock = FALSE;
+    win_entry->cleared = FALSE;
+    win_entry->top = NULL;
+  }
+
+  // If chatmode is disabled and we're at the bottom of the buffer,
+  // we need to set the "top" line, so we need to call scr_ShowBuddyWindow()
+  // at least once.  (Maybe it will cause a double refresh...)
+  if (!chatmode && !win_entry->top) {
+    chatmode = TRUE;
+    scr_ShowBuddyWindow();
+    chatmode = FALSE;
+  }
+
+  // Refresh the window
+  scr_UpdateBuddyWindow();
+
+  // Finished :)
+  update_panels();
+  doupdate();
+}
+
 //  scr_BufferTopBottom()
 // Jump to the head/tail of the current buddy window
 // (top if topbottom == -1, bottom topbottom == 1)
@@ -1698,15 +1753,23 @@ inline int scr_get_multimode()
 void scr_setmsgflag_if_needed(const char *jid)
 {
   const char *current_jid;
+  bool iscurrentlocked = FALSE;
 
   if (!jid)
     return;
 
-  if (current_buddy)
+  if (current_buddy) {
+    guint isspe;
+    isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
     current_jid = buddy_getjid(BUDDATA(current_buddy));
-  else
+    if (current_jid) {
+      winbuf *win_entry = scr_SearchWindow(current_jid, isspe);
+      iscurrentlocked = win_entry->lock;
+    }
+  } else {
     current_jid = NULL;
-  if (!chatmode || !current_jid || strcmp(jid, current_jid))
+  }
+  if (!chatmode || !current_jid || strcmp(jid, current_jid) || iscurrentlocked)
     roster_msg_setflag(jid, TRUE);
 }
 

@@ -174,11 +174,12 @@ COMMANDS RELATED TO MCABBER
         depend on your ncurses installation).
 
 /buffer clear|purge|top|bottom|date|%|search_backward|search_forward::
+/buffer scroll_lock|scroll_unlock|scroll_toggle::
         The 'buffer' command manipulates the current buddy's buffer
         (chat window).
 
         'clear';;                clear the current buddy chat window
-        'purge';;                purge the current buddy chat window
+        'purge';;                clear the current buddy chat window and empty all contents of the chat buffer
         'bottom';;               jump to the bottom of the current buddy chat buffer
         'top';;                  jump to the top of the current buddy chat buffer
         'up' [n];;               scroll the buffer up n lines (default: half a screen)
@@ -187,6 +188,9 @@ COMMANDS RELATED TO MCABBER
         '%' n;;                  jump to position %n of the buddy chat buffer
         'search_backward' text;; search for "text" in the current buddy chat buffer
         'search_forward'  text;; search for "text" in the current buddy chat buffer
+        'scroll_lock';;          lock buffer scrolling
+        'scroll_unlock';;        unlock buffer scrolling
+        'scroll_toggle';;        toggle buffer scrolling (lock/unlock)
 
 /clear::
         The 'clear' command is actually an alias for "/buffer clear".

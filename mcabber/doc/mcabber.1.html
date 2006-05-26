@@ -418,6 +418,9 @@ You are participating in x@y.c conference room, and there are unread messages
 <dt><b>
 /buffer clear|purge|top|bottom|date|%|search_backward|search_forward
 </b></dt>
+<dt><b>
+/buffer scroll_lock|scroll_unlock|scroll_toggle
+</b></dt>
 <dd>
         The <b>buffer</b> command manipulates the current buddy's buffer
         (chat window).
@@ -435,7 +438,7 @@ clear the current buddy chat window
 <b>purge</b>
 </td>
 <td>
-purge the current buddy chat window
+clear the current buddy chat window and empty all contents of the chat buffer
 </td>
 </tr>
 <tr valign="top">
@@ -500,6 +503,30 @@ search for "text" in the current buddy chat buffer
 </td>
 <td>
 search for "text" in the current buddy chat buffer
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>scroll_lock</b>
+</td>
+<td>
+lock buffer scrolling
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>scroll_unlock</b>
+</td>
+<td>
+unlock buffer scrolling
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>scroll_toggle</b>
+</td>
+<td>
+toggle buffer scrolling (lock/unlock)
 </td>
 </tr>
 </table>
@@ -1122,7 +1149,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.7.7-dev<br />
-Last updated 25-May-2006 18:50:24 CEST
+Last updated 26-May-2006 23:44:03 CEST
 </p>
 </div>
 </div>

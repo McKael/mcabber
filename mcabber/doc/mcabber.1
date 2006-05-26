@@ -200,11 +200,11 @@ Note: aliases can be used in key bindings\&.
 Example: "/bind 265 = status online" (265 is F1 for me, but it may depend on your ncurses installation)\&.
 
 .TP
-\fB/buffer\fR clear|purge|top|bottom|date|%|search_backward|search_forward
+\fB/buffer\fR clear|top|bottom|date|%|search_backward|search_forward|...
 The buffer command manipulates the current buddy's buffer (chat window)\&.
 
  \fBclear\fR      	clear the current buddy chat window
- \fBpurge\fR      	purge the current buddy chat window
+ \fBpurge\fR      	clear the current buddy chat window and empty all contents of the chat buffer
  \fBbottom\fR     	jump to the bottom of the current buddy chat buffer
  \fBtop\fR        	jump to the top of the current buddy chat buffer
  \fBup\fR [n]     	scroll the buffer up n lines (default: half a screen)
@@ -213,6 +213,9 @@ The buffer command manipulates the current buddy's buffer (chat window)\&.
  \fB%\fR n        	jump to position %n of the buddy chat buffer
  \fBsearch_backward\fR text	search for "text" in the current buddy chat buffer
  \fBsearch_forward\fR  text	search for "text" in the current buddy chat buffer
+ \fBscroll_lock\fR	lock buffer scrolling
+ \fBscroll_unlock\fR	unlock buffer scrolling
+ \fBscroll_toggle\fR	toggle buffer scrolling (lock/unlock)
 
 .TP
 \fB/clear\fR

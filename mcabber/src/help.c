@@ -35,7 +35,7 @@
 // Return the language code string (a 2-letters string).
 static const char *get_lang(void) {
   static const char *lang_str = DEFAULT_LANG;
-#ifdef DATA_ROOT_DIR
+#ifdef DATA_DIR
   static char lang[3];
   const char *opt_l;
   opt_l = settings_opt_get("lang");
@@ -44,7 +44,7 @@ static const char *get_lang(void) {
     mc_strtolower(lang);
     lang_str = lang;
   }
-#endif /* DATA_ROOT_DIR */
+#endif /* DATA_DIR */
   return lang_str;
 }
 
@@ -54,7 +54,7 @@ static const char *get_lang(void) {
 // Return 0 in case of success.
 int help_process(char *string)
 {
-#ifndef DATA_ROOT_DIR
+#ifndef DATA_DIR
   scr_LogPrint(LPRINT_NORMAL, "Help isn't available.");
   return -1;
 #else
@@ -75,7 +75,7 @@ int help_process(char *string)
 
   // Look for help file
   lang = get_lang();
-  helpfiles_dir = g_strdup_printf("%s/mcabber/help", DATA_ROOT_DIR);
+  helpfiles_dir = g_strdup_printf("%s/mcabber/help", DATA_DIR);
   if (string && *string) {
     p = g_strdup(string);
     mc_strtolower(p);
@@ -109,7 +109,7 @@ int help_process(char *string)
   g_free(data);
 
   return 0;
-#endif /* DATA_ROOT_DIR */
+#endif /* DATA_DIR */
 }
 
 

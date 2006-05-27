@@ -220,7 +220,7 @@ struct in_addr *make_addr(char *host)
         }
     } else {
         addr.s_addr = inet_addr(host);
-        if(addr.s_addr != -1) {
+        if(addr.s_addr != (in_addr_t)-1) {
             return &addr;
         }
         hp = gethostbyname(host);

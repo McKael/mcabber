@@ -303,7 +303,7 @@ char *strunescape(pool p, char *buf)
 
     if (temp == NULL) return(NULL);
 
-    for(i=0;i<strlen(buf);i++)
+    for(i=0;i<(int)strlen(buf);i++)
     {
         if (buf[i]=='&')
         {

@@ -300,7 +300,7 @@ xmlnode xmlnode_insert_cdata(xmlnode parent, const char* CDATA, unsigned int siz
     if(CDATA == NULL || parent == NULL)
         return NULL;
 
-    if(size == -1)
+    if(size == (unsigned int)-1)
         size = strlen(CDATA);
 
     result = _xmlnode_insert(parent, NULL, NTYPE_CDATA);

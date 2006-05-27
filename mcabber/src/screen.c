@@ -364,6 +364,15 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     else
       buffer_locale = buffer;
 
+    if (!buffer_locale) {
+      wprintw(logWnd,
+              "\n%s*Error: cannot convert string to locale.", strtimestamp);
+      update_panels();
+      doupdate();
+      g_free(buffer);
+      return;
+    }
+
     // For the special status buffer, we need utf-8, but without the timestamp
     if (flag & LPRINT_NOTUTF8)
       buf_specialwindow = to_utf8(btext);

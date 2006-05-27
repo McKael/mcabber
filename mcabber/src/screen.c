@@ -690,7 +690,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   }
 
   // The message must be displayed -> update top pointer
-  if (!win_entry->lock && win_entry->cleared)
+  if (win_entry->cleared)
     win_entry->top = g_list_last(win_entry->hbuf);
 
   text_locale = from_utf8(text);
@@ -698,7 +698,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
                 maxX - Roster_Width - PREFIX_WIDTH);
   g_free(text_locale);
 
-  if (!win_entry->lock && win_entry->cleared) {
+  if (win_entry->cleared) {
     win_entry->cleared = FALSE;
     if (g_list_next(win_entry->top))
       win_entry->top = g_list_next(win_entry->top);

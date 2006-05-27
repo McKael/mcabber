@@ -158,8 +158,11 @@ xstream xstream_new(pool p, xstream_onNode f, void *arg)
     /* create expat parser and ensure cleanup */
     newx->parser = XML_ParserCreate(NULL);
     XML_SetUserData(newx->parser, (void *)newx);
-    XML_SetElementHandler(newx->parser, (void *)_xstream_startElement, (void *)_xstream_endElement);
-    XML_SetCharacterDataHandler(newx->parser, (void *)_xstream_charData);
+    XML_SetElementHandler(newx->parser,
+                          (XML_StartElementHandler)_xstream_startElement,
+                          (XML_EndElementHandler)_xstream_endElement);
+    XML_SetCharacterDataHandler(newx->parser,
+                                (XML_CharacterDataHandler)_xstream_charData);
     pool_cleanup(p, _xstream_cleanup, (void *)newx);
 
     return newx;

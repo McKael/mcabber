@@ -1595,8 +1595,9 @@ void scr_BufferScrollLock(int lock)
     win_entry->lock = TRUE;
   } else {
     win_entry->lock = FALSE;
-    win_entry->cleared = FALSE;
-    win_entry->top = NULL;
+    //win_entry->cleared = FALSE;
+    if (isspe || (buddy_getflags(BUDDATA(current_buddy)) & ROSTER_FLAG_MSG))
+      win_entry->top = NULL;
   }
 
   // If chatmode is disabled and we're at the bottom of the buffer,

@@ -259,7 +259,7 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
     sample.name = (gchar*)jidname;
     comp = (GCompareFunc)&roster_compare_name_type;
   } else
-    return NULL;    // should not happen
+    return NULL;    // Should not happen...
 
   while (sl_roster_elt) {
     roster *roster_elt = (roster*)sl_roster_elt->data;
@@ -293,7 +293,6 @@ GSList *roster_add_group(const char *name)
     p_group = roster_find(name, namesearch, ROSTER_TYPE_GROUP);
   }
   return p_group;
-
 }
 
 // Returns a pointer to the new user, or existing user with that name
@@ -1255,6 +1254,30 @@ void foreach_buddy(guint roster_type,
       sl_roster_usrelt = g_slist_next(sl_roster_usrelt);
     }
     sl_roster_elt = g_slist_next(sl_roster_elt);
+  }
+}
+
+//  foreach_group_member(group, pfunction, param)
+// Call pfunction(buddy, param) for each buddy in the specified group.
+void foreach_group_member(gpointer groupdata,
+                   void (*pfunc)(gpointer rosterdata, void *param),
+                   void *param)
+{
+  roster *roster_elt;
+  GSList *sl_roster_usrelt;
+  roster *roster_usrelt;
+
+  roster_elt = groupdata;
+
+  if (!(roster_elt->type & ROSTER_TYPE_GROUP))
+    return;
+
+  sl_roster_usrelt = roster_elt->list;
+  while (sl_roster_usrelt) {  // user list loop
+    roster_usrelt = (roster*) sl_roster_usrelt->data;
+
+    pfunc(roster_usrelt, param);
+    sl_roster_usrelt = g_slist_next(sl_roster_usrelt);
   }
 }
 

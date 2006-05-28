@@ -143,6 +143,9 @@ GList  *buddy_search(char *string);
 void    foreach_buddy(guint roster_type,
                       void (*pfunc)(gpointer rosterdata, void *param),
                       void *param);
+void    foreach_group_member(gpointer groupdata,
+                             void (*pfunc)(gpointer rosterdata, void *param),
+                             void *param);
 gpointer unread_msg(gpointer rosterdata);
 
 GSList *compl_list(guint type);

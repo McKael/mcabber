@@ -1185,6 +1185,18 @@ static void room_names(gpointer bud, char *arg)
   g_free(buffer);
 }
 
+static void move_group_member(gpointer bud, void *groupnamedata)
+{
+  const char *jid, *name, *groupname;
+
+  groupname = (char *)groupnamedata;
+
+  jid  = buddy_getjid(bud);
+  name = buddy_getname(bud);
+
+  jb_updatebuddy(jid, name, *groupname ? groupname : NULL);
+}
+
 static void do_rename(char *arg)
 {
   gpointer bud;
@@ -1193,11 +1205,6 @@ static void do_rename(char *arg)
   char *newname, *p;
   char *name_utf8;
 
-  if (!*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "Please specify a new name.");
-    return;
-  }
-
   if (!current_buddy) return;
   bud = BUDDATA(current_buddy);
 
@@ -1205,12 +1212,13 @@ static void do_rename(char *arg)
   group = buddy_getgroupname(bud);
   type  = buddy_gettype(bud);
 
-  if (type & ROSTER_TYPE_GROUP) {
-    scr_LogPrint(LPRINT_NORMAL, "You can't rename groups.");
-    return;
-  }
   if (type & ROSTER_TYPE_SPECIAL) {
     scr_LogPrint(LPRINT_NORMAL, "You can't rename this item.");
+    return;
+  }
+
+  if (!*arg && !(type & ROSTER_TYPE_GROUP)) {
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a new name.");
     return;
   }
 
@@ -1222,8 +1230,18 @@ static void do_rename(char *arg)
   strip_arg_special_chars(newname);
 
   name_utf8 = to_utf8(newname);
-  buddy_setname(bud, name_utf8);
-  jb_updatebuddy(jid, name_utf8, group);
+
+  if (type & ROSTER_TYPE_GROUP) {
+    // Rename a whole group
+    foreach_group_member(bud, &move_group_member, name_utf8);
+    // Let's jump to the previous buddy, because this group name should
+    // disappear when we receive the server answer.
+    scr_RosterUp();
+  } else {
+    // Rename a single buddy
+    buddy_setname(bud, name_utf8);
+    jb_updatebuddy(jid, name_utf8, group);
+  }
 
   g_free(name_utf8);
   g_free(newname);

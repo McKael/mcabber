@@ -292,10 +292,10 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         'toggle_verbatim';; same with verbatim multi-line mode
         'abort';;           leave multi-line mode without sending the message
 
-/rename nickname::
-        Rename current buddy to the given nickname.
-        This command does not work for groups, at the moment (but you can move
-        the buddies to another group with the "/move" command).
+/rename name::
+        Rename current buddy or group to the given name.
+        Please note that a group name change is only done when the server's
+        acknowledgment is received, so a slight delay can be noticed.
 
 /request time|version [jid]::
         Send a "IQ" query to the current buddy, or to the specified Jabber

@@ -28,7 +28,6 @@ TODO:
 
 * Commands:
 
-  - /group rename
   - /roster enable|disable xml
   - /info [jid]
     (request info to the server if the buddy is not in the roster)

@@ -143,8 +143,10 @@ inline void hk_message_in(const char *jid, const char *resname,
   }
 
   // Beep, if enabled
-  if (settings_opt_get_int("beep_on_message"))
+  if ((!is_groupchat) && !(message_flags & HBB_PREFIX_ERR) &&
+      settings_opt_get_int("beep_on_message")) {
     scr_Beep();
+  }
 
   // We need to rebuild the list if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set

@@ -1781,6 +1781,7 @@ void scr_setmsgflag_if_needed(const char *jid)
     current_jid = buddy_getjid(BUDDATA(current_buddy));
     if (current_jid) {
       winbuf *win_entry = scr_SearchWindow(current_jid, isspe);
+      if (!win_entry) return;
       iscurrentlocked = win_entry->lock;
     }
   } else {

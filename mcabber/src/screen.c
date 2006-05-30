@@ -603,11 +603,10 @@ static void scr_ShowWindow(const char *winId, int special)
   top_panel(win_entry->panel);
   currentWindow = win_entry;
   chatmode = TRUE;
-  if (!special) {
-    if (!win_entry->lock)
-      roster_msg_setflag(winId, FALSE);
+  if (!win_entry->lock)
+    roster_msg_setflag(winId, special, FALSE);
+  if (!special)
     roster_setflags(winId, ROSTER_FLAG_LOCK, TRUE);
-  }
   update_roster = TRUE;
 
   // Refresh the window
@@ -736,7 +735,9 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     setmsgflg = TRUE;
   }
   if (setmsgflg && !special) {
-    roster_msg_setflag(winId, TRUE);
+    if (special && !winId)
+      winId = SPECIAL_BUFFER_STATUS_ID;
+    roster_msg_setflag(winId, special, TRUE);
     update_roster = TRUE;
   }
 }
@@ -1431,7 +1432,6 @@ void scr_RosterUnreadMessage(int next)
 {
   gpointer unread_ptr;
   gpointer refbuddata;
-  gpointer ngroup;
   GList *nbuddy;
 
   if (!current_buddy) return;
@@ -1442,11 +1442,14 @@ void scr_RosterUnreadMessage(int next)
   unread_ptr = unread_msg(refbuddata);
   if (!unread_ptr) return;
 
-  // If buddy is in a folded group, we need to expand it
-  ngroup = buddy_getgroup(unread_ptr);
-  if (buddy_getflags(ngroup) & ROSTER_FLAG_HIDE) {
-    buddy_setflags(ngroup, ROSTER_FLAG_HIDE, FALSE);
-    buddylist_build();
+  if (!(buddy_gettype(unread_ptr) & ROSTER_TYPE_SPECIAL)) {
+    gpointer ngroup;
+    // If buddy is in a folded group, we need to expand it
+    ngroup = buddy_getgroup(unread_ptr);
+    if (buddy_getflags(ngroup) & ROSTER_FLAG_HIDE) {
+      buddy_setflags(ngroup, ROSTER_FLAG_HIDE, FALSE);
+      buddylist_build();
+    }
   }
 
   nbuddy = g_list_find(buddylist, unread_ptr);
@@ -1771,12 +1774,12 @@ void scr_setmsgflag_if_needed(const char *jid)
 {
   const char *current_jid;
   bool iscurrentlocked = FALSE;
+  guint isspe = FALSE;
 
   if (!jid)
     return;
 
   if (current_buddy) {
-    guint isspe;
     isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
     current_jid = buddy_getjid(BUDDATA(current_buddy));
     if (current_jid) {
@@ -1788,7 +1791,7 @@ void scr_setmsgflag_if_needed(const char *jid)
     current_jid = NULL;
   }
   if (!chatmode || !current_jid || strcmp(jid, current_jid) || iscurrentlocked)
-    roster_msg_setflag(jid, TRUE);
+    roster_msg_setflag(jid, isspe, TRUE);
 }
 
 //  scr_set_multimode()

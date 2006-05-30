@@ -99,7 +99,7 @@ int  unread_jid_del(const char *jid);
 
 void roster_init(void)
 {
-  roster_special.name = "[status]";
+  roster_special.name = SPECIAL_BUFFER_STATUS_ID;
   roster_special.type = ROSTER_TYPE_SPECIAL;
 }
 
@@ -528,11 +528,31 @@ void roster_setflags(const char *jid, guint flags, guint value)
 // Set the ROSTER_FLAG_MSG to the given value for the given jid.
 // It will update the buddy's group message flag.
 // Update the unread messages list too.
-void roster_msg_setflag(const char *jid, guint value)
+void roster_msg_setflag(const char *jid, guint special, guint value)
 {
   GSList *sl_user;
   roster *roster_usr, *roster_grp;
   int new_roster_item = FALSE;
+
+  if (special) {
+    //sl_user = roster_find(jid, namesearch, ROSTER_TYPE_SPECIAL);
+    //if (!sl_user) return;
+    //roster_usr = (roster*)sl_user->data;
+    roster_usr = &roster_special;
+    if (value) {
+      roster_usr->flags |= ROSTER_FLAG_MSG;
+      // Append the roster_usr to unread_list, but avoid duplicates
+      if (!g_slist_find(unread_list, roster_usr))
+        unread_list = g_slist_append(unread_list, roster_usr);
+    } else {
+      roster_usr->flags &= ~ROSTER_FLAG_MSG;
+      if (unread_list) {
+        GSList *node = g_slist_find(unread_list, roster_usr);
+        if (node) unread_list = g_slist_delete_link(unread_list, node);
+      }
+    }
+    return;
+  }
 
   sl_user = roster_find(jid, jidsearch,
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);

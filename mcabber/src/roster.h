@@ -4,6 +4,8 @@
 #include <glib.h>
 #include <time.h>
 
+#define SPECIAL_BUFFER_STATUS_ID  "[status]"
+
 enum imstatus {
     offline,
     available,
@@ -94,7 +96,7 @@ void    roster_setstatus(const char *jid, const char *resname, gchar prio,
                          enum imrole role, enum imaffiliation affil,
                          const char *realjid);
 void    roster_setflags(const char *jid, guint flags, guint value);
-void    roster_msg_setflag(const char *jid, guint value);
+void    roster_msg_setflag(const char *jid, guint special, guint value);
 const char *roster_getname(const char *jid);
 const char *roster_getnickname(const char *jid);
 void    roster_settype(const char *jid, guint type);

@@ -28,6 +28,7 @@
 #include "settings.h"
 #include "logprint.h"
 #include "utils.h"
+#include "screen.h"
 
 #define DEFAULT_LANG "en"
 
@@ -63,6 +64,7 @@ int help_process(char *string)
   char *helpfiles_dir, *filename;
   char *data;
   const int datasize = 4096;
+  int linecount = 0;
   char *p;
 
   // Check string is ok
@@ -104,9 +106,15 @@ int help_process(char *string)
       *p = '\0';
     // Displaty the help line
     scr_LogPrint(LPRINT_NORMAL, "%s", data);
+    linecount++;
   }
   fclose(fp);
   g_free(data);
+
+  if (linecount) {
+    scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+    update_roster = TRUE;
+  }
 
   return 0;
 #endif /* DATA_DIR */

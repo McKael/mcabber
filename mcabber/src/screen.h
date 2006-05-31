@@ -71,7 +71,7 @@ inline void scr_UpdateBuddyWindow(void);
 inline void scr_set_chatmode(int enable);
 inline void scr_set_multimode(int enable, char *subject);
 inline int  scr_get_multimode(void);
-void scr_setmsgflag_if_needed(const char *jid);
+void scr_setmsgflag_if_needed(const char *jid, int special);
 void scr_append_multiline(const char *line);
 inline const char *scr_get_multiline(void);
 inline const char *scr_get_multimode_subj(void);

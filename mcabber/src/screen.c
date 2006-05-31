@@ -1770,28 +1770,29 @@ inline int scr_get_multimode()
 
 //  scr_setmsgflag_if_needed(jid)
 // Set the message flag unless we're already in the jid buffer window
-void scr_setmsgflag_if_needed(const char *jid)
+void scr_setmsgflag_if_needed(const char *jid, int special)
 {
-  const char *current_jid;
+  const char *current_id;
   bool iscurrentlocked = FALSE;
-  guint isspe = FALSE;
 
   if (!jid)
     return;
 
   if (current_buddy) {
-    isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
-    current_jid = buddy_getjid(BUDDATA(current_buddy));
-    if (current_jid) {
-      winbuf *win_entry = scr_SearchWindow(current_jid, isspe);
+    if (special)
+      current_id = buddy_getname(BUDDATA(current_buddy));
+    else
+      current_id = buddy_getjid(BUDDATA(current_buddy));
+    if (current_id) {
+      winbuf *win_entry = scr_SearchWindow(current_id, special);
       if (!win_entry) return;
       iscurrentlocked = win_entry->lock;
     }
   } else {
-    current_jid = NULL;
+    current_id = NULL;
   }
-  if (!chatmode || !current_jid || strcmp(jid, current_jid) || iscurrentlocked)
-    roster_msg_setflag(jid, isspe, TRUE);
+  if (!chatmode || !current_id || strcmp(jid, current_id) || iscurrentlocked)
+    roster_msg_setflag(jid, special, TRUE);
 }
 
 //  scr_set_multimode()

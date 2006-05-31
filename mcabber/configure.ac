@@ -10,7 +10,6 @@ AM_CONFIG_HEADER(config.h)
 AC_PROG_RANLIB
 
 # Checks for programs.
-AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
 
@@ -27,7 +26,7 @@ if test "x$GCC" = "xyes"; then
 fi
 
 # Checks for libraries.
-AC_CHECK_LIB([ncurses], [initscr])
+AC_CHECK_LIB([ncurses], [initscr], , AC_MSG_ERROR([NCURSES library needed]))
 AC_CHECK_LIB([panel], [new_panel])
 
 AC_CHECK_DECLS([strptime],,,
@@ -38,7 +37,9 @@ AC_CHECK_DECLS([strptime],,,
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h \
                   stdlib.h string.h strings.h sys/socket.h sys/time.h \
-                  syslog.h termios.h unistd.h ncurses.h panel.h getopt.h])
+                  syslog.h termios.h unistd.h getopt.h])
+AC_CHECK_HEADERS([ncurses.h panel.h getopt.h], ,
+                 AC_MSG_ERROR([Missing header file]))
 AC_VAR_TIMEZONE_EXTERNALS
 
 # Checks for typedefs, structures, and compiler characteristics.

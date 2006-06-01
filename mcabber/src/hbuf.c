@@ -155,7 +155,7 @@ void hbuf_free(GList **p_hbuf)
     g_free(hbuf_b_elt);
   }
 
-  g_list_free(*p_hbuf);
+  g_list_free(first_elt);
   *p_hbuf = NULL;
 }
 

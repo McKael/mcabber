@@ -89,6 +89,7 @@ int cfg_read_file(char *filename)
       sprintf(filename, "%s/.mcabberrc", home);
       if ((fp = fopen(filename, "r")) == NULL) {
         fprintf(stderr, "Cannot open config file!\n");
+        g_free(filename);
         return -1;
       }
     }

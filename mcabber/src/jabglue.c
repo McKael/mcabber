@@ -820,6 +820,8 @@ static void gotmessage(char *type, const char *from, const char *body,
       buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
     }
 
+    g_free(jid);
+
     buddylist_build();
     scr_DrawRoster();
     return;

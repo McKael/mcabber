@@ -55,8 +55,8 @@ static compl *InputCompl;
 //  new_completion(prefix, compl_cat)
 // . prefix    = beginning of the word, typed by the user
 // . compl_cat = pointer to a completion category list (list of *char)
-// Returns a pointer to an allocated compl structure.  This structure should
-// be freed by the caller when not used anymore.
+// Set the InputCompl pointer to an allocated compl structure.
+// done_completion() must be called when finished.
 void new_completion(char *prefix, GSList *compl_cat)
 {
   compl *c;
@@ -83,9 +83,13 @@ void new_completion(char *prefix, GSList *compl_cat)
 //  done_completion();
 void done_completion(void)
 {
+  GSList *clp;
+
   if (!InputCompl)  return;
 
-  // TODO free everything
+  // Free the current completion list
+  for (clp = InputCompl->list; clp; clp = g_slist_next(clp))
+    g_free(clp->data);
   g_slist_free(InputCompl->list);
   g_free(InputCompl);
   InputCompl = NULL;

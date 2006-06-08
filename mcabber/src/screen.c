@@ -370,6 +370,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
       update_panels();
       doupdate();
       g_free(buffer);
+      g_free(btext);
       return;
     }
 
@@ -406,6 +407,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     ut_WriteLog(flag, buffer);
     g_free(buffer);
   }
+  g_free(btext);
 }
 
 //  scr_CreateBuddyPanel(title, dontshow)

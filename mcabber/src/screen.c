@@ -572,6 +572,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
         wattrset(win_entry->win, get_color(COLOR_GENERAL));
       wclrtoeol(win_entry->win);
       g_free(line->text);
+      g_free(line);
     } else {
       wclrtobot(win_entry->win);
       break;

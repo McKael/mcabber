@@ -132,6 +132,7 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   struct stat bufstat;
   guint err = 0;
   guint ln = 0; // line number
+  time_t starttime;
 
   if (!FileLoadLogs) return;
 
@@ -156,6 +157,16 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
   if (!fstat(fileno(fp), &bufstat)) {
     if (bufstat.st_size > 3145728)
       scr_LogPrint(LPRINT_LOGNORM, "Reading <%s> history file...", jid);
+  }
+
+  starttime = 0;
+  if (settings_opt_get_int("max_history_age") > 0) {
+    int maxdays = settings_opt_get_int("max_history_age");
+    time(&starttime);
+    if (maxdays >= starttime/86400)
+      starttime = 0;
+    else
+      starttime -= maxdays * 86400;
   }
 
   /* See write_histo_line() for line format... */
@@ -215,6 +226,14 @@ void hlog_read_history(const char *jid, GList **p_buddyhbuf, guint width)
     // Remove last CR (we keep it if the line is empty, too)
     if ((tail > data+dataoffset+1) && (*(tail-1) == '\n'))
       *(tail-1) = 0;
+
+    // Check if the data is older than max_history_age
+    if (starttime) {
+      if (timestamp > starttime)
+        starttime = 0; // From now on, load everything
+      else
+        continue;
+    }
 
     if (type == 'M') {
       char *converted;

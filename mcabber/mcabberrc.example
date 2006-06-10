@@ -50,6 +50,7 @@ set resource = mcabber
 # History logging
 # You can save the messages history: set logging = 1
 # You can load (read) the messages history: set load_logs = 1
+# If you enable load_logs, you can use the 'max_history_age' setting below.
 # Default logging directory (logging_dir) is $HOME/.mcabber/histo/
 # Defaults for logging, load_logs are 0 (disabled)
 # Note: the logging directory must exist if you enable logging, mcabber
@@ -65,9 +66,15 @@ set resource = mcabber
 # from the server.
 #set load_muc_logs = 0
 
+# When load_logs (or load_muc_logs) is enabled, you can specify a maximum
+# number of history days to load into memory with max_history_age.
+# Default = 0 (disabled -- everything is loaded)
+# Note: this option is only used when reading history files, not later.
+#set max_history_age = 0
+
 # IQ settings
 # Set iq_version_hide_os to 1 if you do not want to allow people to retrieve
-# your OS version
+# your OS version.
 #set iq_version_hide_os = 0
 
 # Beep

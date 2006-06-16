@@ -605,7 +605,7 @@ void jb_request(const char *jid, enum iqreq_type reqtype)
 }
 
 // Join a MUC room
-void jb_room_join(const char *room, const char *nickname)
+void jb_room_join(const char *room, const char *nickname, const char *passwd)
 {
   xmlnode x, y;
   gchar *roomid;
@@ -640,6 +640,10 @@ void jb_room_join(const char *room, const char *nickname)
   x = presnew(mystatus, roomid, mystatusmsg);
   y = xmlnode_insert_tag(x, "x");
   xmlnode_put_attrib(y, "xmlns", "http://jabber.org/protocol/muc");
+  if (passwd) {
+    xmlnode_insert_cdata(xmlnode_insert_tag(y, "password"), passwd,
+                         (unsigned) -1);
+  }
 
   jab_send(jc, x);
   xmlnode_free(x);

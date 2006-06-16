@@ -55,7 +55,7 @@ void jb_send_raw(const char *str);
 void jb_keepalive();
 inline void jb_reset_keepalive();
 void jb_set_keepalive_delay(unsigned int delay);
-void jb_room_join(const char *room, const char *nickname);
+void jb_room_join(const char *room, const char *nickname, const char *passwd);
 void jb_room_unlock(const char *room);
 void jb_room_destroy(const char *room, const char *venue, const char *reason);
 void jb_room_invite(const char *room, const char *jid, const char *reason);

@@ -1492,12 +1492,17 @@ static char *check_room_subcommand(char *arg, bool param_needed,
 static void room_join(gpointer bud, char *arg)
 {
   char **paramlst;
-  char *roomname, *nick, *roomname_tmp;
+  char *roomname, *nick, *pass, *roomname_tmp;
   char *tmpnick = NULL;
+  char *pass_utf8;
 
-  paramlst = split_arg(arg, 2, 0); // roomid, nickname
+  paramlst = split_arg(arg, 3, 0); // roomid, nickname, password
   roomname = *paramlst;
   nick = *(paramlst+1);
+  pass = *(paramlst+2);
+
+  if (!nick)
+    pass = NULL;
 
   if (!roomname || !strcmp(roomname, ".")) {
     // If the current_buddy is recognized as a room, the room name
@@ -1540,17 +1545,20 @@ static void room_join(gpointer bud, char *arg)
     return;
   }
 
+  pass_utf8 = to_utf8(pass);
+
   roomname_tmp = g_strdup(roomname);
   mc_strtolower(roomname_tmp);
   roomname = to_utf8(roomname_tmp);
   g_free(roomname_tmp);
 
-  jb_room_join(roomname, nick);
+  jb_room_join(roomname, nick, pass_utf8);
 
   scr_LogPrint(LPRINT_LOGNORM, "Sent a join request to <%s>...", roomname);
 
   g_free(roomname);
   g_free(tmpnick);
+  g_free(pass_utf8);
   buddylist_build();
   update_roster = TRUE;
   free_arg_lst(paramlst);
@@ -1753,10 +1761,16 @@ static void room_nick(gpointer bud, char *arg)
     else
       scr_LogPrint(LPRINT_NORMAL, "You have no nickname in this room.");
   } else {
-    gchar *cmd;
-    cmd = g_strdup_printf("%s %s", buddy_getjid(bud), arg);
-    room_join(bud, cmd);
-    g_free(cmd);
+    gchar *roomname, *roomname_tmp, *nick;
+    roomname_tmp = g_strdup(buddy_getjid(bud));
+    mc_strtolower(roomname_tmp);
+    roomname = to_utf8(roomname_tmp);
+    g_free(roomname_tmp);
+    nick = to_utf8(arg);
+
+    jb_room_join(roomname, nick, NULL);
+    g_free(roomname);
+    g_free(nick);
   }
 }
 

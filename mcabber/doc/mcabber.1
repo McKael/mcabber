@@ -253,7 +253,7 @@ Tell mcabber what to do about a pending event\&. If the first parameter is "*", 
  \fBlist\fR	list all pending events
 
 .TP
-\fB/rawxml\fR send
+\fB/rawxml\fR send string
  \fBsend\fR string: send string (raw XML format) to the Jabber server\&. No check is done on the string provided\&. BEWARE! Use this only if you know what you are doing, or you could terminate the connection\&.
 
 .SH "COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES"
@@ -325,7 +325,7 @@ Send a "IQ" query to the current buddy, or to the specified Jabber user\&. If th
 \fB/room\fR
 The room command handles Multi\-User Chat room actions\&.
 
- \fBjoin\fR [room [nick]] 	join "room", using "nick" as nickname\&. If no nickname is provided, the "nickname" option value is used (see sample configuration file)\&. If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "\&." can be used instead of the full room id\&.
+ \fBjoin\fR [room [nick [pass]]] 	join "room", using "nick" as nickname\&. If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file)\&. If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "\&." can be used instead of the full room id\&. A password can be provided to enter protected rooms\&. If your nickname contains space characters, use quotes\&.
  \fBleave\fR [message]    	leave the current room
  \fBnames\fR              	display members of the current room
  \fBnick\fR nick          	change your nickname in the current room

@@ -22,8 +22,10 @@ mcabber (0.7.7-dev)
  * New option "delete_on_reject"
    When set, people are automatically removed from the roster if their
    subscription request is rejected.
+ * New option "max_history_age"
  * MUC: New option "muc_auto_whois"
- * MUC: Allow "/room join . [nick]" if the current item is a MUC room
+ * MUC: Mcabber can join password-protected chatrooms
+ * MUC: Allow "/room join . [nick [pass]]" if the current item is a MUC room
  * MUC: Fix joining a room when the buddylist is empty
  * MUC: Try to work around some server and network issues
  * Ctrl-l now reread color option values
@@ -31,6 +33,7 @@ mcabber (0.7.7-dev)
  * Disable file permission checks on Cygwin
  * Improve logging (especially, XML data isn't truncated anymore)
  * Fix negative priority
+ * Fix a few memory leaks
  * Other misc. bugfixes and improvements
  * Documentation updates
 

@@ -15,7 +15,6 @@ TODO:
 * Improve the completion system
 * Persistent room in the roster (join every connect)
 * MUC: advanced settings for room creation
-* MUC: join password-protected room
 * MUC: display roles of room members
 * JEP-0022/0085: Message events / chat states (composing, etc.)
 * "Offline roster" (when disconnected)

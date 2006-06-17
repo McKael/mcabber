@@ -618,7 +618,7 @@ list all pending events
 </table>
 </dd>
 <dt><b>
-/rawxml send
+/rawxml send string
 </b></dt>
 <dd>
         <b>send</b> string: send string (raw XML format) to the Jabber server.  No check is done on the string provided.  BEWARE! Use this only if you know what you are doing, or you could terminate the connection.
@@ -837,10 +837,10 @@ leave multi-line mode without sending the message
 <table class="hlist">
 <tr valign="top">
 <td>
-<b>join</b> [room [nick]]
+<b>join</b> [room [nick [pass]]]
 </td>
 <td>
-join "room", using "nick" as nickname.  If no nickname is provided, the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.
+join "room", using "nick" as nickname.  If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.  A password can be provided to enter protected rooms.  If your nickname contains space characters, use quotes.
 </td>
 </tr>
 <tr valign="top">
@@ -1149,7 +1149,7 @@ License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.7.7-dev<br />
-Last updated 28-May-2006 10:53:13 CEST
+Last updated 17-Jun-2006 10:23:23 CEST
 </p>
 </div>
 </div>

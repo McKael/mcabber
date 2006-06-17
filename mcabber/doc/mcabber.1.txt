@@ -225,7 +225,7 @@ COMMANDS RELATED TO THE SERVER AND CONNECTION
         'reject';;  reject the event #n
         'list';;    list all pending events
 
-/rawxml send::
+/rawxml send string::
         'send' string: send string (raw XML format) to the Jabber server.  No check is done on the string provided.  BEWARE! Use this only if you know what you are doing, or you could terminate the connection.
 
 COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
@@ -306,7 +306,7 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
 /room invite|kick|ban|role|affil::
         The 'room' command handles Multi-User Chat room actions.
 
-        'join' [room [nick]];;  join "room", using "nick" as nickname.  If no nickname is provided, the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.
+        'join' [room [nick [pass]]];; join "room", using "nick" as nickname.  If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.  A password can be provided to enter protected rooms.  If your nickname contains space characters, use quotes.
         'leave' [message];;     leave the current room
         'names';;               display members of the current room
         'nick' nick;;           change your nickname in the current room

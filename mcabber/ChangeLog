@@ -1,4 +1,4 @@
-mcabber (0.7.7-dev)
+mcabber (0.7.7)
 
  * New "status" special buffer
    This buffer contains the log window data.
@@ -37,7 +37,7 @@ mcabber (0.7.7-dev)
  * Other misc. bugfixes and improvements
  * Documentation updates
 
- -- Mikael, ?
+ -- Mikael, 2006-06-21
 
 mcabber (0.7.6)
 

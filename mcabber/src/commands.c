@@ -104,12 +104,12 @@ void cmd_init(void)
           0, &do_move);
   cmd_add("msay", "Send a multi-lines message to the selected buddy",
           COMPL_MULTILINE, 0, &do_msay);
-  cmd_add("room", "MUC actions command", COMPL_ROOM, 0, &do_room);
-  cmd_add("request", "Send a Jabber IQ request", COMPL_REQUEST, COMPL_JID,
-          &do_request);
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
+  cmd_add("request", "Send a Jabber IQ request", COMPL_REQUEST, COMPL_JID,
+          &do_request);
+  cmd_add("room", "MUC actions command", COMPL_ROOM, 0, &do_room);
   cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0,
           &do_roster);
   cmd_add("say", "Say something to the selected buddy", 0, 0, &do_say);

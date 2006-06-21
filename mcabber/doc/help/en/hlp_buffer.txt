@@ -1,0 +1,32 @@
+
+ /BUFFER [clear|purge|top|bottom|date|%|search_backward|search_forward]
+ /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
+
+Buddy's buffer manipulation command.  Eg. you can search through buffer for "text", clear chat window etc.
+
+/buffer clear
+ Clear the current buddy chat window
+/buffer purge
+ Clear the current buddy chat window and empty all contents of the chat buffer
+/buffer bottom
+ Jump to the bottom of the current buddy chat buffer
+/buffer top
+ Jump to the top of the current buddy chat buffer
+/buffer up [n]
+ Scroll the buffer up [n] lines (default: half a screen)
+/buffer down [n]
+ Scroll the buffer down [n] lines (default: half a screen)
+/buffer date [date]
+ Jump to the first line after the specified [date] in the chat buffer (date format: "YYYY-mm-dd")
+/buffer % n
+ Jump to position %n of the buddy chat buffer
+/buffer search_backward text
+ Search for [text] in the current buddy chat buffer
+/buffer search_forward text
+ Search for [text] in the current buddy chat buffer
+/buffer scroll_lock
+ Lock buffer scrolling
+/buffer scroll_unlock
+ Unlock buffer scrolling
+/buffer scroll_toggle
+ Toggle buffer scrolling (lock/unlock)

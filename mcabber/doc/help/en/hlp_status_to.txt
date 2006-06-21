@@ -1,0 +1,7 @@
+
+ /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
+
+Send the requested status to the specified Jabber user.
+If the specified jid is ".", the current buddy is used.
+Note: this status will be overridden by subsequent "/status" commands.  If you are using the auto-away feature, the status will overridden too.
+Note: The jid can include a resource (i.e. user@server/resource).

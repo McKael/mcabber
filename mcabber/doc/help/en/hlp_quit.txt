@@ -1,0 +1,4 @@
+
+ /QUIT
+
+This command closes all connections and quit mcabber.

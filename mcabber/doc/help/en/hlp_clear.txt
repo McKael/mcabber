@@ -1,0 +1,4 @@
+
+ /CLEAR
+
+This command is actually an alias for "/buffer clear".  It clears the current buddy chat window.

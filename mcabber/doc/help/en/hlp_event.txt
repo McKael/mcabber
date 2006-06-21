@@ -1,0 +1,15 @@
+
+ /EVENT #N|* accept|ignore|reject
+ /EVENT list
+
+Tell mcabber what to do about pending events.
+If the first parameter is '*', the command will apply to all queued events.
+
+/event #N|all accept
+ Event number #N/All events will be accepted
+/event #N|all ignore
+ Event number #N/All events will be ignored
+/event #N|all reject
+ Event number #N/All events will be rejected
+/event list
+ List all pending events

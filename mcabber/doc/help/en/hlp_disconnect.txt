@@ -1,0 +1,5 @@
+
+ /DISCONNECT
+
+Terminate the connection to the Jabber server.
+Note: the roster is only available when the connection to the server is active, so the buddylist is empty when disconnected.

@@ -1,0 +1,5 @@
+
+ /MOVE [groupname]
+
+Move the current buddy to the requested group.  If no group is specified, then the buddy is moved to the default group.
+Tip: if the chatmode is enabled, you can use "/roster alternate" to jump to the moved buddy.

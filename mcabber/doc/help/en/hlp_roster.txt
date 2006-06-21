@@ -1,0 +1,37 @@
+
+ /ROSTER bottom|top|hide_offline|show_offline|toggle_offline
+ /ROSTER hide|show|toggle
+ /ROSTER alternate|unread_first|unread_next
+ /ROSTER search bud
+
+The 'roster' command manipulates the roster/buddylist.
+Here are the available parameters:
+
+/roster bottom
+ Jump to the bottom of the roster
+/roster top
+ Jump to the top of the roster
+/roster up
+ Move up in the roster
+/roster down
+ Move down in the roster
+/roster hide_offline
+ Hide offline buddies
+/roster show_offline
+ Show offline buddies
+/roster toggle_offline
+ Toggle display of offline buddies
+/roster hide
+ Hide roster (full-width chat window)
+/roster show
+ Show roster
+/roster toggle
+ Toggle roster visibility
+/roster search bud
+ Search for a buddy with a name or buddy containing "bud" (only in the displayed buddylist)
+/roster alternate
+ Jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
+/roster unread_first
+ Jump to the first unread message
+/roster unread_next
+ Jump to the next unread message

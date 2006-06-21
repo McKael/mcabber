@@ -1,0 +1,10 @@
+
+ /RAWXML send string
+
+Send 'string' (raw XML format) to the Jabber server.
+No check is done on the string provided.
+
+BEWARE!
+Use this only if you know what you are doing, or you could terminate the connection.
+
+Example: "/rawxml send <presence><show>away</show></presence>"

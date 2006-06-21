@@ -1,0 +1,5 @@
+
+ /HELP [command|+topic]
+
+Display some help about a command or a topic.
+If no argument provided a usage of this command is printed.

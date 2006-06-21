@@ -1,0 +1,16 @@
+
+ /ALIAS [name [= command line]]
+
+This command let you to add aliases which can simplify sophisticated commands.
+You can manage your aliases by:
+
+/alias
+ Print list of currently defined aliases
+/alias name
+ Print the value of alias called [name]
+/alias name=
+ Unset alias called [name]
+/alias name = command line
+ Set alias called [name] with value [command line]
+
+Example: "/alias away = status away"

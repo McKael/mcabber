@@ -1,0 +1,14 @@
+
+ /AUTHORIZATION allow|cancel|request|request_unsubscribe [jid]
+
+This command manages presence subscriptions: it allows you to request presence subscriptions from others on your roster, and allows you to control who receives your presence notifications.
+If no JID is provided, the currently-selected buddy is used.
+
+/authorization allow
+ Allow the buddy to receive your presence updates
+/authorization cancel
+ Cancel the buddy's subscription to your presence updates
+/authorization request
+ Request a subscription to the buddy's presence updates
+/authorization request_unsubscribe
+ Request unsubscription from the buddy's presence updates

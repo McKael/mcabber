@@ -1,0 +1,5 @@
+
+ /HELP command
+
+Display help for command [command]
+Example: "/help buffer"

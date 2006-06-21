@@ -1,0 +1,11 @@
+
+ /GROUP fold|unfold|toggle
+
+This command changes the current group display.
+
+/group fold
+ Fold (shrink) the current group tree in the roster
+/group unfold
+ Unfold (expand) the current group tree in the roster
+/group toggle
+ Toggle the state (fold/unfold) of the current tree

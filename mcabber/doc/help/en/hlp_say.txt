@@ -1,0 +1,4 @@
+
+ /SAY [text]
+
+Send the [text] message to the currently selected buddy.  It can be useful if you want to send a message beginning with a slash, for example.

@@ -1,0 +1,4 @@
+
+ /DEL
+
+Delete the current buddy from our roster, unsubscribe from its presence notification and unsubscribe it from ours.

@@ -1,8 +1,14 @@
+mcabber (0.7.8-dev)
+
+ * 
+
+ -- Mikael, ?
+
 mcabber (0.7.7)
 
  * New "status" special buffer
    This buffer contains the log window data.
- * Mcabber do not stop when there is no configuration file
+ * Mcabber does not stop when there is no configuration file
  * New command "/help" (online help)
  * New command "/authorization request_unsubscribe"
  * New command "/msay toggle_verbatim"

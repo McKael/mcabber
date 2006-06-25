@@ -28,9 +28,9 @@ Here are the available parameters:
 /roster toggle
  Toggle roster visibility
 /roster search bud
- Search for a buddy with a name or buddy containing "bud" (only in the displayed buddylist)
+ Search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
 /roster alternate
- Jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
+ Jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode.  This command is thus especially useful after commands like "/roster unread_next" (Ctrl-q).
 /roster unread_first
  Jump to the first unread message
 /roster unread_next

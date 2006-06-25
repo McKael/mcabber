@@ -1,5 +1,5 @@
 
- /HELP command
+ /HELP [command|+topic]
 
-Display help for command [command]
+Display help for command "command" or topic "topic".
 Example: "/help buffer"

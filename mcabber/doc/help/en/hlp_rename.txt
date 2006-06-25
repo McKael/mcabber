@@ -1,4 +1,4 @@
 
  /RENAME name
 
-Rename the current buddy or group to the given [name].
+Rename the current buddy or group to the given "name".

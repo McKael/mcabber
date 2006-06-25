@@ -1,7 +1,7 @@
 
  /RAWXML send string
 
-Send 'string' (raw XML format) to the Jabber server.
+Send "string" (raw XML format) to the Jabber server.
 No check is done on the string provided.
 
 BEWARE!

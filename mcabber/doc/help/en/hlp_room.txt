@@ -10,13 +10,13 @@ The 'room' command handles Multi-User Chat room actions.
  Leave the current room
 /room names
  Display members of the current room
-/room nick nick
+/room nick newnick
  Change your nickname in the current room
 /room privmsg nick msg
  Send private message "msg" to "nick"
 /room remove
  Remove the current room from the roster (you must have left this room before)
-/room topic
+/room topic newtopic
  Set topic for current room
 /room unlock
  Unlock current room (if you are the owner)

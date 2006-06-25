@@ -4,6 +4,6 @@
 Add the "jid" Jabber user to our roster (default group), and send a notification request to this buddy.  If no nickname is specified, the jid is used.  If no jid (or an empty string "") is provided or if jid is ".", the current buddy is used.
 
 /add [jid [nickname]]
- Add to our roster [jid] as [nickname]
+ Add to our roster "jid" as "nickname"
 
 Example: "/add somebody@jabber.server.com Somebody"

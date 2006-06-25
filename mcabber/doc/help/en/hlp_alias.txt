@@ -7,10 +7,10 @@ You can manage your aliases by:
 /alias
  Print list of currently defined aliases
 /alias name
- Print the value of alias called [name]
+ Print the value of alias called "name"
 /alias name=
- Unset alias called [name]
+ Unset alias called "name"
 /alias name = command line
- Set alias called [name] with value [command line]
+ Set alias called "name" with value "command line"
 
 Example: "/alias away = status away"

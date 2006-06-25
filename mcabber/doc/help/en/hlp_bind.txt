@@ -1,16 +1,16 @@
 
  /BIND [keycode [= command line]]
 
-Bind the command to the key given as [keycode].  To examine which keys are currently not used look at `mcabber` log window and press examined key.  For example: "Unknown key=265" means that you can bind some command to key #265.
+Bind the command to the key given as "keycode".  To examine which keys are currently not used look at `mcabber` log window and press examined key.  For example: "Unknown key=265" means that you can bind some command to key #265.
 
 /bind
  Display list of current bindings
 /bind keycode
  Display the command line bound to this key
 /bind keycode=
- Unbind key with code [keycode]
+ Unbind key with code "keycode"
 /bind keycode = command line
- Bind [command line] to the key with code [keycode]
+ Bind "command line" to the key with code "keycode"
 
 Example: "/bind 265 = status away" (265 is F1).
 Note: keycodes can be different depending on your ncurses configuration.

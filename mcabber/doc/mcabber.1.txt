@@ -338,7 +338,7 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         'hide';;         hide roster (full-width chat window)
         'show';;         show roster
         'toggle';;       toggle roster visibility
-        'search' bud;;   search for a buddy with a name or buddy containing "bud" (only in the displayed buddylist)
+        'search' bud;;   search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
         'alternate';;    jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
         'unread_first';; jump to the first unread message
         'unread_next';;  jump to the next unread message
@@ -351,7 +351,7 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         Send the "text" message to the specified jid.
         Please note that this command doesn't set the default resource for
         a contact, so if you want to send several messages to a specific
-        ressource you will have to use "/say_to" for each message.
+        resource you will have to use "/say_to" for each message.
 
 /status [online|avail|invisible|free|dnd|notavail|away [-|StatusMessage]]::
         Show or set the current status. +

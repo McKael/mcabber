@@ -356,7 +356,7 @@ The roster command manipulates the roster/buddylist\&.  Here are the available p
  \fBhide\fR      	hide roster (full\-width chat window)
  \fBshow\fR      	show roster
  \fBtoggle\fR    	toggle roster visibility
- \fBsearch\fR bud	search for a buddy with a name or buddy containing "bud" (only in the displayed buddylist)
+ \fBsearch\fR bud	search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
  \fBalternate\fR 	jump to alternate buddy\&. The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
  \fBunread_first\fR	jump to the first unread message
  \fBunread_next\fR	jump to the next unread message
@@ -367,7 +367,7 @@ Send the "text" message to the currently selected buddy\&. Can be useful if you 
 
 .TP
 \fB/say_to\fR jid text
-Send the "text" message to the specified jid\&. Please note that this command doesn't set the default resource for a contact, so if you want to send several messages to a specific ressource you will have to use "/say_to" for each message\&.
+Send the "text" message to the specified jid\&. Please note that this command doesn't set the default resource for a contact, so if you want to send several messages to a specific resource you will have to use "/say_to" for each message\&.
 
 .TP
 \fB/status\fR [online|avail|invisible|free|dnd|notavail|away [\-|StatusMessage]]

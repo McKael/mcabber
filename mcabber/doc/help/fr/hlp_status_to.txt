@@ -1,0 +1,7 @@
+
+ /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
+
+Envoie l'état demandé à "jid".
+Si le jid fourni est ".", le contact sélectionné est utilisé.
+Remarque : cet état sera modifié par les commandes "/status" ultérieures. Si vous utilisez l'option d'absence automatique (auto-away), l'état sera modifié également.
+Remarque : Le jid peut contenir une ressource (i.e. user@server/resource).

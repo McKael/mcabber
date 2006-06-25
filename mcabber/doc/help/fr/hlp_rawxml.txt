@@ -1,0 +1,10 @@
+
+ /RAWXML send string
+
+Envoie la chaîne "string" (format XML brut) au serveur Jabber.
+Aucune validation n'est effectuée sur la chaîne envoyée.
+
+ATTENTION!
+N'utilisez cette commande que si vous savez ce que vous faites, vous risquez de rompre la connexion.
+
+Exemple : "/rawxml send <presence><show>away</show></presence>"

@@ -1,0 +1,9 @@
+
+ /ADD [jid [surnom]]
+
+Ajoute l'utilisateur Jabber "jid" au roster (dans le groupe par défaut), et envoie une demande d'inscription à cette personne. Si aucun "surnom" n'est spécifié, le jid est utilisé. Si le jid n'est pas donné (ou si c'est une chaîne vide "") ou si le jid est ".", le contact sélectionné est utilisé.
+
+/add [jid [surnom]]
+ Ajoute "jid" au roster avec le surnom "surnom"
+
+Exemple: "/add somebody@jabber.server.com Somebody"

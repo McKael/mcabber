@@ -1,0 +1,4 @@
+
+ /SET option [= valeur]
+
+Affiche ou définit une option.

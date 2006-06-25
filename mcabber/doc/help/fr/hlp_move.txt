@@ -1,0 +1,5 @@
+
+ /MOVE [groupname]
+
+Déplace le contact sélectionné vers le groupe spécifié. Si aucun groupe n'est donné, le contact est déplacé vers le groupe par défaut.
+Astuce : si le mode discussion (chatmode) est activé, vous pouvez utiliser "/roster alternate" pour vous positionner sur le contact que vous venez de déplacer.

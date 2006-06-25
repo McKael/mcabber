@@ -1,0 +1,5 @@
+
+ /INFO
+
+Affiche des informations sur l'élément sélectionné (contact, agent, groupe...).
+Pour les utilisateurs, les ressources sont affichées avec l'état (status), la priorité et le message d'état (s'il existe) correspondants.

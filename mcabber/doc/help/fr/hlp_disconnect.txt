@@ -1,0 +1,5 @@
+
+ /DISCONNECT
+
+Ferme la connexion au serveur Jabber.
+Remarque : le roster n'est disponible que lorsque la connexion au serveur estactive, donc la liste de contacts est vide après déconnexion.

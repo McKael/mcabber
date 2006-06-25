@@ -1,0 +1,9 @@
+
+ /REQUEST time|version [jid]
+
+Envoie une requête Jabber "IQ" au jid spécifié, ou au contact sélectionné. Si la ressource Jabber n'est pas précisée avec le jid, mcabber enverra la requête à toutes les ressources connues de cet utilisateur.
+
+/request time
+ Demande l'heure du contact
+/request version
+ Demande la version du client Jabber du contact

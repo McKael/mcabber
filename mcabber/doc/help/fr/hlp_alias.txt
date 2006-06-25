@@ -1,0 +1,16 @@
+
+ /ALIAS [name [= command line]]
+
+Cette commande permet de créer des alias afin de simplifier des commandes longues ou complexes.
+Les alias sont gérés à l'aide des commandes suivantes :
+
+/alias
+ Affiche la liste des alias existants
+/alias name
+ Affiche la definition de l'alias "name"
+/alias name=
+ Efface l'alias "name"
+/alias name = command line
+ Définit un alias "name" avec la chaîne "command line"
+
+Exemple: "/alias absent = status away"

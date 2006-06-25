@@ -1,0 +1,11 @@
+
+ /GROUP fold|unfold|toggle
+
+Cette commande permet de modifier l'affichage des groupes.
+
+/group fold
+ Plie (cache) l'arborescence du groupe sélectionné
+/group unfold
+ Déplie (montre) l'arborescence du groupe sélectionné
+/group toggle
+ Inverse l'état (plié/déplié) du groupe sélectionné

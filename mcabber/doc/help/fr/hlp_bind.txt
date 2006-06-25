@@ -1,0 +1,17 @@
+
+ /BIND [keycode [= command line]]
+
+Cette commande permet de gérer les raccourcis clavier. Pour trouver le code d'une touche non-utilisée, pressez la touche en question et regardez la fenêtre de logs de mcabber. Par exemple: "Unknown key=265" signifie que la touche de code 265 (F1 en général) est disponible.
+
+/bind
+ Affiche la liste des raccourcis existants
+/bind keycode
+ Affiche la commande associée à la touche spécifiée
+/bind keycode=
+ Supprime le raccourci de la touche spécifiée
+/bind keycode = command line
+ Associe "command line" à la touche de code "keycode"
+
+Exemple : "/bind 265 = status away" (265 est F1).
+Remarque : les codes peuvent différer en fonction de l'installation ncurses.
+Astuce : des alias peuvent également être utilisés.

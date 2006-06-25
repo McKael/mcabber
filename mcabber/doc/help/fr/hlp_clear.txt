@@ -1,0 +1,4 @@
+
+ /CLEAR
+
+Cette commande est en réalité un alias pour "/buffer clear". Elle efface la fenêtre de discussion sélectionnée.

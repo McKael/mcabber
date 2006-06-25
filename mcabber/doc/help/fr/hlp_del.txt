@@ -1,0 +1,4 @@
+
+ /DEL
+
+Supprime le contact sélectionné du roster, supprime notre abonnement à ses notifications de présence et supprime son abonnement aux nôtres.

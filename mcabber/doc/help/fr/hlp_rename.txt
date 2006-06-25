@@ -1,0 +1,4 @@
+
+ /RENAME nom
+
+Renomme le contact/groupe sélectionné avec le "nom" spécifié.

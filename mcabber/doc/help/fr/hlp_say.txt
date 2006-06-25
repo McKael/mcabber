@@ -1,0 +1,4 @@
+
+ /SAY texte
+
+Envoie le message "texte" au contact sélectionné. Par exemple, cela peut être utile pour envoyer un message commençant par un '/'.

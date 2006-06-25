@@ -1,0 +1,14 @@
+
+ /AUTHORIZATION allow|cancel|request|request_unsubscribe [jid]
+
+Cette commande gère les abonnements aux notifications de présence : elle vous permet de demander la notification de présence d'utilisateurs Jabber, et vous permet de contrôler qui peut recevoir vos changements d'état.
+Si le JID n'est pas spécifié, le contact sélectionné est utilisé.
+
+/authorization allow
+ Autorise le contact à recevoir vos notifications de présence
+/authorization cancel
+ Supprime l'abonnement du contact à vos notifications de présence
+/authorization request
+ Envoie une demande d'abonnement aux notifications de présence du contact
+/authorization request_unsubscribe
+ Envoie une demande de désabonnement aux notifications de présence du contact

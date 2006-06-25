@@ -1,0 +1,4 @@
+
+ /QUIT
+
+Cette commande ferme la connexion au serveur et quitte mcabber.

@@ -1,0 +1,15 @@
+
+ /EVENT #N|* accept|ignore|reject
+ /EVENT list
+
+Cette commande permet de gérer les "événements" en attente.
+Si le premier paramètre est '*', la commande sera appliquée à tous les événements en attente.
+
+/event #N|* accept
+ Accepter l'événement #N / tous les événements
+/event #N|* ignore
+ Ignorer l'événement #N / tous les événements
+/event #N|* reject
+ Rejeter l'événement #N / tous les événements
+/event list
+ Afficher les événements en attente

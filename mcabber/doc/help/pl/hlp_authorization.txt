@@ -1,0 +1,14 @@
+
+ /AUTHORIZATION allow|cancel|request|request_unsubscribe [jid]
+
+To polecenie zarządza subskrybcjami dostępności: pozwala na żądanie subskrybcji dostępności od innych osób z Twojego rostera oraz pozwala kontrolować kto może otrzymać Twoją subskrybcję.
+Jeśli nie podano JID, użyta zostanie aktualnie zaznaczona osoba.
+
+/authorization allow
+ Pozwala danej osobie na otrzymywanie informacji o Twojej dostępności
+/authorization cancel
+ Anuluje danej osobie otrzymywanie informacji o Twojej dostępności
+/authorization request
+ Wysyła żądanie subskrybcji dostępności do danej osoby
+/authorization request_unsubscribe
+ Wysyła żądanie usunięcia Twojej subskrybcji dostępności do danej osoby

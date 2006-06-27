@@ -1,0 +1,5 @@
+
+ /INFO
+
+Wyświetla informacje o zaznaczonym elemencie (użytkownik, agent, grupa...)
+Dla użytkowników, zasoby wyświetlane są wraz ze statusem, priorytetem oraz z opisem (jeśli dostępny) dla każdego zasobu.

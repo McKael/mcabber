@@ -1,0 +1,4 @@
+
+ /DEL
+
+Usuwa aktualnie zaznaczoną osobę z rostera, usuwa subskrybcję powiadomienia dostępności u danej osoby oraz u nas.

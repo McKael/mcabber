@@ -1,0 +1,5 @@
+
+ /HELP [komenda|+temat]
+
+Wyświetla pomoc dla komendy "komenda".
+Przykład: "/help buffer"

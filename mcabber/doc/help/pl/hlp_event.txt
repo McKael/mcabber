@@ -1,0 +1,15 @@
+
+ /EVENT #N|* accept|ignore|reject
+ /EVENT list
+
+Zarządza oczekującymi zdarzeniami.
+Jeżeli pierwszy parametrem to '*', komenda będzie dotyczyła wszystkich oczekujących zdarzeń.
+
+/event #N|* accept
+ Zdarzenie o podanym numerze (#N) lub wszystkie (*) będą akceptowane
+/event #N|* ignore
+ Zdarzenie o podanym numerze (#N) lub wszystkie (*) będą ignorowane
+/event #N|* reject
+ Zdarzenie o podanym numerze (#N) lub wszystkie (*) będą odrzucane
+/event list
+ Wyświetla listę oczekujących zdarzeń

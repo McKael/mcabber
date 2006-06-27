@@ -1,0 +1,4 @@
+
+ /SET opcja [= wartość]
+
+Wyświetla, lub zmienia wartość opcji "opcja".

@@ -1,0 +1,36 @@
+
+ /ROOM join|leave|names|nick|remove|topic|unlock|destroy
+ /ROOM privmsg|invite|kick|ban|role|affil
+
+Komenda 'room' służy do obsługi wieloużytkownikowych chat-room'ów.
+
+/room join [pokój [nick [hasło]]]
+ Dołącza do pokoju "pokój" z ksywą "nick".  Jeżeli nie ma podanego nicka (albo jeśli jest to pusty ciąg znaków), użyta jest opcja "nickname" z pliku konfiguracyjnego.  Jeżeli podany pokój jest prawidłowy, skrót "." może być użyty zamiast pełnego id pokoju. Opcjonalnie można podać hasło "hasło". Jeśli Twój "nick" zawiera spacje - użyj cudzysłowów.
+/room leave [wiadomość]
+ Opuszcza aktualny pokój. Opcjonalnie można podać wiadomość "wiadomość"
+/room names
+ Wyświetla kto jest w pokoju
+/room nick [nick]
+ Zmienia Twoją ksywę w aktualnym pokoju na "nick"
+/room privmsg [nick] [wiadomość]
+ Wysyła prywatną wiadomość [wiadomość] do osoby "nick"
+/room remove
+ Usuwa aktualny pokój z listy kotaktów (musisz najpierw opuścić pokój)
+/room topic
+ Ustawia temat w aktualnum pokoju
+/room unlock
+ Odblokowywuje aktualny pokój (jeśli jestes jego właścicielem)
+/room destroy [powód]
+ Niszczy aktualny pokój (używać z rozwagą!)
+/room whois [nick]
+ Wyświetla informację MUC osoby "nick"
+/room ban jid [powód]
+ Banuje jid z powodu "powód" (opcjonalnie)
+/room invite jid [powód]
+ Zaprasza osobę jid do aktualnego pokoju z powodu "powód" (opcjonalnie)
+/room kick nick [powód]
+ Wyrzucenie osoby "nick" z aktualnego pokoju z powodu "powód" (opcjonalnie)
+/room role jid role [powód]
+ Zmienia rolę użytkownika jid (może być: "none", "visitor", "participant", "moderator")
+/room affil jid affil [powód]
+ Zmienia przynależność jid'a (może być: "none", "member", "admin", "owner")

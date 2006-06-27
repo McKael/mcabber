@@ -1,0 +1,5 @@
+
+ /SAY_TO jid tekst
+
+Wysyła wiadomość "tekst" do podanej osoby "jid".
+Komenda nie ustawia domyślnego zasobu dla kontaktu.

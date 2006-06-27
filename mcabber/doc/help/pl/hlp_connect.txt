@@ -1,0 +1,4 @@
+
+ /CONNECT
+
+Ustanawia połączenie z serwerem Jabbera.

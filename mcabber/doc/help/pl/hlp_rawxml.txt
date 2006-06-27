@@ -1,0 +1,10 @@
+
+ /RAWXML send [ciąg znakow]
+
+Wysyła "ciąg znakow" (surowy format XML) do serwera Jabbera.
+Nie ma żadnego sprawdzania składni przed wysłaniem.
+
+UWAGA!
+Używaj tylko wtedy, kiedy wiesz co robisz, ponieważ możesz stracic połączenie z serwerem.
+
+Przykład: "/rawxml send <presence><show>away</show></presence>"

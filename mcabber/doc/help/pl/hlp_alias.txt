@@ -1,0 +1,16 @@
+
+ /ALIAS [nazwa [= polecenie]]
+
+Polecenie to pozwala dodawać aliasy, które sprawiają, że używanie długich i skomplikowanych komend staje się łatwiejsze.
+Możesz zarządzać aliasami w następujący sposób:
+
+/alias
+ Wypisuje aktualnie zdefiniowane aliasy
+/alias nazwa
+ Wypisuje wartość aliasu "nazwa"
+/alias nazwa=
+ Usuwa alias "nazwa"
+/alias name = polecenie
+ Ustawia alias "nazwa" z wartością "polecenie"
+
+Przykład: "/alias away = status away"

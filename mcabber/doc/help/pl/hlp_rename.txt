@@ -1,0 +1,4 @@
+
+ /RENAME nazwa
+
+Zmienia nazwę aktualnej osoby lub grupy na "nazwa".

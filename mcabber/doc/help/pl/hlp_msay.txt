@@ -1,0 +1,21 @@
+
+ /MSAY begin|verbatim|send|send_to|toggle|abort
+
+Wysyła wiadomość złożoną z wielu linii. By napisać pojedyńczą wiadomość złożoną z kilku linii, należy użyć trybu wielo-linijkowego.
+W trybie wielolinijkowym, każda wpisana linia (oprócz linii komend) będzie dodana do wielolinijkowej wiadomości. Kiedy wiadomość jest gotowa, może być wysłana do aktualnie zaznaczonej osoby za pomocą komendy "/msay send".
+Podkomenda 'begin' włącza tryb wielolinijkowy. Pozwala to na dodanie tematu do wiadomości.
+Tryb 'verbatim' wyłącza wprowadzanie komend, więc jest możliwe wpisywanie linii zaczynających się od ukośnika '/'. Tylko komenda "/msay" (z parametrami send lub abort) może być użyta aby wyjść z trybu 'verbatim'.
+The 'toggle' subcommand can be bound to a key to use the multi-line mode quickly (for example, "bind M13 = msay toggle" to switch using the Meta-Enter combination).
+
+/msay begin [temat]
+ Zaczyna redagowanie nowej wiadomości wielolinijkowej o temacie "temat"
+/msay verbatim
+ Wchodzi w tryb pozwalający na wpisywanie linii zaczynających się od ukośnika
+/msay send
+ Wysyła wiadomość do aktualnie wybranej osoby
+/msay send_to [jid]
+ Wysyła wiadomość do osoby z jabber id "jid"
+/msay toggle
+ Włącza/wyłącza tryb wielolinijkowy (begin/send)
+/msay abort
+ Opuszcza tryb wielolinijkowy bez wysyłania wiadomości

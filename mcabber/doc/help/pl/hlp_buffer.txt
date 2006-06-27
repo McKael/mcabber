@@ -1,0 +1,32 @@
+
+ /BUFFER [clear|purge|top|bottom|date|%|search_backward|search_forward]
+ /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
+
+Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. przeszukać bufor rozmowy w poszukiwaniu podanego wyrazu, możemy wyczyścić zawartość bufora itp.
+
+/buffer clear
+ Czyści okno rozmowy
+/buffer purge
+ Czyści okno rozmowy i usuwa całą zawartość bufora rozmowy
+/buffer bottom
+ Skacze na sam koniec bufora rozmowy
+/buffer top
+ Skacze na sam początek bufora rozmowy
+/buffer up [n]
+ Przesuwa bufor o "n" linijek do góry (domyślnie: pół ekranu)
+/buffer down [n]
+ Przesuwa bufor o "n" linijek w dół (domyślnie: pół ekranu)
+/buffer date "data"
+ Skacze do pierwszej linijki, która posiada datę "data" w buforze rozmowy (format daty: "YYYY-mm-dd")
+/buffer % n
+ Skacze do pozycji %n w buforze rozmowy
+/buffer search_backward tekst
+ Szuka w tył "tekst" w aktualnym buforze rozmowy
+/buffer search_forward tekst
+ Szuka w przód "tekst" w aktualnym buforze rozmowy
+/buffer scroll_lock
+ Blokuje możliwość przesuwania tekstu w buforze
+/buffer scroll_unlock
+ Odblokowywuje możliwość przesuwania tekstu w buforze
+/buffer scroll_toggle
+ Zmienia stan (blokowanie/odblokowanie) przesuwania w buforze

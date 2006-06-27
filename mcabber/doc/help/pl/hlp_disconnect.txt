@@ -1,0 +1,5 @@
+
+ /DISCONNECT
+
+Przerywa połączenie z serwerem Jabbera.
+Uwaga: roster dostępny jest tylko gdy połączenie do serwera jest aktywne, zatem jeżeli nie jesteś połączony lista kontaktów jest pusta.

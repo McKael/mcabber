@@ -1,0 +1,4 @@
+
+ /SAY tekst
+
+Wysyła wiadomość "tekst" do aktualnie wybranej osoby. Jest użyteczna jeśli chcesz wysłać wiadomość zaczynącą się od ukośnika '/'.

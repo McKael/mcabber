@@ -1,0 +1,37 @@
+
+ /ROSTER bottom|top|hide_offline|show_offline|toggle_offline
+ /ROSTER hide|show|toggle
+ /ROSTER alternate|unread_first|unread_next
+ /ROSTER search bud
+
+Komenda służy do zarządzania listą kontaktów.
+Dostępne parametry:
+
+/roster bottom
+ Skacze na koniec listy kontaktów
+/roster top
+ Skacze na początek listy kontaktów
+/roster up
+ Porusza się w górę w liście kontaktów
+/roster down
+ Porusza się w dół w liście kontaktów
+/roster hide_offline
+ Ukrywa niedostępnych
+/roster show_offline
+ Pokazuje niedostępnych
+/roster toggle_offline
+ Włącza/wyłącza niedostępnych
+/roster hide
+ Ukrywa całą liste kontaktów
+/roster show
+ Pokazuje listę kontaktów
+/roster toggle
+ Włącza/wyłącza listę kontaktów
+/roster search [osoba]
+ Szuka osoby "osoba", lub osoby której nazwa zawiera słowo "osoba"
+/roster alternate
+ Skacze do ostatniej osoby, która zmieniła stan z dostępnego na niedostępny (jest szczególnie przydatna po komendach typu "/roster unread_first")
+/roster unread_first
+ Skacze do pierwszej nieprzeczytanej wiadomości
+/roster unread_next
+ Skacze do następnej nieprzeczytanej wiadomości

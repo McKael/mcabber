@@ -1,0 +1,9 @@
+
+ /ADD [jid [nickname]]
+
+Dodaje "jid" użytkownika Jabbera do naszego rostera (grupa domyślna) i wysyła powiadomienie żądania do danej osoby. Jeśli nie podano ksywy, zostanie użyty jid danej osoby. Jeśli nie podano jid (podano pustą nazwę "") lub jeśli podany jid to ".", zostaną użyte dane aktualnie zaznaczonej osoby.
+
+/add [jid [nickname]]
+ Dodaje do naszego rostera "jid" z ksywą "nickname"
+
+Przykład: "/add ktoś@jabber.serwer.pl Ktoś"

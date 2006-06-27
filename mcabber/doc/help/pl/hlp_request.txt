@@ -1,0 +1,9 @@
+
+ /REQUEST time|version [jid]
+
+Wysyła zapytanie "IQ" do aktualnie zaznaczonej osoby, albo do podanego poprzez "jid" użytkownika. Jeżeli zasób nie jest podany wraz z jid'em, mcabber wyśle kwerendę do wszystkich mu znanych zasobów tego użytkownika.
+
+/request time
+ Żąda zwrócenia jaki jest obecnie czas u wybranej osoby
+/request version
+ Żąda zwrócenia wersji klienta osoby

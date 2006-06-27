@@ -1,8 +1,10 @@
-mcabber (0.7.8-dev)
+mcabber (0.7.8)
 
- * 
+ * Fix a small issue in make install
+ * help: Add French translations
+ * help: Add Polish translations (Salvador)
 
- -- Mikael, ?
+ -- Mikael, 2006-06-27
 
 mcabber (0.7.7)
 

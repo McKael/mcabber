@@ -43,6 +43,11 @@ set resource = mcabber
 # Default value is 40 seconds.
 #set pinginterval = 40
 
+# Language
+# Help files have been translated into a few languages.
+# You can set lang to one of the following values: en (default), fr, pl.
+#set lang = en
+
 # Set hide_offline_buddies to 1 to display only connected buddies
 # in the roster.
 #set hide_offline_buddies = 0

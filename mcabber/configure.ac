@@ -145,6 +145,9 @@ if test "${hgcset}" = "yes"; then
     AC_DEFINE(ENABLE_HGCSET, 1, [Use Mercurial changeset])
 fi
 
+# We need _GNU_SOURCE for strptime() and strcasestr()
+CFLAGS="$CFLAGS -D_GNU_SOURCE"
+
 AC_CONFIG_FILES([connwrap/Makefile
                  libjabber/Makefile
                  src/Makefile

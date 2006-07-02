@@ -19,7 +19,6 @@
  * USA
  */
 
-#define _GNU_SOURCE  /* We need glibc for strptime */
 #include <string.h>
 
 #include "hbuf.h"

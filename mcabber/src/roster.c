@@ -19,7 +19,6 @@
  * USA
  */
 
-#define _GNU_SOURCE     /* for strcasestr() */
 #include <string.h>
 
 #include "roster.h"

@@ -26,8 +26,31 @@ if test "x$GCC" = "xyes"; then
 fi
 
 # Checks for libraries.
-AC_CHECK_LIB([ncurses], [initscr], , AC_MSG_ERROR([NCURSES library needed]))
-AC_CHECK_LIB([panel], [new_panel])
+
+AC_CHECK_FUNC(initscr,,
+[
+    cf_ncurses="ncurses"
+    for lib in ncursesw ncurses
+    do
+        AC_CHECK_LIB($lib, waddnwstr, [cf_ncurses="$lib"; break])
+    done
+    AC_CHECK_LIB($cf_ncurses, initscr,
+        [LIBS="$LIBS -l$cf_ncurses"
+         if test "$cf_ncurses" = ncursesw; then
+            AC_CHECK_HEADERS([ncursesw/ncurses.h ncursesw/panel.h],,
+                             AC_MSG_ERROR([Missing header file]))
+         else
+             AC_CHECK_HEADERS([ncurses/ncurses.h ncurses/panel.h],,
+                 [AC_CHECK_HEADERS([ncurses.h panel.h],,
+                                   AC_MSG_ERROR([Missing header file]))])
+         fi
+        ],
+        [CF_CURSES_LIBS])
+])
+
+AC_CHECK_LIB([panelw], [new_panel],,
+             AC_CHECK_LIB([panel], [new_panel])
+            )
 
 AC_CHECK_DECLS([strptime],,,
 [#define _GNU_SOURCE
@@ -38,8 +61,7 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h \
                   stdlib.h string.h strings.h sys/socket.h sys/time.h \
                   syslog.h termios.h unistd.h getopt.h])
-AC_CHECK_HEADERS([ncurses.h panel.h getopt.h], ,
-                 AC_MSG_ERROR([Missing header file]))
+AC_CHECK_HEADERS([getopt.h], , AC_MSG_ERROR([Missing header file]))
 AC_VAR_TIMEZONE_EXTERNALS
 
 # Checks for typedefs, structures, and compiler characteristics.

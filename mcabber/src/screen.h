@@ -33,6 +33,7 @@ extern int update_roster;
 
 typedef struct {
   int value;
+  int utf8;
   enum {
     MKEY_META = 1,
     MKEY_EQUIV,

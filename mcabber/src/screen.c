@@ -41,6 +41,7 @@
 #endif
 
 #include "screen.h"
+#include "utf8.h"
 #include "hbuf.h"
 #include "commands.h"
 #include "compl.h"
@@ -883,8 +884,11 @@ void scr_DrawMainWindow(unsigned int fullinit)
     // Wrap existing status buffer lines
     hbuf_rebuild(&statushbuf, maxX - Roster_Width - PREFIX_WIDTH);
 
+#ifndef UNICODE
     if (utf8_mode)
-      scr_LogPrint(LPRINT_NORMAL, "WARNING: UTF-8 not yet supported!");
+      scr_LogPrint(LPRINT_NORMAL,
+                   "WARNING: Compiled without full UTF-8 support!");
+#endif
   } else {
     // Update panels
     replace_panel(rosterPanel, rosterWnd);
@@ -1950,22 +1954,27 @@ static const char *scr_cmdhisto_next(char *mask, guint len)
 // the  line, then this transposes the two characters before point.
 void readline_transpose_chars()
 {
-  char swp;
+  char *c1, *c2;
+  unsigned a, b;
 
   if (ptr_inputline == inputLine) return;
 
   if (!*ptr_inputline) { // We're at EOL
     // If line is only 1 char long, nothing to do...
-    if (ptr_inputline == inputLine+1) return;
+    if (ptr_inputline == prev_char(ptr_inputline, inputLine)) return;
     // Transpose the two previous characters
-    swp = *(ptr_inputline-2);
-    *(ptr_inputline-2) = *(ptr_inputline-1);
-    *(ptr_inputline-1) = swp;
+    c2 = prev_char(ptr_inputline, inputLine);
+    c1 = prev_char(c2, inputLine);
+    a = get_char(c1);
+    b = get_char(c2);
+    put_char(put_char(c1, b), a);
   } else {
     // Swap the two characters before the cursor and move right.
-    swp = *(ptr_inputline-1);
-    *(ptr_inputline-1) = *ptr_inputline;
-    *ptr_inputline++ = swp;
+    c2 = ptr_inputline;
+    c1 = prev_char(c2, inputLine);
+    a = get_char(c1);
+    b = get_char(c2);
+    put_char(put_char(c1, b), a);
     check_offset(1);
   }
 }
@@ -1979,16 +1988,17 @@ void readline_backward_kill_word()
 
   if (ptr_inputline == inputLine) return;
 
-  for (c = ptr_inputline-1 ; c > inputLine ; c--) {
-    if (!isalnum(*c)) {
-      if (*c == ' ')
+  c = prev_char(ptr_inputline, inputLine);
+  for ( ; c > inputLine ; c = prev_char(c, inputLine)) {
+    if (!iswalnum(get_char(c))) {
+      if (iswblank(get_char(c)))
         if (!spaceallowed) break;
     } else spaceallowed = 0;
   }
 
-  if (c != inputLine || *c != ' ')
-    if ((c < ptr_inputline-1) && (!isalnum(*c)))
-      c++;
+  if (c != inputLine || iswblank(get_char(c)))
+    if ((c < prev_char(ptr_inputline, inputLine)) && (!iswalnum(get_char(c))))
+      c = next_char(c);
 
   // Modify the line
   ptr_inputline = c;
@@ -2008,16 +2018,19 @@ void readline_backward_word()
 
   if (ptr_inputline == inputLine) return;
 
-  for (ptr_inputline-- ; ptr_inputline > inputLine ; ptr_inputline--) {
-    if (!isalnum(*ptr_inputline)) {
-      if (*ptr_inputline == ' ')
+  for (ptr_inputline = prev_char(ptr_inputline, inputLine) ;
+       ptr_inputline > inputLine ;
+       ptr_inputline = prev_char(ptr_inputline, inputLine)) {
+    if (!iswalnum(get_char(ptr_inputline))) {
+      if (iswblank(get_char(ptr_inputline)))
         if (!spaceallowed) break;
     } else spaceallowed = 0;
   }
 
-  if (ptr_inputline < old_ptr_inputLine-1
-      && *ptr_inputline == ' ' && *(ptr_inputline+1) != ' ')
-    ptr_inputline++;
+  if (ptr_inputline < prev_char(old_ptr_inputLine, inputLine)
+      && iswblank(get_char(ptr_inputline))
+      && iswblank(get_char(next_char(ptr_inputline))))
+    ptr_inputline = next_char(ptr_inputline);
 
   check_offset(-1);
 }
@@ -2029,9 +2042,9 @@ void readline_forward_word()
   int spaceallowed = 1;
 
   while (*ptr_inputline) {
-    ptr_inputline++;
-    if (!isalnum(*ptr_inputline)) {
-      if (*ptr_inputline == ' ')
+    ptr_inputline = next_char(ptr_inputline);
+    if (!iswalnum(get_char(ptr_inputline))) {
+      if (iswblank(get_char(ptr_inputline)))
         if (!spaceallowed) break;
     } else spaceallowed = 0;
   }
@@ -2064,7 +2077,7 @@ static int which_row(const char **p_row)
 
   // This is a command
   row = 0;
-  for (p = inputLine ; p < ptr_inputline ; p++) {
+  for (p = inputLine ; p < ptr_inputline ; p = next_char(p)) {
     if (quote) {
       if (*p == '"' && *(p-1) != '\\')
         quote = FALSE;
@@ -2101,6 +2114,8 @@ static void scr_insert_text(const char *text)
   strcpy(ptr_inputline, tmpLine);
 }
 
+static void scr_cancel_current_completion(void);
+
 //  scr_handle_tab()
 // Function called when tab is pressed.
 // Initiate or continue a completion...
@@ -2121,7 +2136,7 @@ static void scr_handle_tab(void)
     return;
 
   if (nrow == 0) {          // Command completion
-    row = &inputLine[1];
+    row = next_char(inputLine);
     compl_categ = COMPL_CMD;
   } else if (nrow == -1) {  // Nickname completion
     compl_categ = COMPL_RESOURCE;
@@ -2159,13 +2174,7 @@ static void scr_handle_tab(void)
       completion_started = TRUE;
     }
   } else {      // Completion already initialized
-    char *c;
-    guint back = cancel_completion();
-    // Remove $back chars
-    ptr_inputline -= back;
-    c = ptr_inputline;
-    for ( ; *c ; c++)
-      *c = *(c+back);
+    scr_cancel_current_completion();
     // Now complete again
     cchar = complete();
     if (cchar)
@@ -2176,12 +2185,16 @@ static void scr_handle_tab(void)
 static void scr_cancel_current_completion(void)
 {
   char *c;
+  char *src = ptr_inputline;
   guint back = cancel_completion();
+  guint i;
   // Remove $back chars
-  ptr_inputline -= back;
+  for (i = 0; i < back; i++)
+    ptr_inputline = prev_char(ptr_inputline, inputLine);
   c = ptr_inputline;
-  for ( ; *c ; c++)
-    *c = *(c+back);
+  for ( ; *src ; )
+    *c++ = *src++;
+  *c = 0;
 }
 
 static void scr_end_current_completion(void)
@@ -2195,30 +2208,47 @@ static void scr_end_current_completion(void)
 // screen.
 static inline void check_offset(int direction)
 {
+  int i;
+  char *c = &inputLine[inputline_offset];
   // Left side
   if (inputline_offset && direction <= 0) {
-    while (ptr_inputline <= (char*)&inputLine + inputline_offset) {
-      if (inputline_offset) {
-        inputline_offset -= 5;
-        if (inputline_offset < 0)
-          inputline_offset = 0;
-      } else
+    while (ptr_inputline <= c) {
+      for (i = 0; i < 5; i++)
+        c = prev_char(c, inputLine);
+      if (c == inputLine)
         break;
     }
   }
   // Right side
   if (direction >= 0) {
-    while (ptr_inputline >= inputline_offset + (char*)&inputLine + maxX)
-      inputline_offset += 5;
+    int delta = wcwidth(get_char(c));
+    while (ptr_inputline > c) {
+      c = next_char(c);
+      delta += wcwidth(get_char(c));
+    }
+    c = &inputLine[inputline_offset];
+    while (delta >= maxX) {
+      for (i = 0; i < 5; i++) {
+        delta -= wcwidth(get_char(c));
+        c = next_char(c);
+      }
+    }
   }
+  inputline_offset = c - inputLine;
 }
 
 static inline void refresh_inputline(void)
 {
   mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
   wclrtoeol(inputWnd);
-  if (*ptr_inputline)
-    wmove(inputWnd, 0, ptr_inputline - (char*)&inputLine - inputline_offset);
+  if (*ptr_inputline) {
+    // hack to set cursor pos. Characters can have different width,
+    // so I know of no better way.
+    char c = *ptr_inputline;
+    *ptr_inputline = 0;
+    mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
+    *ptr_inputline = c;
+  }
 }
 
 void scr_handle_CtrlC(void)
@@ -2292,6 +2322,29 @@ static inline guint match_keyseq(int *iseq, keyseq **ret)
   return -1;
 }
 
+static inline int match_utf8_keyseq(int *iseq)
+{
+  int *strp = iseq;
+  unsigned c = *strp++;
+  unsigned mask = 0x80;
+  int len = -1;
+  while (c & mask) {
+    mask >>= 1;
+    len++;
+  }
+  if (len <= 0 || len > 4)
+    return -1;
+  c &= mask - 1;
+  while ((*strp & 0xc0) == 0x80) {
+    if (len-- <= 0) // can't happen
+      return -1;
+    c = (c << 6) | (*strp++ & 0x3f);
+  }
+  if (len)
+    return 0;
+  return c;
+}
+
 void scr_Getch(keycode *kcode)
 {
   keyseq *mks = NULL;
@@ -2302,6 +2355,25 @@ void scr_Getch(keycode *kcode)
   memset(ks,  0, sizeof(ks));
 
   kcode->value = wgetch(inputWnd);
+  if (utf8_mode) {
+    ks[0] = kcode->value;
+    for (i = 0; i < MAX_KEYSEQ_LENGTH - 1; i++) {
+      int match = match_utf8_keyseq(ks);
+      if (match == -1)
+        break;
+      if (match > 0) {
+        kcode->value = match;
+        kcode->utf8 = 1;
+        return;
+      }
+      ks[i + 1] = wgetch(inputWnd);
+      if (ks[i + 1] == ERR)
+        break;
+    }
+    while (i > 0)
+      ungetch(ks[i--]);
+    memset(ks,  0, sizeof(ks));
+  }
   if (kcode->value != 27)
     return;
 
@@ -2337,7 +2409,8 @@ void scr_Getch(keycode *kcode)
   return;
 }
 
-static int bindcommand(keycode kcode) {
+static int bindcommand(keycode kcode)
+{
   gchar asciikey[16];
   const gchar *boundcmd;
 
@@ -2363,8 +2436,11 @@ static int bindcommand(keycode kcode) {
   }
 
   scr_LogPrint(LPRINT_NORMAL, "Unknown key=%s", asciikey);
+#ifndef UNICODE
   if (utf8_mode)
-    scr_LogPrint(LPRINT_NORMAL, "WARNING: UTF-8 not yet supported!");
+    scr_LogPrint(LPRINT_NORMAL,
+                 "WARNING: Compiled without full UTF-8 support!");
+#endif
   return -1;
 }
 
@@ -2405,25 +2481,28 @@ int process_key(keycode kcode)
     case 127:   // Backspace too
     case KEY_BACKSPACE:
         if (ptr_inputline != (char*)&inputLine) {
-          char *c = --ptr_inputline;
-          for ( ; *c ; c++)
-            *c = *(c+1);
+          char *src = ptr_inputline;
+          char *c = prev_char(ptr_inputline, inputLine);
+          ptr_inputline = c;
+          for ( ; *src ; )
+            *c++ = *src++;
+          *c = 0;
           check_offset(-1);
         }
         break;
     case KEY_DC:// Del
         if (*ptr_inputline)
-          strcpy(ptr_inputline, ptr_inputline+1);
+          strcpy(ptr_inputline, next_char(ptr_inputline));
         break;
     case KEY_LEFT:
         if (ptr_inputline != (char*)&inputLine) {
-          ptr_inputline--;
+          ptr_inputline = prev_char(ptr_inputline, inputLine);
           check_offset(-1);
         }
         break;
     case KEY_RIGHT:
         if (*ptr_inputline)
-          ptr_inputline++;
+          ptr_inputline = next_char(ptr_inputline);
           check_offset(1);
         break;
     case 7:     // Ctrl-g
@@ -2531,9 +2610,11 @@ int process_key(keycode kcode)
     case 23:    // Ctrl-w
         readline_backward_kill_word();
         break;
+    case 515:
     case 516:   // Ctrl-Left
         readline_backward_word();
         break;
+    case 517:
     case 518:   // Ctrl-Right
         readline_forward_word();
         break;
@@ -2559,16 +2640,16 @@ int process_key(keycode kcode)
         update_panels();
         break;
     default:
-        if (isprint(key)) {
+        if (iswprint(key) && (!utf8_mode || kcode.utf8 || key < 128)) {
           char tmpLine[INPUTLINE_LENGTH+1];
 
           // Check the line isn't too long
-          if (strlen(inputLine) >= INPUTLINE_LENGTH)
+          if (strlen(inputLine) + 4 > INPUTLINE_LENGTH)
             return 0;
 
           // Insert char
           strcpy(tmpLine, ptr_inputline);
-          *ptr_inputline++ = key;
+          ptr_inputline = put_char(ptr_inputline, key);
           strcpy(ptr_inputline, tmpLine);
           check_offset(1);
         } else {

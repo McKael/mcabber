@@ -23,6 +23,7 @@
 
 #include "hbuf.h"
 #include "utils.h"
+#include "utf8.h"
 
 
 /* This is a private structure type */
@@ -188,23 +189,28 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
   }
   // #2 Go back to head and create non-persistent blocks when needed
   if (width) {
-    char *line, *end;
+    char *end;
     curr_elt = first_elt;
 
     while (curr_elt) {
       hbuf_b_curr = (hbuf_block*)(curr_elt->data);
-      line = hbuf_b_curr->ptr;
-      if (strlen(line) > width) {
-        hbuf_block *hbuf_b_prev = hbuf_b_curr;
+      hbuf_block *hbuf_b_prev = hbuf_b_curr;
 
-        // We need to break where we can find a space char
-        char *br; // break pointer
-        for (br = line + width; br > line && *br != 32 && *br != 9; br--)
-          ;
-        if (br <= line)
-          br = line + width;
+      // We need to break where we can find a space char
+      char *br = NULL; // break pointer
+      char *c = hbuf_b_curr->ptr;
+      unsigned int cur_w = 0;
+      while (*c && cur_w <= width) {
+        if (iswblank(get_char(c)))
+          br = c;
+        cur_w += wcwidth(get_char(c));
+        c = next_char(c);
+      }
+      if (*c && cur_w > width) {
+        if (!br || br == hbuf_b_curr->ptr)
+          br = c;
         else
-          br++;
+          br = next_char(br);
         end = hbuf_b_curr->ptr_end;
         hbuf_b_curr->ptr_end = br;
         // Create another block, non-persistent

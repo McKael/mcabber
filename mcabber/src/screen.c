@@ -2221,15 +2221,15 @@ static inline void check_offset(int direction)
   }
   // Right side
   if (direction >= 0) {
-    int delta = wcwidth(get_char(c));
+    int delta = get_char_width(c);
     while (ptr_inputline > c) {
       c = next_char(c);
-      delta += wcwidth(get_char(c));
+      delta += get_char_width(c);
     }
     c = &inputLine[inputline_offset];
     while (delta >= maxX) {
       for (i = 0; i < 5; i++) {
-        delta -= wcwidth(get_char(c));
+        delta -= get_char_width(c);
         c = next_char(c);
       }
     }
@@ -2652,7 +2652,7 @@ int process_key(keycode kcode)
 
 display:
   if (display_char) {
-    if (iswprint(key) && (!utf8_mode || kcode.utf8 || key < 128)) {
+    if (kcode.utf8 ? iswprint(key) : isprint(key)) {
       char tmpLine[INPUTLINE_LENGTH+1];
 
       // Check the line isn't too long

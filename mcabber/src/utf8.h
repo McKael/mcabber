@@ -6,8 +6,10 @@
 #ifdef HAVE_WCHAR_H
 # include <wchar.h>
 # define UNICODE
+# define get_char_width(c) (utf8_mode ? wcwidth(get_char(c)) : 1)
 #else
 # define wcwidth(c) 1
+# define get_char_width(c) 1
 #endif
 
 #ifdef HAVE_WCTYPE_H

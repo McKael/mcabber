@@ -203,7 +203,7 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
       while (*c && cur_w <= width) {
         if (iswblank(get_char(c)))
           br = c;
-        cur_w += wcwidth(get_char(c));
+        cur_w += get_char_width(c);
         c = next_char(c);
       }
       if (*c && cur_w > width) {

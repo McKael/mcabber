@@ -2449,6 +2449,7 @@ static int bindcommand(keycode kcode)
 int process_key(keycode kcode)
 {
   int key = kcode.value;
+  int display_char = FALSE;
 
   switch (kcode.mcode) {
     case 0:
@@ -2471,6 +2472,12 @@ int process_key(keycode kcode)
         if (bindcommand(kcode) == 255)
           return 255;
         key = ERR; // Do not process any further
+  }
+
+  if (kcode.utf8) {
+    if (key != ERR && !kcode.mcode)
+      display_char = TRUE;
+    goto display;
   }
 
   switch (key) {
@@ -2640,23 +2647,28 @@ int process_key(keycode kcode)
         update_panels();
         break;
     default:
-        if (iswprint(key) && (!utf8_mode || kcode.utf8 || key < 128)) {
-          char tmpLine[INPUTLINE_LENGTH+1];
+        display_char = TRUE;
+  } // switch
 
-          // Check the line isn't too long
-          if (strlen(inputLine) + 4 > INPUTLINE_LENGTH)
-            return 0;
+display:
+  if (display_char) {
+    if (iswprint(key) && (!utf8_mode || kcode.utf8 || key < 128)) {
+      char tmpLine[INPUTLINE_LENGTH+1];
 
-          // Insert char
-          strcpy(tmpLine, ptr_inputline);
-          ptr_inputline = put_char(ptr_inputline, key);
-          strcpy(ptr_inputline, tmpLine);
-          check_offset(1);
-        } else {
-          // Look for a key binding.
-          if (bindcommand(kcode) == 255)
-            return 255;
-        }
+      // Check the line isn't too long
+      if (strlen(inputLine) + 4 > INPUTLINE_LENGTH)
+        return 0;
+
+      // Insert char
+      strcpy(tmpLine, ptr_inputline);
+      ptr_inputline = put_char(ptr_inputline, key);
+      strcpy(ptr_inputline, tmpLine);
+      check_offset(1);
+    } else {
+      // Look for a key binding.
+      if (!kcode.utf8 && (bindcommand(kcode) == 255))
+        return 255;
+    }
   }
 
   if (completion_started && key != 9 && key != KEY_RESIZE)

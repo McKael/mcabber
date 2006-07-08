@@ -1991,8 +1991,9 @@ void readline_backward_kill_word()
   c = prev_char(ptr_inputline, inputLine);
   for ( ; c > inputLine ; c = prev_char(c, inputLine)) {
     if (!iswalnum(get_char(c))) {
-      if (iswblank(get_char(c)))
+      if (iswblank(get_char(c))) {
         if (!spaceallowed) break;
+      } else spaceallowed = 0;
     } else spaceallowed = 0;
   }
 
@@ -2022,8 +2023,9 @@ void readline_backward_word()
        ptr_inputline > inputLine ;
        ptr_inputline = prev_char(ptr_inputline, inputLine)) {
     if (!iswalnum(get_char(ptr_inputline))) {
-      if (iswblank(get_char(ptr_inputline)))
+      if (iswblank(get_char(ptr_inputline))) {
         if (!spaceallowed) break;
+      } else spaceallowed = 0;
     } else spaceallowed = 0;
   }
 
@@ -2044,8 +2046,9 @@ void readline_forward_word()
   while (*ptr_inputline) {
     ptr_inputline = next_char(ptr_inputline);
     if (!iswalnum(get_char(ptr_inputline))) {
-      if (iswblank(get_char(ptr_inputline)))
+      if (iswblank(get_char(ptr_inputline))) {
         if (!spaceallowed) break;
+      } else spaceallowed = 0;
     } else spaceallowed = 0;
   }
 

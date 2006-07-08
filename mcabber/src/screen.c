@@ -23,12 +23,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ncurses.h>
 #include <panel.h>
 #include <time.h>
 #include <ctype.h>
 #include <locale.h>
 #include <langinfo.h>
+#include <config.h>
+
+#if HAVE_NCURSESW_NCURSES_H
+# include <ncursesw/ncurses.h>
+#elif HAVE_NCURSES_NCURSES_H
+# include <ncurses/ncurses.h>
+#elif HAVE_NCURSES_H
+# include <ncurses.h>
+#else
+# include <curses.h>
+#endif
 
 #include "screen.h"
 #include "hbuf.h"

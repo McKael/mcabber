@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <panel.h>
 #include <time.h>
 #include <ctype.h>
 #include <locale.h>

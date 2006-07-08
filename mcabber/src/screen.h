@@ -5,12 +5,13 @@
 
 #if HAVE_NCURSESW_NCURSES_H
 # include <ncursesw/ncurses.h>
+# include <ncursesw/panel.h>
 #elif HAVE_NCURSES_NCURSES_H
 # include <ncurses/ncurses.h>
-#elif HAVE_NCURSES_H
-# include <ncurses.h>
+# include <ncurses/panel.h>
 #else
-# include <curses.h>
+# include <ncurses.h>
+# include <panel.h>
 #endif
 
 #include "logprint.h"

@@ -1,8 +1,17 @@
 #ifndef __SCREEN_H__
 #define __SCREEN_H__ 1
 
-#include <ncurses.h>
 #include <glib.h>
+
+#if HAVE_NCURSESW_NCURSES_H
+# include <ncursesw/ncurses.h>
+#elif HAVE_NCURSES_NCURSES_H
+# include <ncurses/ncurses.h>
+#elif HAVE_NCURSES_H
+# include <ncurses.h>
+#else
+# include <curses.h>
+#endif
 
 #include "logprint.h"
 
@@ -67,7 +76,7 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
         time_t timestamp, guint prefix);
 void scr_WriteOutgoingMessage(const char *jidto,   const char *text);
 void scr_ShowBuddyWindow(void);
-bool scr_BuddyBufferExists(const char *jid);
+int  scr_BuddyBufferExists(const char *jid);
 inline void scr_UpdateBuddyWindow(void);
 inline void scr_set_chatmode(int enable);
 inline void scr_set_multimode(int enable, char *subject);
@@ -79,7 +88,7 @@ inline const char *scr_get_multimode_subj(void);
 
 inline void scr_Beep(void);
 
-void scr_CheckAutoAway(bool activity);
+void scr_CheckAutoAway(int activity);
 
 // For commands...
 void scr_RosterTop(void);

@@ -30,16 +30,6 @@
 #include <langinfo.h>
 #include <config.h>
 
-#if HAVE_NCURSESW_NCURSES_H
-# include <ncursesw/ncurses.h>
-#elif HAVE_NCURSES_NCURSES_H
-# include <ncurses/ncurses.h>
-#elif HAVE_NCURSES_H
-# include <ncurses.h>
-#else
-# include <curses.h>
-#endif
-
 #include "screen.h"
 #include "utf8.h"
 #include "hbuf.h"
@@ -490,7 +480,7 @@ static winbuf *scr_SearchWindow(const char *winId, int special)
   return NULL;
 }
 
-bool scr_BuddyBufferExists(const char *jid)
+int scr_BuddyBufferExists(const char *jid)
 {
   return (scr_SearchWindow(jid, FALSE) != NULL);
 }
@@ -1290,7 +1280,7 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text)
   scr_ShowWindow(jidto, FALSE);
 }
 
-inline void set_autoaway(bool setaway)
+static inline void set_autoaway(bool setaway)
 {
   static enum imstatus oldstatus;
   static char *oldmsg;
@@ -1321,7 +1311,7 @@ inline void set_autoaway(bool setaway)
 }
 
 // Check if we should enter/leave automatic away status
-void scr_CheckAutoAway(bool activity)
+void scr_CheckAutoAway(int activity)
 {
   static time_t LastActivity;
   enum imstatus cur_st;

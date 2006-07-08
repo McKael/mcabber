@@ -21,6 +21,10 @@
 # undef UNICODE
 #endif
 
+#ifndef HAVE_NCURSESW_NCURSES_H
+# undef UNICODE
+#endif
+
 extern int utf8_mode;
 
 char *prev_char(char *str, const char *limit);

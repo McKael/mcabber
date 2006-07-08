@@ -10,7 +10,6 @@
 #
 # If password is not given, it will be interactively asked for.
 # If port is not given, default Jabber port will be used.
-# Use ssl = 1 to enable SSL
 
 set username = yourusername
 # Note: if the password contains leading or trailing spaces, you must
@@ -18,10 +17,26 @@ set username = yourusername
 #set password = yourpassword
 set server = your.jabber.server
 #set port = 5222
-set ssl = 0
 # If you don't know what a resource is, you can leave "mcabber" here.
 set resource = mcabber
 #set priority = 3
+
+# SSL options:
+# Set ssl non-zero to use SSL (this also sets the default port to 5223).
+# Set ssl_verify to 0 to disable certificate verification, or non-zero
+# to set desired maximum CA verification depth. Use -1 to specify an
+# unlimited depth.
+# Set ssl_cafile to a path to a CA certificate file (may contain multiple
+# CA certificates).
+# Set ssl_capath to a directory containing CA certificates (use c_rehash
+# to generate hash links).
+# Set ssl_ciphers to a list of desired SSL ciphers (run "openssl ciphers"
+# for candidate values).
+set ssl = 0
+#set ssl_verify = -1
+#set ssl_cafile = /usr/share/ssl/certs/ca-bundle.crt
+#set ssl_capath =
+#set ssl_ciphers =
 
 # Conference nickname
 # This nickname is used when joining a room, when no nick is explicitly

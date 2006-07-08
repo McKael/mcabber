@@ -33,6 +33,106 @@ static int in_http_connect = 0;
 
 static SSL_CTX *ctx = 0;
 
+/* verify > 0 indicates verify depth as well */
+static int verify = -1;
+static const char *cafile = NULL;
+static const char *capath = NULL;
+static const char *cipherlist = NULL;
+static const char *peer = NULL;
+static const char *sslerror = NULL;
+
+static int verify_cb(int preverify_ok, X509_STORE_CTX *cx)
+{
+    X509 *cert;
+    X509_NAME *nm;
+    int lastpos;
+
+    if(!preverify_ok) {
+	long err = X509_STORE_CTX_get_error(cx);
+
+	sslerror = X509_verify_cert_error_string(err);
+	return 0;
+    }
+
+    if (peer == NULL)
+	return 1;
+
+    if ((cert = X509_STORE_CTX_get_current_cert(cx)) == NULL) {
+	sslerror = "internal SSL error";
+	return 0;
+    }
+
+    /* We only want to look at the peername if we're working on the peer
+     * certificate. */
+    if (cert != cx->cert)
+	return 1;
+
+    if ((nm = X509_get_subject_name (cert)) == NULL) {
+	sslerror = "internal SSL error";
+	return 0;
+    }
+
+    for(lastpos = -1; ; ) {
+	X509_NAME_ENTRY *e;
+	ASN1_STRING *a;
+	ASN1_STRING *p;
+	int match;
+
+        lastpos = X509_NAME_get_index_by_NID(nm, NID_commonName, lastpos);
+	if (lastpos == -1)
+	    break;
+	if ((e = X509_NAME_get_entry(nm, lastpos)) == NULL) {
+	    sslerror = "internal SSL error";
+	    return 0;
+	}
+	if ((a = X509_NAME_ENTRY_get_data(e)) == NULL) {
+	    sslerror = "internal SSL error";
+	    return 0;
+	}
+	if ((p = ASN1_STRING_type_new(ASN1_STRING_type(a))) == NULL) {
+	    sslerror = "internal SSL error";
+	    return 0;
+	}
+	(void) ASN1_STRING_set(p, peer, -1);
+	match = !ASN1_STRING_cmp(a, p);
+	ASN1_STRING_free(p);
+	if(match)
+	    return 1;
+    }
+
+    sslerror = "server certificate cn mismatch";
+    return 0;
+}
+
+static void init(void) {
+    if(ctx)
+	return;
+
+    SSL_library_init();
+    SSL_load_error_strings();
+
+#ifdef HAVE_SSLEAY
+    SSLeay_add_all_algorithms();
+#else
+    OpenSSL_add_all_algorithms();
+#endif
+
+    /* May need to use distinct SSLEAY bindings below... */
+
+    //ctx = SSL_CTX_new(SSLv23_method());
+    ctx = SSL_CTX_new(SSLv23_client_method());
+    if(cipherlist)
+	(void)SSL_CTX_set_cipher_list(ctx, cipherlist);
+    if(cafile || capath)
+	(void)SSL_CTX_load_verify_locations(ctx, cafile, capath);
+    if(verify) {
+	SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, verify_cb);
+	if(verify > 0)
+	    SSL_CTX_set_verify_depth(ctx, verify);
+    } else
+	SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+}
+
 typedef struct { int fd; SSL *ssl; } sslsock;
 
 static sslsock *socks = 0;
@@ -54,22 +154,11 @@ static sslsock *addsock(int fd) {
 
     p = &socks[sockcount-1];
 
-    if(!ctx) {
-	SSL_library_init();
-	SSL_load_error_strings();
-
-#ifdef HAVE_SSLEAY
-	SSLeay_add_all_algorithms();
-#else
-	OpenSSL_add_all_algorithms();
-#endif
-
-	//ctx = SSL_CTX_new(SSLv23_method());
-	ctx = SSL_CTX_new(SSLv23_client_method());
-    }
+    init ();
 
     p->ssl = SSL_new(ctx);
     SSL_set_fd(p->ssl, p->fd = fd);
+    sslerror = NULL;
 
     return p;
 }
@@ -93,6 +182,26 @@ static void delsock(int fd) {
 
     socks = nsocks;
     sockcount = nsockcount;
+}
+
+void cw_set_ssl_options(int sslverify, const char *sslcafile, const char *sslcapath, const char *sslciphers, const char *sslpeer) {
+    verify = sslverify;
+    cafile = sslcafile;
+    capath = sslcapath;
+    cipherlist = sslciphers;
+    peer = sslpeer;
+}
+
+const char *cw_get_ssl_error(void) {
+    return sslerror;
+}
+
+#else
+
+void cw_set_ssl_options(int sslverify, const char *sslcafile, const char *sslcapath, const char *sslciphers, const char *sslpeer) { }
+
+const char *cw_get_ssl_error(void) {
+    return NULL;
 }
 
 #endif

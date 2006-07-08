@@ -151,6 +151,8 @@ void jab_start(jconn j)
     }
     else { /* subsequent calls to cw_nb_connect until it finishes negociation */
 	if (cw_nb_connect(j->fd, 0, 0, j->ssl, &j->cw_state)) {
+	    if (cw_get_ssl_error())
+		scr_LogPrint(LPRINT_LOGNORM, "jab_start: SSL negotiation failed: %s", cw_get_ssl_error());
 	    STATE_EVT(JCONN_STATE_OFF);
 	    return;
 	}

@@ -35,6 +35,8 @@ int cw_read(int fd, void *buf, int count, int ssl);
 
 void cw_close(int fd);
 
+void cw_set_ssl_options(int sslverify, const char *sslcafile, const char *sslcapath, const char *sslciphers, const char *sslpeer);
+const char *cw_get_ssl_error(void);
 void cw_setproxy(const char *aproxyhost, int aproxyport, const char *aproxyuser, const char *aproxypass);
 void cw_setbind(const char *abindaddr);
 

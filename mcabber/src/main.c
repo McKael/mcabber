@@ -68,6 +68,8 @@ void mcabber_connect(void)
   const char *proxy_host;
   char *jid;
   int ssl;
+  int sslverify = -1;
+  const char *sslvopt = NULL, *cafile = NULL, *capath = NULL, *ciphers = NULL;
   unsigned int port;
 
   servername = settings_opt_get("server");
@@ -91,16 +93,25 @@ void mcabber_connect(void)
   if (!resource)
     resource = "mcabber";
 
-  ssl  = (settings_opt_get_int("ssl") > 0);
-  port = (unsigned int) settings_opt_get_int("port");
+  port    = (unsigned int) settings_opt_get_int("port");
+
+  ssl     = settings_opt_get_int("ssl");
+  sslvopt = settings_opt_get("ssl_verify");
+  if (sslvopt)
+    sslverify = settings_opt_get_int("ssl_verify");
+  cafile  = settings_opt_get("ssl_cafile");
+  capath  = settings_opt_get("ssl_capath");
+  ciphers = settings_opt_get("ssl_ciphers");
 
 #if !defined(HAVE_OPENSSL) && !defined(HAVE_GNUTLS)
-  if (ssl) {
+  if (ssl || sslvopt || cafile || capath || ciphers) {
     scr_LogPrint(LPRINT_LOGNORM,
-                 "** Warning: SSL is NOT available, ignoring 'ssl' value");
-    ssl = 0;
+                 "** Warning: SSL is NOT available, ignoring ssl-related setting");
+    ssl = sslverify = 0;
+    cafile = capath = ciphers = NULL;
   }
 #endif
+  cw_set_ssl_options(sslverify, cafile, capath, ciphers, servername);
 
   /* Connect to server */
   scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",

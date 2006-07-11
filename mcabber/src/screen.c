@@ -83,6 +83,7 @@ int update_roster;
 int utf8_mode = 0;
 static bool Autoaway;
 static bool Curses;
+static time_t LastActivity;
 
 static char       inputLine[INPUTLINE_LENGTH+1];
 static char      *ptr_inputline;
@@ -368,7 +369,6 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
       wprintw(logWnd,
               "\n%s*Error: cannot convert string to locale.", strtimestamp);
       update_panels();
-      doupdate();
       g_free(buffer);
       g_free(btext);
       return;
@@ -383,7 +383,6 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     if (Curses) {
       wprintw(logWnd, "\n%s", buffer_locale);
       update_panels();
-      doupdate();
       scr_WriteInWindow(NULL, buf_specialwindow, timestamp,
                         HBB_PREFIX_SPECIAL, FALSE);
     } else {
@@ -733,7 +732,6 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     scr_UpdateWindow(win_entry);
     top_panel(inputPanel);
     update_panels();
-    doupdate();
   } else if (!(prefix_flags & HBB_PREFIX_NOFLAG)) {
     setmsgflg = TRUE;
   }
@@ -758,7 +756,6 @@ void scr_UpdateMainStatus(int forceupdate)
   if (forceupdate) {
     top_panel(inputPanel);
     update_panels();
-    doupdate();
   }
   g_free(sm);
 }
@@ -952,7 +949,7 @@ void scr_Resize()
 
 //  scr_UpdateChatStatus(forceupdate)
 // Redraw the buddy status bar.
-// Set forceupdate to TRUE if doupdate() must be called.
+// Set forceupdate to TRUE if update_panels() must be called.
 void scr_UpdateChatStatus(int forceupdate)
 {
   unsigned short btype, isgrp, ismuc, isspe;
@@ -974,7 +971,6 @@ void scr_UpdateChatStatus(int forceupdate)
   if (!current_buddy) {
     if (forceupdate) {
       update_panels();
-      doupdate();
     }
     return;
   }
@@ -1002,7 +998,6 @@ void scr_UpdateChatStatus(int forceupdate)
     g_free(buf_locale);
     if (forceupdate) {
       update_panels();
-      doupdate();
     }
     return;
   }
@@ -1041,7 +1036,6 @@ void scr_UpdateChatStatus(int forceupdate)
 
   if (forceupdate) {
     update_panels();
-    doupdate();
   }
 }
 
@@ -1085,7 +1079,6 @@ void scr_DrawRoster(void)
   // Leave now if buddylist is empty or the roster is hidden
   if (!buddylist || !Roster_Width) {
     update_panels();
-    doupdate();
     curs_set(cursor_backup);
     return;
   }
@@ -1212,7 +1205,6 @@ void scr_DrawRoster(void)
   g_free(name);
   top_panel(inputPanel);
   update_panels();
-  doupdate();
   curs_set(cursor_backup);
 }
 
@@ -1270,7 +1262,6 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
 
   scr_WriteMessage(jidfrom, text, timestamp, prefix);
   update_panels();
-  doupdate();
 }
 
 void scr_WriteOutgoingMessage(const char *jidto, const char *text)
@@ -1309,10 +1300,24 @@ static inline void set_autoaway(bool setaway)
   }
 }
 
+unsigned int scr_GetAutoAwayTimeout()
+{
+  unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
+  time_t now;
+
+  if (Autoaway || !autoaway_timeout)
+    return (unsigned)INT_MAX;
+
+  time(&now);
+  if (now > LastActivity + (time_t)autoaway_timeout)
+    return 0;
+  else
+    return LastActivity + (time_t)autoaway_timeout - now;
+}
+
 // Check if we should enter/leave automatic away status
 void scr_CheckAutoAway(int activity)
 {
-  static time_t LastActivity;
   enum imstatus cur_st;
   unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
 
@@ -1532,7 +1537,6 @@ void scr_BufferScrollUpDown(int updown, unsigned int nblines)
 
   // Finished :)
   update_panels();
-  doupdate();
 }
 
 //  scr_BufferClear()
@@ -1556,7 +1560,6 @@ void scr_BufferClear(void)
 
   // Finished :)
   update_panels();
-  doupdate();
 }
 
 //  scr_BufferPurge()
@@ -1587,7 +1590,6 @@ void scr_BufferPurge(void)
 
   // Finished :)
   update_panels();
-  doupdate();
 }
 
 //  scr_BufferScrollLock(lock)
@@ -1632,7 +1634,6 @@ void scr_BufferScrollLock(int lock)
 
   // Finished :)
   update_panels();
-  doupdate();
 }
 
 //  scr_BufferTopBottom()
@@ -1660,7 +1661,6 @@ void scr_BufferTopBottom(int topbottom)
 
   // Finished :)
   update_panels();
-  doupdate();
 }
 
 //  scr_BufferSearch(direction, text)
@@ -1694,7 +1694,6 @@ void scr_BufferSearch(int direction, const char *text)
 
     // Finished :)
     update_panels();
-    doupdate();
   } else
     scr_LogPrint(LPRINT_NORMAL, "Search string not found");
 }
@@ -1728,7 +1727,6 @@ void scr_BufferPercent(int pc)
 
   // Finished :)
   update_panels();
-  doupdate();
 }
 
 //  scr_BufferDate(t)
@@ -1756,7 +1754,6 @@ void scr_BufferDate(time_t t)
 
   // Finished :)
   update_panels();
-  doupdate();
 }
 
 //  scr_set_chatmode()
@@ -2401,6 +2398,11 @@ void scr_Getch(keycode *kcode)
   return;
 }
 
+inline void scr_DoUpdate(void)
+{
+  doupdate();
+}
+
 static int bindcommand(keycode kcode)
 {
   gchar asciikey[16];
@@ -2666,8 +2668,6 @@ display:
   if (completion_started && key != 9 && key != KEY_RESIZE)
     scr_end_current_completion();
   refresh_inputline();
-  if (!update_roster)
-    doupdate();
   return 0;
 }
 

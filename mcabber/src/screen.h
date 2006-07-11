@@ -65,6 +65,8 @@ typedef struct {
 void scr_Getch(keycode *kcode);
 int process_key(keycode kcode);
 
+inline void scr_DoUpdate(void);
+
 void scr_InitLocaleCharSet(void);
 void scr_InitCurses(void);
 void scr_TerminateCurses(void);
@@ -89,6 +91,7 @@ inline const char *scr_get_multimode_subj(void);
 
 inline void scr_Beep(void);
 
+unsigned int scr_GetAutoAwayTimeout();
 void scr_CheckAutoAway(int activity);
 
 // For commands...

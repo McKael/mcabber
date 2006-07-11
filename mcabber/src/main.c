@@ -235,10 +235,8 @@ int main(int argc, char **argv)
   char *configFile = NULL;
   const char *optstring;
   int optval, optval2;
-  int key;
   unsigned int ping;
   int ret;
-  unsigned int refresh = 0;
   keycode kcode;
 
   credits();
@@ -330,27 +328,20 @@ int main(int argc, char **argv)
   scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
 
   for (ret = 0 ; ret != 255 ; ) {
+    scr_DoUpdate();
     scr_Getch(&kcode);
-    key = kcode.value;
 
-    /* The refresh is really an ugly hack, but we need to call doupdate()
-       from time to time to catch the RESIZE events, because getch keep
-       returning ERR until a real key is pressed :-(
-       However, it allows us to handle an autoaway check here...
-     */
-    if (key != ERR) {
+    if (kcode.value != ERR) {
       ret = process_key(kcode);
-      refresh = 0;
-    } else if (refresh++ > 1) {
-      doupdate();
-      refresh = 0;
+    } else {
       scr_CheckAutoAway(FALSE);
-    }
 
-    if (key != KEY_RESIZE)
+      if (update_roster)
+	scr_DrawRoster();
+
+      scr_DoUpdate();
       jb_main();
-    if (update_roster)
-      scr_DrawRoster();
+    }
   }
 
   jb_disconnect();

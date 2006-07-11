@@ -168,6 +168,9 @@ void jb_set_keepalive_delay(unsigned int delay)
 void jb_main()
 {
   time_t now;
+  fd_set fds;
+  long autoaway_timeout;
+  struct timeval tv;
   static time_t last_eviqs_check = 0;
 
   if (!online) {
@@ -181,7 +184,30 @@ void jb_main()
     return;
   }
 
-  jab_poll(jc, 50);
+  FD_ZERO(&fds);
+  FD_SET(0, &fds);
+  FD_SET(jc->fd, &fds);
+
+  tv.tv_sec = 60;
+  tv.tv_usec = 0;
+
+  if (KeepaliveDelay) {
+    time(&now);
+    if (now > LastPingTime + (time_t)KeepaliveDelay) {
+      tv.tv_sec = 0;
+    } else {
+      tv.tv_sec = LastPingTime + (time_t)KeepaliveDelay - now;
+    }
+  }
+
+  autoaway_timeout = scr_GetAutoAwayTimeout();
+  if (tv.tv_sec > autoaway_timeout)
+    tv.tv_sec = autoaway_timeout;
+
+  if (select(jc->fd + 1, &fds, NULL, NULL, &tv) > 0) {
+    if (FD_ISSET(jc->fd, &fds))
+      jab_poll(jc, 0);
+  }
 
   if (jstate == STATE_CONNECTING) {
     if (jc) {

@@ -1300,16 +1300,20 @@ static inline void set_autoaway(bool setaway)
   }
 }
 
-unsigned int scr_GetAutoAwayTimeout()
+unsigned int scr_GetAutoAwayTimeout(time_t now)
 {
+  enum imstatus cur_st;
   unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
-  time_t now;
 
   if (Autoaway || !autoaway_timeout)
-    return (unsigned)INT_MAX;
+    return 86400;
 
-  time(&now);
-  if (now > LastActivity + (time_t)autoaway_timeout)
+  cur_st = jb_getstatus();
+  // Auto-away is disabled for the following states
+  if ((cur_st != available) && (cur_st != freeforchat))
+    return 86400;
+
+  if (now >= LastActivity + (time_t)autoaway_timeout)
     return 0;
   else
     return LastActivity + (time_t)autoaway_timeout - now;

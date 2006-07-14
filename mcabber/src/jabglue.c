@@ -191,19 +191,25 @@ void jb_main()
   tv.tv_sec = 60;
   tv.tv_usec = 0;
 
+  time(&now);
+
   if (KeepaliveDelay) {
-    time(&now);
-    if (now > LastPingTime + (time_t)KeepaliveDelay) {
+    if (now >= LastPingTime + (time_t)KeepaliveDelay) {
       tv.tv_sec = 0;
     } else {
       tv.tv_sec = LastPingTime + (time_t)KeepaliveDelay - now;
     }
   }
 
-  autoaway_timeout = scr_GetAutoAwayTimeout();
-  if (tv.tv_sec > autoaway_timeout)
+  autoaway_timeout = scr_GetAutoAwayTimeout(now);
+  if (tv.tv_sec > autoaway_timeout) {
     tv.tv_sec = autoaway_timeout;
+  }
 
+  if (!tv.tv_sec)
+    tv.tv_usec = 350000;
+
+  scr_DoUpdate();
   if (select(jc->fd + 1, &fds, NULL, NULL, &tv) > 0) {
     if (FD_ISSET(jc->fd, &fds))
       jab_poll(jc, 0);

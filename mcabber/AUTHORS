@@ -6,8 +6,14 @@ the source headers, usually).
 Thanks to the libjabber, cabber and centericq projects authors.
 Thanks to the Gaim project, and to all members of the Jabber community!
 
-Thanks to "Salvador" and Philip M. White for their help (documentation,
+Thanks to Michal Jeczalik Jr and Philip M. White for their help (documentation,
 suggestions, etc.).
+
+Thanks to the following contributors:
+  Reimar Döffinger
+  Jefferson Ogata
+  Sören Andersen
+  Christof Meerwald
 
 =====
 Here is the original acknowledgement from the cabber project:
@@ -28,3 +34,5 @@ Here is the original acknowledgement from the cabber project:
         Thomas Fischer (th.fischer@gmx.net)
         _Yed_	   (#linux at irc-hispano)
         ZJoyKiller (#linux at irc-hispano)
+
+# vim: set encoding=utf-8:

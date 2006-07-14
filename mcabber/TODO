@@ -6,7 +6,6 @@ BUGS:
 
 TODO:
 
-* UTF-8 support (Can somebody help me?)
 * Implement automatic reconnection after network failure
 * Show number of online contacts in folded groups
 * Publish personal information

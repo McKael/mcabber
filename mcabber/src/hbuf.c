@@ -43,68 +43,21 @@ typedef struct {
 } hbuf_block;
 
 
-//  hbuf_add_line(p_hbuf, text, prefix_flags, width)
-// Add a line to the given buffer.  If width is not null, then lines are
-// wrapped at this length.
-//
-// Note 1: Splitting according to width won't work if there are tabs; they
-//         should be expanded before.
-// Note 2: width does not include the ending \0.
-void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
-        guint prefix_flags, guint width)
+//  do_wrap(p_hbuf, first_hbuf_elt, width)
+// Wrap hbuf lines with the specified width.
+// '\n' are handled by this routine (they are removed and persistent lines
+// are created).
+// All hbuf elements are processed, starting from first_hbuf_elt.
+static inline void do_wrap(GList **p_hbuf, GList *first_hbuf_elt,
+                           unsigned int width)
 {
-  GList *hbuf = *p_hbuf;
-  GList *curr_elt;
-  char *line, *end;
-  hbuf_block *hbuf_block_elt, *hbuf_b_curr;
-
-  if (!text) return;
-
-  hbuf_block_elt = g_new0(hbuf_block, 1);
-  hbuf_block_elt->prefix.timestamp  = timestamp;
-  hbuf_block_elt->prefix.flags      = prefix_flags;
-  if (!hbuf) {
-    hbuf_block_elt->ptr  = g_new(char, HBB_BLOCKSIZE);
-    hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
-    hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
-    *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
-  } else {
-    hbuf_block *hbuf_b_prev;
-    // Set p_hbuf to the end of the list, to speed up history loading
-    // (or CPU time will be used by g_list_last() for each line)
-    hbuf = *p_hbuf = g_list_last(*p_hbuf);
-    hbuf_b_prev = hbuf->data;
-    hbuf_block_elt->ptr    = hbuf_b_prev->ptr_end;
-    hbuf_block_elt->flags  = HBB_FLAG_PERSISTENT;
-    hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
-    *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
-  }
-
-  if (strlen(text) >= HBB_BLOCKSIZE) {
-    // Too long
-    text = "[ERR:LINE_TOO_LONG]";
-    hbuf_block_elt->prefix.flags |= HBB_PREFIX_INFO;
-  }
-  if (hbuf_block_elt->ptr + strlen(text) >= hbuf_block_elt->ptr_end_alloc) {
-    // Too long for the current allocated bloc, we need another one
-    hbuf_block_elt->ptr  = g_new0(char, HBB_BLOCKSIZE);
-    hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
-    hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
-  }
-
-  line = hbuf_block_elt->ptr;
-  // Ok, now we can copy the text..
-  strcpy(line, text);
-  hbuf_block_elt->ptr_end = line + strlen(line) + 1;
-  end = hbuf_block_elt->ptr_end;
-
-  curr_elt = g_list_last(hbuf);
+  GList *curr_elt = first_hbuf_elt;
 
   // Let's add non-persistent blocs if necessary
   // - If there are '\n' in the string
   // - If length > width (and width != 0)
   while (curr_elt) {
-    hbuf_block *hbuf_b_prev;
+    hbuf_block *hbuf_b_curr, *hbuf_b_prev;
     char *c, *end;
     char *br = NULL; // break pointer
     char *cr = NULL; // CR pointer
@@ -152,6 +105,67 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
     }
     curr_elt = g_list_next(curr_elt);
   }
+}
+
+//  hbuf_add_line(p_hbuf, text, prefix_flags, width)
+// Add a line to the given buffer.  If width is not null, then lines are
+// wrapped at this length.
+//
+// Note 1: Splitting according to width won't work if there are tabs; they
+//         should be expanded before.
+// Note 2: width does not include the ending \0.
+void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
+        guint prefix_flags, guint width)
+{
+  GList *hbuf = *p_hbuf;
+  GList *curr_elt;
+  char *line, *end;
+  hbuf_block *hbuf_block_elt;
+
+  if (!text) return;
+
+  hbuf_block_elt = g_new0(hbuf_block, 1);
+  hbuf_block_elt->prefix.timestamp  = timestamp;
+  hbuf_block_elt->prefix.flags      = prefix_flags;
+  if (!hbuf) {
+    hbuf_block_elt->ptr  = g_new(char, HBB_BLOCKSIZE);
+    hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
+    hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
+    *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
+  } else {
+    hbuf_block *hbuf_b_prev;
+    // Set p_hbuf to the end of the list, to speed up history loading
+    // (or CPU time will be used by g_list_last() for each line)
+    hbuf = *p_hbuf = g_list_last(*p_hbuf);
+    hbuf_b_prev = hbuf->data;
+    hbuf_block_elt->ptr    = hbuf_b_prev->ptr_end;
+    hbuf_block_elt->flags  = HBB_FLAG_PERSISTENT;
+    hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
+    *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
+  }
+
+  if (strlen(text) >= HBB_BLOCKSIZE) {
+    // Too long
+    text = "[ERR:LINE_TOO_LONG]";
+    hbuf_block_elt->prefix.flags |= HBB_PREFIX_INFO;
+  }
+  if (hbuf_block_elt->ptr + strlen(text) >= hbuf_block_elt->ptr_end_alloc) {
+    // Too long for the current allocated bloc, we need another one
+    hbuf_block_elt->ptr  = g_new0(char, HBB_BLOCKSIZE);
+    hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
+    hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
+  }
+
+  line = hbuf_block_elt->ptr;
+  // Ok, now we can copy the text..
+  strcpy(line, text);
+  hbuf_block_elt->ptr_end = line + strlen(line) + 1;
+  end = hbuf_block_elt->ptr_end;
+
+  curr_elt = g_list_last(hbuf);
+
+  // Wrap lines and handle CRs ('\n')
+  do_wrap(p_hbuf, curr_elt, width);
 }
 
 //  hbuf_free()
@@ -203,43 +217,8 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
       curr_elt = next_elt;
   }
   // #2 Go back to head and create non-persistent blocks when needed
-  if (width) {
-    char *end;
-    curr_elt = first_elt;
-
-    while (curr_elt) {
-      hbuf_b_curr = (hbuf_block*)(curr_elt->data);
-      hbuf_block *hbuf_b_prev = hbuf_b_curr;
-
-      // We need to break where we can find a space char
-      char *br = NULL; // break pointer
-      char *c = hbuf_b_curr->ptr;
-      unsigned int cur_w = 0;
-      while (*c && cur_w <= width) {
-        if (iswblank(get_char(c)))
-          br = c;
-        cur_w += get_char_width(c);
-        c = next_char(c);
-      }
-      if (*c && cur_w > width) {
-        if (!br || br == hbuf_b_curr->ptr)
-          br = c;
-        else
-          br = next_char(br);
-        end = hbuf_b_curr->ptr_end;
-        hbuf_b_curr->ptr_end = br;
-        // Create another block, non-persistent
-        hbuf_b_curr = g_new0(hbuf_block, 1);
-        hbuf_b_curr->ptr      = hbuf_b_prev->ptr_end; // == br
-        hbuf_b_curr->ptr_end  = end;
-        hbuf_b_curr->flags    = 0;
-        hbuf_b_curr->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
-        // This is OK because insert_before(NULL) == append():
-        *p_hbuf = g_list_insert_before(*p_hbuf, curr_elt->next, hbuf_b_curr);
-      }
-      curr_elt = g_list_next(curr_elt);
-    }
-  }
+  if (width)
+    do_wrap(p_hbuf, first_elt, width);
 }
 
 //  hbuf_previous_persistent()

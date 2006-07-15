@@ -54,8 +54,9 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
         guint prefix_flags, guint width)
 {
   GList *hbuf = *p_hbuf;
-  char *line, *cr, *end;
-  hbuf_block *hbuf_block_elt;
+  GList *curr_elt;
+  char *line, *end;
+  hbuf_block *hbuf_block_elt, *hbuf_b_curr;
 
   if (!text) return;
 
@@ -97,45 +98,59 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   hbuf_block_elt->ptr_end = line + strlen(line) + 1;
   end = hbuf_block_elt->ptr_end;
 
+  curr_elt = g_list_last(hbuf);
+
   // Let's add non-persistent blocs if necessary
   // - If there are '\n' in the string
   // - If length > width (and width != 0)
-  cr = strchr(line, '\n');
-  while (cr || (width && strlen(line) > width)) {
-    hbuf_block *hbuf_b_prev = hbuf_block_elt;
+  while (curr_elt) {
+    hbuf_block *hbuf_b_prev;
+    char *c, *end;
+    char *br = NULL; // break pointer
+    char *cr = NULL; // CR pointer
+    unsigned int cur_w = 0;
 
-    if (!width || (cr && (cr - line <= (int)width))) {
-      // Carriage return
-      *cr = 0;
-      hbuf_block_elt->ptr_end = cr;
-      // Create another persistent block
-      hbuf_block_elt = g_new0(hbuf_block, 1);
-      hbuf_block_elt->ptr      = hbuf_b_prev->ptr_end + 1; // == cr+1
-      hbuf_block_elt->ptr_end  = end;
-      hbuf_block_elt->flags    = HBB_FLAG_PERSISTENT;
-      hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
-      *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
-      line = hbuf_block_elt->ptr;
-    } else {
-      // We need to break where we can find a space char
-      char *br; // break pointer
-      for (br = line + width; br > line && *br != 32 && *br != 9; br--)
-        ;
-      if (br <= line)
-        br = line + width;
-      else
-        br++;
-      hbuf_block_elt->ptr_end = br;
-      // Create another block, non-persistent
-      hbuf_block_elt = g_new0(hbuf_block, 1);
-      hbuf_block_elt->ptr      = hbuf_b_prev->ptr_end; // == br
-      hbuf_block_elt->ptr_end  = end;
-      hbuf_block_elt->flags    = 0;
-      hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
-      *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
-      line = hbuf_block_elt->ptr;
+    // We want to break where we can find a space char or a CR
+
+    hbuf_b_curr = (hbuf_block*)(curr_elt->data);
+    hbuf_b_prev = hbuf_b_curr;
+    c = hbuf_b_curr->ptr;
+
+    while (*c && (!width || cur_w <= width)) {
+      if (*c == '\n') {
+        br = cr = c;
+        *c = 0;
+        break;
+      }
+      if (iswblank(get_char(c)))
+        br = c;
+      cur_w += get_char_width(c);
+      c = next_char(c);
     }
-    cr = strchr(line, '\n');
+
+    if (cr || (*c && cur_w > width)) {
+      if (!br || br == hbuf_b_curr->ptr)
+        br = c;
+      else
+        br = next_char(br);
+      end = hbuf_b_curr->ptr_end;
+      hbuf_b_curr->ptr_end = br;
+      // Create another block
+      hbuf_b_curr = g_new0(hbuf_block, 1);
+      // The block must be persistent after a CR
+      if (cr) {
+        hbuf_b_curr->ptr    = hbuf_b_prev->ptr_end + 1; // == cr+1
+        hbuf_b_curr->flags  = HBB_FLAG_PERSISTENT;
+      } else {
+        hbuf_b_curr->ptr    = hbuf_b_prev->ptr_end; // == br
+        hbuf_b_curr->flags    = 0;
+      }
+      hbuf_b_curr->ptr_end  = end;
+      hbuf_b_curr->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
+      // This is OK because insert_before(NULL) == append():
+      *p_hbuf = g_list_insert_before(*p_hbuf, curr_elt->next, hbuf_b_curr);
+    }
+    curr_elt = g_list_next(curr_elt);
   }
 }
 

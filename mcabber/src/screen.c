@@ -2419,15 +2419,20 @@ inline void scr_DoUpdate(void)
 
 static int bindcommand(keycode kcode)
 {
-  gchar asciikey[16];
+  gchar asciikey[16], asciicode[16];
   const gchar *boundcmd;
 
-  if (!kcode.mcode || kcode.mcode == MKEY_EQUIV)
-    g_snprintf(asciikey, 15, "%d", kcode.value);
-  else if (kcode.mcode == MKEY_META)
-    g_snprintf(asciikey, 15, "M%d", kcode.value);
+  if (kcode.utf8)
+    g_snprintf(asciicode, 15, "U%d", kcode.value);
   else
-    g_snprintf(asciikey, 15, "MK%d", kcode.mcode);
+    g_snprintf(asciicode, 15, "%d", kcode.value);
+
+  if (!kcode.mcode || kcode.mcode == MKEY_EQUIV)
+    g_snprintf(asciikey, 15, "%s", asciicode);
+  else if (kcode.mcode == MKEY_META)
+    g_snprintf(asciikey, 15, "M%s", asciicode);
+  else
+    g_snprintf(asciikey, 15, "MK%s", asciicode);
 
   boundcmd = settings_get(SETTINGS_TYPE_BINDING, asciikey);
 

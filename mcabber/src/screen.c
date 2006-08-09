@@ -2349,7 +2349,13 @@ void scr_Getch(keycode *kcode)
 
   kcode->value = wgetch(inputWnd);
   if (utf8_mode) {
-    ks[0] = kcode->value;
+    bool meta = (kcode->value == 27);
+
+    if (meta)
+      ks[0] = wgetch(inputWnd);
+    else
+      ks[0] = kcode->value;
+
     for (i = 0; i < MAX_KEYSEQ_LENGTH - 1; i++) {
       int match = match_utf8_keyseq(ks);
       if (match == -1)
@@ -2357,6 +2363,8 @@ void scr_Getch(keycode *kcode)
       if (match > 0) {
         kcode->value = match;
         kcode->utf8 = 1;
+        if (meta)
+          kcode->mcode = MKEY_META;
         return;
       }
       ks[i + 1] = wgetch(inputWnd);
@@ -2365,6 +2373,8 @@ void scr_Getch(keycode *kcode)
     }
     while (i > 0)
       ungetch(ks[i--]);
+    if (meta)
+      ungetch(ks[0]);
     memset(ks,  0, sizeof(ks));
   }
   if (kcode->value != 27)

@@ -1,3 +1,11 @@
+mcabber (0.8.0)
+
+ * Mcabber now does SSL server certificate verification, and it is enabled
+   by default.  You can disable the certificate verification with the
+   'ssl_verify' option.  See the sample configuration file for details.
+
+ -- Mikael, 2006-08-13
+
 mcabber (0.7.5)
 
  * History log files are now stored using UTF-8 format.

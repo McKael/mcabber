@@ -1,11 +1,11 @@
-mcabber (0.7.9-dev)
+mcabber (0.8.0)
 
  * UTF-8 terminal support (Reimar Döffinger)
  * SSL server certificate verification (Jefferson Ogata)
  * CPU usage improvement (Christof Meerwald)
  * New configuration script, mcwizz.pl (Adam Wolk, Mateusz Karkula)
 
- -- Mikael, ?
+ -- Mikael, 2006-08-13
 
 mcabber (0.7.8)
 

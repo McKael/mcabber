@@ -38,7 +38,8 @@ AC_CHECK_FUNC(initscr,,
         [LIBS="$LIBS -l$cf_ncurses"
          if test "$cf_ncurses" = ncursesw; then
             AC_CHECK_HEADERS([ncursesw/ncurses.h ncursesw/panel.h],,
-                             AC_MSG_ERROR([Missing header file]))
+                 [AC_CHECK_HEADERS([ncurses.h panel.h],,
+                                   AC_MSG_ERROR([Missing header file]))])
          else
              AC_CHECK_HEADERS([ncurses/ncurses.h ncurses/panel.h],,
                  [AC_CHECK_HEADERS([ncurses.h panel.h],,

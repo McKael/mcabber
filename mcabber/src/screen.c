@@ -2432,7 +2432,7 @@ static int bindcommand(keycode kcode)
   else if (kcode.mcode == MKEY_META)
     g_snprintf(asciikey, 15, "M%s", asciicode);
   else
-    g_snprintf(asciikey, 15, "MK%s", asciicode);
+    g_snprintf(asciikey, 15, "MK%d", kcode.mcode);
 
   boundcmd = settings_get(SETTINGS_TYPE_BINDING, asciikey);
 

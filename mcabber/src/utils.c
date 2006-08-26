@@ -44,7 +44,7 @@
 static int DebugEnabled;
 static char *FName;
 
-void ut_InitDebug(unsigned int level, const char *filename)
+void ut_InitDebug(int level, const char *filename)
 {
   FILE *fp;
   struct stat buf;

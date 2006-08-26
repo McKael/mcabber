@@ -2280,7 +2280,7 @@ static void add_keyseq(char *seqstr, guint mkeycode, gint value)
 //  0  if "seq" could match 1 or more known sequences
 // >0  if "seq" matches a key sequence; the mkey code is returned
 //     and *ret is set to the matching keyseq structure.
-static inline guint match_keyseq(int *iseq, keyseq **ret)
+static inline gint match_keyseq(int *iseq, keyseq **ret)
 {
   GSList *ksl;
   keyseq *ksp;

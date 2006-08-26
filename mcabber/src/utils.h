@@ -9,7 +9,7 @@ extern char *LocaleCharSet;
 #define from_utf8(s) ((s) ? g_convert_with_fallback((s), -1, LocaleCharSet, \
                                         "UTF-8", NULL,NULL,NULL,NULL) : NULL)
 
-void ut_InitDebug(unsigned int level, const char *file);
+void ut_InitDebug(int level, const char *file);
 void ut_WriteLog(unsigned int flag, const char *data);
 
 int checkset_perm(const char *name, unsigned int setmode);

@@ -65,7 +65,7 @@ typedef struct {
   /* For groupchats */
   gchar *nickname;
   gchar *topic;
-  guint8 inside_room;
+  guint inside_room;
 
   /* To keep track of last status message */
   gchar *offline_status_message;
@@ -939,7 +939,7 @@ const char *buddy_getnickname(gpointer rosterdata)
 
 //  buddy_setinsideroom(buddy, inside)
 // Only for chatrooms
-void buddy_setinsideroom(gpointer rosterdata, guint8 inside)
+void buddy_setinsideroom(gpointer rosterdata, guint inside)
 {
   roster *roster_usr = rosterdata;
 
@@ -948,7 +948,7 @@ void buddy_setinsideroom(gpointer rosterdata, guint8 inside)
   roster_usr->inside_room = inside;
 }
 
-guint8 buddy_getinsideroom(gpointer rosterdata)
+guint buddy_getinsideroom(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->inside_room;

@@ -38,7 +38,7 @@ jconn jb_connect(const char *jid, const char *server, unsigned int port,
                  int ssl, const char *pass);
 inline unsigned char jb_getonline(void);
 void jb_disconnect(void);
-void jb_main();
+void jb_main(void);
 void jb_subscr_send_auth(const char *jid);
 void jb_subscr_cancel_auth(const char *jid);
 void jb_subscr_request_auth(const char *jid);
@@ -46,14 +46,14 @@ void jb_subscr_request_cancel(const char *jid);
 void jb_addbuddy(const char *jid, const char *name, const char *group);
 void jb_delbuddy(const char *jid);
 void jb_updatebuddy(const char *jid, const char *name, const char *group);
-inline enum imstatus jb_getstatus();
-inline const char *jb_getstatusmsg();
+inline enum imstatus jb_getstatus(void);
+inline const char *jb_getstatusmsg(void);
 void jb_setstatus(enum imstatus st, const char *recipient, const char *msg);
 void jb_send_msg(const char *jid, const char *text, int type,
                  const char *subject);
 void jb_send_raw(const char *str);
-void jb_keepalive();
-inline void jb_reset_keepalive();
+void jb_keepalive(void);
+inline void jb_reset_keepalive(void);
 void jb_set_keepalive_delay(unsigned int delay);
 void jb_room_join(const char *room, const char *nickname, const char *passwd);
 void jb_room_unlock(const char *room);

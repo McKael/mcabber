@@ -2,10 +2,10 @@
 #define __LOGPRINT_H__ 1
 
 // Flags for scr_LogPrint()
-#define LPRINT_NORMAL   1   // Display in log window
-#define LPRINT_LOG      2   // Log to file (if enabled)
-#define LPRINT_DEBUG    4   // Debug message (log if enabled)
-#define LPRINT_NOTUTF8  8   // Do not convert from UTF-8 to locale
+#define LPRINT_NORMAL   1U  // Display in log window
+#define LPRINT_LOG      2U  // Log to file (if enabled)
+#define LPRINT_DEBUG    4U  // Debug message (log if enabled)
+#define LPRINT_NOTUTF8  8U  // Do not convert from UTF-8 to locale
 
 // For convenience...
 #define LPRINT_LOGNORM  (LPRINT_NORMAL|LPRINT_LOG)

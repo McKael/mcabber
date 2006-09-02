@@ -106,7 +106,7 @@ void mcabber_connect(void)
 #if !defined(HAVE_OPENSSL) && !defined(HAVE_GNUTLS)
   if (ssl || sslvopt || cafile || capath || ciphers) {
     scr_LogPrint(LPRINT_LOGNORM,
-                 "** Warning: SSL is NOT available, ignoring ssl-related setting");
+             "** Warning: SSL is NOT available, ignoring ssl-related setting");
     ssl = sslverify = 0;
     cafile = capath = ciphers = NULL;
   }

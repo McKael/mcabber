@@ -180,6 +180,9 @@ static void delsock(int fd) {
 
     free(socks);
 
+    SSL_CTX_free(ctx);
+    ctx = 0;
+
     socks = nsocks;
     sockcount = nsockcount;
 }

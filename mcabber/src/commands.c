@@ -1592,7 +1592,7 @@ static void room_invite(gpointer bud, char *arg)
   roomname = buddy_getjid(bud);
   reason_utf8 = to_utf8(arg);
   jb_room_invite(roomname, jid, reason_utf8);
-  scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>...", jid);
+  scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>.", jid);
   g_free(reason_utf8);
   free_arg_lst(paramlst);
 }
@@ -2104,11 +2104,11 @@ static void do_authorization(char *arg)
   } else if (!strcasecmp(subcmd, "request"))  {
     jb_subscr_request_auth(jid_utf8);
     scr_LogPrint(LPRINT_LOGNORM,
-                 "Sent presence notification request to <%s>...", jid_utf8);
+                 "Sent presence notification request to <%s>.", jid_utf8);
   } else if (!strcasecmp(subcmd, "request_unsubscribe"))  {
     jb_subscr_request_cancel(jid_utf8);
     scr_LogPrint(LPRINT_LOGNORM,
-                 "Sent presence notification ubsubscription request to <%s>...",
+                 "Sent presence notification unsubscription request to <%s>.",
                  jid_utf8);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");

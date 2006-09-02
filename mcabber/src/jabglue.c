@@ -822,7 +822,7 @@ static void gotmessage(char *type, const char *from, const char *body,
                        const char *enc, time_t timestamp)
 {
   char *jid;
-  const char *rname;
+  const char *rname, *s;
 
   jid = jidtodisp(from);
 
@@ -864,9 +864,11 @@ static void gotmessage(char *type, const char *from, const char *body,
 
   // We don't call the message_in hook if 'block_unsubscribed' is true and
   // this is a regular message from an unsubscribed user.
+  // System messages (from our server) are allowed.
   if (!settings_opt_get_int("block_unsubscribed") ||
       (roster_getsubscription(jid) & sub_from) ||
-      (type && strcmp(type, "chat"))) {
+      (type && strcmp(type, "chat")) ||
+      ((s = settings_opt_get("server")) != NULL && !strcasecmp(jid, s))) {
     hk_message_in(jid, rname, timestamp, body, type);
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", jid);

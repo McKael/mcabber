@@ -321,17 +321,21 @@ int process_command(char *line)
   char *xpline;
   cmd *curcmd;
 
-  // Remove trailing spaces:
-  for (p=line ; *p ; p++)
-    ;
-  for (p-- ; p>line && (*p == ' ') ; p--)
-    *p = 0;
-
   // We do alias expansion here
   if (scr_get_multimode() != 2)
     xpline = expandalias(line);
   else
     xpline = line; // No expansion in verbatim multi-line mode
+
+  // We want to have a copy
+  if (xpline == line)
+    xpline = g_strdup(line);
+
+  // Remove trailing spaces:
+  for (p=xpline ; *p ; p++)
+    ;
+  for (p-- ; p>xpline && (*p == ' ') ; p--)
+    *p = 0;
 
   // Command "quit"?
   if ((!strncasecmp(xpline, "/quit", 5)) && (scr_get_multimode() != 2) )
@@ -342,6 +346,7 @@ int process_command(char *line)
   if ((scr_get_multimode() == 2) && (strncasecmp(xpline, "/msay ", 6))) {
     // It isn't an /msay command
     scr_append_multiline(xpline);
+    g_free(xpline);
     return 0;
   }
 
@@ -351,13 +356,13 @@ int process_command(char *line)
   if (!curcmd) {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized command.  "
                  "Please see the manual for a list of known commands.");
-    if (xpline != line) g_free(xpline);
+    g_free(xpline);
     return 0;
   }
   if (!curcmd->func) {
     scr_LogPrint(LPRINT_NORMAL,
                  "This functionality is not yet implemented, sorry.");
-    if (xpline != line) g_free(xpline);
+    g_free(xpline);
     return 0;
   }
   // Lets go to the command parameters
@@ -368,7 +373,7 @@ int process_command(char *line)
     p++;
   // Call command-specific function
   (*curcmd->func)(p);
-  if (xpline != line) g_free(xpline);
+  g_free(xpline);
   return 0;
 }
 

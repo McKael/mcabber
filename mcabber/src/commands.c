@@ -677,7 +677,7 @@ static void do_del(char *arg)
 static void do_group(char *arg)
 {
   gpointer group;
-  guint leave_windowbuddy;
+  guint leave_buddywindow;
 
   if (!*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
@@ -692,7 +692,7 @@ static void do_group(char *arg)
   // We'll have to redraw the chat window if we're not currently on the group
   // entry itself, because it means we'll have to leave the current buddy
   // chat window.
-  leave_windowbuddy = (group != BUDDATA(current_buddy));
+  leave_buddywindow = (group != BUDDATA(current_buddy));
 
   if (!(buddy_gettype(group) & ROSTER_TYPE_GROUP)) {
     scr_LogPrint(LPRINT_NORMAL, "You need to select a group.");
@@ -713,7 +713,7 @@ static void do_group(char *arg)
 
   buddylist_build();
   update_roster = TRUE;
-  if (leave_windowbuddy) scr_ShowBuddyWindow();
+  if (leave_buddywindow) scr_ShowBuddyWindow();
 }
 
 static int send_message_to(const char *jid, const char *msg, const char *subj)

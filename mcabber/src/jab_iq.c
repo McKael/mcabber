@@ -223,7 +223,7 @@ static void handle_iq_roster(xmlnode x)
   buddylist_build();
   update_roster = TRUE;
   if (need_refresh)
-    scr_ShowBuddyWindow();
+    scr_UpdateBuddyWindow();
 }
 
 static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)

@@ -1281,7 +1281,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     if (new_member && settings_opt_get_int("muc_auto_whois")) {
       // FIXME: This will fail for some UTF-8 nicknames.
       gchar *joiner_nick = from_utf8(rname);
-      room_whois(room_elt->data, joiner_nick);
+      room_whois(room_elt->data, joiner_nick, FALSE);
       g_free(joiner_nick);
     }
   } else

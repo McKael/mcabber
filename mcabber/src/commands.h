@@ -20,7 +20,7 @@ char *expandalias(char *line);
 extern char *mcabber_version(void);
 extern void mcabber_connect(void);
 
-void room_whois(gpointer bud, char *nick_locale);
+void room_whois(gpointer bud, char *nick_locale, guint interactive);
 
 #endif /* __COMMANDS_H__ */
 

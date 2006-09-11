@@ -1871,7 +1871,9 @@ static void room_unlock(gpointer bud, char *arg)
   jb_room_unlock(buddy_getjid(bud));
 }
 
-void room_whois(gpointer bud, char *arg)
+//  room_whois(..)
+// If interactive is TRUE, chatmode can be enabled.
+void room_whois(gpointer bud, char *arg, guint interactive)
 {
   char **paramlst;
   gchar *nick, *buffer;
@@ -1897,9 +1899,11 @@ void room_whois(gpointer bud, char *arg)
 
   nick = to_utf8(nick);
 
-  // Enter chat mode
-  scr_set_chatmode(TRUE);
-  scr_ShowBuddyWindow();
+  if (interactive) {
+    // Enter chat mode
+    scr_set_chatmode(TRUE);
+    scr_ShowBuddyWindow();
+  }
 
   jid = buddy_getjid(bud);
   rstatus = buddy_getstatus(bud, nick);
@@ -2030,7 +2034,7 @@ static void do_room(char *arg)
       room_topic(bud, arg);
   } else if (!strcasecmp(subcmd, "whois"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
-      room_whois(bud, arg);
+      room_whois(bud, arg, TRUE);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

@@ -346,7 +346,7 @@ int main(int argc, char **argv)
   jb_disconnect();
   scr_TerminateCurses();
 
-  printf("\n\nHave a nice day!\nBye!\n");
+  printf("\n\nThanks for using mcabber!\n");
 
   return 0;
 }

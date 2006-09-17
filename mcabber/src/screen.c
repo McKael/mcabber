@@ -769,6 +769,7 @@ void scr_UpdateMainStatus(int forceupdate)
 void scr_DrawMainWindow(unsigned int fullinit)
 {
   int requested_size;
+  gchar *ver, *message;
 
   Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
   requested_size = settings_opt_get_int("log_win_height");
@@ -844,8 +845,12 @@ void scr_DrawMainWindow(unsigned int fullinit)
 
   /* Draw/init windows */
 
-  mvwprintw(chatWnd, 0, 0, "Thanks for using mcabber.\n");
+  ver = mcabber_version();
+  message = g_strdup_printf("MCabber version %s.\n", ver);
+  mvwprintw(chatWnd, 0, 0, message);
   mvwprintw(chatWnd, 1, 0, "http://www.lilotux.net/~mikael/mcabber/");
+  g_free(ver);
+  g_free(message);
 
   // Auto-scrolling in log window
   scrollok(logWnd, TRUE);

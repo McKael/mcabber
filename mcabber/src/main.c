@@ -144,7 +144,7 @@ void mcabber_connect(void)
   jb_reset_keepalive();
 }
 
-void mcabber_disconnect(const char *msg)
+static void mcabber_terminate(const char *msg)
 {
   jb_disconnect();
   scr_TerminateCurses();
@@ -178,9 +178,9 @@ void sig_handler(int signum)
     } while (pid > 0);
     signal(SIGCHLD, sig_handler);
   } else if (signum == SIGTERM) {
-    mcabber_disconnect("Killed by SIGTERM");
+    mcabber_terminate("Killed by SIGTERM");
   } else if (signum == SIGINT) {
-    mcabber_disconnect("Killed by SIGINT");
+    mcabber_terminate("Killed by SIGINT");
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Caught signal: %d", signum);
   }

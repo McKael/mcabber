@@ -1,8 +1,18 @@
-mcabber (0.8.2-dev)
+mcabber (0.8.2)
 
- * 
+ * Fix a freeze with UTF-8 locales
+   Some commands were causing a freeze when there was a trailing space
+   in the command line.
+ * The current ssl_verify value is used in /connect (no need to restart
+   mcabber)
+ * System messages are not blocked anymore when the option
+   "block_unsubscribed" is set
+ * Do not enter chat mode after command "/del" or when somebody joins a room
+ * Display mcabber version in the status window (when chat mode is disabled)
+   (Suggested by pmw & hednod)
+ * Small code cleanup and a few cosmetic changes
 
- -- Mikael, ?
+ -- Mikael, 2006-09-19
 
 mcabber (0.8.1)
 

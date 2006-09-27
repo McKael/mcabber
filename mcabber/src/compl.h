@@ -3,23 +3,23 @@
 
 #include <glib.h>
 
-#define COMPL_CMD         (1<<0)
-#define COMPL_JID         (1<<2)
-#define COMPL_URLJID      (1<<3)  // Not implemented yet
-#define COMPL_NAME        (1<<4)  // Not implemented yet
-#define COMPL_STATUS      (1<<5)
-#define COMPL_FILENAME    (1<<6)  // Not implemented yet
-#define COMPL_ROSTER      (1<<7)
-#define COMPL_BUFFER      (1<<8)
-#define COMPL_GROUP       (1<<9)
-#define COMPL_GROUPNAME   (1<<10)
-#define COMPL_MULTILINE   (1<<11)
-#define COMPL_ROOM        (1<<12)
-#define COMPL_RESOURCE    (1<<13)
-#define COMPL_AUTH        (1<<14)
-#define COMPL_REQUEST     (1<<15)
-#define COMPL_EVENTS      (1<<16)
-#define COMPL_EVENTSID    (1<<17)
+#define COMPL_CMD         (1U<<0)
+#define COMPL_JID         (1U<<1)
+#define COMPL_URLJID      (1U<<2)   // Not implemented yet
+#define COMPL_NAME        (1U<<3)   // Not implemented yet
+#define COMPL_STATUS      (1U<<4)
+#define COMPL_FILENAME    (1U<<5)   // Not implemented yet
+#define COMPL_ROSTER      (1U<<6)
+#define COMPL_BUFFER      (1U<<7)
+#define COMPL_GROUP       (1U<<8)
+#define COMPL_GROUPNAME   (1U<<9)
+#define COMPL_MULTILINE   (1U<<10)
+#define COMPL_ROOM        (1U<<11)
+#define COMPL_RESOURCE    (1U<<12)
+#define COMPL_AUTH        (1U<<13)
+#define COMPL_REQUEST     (1U<<14)
+#define COMPL_EVENTS      (1U<<15)
+#define COMPL_EVENTSID    (1U<<16)
 
 void    compl_add_category_word(guint, const char *command);
 void    compl_del_category_word(guint categ, const char *word);

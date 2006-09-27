@@ -41,10 +41,10 @@ extern char *straffil[]; // Should match enum above
 enum subscr {
   sub_none    = 0,
   sub_pending = 1,
-  sub_to      = 1 << 2,
-  sub_from    = 1 << 3,
+  sub_to      = 1 << 1,
+  sub_from    = 1 << 2,
   sub_both    = sub_to|sub_from,
-  sub_remove  = 1 << 4
+  sub_remove  = 1 << 3
 };
 
 enum findwhat {
@@ -61,17 +61,17 @@ struct role_affil {
 };
 
 // Roster_type is a set of flags, so values should be 2^n
-#define ROSTER_TYPE_USER    1
-#define ROSTER_TYPE_GROUP   2
-#define ROSTER_TYPE_AGENT   4
-#define ROSTER_TYPE_ROOM    8
-#define ROSTER_TYPE_SPECIAL 16
+#define ROSTER_TYPE_USER    1U
+#define ROSTER_TYPE_GROUP   (1U<<1)
+#define ROSTER_TYPE_AGENT   (1U<<2)
+#define ROSTER_TYPE_ROOM    (1U<<3)
+#define ROSTER_TYPE_SPECIAL (1U<<4)
 
 // Flags:
-#define ROSTER_FLAG_MSG     1   // Message not read
-#define ROSTER_FLAG_HIDE    2   // Group hidden (or buddy window closed)
-#define ROSTER_FLAG_LOCK    4   // Node should not be removed from buddylist
-// ROSTER_FLAG_LOCAL   8   // Buddy not on server's roster  (??)
+#define ROSTER_FLAG_MSG     1U      // Message not read
+#define ROSTER_FLAG_HIDE    (1U<<1) // Group hidden (or buddy window closed)
+#define ROSTER_FLAG_LOCK    (1U<<2) // Node should not be removed from buddylist
+// ROSTER_FLAG_LOCAL   (1U<<3) // Buddy not on server's roster  (??)
 
 extern GList *buddylist;
 extern GList *current_buddy;

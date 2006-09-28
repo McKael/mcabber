@@ -305,7 +305,6 @@ void scr_InitCurses(void)
   intrflush(stdscr, FALSE);
   start_color();
   use_default_colors();
-  Curses = TRUE;
 
   ParseColors();
 
@@ -317,6 +316,7 @@ void scr_InitCurses(void)
   inputLine[0] = 0;
   ptr_inputline = inputLine;
 
+  Curses = TRUE;
   return;
 }
 

@@ -33,6 +33,15 @@
 #include "settings.h"
 #include "events.h"
 
+#define IMSTATUS_AWAY           "away"
+#define IMSTATUS_ONLINE         "online"
+#define IMSTATUS_OFFLINE        "offline"
+#define IMSTATUS_FREE4CHAT      "free"
+#define IMSTATUS_INVISIBLE      "invisible"
+#define IMSTATUS_AVAILABLE      "avail"
+#define IMSTATUS_NOTAVAILABLE   "notavail"
+#define IMSTATUS_DONOTDISTURB   "dnd"
+
 // Commands callbacks
 static void do_roster(char *arg);
 static void do_status(char *arg);
@@ -221,8 +230,8 @@ char *expandalias(char *line)
   const gchar *value;
   char *newline = line;
 
-  // Ignore leading '/'
-  for (p1 = line ; *p1 == '/' ; p1++)
+  // Ignore leading COMMAND_CHAR
+  for (p1 = line ; *p1 == COMMAND_CHAR ; p1++)
     ;
   // Locate the end of the word
   for (p2 = p1 ; *p2 && (*p2 != ' ') ; p2++)
@@ -235,7 +244,7 @@ char *expandalias(char *line)
   if (value) {
     // There is an alias to expand
     newline = g_new(char, strlen(value)+strlen(p2)+2);
-    *newline = '/';
+    *newline = COMMAND_CHAR;
     strcpy(newline+1, value);
     strcat(newline, p2);
   }
@@ -253,8 +262,8 @@ cmd *cmd_get(const char *command)
   char *com;
   GSList *sl_com;
 
-  // Ignore leading '/'
-  for (p1 = command ; *p1 == '/' ; p1++)
+  // Ignore leading COMMAND_CHAR
+  for (p1 = command ; *p1 == COMMAND_CHAR ; p1++)
     ;
   // Locate the end of the command
   for (p2 = p1 ; *p2 && (*p2 != ' ') ; p2++)
@@ -338,12 +347,14 @@ int process_command(char *line)
     *p = 0;
 
   // Command "quit"?
-  if ((!strncasecmp(xpline, "/quit", 5)) && (scr_get_multimode() != 2) )
+  if ((scr_get_multimode() != 2)
+      && (!strncasecmp(xpline, mkcmdstr("quit"), strlen(mkcmdstr("quit")))))
     if (!xpline[5] || xpline[5] == ' ')
       return 255;
 
   // If verbatim multi-line mode, we check if another /msay command is typed
-  if ((scr_get_multimode() == 2) && (strncasecmp(xpline, "/msay ", 6))) {
+  if ((scr_get_multimode() == 2)
+      && (strncasecmp(xpline, mkcmdstr("msay "), strlen(mkcmdstr("msay "))))) {
     // It isn't an /msay command
     scr_append_multiline(xpline);
     g_free(xpline);
@@ -397,7 +408,7 @@ int process_line(char *line)
     return 0;
   }
 
-  if (*line != '/') {
+  if (*line != COMMAND_CHAR) {
     // This isn't a command
     if (scr_get_multimode())
       scr_append_multiline(line);
@@ -494,14 +505,14 @@ static void setstatus(const char *recipient, const char *arg)
     return;
   }
 
-  if      (!strcasecmp(status, "offline"))   st = offline;
-  else if (!strcasecmp(status, "online"))    st = available;
-  else if (!strcasecmp(status, "avail"))     st = available;
-  else if (!strcasecmp(status, "away"))      st = away;
-  else if (!strcasecmp(status, "invisible")) st = invisible;
-  else if (!strcasecmp(status, "dnd"))       st = dontdisturb;
-  else if (!strcasecmp(status, "notavail"))  st = notavail;
-  else if (!strcasecmp(status, "free"))      st = freeforchat;
+  if      (!strcasecmp(status, IMSTATUS_OFFLINE))       st = offline;
+  else if (!strcasecmp(status, IMSTATUS_ONLINE))        st = available;
+  else if (!strcasecmp(status, IMSTATUS_AVAILABLE))     st = available;
+  else if (!strcasecmp(status, IMSTATUS_AWAY))          st = away;
+  else if (!strcasecmp(status, IMSTATUS_INVISIBLE))     st = invisible;
+  else if (!strcasecmp(status, IMSTATUS_DONOTDISTURB))  st = dontdisturb;
+  else if (!strcasecmp(status, IMSTATUS_NOTAVAILABLE))  st = notavail;
+  else if (!strcasecmp(status, IMSTATUS_FREE4CHAT))     st = freeforchat;
   else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized status!");
     free_arg_lst(paramlst);
@@ -804,8 +815,8 @@ static void do_msay(char *arg)
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
     scr_LogPrint(LPRINT_NORMAL, "Please read the manual before using "
                  "the /msay command.");
-    scr_LogPrint(LPRINT_NORMAL, "(Use \"/msay begin\" to enter "
-                 "multi-line mode...)");
+    scr_LogPrint(LPRINT_NORMAL, "(Use \"%s begin\" to enter "
+                 "multi-line mode...)", mkcmdstr("msay"));
     free_arg_lst(paramlst);
     return;
   }
@@ -841,10 +852,11 @@ static void do_msay(char *arg)
 
     scr_LogPrint(LPRINT_NORMAL, "Entered %smulti-line message mode.",
                  verbat ? "VERBATIM " : "");
-    scr_LogPrint(LPRINT_NORMAL, "Select a buddy and use \"/msay send\" "
-                 "when your message is ready.");
+    scr_LogPrint(LPRINT_NORMAL, "Select a buddy and use \"%s send\" "
+                 "when your message is ready.", mkcmdstr("msay"));
     if (verbat)
-      scr_LogPrint(LPRINT_NORMAL, "Use \"/msay abort\" to abort this mode.");
+      scr_LogPrint(LPRINT_NORMAL, "Use \"%s abort\" to abort this mode.",
+                   mkcmdstr("msay"));
     g_free(subj_utf8);
     return;
   } else if (strcasecmp(subcmd, "send") && strcasecmp(subcmd, "send_to")) {
@@ -856,7 +868,7 @@ static void do_msay(char *arg)
 
   if (!scr_get_multimode()) {
     scr_LogPrint(LPRINT_NORMAL, "No message to send.  "
-                 "Use \"/msay begin\" first.");
+                 "Use \"%s begin\" first.", mkcmdstr("msay"));
     return;
   }
 
@@ -1050,7 +1062,7 @@ static void do_buffer(char *arg)
   free_arg_lst(paramlst);
 }
 
-static void do_clear(char *arg)    // Alias for "/buffer clear"
+static void do_clear(char *arg)    // Alias for "buffer clear"
 {
   do_buffer("clear");
 }
@@ -1842,7 +1854,7 @@ static void room_topic(gpointer bud, char *arg)
 
   arg = to_utf8(arg);
   // Set the topic
-  msg = g_strdup_printf("/me has set the topic to: %s", arg);
+  msg = g_strdup_printf("%s has set the topic to: %s", mkcmdstr("me"), arg);
   jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg);
   g_free(arg);
   g_free(msg);

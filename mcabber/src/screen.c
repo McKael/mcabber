@@ -2064,7 +2064,7 @@ static int which_row(const char **p_row)
   int quote = FALSE;
 
   // Not a command?
-  if ((ptr_inputline == inputLine) || (inputLine[0] != '/')) {
+  if ((ptr_inputline == inputLine) || (inputLine[0] != COMMAND_CHAR)) {
     if (!current_buddy) return -2;
     if (buddy_gettype(BUDDATA(current_buddy)) == ROSTER_TYPE_ROOM) {
       *p_row = inputLine;
@@ -2253,7 +2253,7 @@ void scr_handle_CtrlC(void)
 {
   if (!Curses) return;
   // Leave multi-line mode
-  process_command("/msay abort");
+  process_command(mkcmdstr("msay abort"));
   // Same as Ctrl-g, now
   scr_cancel_current_completion();
   scr_end_current_completion();
@@ -2444,7 +2444,7 @@ static int bindcommand(keycode kcode)
   if (boundcmd) {
     gchar *cmd, *boundcmd_locale;
     boundcmd_locale = from_utf8(boundcmd);
-    cmd = g_strdup_printf("/%s", boundcmd_locale);
+    cmd = g_strdup_printf(mkcmdstr("%s"), boundcmd_locale);
     scr_CheckAutoAway(TRUE);
     if (process_command(cmd))
       return 255; // Quit

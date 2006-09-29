@@ -427,57 +427,73 @@ int process_line(char *line)
 
 static void do_roster(char *arg)
 {
-  if (!strcasecmp(arg, "top")) {
+  char **paramlst;
+  char *subcmd;
+
+  paramlst = split_arg(arg, 2, 1); // subcmd, arg
+  subcmd = *paramlst;
+  arg = *(paramlst+1);
+
+  if (!subcmd || !*subcmd) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if (!strcasecmp(subcmd, "top")) {
     scr_RosterTop();
     update_roster = TRUE;
-  } else if (!strcasecmp(arg, "bottom")) {
+  } else if (!strcasecmp(subcmd, "bottom")) {
     scr_RosterBottom();
     update_roster = TRUE;
-  } else if (!strcasecmp(arg, "hide")) {
+  } else if (!strcasecmp(subcmd, "hide")) {
     scr_RosterVisibility(0);
-  } else if (!strcasecmp(arg, "show")) {
+  } else if (!strcasecmp(subcmd, "show")) {
     scr_RosterVisibility(1);
-  } else if (!strcasecmp(arg, "toggle")) {
+  } else if (!strcasecmp(subcmd, "toggle")) {
     scr_RosterVisibility(-1);
-  } else if (!strcasecmp(arg, "hide_offline")) {
+  } else if (!strcasecmp(subcmd, "hide_offline")) {
     buddylist_set_hide_offline_buddies(TRUE);
     if (current_buddy)
       buddylist_build();
     update_roster = TRUE;
-  } else if (!strcasecmp(arg, "show_offline")) {
+  } else if (!strcasecmp(subcmd, "show_offline")) {
     buddylist_set_hide_offline_buddies(FALSE);
     buddylist_build();
     update_roster = TRUE;
-  } else if (!strcasecmp(arg, "toggle_offline")) {
+  } else if (!strcasecmp(subcmd, "toggle_offline")) {
     buddylist_set_hide_offline_buddies(-1);
     buddylist_build();
     update_roster = TRUE;
-  } else if (!strcasecmp(arg, "unread_first")) {
+  } else if (!strcasecmp(subcmd, "unread_first")) {
     scr_RosterUnreadMessage(0);
-  } else if (!strcasecmp(arg, "unread_next")) {
+  } else if (!strcasecmp(subcmd, "unread_next")) {
     scr_RosterUnreadMessage(1);
-  } else if (!strcasecmp(arg, "alternate")) {
+  } else if (!strcasecmp(subcmd, "alternate")) {
     scr_RosterJumpAlternate();
-  } else if (!strncasecmp(arg, "search", 6)) {
-    char *string = arg+6;
+  } else if (!strncasecmp(subcmd, "search", 6)) {
+    char *string = subcmd+6;
     if (*string && (*string != ' ')) {
       scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
+      free_arg_lst(paramlst);
       return;
     }
     while (*string == ' ')
       string++;
     if (!*string) {
       scr_LogPrint(LPRINT_NORMAL, "What name or JID are you looking for?");
+      free_arg_lst(paramlst);
       return;
     }
     scr_RosterSearch(string);
     update_roster = TRUE;
-  } else if (!strcasecmp(arg, "up")) {
+  } else if (!strcasecmp(subcmd, "up")) {
     scr_RosterUp();
-  } else if (!strcasecmp(arg, "down")) {
+  } else if (!strcasecmp(subcmd, "down")) {
     scr_RosterDown();
   } else
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
+  free_arg_lst(paramlst);
 }
 
 //  setstatus(recipient, arg)

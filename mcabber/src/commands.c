@@ -151,6 +151,8 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "hide_offline");
   compl_add_category_word(COMPL_ROSTER, "show_offline");
   compl_add_category_word(COMPL_ROSTER, "toggle_offline");
+  compl_add_category_word(COMPL_ROSTER, "item_lock");
+  compl_add_category_word(COMPL_ROSTER, "item_unlock");
   compl_add_category_word(COMPL_ROSTER, "alternate");
   compl_add_category_word(COMPL_ROSTER, "search");
   compl_add_category_word(COMPL_ROSTER, "unread_first");
@@ -421,6 +423,46 @@ int process_line(char *line)
   return process_command(line);
 }
 
+// Helper routine for buffer item_{lock,unlock}
+static void roster_buddylock(char *jid, bool lock)
+{
+  gpointer bud = NULL;
+  bool may_need_refresh = FALSE;
+
+  // Allow special jid "" or "." (current buddy)
+  if (jid && (!*jid || !strcmp(jid, ".")))
+    jid = NULL;
+
+  if (jid) {
+    // The JID has been specified.  Quick check...
+    if (check_jid_syntax(jid)) {
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", jid);
+    } else {
+      // Find the buddy
+      GSList *roster_elt;
+      roster_elt = roster_find(jid, jidsearch,
+                               ROSTER_TYPE_USER|ROSTER_TYPE_ROOM);
+      if (roster_elt)
+        bud = roster_elt->data;
+      else
+        scr_LogPrint(LPRINT_NORMAL, "This jid isn't in the roster.");
+      may_need_refresh = TRUE;
+    }
+  } else {
+    // Use the current buddy
+    if (current_buddy)
+      bud = BUDDATA(current_buddy);
+  }
+
+  // Update the ROSTER_FLAG_USRLOCK flag
+  if (bud) {
+    buddy_setflags(bud, ROSTER_FLAG_USRLOCK, lock);
+    if (may_need_refresh)
+      buddylist_build();
+      update_roster = TRUE;
+  }
+}
+
 /* Commands callback functions */
 /* All these do_*() functions will be called with a "arg" parameter */
 /* (with arg not null)                                              */
@@ -465,6 +507,10 @@ static void do_roster(char *arg)
     buddylist_set_hide_offline_buddies(-1);
     buddylist_build();
     update_roster = TRUE;
+  } else if (!strcasecmp(subcmd, "item_lock")) {
+    roster_buddylock(arg, TRUE);
+  } else if (!strcasecmp(subcmd, "item_unlock")) {
+    roster_buddylock(arg, FALSE);
   } else if (!strcasecmp(subcmd, "unread_first")) {
     scr_RosterUnreadMessage(0);
   } else if (!strcasecmp(subcmd, "unread_next")) {

@@ -71,7 +71,8 @@ struct role_affil {
 #define ROSTER_FLAG_MSG     1U      // Message not read
 #define ROSTER_FLAG_HIDE    (1U<<1) // Group hidden (or buddy window closed)
 #define ROSTER_FLAG_LOCK    (1U<<2) // Node should not be removed from buddylist
-// ROSTER_FLAG_LOCAL   (1U<<3) // Buddy not on server's roster  (??)
+#define ROSTER_FLAG_USRLOCK (1U<<3) // Node should not be removed from buddylist
+// ROSTER_FLAG_LOCAL   (1U<<4) // Buddy not on server's roster  (??)
 
 extern GList *buddylist;
 extern GList *current_buddy;

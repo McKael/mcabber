@@ -795,7 +795,7 @@ void buddylist_build(void)
       if (!hide_offline_buddies || roster_usrelt == roster_current_buddy ||
           (buddy_getstatus((gpointer)roster_usrelt, NULL) != offline) ||
           (buddy_getflags((gpointer)roster_usrelt) &
-               (ROSTER_FLAG_LOCK | ROSTER_FLAG_MSG))) {
+               (ROSTER_FLAG_LOCK | ROSTER_FLAG_USRLOCK | ROSTER_FLAG_MSG))) {
         // This user should be added.  Maybe the group hasn't been added yet?
         if (pending_group &&
             (hide_offline_buddies || roster_usrelt == roster_current_buddy)) {

@@ -7,11 +7,15 @@ BUGS:
 TODO:
 
 * Implement automatic reconnection after network failure
+* GPG support
+* Improve the completion system
+* Connect hook
+* Macros
+* Nick highlight
+* VCard support
 * Show number of online contacts in folded groups
 * Publish personal information
-* GPG support
 * Colors for presence
-* Improve the completion system
 * Persistent room in the roster (join every connect)
 * MUC: advanced settings for room creation
 * MUC: display roles of room members
@@ -21,6 +25,9 @@ TODO:
 * Sort roster by status
 * 2-levels roster display (jids, resources)
 * "Ignore list" (privacy lists)
+  See JEP-0191: Simple Communications Blocking (very new)
+* Use DNS _xmpp-client._tcp service
+* Options scrollback_time/scrollback_lines (a la irssi)
 
 * File transfer? :)
 

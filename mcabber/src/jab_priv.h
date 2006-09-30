@@ -21,12 +21,12 @@ struct T_presence {
 };
 
 
-#define IQS_DEFAULT_TIMEOUT 90
-#define IQS_MAX_TIMEOUT     600
+#define IQS_DEFAULT_TIMEOUT 90U
+#define IQS_MAX_TIMEOUT     600U
 
-#define IQS_CONTEXT_RESULT  0   /* Normal result should be zero */
-#define IQS_CONTEXT_TIMEOUT 1
-#define IQS_CONTEXT_ERROR   2
+#define IQS_CONTEXT_RESULT  0U  /* Normal result should be zero */
+#define IQS_CONTEXT_TIMEOUT 1U
+#define IQS_CONTEXT_ERROR   2U
 
 extern enum enum_jstate jstate;
 

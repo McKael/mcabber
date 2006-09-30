@@ -15,8 +15,13 @@
 #define SETTINGS_TYPE_ALIAS     2
 #define SETTINGS_TYPE_BINDING   3
 
+#define COMMAND_CHAR    '/'
+#define COMMAND_CHARSTR "/"
+
 #define settings_opt_get(k)     settings_get(SETTINGS_TYPE_OPTION, k)
 #define settings_opt_get_int(k) settings_get_int(SETTINGS_TYPE_OPTION, k)
+
+#define mkcmdstr(cmd) COMMAND_CHARSTR cmd
 
 int     cfg_read_file(char *filename);
 guint   parse_assigment(gchar *assignment,

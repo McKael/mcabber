@@ -57,10 +57,10 @@ inline void hk_message_in(const char *jid, const char *resname,
       bmsg = g_strdup_printf("<%s> %s", resname, msg);
     }
     wmsg = bmsg;
-    if (!strncmp(msg, "/me ", 4))
+    if (!strncmp(msg, mkcmdstr("me "), strlen(mkcmdstr("me "))))
       wmsg = mmsg = g_strdup_printf("*%s %s", resname, msg+4);
   } else {
-    if (!strncmp(msg, "/me ", 4))
+    if (!strncmp(msg, mkcmdstr("me "), strlen(mkcmdstr("me "))))
       wmsg = mmsg = g_strdup_printf("*%s %s", jid, msg+4);
     else
       wmsg = (char*) msg;
@@ -92,7 +92,7 @@ inline void hk_message_in(const char *jid, const char *resname,
         wmsg = bmsg = g_strdup(msg);
       } else {
         wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", resname, msg);
-        if (!strncmp(msg, "/me ", 4))
+        if (!strncmp(msg, mkcmdstr("me "), strlen(mkcmdstr("me "))))
           wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
       }
     } else {
@@ -174,7 +174,7 @@ inline void hk_message_out(const char *jid, const char *nick,
     wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
   } else {
     wmsg = (char*)msg;
-    if (!strncmp(msg, "/me ", 4)) {
+    if (!strncmp(msg, mkcmdstr("me "), strlen(mkcmdstr("me ")))) {
       const char *myid = settings_opt_get("username");
       if (myid)
         wmsg = mmsg = g_strdup_printf("*%s %s", settings_opt_get("username"),

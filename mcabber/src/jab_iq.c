@@ -136,7 +136,7 @@ void iqs_check_timeout(time_t now_t)
     // could be freed.
     p = g_slist_next(p);
 
-    if ((!i->ts_expire && now_t > i->ts_create + IQS_MAX_TIMEOUT) ||
+    if ((!i->ts_expire && now_t > i->ts_create + (time_t)IQS_MAX_TIMEOUT) ||
         (i->ts_expire && now_t > i->ts_expire)) {
       iqs_callback(i->id, NULL, IQS_CONTEXT_TIMEOUT);
     }

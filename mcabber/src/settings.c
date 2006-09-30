@@ -136,16 +136,18 @@ int cfg_read_file(char *filename)
 
     if ((strchr(line, '=') != NULL)) {
       // Only accept the set, alias and bind commands
-      if (strncmp(line, "set ", 4) &&
-          strncmp(line, "bind ", 5) &&
-          strncmp(line, "alias ", 6)) {
+      if (strncmp(line, "set ", strlen("set ")) &&
+          strncmp(line, "bind ", strlen("bind ")) &&
+          strncmp(line, "alias ", strlen("alias "))) {
         scr_LogPrint(LPRINT_LOGNORM,
                      "Error in configuration file (l. %d): bad command", ln);
         err++;
         continue;
       }
-      *(--line) = '/';        // Set the leading '/' to build a command line
-      process_command(line);  // Process the command
+      // Set the leading COMMAND_CHAR to build a command line
+      // and process the command
+      *(--line) = COMMAND_CHAR;
+      process_command(line);
     } else {
       scr_LogPrint(LPRINT_LOGNORM,
                    "Error in configuration file (l. %d): no assignment", ln);

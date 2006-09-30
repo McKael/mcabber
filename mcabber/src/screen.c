@@ -83,6 +83,7 @@ int update_roster;
 int utf8_mode = 0;
 static bool Autoaway;
 static bool Curses;
+static bool log_win_on_top;
 static time_t LastActivity;
 
 static char       inputLine[INPUTLINE_LENGTH+1];
@@ -423,7 +424,10 @@ static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
 
   // Dimensions
   x = Roster_Width;
-  y = 0;
+  if (log_win_on_top)
+    y = Log_Win_Height-1;
+  else
+    y = 0;
   lines = CHAT_WIN_HEIGHT;
   cols = maxX - Roster_Width;
   if (cols < 1) cols = 1;
@@ -770,6 +774,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
 {
   int requested_size;
   gchar *ver, *message;
+  int chat_y_pos, chatstatus_y_pos, log_y_pos;
 
   Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
   requested_size = settings_opt_get_int("log_win_height");
@@ -803,12 +808,25 @@ void scr_DrawMainWindow(unsigned int fullinit)
       Roster_Width = DEFAULT_ROSTER_WIDTH;
   }
 
+  log_win_on_top = (settings_opt_get_int("log_win_on_top") == 1);
+
+  if (log_win_on_top) {
+    chat_y_pos = Log_Win_Height-1;
+    log_y_pos = 0;
+    chatstatus_y_pos = Log_Win_Height-2;
+  } else {
+    chat_y_pos = 0;
+    log_y_pos = CHAT_WIN_HEIGHT+1;
+    chatstatus_y_pos = CHAT_WIN_HEIGHT;
+  }
+
   if (fullinit) {
     /* Create windows */
-    rosterWnd = newwin(CHAT_WIN_HEIGHT, Roster_Width, 0, 0);
-    chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - Roster_Width, 0, Roster_Width);
-    logWnd    = newwin(Log_Win_Height-2, maxX, CHAT_WIN_HEIGHT+1, 0);
-    chatstatusWnd = newwin(1, maxX, CHAT_WIN_HEIGHT, 0);
+    rosterWnd = newwin(CHAT_WIN_HEIGHT, Roster_Width, chat_y_pos, 0);
+    chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - Roster_Width, chat_y_pos,
+                       Roster_Width);
+    logWnd    = newwin(Log_Win_Height-2, maxX, log_y_pos, 0);
+    chatstatusWnd = newwin(1, maxX, chatstatus_y_pos, 0);
     mainstatusWnd = newwin(1, maxX, maxY-2, 0);
     inputWnd  = newwin(1, maxX, maxY-1, 0);
     if (!rosterWnd || !chatWnd || !logWnd || !inputWnd) {
@@ -825,14 +843,15 @@ void scr_DrawMainWindow(unsigned int fullinit)
     /* Resize/move windows */
     wresize(rosterWnd, CHAT_WIN_HEIGHT, Roster_Width);
     wresize(chatWnd, CHAT_WIN_HEIGHT, maxX - Roster_Width);
-    mvwin(chatWnd, 0, Roster_Width);
-
     wresize(logWnd, Log_Win_Height-2, maxX);
-    mvwin(logWnd, CHAT_WIN_HEIGHT+1, 0);
+
+    mvwin(chatWnd, chat_y_pos, Roster_Width);
+    mvwin(rosterWnd, chat_y_pos, 0);
+    mvwin(logWnd, log_y_pos, 0);
 
     // Resize & move chat status window
     wresize(chatstatusWnd, 1, maxX);
-    mvwin(chatstatusWnd, CHAT_WIN_HEIGHT, 0);
+    mvwin(chatstatusWnd, chatstatus_y_pos, 0);
     // Resize & move main status window
     wresize(mainstatusWnd, 1, maxX);
     mvwin(mainstatusWnd, maxY-2, 0);
@@ -898,9 +917,16 @@ void scr_DrawMainWindow(unsigned int fullinit)
 static inline void resize_win_buffer(winbuf *wbp, int x, int y,
                                      int lines, int cols)
 {
+  int chat_y_pos;
+
+  if (log_win_on_top)
+    chat_y_pos = Log_Win_Height-1;
+  else
+    chat_y_pos = 0;
+
   // Resize/move buddy window
   wresize(wbp->win, lines, cols);
-  mvwin(wbp->win, 0, Roster_Width);
+  mvwin(wbp->win, chat_y_pos, Roster_Width);
   werase(wbp->win);
   // If a panel exists, replace the old window with the new
   if (wbp->panel)

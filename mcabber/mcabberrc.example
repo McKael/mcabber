@@ -219,6 +219,12 @@ set message_autoaway = Auto-away (idle)
 # Buddylist window width (minimum 2, default 24)
 #set roster_width=24
 #
+# The options "log_win_on_top" and "roster_win_on_right" can change the
+# position of the log window (top/bottom) and the position of the roster
+# (left/right).
+#set log_win_on_top = 0
+#set roster_win_on_right = 0
+#
 # Buddy name format (in status window):
 # - 0: (default) "<jid/resource>"
 # - 1: "name <jid/resource>" (name is omitted if same as the jid)

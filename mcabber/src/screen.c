@@ -84,6 +84,7 @@ int utf8_mode = 0;
 static bool Autoaway;
 static bool Curses;
 static bool log_win_on_top;
+static bool roster_win_on_right;
 static time_t LastActivity;
 
 static char       inputLine[INPUTLINE_LENGTH+1];
@@ -423,7 +424,10 @@ static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
   tmp = g_new0(winbuf, 1);
 
   // Dimensions
-  x = Roster_Width;
+  if (roster_win_on_right)
+    x = 0;
+  else
+    x = Roster_Width;
   if (log_win_on_top)
     y = Log_Win_Height-1;
   else
@@ -775,6 +779,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
   int requested_size;
   gchar *ver, *message;
   int chat_y_pos, chatstatus_y_pos, log_y_pos;
+  int roster_x_pos, chat_x_pos;
 
   Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
   requested_size = settings_opt_get_int("log_win_height");
@@ -809,6 +814,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
   }
 
   log_win_on_top = (settings_opt_get_int("log_win_on_top") == 1);
+  roster_win_on_right = (settings_opt_get_int("roster_win_on_right") == 1);
 
   if (log_win_on_top) {
     chat_y_pos = Log_Win_Height-1;
@@ -820,11 +826,19 @@ void scr_DrawMainWindow(unsigned int fullinit)
     chatstatus_y_pos = CHAT_WIN_HEIGHT;
   }
 
+  if (roster_win_on_right) {
+    roster_x_pos = maxX - Roster_Width;
+    chat_x_pos = 0;
+  } else {
+    roster_x_pos = 0;
+    chat_x_pos = Roster_Width;
+  }
+
   if (fullinit) {
     /* Create windows */
-    rosterWnd = newwin(CHAT_WIN_HEIGHT, Roster_Width, chat_y_pos, 0);
+    rosterWnd = newwin(CHAT_WIN_HEIGHT, Roster_Width, chat_y_pos, roster_x_pos);
     chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - Roster_Width, chat_y_pos,
-                       Roster_Width);
+                       chat_x_pos);
     logWnd    = newwin(Log_Win_Height-2, maxX, log_y_pos, 0);
     chatstatusWnd = newwin(1, maxX, chatstatus_y_pos, 0);
     mainstatusWnd = newwin(1, maxX, maxY-2, 0);
@@ -845,8 +859,8 @@ void scr_DrawMainWindow(unsigned int fullinit)
     wresize(chatWnd, CHAT_WIN_HEIGHT, maxX - Roster_Width);
     wresize(logWnd, Log_Win_Height-2, maxX);
 
-    mvwin(chatWnd, chat_y_pos, Roster_Width);
-    mvwin(rosterWnd, chat_y_pos, 0);
+    mvwin(chatWnd, chat_y_pos, chat_x_pos);
+    mvwin(rosterWnd, chat_y_pos, roster_x_pos);
     mvwin(logWnd, log_y_pos, 0);
 
     // Resize & move chat status window
@@ -917,16 +931,21 @@ void scr_DrawMainWindow(unsigned int fullinit)
 static inline void resize_win_buffer(winbuf *wbp, int x, int y,
                                      int lines, int cols)
 {
-  int chat_y_pos;
+  int chat_x_pos, chat_y_pos;
 
   if (log_win_on_top)
     chat_y_pos = Log_Win_Height-1;
   else
     chat_y_pos = 0;
 
+  if (roster_win_on_right)
+    chat_x_pos = 0;
+  else
+    chat_x_pos = Roster_Width;
+
   // Resize/move buddy window
   wresize(wbp->win, lines, cols);
-  mvwin(wbp->win, chat_y_pos, Roster_Width);
+  mvwin(wbp->win, chat_y_pos, chat_x_pos);
   werase(wbp->win);
   // If a panel exists, replace the old window with the new
   if (wbp->panel)
@@ -1083,6 +1102,7 @@ void scr_DrawRoster(void)
   int cursor_backup;
   char status, pending;
   enum imstatus currentstatus = jb_getstatus();
+  int x_pos;
 
   // We can reset update_roster
   update_roster = FALSE;
@@ -1101,10 +1121,11 @@ void scr_DrawRoster(void)
   werase(rosterWnd);
 
   if (Roster_Width) {
+    int line_x_pos = roster_win_on_right ? 0 : Roster_Width-1;
     // Redraw the vertical line (not very good...)
     wattrset(rosterWnd, get_color(COLOR_GENERAL));
     for (i=0 ; i < CHAT_WIN_HEIGHT ; i++)
-      mvwaddch(rosterWnd, i, Roster_Width-1, ACS_VLINE);
+      mvwaddch(rosterWnd, i, line_x_pos, ACS_VLINE);
   }
 
   // Leave now if buddylist is empty or the roster is hidden
@@ -1135,6 +1156,11 @@ void scr_DrawRoster(void)
   } else if (i+1 > offset + maxy) {
     offset = i + 1 - maxy;
   }
+
+  if (roster_win_on_right)
+    x_pos = 1; // 1 char offset (vertical line)
+  else
+    x_pos = 0;
 
   rline = g_new0(char, Roster_Width+1);
 
@@ -1185,7 +1211,7 @@ void scr_DrawRoster(void)
       else
         wattrset(rosterWnd, get_color(COLOR_ROSTERSEL));
       // The 3 following lines aim at coloring the whole line
-      wmove(rosterWnd, i, 0);
+      wmove(rosterWnd, i, x_pos);
       for (n = 0; n < maxx; n++)
         waddch(rosterWnd, ' ');
     } else {
@@ -1227,7 +1253,7 @@ void scr_DrawRoster(void)
     }
 
     rline_locale = from_utf8(rline);
-    mvwprintw(rosterWnd, i, 0, "%s", rline_locale);
+    mvwprintw(rosterWnd, i, x_pos, "%s", rline_locale);
     g_free(rline_locale);
     i++;
   }

@@ -27,6 +27,10 @@ Dostępne parametry:
  Pokazuje listę kontaktów
 /roster toggle
  Włącza/wyłącza listę kontaktów
+/roster item_lock [jid]
+ Zablokuj wyświetlanie elementu rostera, tak aby był widoczny cały czas (bez względu na jego status)
+/roster item_unlock [jid]
+ Odblokuj wyświetlanie elementu rostera, element będzie widoczny ze względu na jego status
 /roster search [osoba]
  Szuka osoby "osoba", lub osoby której nazwa zawiera słowo "osoba"
 /roster alternate

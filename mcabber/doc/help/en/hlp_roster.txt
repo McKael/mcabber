@@ -27,6 +27,10 @@ Here are the available parameters:
  Show roster
 /roster toggle
  Toggle roster visibility
+/roster item_lock [jid]
+ Lock the roster item so it remains visible regardless of its status
+/roster item_unlock [jid]
+ Undo the effects of item_lock
 /roster search bud
  Search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
 /roster alternate

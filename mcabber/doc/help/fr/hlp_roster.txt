@@ -26,6 +26,10 @@ Cette commande manipule le roster (liste de contacts).
  Affiche le roster
 /roster toggle
  Inverse l'affichage du roster (hide/show)
+/roster item_lock [jid]
+ Affiche le contact dans le roster, même s'il est déconnecté
+/roster item_unlock [jid]
+ Annule l'effet de /roster item_lock
 /roster search bud
  Cherche un contact dont le nom ou le jid contient "bud" (seulement dans les contacts affichés)
 /roster alternate

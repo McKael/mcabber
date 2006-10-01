@@ -728,7 +728,8 @@ toggle the state (fold/unfold) of the current tree
 </b></dt>
 <dd>
         Move the current buddy to the requested group.  If no group is
-        specified, then the buddy is moved to the default group.<br />
+        specified, then the buddy is moved to the default group.
+        If the group groupname doesn't exist, it is created.<br />
         Tip: if the chatmode is enabled, you can use "/roster alternate"
         to jump to the moved buddy.
 </dd>
@@ -1054,6 +1055,22 @@ toggle roster visibility
 </tr>
 <tr valign="top">
 <td>
+<b>item_lock</b> jid
+</td>
+<td>
+lock the roster item so it remains visible regardless of its status
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>item_unlock</b> jid
+</td>
+<td>
+undo the effects of item_lock
+</td>
+</tr>
+<tr valign="top">
+<td>
 <b>search</b> bud
 </td>
 <td>
@@ -1148,8 +1165,8 @@ Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com
 License (GPL).</p>
 <div id="footer">
 <p>
-Version 0.8.1<br />
-Last updated 17-Jun-2006 10:23:23 CEST
+Version 0.8.3-dev<br />
+Last updated 01-Oct-2006 23:57:04 CEST
 </p>
 </div>
 </div>

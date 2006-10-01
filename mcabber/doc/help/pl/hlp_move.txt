@@ -1,5 +1,5 @@
 
  /MOVE [nazwa grupy]
 
-Przenosi aktualną osobę do grupy "nazwa grupy".  Jeśli nie podano nazwy grupy, wtedy osoba jest przenoszona do grupy domyślnej.
+Przenosi aktualną osobę do grupy "nazwa grupy".  Jeśli nie podano nazwy grupy, wtedy osoba jest przenoszona do grupy domyślnej.  Jeśli grupa "nazwa grupy" nie istnieje, zostaje utworzona.
 Podpowiedź: jeśli jest włączony tryb czatu, możesz użyć "/roster alternate" aby skoczyć do przeniesionej osoby.

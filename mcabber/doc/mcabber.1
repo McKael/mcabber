@@ -291,7 +291,7 @@ Display info on the selected entry (user, agent, group...)\&. For users, resourc
 
 .TP
 \fB/move\fR [groupname]
-Move the current buddy to the requested group\&. If no group is specified, then the buddy is moved to the default group\&. Tip: if the chatmode is enabled, you can use "/roster alternate" to jump to the moved buddy\&.
+Move the current buddy to the requested group\&. If no group is specified, then the buddy is moved to the default group\&.  If the group groupname doesn't exist, it is created\&. Tip: if the chatmode is enabled, you can use "/roster alternate" to jump to the moved buddy\&.
 
 .TP
 \fB/msay\fR begin|verbatim|send|send_to|toggle|toggle_verbatim|abort
@@ -350,12 +350,14 @@ The roster command manipulates the roster/buddylist\&.  Here are the available p
  \fBtop\fR       	jump to the top of the roster
  \fBup\fR        	move up in the roster
  \fBdown\fR      	move down in the roster
- \fBhide_offline\fR	hide offline buddies
- \fBshow_offline\fR	show offline buddies
+ \fBhide_offline\fR  	hide offline buddies
+ \fBshow_offline\fR  	show offline buddies
  \fBtoggle_offline\fR	toggle display of offline buddies
  \fBhide\fR      	hide roster (full\-width chat window)
  \fBshow\fR      	show roster
  \fBtoggle\fR    	toggle roster visibility
+ \fBitem_lock\fR jid  	lock the roster item so it remains visible regardless of its status
+ \fBitem_unlock\fR jid	undo the effects of item_lock
  \fBsearch\fR bud	search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
  \fBalternate\fR 	jump to alternate buddy\&. The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
  \fBunread_first\fR	jump to the first unread message

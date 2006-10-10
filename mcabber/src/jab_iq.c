@@ -209,8 +209,9 @@ static void handle_iq_roster(xmlnode x)
     if (!name)
       name = cleanalias;
 
-    // Tricky... :-\  My guess is that if there is no '@', this is an agent
-    if (strchr(cleanalias, '@'))
+    // Tricky... :-\  My guess is that if there is no JID_DOMAIN_SEPARATOR,
+    // this is an agent.
+    if (strchr(cleanalias, JID_DOMAIN_SEPARATOR))
       roster_type = ROSTER_TYPE_USER;
     else
       roster_type = ROSTER_TYPE_AGENT;
@@ -253,7 +254,7 @@ static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
 
   // bjid should now really be the "bare JID", let's strip the resource
-  p = strchr(bjid, '/');
+  p = strchr(bjid, JID_RESOURCE_SEPARATOR);
   if (p) *p = '\0';
 
   scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
@@ -329,7 +330,7 @@ static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
 
   // bjid should now really be the "bare JID", let's strip the resource
-  p = strchr(bjid, '/');
+  p = strchr(bjid, JID_RESOURCE_SEPARATOR);
   if (p) *p = '\0';
 
   scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);

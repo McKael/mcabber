@@ -67,7 +67,7 @@ char *jidtodisp(const char *jid)
 
   alias = g_strdup(jid);
 
-  if ((ptr = strchr(alias, '/')) != NULL) {
+  if ((ptr = strchr(alias, JID_RESOURCE_SEPARATOR)) != NULL) {
     *ptr = 0;
   }
   return alias;
@@ -79,11 +79,11 @@ char *compose_jid(const char *username, const char *servername,
   char *jid = g_new(char, 3 +
                     strlen(username) + strlen(servername) + strlen(resource));
   strcpy(jid, username);
-  if (!strchr(jid, '@')) {
-    strcat(jid, "@");
+  if (!strchr(jid, JID_DOMAIN_SEPARATOR)) {
+    strcat(jid, JID_DOMAIN_SEPARATORSTR);
     strcat(jid, servername);
   }
-  strcat(jid, "/");
+  strcat(jid, JID_RESOURCE_SEPARATORSTR);
   strcat(jid, resource);
   return jid;
 }
@@ -603,7 +603,7 @@ void jb_request(const char *jid, enum iqreq_type reqtype)
   } else
     return;
 
-  if (strchr(jid, '/')) {
+  if (strchr(jid, JID_RESOURCE_SEPARATOR)) {
     // This is a full JID
     (*request_fn)(jid);
     scr_LogPrint(LPRINT_NORMAL, "Sent %s request to <%s>", strreqtype, jid);
@@ -826,7 +826,7 @@ static void gotmessage(char *type, const char *from, const char *body,
 
   jid = jidtodisp(from);
 
-  rname = strchr(from, '/');
+  rname = strchr(from, JID_RESOURCE_SEPARATOR);
   if (rname) rname++;
 
   // Check for unexpected groupchat messages
@@ -1302,7 +1302,7 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   time_t timestamp = 0;
   xmlnode muc_packet;
 
-  rname = strchr(from, '/');
+  rname = strchr(from, JID_RESOURCE_SEPARATOR);
   if (rname) rname++;
 
   r = jidtodisp(from);
@@ -1390,7 +1390,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       gchar *subj = p;
       // Get the room (s) and the nickname (r)
       s = g_strdup(from);
-      r = strchr(s, '/');
+      r = strchr(s, JID_RESOURCE_SEPARATOR);
       if (r) *r++ = 0;
       else   r = s;
       // Set the new topic

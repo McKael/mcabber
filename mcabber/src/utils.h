@@ -9,6 +9,11 @@ extern char *LocaleCharSet;
 #define from_utf8(s) ((s) ? g_convert_with_fallback((s), -1, LocaleCharSet, \
                                         "UTF-8", NULL,NULL,NULL,NULL) : NULL)
 
+#define JID_RESOURCE_SEPARATOR      '/'
+#define JID_RESOURCE_SEPARATORSTR   "/"
+#define JID_DOMAIN_SEPARATOR        '@'
+#define JID_DOMAIN_SEPARATORSTR     "@"
+
 void ut_InitDebug(int level, const char *file);
 void ut_WriteLog(unsigned int flag, const char *data);
 

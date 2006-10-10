@@ -39,6 +39,7 @@
 #include <glib.h>
 
 #include <config.h>
+#include "utils.h"
 #include "logprint.h"
 
 static int DebugEnabled;
@@ -313,7 +314,7 @@ int check_jid_syntax(char *jid)
 
   if (!jid) return 1;
 
-  domain = strchr(jid, '@');
+  domain = strchr(jid, JID_DOMAIN_SEPARATOR);
 
   /* the username is optional */
   if (!domain) {
@@ -325,8 +326,8 @@ int check_jid_syntax(char *jid)
     domain++;
 
     /* check for low and invalid ascii characters in the username */
-    for (str = jid; *str != '@'; str++) {
-      if (*str <= 32 || *str == ':' || *str == '@' ||
+    for (str = jid; *str != JID_DOMAIN_SEPARATOR; str++) {
+      if (*str <= ' ' || *str == ':' || *str == JID_DOMAIN_SEPARATOR ||
               *str == '<' || *str == '>' || *str == '\'' ||
               *str == '"' || *str == '&') {
         return 1;
@@ -335,7 +336,7 @@ int check_jid_syntax(char *jid)
     /* the username is okay as far as we can tell without LIBIDN */
   }
 
-  resource = strchr(domain, '/');
+  resource = strchr(domain, JID_RESOURCE_SEPARATOR);
 
   /* the resource is optional */
   if (resource) {
@@ -355,7 +356,7 @@ int check_jid_syntax(char *jid)
   if (domlen > 1023) return 1;
 
   /* make sure the hostname is valid characters */
-  for (str = domain; *str != '\0' && *str != '/'; str++) {
+  for (str = domain; *str != '\0' && *str != JID_RESOURCE_SEPARATOR; str++) {
     if (!(isalnum(*str) || *str == '.' || *str == '-' || *str == '_'))
       return 1;
   }

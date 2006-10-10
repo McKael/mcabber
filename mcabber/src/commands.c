@@ -639,7 +639,7 @@ static void do_status_to(char *arg)
     } else {
       // Convert jid to lowercase
       char *p = jid;
-      for ( ; *p && *p != '/'; p++)
+      for ( ; *p && *p != JID_RESOURCE_SEPARATOR; p++)
         *p = tolower(*p);
       jid = jid_utf8 = to_utf8(jid);
     }
@@ -808,7 +808,7 @@ static int send_message_to(const char *jid, const char *msg, const char *subj)
   }
 
   // We must use the bare jid in hk_message_out()
-  rp = strchr(jid, '/');
+  rp = strchr(jid, JID_RESOURCE_SEPARATOR);
   if (rp) bare_jid = g_strndup(jid, rp - jid);
   else   bare_jid = (char*)jid;
 
@@ -1606,10 +1606,10 @@ static void room_join(gpointer bud, char *arg)
     nick = (char*)settings_opt_get("nickname");
     if (!nick) {
       nick = (char*)settings_opt_get("username");
-      if (nick && (strchr(nick, '@') > nick)) {
+      if (nick && (strchr(nick, JID_DOMAIN_SEPARATOR) > nick)) {
         char *p;
         nick = tmpnick = g_strdup(nick);
-        p = strchr(nick, '@');
+        p = strchr(nick, JID_DOMAIN_SEPARATOR);
         *p = 0;
       }
     }
@@ -2249,7 +2249,7 @@ static void do_request(char *arg)
     } else {
       // Convert jid to lowercase
       char *p;
-      for (p = jid; *p && *p != '/'; p++)
+      for (p = jid; *p && *p != JID_RESOURCE_SEPARATOR; p++)
         *p = tolower(*p);
       jid = jid_utf8 = to_utf8(jid);
     }

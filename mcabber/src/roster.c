@@ -338,7 +338,7 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
     roster_usr->name  = g_strdup(name);
   } else {
     gchar *p, *str = g_strdup(jid);
-    p = strstr(str, "/");
+    p = strchr(str, JID_RESOURCE_SEPARATOR);
     if (p)  *p = '\0';
     roster_usr->name = g_strdup(str);
     g_free(str);

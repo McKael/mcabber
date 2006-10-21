@@ -518,7 +518,8 @@ static void do_roster(char *arg)
   } else if (!strcasecmp(subcmd, "alternate")) {
     scr_RosterJumpAlternate();
   } else if (!strncasecmp(subcmd, "search", 6)) {
-    if (!*arg) {
+    strip_arg_special_chars(arg);
+    if (!arg || !*arg) {
       scr_LogPrint(LPRINT_NORMAL, "What name or JID are you looking for?");
       free_arg_lst(paramlst);
       return;
@@ -1102,8 +1103,10 @@ static void do_buffer(char *arg)
   } else if (!strcasecmp(subcmd, "down")) {
     buffer_updown(1, arg);
   } else if (!strcasecmp(subcmd, "search_backward")) {
+    strip_arg_special_chars(arg);
     buffer_search(-1, arg);
   } else if (!strcasecmp(subcmd, "search_forward")) {
+    strip_arg_special_chars(arg);
     buffer_search(1, arg);
   } else if (!strcasecmp(subcmd, "date")) {
     buffer_date(arg);

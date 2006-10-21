@@ -383,6 +383,8 @@ void strip_arg_special_chars(char *s)
   int escape = FALSE;
   char *p;
 
+  if (!s) return;
+
   for (p = s; *p; p++) {
     if (*p == '"') {
       if (!escape) {

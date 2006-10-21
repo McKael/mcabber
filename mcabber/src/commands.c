@@ -518,20 +518,12 @@ static void do_roster(char *arg)
   } else if (!strcasecmp(subcmd, "alternate")) {
     scr_RosterJumpAlternate();
   } else if (!strncasecmp(subcmd, "search", 6)) {
-    char *string = subcmd+6;
-    if (*string && (*string != ' ')) {
-      scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
-      free_arg_lst(paramlst);
-      return;
-    }
-    while (*string == ' ')
-      string++;
-    if (!*string) {
+    if (!*arg) {
       scr_LogPrint(LPRINT_NORMAL, "What name or JID are you looking for?");
       free_arg_lst(paramlst);
       return;
     }
-    scr_RosterSearch(string);
+    scr_RosterSearch(arg);
     update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "up")) {
     scr_RosterUp();

@@ -1169,7 +1169,7 @@ void scr_DrawRoster(void)
 
   for (i=0; i<maxy && buddy; buddy = g_list_next(buddy)) {
     unsigned short bflags, btype, ismsg, isgrp, ismuc, ishid, isspe;
-    gchar *rline_locale;
+    gchar *name_locale;
 
     bflags = buddy_getflags(BUDDATA(buddy));
     btype = buddy_gettype(BUDDATA(buddy));
@@ -1221,8 +1221,9 @@ void scr_DrawRoster(void)
         wattrset(rosterWnd, get_color(COLOR_ROSTER));
     }
 
+    name_locale = from_utf8(buddy_getname(BUDDATA(buddy)));
     if (Roster_Width > 7)
-      strncpy(name, buddy_getname(BUDDATA(buddy)), Roster_Width-7);
+      strncpy(name, name_locale, Roster_Width-7);
     else
       name[0] = 0;
 
@@ -1252,9 +1253,8 @@ void scr_DrawRoster(void)
                " %c%c%c%c %s", pending, sepleft, status, sepright, name);
     }
 
-    rline_locale = from_utf8(rline);
-    mvwprintw(rosterWnd, i, x_pos, "%s", rline_locale);
-    g_free(rline_locale);
+    mvwprintw(rosterWnd, i, x_pos, "%s", rline);
+    g_free(name_locale);
     i++;
   }
 

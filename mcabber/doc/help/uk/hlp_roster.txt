@@ -1,0 +1,36 @@
+
+ /ROSTER bottom|top|hide_offline|show_offline|toggle_offline
+ /ROSTER hide|show|toggle
+ /ROSTER alternate|unread_first|unread_next
+ /ROSTER search ім'я
+
+Керує списком контактів.
+
+/roster bottom
+ Перейти до кінця списку.
+/roster top
+ Перейти на початок списку.
+/roster up
+ Перейти вище по списку.
+/roster down
+ Перейти нижче по списку.
+/roster hide_offline
+ Сховати неприсутні контакти.
+/roster show_offline
+ Показувати неприсутні контакти також.
+/roster toggle_offline
+ Переключити відображення неприсутніх контактів.
+/roster hide
+ Сховати список.
+/roster show
+ Показати список.
+/roster toggle
+ Переключити відображення списку.
+/roster search ім'я
+ Шукати контакт з прізвиськом або jid, що вміщують "ім'я" (тільки в контактах, що відображуються)
+/roster alternate
+ Прейти до "альтернативного" контакту. "Альтернативний" контакт - це останній контакт, який був в режимі чату. Ця команда може використовуватись після команд типу "/roster unread_next" (Ctrl-q).
+/roster unread_first
+ Перейти до першого непрочитанного повідомлення.
+/roster unread_next
+ Перейти до наступного непрочитанного повідомлення.

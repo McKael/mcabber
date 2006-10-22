@@ -1135,8 +1135,6 @@ void scr_DrawRoster(void)
     return;
   }
 
-  name = g_new0(char, Roster_Width);
-
   // Update offset if necessary
   // a) Try to show as many buddylist items as possible
   i = g_list_length(buddylist) - maxy;
@@ -1148,7 +1146,6 @@ void scr_DrawRoster(void)
   i = g_list_position(buddylist, current_buddy);
   if (i == -1) { // This is bad
     scr_LogPrint(LPRINT_NORMAL, "Doh! Can't find current selected buddy!!");
-    g_free(name);
     curs_set(cursor_backup);
     return;
   } else if (i < offset) {
@@ -1162,14 +1159,15 @@ void scr_DrawRoster(void)
   else
     x_pos = 0;
 
-  rline = g_new0(char, Roster_Width+1);
+  name = g_new0(char, 4*Roster_Width);
+  rline = g_new0(char, 4*Roster_Width+1);
 
   buddy = buddylist;
   rOffset = offset;
 
   for (i=0; i<maxy && buddy; buddy = g_list_next(buddy)) {
     unsigned short bflags, btype, ismsg, isgrp, ismuc, ishid, isspe;
-    gchar *name_locale;
+    gchar *rline_locale;
 
     bflags = buddy_getflags(BUDDATA(buddy));
     btype = buddy_gettype(BUDDATA(buddy));
@@ -1221,9 +1219,8 @@ void scr_DrawRoster(void)
         wattrset(rosterWnd, get_color(COLOR_ROSTER));
     }
 
-    name_locale = from_utf8(buddy_getname(BUDDATA(buddy)));
     if (Roster_Width > 7)
-      strncpy(name, name_locale, Roster_Width-7);
+      g_utf8_strncpy(name, buddy_getname(BUDDATA(buddy)), Roster_Width-7);
     else
       name[0] = 0;
 
@@ -1249,12 +1246,13 @@ void scr_DrawRoster(void)
         }
       }
 
-      snprintf(rline, Roster_Width,
+      snprintf(rline, 4*Roster_Width,
                " %c%c%c%c %s", pending, sepleft, status, sepright, name);
     }
 
-    mvwprintw(rosterWnd, i, x_pos, "%s", rline);
-    g_free(name_locale);
+    rline_locale = from_utf8(rline);
+    mvwprintw(rosterWnd, i, x_pos, "%s", rline_locale);
+    g_free(rline_locale);
     i++;
   }
 

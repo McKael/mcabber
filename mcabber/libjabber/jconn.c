@@ -353,6 +353,11 @@ void jab_poll(jconn j, int timeout)
     if (!j || j->state == JCONN_STATE_OFF)
 	return;
 
+    if (j->fd == -1) {
+	STATE_EVT(JCONN_STATE_OFF);
+	return;
+    }
+
     FD_ZERO(&fds);
     FD_SET(j->fd, &fds);
 

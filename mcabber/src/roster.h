@@ -74,6 +74,22 @@ struct role_affil {
 #define ROSTER_FLAG_USRLOCK (1U<<3) // Node should not be removed from buddylist
 // ROSTER_FLAG_LOCAL   (1U<<4) // Buddy not on server's roster  (??)
 
+
+/* Message event and chat state flags */
+#define ROSTER_EVENT_NONE      0U
+#define ROSTER_EVENT_MSG       1U
+/* JEP-22 Message Events */
+#define ROSTER_EVENT_OFFLINE   (1U<<1)
+#define ROSTER_EVENT_DELIVERED (1U<<2)
+#define ROSTER_EVENT_DISPLAYED (1U<<3)
+/* JEP-22 & JEP-85 */
+#define ROSTER_EVENT_COMPOSING (1U<<4)
+/* JEP-85 Chat State Notifications */
+#define ROSTER_EVENT_ACTIVE    (1U<<5)
+#define ROSTER_EVENT_PAUSED    (1U<<6)
+#define ROSTER_EVENT_INACTIVE  (1U<<7)
+#define ROSTER_EVENT_GONE      (1U<<8)
+
 extern GList *buddylist;
 extern GList *current_buddy;
 extern GList *alternate_buddy;
@@ -135,6 +151,9 @@ GSList *buddy_getresources(gpointer rosterdata);
 GSList *buddy_getresources_locale(gpointer rosterdata);
 void    buddy_resource_setname(gpointer rosterdata, const char *resname,
                                const char *newname);
+void    buddy_resource_setevents(gpointer rosterdata, const char *resname,
+                                 guint event);
+guint   buddy_resource_getevents(gpointer rosterdata, const char *resname);
 enum imrole buddy_getrole(gpointer rosterdata, const char *resname);
 enum imaffiliation buddy_getaffil(gpointer rosterdata, const char *resname);
 const char *buddy_getrjid(gpointer rosterdata, const char *resname);

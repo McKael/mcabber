@@ -51,6 +51,7 @@ typedef struct {
   enum imrole role;
   enum imaffiliation affil;
   gchar *realjid;       /* for chatrooms, if buddy's real jid is known */
+  guint events;
 } res;
 
 /* This is a private structure type for the roster */
@@ -1060,6 +1061,32 @@ gchar buddy_getresourceprio(gpointer rosterdata, const char *resname)
   if (p_res)
     return p_res->prio;
   return 0;
+}
+
+guint buddy_resource_getevents(gpointer rosterdata, const char *resname)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->events;
+  return ROSTER_EVENT_NONE;
+}
+
+void buddy_resource_setevents(gpointer rosterdata, const char *resname,
+                              guint events)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    p_res->events = events;
+
+  /*
+  // update group
+  roster_usr = roster_usr->list->data;
+  p_res = get_resource(roster_usr, "");
+  if (p_res)
+    p_res->events = events;
+  */
 }
 
 enum imrole buddy_getrole(gpointer rosterdata, const char *resname)

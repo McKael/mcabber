@@ -1168,6 +1168,7 @@ void scr_DrawRoster(void)
   for (i=0; i<maxy && buddy; buddy = g_list_next(buddy)) {
     unsigned short bflags, btype, ismsg, isgrp, ismuc, ishid, isspe;
     gchar *rline_locale;
+    GSList *resources;
 
     bflags = buddy_getflags(BUDDATA(buddy));
     btype = buddy_gettype(BUDDATA(buddy));
@@ -1185,6 +1186,21 @@ void scr_DrawRoster(void)
 
     status = '?';
     pending = ' ';
+
+    resources = buddy_getresources(BUDDATA(buddy));
+    for ( ; resources ; resources = g_slist_next(resources) ) {
+      guint events = buddy_resource_getevents(BUDDATA(buddy),
+                                              resources ? resources->data : "");
+      if (events) {
+        if (events & ROSTER_EVENT_MSG && false) { // FIXME: not yet.
+          pending = '#';
+          break;
+        } else if (events & ROSTER_EVENT_COMPOSING) {
+          pending = '+';
+          break;
+        }
+      }
+    }
 
     // Display message notice if there is a message flag, but not
     // for unfolded groups.

@@ -51,6 +51,7 @@ static unsigned char online;
 
 static void statehandler(jconn, int);
 static void packethandler(jconn, jpacket);
+void handle_state_events(char* from, xmlnode xmldata);
 
 static void logger(jconn j, int io, const char *buf)
 {
@@ -429,6 +430,22 @@ void jb_send_msg(const char *jid, const char *text, int type,
     y = xmlnode_insert_tag(x, "subject");
     xmlnode_insert_cdata(y, subject, (unsigned) -1);
   }
+
+  // TODO: insert event notifications request
+#undef USE_JEP_85
+#ifdef USE_JEP_85
+#define NS_CHAT_STATES    "http://jabber.org/features/chatstates"
+  // JEP-85
+  xmlnode event = xmlnode_insert_tag(x, "composing");
+  xmlnode_put_attrib(event, "xmlns", NS_CHAT_STATES);
+#else
+  // JEP-22
+  xmlnode event = xmlnode_insert_tag(x, "x");
+  xmlnode_put_attrib(event, "xmlns", NS_EVENT);
+  xmlnode_insert_tag(event, "composing");
+#endif
+
+
   jab_send(jc, x);
   xmlnode_free(x);
 
@@ -1422,6 +1439,8 @@ static void handle_packet_message(jconn conn, char *type, char *from,
     }
   }
 
+  handle_state_events(from, xmldata);
+
   // Not used yet...
   x = xml_get_xmlns(xmldata, NS_ENCRYPTED);
   if (x && (p = xmlnode_get_data(x)) != NULL) {
@@ -1438,6 +1457,52 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   if (from && body)
     gotmessage(type, from, body, enc, timestamp);
   g_free(tmp);
+}
+
+void handle_state_events(char* from, xmlnode xmldata)
+{
+  xmlnode x   = NULL;
+  char *rname = strchr(from, JID_RESOURCE_SEPARATOR) + 1;
+  char *jid   = jidtodisp(from);
+  GSList *slist = roster_find(jid, jidsearch, ROSTER_TYPE_USER);
+  if (slist == NULL) return;
+  int jep85 = 0;
+
+  guint events  = buddy_resource_getevents(slist->data, rname);
+
+  x = xml_get_xmlns(xmldata, NS_EVENT);
+  if (x == NULL) {
+      x = xmldata;
+      jep85 = 1;
+  }
+
+  xmlnode tag = xmlnode_get_tag(x, "composing");
+  if (tag != NULL) {
+    events |= ROSTER_EVENT_COMPOSING;
+  } else if (!jep85) {
+    events &= ~ROSTER_EVENT_COMPOSING;
+  }
+
+  if (jep85) {
+      tag = xmlnode_get_tag(x, "paused");
+      if (tag != NULL) {
+        events &= ~ROSTER_EVENT_COMPOSING;
+      }
+  }
+
+  // clear composing and set new message event
+  // if message contains message body
+  if (xmlnode_get_tag_data(xmldata, "body") != NULL) {
+    events |= ROSTER_EVENT_MSG;
+    events &= ~ROSTER_EVENT_COMPOSING;
+  }
+
+  buddy_resource_setevents(slist->data, rname, events);
+
+  scr_UpdateBuddyWindow();
+  scr_DrawRoster();
+
+  g_free(jid);
 }
 
 static void evscallback_subscription(eviqs *evp, guint evcontext)

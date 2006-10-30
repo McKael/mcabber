@@ -411,8 +411,21 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
   scr_UpdateMainStatus(TRUE);
 }
 
+//  new_msgid()
+// Generate a new id string.  The caller should free it.
+static char *new_msgid(void)
+{
+  static guint msg_idn;
+  time_t now;
+  time(&now);
+  if (!msg_idn)
+    srand(now);
+  msg_idn += 1U + (unsigned int) (9.0 * (rand() / (RAND_MAX + 1.0)));
+  return g_strdup_printf("%u%d", msg_idn, (int)(now%10L));
+}
+
 void jb_send_msg(const char *jid, const char *text, int type,
-                 const char *subject)
+                 const char *subject, const char *msgid)
 {
   xmlnode x;
   gchar *strtype;
@@ -479,8 +492,18 @@ void jb_send_msg(const char *jid, const char *text, int type,
     event = xmlnode_insert_tag(x, "x");
     xmlnode_put_attrib(event, "xmlns", NS_EVENT);
     xmlnode_insert_tag(event, "composing");
+
+    // An id is mandatory when using JEP-0022.
+    if (!msgid) {
+      msgid = new_msgid();
+      // FIXME update last_msgid_sent
+      // We do not update it when the msgid is provided by the caller,
+      // because this is probably a special message (e.g. delivered...)
+    }
   }
 #endif
+
+  xmlnode_put_attrib(x, "id", msgid);
 
   jab_send(jc, x);
   xmlnode_free(x);

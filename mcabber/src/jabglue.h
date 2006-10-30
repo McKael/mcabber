@@ -50,7 +50,7 @@ inline enum imstatus jb_getstatus(void);
 inline const char *jb_getstatusmsg(void);
 void jb_setstatus(enum imstatus st, const char *recipient, const char *msg);
 void jb_send_msg(const char *jid, const char *text, int type,
-                 const char *subject);
+                 const char *subject, const char *id);
 void jb_send_raw(const char *str);
 void jb_keepalive(void);
 inline void jb_reset_keepalive(void);

@@ -320,7 +320,7 @@ static void send_message(const char *msg, const char *subj)
   }
 
   // Network part
-  jb_send_msg(jid, msg, buddy_gettype(BUDDATA(current_buddy)), subj);
+  jb_send_msg(jid, msg, buddy_gettype(BUDDATA(current_buddy)), subj, NULL);
 }
 
 //  process_command(line)
@@ -825,7 +825,7 @@ static int send_message_to(const char *jid, const char *msg, const char *subj)
   if (hmsg != msg) g_free(hmsg);
 
   // Network part
-  jb_send_msg(jid, msg, ROSTER_TYPE_USER, subj);
+  jb_send_msg(jid, msg, ROSTER_TYPE_USER, subj, NULL);
 
   if (rp) g_free(bare_jid);
   return 0;
@@ -1912,7 +1912,7 @@ static void room_topic(gpointer bud, char *arg)
   arg = to_utf8(arg);
   // Set the topic
   msg = g_strdup_printf("%s has set the topic to: %s", mkcmdstr("me"), arg);
-  jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg);
+  jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg, NULL);
   g_free(arg);
   g_free(msg);
 }

@@ -416,6 +416,13 @@ void jb_send_msg(const char *jid, const char *text, int type,
 {
   xmlnode x;
   gchar *strtype;
+#if defined JEP0022 || defined JEP0085
+  xmlnode event;
+  char *rname, *barejid;
+  GSList *sl_buddy;
+  guint which_jep = 0; /* 0: none, 1: 85, 2: 22 */
+  struct jep0085 *jep85 = NULL;
+#endif
 
   if (!online) return;
 
@@ -431,20 +438,49 @@ void jb_send_msg(const char *jid, const char *text, int type,
     xmlnode_insert_cdata(y, subject, (unsigned) -1);
   }
 
-  // TODO: insert event notifications request
-#undef USE_JEP_85
-#ifdef USE_JEP_85
-#define NS_CHAT_STATES    "http://jabber.org/features/chatstates"
-  // JEP-85
-  xmlnode event = xmlnode_insert_tag(x, "composing");
-  xmlnode_put_attrib(event, "xmlns", NS_CHAT_STATES);
-#else
-  // JEP-22
-  xmlnode event = xmlnode_insert_tag(x, "x");
-  xmlnode_put_attrib(event, "xmlns", NS_EVENT);
-  xmlnode_insert_tag(event, "composing");
+#if defined JEP0022 || defined JEP0085
+  rname = strchr(jid, JID_RESOURCE_SEPARATOR);
+  barejid = jidtodisp(jid);
+  sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
+  g_free(barejid);
+
+  // If we can get a resource name, we use it.  Else we use NULL,
+  // which hopefully will give us the most likely resource.
+  if (rname)
+    rname++;
+  if (sl_buddy)
+    jep85 = buddy_resource_jep85(sl_buddy->data, rname);
 #endif
 
+#ifdef JEP0085
+  /* JEP-0085 5.1
+   * "Until receiving a reply to the initial content message (or a standalone
+   * notification) from the Contact, the User MUST NOT send subsequent chat
+   * state notifications to the Contact."
+   * In our implementation support is initially "unknown", they it's "probed"
+   * and can become "ok".
+   */
+  if (jep85 && (jep85->support == CHATSTATES_SUPPORT_OK ||
+                jep85->support == CHATSTATES_SUPPORT_UNKNOWN)) {
+    event = xmlnode_insert_tag(x, "active");
+    xmlnode_put_attrib(event, "xmlns", NS_CHATSTATES);
+    if (jep85->support == CHATSTATES_SUPPORT_UNKNOWN)
+      jep85->support = CHATSTATES_SUPPORT_PROBED;
+    else
+      which_jep = 1;
+  }
+#endif
+#ifdef JEP0022
+  /* JEP-22
+   * If the Contact supports JEP-0085, we do not use JEP-0022.
+   * If not, we try to fall back to JEP-0022.
+   */
+  if (!which_jep) {
+    event = xmlnode_insert_tag(x, "x");
+    xmlnode_put_attrib(event, "xmlns", NS_EVENT);
+    xmlnode_insert_tag(event, "composing");
+  }
+#endif
 
   jab_send(jc, x);
   xmlnode_free(x);
@@ -1039,10 +1075,8 @@ inline static xmlnode xml_get_xmlns(xmlnode xmldata, const char *xmlns)
 
   x = xmlnode_get_firstchild(xmldata);
   for ( ; x; x = xmlnode_get_nextsibling(x)) {
-    if ((p = xmlnode_get_name(x)) && !strcmp(p, "x"))
-      if ((p = xmlnode_get_attrib(x, "xmlns")) && !strcmp(p, xmlns)) {
-        break;
-    }
+    if ((p = xmlnode_get_attrib(x, "xmlns")) && !strcmp(p, xmlns))
+      break;
   }
   return x;
 }
@@ -1392,7 +1426,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
 {
   char *p, *r, *s;
   xmlnode x;
-  char *body=NULL;
+  char *body = NULL;
   char *enc = NULL;
   char *tmp = NULL;
   time_t timestamp = 0;
@@ -1459,50 +1493,111 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   g_free(tmp);
 }
 
-void handle_state_events(char* from, xmlnode xmldata)
+void handle_state_events(char *from, xmlnode xmldata)
 {
-  xmlnode x   = NULL;
-  char *rname = strchr(from, JID_RESOURCE_SEPARATOR) + 1;
-  char *jid   = jidtodisp(from);
-  GSList *slist = roster_find(jid, jidsearch, ROSTER_TYPE_USER);
-  if (slist == NULL) return;
-  int jep85 = 0;
+#if defined JEP0022 || defined JEP0085
+  xmlnode state_ns;
+  const char *body;
+  char *rname, *jid;
+  GSList *sl_buddy;
+  guint events;
+  guint which_jep = 0; /* 0: none, 1: 85, 2: 22 */
+  struct jep0022 *jep22;
+  struct jep0085 *jep85;
 
-  guint events  = buddy_resource_getevents(slist->data, rname);
+  rname = strchr(from, JID_RESOURCE_SEPARATOR);
+  jid   = jidtodisp(from);
+  sl_buddy = roster_find(jid, jidsearch, ROSTER_TYPE_USER);
 
-  x = xml_get_xmlns(xmldata, NS_EVENT);
-  if (x == NULL) {
-      x = xmldata;
-      jep85 = 1;
+  /* XXX Actually that's wrong, since it filters out server "offline"
+     messages (for JEP-0022) */
+  if (!sl_buddy || !rname++) {
+    g_free(jid);
+    return;
   }
 
-  xmlnode tag = xmlnode_get_tag(x, "composing");
-  if (tag != NULL) {
-    events |= ROSTER_EVENT_COMPOSING;
-  } else if (!jep85) {
-    events &= ~ROSTER_EVENT_COMPOSING;
-  }
+  events = buddy_resource_getevents(sl_buddy->data, rname);
 
+  jep85 = buddy_resource_jep85(sl_buddy->data, rname);
   if (jep85) {
-      tag = xmlnode_get_tag(x, "paused");
-      if (tag != NULL) {
+    state_ns = xml_get_xmlns(xmldata, NS_CHATSTATES);
+    if (state_ns)
+      which_jep = 1;
+  }
+
+  if (which_jep != 1) { /* Fall back to JEP-0022 */
+    jep22 = buddy_resource_jep22(sl_buddy->data, rname);
+    if (jep22) {
+      state_ns = xml_get_xmlns(xmldata, NS_EVENT);
+      if (state_ns)
+        which_jep = 2;
+    }
+  }
+
+  if (!which_jep) { /* Sender does not use chat states */
+    g_free(jid);
+    return;
+  }
+
+  body = xmlnode_get_tag_data(xmldata, "body");
+
+  if (which_jep == 1) { /* JEP-0085 */
+    const char *p;
+    jep85->support = CHATSTATES_SUPPORT_OK;
+
+    p = xmlnode_get_name(state_ns);
+    if (!strcmp(p, "composing")) {
+      jep85->last_state_rcvd = ROSTER_EVENT_COMPOSING;
+    } else if (!strcmp(p, "active")) {
+      jep85->last_state_rcvd = ROSTER_EVENT_ACTIVE;
+    } else if (!strcmp(p, "paused")) {
+      jep85->last_state_rcvd = ROSTER_EVENT_PAUSED;
+    } else if (!strcmp(p, "inactive")) {
+      jep85->last_state_rcvd = ROSTER_EVENT_INACTIVE;
+    } else if (!strcmp(p, "gone")) {
+      jep85->last_state_rcvd = ROSTER_EVENT_GONE;
+    }
+
+    if (jep85->last_state_rcvd == ROSTER_EVENT_COMPOSING)
+      events = ROSTER_EVENT_COMPOSING;
+    else
+      events = ROSTER_EVENT_NONE;
+  } else {              /* JEP-0022 */
+    const char *msgid;
+    jep22->support = CHATSTATES_SUPPORT_OK;
+    jep22->last_state_rcvd = ROSTER_EVENT_NONE;
+
+    msgid = xmlnode_get_attrib(xmldata, "id");
+
+    if (xmlnode_get_tag(state_ns, "composing")) {
+      // Clear composing if the message contains a body
+      if (body)
         events &= ~ROSTER_EVENT_COMPOSING;
-      }
+      else
+        events |= ROSTER_EVENT_COMPOSING;
+      jep22->last_state_rcvd |= ROSTER_EVENT_COMPOSING;
+
+    } else {
+      events &= ~ROSTER_EVENT_COMPOSING;
+    }
+
+    if (xmlnode_get_tag(state_ns, "delivered"))
+        jep22->last_state_rcvd |= ROSTER_EVENT_DELIVERED;
+
+    // Cache the message id
+    g_free(jep22->last_msgid_rcvd);
+    if (msgid)
+      jep22->last_msgid_rcvd = g_strdup(msgid);
+    else
+      jep22->last_msgid_rcvd = NULL;
   }
 
-  // clear composing and set new message event
-  // if message contains message body
-  if (xmlnode_get_tag_data(xmldata, "body") != NULL) {
-    events |= ROSTER_EVENT_MSG;
-    events &= ~ROSTER_EVENT_COMPOSING;
-  }
+  buddy_resource_setevents(sl_buddy->data, rname, events);
 
-  buddy_resource_setevents(slist->data, rname, events);
-
-  scr_UpdateBuddyWindow();
-  scr_DrawRoster();
+  update_roster = TRUE;
 
   g_free(jid);
+#endif
 }
 
 static void evscallback_subscription(eviqs *evp, guint evcontext)
@@ -1643,10 +1738,6 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
 static void packethandler(jconn conn, jpacket packet)
 {
   char *p;
-  /*
-  char *r, *s;
-  const char *m;
-  */
   char *from=NULL, *type=NULL;
 
   jb_reset_keepalive(); // reset keepalive timeout
@@ -1664,7 +1755,7 @@ static void packethandler(jconn conn, jpacket packet)
   if (p) from = p;
 
   if (!from && packet->type != JPACKET_IQ) {
-    scr_LogPrint(LPRINT_LOGNORM, "Error in packet (could be UTF8-related)");
+    scr_LogPrint(LPRINT_LOGNORM, "Error in stream packet");
     return;
   }
 

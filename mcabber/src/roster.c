@@ -52,6 +52,12 @@ typedef struct {
   enum imaffiliation affil;
   gchar *realjid;       /* for chatrooms, if buddy's real jid is known */
   guint events;
+#ifdef JEP0022
+  struct jep0022 jep22;
+#endif
+#ifdef JEP0085
+  struct jep0085 jep85;
+#endif
 } res;
 
 /* This is a private structure type for the roster */
@@ -115,6 +121,10 @@ static void free_all_resources(GSList **reslist)
     g_free((gchar*)p_res->status_msg);
     g_free((gchar*)p_res->name);
     g_free((gchar*)p_res->realjid);
+#ifdef JEP0022
+    g_free(p_res->jep22.last_msgid_sent);
+    g_free(p_res->jep22.last_msgid_rcvd);
+#endif
   }
   // Free all nodes but the first (which is static)
   g_slist_free(*reslist);
@@ -209,6 +219,10 @@ static void del_resource(roster *rost, const char *resname)
   g_free(p_res->name);
   g_free(p_res->status_msg);
   g_free(p_res->realjid);
+#ifdef JEP0022
+  g_free(p_res->jep22.last_msgid_sent);
+  g_free(p_res->jep22.last_msgid_rcvd);
+#endif
   rost->resource = g_slist_delete_link(rost->resource, p_res_elt);
   return;
 }
@@ -1079,14 +1093,28 @@ void buddy_resource_setevents(gpointer rosterdata, const char *resname,
   res *p_res = get_resource(roster_usr, resname);
   if (p_res)
     p_res->events = events;
+}
 
-  /*
-  // update group
-  roster_usr = roster_usr->list->data;
-  p_res = get_resource(roster_usr, "");
+struct jep0022 *buddy_resource_jep22(gpointer rosterdata, const char *resname)
+{
+#ifdef JEP0022
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
   if (p_res)
-    p_res->events = events;
-  */
+    return &p_res->jep22;
+#endif
+  return NULL;
+}
+
+struct jep0085 *buddy_resource_jep85(gpointer rosterdata, const char *resname)
+{
+#ifdef JEP0085
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return &p_res->jep85;
+#endif
+  return NULL;
 }
 
 enum imrole buddy_getrole(gpointer rosterdata, const char *resname)

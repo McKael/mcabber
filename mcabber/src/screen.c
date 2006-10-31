@@ -95,6 +95,9 @@ static GList *cmdhisto;
 static GList *cmdhisto_cur;
 static char   cmdhisto_backup[INPUTLINE_LENGTH+1];
 
+static int    chatstate;
+static bool   lock_chatstate;
+
 #define MAX_KEYSEQ_LENGTH 8
 
 typedef struct {
@@ -1408,6 +1411,30 @@ void scr_CheckAutoAway(int activity)
   }
 }
 
+//  set_chatstate(state)
+// Set the current chat state (0=active, 1=composing, 2=paused)
+static inline void set_chatstate(int state)
+{
+#if defined JEP0022 || defined JEP0085
+  if (!chatmode)
+    state = 0;
+  if (state != chatstate) {
+    chatstate = state;
+    if (current_buddy &&
+        buddy_gettype(BUDDATA(current_buddy)) == ROSTER_TYPE_USER) {
+      guint jep_state;
+      if (chatstate == 1)
+        jep_state = ROSTER_EVENT_COMPOSING;
+      else if (chatstate == 2)
+        jep_state = ROSTER_EVENT_PAUSED;
+      else
+        jep_state = ROSTER_EVENT_ACTIVE;
+      jb_send_chatstate(BUDDATA(current_buddy), jep_state);
+    }
+  }
+#endif
+}
+
 //  set_current_buddy(newbuddy)
 // Set the current_buddy to newbuddy (if not NULL)
 // Lock the newbuddy, and unlock the previous current_buddy
@@ -1421,6 +1448,11 @@ static void set_current_buddy(GList *newbuddy)
 
   if (!current_buddy || !newbuddy)  return;
   if (newbuddy == current_buddy)    return;
+
+  // We're moving to another buddy.  We're thus inactive wrt current_buddy.
+  set_chatstate(0);
+  // We don't want the chatstate to be changed again right now.
+  lock_chatstate = true;
 
   prev_st = buddy_getstatus(BUDDATA(current_buddy), NULL);
   buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
@@ -2530,6 +2562,8 @@ int process_key(keycode kcode)
   int key = kcode.value;
   int display_char = FALSE;
 
+  lock_chatstate = false;
+
   switch (kcode.mcode) {
     case 0:
         break;
@@ -2753,6 +2787,13 @@ display:
   if (completion_started && key != 9 && key != KEY_RESIZE)
     scr_end_current_completion();
   refresh_inputline();
+
+  if (!lock_chatstate) {
+    if (inputLine[0] == 0 || inputLine[0] == COMMAND_CHAR)
+      set_chatstate(0);
+    else
+      set_chatstate(1);
+  }
   return 0;
 }
 

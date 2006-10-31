@@ -481,6 +481,7 @@ void jb_send_msg(const char *jid, const char *text, int type,
       jep85->support = CHATSTATES_SUPPORT_PROBED;
     else
       which_jep = 1;
+    jep85->last_state_sent = ROSTER_EVENT_ACTIVE;
   }
 #endif
 #ifdef JEP0022
@@ -489,19 +490,22 @@ void jb_send_msg(const char *jid, const char *text, int type,
    * If not, we try to fall back to JEP-0022.
    */
   if (!which_jep) {
+    struct jep0022 *jep22 = NULL;
     event = xmlnode_insert_tag(x, "x");
     xmlnode_put_attrib(event, "xmlns", NS_EVENT);
     xmlnode_insert_tag(event, "composing");
 
+    if (sl_buddy)
+      jep22 = buddy_resource_jep22(sl_buddy->data, rname);
+    if (jep22)
+      jep22->last_state_sent = ROSTER_EVENT_ACTIVE;
+
     // An id is mandatory when using JEP-0022.
     if (!msgid && (text || subject)) {
-      struct jep0022 *jep22;
       msgid = new_msgid();
       // Let's update last_msgid_sent
       // (We do not update it when the msgid is provided by the caller,
       // because this is probably a special message...)
-      if (sl_buddy)
-        jep22 = buddy_resource_jep22(sl_buddy->data, rname);
       if (jep22) {
         g_free(jep22->last_msgid_sent);
         jep22->last_msgid_sent = g_strdup(msgid);
@@ -518,10 +522,68 @@ void jb_send_msg(const char *jid, const char *text, int type,
   jb_reset_keepalive();
 }
 
+
+#ifdef JEP0085
+//  jb_send_jep85_chatstate()
+// Send a JEP-85 chatstate.
+static void jb_send_jep85_chatstate(const char *jid, guint state)
+{
+  xmlnode x;
+  xmlnode event;
+  char *rname, *barejid;
+  GSList *sl_buddy;
+  const char *chattag;
+  struct jep0085 *jep85 = NULL;
+
+  if (!online) return;
+
+  rname = strchr(jid, JID_RESOURCE_SEPARATOR);
+  barejid = jidtodisp(jid);
+  sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
+  g_free(barejid);
+
+  // If we can get a resource name, we use it.  Else we use NULL,
+  // which hopefully will give us the most likely resource.
+  if (rname)
+    rname++;
+  if (sl_buddy)
+    jep85 = buddy_resource_jep85(sl_buddy->data, rname);
+
+  if (!jep85 || (jep85->support != CHATSTATES_SUPPORT_OK))
+    return;
+
+  if (state == jep85->last_state_sent)
+    return;
+
+  if (state == ROSTER_EVENT_ACTIVE)
+    chattag = "active";
+  else if (state == ROSTER_EVENT_COMPOSING)
+    chattag = "composing";
+  else if (state == ROSTER_EVENT_PAUSED)
+    chattag = "paused";
+  else {
+    scr_LogPrint(LPRINT_LOGNORM, "Error: unsupported JEP-85 state (%d)", state);
+    return;
+  }
+
+  jep85->last_state_sent = state;
+
+  x = jutil_msgnew(TMSG_CHAT, (char*)jid, NULL, NULL);
+
+  event = xmlnode_insert_tag(x, chattag);
+  xmlnode_put_attrib(event, "xmlns", NS_CHATSTATES);
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+
+  jb_reset_keepalive();
+}
+#endif
+
 #ifdef JEP0022
 //  jb_send_jep22_event()
 // Send a JEP-22 message event (delivered, composing...).
-void jb_send_jep22_event(const char *jid, guint type)
+static void jb_send_jep22_event(const char *jid, guint type)
 {
   xmlnode x;
   xmlnode event;
@@ -529,6 +591,7 @@ void jb_send_jep22_event(const char *jid, guint type)
   char *rname, *barejid;
   GSList *sl_buddy;
   struct jep0022 *jep22 = NULL;
+  guint jep22_state;
 
   if (!online) return;
 
@@ -544,8 +607,27 @@ void jb_send_jep22_event(const char *jid, guint type)
   if (sl_buddy)
     jep22 = buddy_resource_jep22(sl_buddy->data, rname);
 
-  if (jep22)
-    msgid = jep22->last_msgid_rcvd;
+  if (!jep22)
+    return; // XXX Maybe we could try harder (other resources?)
+
+  msgid = jep22->last_msgid_rcvd;
+
+  // For composing events (composing, active, inactive, paused...),
+  // JEP22 only has 2 states; we'll use composing and active.
+  if (type == ROSTER_EVENT_COMPOSING)
+    jep22_state = ROSTER_EVENT_COMPOSING;
+  else if (type == ROSTER_EVENT_ACTIVE ||
+           type == ROSTER_EVENT_PAUSED)
+    jep22_state = ROSTER_EVENT_ACTIVE;
+  else
+    jep22_state = 0; // ROSTER_EVENT_NONE
+
+  if (jep22_state) {
+    // Do not re-send a same event
+    if (jep22_state == jep22->last_state_sent)
+      return;
+    jep22->last_state_sent = jep22_state;
+  }
 
   x = jutil_msgnew(TMSG_CHAT, (char*)jid, NULL, NULL);
 
@@ -555,12 +637,40 @@ void jb_send_jep22_event(const char *jid, guint type)
     xmlnode_insert_tag(event, "delivered");
   else if (type == ROSTER_EVENT_COMPOSING)
     xmlnode_insert_tag(event, "composing");
-  xmlnode_put_attrib(event, "id", (msgid ? msgid : ""));
+  xmlnode_put_attrib(event, "id", msgid);
 
   jab_send(jc, x);
   xmlnode_free(x);
 
   jb_reset_keepalive();
+}
+#endif
+
+#if defined JEP0022 || defined JEP0085
+void jb_send_chatstate(gpointer buddy, guint chatstate)
+{
+  const char *jid;
+  struct jep0085 *jep85 = NULL;
+  struct jep0022 *jep22 = NULL;
+
+  jid = buddy_getjid(buddy);
+  if (!jid) return;
+
+#ifdef JEP0085
+  jep85 = buddy_resource_jep85(buddy, NULL);
+  if (jep85 && jep85->support == CHATSTATES_SUPPORT_OK) {
+    // FIXME: compare w/ last state sent...
+    jb_send_jep85_chatstate(jid, chatstate);
+    return;
+  }
+#endif
+#ifdef JEP0022
+  jep22 = buddy_resource_jep22(buddy, NULL);
+  if (jep22 && jep22->support == CHATSTATES_SUPPORT_OK) {
+    // FIXME: compare w/ last state sent...
+    jb_send_jep22_event(jid, chatstate);
+  }
+#endif
 }
 #endif
 
@@ -1572,14 +1682,14 @@ static void handle_packet_message(jconn conn, char *type, char *from,
 void handle_state_events(char *from, xmlnode xmldata)
 {
 #if defined JEP0022 || defined JEP0085
-  xmlnode state_ns;
+  xmlnode state_ns = NULL;
   const char *body;
   char *rname, *jid;
   GSList *sl_buddy;
   guint events;
   guint which_jep = 0; /* 0: none, 1: 85, 2: 22 */
-  struct jep0022 *jep22;
-  struct jep0085 *jep85;
+  struct jep0022 *jep22 = NULL;
+  struct jep0085 *jep85 = NULL;
 
   rname = strchr(from, JID_RESOURCE_SEPARATOR);
   jid   = jidtodisp(from);

@@ -494,11 +494,18 @@ void jb_send_msg(const char *jid, const char *text, int type,
     xmlnode_insert_tag(event, "composing");
 
     // An id is mandatory when using JEP-0022.
-    if (!msgid) {
+    if (!msgid && (text || subject)) {
+      struct jep0022 *jep22;
       msgid = new_msgid();
-      // FIXME update last_msgid_sent
-      // We do not update it when the msgid is provided by the caller,
-      // because this is probably a special message (e.g. delivered...)
+      // Let's update last_msgid_sent
+      // (We do not update it when the msgid is provided by the caller,
+      // because this is probably a special message...)
+      if (sl_buddy)
+        jep22 = buddy_resource_jep22(sl_buddy->data, rname);
+      if (jep22) {
+        g_free(jep22->last_msgid_sent);
+        jep22->last_msgid_sent = g_strdup(msgid);
+      }
     }
   }
 #endif
@@ -510,6 +517,52 @@ void jb_send_msg(const char *jid, const char *text, int type,
 
   jb_reset_keepalive();
 }
+
+#ifdef JEP0022
+//  jb_send_jep22_event()
+// Send a JEP-22 message event (delivered, composing...).
+void jb_send_jep22_event(const char *jid, guint type)
+{
+  xmlnode x;
+  xmlnode event;
+  const char *msgid;
+  char *rname, *barejid;
+  GSList *sl_buddy;
+  struct jep0022 *jep22 = NULL;
+
+  if (!online) return;
+
+  rname = strchr(jid, JID_RESOURCE_SEPARATOR);
+  barejid = jidtodisp(jid);
+  sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
+  g_free(barejid);
+
+  // If we can get a resource name, we use it.  Else we use NULL,
+  // which hopefully will give us the most likely resource.
+  if (rname)
+    rname++;
+  if (sl_buddy)
+    jep22 = buddy_resource_jep22(sl_buddy->data, rname);
+
+  if (jep22)
+    msgid = jep22->last_msgid_rcvd;
+
+  x = jutil_msgnew(TMSG_CHAT, (char*)jid, NULL, NULL);
+
+  event = xmlnode_insert_tag(x, "x");
+  xmlnode_put_attrib(event, "xmlns", NS_EVENT);
+  if (type == ROSTER_EVENT_DELIVERED)
+    xmlnode_insert_tag(event, "delivered");
+  else if (type == ROSTER_EVENT_COMPOSING)
+    xmlnode_insert_tag(event, "composing");
+  xmlnode_put_attrib(event, "id", (msgid ? msgid : ""));
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+
+  jb_reset_keepalive();
+}
+#endif
 
 //  jb_subscr_send_auth(jid)
 // Allow jid to receive our presence updates
@@ -1586,6 +1639,7 @@ void handle_state_events(char *from, xmlnode xmldata)
     else
       events = ROSTER_EVENT_NONE;
   } else {              /* JEP-0022 */
+#ifdef JEP0022
     const char *msgid;
     jep22->support = CHATSTATES_SUPPORT_OK;
     jep22->last_state_rcvd = ROSTER_EVENT_NONE;
@@ -1604,15 +1658,21 @@ void handle_state_events(char *from, xmlnode xmldata)
       events &= ~ROSTER_EVENT_COMPOSING;
     }
 
-    if (xmlnode_get_tag(state_ns, "delivered"))
-        jep22->last_state_rcvd |= ROSTER_EVENT_DELIVERED;
-
     // Cache the message id
     g_free(jep22->last_msgid_rcvd);
     if (msgid)
       jep22->last_msgid_rcvd = g_strdup(msgid);
     else
       jep22->last_msgid_rcvd = NULL;
+
+    if (xmlnode_get_tag(state_ns, "delivered")) {
+      jep22->last_state_rcvd |= ROSTER_EVENT_DELIVERED;
+
+      // Do we have to send back an ACK?
+      if (body)
+        jb_send_jep22_event(from, ROSTER_EVENT_DELIVERED);
+    }
+#endif
   }
 
   buddy_resource_setevents(sl_buddy->data, rname, events);

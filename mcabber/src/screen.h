@@ -26,6 +26,11 @@
 // Note: message length is limited by the HBB_BLOCKSIZE size too
 #define MULTILINE_MAX_LINE_NUMBER 299
 
+// When chatstates are enabled, timeout (in seconds) before "composing"
+// becomes "paused" because of user inactivity.
+// Warning: setting this very low will cause more network traffic.
+#define COMPOSING_TIMEOUT 8L
+
 enum colors {
   COLOR_GENERAL = 3,
   COLOR_MSGOUT,
@@ -91,8 +96,12 @@ inline const char *scr_get_multimode_subj(void);
 
 inline void scr_Beep(void);
 
-unsigned int scr_GetAutoAwayTimeout(time_t now);
+long int scr_GetAutoAwayTimeout(time_t now);
 void scr_CheckAutoAway(int activity);
+
+#if defined JEP0022 || defined JEP0085
+long int scr_GetChatStatesTimeout(time_t now);
+#endif
 
 // For commands...
 void scr_RosterTop(void);

@@ -170,7 +170,7 @@ void jb_main()
 {
   time_t now;
   fd_set fds;
-  long autoaway_timeout;
+  long timeout;
   struct timeval tv;
   static time_t last_eviqs_check = 0;
 
@@ -202,10 +202,19 @@ void jb_main()
     }
   }
 
-  autoaway_timeout = scr_GetAutoAwayTimeout(now);
-  if (tv.tv_sec > autoaway_timeout) {
-    tv.tv_sec = autoaway_timeout;
+  // Check auto-away timeout
+  timeout = scr_GetAutoAwayTimeout(now);
+  if (tv.tv_sec > timeout) {
+    tv.tv_sec = timeout;
   }
+
+#if defined JEP0022 || defined JEP0085
+  // Check composing timeout
+  timeout = scr_GetChatStatesTimeout(now);
+  if (tv.tv_sec > timeout) {
+    tv.tv_sec = timeout;
+  }
+#endif
 
   if (!tv.tv_sec)
     tv.tv_usec = 350000;

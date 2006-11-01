@@ -95,8 +95,9 @@ static GList *cmdhisto;
 static GList *cmdhisto_cur;
 static char   cmdhisto_backup[INPUTLINE_LENGTH+1];
 
-static int    chatstate;
+static int    chatstate; /* (0=active, 1=composing, 2=paused) */
 static bool   lock_chatstate;
+static time_t chatstate_timestamp;
 
 #define MAX_KEYSEQ_LENGTH 8
 
@@ -1369,7 +1370,7 @@ static inline void set_autoaway(bool setaway)
   }
 }
 
-unsigned int scr_GetAutoAwayTimeout(time_t now)
+long int scr_GetAutoAwayTimeout(time_t now)
 {
   enum imstatus cur_st;
   unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
@@ -1387,6 +1388,51 @@ unsigned int scr_GetAutoAwayTimeout(time_t now)
   else
     return LastActivity + (time_t)autoaway_timeout - now;
 }
+
+//  set_chatstate(state)
+// Set the current chat state (0=active, 1=composing, 2=paused)
+// If the chat state has changed, call jb_send_chatstate()
+static inline void set_chatstate(int state)
+{
+#if defined JEP0022 || defined JEP0085
+  if (!chatmode)
+    state = 0;
+  if (state != chatstate) {
+    chatstate = state;
+    if (current_buddy &&
+        buddy_gettype(BUDDATA(current_buddy)) == ROSTER_TYPE_USER) {
+      guint jep_state;
+      if (chatstate == 1)
+        jep_state = ROSTER_EVENT_COMPOSING;
+      else if (chatstate == 2)
+        jep_state = ROSTER_EVENT_PAUSED;
+      else
+        jep_state = ROSTER_EVENT_ACTIVE;
+      jb_send_chatstate(BUDDATA(current_buddy), jep_state);
+    }
+    if (!chatstate)
+      chatstate_timestamp = 0;
+  }
+#endif
+}
+
+#if defined JEP0022 || defined JEP0085
+inline long int scr_GetChatStatesTimeout(time_t now)
+{
+  // Check if we're currently composing...
+  if (chatstate != 1 || !chatstate_timestamp)
+    return 86400;
+
+  // If the timeout is reached, let's change the state right now.
+  if (now >= chatstate_timestamp + COMPOSING_TIMEOUT) {
+    chatstate_timestamp = now;
+    set_chatstate(2);
+    return 86400;
+  }
+
+ return chatstate_timestamp + COMPOSING_TIMEOUT - now;
+}
+#endif
 
 // Check if we should enter/leave automatic away status
 void scr_CheckAutoAway(int activity)
@@ -1409,30 +1455,6 @@ void scr_CheckAutoAway(int activity)
     if (!Autoaway && (now > LastActivity + (time_t)autoaway_timeout))
       set_autoaway(TRUE);
   }
-}
-
-//  set_chatstate(state)
-// Set the current chat state (0=active, 1=composing, 2=paused)
-static inline void set_chatstate(int state)
-{
-#if defined JEP0022 || defined JEP0085
-  if (!chatmode)
-    state = 0;
-  if (state != chatstate) {
-    chatstate = state;
-    if (current_buddy &&
-        buddy_gettype(BUDDATA(current_buddy)) == ROSTER_TYPE_USER) {
-      guint jep_state;
-      if (chatstate == 1)
-        jep_state = ROSTER_EVENT_COMPOSING;
-      else if (chatstate == 2)
-        jep_state = ROSTER_EVENT_PAUSED;
-      else
-        jep_state = ROSTER_EVENT_ACTIVE;
-      jb_send_chatstate(BUDDATA(current_buddy), jep_state);
-    }
-  }
-#endif
 }
 
 //  set_current_buddy(newbuddy)
@@ -2793,6 +2815,8 @@ display:
       set_chatstate(0);
     else
       set_chatstate(1);
+    if (chatstate)
+      time(&chatstate_timestamp);
   }
   return 0;
 }

@@ -67,6 +67,11 @@ set ssl = 0
 # in the roster.
 #set hide_offline_buddies = 0
 
+# Typing notifications, Chat States, Events (JEP-22/85)
+# Set disable_chatstates to 1 if you don't want to use typing notifications.
+# Note: changing this option once mcabber is running has no effect.
+#set disable_chatstates = 0
+
 # History logging
 # You can save the messages history: set logging = 1
 # You can load (read) the messages history: set load_logs = 1

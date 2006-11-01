@@ -102,6 +102,7 @@ void scr_CheckAutoAway(int activity);
 #if defined JEP0022 || defined JEP0085
 long int scr_GetChatStatesTimeout(time_t now);
 #endif
+int chatstates_disabled;
 
 // For commands...
 void scr_RosterTop(void);

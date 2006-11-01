@@ -98,6 +98,7 @@ static char   cmdhisto_backup[INPUTLINE_LENGTH+1];
 static int    chatstate; /* (0=active, 1=composing, 2=paused) */
 static bool   lock_chatstate;
 static time_t chatstate_timestamp;
+int chatstates_disabled;
 
 #define MAX_KEYSEQ_LENGTH 8
 
@@ -1397,6 +1398,8 @@ long int scr_GetAutoAwayTimeout(time_t now)
 static inline void set_chatstate(int state)
 {
 #if defined JEP0022 || defined JEP0085
+  if (chatstates_disabled)
+    return;
   if (!chatmode)
     state = 0;
   if (state != chatstate) {

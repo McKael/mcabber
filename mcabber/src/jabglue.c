@@ -461,6 +461,10 @@ void jb_send_msg(const char *jid, const char *text, int type,
   }
 
 #if defined JEP0022 || defined JEP0085
+  // If typing notifications are disabled, we can skip all this stuff...
+  if (chatstates_disabled)
+    goto jb_send_msg_no_chatstates;
+
   rname = strchr(jid, JID_RESOURCE_SEPARATOR);
   barejid = jidtodisp(jid);
   sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
@@ -523,6 +527,7 @@ void jb_send_msg(const char *jid, const char *text, int type,
   }
 #endif
 
+jb_send_msg_no_chatstates:
   xmlnode_put_attrib(x, "id", msgid);
 
   jab_send(jc, x);
@@ -668,7 +673,6 @@ void jb_send_chatstate(gpointer buddy, guint chatstate)
 #ifdef JEP0085
   jep85 = buddy_resource_jep85(buddy, NULL);
   if (jep85 && jep85->support == CHATSTATES_SUPPORT_OK) {
-    // FIXME: compare w/ last state sent...
     jb_send_jep85_chatstate(jid, chatstate);
     return;
   }
@@ -676,7 +680,6 @@ void jb_send_chatstate(gpointer buddy, guint chatstate)
 #ifdef JEP0022
   jep22 = buddy_resource_jep22(buddy, NULL);
   if (jep22 && jep22->support == CHATSTATES_SUPPORT_OK) {
-    // FIXME: compare w/ last state sent...
     jb_send_jep22_event(jid, chatstate);
   }
 #endif

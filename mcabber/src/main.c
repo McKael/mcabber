@@ -317,6 +317,8 @@ int main(int argc, char **argv)
   if (settings_opt_get_int("hide_offline_buddies") > 0)
     buddylist_set_hide_offline_buddies(TRUE);
 
+  chatstates_disabled = settings_opt_get_int("disable_chatstates");
+
   if (ret < 0) {
     scr_LogPrint(LPRINT_NORMAL, "No configuration file has been found.");
     scr_ShowBuddyWindow();

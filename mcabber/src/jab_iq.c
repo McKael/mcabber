@@ -445,19 +445,48 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
   }
 }
 
+static void handle_iq_disco_info(jconn conn, char *from, const char *id,
+                                 xmlnode xmldata)
+{
+  xmlnode x, y;
+  xmlnode myquery;
+
+  x = jutil_iqnew(JPACKET__RESULT, NS_DISCO_INFO);
+  xmlnode_put_attrib(x, "id", id);
+  xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
+  myquery = xmlnode_get_tag(x, "query");
+
+  y = xmlnode_insert_tag(myquery, "identity");
+  xmlnode_put_attrib(y, "category", "client");
+  xmlnode_put_attrib(y, "type", "pc");
+  xmlnode_put_attrib(y, "name", PACKAGE_NAME);
+
+  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
+                     "var", NS_DISCO_INFO);
+  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
+                     "var", NS_MUC);
+  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
+                     "var", NS_CHATSTATES);
+  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
+                     "var", NS_TIME);
+  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
+                     "var", NS_VERSION);
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+}
+
 static void handle_iq_version(jconn conn, char *from, const char *id,
                               xmlnode xmldata)
 {
-  xmlnode senderquery, x;
+  xmlnode x;
   xmlnode myquery;
   char *os = NULL;
   char *ver = mcabber_version();
 
-  // "from" has already been converted to user locale
   scr_LogPrint(LPRINT_LOGNORM, "Received an IQ version request from <%s>",
                from);
 
-  senderquery = xmlnode_get_tag(xmldata, "query");
   if (!settings_opt_get_int("iq_version_hide_os")) {
     struct utsname osinfo;
     uname(&osinfo);
@@ -486,7 +515,7 @@ static void handle_iq_version(jconn conn, char *from, const char *id,
 static void handle_iq_time(jconn conn, char *from, const char *id,
                               xmlnode xmldata)
 {
-  xmlnode senderquery, x;
+  xmlnode x;
   xmlnode myquery;
   char *buf, *utf8_buf;
   time_t now_t;
@@ -494,11 +523,9 @@ static void handle_iq_time(jconn conn, char *from, const char *id,
 
   time(&now_t);
 
-  // "from" has already been converted to user locale
   scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>", from);
 
   buf = g_new0(char, 512);
-  senderquery = xmlnode_get_tag(xmldata, "query");
 
   x = jutil_iqnew(JPACKET__RESULT, NS_TIME);
   xmlnode_put_attrib(x, "id", id);
@@ -544,7 +571,9 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
 
   x = xmlnode_get_tag(xmldata, "query");
   ns = xmlnode_get_attrib(x, "xmlns");
-  if (ns && !strcmp(ns, NS_VERSION)) {
+  if (ns && !strcmp(ns, NS_DISCO_INFO)) {
+    handle_iq_disco_info(conn, from, id, xmldata);
+  } else if (ns && !strcmp(ns, NS_VERSION)) {
     handle_iq_version(conn, from, id, xmldata);
   } else if (ns && !strcmp(ns, NS_TIME)) {
     handle_iq_time(conn, from, id, xmldata);

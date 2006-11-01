@@ -1752,11 +1752,7 @@ void handle_state_events(char *from, xmlnode xmldata)
     } else if (!strcmp(p, "gone")) {
       jep85->last_state_rcvd = ROSTER_EVENT_GONE;
     }
-
-    if (jep85->last_state_rcvd == ROSTER_EVENT_COMPOSING)
-      events = ROSTER_EVENT_COMPOSING;
-    else
-      events = ROSTER_EVENT_NONE;
+    events = jep85->last_state_rcvd;
   } else {              /* JEP-0022 */
 #ifdef JEP0022
     const char *msgid;

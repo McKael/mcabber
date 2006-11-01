@@ -1195,6 +1195,8 @@ void scr_DrawRoster(void)
     for ( ; resources ; resources = g_slist_next(resources) ) {
       guint events = buddy_resource_getevents(BUDDATA(buddy),
                                               resources ? resources->data : "");
+      if (events & ROSTER_EVENT_PAUSED)
+        pending = '.';
       if (events & ROSTER_EVENT_COMPOSING) {
         pending = '+';
         break;

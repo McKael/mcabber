@@ -29,7 +29,7 @@
 // When chatstates are enabled, timeout (in seconds) before "composing"
 // becomes "paused" because of user inactivity.
 // Warning: setting this very low will cause more network traffic.
-#define COMPOSING_TIMEOUT 8L
+#define COMPOSING_TIMEOUT 6L
 
 enum colors {
   COLOR_GENERAL = 3,

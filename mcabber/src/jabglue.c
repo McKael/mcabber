@@ -442,7 +442,7 @@ void jb_send_msg(const char *jid, const char *text, int type,
   xmlnode event;
   char *rname, *barejid;
   GSList *sl_buddy;
-  guint which_jep = 0; /* 0: none, 1: 85, 2: 22 */
+  guint use_jep85 = 0;
   struct jep0085 *jep85 = NULL;
 #endif
 
@@ -493,7 +493,7 @@ void jb_send_msg(const char *jid, const char *text, int type,
     if (jep85->support == CHATSTATES_SUPPORT_UNKNOWN)
       jep85->support = CHATSTATES_SUPPORT_PROBED;
     else
-      which_jep = 1;
+      use_jep85 = 1;
     jep85->last_state_sent = ROSTER_EVENT_ACTIVE;
   }
 #endif
@@ -502,7 +502,7 @@ void jb_send_msg(const char *jid, const char *text, int type,
    * If the Contact supports JEP-0085, we do not use JEP-0022.
    * If not, we try to fall back to JEP-0022.
    */
-  if (!which_jep) {
+  if (!use_jep85) {
     struct jep0022 *jep22 = NULL;
     event = xmlnode_insert_tag(x, "x");
     xmlnode_put_attrib(event, "xmlns", NS_EVENT);
@@ -660,6 +660,9 @@ static void jb_send_jep22_event(const char *jid, guint type)
 }
 #endif
 
+//  jb_send_chatstate(buddy, state)
+// Send a chatstate or event (JEP-22/85) according to the buddy's capabilities.
+// The message is sent to one of the resources with the highest priority.
 #if defined JEP0022 || defined JEP0085
 void jb_send_chatstate(gpointer buddy, guint chatstate)
 {
@@ -1699,36 +1702,43 @@ void handle_state_events(char *from, xmlnode xmldata)
   char *rname, *jid;
   GSList *sl_buddy;
   guint events;
-  guint which_jep = 0; /* 0: none, 1: 85, 2: 22 */
   struct jep0022 *jep22 = NULL;
   struct jep0085 *jep85 = NULL;
+  enum {
+    JEP_none,
+    JEP_85,
+    JEP_22
+  } which_jep = JEP_none;
 
   rname = strchr(from, JID_RESOURCE_SEPARATOR);
   jid   = jidtodisp(from);
   sl_buddy = roster_find(jid, jidsearch, ROSTER_TYPE_USER);
 
   /* XXX Actually that's wrong, since it filters out server "offline"
-     messages (for JEP-0022) */
+     messages (for JEP-0022).  This JEP is (almost) deprecated so
+     we don't really care. */
   if (!sl_buddy || !rname++) {
     g_free(jid);
     return;
   }
 
+  /* Let's see chich JEP the contact uses.  If possible, we'll use
+     JEP-85, if not we'll look for JEP-22 support. */
   events = buddy_resource_getevents(sl_buddy->data, rname);
 
   jep85 = buddy_resource_jep85(sl_buddy->data, rname);
   if (jep85) {
     state_ns = xml_get_xmlns(xmldata, NS_CHATSTATES);
     if (state_ns)
-      which_jep = 1;
+      which_jep = JEP_85;
   }
 
-  if (which_jep != 1) { /* Fall back to JEP-0022 */
+  if (which_jep != JEP_85) { /* Fall back to JEP-0022 */
     jep22 = buddy_resource_jep22(sl_buddy->data, rname);
     if (jep22) {
       state_ns = xml_get_xmlns(xmldata, NS_EVENT);
       if (state_ns)
-        which_jep = 2;
+        which_jep = JEP_22;
     }
   }
 
@@ -1739,7 +1749,7 @@ void handle_state_events(char *from, xmlnode xmldata)
 
   body = xmlnode_get_tag_data(xmldata, "body");
 
-  if (which_jep == 1) { /* JEP-0085 */
+  if (which_jep == JEP_85) { /* JEP-0085 */
     const char *p;
     jep85->support = CHATSTATES_SUPPORT_OK;
 

@@ -2841,6 +2841,8 @@ display:
   refresh_inputline();
 
   if (!lock_chatstate) {
+    // Set chat state to composing (1) if the user is currently composing,
+    // i.e. not an empty line and not a command line.
     if (inputLine[0] == 0 || inputLine[0] == COMMAND_CHAR)
       set_chatstate(0);
     else

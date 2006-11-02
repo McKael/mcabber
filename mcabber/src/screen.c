@@ -1089,6 +1089,31 @@ void scr_UpdateChatStatus(int forceupdate)
   g_free(buf_locale);
   g_free(buf);
 
+  // Display chatstates of the contact, if available.
+  if (btype & ROSTER_TYPE_USER) {
+    char eventchar = 0;
+    guint event;
+
+    // We do not specify the resource here, so one of the resources with the
+    // highest priority will be used.
+    event = buddy_resource_getevents(BUDDATA(current_buddy), NULL);
+
+    if (event == ROSTER_EVENT_ACTIVE)
+      eventchar = 'A';
+    else if (event == ROSTER_EVENT_COMPOSING)
+      eventchar = 'C';
+    else if (event == ROSTER_EVENT_PAUSED)
+      eventchar = 'P';
+    else if (event == ROSTER_EVENT_INACTIVE)
+      eventchar = 'I';
+    else if (event == ROSTER_EVENT_GONE)
+      eventchar = 'G';
+
+    if (eventchar)
+      mvwprintw(chatstatusWnd, 0, maxX-3, "[%c]", eventchar);
+  }
+
+
   if (forceupdate) {
     update_panels();
   }

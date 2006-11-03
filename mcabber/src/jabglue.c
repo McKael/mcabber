@@ -462,7 +462,7 @@ void jb_send_msg(const char *jid, const char *text, int type,
 
 #if defined JEP0022 || defined JEP0085
   // If typing notifications are disabled, we can skip all this stuff...
-  if (chatstates_disabled)
+  if (chatstates_disabled || type == ROSTER_TYPE_ROOM)
     goto jb_send_msg_no_chatstates;
 
   rname = strchr(jid, JID_RESOURCE_SEPARATOR);

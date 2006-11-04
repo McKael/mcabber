@@ -689,6 +689,38 @@ void jb_send_chatstate(gpointer buddy, guint chatstate)
 }
 #endif
 
+//  chatstates_reset_probed(fulljid)
+// If the JEP has been probed for this contact, set it back to unknown so
+// that we probe it again.  The parameter must be a full jid (w/ resource).
+#if defined JEP0022 || defined JEP0085
+static void chatstates_reset_probed(const char *fulljid)
+{
+  char *rname, *barejid;
+  GSList *sl_buddy;
+  struct jep0085 *jep85;
+  struct jep0022 *jep22;
+
+  rname = strchr(fulljid, JID_RESOURCE_SEPARATOR);
+  if (!rname++)
+    return;
+
+  barejid = jidtodisp(fulljid);
+  sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
+  g_free(barejid);
+
+  if (!sl_buddy)
+    return;
+
+  jep85 = buddy_resource_jep85(sl_buddy->data, rname);
+  jep22 = buddy_resource_jep22(sl_buddy->data, rname);
+
+  if (jep85 && jep85->support == CHATSTATES_SUPPORT_PROBED)
+    jep85->support = CHATSTATES_SUPPORT_UNKNOWN;
+  if (jep22 && jep22->support == CHATSTATES_SUPPORT_PROBED)
+    jep22->support = CHATSTATES_SUPPORT_UNKNOWN;
+}
+#endif
+
 //  jb_subscr_send_auth(jid)
 // Allow jid to receive our presence updates
 void jb_subscr_send_auth(const char *jid)
@@ -1688,6 +1720,11 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   if (type && !strcmp(type, TMSG_ERROR)) {
     if ((x = xmlnode_get_tag(xmldata, TMSG_ERROR)) != NULL)
       display_server_error(x);
+#if defined JEP0022 || defined JEP0085
+    // If the JEP85/22 support is probed, set it back to unknown so that
+    // we probe it again.
+    chatstates_reset_probed(from);
+#endif
   }
   if (from && body)
     gotmessage(type, from, body, enc, timestamp);

@@ -36,6 +36,8 @@
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
 
+#define RECONNECTION_TIMEOUT    60L
+
 jconn jc;
 enum enum_jstate jstate;
 
@@ -43,6 +45,7 @@ char imstatus2char[imstatus_size+1] = {
     '_', 'o', 'i', 'f', 'd', 'n', 'a', '\0'
 };
 
+static bool AutoConnection;
 static time_t LastPingTime;
 static unsigned int KeepaliveDelay;
 static enum imstatus mystatus = offline;
@@ -122,6 +125,9 @@ jconn jb_connect(const char *jid, const char *server, unsigned int port,
     jab_start(jc);
   }
 
+  if (jc)
+    AutoConnection = true;
+
   return jc;
 }
 
@@ -141,6 +147,7 @@ void jb_disconnect(void)
 
   jab_delete(jc);
   jc = NULL;
+  AutoConnection = false;
 }
 
 inline void jb_reset_keepalive()
@@ -166,16 +173,48 @@ void jb_set_keepalive_delay(unsigned int delay)
   KeepaliveDelay = delay;
 }
 
+//  check_connection()
+// Check if we've been disconnected for a while (predefined timeout),
+// and if so try to reconnect.
+static void check_connection(void)
+{
+  static time_t disconnection_timestamp = 0L;
+  time_t now;
+
+  // Are we totally disconnected?
+  if (jc && jc->state != JCONN_STATE_OFF) {
+    disconnection_timestamp = 0L;
+    return;
+  }
+
+  // Maybe we're voluntarily offline...
+  if (!AutoConnection)
+    return;
+
+  time(&now);
+  if (!disconnection_timestamp) {
+    disconnection_timestamp = now;
+    return;
+  }
+
+  // If the reconnection_timeout is reached, try to reconnect.
+  if (now > disconnection_timestamp + RECONNECTION_TIMEOUT) {
+    mcabber_connect();
+    disconnection_timestamp = 0L;
+  }
+}
+
 void jb_main()
 {
   time_t now;
   fd_set fds;
   long timeout;
   struct timeval tv;
-  static time_t last_eviqs_check = 0;
+  static time_t last_eviqs_check = 0L;
 
   if (!online) {
     safe_usleep(10000);
+    check_connection();
     return;
   }
 
@@ -1583,7 +1622,7 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   const char *rname;
   enum imstatus ust;
   char bpprio;
-  time_t timestamp = 0;
+  time_t timestamp = 0L;
   xmlnode muc_packet;
 
   rname = strchr(from, JID_RESOURCE_SEPARATOR);
@@ -1662,7 +1701,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   char *body = NULL;
   char *enc = NULL;
   char *tmp = NULL;
-  time_t timestamp = 0;
+  time_t timestamp = 0L;
 
   body = xmlnode_get_tag_data(xmldata, "body");
 

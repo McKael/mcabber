@@ -43,6 +43,7 @@ void iqs_check_timeout(time_t now_t);
 void iqscallback_auth(eviqs *iqp, xmlnode xml_result);
 void request_version(const char *fulljid);
 void request_time(const char *fulljid);
+void request_vcard(const char *barejid);
 
 #endif /* __JAB_PRIV_H__ */
 

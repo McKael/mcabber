@@ -212,6 +212,7 @@ void cmd_init(void)
 
   // Request (query) category
   compl_add_category_word(COMPL_REQUEST, "time");
+  compl_add_category_word(COMPL_REQUEST, "vcard");
   compl_add_category_word(COMPL_REQUEST, "version");
 
   // Events category
@@ -2217,6 +2218,8 @@ static void do_request(char *arg)
       numtype = iqreq_version;
     else if (!strcasecmp(type, "time"))
       numtype = iqreq_time;
+    else if (!strcasecmp(type, "vcard"))
+      numtype = iqreq_vcard;
     else if (!strcasecmp(type, "show_list")) {
       // Undocumented command, for debugging purposes only
       jb_iqs_display_list();
@@ -2260,6 +2263,7 @@ static void do_request(char *arg)
     switch (numtype) {
       case iqreq_version:
       case iqreq_time:
+      case iqreq_vcard:
           jb_request(jid, numtype);
           break;
       default:

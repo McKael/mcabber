@@ -355,6 +355,132 @@ void request_time(const char *fulljid)
   jab_send(jc, iqn->xmldata);
 }
 
+static void handle_vcard_node(const char *barejid, xmlnode vcardnode)
+{
+  xmlnode x;
+  const char *p;
+  char *buf;
+
+  x = xmlnode_get_firstchild(vcardnode);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    const char *title, *data;
+    p = xmlnode_get_name(x);
+    data = xmlnode_get_data(x);
+    if (p && data) {
+      title = NULL;
+      if (!strcmp(p, "FN"))
+        title = "Name";
+      else if (!strcmp(p, "NICKNAME"))
+        title = "Nickname";
+      else if (!strcmp(p, "URL"))
+        title = "URL";
+      else if (!strcmp(p, "BDAY"))
+        title = "Birthday";
+      else if (!strcmp(p, "TZ"))
+        title = "Timezone";
+      else if (!strcmp(p, "TITLE"))
+        title = "Title";
+      else if (!strcmp(p, "ROLE"))
+        title = "Role";
+      else if (!strcmp(p, "DESC"))
+        title = "Comment";
+      else if (!strcmp(p, "N")) {
+        data = xmlnode_get_tag_data(x, "FAMILY");
+        if (data) {
+          buf = g_strdup_printf("Family Name: %s", data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+        data = xmlnode_get_tag_data(x, "GIVEN");
+        if (data) {
+          buf = g_strdup_printf("Given Name: %s", data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+        data = xmlnode_get_tag_data(x, "MIDDLE");
+        if (data) {
+          buf = g_strdup_printf("Middle Name: %s", data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+      } else if (!strcmp(p, "ADR")) {   // TODO
+      } else if (!strcmp(p, "TEL")) {   // TODO
+      } else if (!strcmp(p, "EMAIL")) {
+        data = xmlnode_get_tag_data(x, "USERID");
+        if (data)
+          title = "Email"; // XXX
+      } else if (!strcmp(p, "ORG")) {   // TODO
+      }
+
+      if (title) {
+        buf = g_strdup_printf("%s: %s", title, data);
+        scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+        g_free(buf);
+      }
+    }
+  }
+}
+
+static void iqscallback_vcard(eviqs *iqp, xmlnode xml_result, guint iqcontext)
+{
+  xmlnode ansqry;
+  char *p;
+  char *bjid;
+  char *buf;
+
+  // Leave now if we cannot process xml_result
+  if (!xml_result || iqcontext) return;
+
+  // Display IQ result sender...
+  p = xmlnode_get_attrib(xml_result, "from");
+  if (!p) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:vCard result (no sender name).");
+    return;
+  }
+  bjid = p;
+
+  buf = g_strdup_printf("Received IQ:vCard result from <%s>", bjid);
+  scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+
+  // Get the vCard node
+  ansqry = xmlnode_get_tag(xml_result, "vCard");
+  if (!ansqry) {
+    scr_LogPrint(LPRINT_LOGNORM, "Empty IQ:vCard result!");
+    return;
+  }
+
+  // bjid should really be the "bare JID", let's strip the resource
+  p = strchr(bjid, JID_RESOURCE_SEPARATOR);
+  if (p) *p = '\0';
+
+  scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+  g_free(buf);
+
+  // Get result data...
+  handle_vcard_node(bjid, ansqry);
+}
+
+void request_vcard(const char *jid)
+{
+  eviqs *iqn;
+  char *barejid;
+
+  barejid = jidtodisp(jid);
+
+  // Create a new IQ structure.  We use NULL for the namespace because
+  // we'll have to use a special tag, not the usual "query" one.
+  iqn = iqs_new(JPACKET__GET, NULL, "vcard", IQS_DEFAULT_TIMEOUT);
+  xmlnode_put_attrib(iqn->xmldata, "to", barejid);
+  // Remove the useless <query/> tag, and insert a vCard one.
+  xmlnode_hide(xmlnode_get_tag(iqn->xmldata, "query"));
+  xmlnode_put_attrib(xmlnode_insert_tag(iqn->xmldata, "vCard"),
+                     "xmlns", NS_VCARD);
+  iqn->callback = &iqscallback_vcard;
+  jab_send(jc, iqn->xmldata);
+
+  g_free(barejid);
+}
+
 void iqscallback_auth(eviqs *iqp, xmlnode xml_result)
 {
   if (jstate == STATE_GETAUTH) {
@@ -391,19 +517,6 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
 
   if (!iqs_callback(id, xmldata, IQS_CONTEXT_RESULT))
     return;
-
-  /*
-  if (!strcmp(id, "VCARDreq")) {
-    x = xmlnode_get_firstchild(xmldata);
-    if (!x) x = xmldata;
-
-    scr_LogPrint(LPRINT_LOGNORM, "Got VCARD");    // TODO
-    return;
-  } else if (!strcmp(id, "versionreq")) {
-    scr_LogPrint(LPRINT_LOGNORM, "Got version");  // TODO
-    return;
-  }
-  */
 
   x = xmlnode_get_tag(xmldata, "query");
   if (!x) return;

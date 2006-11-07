@@ -925,8 +925,19 @@ void jb_request(const char *jid, enum iqreq_type reqtype)
   } else if (reqtype == iqreq_time) {
     request_fn = &request_time;
     strreqtype = "time";
+  } else if (reqtype == iqreq_vcard) {
+    // Special case
   } else
     return;
+
+  // vCard request
+  if (reqtype == iqreq_vcard) {
+    char *bjid = jidtodisp(jid);
+    request_vcard(bjid);
+    scr_LogPrint(LPRINT_NORMAL, "Sent vCard request to <%s>", bjid);
+    g_free(bjid);
+    return;
+  }
 
   if (strchr(jid, JID_RESOURCE_SEPARATOR)) {
     // This is a full JID

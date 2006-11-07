@@ -29,7 +29,8 @@ enum agtype {
 enum iqreq_type {
   iqreq_none,
   iqreq_version,
-  iqreq_time
+  iqreq_time,
+  iqreq_vcard
 };
 
 char *compose_jid(const char *username, const char *servername,

@@ -481,6 +481,93 @@ void request_vcard(const char *jid)
   g_free(barejid);
 }
 
+static void storage_bookmarks_parse_conference(xmlnode xmldata)
+{
+  const char *jid, *name, *autojoin;
+  char *bjid;
+  GSList *room_elt;
+
+  jid = xmlnode_get_attrib(xmldata, "jid");
+  if (!jid)
+    return;
+  name = xmlnode_get_attrib(xmldata, "name");
+  autojoin = xmlnode_get_attrib(xmldata, "autojoin");
+
+  bjid = jidtodisp(jid); // Bare jid
+
+  // Make sure this is a room (it can be a conversion user->room)
+  room_elt = roster_find(bjid, jidsearch, 0);
+  if (!room_elt) {
+    room_elt = roster_add_user(bjid, name, NULL, ROSTER_TYPE_ROOM, sub_none);
+  } else {
+    buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
+    /*
+    // If the name is available, should we use it?
+    // I don't think so, it would be confusing because this item is already
+    // in the roster.
+    if (name)
+      buddy_setname(room_elt->data, name);
+    */
+  }
+
+  // Is autojoin set?
+  // If it is, we'll look up for more information (nick? password?) and
+  // try to join the room.
+  if (autojoin && !strcmp(autojoin, "1")) {
+    char *nick, *passwd;
+    char *tmpnick = NULL;
+    nick = xmlnode_get_tag_data(xmldata, "nick");
+    passwd = xmlnode_get_tag_data(xmldata, "password");
+    if (!nick || !*nick)
+      nick = tmpnick = default_muc_nickname();
+    // Let's join now
+    scr_LogPrint(LPRINT_LOGNORM, "Auto-join bookmark <%s>", bjid);
+    jb_room_join(bjid, nick, passwd);
+    g_free(tmpnick);
+  }
+  g_free(bjid);
+}
+
+static void iqscallback_storage_bookmarks(eviqs *iqp, xmlnode xml_result,
+                                          guint iqcontext)
+{
+  xmlnode x, ansqry;
+  char *p;
+
+  // Leave now if we cannot process xml_result
+  if (!xml_result || iqcontext) return;
+
+  ansqry = xmlnode_get_tag(xml_result, "query");
+  ansqry = xmlnode_get_tag(ansqry, "storage");
+  if (!ansqry) {
+    scr_LogPrint(LPRINT_LOG, "Invalid IQ:private result! (storage:bookmarks)");
+    return;
+  }
+
+  // Walk through the storage tags
+  x = xmlnode_get_firstchild(ansqry);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    p = xmlnode_get_name(x);
+    // If the current node is a conference item, parse it and update the roster
+    if (p && !strcmp(p, "conference"))
+      storage_bookmarks_parse_conference(x);
+  }
+}
+
+static void request_storage_bookmarks(void)
+{
+  eviqs *iqn;
+  xmlnode x;
+
+  iqn = iqs_new(JPACKET__GET, NS_PRIVATE, "storage", IQS_DEFAULT_TIMEOUT);
+
+  x = xmlnode_insert_tag(xmlnode_get_tag(iqn->xmldata, "query"), "storage");
+  xmlnode_put_attrib(x, "xmlns", "storage:bookmarks");
+
+  iqn->callback = &iqscallback_storage_bookmarks;
+  jab_send(jc, iqn->xmldata);
+}
+
 void iqscallback_auth(eviqs *iqp, xmlnode xml_result)
 {
   if (jstate == STATE_GETAUTH) {
@@ -499,6 +586,7 @@ void iqscallback_auth(eviqs *iqp, xmlnode xml_result)
     jstate = STATE_SENDAUTH;
   } else if (jstate == STATE_SENDAUTH) {
     request_roster();
+    request_storage_bookmarks();
     jstate = STATE_LOGGED;
   }
 }

@@ -35,6 +35,8 @@ void    settings_foreach(guint type,
                          void (*pfunc)(void *param, char *k, char *v),
                          void *param);
 
+char *default_muc_nickname(void);
+
 const gchar *isbound(int key);
 
 #endif /* __SETTINGS_H__ */

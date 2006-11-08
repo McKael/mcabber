@@ -345,4 +345,26 @@ void settings_foreach(guint type, void (*pfunc)(void *param, char *k, char *v),
   }
 }
 
+
+//  default_muc_nickname()
+// Return the user's default nickname
+// The caller should free the string after use
+char *default_muc_nickname(void)
+{
+  char *nick;
+
+  // We try the "nickname" option, then the username part of the jid.
+  nick = (char*)settings_opt_get("nickname");
+  if (nick)
+    return g_strdup(nick);
+
+  nick = g_strdup(settings_opt_get("username"));
+  if (nick) {
+    char *p = strchr(nick, JID_DOMAIN_SEPARATOR);
+    if (p > nick)
+      *p = 0;
+  }
+  return nick;
+}
+
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

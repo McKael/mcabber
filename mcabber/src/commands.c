@@ -1568,7 +1568,6 @@ static void room_join(gpointer bud, char *arg)
 {
   char **paramlst;
   char *roomname, *nick, *pass, *roomname_tmp;
-  char *tmpnick = NULL;
   char *pass_utf8;
 
   paramlst = split_arg(arg, 3, 0); // roomid, nickname, password
@@ -1597,25 +1596,15 @@ static void room_join(gpointer bud, char *arg)
   }
 
   // If no nickname is provided with the /join command,
-  // we try the "nickname" option, then the username part of the jid.
-  if (!nick || !*nick) {
-    nick = (char*)settings_opt_get("nickname");
-    if (!nick) {
-      nick = (char*)settings_opt_get("username");
-      if (nick && (strchr(nick, JID_DOMAIN_SEPARATOR) > nick)) {
-        char *p;
-        nick = tmpnick = g_strdup(nick);
-        p = strchr(nick, JID_DOMAIN_SEPARATOR);
-        *p = 0;
-      }
-    }
-  } else {
-    nick = tmpnick = to_utf8(nick);
-  }
+  // we try to get a default nickname.
+  if (!nick || !*nick)
+    nick = default_muc_nickname();
+  else
+    nick = to_utf8(nick);
   // If we still have no nickname, give up
   if (!nick || !*nick) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify a nickname.");
-    g_free(tmpnick);
+    g_free(nick);
     free_arg_lst(paramlst);
     return;
   }
@@ -1632,7 +1621,7 @@ static void room_join(gpointer bud, char *arg)
   scr_LogPrint(LPRINT_LOGNORM, "Sent a join request to <%s>...", roomname);
 
   g_free(roomname);
-  g_free(tmpnick);
+  g_free(nick);
   g_free(pass_utf8);
   buddylist_build();
   update_roster = TRUE;

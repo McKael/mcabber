@@ -403,13 +403,160 @@ static void handle_vcard_node(const char *barejid, xmlnode vcardnode)
           scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
           g_free(buf);
         }
-      } else if (!strcmp(p, "ADR")) {   // TODO
-      } else if (!strcmp(p, "TEL")) {   // TODO
+      } else if (!strcmp(p, "ADR")) {
+        enum {
+          adr_home  = 1<<0,
+          adr_work  = 1<<1,
+          adr_postal = 1<<2,
+          adr_pref   = 1<<3,
+        } adr_attrib = 0;
+        if (xmlnode_get_tag(x, "HOME"))
+          adr_attrib |= adr_home;
+        if (xmlnode_get_tag(x, "WORK"))
+          adr_attrib |= adr_work;
+        if (xmlnode_get_tag(x, "POSTAL"))
+          adr_attrib |= adr_postal;
+        if (xmlnode_get_tag(x, "PREF"))
+          adr_attrib |= adr_pref;
+        data = xmlnode_get_tag_data(x, "EXTADD");   // Ext. Address
+        if (data) {
+          buf = g_strdup_printf("Addr (ext): %s%s%s%s %s",
+                                (adr_attrib & adr_home ? "[home]" : ""),
+                                (adr_attrib & adr_work ? "[work]" : ""),
+                                (adr_attrib & adr_postal ? "[voice]" : ""),
+                                (adr_attrib & adr_pref ? "[pref]" : ""),
+                                data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+        data = xmlnode_get_tag_data(x, "STREET");   // Street
+        if (data) {
+          buf = g_strdup_printf("Street: %s%s%s%s %s",
+                                (adr_attrib & adr_home ? "[home]" : ""),
+                                (adr_attrib & adr_work ? "[work]" : ""),
+                                (adr_attrib & adr_postal ? "[voice]" : ""),
+                                (adr_attrib & adr_pref ? "[pref]" : ""),
+                                data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+        data = xmlnode_get_tag_data(x, "LOCALITY"); // Locality
+        if (data) {
+          buf = g_strdup_printf("Locality: %s%s%s%s %s",
+                                (adr_attrib & adr_home ? "[home]" : ""),
+                                (adr_attrib & adr_work ? "[work]" : ""),
+                                (adr_attrib & adr_postal ? "[voice]" : ""),
+                                (adr_attrib & adr_pref ? "[pref]" : ""),
+                                data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+        data = xmlnode_get_tag_data(x, "REGION");   // Region
+        if (data) {
+          buf = g_strdup_printf("Region: %s%s%s%s %s",
+                                (adr_attrib & adr_home ? "[home]" : ""),
+                                (adr_attrib & adr_work ? "[work]" : ""),
+                                (adr_attrib & adr_postal ? "[voice]" : ""),
+                                (adr_attrib & adr_pref ? "[pref]" : ""),
+                                data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+        data = xmlnode_get_tag_data(x, "PCODE");    // Postal Code
+        if (data) {
+          buf = g_strdup_printf("Postal code: %s%s%s%s %s",
+                                (adr_attrib & adr_home ? "[home]" : ""),
+                                (adr_attrib & adr_work ? "[work]" : ""),
+                                (adr_attrib & adr_postal ? "[voice]" : ""),
+                                (adr_attrib & adr_pref ? "[pref]" : ""),
+                                data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+        data = xmlnode_get_tag_data(x, "CTRY");     // Country
+        if (data) {
+          buf = g_strdup_printf("Country: %s%s%s%s %s",
+                                (adr_attrib & adr_home ? "[home]" : ""),
+                                (adr_attrib & adr_work ? "[work]" : ""),
+                                (adr_attrib & adr_postal ? "[voice]" : ""),
+                                (adr_attrib & adr_pref ? "[pref]" : ""),
+                                data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+      } else if (!strcmp(p, "TEL")) {
+        enum {
+          tel_home  = 1<<0,
+          tel_work  = 1<<1,
+          tel_voice = 1<<2,
+          tel_fax   = 1<<3,
+          tel_cell  = 1<<4,
+          tel_pref  = 1<<5
+        } tel_attrib = 0;
+        data = xmlnode_get_tag_data(x, "NUMBER");
+        if (data) {
+          if (xmlnode_get_tag(x, "HOME"))
+            tel_attrib |= tel_home;
+          if (xmlnode_get_tag(x, "WORK"))
+            tel_attrib |= tel_work;
+          if (xmlnode_get_tag(x, "VOICE"))
+            tel_attrib |= tel_voice;
+          if (xmlnode_get_tag(x, "FAX"))
+            tel_attrib |= tel_fax;
+          if (xmlnode_get_tag(x, "CELL"))
+            tel_attrib |= tel_cell;
+          if (xmlnode_get_tag(x, "PREF"))
+            tel_attrib |= tel_pref;
+          buf = g_strdup_printf("Phone: %s%s%s%s%s%s %s",
+                                (tel_attrib & tel_home ? "[home]" : ""),
+                                (tel_attrib & tel_work ? "[work]" : ""),
+                                (tel_attrib & tel_voice ? "[voice]" : ""),
+                                (tel_attrib & tel_fax  ? "[fax]"  : ""),
+                                (tel_attrib & tel_cell ? "[cell]" : ""),
+                                (tel_attrib & tel_pref ? "[pref]" : ""),
+                                data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
       } else if (!strcmp(p, "EMAIL")) {
+        enum {
+          email_home = 1<<0,
+          email_work = 1<<1,
+          email_inet = 1<<2,
+          email_pref = 1<<3
+        } email_attrib = 0;
         data = xmlnode_get_tag_data(x, "USERID");
-        if (data)
-          title = "Email"; // XXX
-      } else if (!strcmp(p, "ORG")) {   // TODO
+        if (data) {
+          if (xmlnode_get_tag(x, "HOME"))
+            email_attrib |= email_home;
+          if (xmlnode_get_tag(x, "WORK"))
+            email_attrib |= email_work;
+          if (xmlnode_get_tag(x, "INTERNET"))
+            email_attrib |= email_inet;
+          if (xmlnode_get_tag(x, "PREF"))
+            email_attrib |= email_pref;
+          buf = g_strdup_printf("Email: %s%s%s%s %s",
+                                (email_attrib & email_home ? "[home]" : ""),
+                                (email_attrib & email_work ? "[work]" : ""),
+                                (email_attrib & email_inet ? "[inet]" : ""),
+                                (email_attrib & email_pref ? "[pref]" : ""),
+                                data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+      } else if (!strcmp(p, "ORG")) {
+        data = xmlnode_get_tag_data(x, "ORGNAME");
+        if (data) {
+          buf = g_strdup_printf("Organisation name: %s", data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
+        data = xmlnode_get_tag_data(x, "ORGUNIT");
+        if (data) {
+          buf = g_strdup_printf("Organisation unit: %s", data);
+          scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_NONE);
+          g_free(buf);
+        }
       }
 
       if (title) {

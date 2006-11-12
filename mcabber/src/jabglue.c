@@ -1512,7 +1512,6 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     g_free(mbuf);
     // Send back an unavailable packet
     jb_setstatus(offline, roomjid, "");
-    buddylist_build();
     scr_DrawRoster();
     return;
   }
@@ -1682,7 +1681,6 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   } else
     scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
 
-  buddylist_build();
   scr_DrawRoster();
 }
 
@@ -2087,10 +2085,8 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     newbuddy = FALSE;
   }
 
-  if (newbuddy) {
-    buddylist_build();
+  if (newbuddy)
     update_roster = TRUE;
-  }
   g_free(r);
 }
 

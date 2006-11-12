@@ -615,7 +615,7 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
       // ROSTER_FLAG_MSG should already be set...
   }
 
-  if (buddylist && new_roster_item)
+  if (buddylist && (new_roster_item || !g_list_find(buddylist, roster_usr)))
     buddylist_build();
 }
 

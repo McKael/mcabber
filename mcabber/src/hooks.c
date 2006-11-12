@@ -148,13 +148,12 @@ inline void hk_message_in(const char *jid, const char *resname,
     scr_Beep();
   }
 
-  // We need to rebuild the list if the sender is unknown or
+  // We need to update the roster if the sender is unknown or
   // if the sender is offline/invisible and hide_offline_buddies is set
   if (new_guy ||
       (buddy_getstatus(roster_usr->data, NULL) == offline &&
        buddylist_get_hide_offline_buddies()))
   {
-    buddylist_build();
     update_roster = TRUE;
   }
 

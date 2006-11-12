@@ -1568,7 +1568,8 @@ static char *check_room_subcommand(char *arg, bool param_needed,
 static void room_join(gpointer bud, char *arg)
 {
   char **paramlst;
-  char *roomname, *nick, *pass, *roomname_tmp;
+  char *roomname, *nick, *pass;
+  char *roomname_tmp = NULL;
   char *pass_utf8;
 
   paramlst = split_arg(arg, 3, 0); // roomid, nickname, password
@@ -1576,6 +1577,8 @@ static void room_join(gpointer bud, char *arg)
   nick = *(paramlst+1);
   pass = *(paramlst+2);
 
+  if (!roomname)
+    nick = NULL;
   if (!nick)
     pass = NULL;
 
@@ -1587,13 +1590,16 @@ static void room_join(gpointer bud, char *arg)
       free_arg_lst(paramlst);
       return;
     }
-    if (!roomname)
-      nick = NULL;
     roomname = (char*)buddy_getjid(bud);
   } else if (strchr(roomname, '/')) {
     scr_LogPrint(LPRINT_NORMAL, "Invalid room name.");
     free_arg_lst(paramlst);
     return;
+  } else {
+    // The room id has been specified.  Let's convert it and use it.
+    roomname_tmp = to_utf8(roomname);
+    mc_strtolower(roomname_tmp);
+    roomname = roomname_tmp;
   }
 
   // If no nickname is provided with the /join command,
@@ -1612,16 +1618,11 @@ static void room_join(gpointer bud, char *arg)
 
   pass_utf8 = to_utf8(pass);
 
-  roomname_tmp = g_strdup(roomname);
-  mc_strtolower(roomname_tmp);
-  roomname = to_utf8(roomname_tmp);
-  g_free(roomname_tmp);
-
   jb_room_join(roomname, nick, pass_utf8);
 
   scr_LogPrint(LPRINT_LOGNORM, "Sent a join request to <%s>...", roomname);
 
-  g_free(roomname);
+  g_free(roomname_tmp);
   g_free(nick);
   g_free(pass_utf8);
   buddylist_build();

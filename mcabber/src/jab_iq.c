@@ -679,7 +679,7 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
     // Post-login stuff
     // Usually we request the roster only at connection time
     // so we should be there only once.  (That's ugly, however)
-    jb_setstatus(available, NULL, NULL);
+    jb_setprevstatus();
   }
 }
 

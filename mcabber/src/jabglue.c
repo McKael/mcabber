@@ -39,16 +39,17 @@
 #define RECONNECTION_TIMEOUT    60L
 
 jconn jc;
+guint AutoConnection;
 enum enum_jstate jstate;
 
 char imstatus2char[imstatus_size+1] = {
     '_', 'o', 'i', 'f', 'd', 'n', 'a', '\0'
 };
 
-static bool AutoConnection;
 static time_t LastPingTime;
 static unsigned int KeepaliveDelay;
 static enum imstatus mystatus = offline;
+static enum imstatus mywantedstatus = available;
 static gchar *mystatusmsg;
 static unsigned char online;
 
@@ -125,9 +126,6 @@ jconn jb_connect(const char *jid, const char *server, unsigned int port,
     jab_start(jc);
   }
 
-  if (jc)
-    AutoConnection = true;
-
   return jc;
 }
 
@@ -140,6 +138,11 @@ void jb_disconnect(void)
     jb_setstatus(offline, NULL, "");
     // End the XML flow
     jb_send_raw("</stream:stream>");
+    /*
+    // Free status message
+    g_free(mystatusmsg);
+    mystatusmsg = NULL;
+    */
   }
 
   // Announce it to the user
@@ -147,7 +150,6 @@ void jb_disconnect(void)
 
   jab_delete(jc);
   jc = NULL;
-  AutoConnection = false;
 }
 
 inline void jb_reset_keepalive()
@@ -181,15 +183,15 @@ static void check_connection(void)
   static time_t disconnection_timestamp = 0L;
   time_t now;
 
+  // Maybe we're voluntarily offline...
+  if (!AutoConnection)
+    return;
+
   // Are we totally disconnected?
   if (jc && jc->state != JCONN_STATE_OFF) {
     disconnection_timestamp = 0L;
     return;
   }
-
-  // Maybe we're voluntarily offline...
-  if (!AutoConnection)
-    return;
 
   time(&now);
   if (!disconnection_timestamp) {
@@ -404,8 +406,6 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 {
   xmlnode x;
 
-  if (!online) return;
-
   if (msg) {
     // The status message has been specified.  We'll use it, unless it is
     // "-" which is a special case (option meaning "no status message").
@@ -425,28 +425,39 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
     }
   }
 
-  x = presnew(st, recipient, (st != invisible ? msg : NULL));
-  jab_send(jc, x);
-  xmlnode_free(x);
+  // Only send the packet if we're online.
+  // (But we want to update internal status even when disconnected,
+  // in order to avoid some problems during network failures)
+  if (online) {
+    x = presnew(st, recipient, (st != invisible ? msg : NULL));
+    jab_send(jc, x);
+    xmlnode_free(x);
+  }
 
   // If we didn't change our _global_ status, we are done
   if (recipient) return;
 
-  // Send presence to chatrooms
-  if (st != invisible) {
-    struct T_presence room_presence;
-    room_presence.st = st;
-    room_presence.msg = msg;
-    foreach_buddy(ROSTER_TYPE_ROOM, &roompresence, &room_presence);
+  if (online) {
+    // Send presence to chatrooms
+    if (st != invisible) {
+      struct T_presence room_presence;
+      room_presence.st = st;
+      room_presence.msg = msg;
+      foreach_buddy(ROSTER_TYPE_ROOM, &roompresence, &room_presence);
+    }
   }
 
-  // We'll need to update the roster if we switch to/from offline because
-  // we don't know the presences of buddies when offline...
-  if (mystatus == offline || st == offline)
-    update_roster = TRUE;
+  if (online) {
+    // We'll need to update the roster if we switch to/from offline because
+    // we don't know the presences of buddies when offline...
+    if (mystatus == offline || st == offline)
+      update_roster = TRUE;
 
-  hk_mystatuschange(0, mystatus, st, (st != invisible ? msg : ""));
-  mystatus = st;
+    hk_mystatuschange(0, mystatus, st, (st != invisible ? msg : ""));
+    mystatus = st;
+  }
+  if (st)
+    mywantedstatus = st;
   if (msg != mystatusmsg) {
     g_free(mystatusmsg);
     if (*msg)
@@ -457,6 +468,13 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 
   // Update status line
   scr_UpdateMainStatus(TRUE);
+}
+
+//  jb_setprevstatus()
+// Set previous status.  This wrapper function is used after a disconnection.
+inline void jb_setprevstatus(void)
+{
+  jb_setstatus(mywantedstatus, NULL, mystatusmsg);
 }
 
 //  new_msgid()
@@ -1372,11 +1390,11 @@ static void statehandler(jconn conn, int state)
         if (previous_state != JCONN_STATE_OFF)
           scr_LogPrint(LPRINT_LOGNORM, "[Jabber] Not connected to the server");
 
+        // Sometimes the state isn't correctly updated
+        if (jc)
+          jc->state = JCONN_STATE_OFF;
         online = FALSE;
         mystatus = offline;
-        // Free status message
-        g_free(mystatusmsg);
-        mystatusmsg = NULL;
         // Free bookmarks
         xmlnode_free(bookmarks);
         bookmarks = NULL;
@@ -1399,6 +1417,8 @@ static void statehandler(jconn conn, int state)
         scr_LogPrint(LPRINT_LOGNORM, "[Jabber] Communication with the server "
                      "established");
         online = TRUE;
+        // We set AutoConnection to true after the 1st successful connection
+        AutoConnection = true;
         break;
 
     case JCONN_STATE_CONNECTING:

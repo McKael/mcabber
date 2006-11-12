@@ -15,6 +15,7 @@
 #endif
 
 extern jconn jc;
+extern guint AutoConnection;
 
 extern char imstatus2char[];
 // Status chars: '_', 'o', 'i', 'f', 'd', 'n', 'a'
@@ -50,6 +51,7 @@ void jb_updatebuddy(const char *jid, const char *name, const char *group);
 inline enum imstatus jb_getstatus(void);
 inline const char *jb_getstatusmsg(void);
 void jb_setstatus(enum imstatus st, const char *recipient, const char *msg);
+inline void jb_setprevstatus(void);
 void jb_send_msg(const char *jid, const char *text, int type,
                  const char *subject, const char *id);
 void jb_send_raw(const char *str);

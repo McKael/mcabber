@@ -1154,6 +1154,63 @@ void jb_room_invite(const char *room, const char *jid, const char *reason)
   jb_reset_keepalive();
 }
 
+//  jb_set_storage_bookmark(roomid, name, nick, passwd, autojoin)
+// Update the private storage bookmarks: add a conference room.
+// If name is nil, we remove the bookmark.
+void jb_set_storage_bookmark(const char *roomid, const char *name,
+                             const char *nick, const char *passwd, int autojoin)
+{
+  xmlnode x;
+
+  if (!roomid)
+    return;
+
+  // If we have no bookmarks, probably the server doesn't support them.
+  if (!bookmarks) {
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "Sorry, your server doesn't seem to support private storage.");
+    return;
+  }
+
+  // Walk through the storage tags
+  x = xmlnode_get_firstchild(bookmarks);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    const char *jid;
+    const char *p;
+    p = xmlnode_get_name(x);
+    // If the current node is a conference item, see if we have to replace it.
+    if (p && !strcmp(p, "conference")) {
+      jid = xmlnode_get_attrib(x, "jid");
+      if (!jid)
+        continue;
+      if (!strcmp(jid, roomid)) {
+        // We've found a bookmark for this room.  Let's hide it and we'll
+        // create a new one.
+        xmlnode_hide(x);
+        break;
+      }
+    }
+  }
+
+  // Let's create a node/bookmark for this roomid, if the name is not NULL.
+  if (name) {
+    x = xmlnode_insert_tag(bookmarks, "conference");
+    xmlnode_put_attrib(x, "jid", roomid);
+    xmlnode_put_attrib(x, "name", name);
+    xmlnode_put_attrib(x, "autojoin", autojoin ? "1" : "0");
+    if (nick)
+      xmlnode_insert_cdata(xmlnode_insert_tag(x, "nick"), nick, -1);
+    if (passwd)
+      xmlnode_insert_cdata(xmlnode_insert_tag(x, "password"), passwd, -1);
+  }
+
+  if (online)
+    send_storage_bookmarks();
+  else
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "Warning: you're not connected to the server.");
+}
+
 static void gotmessage(char *type, const char *from, const char *body,
                        const char *enc, time_t timestamp)
 {
@@ -1317,11 +1374,15 @@ static void statehandler(jconn conn, int state)
 
         online = FALSE;
         mystatus = offline;
-        if (mystatusmsg) {
-          g_free(mystatusmsg);
-          mystatusmsg = NULL;
-        }
+        // Free status message
+        g_free(mystatusmsg);
+        mystatusmsg = NULL;
+        // Free bookmarks
+        xmlnode_free(bookmarks);
+        bookmarks = NULL;
+        // Free roster
         roster_free();
+        // Update display
         update_roster = TRUE;
         scr_UpdateBuddyWindow();
         break;

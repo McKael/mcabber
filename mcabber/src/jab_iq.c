@@ -34,6 +34,9 @@
 #include "hbuf.h"
 
 
+// Bookmarks for IQ:private storage
+xmlnode bookmarks;
+
 static GSList *iqs_list;
 
 // Enum for vCard attributes
@@ -608,6 +611,8 @@ static void iqscallback_storage_bookmarks(eviqs *iqp, xmlnode xml_result,
     if (p && !strcmp(p, "conference"))
       storage_bookmarks_parse_conference(x);
   }
+  xmlnode_free(bookmarks);
+  bookmarks = xmlnode_dup(ansqry);
 }
 
 static void request_storage_bookmarks(void)
@@ -893,6 +898,22 @@ void handle_packet_iq(jconn conn, char *type, char *from, xmlnode xmldata)
       display_server_error(x);
     iqs_callback(xmlnode_get_attrib(xmldata, "id"), NULL, IQS_CONTEXT_ERROR);
   }
+}
+
+//  send_storage_bookmarks()
+// Send the current bookmarks node to update the server.
+// Note: the sender should check we're online.
+void send_storage_bookmarks(void)
+{
+  eviqs *iqn;
+
+  if (!bookmarks) return;
+
+  iqn = iqs_new(JPACKET__SET, NS_PRIVATE, "storage", IQS_DEFAULT_TIMEOUT);
+  xmlnode_insert_node(xmlnode_get_tag(iqn->xmldata, "query"), bookmarks);
+
+  jab_send(jc, iqn->xmldata);
+  iqs_del(iqn->id); // XXX
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

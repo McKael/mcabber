@@ -29,6 +29,7 @@ struct T_presence {
 #define IQS_CONTEXT_ERROR   2U
 
 extern enum enum_jstate jstate;
+extern xmlnode bookmarks;
 
 extern char *mcabber_version(void);
 
@@ -44,6 +45,7 @@ void iqscallback_auth(eviqs *iqp, xmlnode xml_result);
 void request_version(const char *fulljid);
 void request_time(const char *fulljid);
 void request_vcard(const char *barejid);
+void send_storage_bookmarks(void);
 
 #endif /* __JAB_PRIV_H__ */
 

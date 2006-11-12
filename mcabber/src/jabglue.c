@@ -1453,6 +1453,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   unsigned int statuscode = 0;
   GSList *room_elt;
   int log_muc_conf;
+  guint msgflags;
 
   log_muc_conf = settings_opt_get_int("log_muc_conf");
 
@@ -1613,8 +1614,11 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       }
     }
 
-    scr_WriteIncomingMessage(roomjid, mbuf, usttime,
-                             HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+    msgflags = HBB_PREFIX_INFO;
+    if (!we_left)
+      msgflags |= HBB_PREFIX_NOFLAG;
+
+    scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags);
 
     if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
 

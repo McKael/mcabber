@@ -117,7 +117,6 @@ static inline void do_wrap(GList **p_hbuf, GList *first_hbuf_elt,
 void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
         guint prefix_flags, guint width)
 {
-  GList *hbuf = *p_hbuf;
   GList *curr_elt;
   char *line, *end;
   hbuf_block *hbuf_block_elt;
@@ -127,22 +126,21 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   hbuf_block_elt = g_new0(hbuf_block, 1);
   hbuf_block_elt->prefix.timestamp  = timestamp;
   hbuf_block_elt->prefix.flags      = prefix_flags;
-  if (!hbuf) {
+  if (!*p_hbuf) {
     hbuf_block_elt->ptr  = g_new(char, HBB_BLOCKSIZE);
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
     hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
-    *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
   } else {
     hbuf_block *hbuf_b_prev;
     // Set p_hbuf to the end of the list, to speed up history loading
     // (or CPU time will be used by g_list_last() for each line)
-    hbuf = *p_hbuf = g_list_last(*p_hbuf);
-    hbuf_b_prev = hbuf->data;
+    *p_hbuf = g_list_last(*p_hbuf);
+    hbuf_b_prev = (*p_hbuf)->data;
     hbuf_block_elt->ptr    = hbuf_b_prev->ptr_end;
     hbuf_block_elt->flags  = HBB_FLAG_PERSISTENT;
     hbuf_block_elt->ptr_end_alloc = hbuf_b_prev->ptr_end_alloc;
-    *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
   }
+  *p_hbuf = g_list_append(*p_hbuf, hbuf_block_elt);
 
   if (strlen(text) >= HBB_BLOCKSIZE) {
     // Too long
@@ -162,7 +160,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   hbuf_block_elt->ptr_end = line + strlen(line) + 1;
   end = hbuf_block_elt->ptr_end;
 
-  curr_elt = g_list_last(hbuf);
+  curr_elt = g_list_last(*p_hbuf);
 
   // Wrap lines and handle CRs ('\n')
   do_wrap(p_hbuf, curr_elt, width);

@@ -65,6 +65,9 @@ int  jb_room_setattrib(const char *roomid, const char *jid, const char *nick,
                        struct role_affil ra, const char *reason);
 void jb_iqs_display_list(void);
 void jb_request(const char *jid, enum iqreq_type reqtype);
+void jb_set_storage_bookmark(const char *roomid, const char *name,
+                             const char *nick, const char *passwd,
+                             int autojoin);
 
 #endif /* __JABGLUE_H__ */
 

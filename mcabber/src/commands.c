@@ -190,6 +190,7 @@ void cmd_init(void)
   // Room category
   compl_add_category_word(COMPL_ROOM, "affil");
   compl_add_category_word(COMPL_ROOM, "ban");
+  compl_add_category_word(COMPL_ROOM, "bookmark");
   compl_add_category_word(COMPL_ROOM, "destroy");
   compl_add_category_word(COMPL_ROOM, "invite");
   compl_add_category_word(COMPL_ROOM, "join");
@@ -2018,6 +2019,42 @@ void room_whois(gpointer bud, char *arg, guint interactive)
   free_arg_lst(paramlst);
 }
 
+static void room_bookmark(gpointer bud, char *arg)
+{
+  const char *roomid;
+  const char *name = NULL, *nick = NULL;
+  enum { bm_add = 0, bm_del = 1 } action = 0;
+  int autojoin = 0;
+
+  if (arg && *arg) {
+    // /room bookmark [add|del] [[+|-]autojoin]
+    char **paramlst;
+    char **pp;
+
+    paramlst = split_arg(arg, 2, 0); // At most 2 parameters
+    for (pp = paramlst; *pp; pp++) {
+      if (!strcasecmp(*pp, "add"))
+        action = bm_add;
+      else if (!strcasecmp(*pp, "del"))
+        action = bm_del;
+      else if (!strcasecmp(*pp, "-autojoin"))
+        autojoin = 0;
+      else if (!strcasecmp(*pp, "+autojoin") || !strcasecmp(*pp, "autojoin"))
+        autojoin = 1;
+    }
+    free_arg_lst(paramlst);
+  }
+
+  roomid = buddy_getjid(bud);
+
+  if (action == bm_add) {
+    name = buddy_getname(bud);
+    nick = buddy_getnickname(bud);
+  }
+
+  jb_set_storage_bookmark(roomid, name, nick, NULL, autojoin);
+}
+
 static void do_room(char *arg)
 {
   char **paramlst;
@@ -2094,6 +2131,9 @@ static void do_room(char *arg)
   } else if (!strcasecmp(subcmd, "whois"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_whois(bud, arg, TRUE);
+  } else if (!strcasecmp(subcmd, "bookmark"))  {
+    if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
+      room_bookmark(bud, arg);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

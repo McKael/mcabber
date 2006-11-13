@@ -943,6 +943,9 @@ void jb_request(const char *jid, enum iqreq_type reqtype)
   } else if (reqtype == iqreq_time) {
     request_fn = &request_time;
     strreqtype = "time";
+  } else if (reqtype == iqreq_last) {
+    request_fn = &request_last;
+    strreqtype = "last";
   } else if (reqtype == iqreq_vcard) {
     // Special case
   } else

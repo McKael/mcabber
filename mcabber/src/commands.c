@@ -212,6 +212,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_AUTH, "request_unsubscribe");
 
   // Request (query) category
+  compl_add_category_word(COMPL_REQUEST, "last");
   compl_add_category_word(COMPL_REQUEST, "time");
   compl_add_category_word(COMPL_REQUEST, "vcard");
   compl_add_category_word(COMPL_REQUEST, "version");
@@ -2248,6 +2249,8 @@ static void do_request(char *arg)
       numtype = iqreq_version;
     else if (!strcasecmp(type, "time"))
       numtype = iqreq_time;
+    else if (!strcasecmp(type, "last"))
+      numtype = iqreq_last;
     else if (!strcasecmp(type, "vcard"))
       numtype = iqreq_vcard;
     else if (!strcasecmp(type, "show_list")) {
@@ -2260,7 +2263,7 @@ static void do_request(char *arg)
 
   if (!type || !numtype) {
     scr_LogPrint(LPRINT_NORMAL,
-                 "Please specify a query type (version, time).");
+                 "Please specify a query type (version, time...).");
     free_arg_lst(paramlst);
     return;
   }
@@ -2293,6 +2296,7 @@ static void do_request(char *arg)
     switch (numtype) {
       case iqreq_version:
       case iqreq_time:
+      case iqreq_last:
       case iqreq_vcard:
           jb_request(jid, numtype);
           break;

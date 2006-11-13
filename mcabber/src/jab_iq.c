@@ -369,6 +369,79 @@ void request_time(const char *fulljid)
   jab_send(jc, iqn->xmldata);
 }
 
+static void iqscallback_last(eviqs *iqp, xmlnode xml_result, guint iqcontext)
+{
+  xmlnode ansqry;
+  char *p;
+  char *bjid;
+  char *buf;
+
+  // Leave now if we cannot process xml_result
+  if (!xml_result || iqcontext) return;
+
+  ansqry = xmlnode_get_tag(xml_result, "query");
+  if (!ansqry) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:last result!");
+    return;
+  }
+  // Display IQ result sender...
+  p = xmlnode_get_attrib(xml_result, "from");
+  if (!p) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:last result (no sender name).");
+    return;
+  }
+  bjid = p;
+
+  buf = g_strdup_printf("Received IQ:last result from <%s>", bjid);
+  scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+
+  // bjid should now really be the "bare JID", let's strip the resource
+  p = strchr(bjid, JID_RESOURCE_SEPARATOR);
+  if (p) *p = '\0';
+
+  scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+  g_free(buf);
+
+  // Get result data...
+  p = xmlnode_get_attrib(ansqry, "seconds");
+  if (p) {
+    long int s;
+    GString *sbuf;
+    sbuf = g_string_new("Idle time: ");
+    s = atol(p);
+    // Days
+    if (s > 86400L) {
+      g_string_append_printf(sbuf, "%ldd ", s/86400L);
+      s %= 86400L;
+    }
+    // hh:mm:ss
+    g_string_append_printf(sbuf, "%02ld:", s/3600L);
+    s %= 3600L;
+    g_string_append_printf(sbuf, "%02ld:%02ld", s/60L, s%60L);
+    scr_WriteIncomingMessage(bjid, sbuf->str, 0, HBB_PREFIX_NONE);
+    g_string_free(sbuf, TRUE);
+  } else {
+    scr_WriteIncomingMessage(bjid, "No idle time reported.",
+                             0, HBB_PREFIX_NONE);
+  }
+  p = xmlnode_get_data(ansqry);
+  if (p) {
+    buf = g_strdup_printf("Status message: %s", p);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
+    g_free(buf);
+  }
+}
+
+void request_last(const char *fulljid)
+{
+  eviqs *iqn;
+
+  iqn = iqs_new(JPACKET__GET, NS_LAST, "last", IQS_DEFAULT_TIMEOUT);
+  xmlnode_put_attrib(iqn->xmldata, "to", fulljid);
+  iqn->callback = &iqscallback_last;
+  jab_send(jc, iqn->xmldata);
+}
+
 static void display_vcard_item(const char *bjid, const char *label,
                                enum vcard_attr vcard_attrib, const char *text)
 {

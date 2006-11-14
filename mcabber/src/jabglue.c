@@ -1232,6 +1232,94 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
                  "Warning: you're not connected to the server.");
 }
 
+//  jb_get_storage_rosternotes(barejid)
+// Return thenote associated to this jid.
+// The caller should g_free the string after use.
+char *jb_get_storage_rosternotes(const char *barejid)
+{
+  xmlnode x;
+
+  if (!barejid)
+    return NULL;
+
+  // If we have no rosternotes, probably the server doesn't support them.
+  if (!rosternotes) {
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "Sorry, your server doesn't seem to support private storage.");
+    return NULL;
+  }
+
+  // Walk through the storage tags
+  x = xmlnode_get_firstchild(rosternotes);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    const char *jid;
+    const char *p;
+    p = xmlnode_get_name(x);
+    // If the current node is a conference item, see if we have to replace it.
+    if (p && !strcmp(p, "note")) {
+      jid = xmlnode_get_attrib(x, "jid");
+      if (!jid)
+        continue;
+      if (!strcmp(jid, barejid)) {
+        // We've found a note for this contact.
+        return g_strdup(xmlnode_get_data(x));
+      }
+    }
+  }
+  return NULL;  // No note found
+}
+
+//  jb_set_storage_rosternotes(barejid, note)
+// Update the private storage rosternotes: add/delete a note.
+// If note is nil, we remove the existing note.
+void jb_set_storage_rosternotes(const char *barejid, const char *note)
+{
+  xmlnode x;
+
+  if (!barejid)
+    return;
+
+  // If we have no rosternotes, probably the server doesn't support them.
+  if (!rosternotes) {
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "Sorry, your server doesn't seem to support private storage.");
+    return;
+  }
+
+  // Walk through the storage tags
+  x = xmlnode_get_firstchild(rosternotes);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    const char *jid;
+    const char *p;
+    p = xmlnode_get_name(x);
+    // If the current node is a conference item, see if we have to replace it.
+    if (p && !strcmp(p, "note")) {
+      jid = xmlnode_get_attrib(x, "jid");
+      if (!jid)
+        continue;
+      if (!strcmp(jid, barejid)) {
+        // We've found a note for this jid.  Let's hide it and we'll
+        // create a new one.
+        xmlnode_hide(x);
+        break;
+      }
+    }
+  }
+
+  // Let's create a node for this jid, if the note is not NULL.
+  if (note) {
+    x = xmlnode_insert_tag(rosternotes, "note");
+    xmlnode_put_attrib(x, "jid", barejid);
+    xmlnode_insert_cdata(x, note, -1);
+  }
+
+  if (online)
+    send_storage_rosternotes();
+  else
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "Warning: you're not connected to the server.");
+}
+
 static void gotmessage(char *type, const char *from, const char *body,
                        const char *enc, time_t timestamp)
 {

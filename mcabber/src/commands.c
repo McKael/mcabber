@@ -157,6 +157,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "search");
   compl_add_category_word(COMPL_ROSTER, "unread_first");
   compl_add_category_word(COMPL_ROSTER, "unread_next");
+  compl_add_category_word(COMPL_ROSTER, "note");
 
   // Roster category
   compl_add_category_word(COMPL_BUFFER, "clear");
@@ -466,6 +467,47 @@ static void roster_buddylock(char *jid, bool lock)
   }
 }
 
+static void roster_note(char *arg)
+{
+  const char *jid;
+  gchar *msg, *note;
+  guint type;
+
+  if (!current_buddy)
+    return;
+
+  jid = buddy_getjid(BUDDATA(current_buddy));
+  type = buddy_gettype(BUDDATA(current_buddy));
+
+  if (!jid || (type != ROSTER_TYPE_USER &&
+               type != ROSTER_TYPE_ROOM &&
+               type != ROSTER_TYPE_AGENT)) {
+    scr_LogPrint(LPRINT_NORMAL, "This item can't have a note.");
+    return;
+  }
+
+  if (arg && *arg)
+    msg = to_utf8(arg);
+  else
+    msg = NULL;
+
+  if (msg) {    // Set a note
+    if (!strcmp(msg, "-"))
+      note = NULL; // delete note
+    else
+      note = msg;
+    jb_set_storage_rosternotes(jid, note);
+  } else {      // Display a note
+    note = jb_get_storage_rosternotes(jid);
+    if (note)
+      msg = g_strdup_printf("Note: %s", note);
+    else
+      msg = g_strdup_printf("This item doesn't have a note.");
+    scr_WriteIncomingMessage(jid, msg, 0, HBB_PREFIX_INFO);
+  }
+  g_free(msg);
+}
+
 /* Commands callback functions */
 /* All these do_*() functions will be called with a "arg" parameter */
 /* (with arg not null)                                              */
@@ -533,6 +575,8 @@ static void do_roster(char *arg)
     scr_RosterUp();
   } else if (!strcasecmp(subcmd, "down")) {
     scr_RosterDown();
+  } else if (!strcasecmp(subcmd, "note")) {
+    roster_note(arg);
   } else
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   free_arg_lst(paramlst);
@@ -1216,7 +1260,6 @@ static void do_info(char *arg)
                  type == ROSTER_TYPE_GROUP ? "group" :
                  (type == ROSTER_TYPE_SPECIAL ? "special" : "unknown"));
   }
-
   g_free(buffer);
 }
 

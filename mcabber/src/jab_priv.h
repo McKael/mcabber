@@ -29,7 +29,7 @@ struct T_presence {
 #define IQS_CONTEXT_ERROR   2U
 
 extern enum enum_jstate jstate;
-extern xmlnode bookmarks;
+extern xmlnode bookmarks, rosternotes;
 
 extern char *mcabber_version(void);
 
@@ -47,6 +47,7 @@ void request_time(const char *fulljid);
 void request_last(const char *fulljid);
 void request_vcard(const char *barejid);
 void send_storage_bookmarks(void);
+void send_storage_rosternotes(void);
 
 #endif /* __JAB_PRIV_H__ */
 

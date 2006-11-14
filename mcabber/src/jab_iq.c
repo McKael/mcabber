@@ -36,6 +36,8 @@
 
 // Bookmarks for IQ:private storage
 xmlnode bookmarks;
+// Roster notes for IQ:private storage
+xmlnode rosternotes;
 
 static GSList *iqs_list;
 
@@ -684,6 +686,7 @@ static void iqscallback_storage_bookmarks(eviqs *iqp, xmlnode xml_result,
     if (p && !strcmp(p, "conference"))
       storage_bookmarks_parse_conference(x);
   }
+  // Copy the bookmarks node
   xmlnode_free(bookmarks);
   bookmarks = xmlnode_dup(ansqry);
 }
@@ -699,6 +702,40 @@ static void request_storage_bookmarks(void)
   xmlnode_put_attrib(x, "xmlns", "storage:bookmarks");
 
   iqn->callback = &iqscallback_storage_bookmarks;
+  jab_send(jc, iqn->xmldata);
+}
+
+static void iqscallback_storage_rosternotes(eviqs *iqp, xmlnode xml_result,
+                                            guint iqcontext)
+{
+  xmlnode ansqry;
+
+  // Leave now if we cannot process xml_result
+  if (!xml_result || iqcontext) return;
+
+  ansqry = xmlnode_get_tag(xml_result, "query");
+  ansqry = xmlnode_get_tag(ansqry, "storage");
+  if (!ansqry) {
+    scr_LogPrint(LPRINT_LOG, "Invalid IQ:private result! "
+                 "(storage:rosternotes)");
+    return;
+  }
+  // Copy the rosternotes node
+  xmlnode_free(rosternotes);
+  rosternotes = xmlnode_dup(ansqry);
+}
+
+static void request_storage_rosternotes(void)
+{
+  eviqs *iqn;
+  xmlnode x;
+
+  iqn = iqs_new(JPACKET__GET, NS_PRIVATE, "storage", IQS_DEFAULT_TIMEOUT);
+
+  x = xmlnode_insert_tag(xmlnode_get_tag(iqn->xmldata, "query"), "storage");
+  xmlnode_put_attrib(x, "xmlns", "storage:rosternotes");
+
+  iqn->callback = &iqscallback_storage_rosternotes;
   jab_send(jc, iqn->xmldata);
 }
 
@@ -721,6 +758,7 @@ void iqscallback_auth(eviqs *iqp, xmlnode xml_result)
   } else if (jstate == STATE_SENDAUTH) {
     request_roster();
     request_storage_bookmarks();
+    request_storage_rosternotes();
     jstate = STATE_LOGGED;
   }
 }
@@ -984,6 +1022,22 @@ void send_storage_bookmarks(void)
 
   iqn = iqs_new(JPACKET__SET, NS_PRIVATE, "storage", IQS_DEFAULT_TIMEOUT);
   xmlnode_insert_node(xmlnode_get_tag(iqn->xmldata, "query"), bookmarks);
+
+  jab_send(jc, iqn->xmldata);
+  iqs_del(iqn->id); // XXX
+}
+
+//  send_storage_rosternotes()
+// Send the current rosternotes node to update the server.
+// Note: the sender should check we're online.
+void send_storage_rosternotes(void)
+{
+  eviqs *iqn;
+
+  if (!rosternotes) return;
+
+  iqn = iqs_new(JPACKET__SET, NS_PRIVATE, "storage", IQS_DEFAULT_TIMEOUT);
+  xmlnode_insert_node(xmlnode_get_tag(iqn->xmldata, "query"), rosternotes);
 
   jab_send(jc, iqn->xmldata);
   iqs_del(iqn->id); // XXX

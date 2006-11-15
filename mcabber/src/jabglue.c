@@ -1182,6 +1182,7 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
                              const char *nick, const char *passwd, int autojoin)
 {
   xmlnode x;
+  bool changed = FALSE;
 
   if (!roomid)
     return;
@@ -1208,6 +1209,7 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
         // We've found a bookmark for this room.  Let's hide it and we'll
         // create a new one.
         xmlnode_hide(x);
+        changed = TRUE;
         break;
       }
     }
@@ -1223,7 +1225,11 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
       xmlnode_insert_cdata(xmlnode_insert_tag(x, "nick"), nick, -1);
     if (passwd)
       xmlnode_insert_cdata(xmlnode_insert_tag(x, "password"), passwd, -1);
+    changed = TRUE;
   }
+
+  if (!changed)
+    return;
 
   if (online)
     send_storage_bookmarks();
@@ -1275,6 +1281,7 @@ char *jb_get_storage_rosternotes(const char *barejid)
 void jb_set_storage_rosternotes(const char *barejid, const char *note)
 {
   xmlnode x;
+  bool changed = FALSE;
 
   if (!barejid)
     return;
@@ -1301,6 +1308,7 @@ void jb_set_storage_rosternotes(const char *barejid, const char *note)
         // We've found a note for this jid.  Let's hide it and we'll
         // create a new one.
         xmlnode_hide(x);
+        changed = TRUE;
         break;
       }
     }
@@ -1311,7 +1319,11 @@ void jb_set_storage_rosternotes(const char *barejid, const char *note)
     x = xmlnode_insert_tag(rosternotes, "note");
     xmlnode_put_attrib(x, "jid", barejid);
     xmlnode_insert_cdata(x, note, -1);
+    changed = TRUE;
   }
+
+  if (!changed)
+    return;
 
   if (online)
     send_storage_rosternotes();

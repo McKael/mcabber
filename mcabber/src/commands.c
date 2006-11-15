@@ -1290,6 +1290,20 @@ static void do_info(char *arg)
                  (type == ROSTER_TYPE_SPECIAL ? "special" : "unknown"));
   }
   g_free(buffer);
+
+  // Tell the user if this item has an annotation.
+  if (type == ROSTER_TYPE_USER ||
+      type == ROSTER_TYPE_ROOM ||
+      type == ROSTER_TYPE_AGENT) {
+    struct annotation *note = jb_get_storage_rosternotes(jid);
+    if (note) {
+      // We do not display the note, we just tell the user.
+      g_free(note->text);
+      g_free(note);
+      scr_WriteIncomingMessage(jid, "(This item has an annotation)", 0,
+                               HBB_PREFIX_INFO);
+    }
+  }
 }
 
 // room_names() is a variation of do_info(), for chatrooms only

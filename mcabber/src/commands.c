@@ -516,7 +516,8 @@ static void roster_note(char *arg)
         msg_flag = HBB_PREFIX_NONE;
       }
       // If we have the modification date, display it
-      if (note->mdate) {
+      // unless it's the same as the creation date
+      if (note->mdate && note->mdate != note->cdate) {
         strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S",
                  localtime(&note->mdate));
         msg = g_strdup_printf("Note modified %s", tbuf);

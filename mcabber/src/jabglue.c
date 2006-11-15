@@ -1239,9 +1239,9 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
 }
 
 //  jb_get_storage_rosternotes(barejid)
-// Return thenote associated to this jid.
-// The caller should g_free the string after use.
-char *jb_get_storage_rosternotes(const char *barejid)
+// Return the annotation associated with this jid.
+// The caller should g_free the string and structure after use.
+struct annotation *jb_get_storage_rosternotes(const char *barejid)
 {
   xmlnode x;
 
@@ -1268,7 +1268,15 @@ char *jb_get_storage_rosternotes(const char *barejid)
         continue;
       if (!strcmp(jid, barejid)) {
         // We've found a note for this contact.
-        return g_strdup(xmlnode_get_data(x));
+        struct annotation *note = g_new0(struct annotation, 1);
+        p = xmlnode_get_attrib(x, "cdate");
+        if (p)
+          note->cdate = from_iso8601(p, 1);
+        p = xmlnode_get_attrib(x, "mdate");
+        if (p)
+          note->mdate = from_iso8601(p, 1);
+        note->text = g_strdup(xmlnode_get_data(x));
+        return note;
       }
     }
   }

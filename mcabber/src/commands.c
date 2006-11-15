@@ -470,7 +470,7 @@ static void roster_buddylock(char *jid, bool lock)
 static void roster_note(char *arg)
 {
   const char *jid;
-  gchar *msg, *note;
+  gchar *msg, *notetxt;
   guint type;
 
   if (!current_buddy)
@@ -493,19 +493,48 @@ static void roster_note(char *arg)
 
   if (msg) {    // Set a note
     if (!strcmp(msg, "-"))
-      note = NULL; // delete note
+      notetxt = NULL; // delete note
     else
-      note = msg;
-    jb_set_storage_rosternotes(jid, note);
+      notetxt = msg;
+    jb_set_storage_rosternotes(jid, notetxt);
+    g_free(msg);
   } else {      // Display a note
-    note = jb_get_storage_rosternotes(jid);
-    if (note)
-      msg = g_strdup_printf("Note: %s", note);
-    else
-      msg = g_strdup_printf("This item doesn't have a note.");
-    scr_WriteIncomingMessage(jid, msg, 0, HBB_PREFIX_INFO);
+    struct annotation *note = jb_get_storage_rosternotes(jid);
+    if (note) {
+      char tbuf[128];
+      guint msg_flag = HBB_PREFIX_INFO;
+      /* We use the flag prefix_info for the first line, and prefix_none
+         for the other lines, for better readability */
+
+      // If we have the creation date, display it
+      if (note->cdate) {
+        strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S",
+                 localtime(&note->cdate));
+        msg = g_strdup_printf("Note created  %s", tbuf);
+        scr_WriteIncomingMessage(jid, msg, 0, msg_flag);
+        g_free(msg);
+        msg_flag = HBB_PREFIX_NONE;
+      }
+      // If we have the modification date, display it
+      if (note->mdate) {
+        strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S",
+                 localtime(&note->mdate));
+        msg = g_strdup_printf("Note modified %s", tbuf);
+        scr_WriteIncomingMessage(jid, msg, 0, msg_flag);
+        g_free(msg);
+        msg_flag = HBB_PREFIX_NONE;
+      }
+      // Note text
+      msg = g_strdup_printf("Note: %s", note->text);
+      scr_WriteIncomingMessage(jid, msg, 0, msg_flag);
+      g_free(note->text);
+      g_free(note);
+      g_free(msg);
+    } else {
+      scr_WriteIncomingMessage(jid, "This item doesn't have a note.", 0,
+                               HBB_PREFIX_INFO);
+    }
   }
-  g_free(msg);
 }
 
 /* Commands callback functions */

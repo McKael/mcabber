@@ -35,6 +35,12 @@ enum iqreq_type {
   iqreq_vcard
 };
 
+struct annotation {
+  time_t cdate;
+  time_t mdate;
+  gchar *text;
+};
+
 char *compose_jid(const char *username, const char *servername,
                   const char *resource);
 jconn jb_connect(const char *jid, const char *server, unsigned int port,
@@ -71,7 +77,7 @@ void jb_request(const char *jid, enum iqreq_type reqtype);
 void jb_set_storage_bookmark(const char *roomid, const char *name,
                              const char *nick, const char *passwd,
                              int autojoin);
-char *jb_get_storage_rosternotes(const char *barejid);
+struct annotation *jb_get_storage_rosternotes(const char *barejid);
 void jb_set_storage_rosternotes(const char *barejid, const char *note);
 
 #endif /* __JABGLUE_H__ */

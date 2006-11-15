@@ -1282,6 +1282,7 @@ void jb_set_storage_rosternotes(const char *barejid, const char *note)
 {
   xmlnode x;
   bool changed = FALSE;
+  const char *cdate = NULL;
 
   if (!barejid)
     return;
@@ -1307,6 +1308,7 @@ void jb_set_storage_rosternotes(const char *barejid, const char *note)
       if (!strcmp(jid, barejid)) {
         // We've found a note for this jid.  Let's hide it and we'll
         // create a new one.
+        cdate = xmlnode_get_attrib(x, "cdate");
         xmlnode_hide(x);
         changed = TRUE;
         break;
@@ -1316,8 +1318,16 @@ void jb_set_storage_rosternotes(const char *barejid, const char *note)
 
   // Let's create a node for this jid, if the note is not NULL.
   if (note) {
+    char mdate[20];
+    time_t now;
+    time(&now);
+    to_iso8601(mdate, now);
+    if (!cdate)
+      cdate = mdate;
     x = xmlnode_insert_tag(rosternotes, "note");
     xmlnode_put_attrib(x, "jid", barejid);
+    xmlnode_put_attrib(x, "cdate", cdate);
+    xmlnode_put_attrib(x, "mdate", mdate);
     xmlnode_insert_cdata(x, note, -1);
     changed = TRUE;
   }

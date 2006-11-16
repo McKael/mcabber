@@ -1,3 +1,15 @@
+mcabber (0.8.3)
+
+ * Fix truncation of UTF-8 buddy names in the roster (Myhailo Danylenko)
+ * Fix SSL support on OS X (Alexis Hildebrandt)
+ * Fix a freeze with some mistakes in the configuration file
+ * Update the sample event script to be more portable
+ * Fix some UTF-8 related issues
+ * Fix permissions of help files
+ * Correctly display the first message of a buffer (it wasn't wrapped)
+
+ -- Mikael, 2006-11-16
+
 mcabber (0.8.2)
 
  * Fix a freeze with UTF-8 locales

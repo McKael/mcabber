@@ -118,11 +118,7 @@ if test "$with_ssl" != "no"; then
         CFLAGS="$CFLAGS -I${with_openssl}"
         AC_DEFINE([HAVE_OPENSSL], [], [OpenSSL])
         AC_MSG_RESULT([found in $with_openssl])
-        AC_CHECK_LIB(crypto, main, [
-                AC_CHECK_LIB(crypto, SSLeay_add_all_algorithms, [
-                    AC_DEFINE([HAVE_SSLEAY], [], [SSLeay])
-                ])
-            ])
+        AC_CHECK_LIB(crypto, main)
         AC_CHECK_LIB(ssl, main)
     else
         AC_MSG_RESULT([not found or disabled])

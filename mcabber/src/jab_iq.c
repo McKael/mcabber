@@ -229,7 +229,7 @@ static void handle_iq_roster(xmlnode x)
 static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
-  char *p, *p_noutf8;
+  char *p;
   char *bjid;
   char *buf;
 
@@ -262,33 +262,21 @@ static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   // Get result data...
   p = xmlnode_get_tag_data(ansqry, "name");
   if (p) {
-    p_noutf8 = from_utf8(p);
-    if (p_noutf8) {
-      buf = g_strdup_printf("Name:    %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
-      g_free(p_noutf8);
-      g_free(buf);
-    }
+    buf = g_strdup_printf("Name:    %s", p);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "version");
   if (p) {
-    p_noutf8 = from_utf8(p);
-    if (p_noutf8) {
-      buf = g_strdup_printf("Version: %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
-      g_free(p_noutf8);
-      g_free(buf);
-    }
+    buf = g_strdup_printf("Version: %s", p);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "os");
   if (p) {
-    p_noutf8 = from_utf8(p);
-    if (p_noutf8) {
-      buf = g_strdup_printf("OS:      %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
-      g_free(p_noutf8);
-      g_free(buf);
-    }
+    buf = g_strdup_printf("OS:      %s", p);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    g_free(buf);
   }
 }
 
@@ -305,7 +293,7 @@ void request_version(const char *fulljid)
 static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
-  char *p, *p_noutf8;
+  char *p;
   char *bjid;
   char *buf;
 
@@ -338,33 +326,21 @@ static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   // Get result data...
   p = xmlnode_get_tag_data(ansqry, "utc");
   if (p) {
-    p_noutf8 = from_utf8(p);
-    if (p_noutf8) {
-      buf = g_strdup_printf("UTC:  %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
-      g_free(p_noutf8);
-      g_free(buf);
-    }
+    buf = g_strdup_printf("UTC:  %s", p);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "tz");
   if (p) {
-    p_noutf8 = from_utf8(p);
-    if (p_noutf8) {
-      buf = g_strdup_printf("TZ:   %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
-      g_free(p_noutf8);
-      g_free(buf);
-    }
+    buf = g_strdup_printf("TZ:   %s", p);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "display");
   if (p) {
-    p_noutf8 = from_utf8(p);
-    if (p_noutf8) {
-      buf = g_strdup_printf("Time: %s", p_noutf8);
-      scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
-      g_free(p_noutf8);
-      g_free(buf);
-    }
+    buf = g_strdup_printf("Time: %s", p);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    g_free(buf);
   }
 }
 

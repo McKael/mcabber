@@ -78,7 +78,7 @@ void jb_request(const char *jid, enum iqreq_type reqtype);
 void jb_set_storage_bookmark(const char *roomid, const char *name,
                              const char *nick, const char *passwd,
                              int autojoin);
-struct annotation *jb_get_storage_rosternotes(const char *barejid);
+struct annotation *jb_get_storage_rosternotes(const char *barejid, int silent);
 GSList *jb_get_all_storage_rosternotes(void);
 void jb_set_storage_rosternotes(const char *barejid, const char *note);
 

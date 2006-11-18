@@ -1285,10 +1285,11 @@ GSList *jb_get_all_storage_rosternotes(void)
   return sl_notes;
 }
 
-//  jb_get_storage_rosternotes(barejid)
+//  jb_get_storage_rosternotes(barejid, silent)
 // Return the annotation associated with this jid.
+// If silent is TRUE, no warning is displayed when rosternotes is disabled
 // The caller should g_free the string and structure after use.
-struct annotation *jb_get_storage_rosternotes(const char *barejid)
+struct annotation *jb_get_storage_rosternotes(const char *barejid, int silent)
 {
   xmlnode x;
 
@@ -1297,8 +1298,9 @@ struct annotation *jb_get_storage_rosternotes(const char *barejid)
 
   // If we have no rosternotes, probably the server doesn't support them.
   if (!rosternotes) {
-    scr_LogPrint(LPRINT_LOGNORM,
-                 "Sorry, your server doesn't seem to support private storage.");
+    if (!silent)
+      scr_LogPrint(LPRINT_LOGNORM, "Sorry, "
+                   "your server doesn't seem to support private storage.");
     return NULL;
   }
 

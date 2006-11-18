@@ -563,7 +563,7 @@ static void roster_note(char *arg)
     jb_set_storage_rosternotes(jid, notetxt);
     g_free(msg);
   } else {      // Display a note
-    struct annotation *note = jb_get_storage_rosternotes(jid);
+    struct annotation *note = jb_get_storage_rosternotes(jid, FALSE);
     if (note) {
       display_and_free_note(note, jid);
     } else {
@@ -1331,7 +1331,7 @@ static void do_info(char *arg)
   if (type == ROSTER_TYPE_USER ||
       type == ROSTER_TYPE_ROOM ||
       type == ROSTER_TYPE_AGENT) {
-    struct annotation *note = jb_get_storage_rosternotes(jid);
+    struct annotation *note = jb_get_storage_rosternotes(jid, TRUE);
     if (note) {
       // We do not display the note, we just tell the user.
       g_free(note->text);

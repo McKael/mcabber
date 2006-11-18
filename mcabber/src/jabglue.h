@@ -38,6 +38,7 @@ enum iqreq_type {
 struct annotation {
   time_t cdate;
   time_t mdate;
+  gchar *jid;
   gchar *text;
 };
 
@@ -78,6 +79,7 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
                              const char *nick, const char *passwd,
                              int autojoin);
 struct annotation *jb_get_storage_rosternotes(const char *barejid);
+GSList *jb_get_all_storage_rosternotes(void);
 void jb_set_storage_rosternotes(const char *barejid, const char *note);
 
 #endif /* __JABGLUE_H__ */

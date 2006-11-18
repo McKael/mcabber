@@ -1238,6 +1238,53 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
                  "Warning: you're not connected to the server.");
 }
 
+static struct annotation *parse_storage_rosternote(xmlnode notenode)
+{
+  const char *p;
+  struct annotation *note = g_new0(struct annotation, 1);
+  p = xmlnode_get_attrib(notenode, "cdate");
+  if (p)
+    note->cdate = from_iso8601(p, 1);
+  p = xmlnode_get_attrib(notenode, "mdate");
+  if (p)
+    note->mdate = from_iso8601(p, 1);
+  note->text = g_strdup(xmlnode_get_data(notenode));
+  note->jid = g_strdup(xmlnode_get_attrib(notenode, "jid"));
+  return note;
+}
+
+//  jb_get_all_storage_rosternotes()
+// Return a GSList with all storage annotations.
+// The caller should g_free the list and its contents.
+GSList *jb_get_all_storage_rosternotes(void)
+{
+  xmlnode x;
+  GSList *sl_notes = NULL;
+
+  // If we have no rosternotes, probably the server doesn't support them.
+  if (!rosternotes)
+    return NULL;
+
+  // Walk through the storage rosternotes tags
+  x = xmlnode_get_firstchild(rosternotes);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    const char *p;
+    struct annotation *note;
+    p = xmlnode_get_name(x);
+
+    // We want a note item
+    if (!p || strcmp(p, "note"))
+      continue;
+    // Just in case, check the jid...
+    if (!xmlnode_get_attrib(x, "jid"))
+      continue;
+    // Ok, let's add the note to our list
+    note = parse_storage_rosternote(x);
+    sl_notes = g_slist_append(sl_notes, note);
+  }
+  return sl_notes;
+}
+
 //  jb_get_storage_rosternotes(barejid)
 // Return the annotation associated with this jid.
 // The caller should g_free the string and structure after use.
@@ -1255,30 +1302,19 @@ struct annotation *jb_get_storage_rosternotes(const char *barejid)
     return NULL;
   }
 
-  // Walk through the storage tags
+  // Walk through the storage rosternotes tags
   x = xmlnode_get_firstchild(rosternotes);
   for ( ; x; x = xmlnode_get_nextsibling(x)) {
     const char *jid;
     const char *p;
     p = xmlnode_get_name(x);
-    // If the current node is a conference item, see if we have to replace it.
-    if (p && !strcmp(p, "note")) {
-      jid = xmlnode_get_attrib(x, "jid");
-      if (!jid)
-        continue;
-      if (!strcmp(jid, barejid)) {
-        // We've found a note for this contact.
-        struct annotation *note = g_new0(struct annotation, 1);
-        p = xmlnode_get_attrib(x, "cdate");
-        if (p)
-          note->cdate = from_iso8601(p, 1);
-        p = xmlnode_get_attrib(x, "mdate");
-        if (p)
-          note->mdate = from_iso8601(p, 1);
-        note->text = g_strdup(xmlnode_get_data(x));
-        return note;
-      }
-    }
+    // We want a note item
+    if (!p || strcmp(p, "note"))
+      continue;
+    // Just in case, check the jid...
+    jid = xmlnode_get_attrib(x, "jid");
+    if (jid && !strcmp(jid, barejid))  // We've found a note for this contact.
+      return parse_storage_rosternote(x);
   }
   return NULL;  // No note found
 }

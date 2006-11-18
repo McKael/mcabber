@@ -467,10 +467,70 @@ static void roster_buddylock(char *jid, bool lock)
   }
 }
 
+//  display_and_free_note(note, winId)
+// Display the note information in the winId buffer, and free note
+// (winId is a bare jid or NULL for the status window, in which case we
+// display the note jid too)
+static void display_and_free_note(struct annotation *note, const char *winId)
+{
+  gchar tbuf[128];
+  GString *sbuf;
+  guint msg_flag = HBB_PREFIX_INFO;
+  /* We use the flag prefix_info for the first line, and prefix_none
+     for the other lines, for better readability */
+
+  if (!note)
+    return;
+
+  sbuf = g_string_new("");
+
+  if (!winId) {
+    // We're writing to the status window, so let's show the jid too.
+    g_string_printf(sbuf, "Annotation on <%s>", note->jid);
+    scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag);
+    msg_flag = HBB_PREFIX_NONE;
+  }
+
+  // If we have the creation date, display it
+  if (note->cdate) {
+    strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S",
+             localtime(&note->cdate));
+    g_string_printf(sbuf, "Note created  %s", tbuf);
+    scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag);
+    msg_flag = HBB_PREFIX_NONE;
+  }
+  // If we have the modification date, display it
+  // unless it's the same as the creation date
+  if (note->mdate && note->mdate != note->cdate) {
+    strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S",
+             localtime(&note->mdate));
+    g_string_printf(sbuf, "Note modified %s", tbuf);
+    scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag);
+    msg_flag = HBB_PREFIX_NONE;
+  }
+  // Note text
+  g_string_printf(sbuf, "Note: %s", note->text);
+  scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag);
+
+  g_string_free(sbuf, TRUE);
+  g_free(note->text);
+  g_free(note->jid);
+  g_free(note);
+}
+
+static void display_all_annotations()
+{
+  GSList *notes;
+  notes = jb_get_all_storage_rosternotes();
+  // Call display_and_free_note() for each note,
+  // with winId = NULL (special window)
+  g_slist_foreach(notes, (GFunc)&display_and_free_note, NULL);
+  g_slist_free(notes);
+}
+
 static void roster_note(char *arg)
 {
   const char *jid;
-  gchar *msg, *notetxt;
   guint type;
 
   if (!current_buddy)
@@ -479,6 +539,13 @@ static void roster_note(char *arg)
   jid = buddy_getjid(BUDDATA(current_buddy));
   type = buddy_gettype(BUDDATA(current_buddy));
 
+  if (!jid && type == ROSTER_TYPE_SPECIAL && !arg) {
+    // We're in the status window (the only special buffer currently)
+    // Let's display all server notes
+    display_all_annotations();
+    return;
+  }
+
   if (!jid || (type != ROSTER_TYPE_USER &&
                type != ROSTER_TYPE_ROOM &&
                type != ROSTER_TYPE_AGENT)) {
@@ -486,12 +553,9 @@ static void roster_note(char *arg)
     return;
   }
 
-  if (arg && *arg)
+  if (arg && *arg) {  // Set a note
+    gchar *msg, *notetxt;
     msg = to_utf8(arg);
-  else
-    msg = NULL;
-
-  if (msg) {    // Set a note
     if (!strcmp(msg, "-"))
       notetxt = NULL; // delete note
     else
@@ -501,36 +565,7 @@ static void roster_note(char *arg)
   } else {      // Display a note
     struct annotation *note = jb_get_storage_rosternotes(jid);
     if (note) {
-      char tbuf[128];
-      guint msg_flag = HBB_PREFIX_INFO;
-      /* We use the flag prefix_info for the first line, and prefix_none
-         for the other lines, for better readability */
-
-      // If we have the creation date, display it
-      if (note->cdate) {
-        strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S",
-                 localtime(&note->cdate));
-        msg = g_strdup_printf("Note created  %s", tbuf);
-        scr_WriteIncomingMessage(jid, msg, 0, msg_flag);
-        g_free(msg);
-        msg_flag = HBB_PREFIX_NONE;
-      }
-      // If we have the modification date, display it
-      // unless it's the same as the creation date
-      if (note->mdate && note->mdate != note->cdate) {
-        strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S",
-                 localtime(&note->mdate));
-        msg = g_strdup_printf("Note modified %s", tbuf);
-        scr_WriteIncomingMessage(jid, msg, 0, msg_flag);
-        g_free(msg);
-        msg_flag = HBB_PREFIX_NONE;
-      }
-      // Note text
-      msg = g_strdup_printf("Note: %s", note->text);
-      scr_WriteIncomingMessage(jid, msg, 0, msg_flag);
-      g_free(note->text);
-      g_free(note);
-      g_free(msg);
+      display_and_free_note(note, jid);
     } else {
       scr_WriteIncomingMessage(jid, "This item doesn't have a note.", 0,
                                HBB_PREFIX_INFO);
@@ -1300,6 +1335,7 @@ static void do_info(char *arg)
     if (note) {
       // We do not display the note, we just tell the user.
       g_free(note->text);
+      g_free(note->jid);
       g_free(note);
       scr_WriteIncomingMessage(jid, "(This item has an annotation)", 0,
                                HBB_PREFIX_INFO);

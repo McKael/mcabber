@@ -525,6 +525,10 @@ static void display_all_annotations()
   // Call display_and_free_note() for each note,
   // with winId = NULL (special window)
   g_slist_foreach(notes, (GFunc)&display_and_free_note, NULL);
+  if (notes) {
+    scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+    update_roster = TRUE;
+  }
   g_slist_free(notes);
 }
 

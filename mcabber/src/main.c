@@ -40,6 +40,7 @@
 #include "histolog.h"
 #include "hooks.h"
 #include "utils.h"
+#include "pgp.h"
 
 #ifdef ENABLE_HGCSET
 # include "hgcset.h"
@@ -186,7 +187,10 @@ void sig_handler(int signum)
   }
 }
 
-static void ask_password(void)
+//  ask_password(what)
+// Return the password, or NULL.
+// The string must be freed after use.
+static char *ask_password(const char *what)
 {
   char *password, *p;
   size_t passsize = 128;
@@ -195,15 +199,15 @@ static void ask_password(void)
   password = g_new0(char, passsize);
 
   /* Turn echoing off and fail if we can't. */
-  if (tcgetattr(fileno(stdin), &orig) != 0) return;
+  if (tcgetattr(fileno(stdin), &orig) != 0) return NULL;
   backup_termios = &orig;
 
   new = orig;
   new.c_lflag &= ~ECHO;
-  if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) return;
+  if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) return NULL;
 
   /* Read the password. */
-  printf("Please enter password: ");
+  printf("Please enter %s: ", what);
   fgets(password, passsize, stdin);
 
   /* Restore terminal. */
@@ -216,9 +220,7 @@ static void ask_password(void)
   for ( ; p > (char*)password ; p--)
     if (*p == '\n' || *p == '\r') *p = 0;
 
-  settings_set(SETTINGS_TYPE_OPTION, "password", password);
-  g_free(password);
-  return;
+  return password;
 }
 
 static void credits(void)
@@ -228,6 +230,59 @@ static void credits(void)
   printf(v_fmt, v);
   scr_LogPrint(LPRINT_LOGNORM|LPRINT_NOTUTF8, v_fmt, v);
   g_free(v);
+}
+
+void main_init_pgp(void)
+{
+#ifdef HAVE_GPGME
+  const char *pk, *pp;
+  char *typed_passwd = NULL;
+  char *p;
+  bool pgp_invalid = FALSE;
+  bool pgp_agent;
+
+  p = getenv("GPG_AGENT_INFO");
+  pgp_agent = (p && strchr(p, ':'));
+
+  pk = settings_opt_get("pgp_private_key");
+  pp = settings_opt_get("pgp_passphrase");
+  if (!pk) {
+    scr_LogPrint(LPRINT_LOGNORM, "WARNING: unkown PGP private key");
+    pgp_invalid = TRUE;
+  } else if (!(pp || pgp_agent)) {
+    // Request PGP passphrase
+    pp = typed_passwd = ask_password("PGP passphrase");
+  }
+  gpg_init(pk, pp);
+  // Erase password from the settings array
+  if (pp) {
+    memset((char*)pp, 0, strlen(pp));
+    if (typed_passwd)
+      g_free(typed_passwd);
+    else
+      settings_set(SETTINGS_TYPE_OPTION, "pgp_passphrase", NULL);
+  }
+  if (!pgp_agent && pk && pp && gpg_test_passphrase()) {
+    // Let's check the pasphrase
+    int i;
+    for (i = 0; i < 2; i++) {
+      typed_passwd = ask_password("PGP passphrase"); // Ask again...
+      if (typed_passwd) {
+        gpg_set_passphrase(typed_passwd);
+        memset(typed_passwd, 0, strlen(typed_passwd));
+        g_free(typed_passwd);
+      }
+      if (!gpg_test_passphrase())
+        break; // Ok
+    }
+    if (i == 2)
+      pgp_invalid = TRUE;
+  }
+  if (pgp_invalid)
+    scr_LogPrint(LPRINT_LOGNORM, "WARNING: PGP key/pass invalid");
+#else /* not HAVE_GPGME */
+  scr_LogPrint(LPRINT_LOGNORM, "WARNING: not compiled with PGP support");
+#endif /* HAVE_GPGME */
 }
 
 int main(int argc, char **argv)
@@ -291,8 +346,15 @@ int main(int argc, char **argv)
     p = settings_opt_get("username");
     if (p)
       printf("Username: %s\n", p);
-    ask_password();
+    settings_set(SETTINGS_TYPE_OPTION, "password",
+                 ask_password("Jabber password"));
   }
+
+  /* Initialize PGP system
+     We do it before ncurses initialization because we may need to request
+     a passphrase. */
+  if (settings_opt_get_int("pgp"))
+    main_init_pgp();
 
   /* Initialize N-Curses */
   scr_LogPrint(LPRINT_DEBUG, "Initializing N-Curses...");
@@ -346,6 +408,9 @@ int main(int argc, char **argv)
   }
 
   jb_disconnect();
+#ifdef HAVE_GPGME
+  gpg_terminate();
+#endif
   scr_TerminateCurses();
 
   printf("\n\nThanks for using mcabber!\n");

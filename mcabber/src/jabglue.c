@@ -32,6 +32,7 @@
 #include "hbuf.h"
 #include "histolog.h"
 #include "commands.h"
+#include "pgp.h"
 
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
@@ -429,7 +430,20 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
   // (But we want to update internal status even when disconnected,
   // in order to avoid some problems during network failures)
   if (online) {
-    x = presnew(st, recipient, (st != invisible ? msg : NULL));
+    const char *s_msg = (st != invisible ? msg : NULL);
+    x = presnew(st, recipient, s_msg);
+#ifdef HAVE_GPGME
+    if (s_msg && *s_msg && gpg_enabled()) {
+      char *signature = gpg_sign(s_msg);
+      if (signature) {
+        xmlnode y;
+        y = xmlnode_insert_tag(x, "x");
+        xmlnode_put_attrib(y, "xmlns", NS_SIGNED);
+        xmlnode_insert_cdata(y, signature, (unsigned) -1);
+        g_free(signature);
+      }
+    }
+#endif
     jab_send(jc, x);
     xmlnode_free(x);
   }
@@ -1393,11 +1407,20 @@ static void gotmessage(char *type, const char *from, const char *body,
 {
   char *jid;
   const char *rname, *s;
+  char *decrypted = NULL;
 
   jid = jidtodisp(from);
 
   rname = strchr(from, JID_RESOURCE_SEPARATOR);
   if (rname) rname++;
+
+#ifdef HAVE_GPGME
+  if (enc && gpg_enabled()) {
+    decrypted = gpg_decrypt(enc);
+    if (decrypted)
+      body = decrypted;
+  }
+#endif
 
   // Check for unexpected groupchat messages
   // If we receive a groupchat message from a room we're not a member of,
@@ -1426,6 +1449,7 @@ static void gotmessage(char *type, const char *from, const char *body,
     }
 
     g_free(jid);
+    g_free(decrypted);
 
     buddylist_build();
     scr_DrawRoster();
@@ -1444,6 +1468,7 @@ static void gotmessage(char *type, const char *from, const char *body,
     scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", jid);
   }
   g_free(jid);
+  g_free(decrypted);
 }
 
 static const char *defaulterrormsg(int code)

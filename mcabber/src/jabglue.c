@@ -509,13 +509,16 @@ void jb_send_msg(const char *jid, const char *text, int type,
 {
   xmlnode x;
   gchar *strtype;
-#if defined JEP0022 || defined JEP0085
-  xmlnode event;
+#if defined HAVE_GPGME || defined JEP0022 || defined JEP0085
   char *rname, *barejid;
   GSList *sl_buddy;
+#endif
+#if defined JEP0022 || defined JEP0085
+  xmlnode event;
   guint use_jep85 = 0;
   struct jep0085 *jep85 = NULL;
 #endif
+  gchar *enc = NULL;
 
   if (!online) return;
 
@@ -524,18 +527,7 @@ void jb_send_msg(const char *jid, const char *text, int type,
   else
     strtype = TMSG_CHAT;
 
-  x = jutil_msgnew(strtype, (char*)jid, NULL, (char*)text);
-  if (subject) {
-    xmlnode y;
-    y = xmlnode_insert_tag(x, "subject");
-    xmlnode_insert_cdata(y, subject, (unsigned) -1);
-  }
-
-#if defined JEP0022 || defined JEP0085
-  // If typing notifications are disabled, we can skip all this stuff...
-  if (chatstates_disabled || type == ROSTER_TYPE_ROOM)
-    goto jb_send_msg_no_chatstates;
-
+#if defined HAVE_GPGME || defined JEP0022 || defined JEP0085
   rname = strchr(jid, JID_RESOURCE_SEPARATOR);
   barejid = jidtodisp(jid);
   sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
@@ -545,6 +537,37 @@ void jb_send_msg(const char *jid, const char *text, int type,
   // which hopefully will give us the most likely resource.
   if (rname)
     rname++;
+#endif
+
+#ifdef HAVE_GPGME
+  if (type == ROSTER_TYPE_USER && sl_buddy && gpg_enabled()) {
+    struct pgp_data *res_pgpdata;
+    res_pgpdata = buddy_resource_pgp(sl_buddy->data, rname);
+    if (res_pgpdata && res_pgpdata->sign_keyid)
+      enc = gpg_encrypt(text, res_pgpdata->sign_keyid);
+  }
+#endif
+
+  x = jutil_msgnew(strtype, (char*)jid, NULL,
+                   (enc ? "This message is PGP-encrypted." : (char*)text));
+  if (subject) {
+    xmlnode y;
+    y = xmlnode_insert_tag(x, "subject");
+    xmlnode_insert_cdata(y, subject, (unsigned) -1);
+  }
+  if (enc) {
+    xmlnode y;
+    y = xmlnode_insert_tag(x, "x");
+    xmlnode_put_attrib(y, "xmlns", NS_ENCRYPTED);
+    xmlnode_insert_cdata(y, enc, (unsigned) -1);
+    g_free(enc);
+  }
+
+#if defined JEP0022 || defined JEP0085
+  // If typing notifications are disabled, we can skip all this stuff...
+  if (chatstates_disabled || type == ROSTER_TYPE_ROOM)
+    goto jb_send_msg_no_chatstates;
+
   if (sl_buddy)
     jep85 = buddy_resource_jep85(sl_buddy->data, rname);
 #endif

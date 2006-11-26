@@ -699,7 +699,7 @@ static void setstatus(const char *recipient, const char *arg)
   if (recipient && !msg)
     msg = "";
 
-  jb_setstatus(st, recipient, msg);
+  jb_setstatus(st, recipient, msg, FALSE);
 
   free_arg_lst(paramlst);
 }
@@ -1951,7 +1951,7 @@ static void room_leave(gpointer bud, char *arg)
 
   roomid = g_strdup_printf("%s/%s", buddy_getjid(bud), nickname);
   desc = to_utf8(arg);
-  jb_setstatus(offline, roomid, desc);
+  jb_setstatus(offline, roomid, desc, TRUE);
   g_free(desc);
   g_free(roomid);
 }

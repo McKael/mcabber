@@ -136,7 +136,7 @@ void jb_disconnect(void)
 
   if (online) {
     // Announce it to  everyone else
-    jb_setstatus(offline, NULL, "");
+    jb_setstatus(offline, NULL, "", FALSE);
     // End the XML flow
     jb_send_raw("</stream:stream>");
     /*
@@ -337,7 +337,7 @@ static void roompresence(gpointer room, void *presencedata)
   if (!nickname) return;
 
   to = g_strdup_printf("%s/%s", jid, nickname);
-  jb_setstatus(pres->st, to, pres->msg);
+  jb_setstatus(pres->st, to, pres->msg, TRUE);
   g_free(to);
 }
 
@@ -403,7 +403,8 @@ static xmlnode presnew(enum imstatus st, const char *recipient,
   return x;
 }
 
-void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
+void jb_setstatus(enum imstatus st, const char *recipient, const char *msg,
+                  int do_not_sign)
 {
   xmlnode x;
 
@@ -433,7 +434,7 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
     const char *s_msg = (st != invisible ? msg : NULL);
     x = presnew(st, recipient, s_msg);
 #ifdef HAVE_GPGME
-    if (s_msg && *s_msg && gpg_enabled()) {
+    if (!do_not_sign && s_msg && *s_msg && gpg_enabled()) {
       char *signature = gpg_sign(s_msg);
       if (signature) {
         xmlnode y;
@@ -488,7 +489,7 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg)
 // Set previous status.  This wrapper function is used after a disconnection.
 inline void jb_setprevstatus(void)
 {
-  jb_setstatus(mywantedstatus, NULL, mystatusmsg);
+  jb_setstatus(mywantedstatus, NULL, mystatusmsg, FALSE);
 }
 
 //  new_msgid()
@@ -1525,7 +1526,7 @@ static void gotmessage(char *type, const char *from, const char *body,
     g_free(mbuf);
 
     // Send back an unavailable packet
-    jb_setstatus(offline, jid, "");
+    jb_setstatus(offline, jid, "", TRUE);
 
     // MUC
     // Make sure this is a room (it can be a conversion user->room)
@@ -1804,7 +1805,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     scr_WriteIncomingMessage(roomjid, mbuf, 0, HBB_PREFIX_INFO);
     g_free(mbuf);
     // Send back an unavailable packet
-    jb_setstatus(offline, roomjid, "");
+    jb_setstatus(offline, roomjid, "", TRUE);
     scr_DrawRoster();
     return;
   }

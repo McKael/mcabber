@@ -1387,10 +1387,10 @@ static inline void set_autoaway(bool setaway)
       msg = prevmsg;
     if (prevmsg)
       oldmsg = g_strdup(prevmsg);
-    jb_setstatus(away, NULL, msg);
+    jb_setstatus(away, NULL, msg, TRUE);
   } else {
     // Back
-    jb_setstatus(oldstatus, NULL, (oldmsg ? oldmsg : ""));
+    jb_setstatus(oldstatus, NULL, (oldmsg ? oldmsg : ""), FALSE);
     if (oldmsg) {
       g_free(oldmsg);
       oldmsg = NULL;

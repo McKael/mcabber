@@ -1468,6 +1468,12 @@ static void check_signature(const char *barejid, const char *rname,
     g_free(res_pgpdata->sign_keyid);
     res_pgpdata->sign_keyid = key;
     res_pgpdata->last_sigsum = sigsum;
+    if (sigsum & GPGME_SIGSUM_RED) {
+      char *buf = g_strdup_printf("Bad signature from <%s/%s>", barejid, rname);
+      scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);
+      scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+      g_free(buf);
+    }
   }
 #endif
 }

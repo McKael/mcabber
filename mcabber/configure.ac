@@ -92,6 +92,18 @@ MC_TM_GMTOFF
 # Check for glib
 AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),[g_list_append])
 
+# Check for gpgme
+AC_ARG_ENABLE(gpgme, AC_HELP_STRING([--disable-gpgme], [Disable GPGME support]),
+    [ if test x"$enableval" = x"no"; then
+        enable_gpgme=no
+      fi
+    ])
+
+if test x"${enable_gpgme}" != x"no"; then
+    AM_PATH_GPGME(1.0.0, AC_DEFINE(HAVE_GPGME, 1,
+        [Define if you use GPGME to support OpenPGP]))
+fi
+
 AC_ARG_WITH(ssl, [  --with-ssl              enable SSL secured connections using either OpenSSL
                           or GnuTLS],
         [with_ssl=$withval])
@@ -141,7 +153,7 @@ fi
 AC_ARG_ENABLE(debug,
     [AC_HELP_STRING(--enable-debug, Add development compilation options)],
     debug=$enableval, debug="")
-if test "${debug}" = "yes"; then
+if test x"${debug}" = x"yes"; then
     AC_DEFINE_UNQUOTED([DEBUG_ENABLE],[1],[Devel compilation options])
     if test "x$GCC" = "xyes"; then
         if test "$gccvernum" -ge "400"; then

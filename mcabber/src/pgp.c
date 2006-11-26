@@ -236,7 +236,7 @@ char *gpg_verify(const char *gpg_data, const char *text,
   }
   if (err)
     scr_LogPrint(LPRINT_LOGNORM|LPRINT_NOTUTF8,
-                 "GPGME error: %s", gpgme_strerror(err));
+                 "GPGME verification error: %s", gpgme_strerror(err));
   gpgme_release(ctx);
   g_free(data);
   return verified_key;
@@ -301,7 +301,7 @@ char *gpg_sign(const char *gpg_data)
   }
   if (err && err != GPG_ERR_CANCELED)
     scr_LogPrint(LPRINT_LOGNORM|LPRINT_NOTUTF8,
-                 "GPGME error: %s", gpgme_strerror(err));
+                 "GPGME signature error: %s", gpgme_strerror(err));
   gpgme_release(ctx);
   return signed_data;
 }
@@ -363,7 +363,7 @@ char *gpg_decrypt(const char *gpg_data)
   }
   if (err && err != GPG_ERR_CANCELED)
     scr_LogPrint(LPRINT_LOGNORM|LPRINT_NOTUTF8,
-                 "GPGME error: %s", gpgme_strerror(err));
+                 "GPGME decryption error: %s", gpgme_strerror(err));
   gpgme_release(ctx);
   g_free(data);
   return decrypted_data;
@@ -411,10 +411,13 @@ char *gpg_encrypt(const char *gpg_data, const char *keyid)
       gpgme_data_release(in);
     }
     gpgme_key_release(key);
+  } else {
+    scr_LogPrint(LPRINT_LOGNORM, "GPGME encryption error: key not found");
+    err = 0;
   }
   if (err && err != GPG_ERR_CANCELED)
     scr_LogPrint(LPRINT_LOGNORM|LPRINT_NOTUTF8,
-                 "GPGME error: %s", gpgme_strerror(err));
+                 "GPGME encryption error: %s", gpgme_strerror(err));
   gpgme_release(ctx);
   edata = strip_header_footer(encrypted_data);
   if (encrypted_data)

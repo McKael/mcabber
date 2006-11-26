@@ -1440,7 +1440,7 @@ static void check_signature(const char *barejid, const char *rname,
   gpgme_sigsum_t sigsum;
 
   // All parameters must be valid
-  if (!(xmldata && barejid && rname && text && *text))
+  if (!(xmldata && barejid && rname && text))
     return;
 
   if (!gpg_enabled())
@@ -2050,6 +2050,8 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
         (!ustmsg && m && m[0]) || (ustmsg && (!m || strcmp(ustmsg, m))))
       hk_statuschange(r, rname, bpprio, timestamp, ust, ustmsg);
     // Presence signature processing
+    if (!ustmsg)
+      ustmsg = ""; // Some clients omit the <status/> element :-(
     check_signature(r, rname, xml_get_xmlns(xmldata, NS_SIGNED), ustmsg);
   }
 

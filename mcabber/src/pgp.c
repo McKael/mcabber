@@ -274,12 +274,16 @@ char *gpg_sign(const char *gpg_data)
     gpgme_set_passphrase_cb(ctx, passphrase_cb, 0);
 
   err = gpgme_get_key(ctx, gpg.private_key, &key, 1);
-  if (!err) {
-    gpgme_signers_clear(ctx);
-    gpgme_signers_add(ctx, key);
-    gpgme_key_release(key);
-    err = gpgme_data_new_from_mem(&in, gpg_data, strlen(gpg_data), 0);
+  if (err) {
+    scr_LogPrint(LPRINT_LOGNORM, "GPGME error: private key not found");
+    gpgme_release(ctx);
+    return NULL;
   }
+
+  gpgme_signers_clear(ctx);
+  gpgme_signers_add(ctx, key);
+  gpgme_key_release(key);
+  err = gpgme_data_new_from_mem(&in, gpg_data, strlen(gpg_data), 0);
   if (!err) {
     err = gpgme_data_new(&out);
     if (!err) {

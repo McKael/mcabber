@@ -1302,11 +1302,13 @@ static void do_info(char *arg)
       enum imstatus rstatus;
       const char *rst_msg;
       time_t rst_time;
+      struct pgp_data *rpgp;
 
       rprio   = buddy_getresourceprio(bud, resources->data);
       rstatus = buddy_getstatus(bud, resources->data);
       rst_msg = buddy_getstatusmsg(bud, resources->data);
       rst_time = buddy_getstatustime(bud, resources->data);
+      rpgp = buddy_resource_pgp(bud, resources->data);
 
       snprintf(buffer, 4095, "Resource: [%c] (%d) %s", imstatus2char[rstatus],
                rprio, (char*)resources->data);
@@ -1322,6 +1324,19 @@ static void do_info(char *arg)
         snprintf(buffer, 127, "Status timestamp: %s", tbuf);
         scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
       }
+#ifdef HAVE_GPGME
+      if (rpgp && rpgp->sign_keyid) {
+        snprintf(buffer, 4095, "PGP key id: %s", rpgp->sign_keyid);
+        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+        if (rpgp->last_sigsum) {
+          gpgme_sigsum_t ss = rpgp->last_sigsum;
+          snprintf(buffer, 4095, "Last PGP signature: %s",
+                  (ss & GPGME_SIGSUM_GREEN ? "good":
+                   (ss & GPGME_SIGSUM_RED ? "bad" : "unknown")));
+          scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+        }
+      }
+#endif
     }
   } else {
     if (name) scr_LogPrint(LPRINT_NORMAL, "Name: %s", name);

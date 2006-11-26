@@ -1402,12 +1402,61 @@ void jb_set_storage_rosternotes(const char *barejid, const char *note)
                  "Warning: you're not connected to the server.");
 }
 
+//  check_signature(barejid, resourcename, xmldata, text)
+// Verify the signature (in xmldata) of "text" for the contact
+// barejid/resourcename.
+// xmldata is the 'jabber:x:signed' stanza.
+// If the key id is found, the contact's PGP data are updated.
+static void check_signature(const char *barejid, const char *rname,
+                            xmlnode xmldata, const char *text)
+{
+#ifdef HAVE_GPGME
+  char *p, *key;
+  GSList *sl_buddy;
+  struct pgp_data *res_pgpdata;
+  gpgme_sigsum_t sigsum;
+
+  // All parameters must be valid
+  if (!(xmldata && barejid && rname && text && *text))
+    return;
+
+  if (!gpg_enabled())
+    return;
+
+  // Get the resource PGP data structure
+  sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
+  if (!sl_buddy)
+    return;
+  res_pgpdata = buddy_resource_pgp(sl_buddy->data, rname);
+  if (!res_pgpdata)
+    return;
+
+  p = xmlnode_get_name(xmldata);
+  if (!p || strcmp(p, "x"))
+    return; // We expect "<x xmlns='jabber:x:signed'>"
+
+  // Get signature
+  p = xmlnode_get_data(xmldata);
+  if (!p)
+    return;
+
+  key = gpg_verify(p, text, &sigsum);
+  if (key) {
+    g_free(res_pgpdata->sign_keyid);
+    res_pgpdata->sign_keyid = key;
+    res_pgpdata->last_sigsum = sigsum;
+  }
+#endif
+}
+
 static void gotmessage(char *type, const char *from, const char *body,
-                       const char *enc, time_t timestamp)
+                       const char *enc, time_t timestamp,
+                       xmlnode xmldata_signed)
 {
   char *jid;
   const char *rname, *s;
   char *decrypted = NULL;
+  /* bool sigchecked = FALSE; */
 
   jid = jidtodisp(from);
 
@@ -1417,9 +1466,19 @@ static void gotmessage(char *type, const char *from, const char *body,
 #ifdef HAVE_GPGME
   if (enc && gpg_enabled()) {
     decrypted = gpg_decrypt(enc);
-    if (decrypted)
+    if (decrypted) {
       body = decrypted;
+      /*
+      if (xmldata_signed) {
+        check_signature(jid, rname, xmldata_signed, decrypted);
+        sigchecked = TRUE;
+      }
+      */
+    }
   }
+  // Check signature of an unencrypted message
+  if (xmldata_signed /* && !sigchecked */ && gpg_enabled())
+    check_signature(jid, rname, xmldata_signed, decrypted);
 #endif
 
   // Check for unexpected groupchat messages
@@ -1962,10 +2021,13 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
     // Not a MUC message, so this is a regular buddy...
     // Call hk_statuschange() if status has changed or if the
     // status message is different
-    const char *m = roster_getstatusmsg(r, rname);
+    const char *m;
+    m = roster_getstatusmsg(r, rname);
     if ((ust != roster_getstatus(r, rname)) ||
         (!ustmsg && m && m[0]) || (ustmsg && (!m || strcmp(ustmsg, m))))
       hk_statuschange(r, rname, bpprio, timestamp, ust, ustmsg);
+    // Presence signature processing
+    check_signature(r, rname, xml_get_xmlns(xmldata, NS_SIGNED), ustmsg);
   }
 
   g_free(r);
@@ -2044,7 +2106,8 @@ static void handle_packet_message(jconn conn, char *type, char *from,
 #endif
   }
   if (from && body)
-    gotmessage(type, from, body, enc, timestamp);
+    gotmessage(type, from, body, enc, timestamp,
+               xml_get_xmlns(xmldata, NS_SIGNED));
   g_free(tmp);
 }
 

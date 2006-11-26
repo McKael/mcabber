@@ -4,6 +4,8 @@
 #include <glib.h>
 #include <time.h>
 
+#include "pgp.h"
+
 #define SPECIAL_BUFFER_STATUS_ID  "[status]"
 
 enum imstatus {
@@ -97,6 +99,13 @@ enum chatstate_support {
   CHATSTATES_SUPPORT_OK
 };
 
+struct pgp_data {
+  gchar *sign_keyid;
+#ifdef HAVE_GPGME
+  gpgme_sigsum_t last_sigsum;
+#endif
+};
+
 /* Message event and chat state flags */
 #define ROSTER_EVENT_NONE      0U
 /* JEP-22 Message Events */
@@ -177,6 +186,7 @@ void    buddy_resource_setevents(gpointer rosterdata, const char *resname,
 guint   buddy_resource_getevents(gpointer rosterdata, const char *resname);
 struct jep0022 *buddy_resource_jep22(gpointer rosterdata, const char *resname);
 struct jep0085 *buddy_resource_jep85(gpointer rosterdata, const char *resname);
+struct pgp_data *buddy_resource_pgp(gpointer rosterdata, const char *resname);
 enum imrole buddy_getrole(gpointer rosterdata, const char *resname);
 enum imaffiliation buddy_getaffil(gpointer rosterdata, const char *resname);
 const char *buddy_getrjid(gpointer rosterdata, const char *resname);

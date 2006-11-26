@@ -58,6 +58,9 @@ typedef struct {
 #ifdef JEP0085
   struct jep0085 jep85;
 #endif
+#ifdef HAVE_GPGME
+  struct pgp_data pgpdata;
+#endif
 } res;
 
 /* This is a private structure type for the roster */
@@ -124,6 +127,9 @@ static void free_all_resources(GSList **reslist)
 #ifdef JEP0022
     g_free(p_res->jep22.last_msgid_sent);
     g_free(p_res->jep22.last_msgid_rcvd);
+#endif
+#ifdef HAVE_GPGME
+    g_free(p_res->pgpdata.sign_keyid);
 #endif
   }
   // Free all nodes but the first (which is static)
@@ -222,6 +228,9 @@ static void del_resource(roster *rost, const char *resname)
 #ifdef JEP0022
   g_free(p_res->jep22.last_msgid_sent);
   g_free(p_res->jep22.last_msgid_rcvd);
+#endif
+#ifdef HAVE_GPGME
+  g_free(p_res->pgpdata.sign_keyid);
 #endif
   rost->resource = g_slist_delete_link(rost->resource, p_res_elt);
   return;
@@ -1116,6 +1125,18 @@ struct jep0085 *buddy_resource_jep85(gpointer rosterdata, const char *resname)
 #endif
   return NULL;
 }
+
+struct pgp_data *buddy_resource_pgp(gpointer rosterdata, const char *resname)
+{
+#ifdef HAVE_GPGME
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return &p_res->pgpdata;
+#endif
+  return NULL;
+}
+
 
 enum imrole buddy_getrole(gpointer rosterdata, const char *resname)
 {

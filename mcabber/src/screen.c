@@ -568,9 +568,11 @@ static void scr_UpdateWindow(winbuf *win_entry)
           dir = '>';
         wprintw(win_entry->win, "%.11s #%c# ", date, dir);
       } else if (line->flags & HBB_PREFIX_IN) {
-        wprintw(win_entry->win, "%.11s <== ", date);
+        char crypt = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '=';
+        wprintw(win_entry->win, "%.11s <%c= ", date, crypt);
       } else if (line->flags & HBB_PREFIX_OUT) {
-        wprintw(win_entry->win, "%.11s --> ", date);
+        char crypt = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '-';
+        wprintw(win_entry->win, "%.11s -%c> ", date, crypt);
       } else if (line->flags & HBB_PREFIX_SPECIAL) {
         strftime(date, 30, "%m-%d %H:%M:%S", localtime(&line->timestamp));
         wprintw(win_entry->win, "%.14s  ", date);
@@ -1355,16 +1357,17 @@ inline void scr_WriteMessage(const char *jid, const char *text,
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
         time_t timestamp, guint prefix)
 {
-  if (!(prefix & ~HBB_PREFIX_NOFLAG & ~HBB_PREFIX_HLIGHT))
+  if (!(prefix &
+        ~HBB_PREFIX_NOFLAG & ~HBB_PREFIX_HLIGHT & ~HBB_PREFIX_PGPCRYPT))
     prefix |= HBB_PREFIX_IN;
 
   scr_WriteMessage(jidfrom, text, timestamp, prefix);
   update_panels();
 }
 
-void scr_WriteOutgoingMessage(const char *jidto, const char *text)
+void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix)
 {
-  scr_WriteMessage(jidto, text, 0, HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT);
+  scr_WriteMessage(jidto, text, 0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT);
   scr_ShowWindow(jidto, FALSE);
 }
 

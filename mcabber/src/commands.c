@@ -295,6 +295,7 @@ cmd *cmd_get(const char *command)
 static void send_message(const char *msg, const char *subj)
 {
   const char *jid;
+  guint crypted;
 
   if (!jb_getonline()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
@@ -312,6 +313,11 @@ static void send_message(const char *msg, const char *subj)
     return;
   }
 
+  // Network part
+  jb_send_msg(jid, msg, buddy_gettype(BUDDATA(current_buddy)), subj, NULL,
+              &crypted);
+
+  // Hook
   if (buddy_gettype(BUDDATA(current_buddy)) != ROSTER_TYPE_ROOM) {
     // local part (UI, logging, etc.)
     gchar *hmsg;
@@ -319,12 +325,9 @@ static void send_message(const char *msg, const char *subj)
       hmsg = g_strdup_printf("[%s]\n%s", subj, msg);
     else
       hmsg = (char*)msg;
-    hk_message_out(jid, NULL, 0, hmsg);
+    hk_message_out(jid, NULL, 0, hmsg, crypted);
     if (hmsg != msg) g_free(hmsg);
   }
-
-  // Network part
-  jb_send_msg(jid, msg, buddy_gettype(BUDDATA(current_buddy)), subj, NULL);
 }
 
 //  process_command(line)
@@ -902,6 +905,7 @@ static int send_message_to(const char *jid, const char *msg, const char *subj)
 {
   char *bare_jid, *rp;
   char *hmsg;
+  guint crypted;
 
   if (!jid || !*jid) {
     scr_LogPrint(LPRINT_NORMAL, "You must specify a Jabber ID.");
@@ -937,11 +941,12 @@ static int send_message_to(const char *jid, const char *msg, const char *subj)
   else
     hmsg = (char*)msg;
 
-  hk_message_out(bare_jid, rp, 0, hmsg);
-  if (hmsg != msg) g_free(hmsg);
-
   // Network part
-  jb_send_msg(jid, msg, ROSTER_TYPE_USER, subj, NULL);
+  jb_send_msg(jid, msg, ROSTER_TYPE_USER, subj, NULL, &crypted);
+
+  // Hook
+  hk_message_out(bare_jid, rp, 0, hmsg, crypted);
+  if (hmsg != msg) g_free(hmsg);
 
   if (rp) g_free(bare_jid);
   return 0;
@@ -2047,7 +2052,7 @@ static void room_topic(gpointer bud, char *arg)
   arg = to_utf8(arg);
   // Set the topic
   msg = g_strdup_printf("%s has set the topic to: %s", mkcmdstr("me"), arg);
-  jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg, NULL);
+  jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg, NULL, NULL);
   g_free(arg);
   g_free(msg);
 }

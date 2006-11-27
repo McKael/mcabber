@@ -506,8 +506,11 @@ static char *new_msgid(void)
   return g_strdup_printf("%u%d", msg_idn, (int)(now%10L));
 }
 
+//  jb_send_msg(jid, test, type, subject, msgid, *encrypted)
+// When encrypted is not NULL, the function set *encrypted to TRUE if the
+// message has been PGP-encrypted.
 void jb_send_msg(const char *jid, const char *text, int type,
-                 const char *subject, const char *msgid)
+                 const char *subject, const char *msgid, guint *encrypted)
 {
   xmlnode x;
   gchar *strtype;
@@ -521,6 +524,9 @@ void jb_send_msg(const char *jid, const char *text, int type,
   struct jep0085 *jep85 = NULL;
 #endif
   gchar *enc = NULL;
+
+  if (encrypted)
+    *encrypted = FALSE;
 
   if (!online) return;
 
@@ -562,6 +568,8 @@ void jb_send_msg(const char *jid, const char *text, int type,
     y = xmlnode_insert_tag(x, "x");
     xmlnode_put_attrib(y, "xmlns", NS_ENCRYPTED);
     xmlnode_insert_cdata(y, enc, (unsigned) -1);
+    if (encrypted)
+      *encrypted = TRUE;
     g_free(enc);
   }
 
@@ -1546,7 +1554,8 @@ static void gotmessage(char *type, const char *from, const char *body,
       (roster_getsubscription(jid) & sub_from) ||
       (type && strcmp(type, "chat")) ||
       ((s = settings_opt_get("server")) != NULL && !strcasecmp(jid, s))) {
-    hk_message_in(jid, rname, timestamp, body, type);
+    hk_message_in(jid, rname, timestamp, body, type,
+                  (decrypted ? TRUE : FALSE));
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", jid);
   }

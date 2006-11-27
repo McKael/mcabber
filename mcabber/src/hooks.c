@@ -34,7 +34,8 @@
 static char *extcmd;
 
 inline void hk_message_in(const char *jid, const char *resname,
-                          time_t timestamp, const char *msg, const char *type)
+                          time_t timestamp, const char *msg, const char *type,
+                          guint encrypted)
 {
   int new_guy = FALSE;
   int is_groupchat = FALSE; // groupchat message
@@ -44,6 +45,9 @@ inline void hk_message_in(const char *jid, const char *resname,
   guint rtype = ROSTER_TYPE_USER;
   char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
   GSList *roster_usr;
+
+  if (encrypted)
+    message_flags |= HBB_PREFIX_PGPCRYPT;
 
   if (type && !strcmp(type, "groupchat")) {
     rtype = ROSTER_TYPE_ROOM;
@@ -165,7 +169,7 @@ inline void hk_message_in(const char *jid, const char *resname,
 // nick should be set for private messages in a chat room, and null for
 // normal messages.
 inline void hk_message_out(const char *jid, const char *nick,
-                           time_t timestamp, const char *msg)
+                           time_t timestamp, const char *msg, guint encrypted)
 {
   char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
 
@@ -184,7 +188,7 @@ inline void hk_message_out(const char *jid, const char *nick,
   // Note: the hlog_write should not be called first, because in some
   // cases scr_WriteOutgoingMessage() will load the history and we'd
   // have the message twice...
-  scr_WriteOutgoingMessage(jid, wmsg);
+  scr_WriteOutgoingMessage(jid, wmsg, (encrypted ? HBB_PREFIX_PGPCRYPT : 0));
 
   // We don't log private messages
   if (!nick) hlog_write_message(jid, timestamp, TRUE, msg);

@@ -434,8 +434,9 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg,
     const char *s_msg = (st != invisible ? msg : NULL);
     x = presnew(st, recipient, s_msg);
 #ifdef HAVE_GPGME
-    if (!do_not_sign && s_msg && *s_msg && gpg_enabled()) {
-      char *signature = gpg_sign(s_msg);
+    if (!do_not_sign && gpg_enabled()) {
+      char *signature;
+      signature = gpg_sign(s_msg ? s_msg : "");
       if (signature) {
         xmlnode y;
         y = xmlnode_insert_tag(x, "x");

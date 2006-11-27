@@ -1487,7 +1487,6 @@ static void gotmessage(char *type, const char *from, const char *body,
   char *jid;
   const char *rname, *s;
   char *decrypted = NULL;
-  /* bool sigchecked = FALSE; */
 
   jid = jidtodisp(from);
 
@@ -1499,16 +1498,10 @@ static void gotmessage(char *type, const char *from, const char *body,
     decrypted = gpg_decrypt(enc);
     if (decrypted) {
       body = decrypted;
-      /*
-      if (xmldata_signed) {
-        check_signature(jid, rname, xmldata_signed, decrypted);
-        sigchecked = TRUE;
-      }
-      */
     }
   }
   // Check signature of an unencrypted message
-  if (xmldata_signed /* && !sigchecked */ && gpg_enabled())
+  if (xmldata_signed && gpg_enabled())
     check_signature(jid, rname, xmldata_signed, decrypted);
 #endif
 

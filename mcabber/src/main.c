@@ -47,7 +47,7 @@
 #endif
 
 #ifndef WAIT_ANY
-#  define WAIT_ANY -1
+# define WAIT_ANY -1
 #endif
 
 static struct termios *backup_termios;

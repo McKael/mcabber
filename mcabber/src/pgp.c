@@ -228,6 +228,10 @@ char *gpg_verify(const char *gpg_data, const char *text,
           // r is a static variable, let's copy it.
           verified_key = g_strdup(r);
           *sigsum = vr->signatures->summary;
+          // For some reason summary could be 0 when status is 0 too,
+          // which means the signature is valid...
+          if (!*sigsum && !vr->signatures->status)
+            *sigsum = GPGME_SIGSUM_GREEN;
         }
       }
       gpgme_data_release(data_text);

@@ -55,8 +55,8 @@ int gpg_init(const char *priv_key, const char *passphrase)
 
   // Check for version and OpenPGP protocol support.
   if (!gpgme_check_version(MIN_GPGME_VERSION)) {
-    scr_LogPrint(LPRINT_LOGNORM|LPRINT_NOTUTF8,
-                 "GPGME initialization error: %s", gpgme_strerror(err));
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "GPGME initialization error: Bad library version");
     return -1;
   }
 

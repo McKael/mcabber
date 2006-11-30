@@ -1,6 +1,7 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|kick|ban|role|affil
+ /ROOM bookmark [add|del] [-autojoin|+autojoin]
 
 The 'room' command handles Multi-User Chat room actions.
 
@@ -34,3 +35,6 @@ The 'room' command handles Multi-User Chat room actions.
  Change jid's role (role can be "none", "visitor", "participant", "moderator")
 /room affil jid affil [reason]
  Change jid's affiliation (affil can be "none", "member", "admin", "owner")
+/room bookmark [add|del] [-autojoin|+autojoin]
+ Add, remove or update a bookmark (default is add).
+ If autojoin is set, mcabber will automatically join the MUC room when it connects to the server.

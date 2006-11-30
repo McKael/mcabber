@@ -24,6 +24,8 @@ Here are some of the features of `mcabber`:
 
 - 'SSL support'.
 - 'MUC support' (Multi-User Chat).
+- 'PGP support'
+- 'Chat States' support (typing notifications)
 - 'History logging:'  If enabled (see the CONFIGURATION FILE section),
   `mcabber` can save discussions to history log files.
 - 'Commands completion:'  If possible, `mcabber` will try to complete your
@@ -86,6 +88,7 @@ leave the chat mode.
 
 Here is a quick description of the key bindings:
 
+Esc::           Disable chat mode
 Ctrl-a::        Go to the beginning of the input line
 Ctrl-e::        Go to the end of the input line
 Ctrl-l::        Force a refresh
@@ -298,13 +301,14 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         Please note that a group name change is only done when the server's
         acknowledgment is received, so a slight delay can be noticed.
 
-/request time|version [jid]::
+/request last|time|vcard|version [jid]::
         Send a "IQ" query to the current buddy, or to the specified Jabber
         user.  If the resource is not provided with the jid, mcabber will
         send the query to all known resources for this user.
 
 /room join|leave|names|nick|privmsg|remove|topic|unlock|destroy::
 /room invite|kick|ban|role|affil::
+/room bookmark [add|del] [-autojoin|+autojoin]::
         The 'room' command handles Multi-User Chat room actions.
 
         'join' [room [nick [pass]]];; join "room", using "nick" as nickname.  If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.  A password can be provided to enter protected rooms.  If your nickname contains space characters, use quotes.
@@ -322,11 +326,13 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         'kick' nick [reason];;  kick "nick" from the current room
         'role' jid role [reason];;  change jid's role (role can be "none", "visitor", "participant", "moderator")
         'affil' jid affil [reason];; change jid's affiliation (affil can be "none", "member", "admin", "owner")
+        'bookmark'              add/update/remove a room bookmark, set/unset autojoin
 
 /roster bottom|top|hide_offline|show_offline|toggle_offline::
 /roster hide|show|toggle::
 /roster alternate|unread_first|unread_next::
 /roster search bud::
+/roster note [-|text]::
         The 'roster' command manipulates the roster/buddylist.  Here are the available parameters:
 
         'bottom';;       jump to the bottom of the roster
@@ -345,6 +351,7 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         'alternate';;    jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
         'unread_first';; jump to the first unread message
         'unread_next';;  jump to the next unread message
+        'note' [text];;  display or set an annotation (if text is "-", the annotation is deleted).  In the "status" buffer, it will display all annotations.
 
 /say text::
         Send the "text" message to the currently selected buddy.  Can be useful

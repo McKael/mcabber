@@ -3,6 +3,7 @@
  /ROSTER hide|show|toggle
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
+ /ROSTER note [-|text]
 
 The 'roster' command manipulates the roster/buddylist.
 Here are the available parameters:
@@ -39,3 +40,7 @@ Here are the available parameters:
  Jump to the first unread message
 /roster unread_next
  Jump to the next unread message
+/roster note [-|text]
+ Set/update/delete an annotation.
+ If there is no text, the current item's annotation is displayed -- if you are in the status buffer, all notes are displayed.
+ If text is "-", the note is erased.

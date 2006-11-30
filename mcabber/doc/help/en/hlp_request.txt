@@ -1,9 +1,13 @@
 
- /REQUEST time|version [jid]
+ /REQUEST last|time|vcard|version [jid]
 
 Send a "IQ" query to the current buddy, or to the specified Jabber user.  If the resource is not provided with the jid, mcabber will send the query to all known resources for this user.
 
+/request last
+ Request "last" information (usually idle time)
 /request time
  Request time from the buddy
+/request vcard
+ Request VCard from the buddy
 /request version
  Request version from the buddy

@@ -11,6 +11,24 @@ directory.  Copy it and modify it to fit your needs.
 You can use mcabber "-f" option to specify another configuration file.
 
 
+* FEATURES
+
+This is an overview of mcabber Jabber features:
+
+  XEP-0012 - Last Activity
+  XEP-0022 - Message Events
+  XEP-0027 - Current Jabber OpenPGP Usage
+  XEP-0030 - Service Discovery (partial)
+  XEP-0045 - Multi-User Chat
+  XEP-0048 - Bookmark Storage
+  XEP-0049 - Private XML Storage
+  XEP-0054 - vcard-temp (retrieval only)
+  XEP-0085 - Chat State Notifications
+  XEP-0090 - Entity Time
+  XEP-0091 - Delayed Delivery
+  XEP-0092 - Software Version
+  XEP-0145 - Annotations
+
 This software is under development, please give me some feedback (and some
 patches if you can!).  Or just tell me you're using it... ;-)
 

@@ -9,6 +9,8 @@ the src/ directory after the build procedure)
 MCabber needs ncurses and ncurses development packages to build correctly.
 For UTF-8 terminal support, use ncursesw instead.
 If you want SSL support, you will need openssl lib & dev packages as well.
+If you want PGP support, install libgpgme (with dev package),
+version >= 1.0.0.
 
 Please have a look at the README file before launching mcabber.
 

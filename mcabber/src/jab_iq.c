@@ -56,7 +56,7 @@ enum vcard_attr {
 //  iqs_new(type, namespace, prefix, timeout)
 // Create a query (GET, SET) IQ structure.  This function should not be used
 // for RESULT packets.
-eviqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout)
+eviqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t tmout)
 {
   static guint iqs_idn;
   eviqs *new_iqs;
@@ -67,8 +67,8 @@ eviqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout)
   new_iqs = g_new0(eviqs, 1);
   time(&now_t);
   new_iqs->ts_create = now_t;
-  if (timeout)
-    new_iqs->ts_expire = now_t + timeout;
+  if (tmout)
+    new_iqs->ts_expire = now_t + tmout;
   new_iqs->type = type;
   new_iqs->xmldata = jutil_iqnew(type, (char*)ns);
   if (prefix)
@@ -182,7 +182,7 @@ static void request_roster(void)
 static void handle_iq_roster(xmlnode x)
 {
   xmlnode y;
-  const char *jid, *name, *group, *sub, *ask;
+  const char *fjid, *name, *group, *sub, *ask;
   char *cleanalias;
   enum subscr esub;
   int need_refresh = FALSE;
@@ -190,17 +190,17 @@ static void handle_iq_roster(xmlnode x)
 
   for (y = xmlnode_get_tag(x, "item"); y; y = xmlnode_get_nextsibling(y)) {
 
-    jid = xmlnode_get_attrib(y, "jid");
+    fjid = xmlnode_get_attrib(y, "jid");
     name = xmlnode_get_attrib(y, "name");
     sub = xmlnode_get_attrib(y, "subscription");
     ask = xmlnode_get_attrib(y, "ask");
 
     group = xmlnode_get_tag_data(y, "group");
 
-    if (!jid)
+    if (!fjid)
       continue;
 
-    cleanalias = jidtodisp(jid);
+    cleanalias = jidtodisp(fjid);
 
     esub = sub_none;
     if (sub) {
@@ -594,12 +594,12 @@ static void iqscallback_vcard(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   handle_vcard_node(bjid, ansqry);
 }
 
-void request_vcard(const char *jid)
+void request_vcard(const char *bjid)
 {
   eviqs *iqn;
   char *barejid;
 
-  barejid = jidtodisp(jid);
+  barejid = jidtodisp(bjid);
 
   // Create a new IQ structure.  We use NULL for the namespace because
   // we'll have to use a special tag, not the usual "query" one.
@@ -617,17 +617,17 @@ void request_vcard(const char *jid)
 
 static void storage_bookmarks_parse_conference(xmlnode xmldata)
 {
-  const char *jid, *name, *autojoin;
+  const char *fjid, *name, *autojoin;
   char *bjid;
   GSList *room_elt;
 
-  jid = xmlnode_get_attrib(xmldata, "jid");
-  if (!jid)
+  fjid = xmlnode_get_attrib(xmldata, "jid");
+  if (!fjid)
     return;
   name = xmlnode_get_attrib(xmldata, "name");
   autojoin = xmlnode_get_attrib(xmldata, "autojoin");
 
-  bjid = jidtodisp(jid); // Bare jid
+  bjid = jidtodisp(fjid); // Bare jid
 
   // Make sure this is a room (it can be a conversion user->room)
   room_elt = roster_find(bjid, jidsearch, 0);

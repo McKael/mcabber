@@ -34,7 +34,7 @@ extern xmlnode bookmarks, rosternotes;
 extern char *mcabber_version(void);
 
 
-char *jidtodisp(const char *jid);
+char *jidtodisp(const char *fjid);
 void handle_packet_iq(jconn conn, char *type, char *from, xmlnode xmldata);
 void display_server_error(xmlnode x);
 eviqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout);

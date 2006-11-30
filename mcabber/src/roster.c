@@ -264,7 +264,7 @@ static gint roster_compare_name(roster *a, roster *b) {
 GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
 {
   GSList *sl_roster_elt = groups;
-  GSList *res;
+  GSList *resource;
   roster sample;
   GCompareFunc comp;
 
@@ -290,8 +290,8 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
       if ((type == namesearch) && !strcmp(jidname, roster_elt->name))
         return sl_roster_elt;
     }
-    res = g_slist_find_custom(roster_elt->list, &sample, comp);
-    if (res) return res;
+    resource = g_slist_find_custom(roster_elt->list, &sample, comp);
+    if (resource) return resource;
     sl_roster_elt = g_slist_next(sl_roster_elt);
   }
   return NULL;

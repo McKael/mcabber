@@ -491,9 +491,9 @@ static winbuf *scr_SearchWindow(const char *winId, int special)
   return NULL;
 }
 
-int scr_BuddyBufferExists(const char *jid)
+int scr_BuddyBufferExists(const char *bjid)
 {
-  return (scr_SearchWindow(jid, FALSE) != NULL);
+  return (scr_SearchWindow(bjid, FALSE) != NULL);
 }
 
 //  scr_UpdateWindow()
@@ -568,11 +568,11 @@ static void scr_UpdateWindow(winbuf *win_entry)
           dir = '>';
         wprintw(win_entry->win, "%.11s #%c# ", date, dir);
       } else if (line->flags & HBB_PREFIX_IN) {
-        char crypt = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '=';
-        wprintw(win_entry->win, "%.11s <%c= ", date, crypt);
+        char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '=';
+        wprintw(win_entry->win, "%.11s <%c= ", date, cryptflag);
       } else if (line->flags & HBB_PREFIX_OUT) {
-        char crypt = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '-';
-        wprintw(win_entry->win, "%.11s -%c> ", date, crypt);
+        char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '-';
+        wprintw(win_entry->win, "%.11s -%c> ", date, cryptflag);
       } else if (line->flags & HBB_PREFIX_SPECIAL) {
         strftime(date, 30, "%m-%d %H:%M:%S", localtime(&line->timestamp));
         wprintw(win_entry->win, "%.14s  ", date);
@@ -639,26 +639,26 @@ static void scr_ShowWindow(const char *winId, int special)
 // Display the chat window buffer for the current buddy.
 void scr_ShowBuddyWindow(void)
 {
-  const gchar *jid;
+  const gchar *bjid;
 
   if (!current_buddy) {
-    jid = NULL;
+    bjid = NULL;
   } else {
-    jid = CURRENT_JID;
+    bjid = CURRENT_JID;
     if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL) {
       scr_ShowWindow(buddy_getname(BUDDATA(current_buddy)), TRUE);
       return;
     }
   }
 
-  if (!jid) {
+  if (!bjid) {
     top_panel(chatPanel);
     top_panel(inputPanel);
     currentWindow = NULL;
     return;
   }
 
-  scr_ShowWindow(jid, FALSE);
+  scr_ShowWindow(bjid, FALSE);
 }
 
 //  scr_UpdateBuddyWindow()
@@ -1336,7 +1336,7 @@ void scr_RosterVisibility(int status)
   }
 }
 
-inline void scr_WriteMessage(const char *jid, const char *text,
+inline void scr_WriteMessage(const char *bjid, const char *text,
                              time_t timestamp, guint prefix_flags)
 {
   char *xtext;
@@ -1347,7 +1347,7 @@ inline void scr_WriteMessage(const char *jid, const char *text,
 
   // XXX Are there other special chars we should filter out?
 
-  scr_WriteInWindow(jid, xtext, timestamp, prefix_flags, FALSE);
+  scr_WriteInWindow(bjid, xtext, timestamp, prefix_flags, FALSE);
 
   if (xtext != (char*)text)
     g_free(xtext);
@@ -1570,8 +1570,8 @@ void scr_RosterSearch(char *str)
     scr_ShowBuddyWindow();
 }
 
-//  scr_RosterJumpJid(jid)
-// Jump to buddy jid.
+//  scr_RosterJumpJid(bjid)
+// Jump to buddy bjid.
 // NOTE: With this function, the buddy is added to the roster if doesn't exist.
 void scr_RosterJumpJid(char *barejid)
 {
@@ -1930,12 +1930,12 @@ inline int scr_get_multimode()
 
 //  scr_setmsgflag_if_needed(jid)
 // Set the message flag unless we're already in the jid buffer window
-void scr_setmsgflag_if_needed(const char *jid, int special)
+void scr_setmsgflag_if_needed(const char *bjid, int special)
 {
   const char *current_id;
   bool iscurrentlocked = FALSE;
 
-  if (!jid)
+  if (!bjid)
     return;
 
   if (current_buddy) {
@@ -1951,8 +1951,8 @@ void scr_setmsgflag_if_needed(const char *jid, int special)
   } else {
     current_id = NULL;
   }
-  if (!chatmode || !current_id || strcmp(jid, current_id) || iscurrentlocked)
-    roster_msg_setflag(jid, special, TRUE);
+  if (!chatmode || !current_id || strcmp(bjid, current_id) || iscurrentlocked)
+    roster_msg_setflag(bjid, special, TRUE);
 }
 
 //  scr_set_multimode()
@@ -2502,9 +2502,9 @@ void scr_Getch(keycode *kcode)
 
   kcode->value = wgetch(inputWnd);
   if (utf8_mode) {
-    bool meta = (kcode->value == 27);
+    bool ismeta = (kcode->value == 27);
 
-    if (meta)
+    if (ismeta)
       ks[0] = wgetch(inputWnd);
     else
       ks[0] = kcode->value;
@@ -2516,7 +2516,7 @@ void scr_Getch(keycode *kcode)
       if (match > 0) {
         kcode->value = match;
         kcode->utf8 = 1;
-        if (meta)
+        if (ismeta)
           kcode->mcode = MKEY_META;
         return;
       }
@@ -2526,7 +2526,7 @@ void scr_Getch(keycode *kcode)
     }
     while (i > 0)
       ungetch(ks[i--]);
-    if (meta)
+    if (ismeta)
       ungetch(ks[0]);
     memset(ks,  0, sizeof(ks));
   }
@@ -2590,14 +2590,14 @@ static int bindcommand(keycode kcode)
   boundcmd = settings_get(SETTINGS_TYPE_BINDING, asciikey);
 
   if (boundcmd) {
-    gchar *cmd, *boundcmd_locale;
+    gchar *cmdline, *boundcmd_locale;
     boundcmd_locale = from_utf8(boundcmd);
-    cmd = g_strdup_printf(mkcmdstr("%s"), boundcmd_locale);
+    cmdline = g_strdup_printf(mkcmdstr("%s"), boundcmd_locale);
     scr_CheckAutoAway(TRUE);
-    if (process_command(cmd))
+    if (process_command(cmdline))
       return 255; // Quit
     g_free(boundcmd_locale);
-    g_free(cmd);
+    g_free(cmdline);
     return 0;
   }
 

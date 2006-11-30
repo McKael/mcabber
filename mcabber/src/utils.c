@@ -306,27 +306,27 @@ inline void safe_usleep(unsigned int usec)
  * Check if the full JID is valid
  * Return 0 if it is valid, non zero otherwise
  */
-int check_jid_syntax(char *jid)
+int check_jid_syntax(char *fjid)
 {
   char *str;
   char *domain, *resource;
   int domlen;
 
-  if (!jid) return 1;
+  if (!fjid) return 1;
 
-  domain = strchr(jid, JID_DOMAIN_SEPARATOR);
+  domain = strchr(fjid, JID_DOMAIN_SEPARATOR);
 
   /* the username is optional */
   if (!domain) {
-    domain = jid;
+    domain = fjid;
   } else {
     /* node identifiers may not be longer than 1023 bytes */
-    if ((domain == jid) || (domain-jid > 1023))
+    if ((domain == fjid) || (domain-fjid > 1023))
       return 1;
     domain++;
 
     /* check for low and invalid ascii characters in the username */
-    for (str = jid; *str != JID_DOMAIN_SEPARATOR; str++) {
+    for (str = fjid; *str != JID_DOMAIN_SEPARATOR; str++) {
       if (*str <= ' ' || *str == ':' || *str == JID_DOMAIN_SEPARATOR ||
               *str == '<' || *str == '>' || *str == '\'' ||
               *str == '"' || *str == '&') {

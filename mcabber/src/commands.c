@@ -294,7 +294,7 @@ cmd *cmd_get(const char *command)
 // the network.
 static void send_message(const char *msg, const char *subj)
 {
-  const char *jid;
+  const char *bjid;
   guint crypted;
 
   if (!jb_getonline()) {
@@ -307,14 +307,14 @@ static void send_message(const char *msg, const char *subj)
     return;
   }
 
-  jid = CURRENT_JID;
-  if (!jid) {
+  bjid = CURRENT_JID;
+  if (!bjid) {
     scr_LogPrint(LPRINT_NORMAL, "No buddy is currently selected.");
     return;
   }
 
   // Network part
-  jb_send_msg(jid, msg, buddy_gettype(BUDDATA(current_buddy)), subj, NULL,
+  jb_send_msg(bjid, msg, buddy_gettype(BUDDATA(current_buddy)), subj, NULL,
               &crypted);
 
   // Hook
@@ -325,7 +325,7 @@ static void send_message(const char *msg, const char *subj)
       hmsg = g_strdup_printf("[%s]\n%s", subj, msg);
     else
       hmsg = (char*)msg;
-    hk_message_out(jid, NULL, 0, hmsg, crypted);
+    hk_message_out(bjid, NULL, 0, hmsg, crypted);
     if (hmsg != msg) g_free(hmsg);
   }
 }
@@ -431,23 +431,23 @@ int process_line(char *line)
 }
 
 // Helper routine for buffer item_{lock,unlock}
-static void roster_buddylock(char *jid, bool lock)
+static void roster_buddylock(char *bjid, bool lock)
 {
   gpointer bud = NULL;
   bool may_need_refresh = FALSE;
 
   // Allow special jid "" or "." (current buddy)
-  if (jid && (!*jid || !strcmp(jid, ".")))
-    jid = NULL;
+  if (bjid && (!*bjid || !strcmp(bjid, ".")))
+    bjid = NULL;
 
-  if (jid) {
+  if (bjid) {
     // The JID has been specified.  Quick check...
-    if (check_jid_syntax(jid)) {
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", jid);
+    if (check_jid_syntax(bjid)) {
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", bjid);
     } else {
       // Find the buddy
       GSList *roster_elt;
-      roster_elt = roster_find(jid, jidsearch,
+      roster_elt = roster_find(bjid, jidsearch,
                                ROSTER_TYPE_USER|ROSTER_TYPE_ROOM);
       if (roster_elt)
         bud = roster_elt->data;
@@ -537,23 +537,23 @@ static void display_all_annotations()
 
 static void roster_note(char *arg)
 {
-  const char *jid;
+  const char *bjid;
   guint type;
 
   if (!current_buddy)
     return;
 
-  jid = buddy_getjid(BUDDATA(current_buddy));
+  bjid = buddy_getjid(BUDDATA(current_buddy));
   type = buddy_gettype(BUDDATA(current_buddy));
 
-  if (!jid && type == ROSTER_TYPE_SPECIAL && !arg) {
+  if (!bjid && type == ROSTER_TYPE_SPECIAL && !arg) {
     // We're in the status window (the only special buffer currently)
     // Let's display all server notes
     display_all_annotations();
     return;
   }
 
-  if (!jid || (type != ROSTER_TYPE_USER &&
+  if (!bjid || (type != ROSTER_TYPE_USER &&
                type != ROSTER_TYPE_ROOM &&
                type != ROSTER_TYPE_AGENT)) {
     scr_LogPrint(LPRINT_NORMAL, "This item can't have a note.");
@@ -567,14 +567,14 @@ static void roster_note(char *arg)
       notetxt = NULL; // delete note
     else
       notetxt = msg;
-    jb_set_storage_rosternotes(jid, notetxt);
+    jb_set_storage_rosternotes(bjid, notetxt);
     g_free(msg);
   } else {      // Display a note
-    struct annotation *note = jb_get_storage_rosternotes(jid, FALSE);
+    struct annotation *note = jb_get_storage_rosternotes(bjid, FALSE);
     if (note) {
-      display_and_free_note(note, jid);
+      display_and_free_note(note, bjid);
     } else {
-      scr_WriteIncomingMessage(jid, "This item doesn't have a note.", 0,
+      scr_WriteIncomingMessage(bjid, "This item doesn't have a note.", 0,
                                HBB_PREFIX_INFO);
     }
   }
@@ -724,15 +724,15 @@ static void do_status(char *arg)
 static void do_status_to(char *arg)
 {
   char **paramlst;
-  char *jid, *st, *msg;
+  char *fjid, *st, *msg;
   char *jid_utf8 = NULL;
 
   paramlst = split_arg(arg, 3, 1); // jid, status, [message]
-  jid = *paramlst;
+  fjid = *paramlst;
   st = *(paramlst+1);
   msg = *(paramlst+2);
 
-  if (!jid || !st) {
+  if (!fjid || !st) {
     scr_LogPrint(LPRINT_NORMAL,
                  "Please specify both a Jabber ID and a status.");
     free_arg_lst(paramlst);
@@ -740,39 +740,39 @@ static void do_status_to(char *arg)
   }
 
   // Allow things like /status_to "" away
-  if (!*jid || !strcmp(jid, "."))
-    jid = NULL;
+  if (!*fjid || !strcmp(fjid, "."))
+    fjid = NULL;
 
-  if (jid) {
+  if (fjid) {
     // The JID has been specified.  Quick check...
-    if (check_jid_syntax(jid)) {
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", jid);
-      jid = NULL;
+    if (check_jid_syntax(fjid)) {
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", fjid);
+      fjid = NULL;
     } else {
       // Convert jid to lowercase
-      char *p = jid;
+      char *p = fjid;
       for ( ; *p && *p != JID_RESOURCE_SEPARATOR; p++)
         *p = tolower(*p);
-      jid = jid_utf8 = to_utf8(jid);
+      fjid = jid_utf8 = to_utf8(fjid);
     }
   } else {
     // Add the current buddy
     if (current_buddy)
-      jid = (char*)buddy_getjid(BUDDATA(current_buddy));
-    if (!jid)
+      fjid = (char*)buddy_getjid(BUDDATA(current_buddy));
+    if (!fjid)
       scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
   }
 
-  if (jid) {
-    char *cmd;
+  if (fjid) {
+    char *cmdline;
     if (!msg)
       msg = "";
     msg = to_utf8(msg);
-    cmd = g_strdup_printf("%s %s", st, msg);
-    scr_LogPrint(LPRINT_LOGNORM, "Sending to <%s> /status %s", jid, cmd);
-    setstatus(jid, cmd);
+    cmdline = g_strdup_printf("%s %s", st, msg);
+    scr_LogPrint(LPRINT_LOGNORM, "Sending to <%s> /status %s", fjid, cmdline);
+    setstatus(fjid, cmdline);
     g_free(msg);
-    g_free(cmd);
+    g_free(cmdline);
     g_free(jid_utf8);
   }
   free_arg_lst(paramlst);
@@ -834,7 +834,7 @@ static void do_add(char *arg)
 
 static void do_del(char *arg)
 {
-  const char *jid;
+  const char *bjid;
 
   if (*arg) {
     scr_LogPrint(LPRINT_NORMAL, "This action does not require a parameter; "
@@ -842,9 +842,11 @@ static void do_del(char *arg)
     return;
   }
 
-  if (!current_buddy) return;
-  jid = buddy_getjid(BUDDATA(current_buddy));
-  if (!jid) return;
+  if (!current_buddy)
+    return;
+  bjid = buddy_getjid(BUDDATA(current_buddy));
+  if (!bjid)
+    return;
 
   if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_ROOM) {
     // This is a chatroom
@@ -854,8 +856,8 @@ static void do_del(char *arg)
     }
   }
 
-  scr_LogPrint(LPRINT_LOGNORM, "Removing <%s>...", jid);
-  jb_delbuddy(jid);
+  scr_LogPrint(LPRINT_LOGNORM, "Removing <%s>...", bjid);
+  jb_delbuddy(bjid);
   scr_UpdateBuddyWindow();
 }
 
@@ -869,10 +871,12 @@ static void do_group(char *arg)
     return;
   }
 
-  if (!current_buddy) return;
+  if (!current_buddy)
+    return;
 
   group = buddy_getgroup(BUDDATA(current_buddy));
-  if (!group) return;
+  if (!group)
+    return;
 
   // We'll have to redraw the chat window if we're not currently on the group
   // entry itself, because it means we'll have to leave the current buddy
@@ -901,13 +905,13 @@ static void do_group(char *arg)
   if (leave_buddywindow) scr_ShowBuddyWindow();
 }
 
-static int send_message_to(const char *jid, const char *msg, const char *subj)
+static int send_message_to(const char *fjid, const char *msg, const char *subj)
 {
   char *bare_jid, *rp;
   char *hmsg;
   guint crypted;
 
-  if (!jid || !*jid) {
+  if (!fjid || !*fjid) {
     scr_LogPrint(LPRINT_NORMAL, "You must specify a Jabber ID.");
     return 1;
   }
@@ -915,15 +919,15 @@ static int send_message_to(const char *jid, const char *msg, const char *subj)
     scr_LogPrint(LPRINT_NORMAL, "You must specify a message.");
     return 1;
   }
-  if (check_jid_syntax((char*)jid)) {
-    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", jid);
+  if (check_jid_syntax((char*)fjid)) {
+    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", fjid);
     return 1;
   }
 
   // We must use the bare jid in hk_message_out()
-  rp = strchr(jid, JID_RESOURCE_SEPARATOR);
-  if (rp) bare_jid = g_strndup(jid, rp - jid);
-  else   bare_jid = (char*)jid;
+  rp = strchr(fjid, JID_RESOURCE_SEPARATOR);
+  if (rp) bare_jid = g_strndup(fjid, rp - fjid);
+  else   bare_jid = (char*)fjid;
 
   // Jump to window, create one if needed
   scr_RosterJumpJid(bare_jid);
@@ -942,7 +946,7 @@ static int send_message_to(const char *jid, const char *msg, const char *subj)
     hmsg = (char*)msg;
 
   // Network part
-  jb_send_msg(jid, msg, ROSTER_TYPE_USER, subj, NULL, &crypted);
+  jb_send_msg(fjid, msg, ROSTER_TYPE_USER, subj, NULL, &crypted);
 
   // Hook
   hk_message_out(bare_jid, rp, 0, hmsg, crypted);
@@ -1093,7 +1097,7 @@ static void do_msay(char *arg)
 static void do_say_to(char *arg)
 {
   char **paramlst;
-  char *jid, *msg;
+  char *fjid, *msg;
 
   if (!jb_getonline()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
@@ -1101,21 +1105,21 @@ static void do_say_to(char *arg)
   }
 
   paramlst = split_arg(arg, 2, 1); // jid, message
-  jid = *paramlst;
+  fjid = *paramlst;
   msg = *(paramlst+1);
 
-  if (!jid || !strcmp(jid, ".")) {
+  if (!fjid || !strcmp(fjid, ".")) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
     free_arg_lst(paramlst);
     return;
   }
 
-  jid = to_utf8(jid);
+  fjid = to_utf8(fjid);
   msg = to_utf8(msg);
 
-  send_message_to(jid, msg, NULL);
+  send_message_to(fjid, msg, NULL);
 
-  g_free(jid);
+  g_free(fjid);
   g_free(msg);
   free_arg_lst(paramlst);
 }
@@ -1188,7 +1192,8 @@ static void do_buffer(char *arg)
   char **paramlst;
   char *subcmd;
 
-  if (!current_buddy) return;
+  if (!current_buddy)
+    return;
 
   if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_GROUP) {
     scr_LogPrint(LPRINT_NORMAL, "Groups have no buffer.");
@@ -1248,22 +1253,23 @@ static void do_clear(char *arg)    // Alias for "buffer clear"
 static void do_info(char *arg)
 {
   gpointer bud;
-  const char *jid, *name;
+  const char *bjid, *name;
   guint type;
   char *buffer;
   enum subscr esub;
 
-  if (!current_buddy) return;
+  if (!current_buddy)
+    return;
   bud = BUDDATA(current_buddy);
 
-  jid    = buddy_getjid(bud);
+  bjid   = buddy_getjid(bud);
   name   = buddy_getname(bud);
   type   = buddy_gettype(bud);
   esub   = buddy_getsubscription(bud);
 
   buffer = g_new(char, 4096);
 
-  if (jid) {
+  if (bjid) {
     GSList *resources;
     char *bstr = "unknown";
 
@@ -1271,18 +1277,18 @@ static void do_info(char *arg)
     scr_set_chatmode(TRUE);
     scr_ShowBuddyWindow();
 
-    snprintf(buffer, 4095, "jid:  <%s>", jid);
-    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    snprintf(buffer, 4095, "jid:  <%s>", bjid);
+    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
     if (name) {
       snprintf(buffer, 4095, "Name: %s", name);
-      scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
     }
 
     if (type == ROSTER_TYPE_USER)       bstr = "user";
     else if (type == ROSTER_TYPE_ROOM)  bstr = "chatroom";
     else if (type == ROSTER_TYPE_AGENT) bstr = "agent";
     snprintf(buffer, 127, "Type: %s", bstr);
-    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
 
     if (esub == sub_both)     bstr = "both";
     else if (esub & sub_from) bstr = "from";
@@ -1291,7 +1297,7 @@ static void do_info(char *arg)
     snprintf(buffer, 64, "Subscription: %s", bstr);
     if (esub & sub_pending)
       strcat(buffer, " (pending)");
-    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
 
     resources = buddy_getresources(bud);
     if (!resources && type == ROSTER_TYPE_USER) {
@@ -1299,7 +1305,7 @@ static void do_info(char *arg)
       const char *rst_msg = buddy_getstatusmsg(bud, "");
       if (rst_msg) {
         snprintf(buffer, 4095, "Last status message: %s", rst_msg);
-        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+        scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
       }
     }
     for ( ; resources ; resources = g_slist_next(resources) ) {
@@ -1317,28 +1323,28 @@ static void do_info(char *arg)
 
       snprintf(buffer, 4095, "Resource: [%c] (%d) %s", imstatus2char[rstatus],
                rprio, (char*)resources->data);
-      scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
       if (rst_msg) {
         snprintf(buffer, 4095, "Status message: %s", rst_msg);
-        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+        scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
       }
       if (rst_time) {
         char tbuf[128];
 
         strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
         snprintf(buffer, 127, "Status timestamp: %s", tbuf);
-        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+        scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
       }
 #ifdef HAVE_GPGME
       if (rpgp && rpgp->sign_keyid) {
         snprintf(buffer, 4095, "PGP key id: %s", rpgp->sign_keyid);
-        scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+        scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
         if (rpgp->last_sigsum) {
           gpgme_sigsum_t ss = rpgp->last_sigsum;
           snprintf(buffer, 4095, "Last PGP signature: %s",
                   (ss & GPGME_SIGSUM_GREEN ? "good":
                    (ss & GPGME_SIGSUM_RED ? "bad" : "unknown")));
-          scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+          scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
         }
       }
 #endif
@@ -1355,13 +1361,13 @@ static void do_info(char *arg)
   if (type == ROSTER_TYPE_USER ||
       type == ROSTER_TYPE_ROOM ||
       type == ROSTER_TYPE_AGENT) {
-    struct annotation *note = jb_get_storage_rosternotes(jid, TRUE);
+    struct annotation *note = jb_get_storage_rosternotes(bjid, TRUE);
     if (note) {
       // We do not display the note, we just tell the user.
       g_free(note->text);
       g_free(note->jid);
       g_free(note);
-      scr_WriteIncomingMessage(jid, "(This item has an annotation)", 0,
+      scr_WriteIncomingMessage(bjid, "(This item has an annotation)", 0,
                                HBB_PREFIX_INFO);
     }
   }
@@ -1370,7 +1376,7 @@ static void do_info(char *arg)
 // room_names() is a variation of do_info(), for chatrooms only
 static void room_names(gpointer bud, char *arg)
 {
-  const char *jid;
+  const char *bjid;
   char *buffer;
   GSList *resources;
 
@@ -1383,11 +1389,11 @@ static void room_names(gpointer bud, char *arg)
   scr_set_chatmode(TRUE);
   scr_ShowBuddyWindow();
 
-  jid    = buddy_getjid(bud);
+  bjid = buddy_getjid(bud);
 
   buffer = g_new(char, 4096);
   strncpy(buffer, "Room members:", 127);
-  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
 
   resources = buddy_getresources(bud);
   for ( ; resources ; resources = g_slist_next(resources) ) {
@@ -1399,10 +1405,10 @@ static void room_names(gpointer bud, char *arg)
 
     snprintf(buffer, 4095, "[%c] %s", imstatus2char[rstatus],
              (char*)resources->data);
-    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
     if (rst_msg) {
       snprintf(buffer, 4095, "Status message: %s", rst_msg);
-      scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
     }
   }
 
@@ -1411,28 +1417,29 @@ static void room_names(gpointer bud, char *arg)
 
 static void move_group_member(gpointer bud, void *groupnamedata)
 {
-  const char *jid, *name, *groupname;
+  const char *bjid, *name, *groupname;
 
   groupname = (char *)groupnamedata;
 
-  jid  = buddy_getjid(bud);
+  bjid = buddy_getjid(bud);
   name = buddy_getname(bud);
 
-  jb_updatebuddy(jid, name, *groupname ? groupname : NULL);
+  jb_updatebuddy(bjid, name, *groupname ? groupname : NULL);
 }
 
 static void do_rename(char *arg)
 {
   gpointer bud;
-  const char *jid, *group;
+  const char *bjid, *group;
   guint type;
   char *newname, *p;
   char *name_utf8;
 
-  if (!current_buddy) return;
+  if (!current_buddy)
+    return;
   bud = BUDDATA(current_buddy);
 
-  jid   = buddy_getjid(bud);
+  bjid  = buddy_getjid(bud);
   group = buddy_getgroupname(bud);
   type  = buddy_gettype(bud);
 
@@ -1464,7 +1471,7 @@ static void do_rename(char *arg)
   } else {
     // Rename a single buddy
     buddy_setname(bud, name_utf8);
-    jb_updatebuddy(jid, name_utf8, group);
+    jb_updatebuddy(bjid, name_utf8, group);
   }
 
   g_free(name_utf8);
@@ -1475,15 +1482,16 @@ static void do_rename(char *arg)
 static void do_move(char *arg)
 {
   gpointer bud;
-  const char *jid, *name, *oldgroupname;
+  const char *bjid, *name, *oldgroupname;
   guint type;
   char *newgroupname, *p;
   char *group_utf8;
 
-  if (!current_buddy) return;
+  if (!current_buddy)
+    return;
   bud = BUDDATA(current_buddy);
 
-  jid  = buddy_getjid(bud);
+  bjid = buddy_getjid(bud);
   name = buddy_getname(bud);
   type = buddy_gettype(bud);
 
@@ -1507,7 +1515,7 @@ static void do_move(char *arg)
 
   group_utf8 = to_utf8(newgroupname);
   if (strcmp(oldgroupname, group_utf8)) {
-    jb_updatebuddy(jid, name, *group_utf8 ? group_utf8 : NULL);
+    jb_updatebuddy(bjid, name, *group_utf8 ? group_utf8 : NULL);
     scr_RosterUp();
     buddy_setgroup(bud, group_utf8);
   }
@@ -1612,28 +1620,28 @@ static void dump_bind(void *param, char *k, char *v)
 static void do_bind(char *arg)
 {
   guint assign;
-  const gchar *keycode, *value;
+  const gchar *k_code, *value;
 
-  assign = parse_assigment(arg, &keycode, &value);
-  if (!keycode) {
+  assign = parse_assigment(arg, &k_code, &value);
+  if (!k_code) {
     settings_foreach(SETTINGS_TYPE_BINDING, &dump_bind, NULL);
     return;
   }
   if (!assign) {
     // This is a query
-    value = settings_get(SETTINGS_TYPE_BINDING, keycode);
+    value = settings_get(SETTINGS_TYPE_BINDING, k_code);
     if (value) {
-      scr_LogPrint(LPRINT_NORMAL, "Key %s is bound to: %s", keycode, value);
+      scr_LogPrint(LPRINT_NORMAL, "Key %s is bound to: %s", k_code, value);
     } else
-      scr_LogPrint(LPRINT_NORMAL, "Key %s is not bound.", keycode);
+      scr_LogPrint(LPRINT_NORMAL, "Key %s is not bound.", k_code);
     return;
   }
   // Update the key binding
   if (!value) {
-    settings_del(SETTINGS_TYPE_BINDING, keycode);
+    settings_del(SETTINGS_TYPE_BINDING, k_code);
   } else {
     gchar *value_utf8 = to_utf8(value);
-    settings_set(SETTINGS_TYPE_BINDING, keycode, value_utf8);
+    settings_set(SETTINGS_TYPE_BINDING, k_code, value_utf8);
     g_free(value_utf8);
   }
 }
@@ -1782,17 +1790,17 @@ static void room_invite(gpointer bud, char *arg)
 {
   char **paramlst;
   const gchar *roomname;
-  char* jid;
+  char* fjid;
   gchar *reason_utf8;
 
   paramlst = split_arg(arg, 2, 1); // jid, [reason]
-  jid = *paramlst;
+  fjid = *paramlst;
   arg = *(paramlst+1);
   // An empty reason is no reason...
   if (arg && !*arg)
     arg = NULL;
 
-  if (!jid || !*jid) {
+  if (!fjid || !*fjid) {
     scr_LogPrint(LPRINT_NORMAL, "Missing or incorrect Jabber ID.");
     free_arg_lst(paramlst);
     return;
@@ -1800,8 +1808,8 @@ static void room_invite(gpointer bud, char *arg)
 
   roomname = buddy_getjid(bud);
   reason_utf8 = to_utf8(arg);
-  jb_room_invite(roomname, jid, reason_utf8);
-  scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>.", jid);
+  jb_room_invite(roomname, fjid, reason_utf8);
+  scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>.", fjid);
   g_free(reason_utf8);
   free_arg_lst(paramlst);
 }
@@ -1809,16 +1817,16 @@ static void room_invite(gpointer bud, char *arg)
 static void room_affil(gpointer bud, char *arg)
 {
   char **paramlst;
-  gchar *jid, *rolename;
+  gchar *fjid, *rolename;
   struct role_affil ra;
   const char *roomid = buddy_getjid(bud);
 
   paramlst = split_arg(arg, 3, 1); // jid, new_affil, [reason]
-  jid = *paramlst;
+  fjid = *paramlst;
   rolename = *(paramlst+1);
   arg = *(paramlst+2);
 
-  if (!jid || !*jid || !rolename || !*rolename) {
+  if (!fjid || !*fjid || !rolename || !*rolename) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify both a Jabber ID and a role.");
     free_arg_lst(paramlst);
     return;
@@ -1832,7 +1840,7 @@ static void room_affil(gpointer bud, char *arg)
 
   if (ra.val.affil < imaffiliation_size) {
     gchar *jid_utf8, *reason_utf8;
-    jid_utf8 = to_utf8(jid);
+    jid_utf8 = to_utf8(fjid);
     reason_utf8 = to_utf8(arg);
     jb_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
     g_free(jid_utf8);
@@ -1846,16 +1854,16 @@ static void room_affil(gpointer bud, char *arg)
 static void room_role(gpointer bud, char *arg)
 {
   char **paramlst;
-  gchar *jid, *rolename;
+  gchar *fjid, *rolename;
   struct role_affil ra;
   const char *roomid = buddy_getjid(bud);
 
   paramlst = split_arg(arg, 3, 1); // jid, new_role, [reason]
-  jid = *paramlst;
+  fjid = *paramlst;
   rolename = *(paramlst+1);
   arg = *(paramlst+2);
 
-  if (!jid || !*jid || !rolename || !*rolename) {
+  if (!fjid || !*fjid || !rolename || !*rolename) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify both a Jabber ID and a role.");
     free_arg_lst(paramlst);
     return;
@@ -1869,7 +1877,7 @@ static void room_role(gpointer bud, char *arg)
 
   if (ra.val.role < imrole_size) {
     gchar *jid_utf8, *reason_utf8;
-    jid_utf8 = to_utf8(jid);
+    jid_utf8 = to_utf8(fjid);
     reason_utf8 = to_utf8(arg);
     jb_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
     g_free(jid_utf8);
@@ -1885,16 +1893,16 @@ static void room_role(gpointer bud, char *arg)
 static void room_ban(gpointer bud, char *arg)
 {
   char **paramlst;
-  gchar *jid;
+  gchar *fjid;
   gchar *jid_utf8, *reason_utf8;
   struct role_affil ra;
   const char *roomid = buddy_getjid(bud);
 
   paramlst = split_arg(arg, 2, 1); // jid, [reason]
-  jid = *paramlst;
+  fjid = *paramlst;
   arg = *(paramlst+1);
 
-  if (!jid || !*jid) {
+  if (!fjid || !*fjid) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
     free_arg_lst(paramlst);
     return;
@@ -1903,7 +1911,7 @@ static void room_ban(gpointer bud, char *arg)
   ra.type = type_affil;
   ra.val.affil = affil_outcast;
 
-  jid_utf8 = to_utf8(jid);
+  jid_utf8 = to_utf8(fjid);
   reason_utf8 = to_utf8(arg);
   jb_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
   g_free(jid_utf8);
@@ -1991,7 +1999,7 @@ static void room_nick(gpointer bud, char *arg)
 static void room_privmsg(gpointer bud, char *arg)
 {
   char **paramlst;
-  gchar *nick, *cmd;
+  gchar *nick, *cmdline;
 
   paramlst = split_arg(arg, 2, 0); // nickname, message
   nick = *paramlst;
@@ -2004,9 +2012,9 @@ static void room_privmsg(gpointer bud, char *arg)
     return;
   }
 
-  cmd = g_strdup_printf("%s/%s %s", buddy_getjid(bud), nick, arg);
-  do_say_to(cmd);
-  g_free(cmd);
+  cmdline = g_strdup_printf("%s/%s %s", buddy_getjid(bud), nick, arg);
+  do_say_to(cmdline);
+  g_free(cmdline);
   free_arg_lst(paramlst);
 }
 
@@ -2086,16 +2094,13 @@ void room_whois(gpointer bud, char *arg, guint interactive)
 {
   char **paramlst;
   gchar *nick, *buffer;
-  const char *jid, *realjid;
+  const char *bjid, *realjid;
   const char *rst_msg;
   gchar rprio;
   enum imstatus rstatus;
   enum imrole role;
   enum imaffiliation affil;
   time_t rst_time;
-
-  char *strroles[] = { "none", "moderator", "participant", "visitor" };
-  char *straffil[] = { "none", "owner", "admin", "member", "outcast" };
 
   paramlst = split_arg(arg, 1, 0); // nickname
   nick = *paramlst;
@@ -2114,7 +2119,7 @@ void room_whois(gpointer bud, char *arg, guint interactive)
     scr_ShowBuddyWindow();
   }
 
-  jid = buddy_getjid(bud);
+  bjid = buddy_getjid(bud);
   rstatus = buddy_getstatus(bud, nick);
 
   if (rstatus == offline) {
@@ -2136,32 +2141,32 @@ void room_whois(gpointer bud, char *arg, guint interactive)
   buffer = g_new(char, 4096);
 
   snprintf(buffer, 4095, "Whois [%s]", nick);
-  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
   snprintf(buffer, 4095, "Status   : [%c] %s", imstatus2char[rstatus],
            rst_msg);
-  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
 
   if (rst_time) {
     char tbuf[128];
 
     strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
     snprintf(buffer, 127, "Timestamp: %s", tbuf);
-    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
   }
 
   if (realjid) {
     snprintf(buffer, 4095, "JID      : <%s>", realjid);
-    scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
   }
 
-  snprintf(buffer, 4095, "Role     : %s", strroles[role]);
-  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+  snprintf(buffer, 4095, "Role     : %s", strrole[role]);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
   snprintf(buffer, 4095, "Affiliat.: %s", straffil[affil]);
-  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
   snprintf(buffer, 4095, "Priority : %d", rprio);
-  scr_WriteIncomingMessage(jid, buffer, 0, HBB_PREFIX_NONE);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
 
-  scr_WriteIncomingMessage(jid, "End of WHOIS", 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(bjid, "End of WHOIS", 0, HBB_PREFIX_INFO);
 
   g_free(buffer);
   g_free(nick);
@@ -2329,7 +2334,8 @@ static void do_authorization(char *arg)
     gpointer bud;
     guint type;
 
-    if (!current_buddy) return;
+    if (!current_buddy)
+      return;
     bud = BUDDATA(current_buddy);
 
     jid_utf8 = arg  = (char*)buddy_getjid(bud);
@@ -2382,13 +2388,13 @@ static void do_version(char *arg)
 static void do_request(char *arg)
 {
   char **paramlst;
-  char *jid, *type;
+  char *fjid, *type;
   enum iqreq_type numtype = iqreq_none;
   char *jid_utf8 = NULL;
 
   paramlst = split_arg(arg, 2, 0); // type, jid
   type = *paramlst;
-  jid = *(paramlst+1);
+  fjid = *(paramlst+1);
 
   if (type) {
     // Quick check...
@@ -2416,36 +2422,36 @@ static void do_request(char *arg)
   }
 
   // Allow special jid "" or "." (current buddy)
-  if (jid && (!*jid || !strcmp(jid, ".")))
-    jid = NULL;
+  if (fjid && (!*fjid || !strcmp(fjid, ".")))
+    fjid = NULL;
 
-  if (jid) {
+  if (fjid) {
     // The JID has been specified.  Quick check...
-    if (check_jid_syntax(jid)) {
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", jid);
-      jid = NULL;
+    if (check_jid_syntax(fjid)) {
+      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", fjid);
+      fjid = NULL;
     } else {
       // Convert jid to lowercase
       char *p;
-      for (p = jid; *p && *p != JID_RESOURCE_SEPARATOR; p++)
+      for (p = fjid; *p && *p != JID_RESOURCE_SEPARATOR; p++)
         *p = tolower(*p);
-      jid = jid_utf8 = to_utf8(jid);
+      fjid = jid_utf8 = to_utf8(fjid);
     }
   } else {
     // Add the current buddy
     if (current_buddy)
-      jid = (char*)buddy_getjid(BUDDATA(current_buddy));
-    if (!jid)
+      fjid = (char*)buddy_getjid(BUDDATA(current_buddy));
+    if (!fjid)
       scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
   }
 
-  if (jid) {
+  if (fjid) {
     switch (numtype) {
       case iqreq_version:
       case iqreq_time:
       case iqreq_last:
       case iqreq_vcard:
-          jb_request(jid, numtype);
+          jb_request(fjid, numtype);
           break;
       default:
           break;

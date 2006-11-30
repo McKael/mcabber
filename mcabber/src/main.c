@@ -67,7 +67,7 @@ void mcabber_connect(void)
 {
   const char *username, *password, *resource, *servername;
   const char *proxy_host;
-  char *jid;
+  char *bjid;
   int ssl;
   int sslverify = -1;
   const char *sslvopt = NULL, *cafile = NULL, *capath = NULL, *ciphers = NULL;
@@ -135,9 +135,9 @@ void mcabber_connect(void)
     }
   }
 
-  jid = compose_jid(username, servername, resource);
-  jc = jb_connect(jid, servername, port, ssl, password);
-  g_free(jid);
+  bjid = compose_jid(username, servername, resource);
+  jc = jb_connect(bjid, servername, port, ssl, password);
+  g_free(bjid);
 
   if (!jc)
     scr_LogPrint(LPRINT_LOGNORM, "Error connecting to (%s)", servername);

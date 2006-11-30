@@ -33,7 +33,7 @@
 
 static char *extcmd;
 
-inline void hk_message_in(const char *jid, const char *resname,
+inline void hk_message_in(const char *bjid, const char *resname,
                           time_t timestamp, const char *msg, const char *type,
                           guint encrypted)
 {
@@ -65,16 +65,16 @@ inline void hk_message_in(const char *jid, const char *resname,
       wmsg = mmsg = g_strdup_printf("*%s %s", resname, msg+4);
   } else {
     if (!strncmp(msg, mkcmdstr("me "), strlen(mkcmdstr("me "))))
-      wmsg = mmsg = g_strdup_printf("*%s %s", jid, msg+4);
+      wmsg = mmsg = g_strdup_printf("*%s %s", bjid, msg+4);
     else
       wmsg = (char*) msg;
   }
 
   // If this user isn't in the roster, we add it
-  roster_usr = roster_find(jid, jidsearch, 0);
+  roster_usr = roster_find(bjid, jidsearch, 0);
   if (!roster_usr) {
     new_guy = TRUE;
-    roster_usr = roster_add_user(jid, NULL, NULL, rtype, sub_none);
+    roster_usr = roster_add_user(bjid, NULL, NULL, rtype, sub_none);
     if (!roster_usr) { // Shouldn't happen...
       scr_LogPrint(LPRINT_LOGNORM, "ERROR: unable to add buddy!");
       g_free(bmsg);
@@ -111,13 +111,13 @@ inline void hk_message_in(const char *jid, const char *resname,
 
   if (type && !strcmp(type, "error")) {
     message_flags = HBB_PREFIX_ERR | HBB_PREFIX_IN;
-    scr_LogPrint(LPRINT_LOGNORM, "Error message received from <%s>", jid);
+    scr_LogPrint(LPRINT_LOGNORM, "Error message received from <%s>", bjid);
   }
 
   // Note: the hlog_write should not be called first, because in some
   // cases scr_WriteIncomingMessage() will load the history and we'd
   // have the message twice...
-  scr_WriteIncomingMessage(jid, wmsg, timestamp, message_flags);
+  scr_WriteIncomingMessage(bjid, wmsg, timestamp, message_flags);
 
   // We don't log the modified message, but the original one
   if (wmsg == mmsg)
@@ -129,21 +129,21 @@ inline void hk_message_in(const char *jid, const char *resname,
   //   option is off (and it is not a history line)
   if (!(message_flags & HBB_PREFIX_ERR) &&
       (!is_room || (is_groupchat && log_muc_conf && !timestamp)))
-    hlog_write_message(jid, timestamp, FALSE, wmsg);
+    hlog_write_message(bjid, timestamp, FALSE, wmsg);
 
   // External command
   // - We do not call hk_ext_cmd() for history lines in MUC
   // - We do call hk_ext_cmd() for private messages in a room
   if ((is_groupchat && !timestamp) || !is_groupchat)
-    hk_ext_cmd(jid, (is_groupchat ? 'G' : 'M'), 'R', wmsg);
+    hk_ext_cmd(bjid, (is_groupchat ? 'G' : 'M'), 'R', wmsg);
 
   // Display the sender in the log window
   if ((!is_groupchat) && !(message_flags & HBB_PREFIX_ERR) &&
       settings_opt_get_int("log_display_sender")) {
-    const char *name = roster_getname(jid);
+    const char *name = roster_getname(bjid);
     if (!name) name = "";
     scr_LogPrint(LPRINT_NORMAL, "Message received from %s <%s/%s>",
-                 name, jid, (resname ? resname : ""));
+                 name, bjid, (resname ? resname : ""));
   }
 
   // Beep, if enabled
@@ -168,7 +168,7 @@ inline void hk_message_in(const char *jid, const char *resname,
 //  hk_message_out()
 // nick should be set for private messages in a chat room, and null for
 // normal messages.
-inline void hk_message_out(const char *jid, const char *nick,
+inline void hk_message_out(const char *bjid, const char *nick,
                            time_t timestamp, const char *msg, guint encrypted)
 {
   char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
@@ -188,19 +188,19 @@ inline void hk_message_out(const char *jid, const char *nick,
   // Note: the hlog_write should not be called first, because in some
   // cases scr_WriteOutgoingMessage() will load the history and we'd
   // have the message twice...
-  scr_WriteOutgoingMessage(jid, wmsg, (encrypted ? HBB_PREFIX_PGPCRYPT : 0));
+  scr_WriteOutgoingMessage(bjid, wmsg, (encrypted ? HBB_PREFIX_PGPCRYPT : 0));
 
   // We don't log private messages
-  if (!nick) hlog_write_message(jid, timestamp, TRUE, msg);
+  if (!nick) hlog_write_message(bjid, timestamp, TRUE, msg);
 
   // External command
-  hk_ext_cmd(jid, 'M', 'S', NULL);
+  hk_ext_cmd(bjid, 'M', 'S', NULL);
 
   g_free(bmsg);
   g_free(mmsg);
 }
 
-inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
+inline void hk_statuschange(const char *bjid, const char *resname, gchar prio,
                             time_t timestamp, enum imstatus status,
                             const char *status_msg)
 {
@@ -214,10 +214,10 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
   st_in_buf = settings_opt_get_int("show_status_in_buffer");
   buddy_format = settings_opt_get_int("buddy_format");
   if (buddy_format) {
-    const char *name = roster_getname(jid);
-    if (name && strcmp(name, jid)) {
+    const char *name = roster_getname(bjid);
+    if (name && strcmp(name, bjid)) {
       if (buddy_format == 1)
-        bn = g_strdup_printf("%s <%s/%s>", name, jid, rn);
+        bn = g_strdup_printf("%s <%s/%s>", name, bjid, rn);
       else if (buddy_format == 2)
         bn = g_strdup_printf("%s/%s", name, rn);
       else if (buddy_format == 3)
@@ -226,13 +226,13 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
   }
 
   if (!bn) {
-    bn = g_strdup_printf("<%s/%s>", jid, rn);
+    bn = g_strdup_printf("<%s/%s>", bjid, rn);
   }
 
   logsmsg = g_strdup(status_msg ? status_msg : "");
   replace_nl_with_dots(logsmsg);
 
-  oldstat = roster_getstatus(jid, resname);
+  oldstat = roster_getstatus(bjid, resname);
   scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] %s %s",
                imstatus2char[oldstat], imstatus2char[status], bn, logsmsg);
   g_free(logsmsg);
@@ -241,23 +241,23 @@ inline void hk_statuschange(const char *jid, const char *resname, gchar prio,
   if (st_in_buf == 2 ||
       (st_in_buf == 1 && (status == offline || oldstat == offline))) {
     // Write the status change in the buddy's buffer, only if it already exists
-    if (scr_BuddyBufferExists(jid)) {
+    if (scr_BuddyBufferExists(bjid)) {
       bn = g_strdup_printf("Buddy status has changed: [%c>%c] %s",
                            imstatus2char[oldstat], imstatus2char[status],
                            ((status_msg) ? status_msg : ""));
-      scr_WriteIncomingMessage(jid, bn, timestamp,
+      scr_WriteIncomingMessage(bjid, bn, timestamp,
                                HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
       g_free(bn);
     }
   }
 
-  roster_setstatus(jid, rn, prio, status, status_msg, timestamp,
+  roster_setstatus(bjid, rn, prio, status, status_msg, timestamp,
                    role_none, affil_none, NULL);
   buddylist_build();
   scr_DrawRoster();
-  hlog_write_status(jid, timestamp, status, status_msg);
+  hlog_write_status(bjid, timestamp, status, status_msg);
   // External command
-  hk_ext_cmd(jid, 'S', imstatus2char[status], NULL);
+  hk_ext_cmd(bjid, 'S', imstatus2char[status], NULL);
 }
 
 inline void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
@@ -288,7 +288,7 @@ void hk_ext_cmd_init(const char *command)
 //  hk_ext_cmd()
 // Launch an external command (process) for the given event.
 // For now, data should be NULL.
-void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
+void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data)
 {
   pid_t pid;
   char *arg_type = NULL;
@@ -363,7 +363,7 @@ void hk_ext_cmd(const char *jid, guchar type, guchar info, const char *data)
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
-    if (execl(extcmd, extcmd, arg_type, arg_info, jid, arg_data, NULL) == -1) {
+    if (execl(extcmd, extcmd, arg_type, arg_info, bjid, arg_data, NULL) == -1) {
       // scr_LogPrint(LPRINT_LOGNORM, "Cannot execute external command.");
       exit(1);
     }

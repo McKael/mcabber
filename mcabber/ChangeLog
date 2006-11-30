@@ -1,6 +1,28 @@
 mcabber (0.8.4-dev)
 
- * 
+ * Auto-reconnection after a network or server failure
+ * XEP-0022/XEP-0085 - Events/ChatStates support, a.k.a. typing notifications
+   (Alexis Hildebrandt, Mikael)
+    New option "disable_chatstates"
+ * XEP-0027 - Current Jabber OpenPGP Usage
+   New options: "pgp", "pgp_private_key"
+ * XEP-0054 - VCard-temp (retrieval only)
+   New command "/request vcard"
+ * XEP-0048 - Bookmark Storage
+   MCabber can auto-join bookmarked rooms
+   New command "/room bookmark"
+ * XEP-0012 - Last Activity
+   New command "/request last"
+ * XEP-0145 - Annotations
+   New command "/roster note"
+ * New commands /roster item_lock|item_unlock
+   These commands allow us to lock a contact so that it stays visible in the
+   roster (when offline contacts are hidden).
+ * New options "log_win_on_top" and "roster_win_on_right"
+ * MCabber answers IQ disco#info queries
+ * help: Add Ukrainian translations (Myhailo Danylenko)
+ * Configurable command character (Alexis Hildebrandt)
+ * Misc. bug fixes and improvements
 
  -- Mikael, ?
 

@@ -966,7 +966,7 @@ static inline void resize_win_buffer(winbuf *wbp, int x, int y,
 // Function called when the window is resized.
 // - Resize windows
 // - Rewrap lines in each buddy buffer
-void scr_Resize()
+void scr_Resize(void)
 {
   int x, y, lines, cols;
   GSList *wblp;
@@ -1923,7 +1923,7 @@ inline void scr_set_chatmode(int enable)
 
 //  scr_get_multimode()
 // Public function to get multimode status...
-inline int scr_get_multimode()
+inline int scr_get_multimode(void)
 {
   return multimode;
 }
@@ -2095,7 +2095,7 @@ static const char *scr_cmdhisto_next(char *mask, guint len)
 // Drag  the  character  before point forward over the character at
 // point, moving point forward as well.  If point is at the end  of
 // the  line, then this transposes the two characters before point.
-void readline_transpose_chars()
+void readline_transpose_chars(void)
 {
   char *c1, *c2;
   unsigned a, b;
@@ -2124,7 +2124,7 @@ void readline_transpose_chars()
 
 //  readline_backward_kill_word()
 // Kill the word before the cursor, in input line
-void readline_backward_kill_word()
+void readline_backward_kill_word(void)
 {
   char *c, *old = ptr_inputline;
   int spaceallowed = 1;
@@ -2155,7 +2155,7 @@ void readline_backward_kill_word()
 
 //  readline_backward_word()
 // Move  back  to the start of the current or previous word
-void readline_backward_word()
+void readline_backward_word(void)
 {
   char *old_ptr_inputLine = ptr_inputline;
   int spaceallowed = 1;
@@ -2182,7 +2182,7 @@ void readline_backward_word()
 
 //  readline_forward_word()
 // Move forward to the end of the next word
-void readline_forward_word()
+void readline_forward_word(void)
 {
   int spaceallowed = 1;
 

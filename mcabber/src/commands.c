@@ -77,7 +77,7 @@ static GSList *Commands;
 //  cmd_add()
 // Adds a command to the commands list and to the CMD completion list
 static void cmd_add(const char *name, const char *help,
-        guint flags_row1, guint flags_row2, void (*f)())
+        guint flags_row1, guint flags_row2, void (*f)(char*))
 {
   cmd *n_cmd = g_new0(cmd, 1);
   strncpy(n_cmd->name, name, 32-1);
@@ -521,7 +521,7 @@ static void display_and_free_note(struct annotation *note, const char *winId)
   g_free(note);
 }
 
-static void display_all_annotations()
+static void display_all_annotations(void)
 {
   GSList *notes;
   notes = jb_get_all_storage_rosternotes();

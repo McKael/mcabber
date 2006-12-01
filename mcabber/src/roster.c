@@ -114,24 +114,29 @@ void roster_init(void)
 
 /* ### Resources functions ### */
 
+static inline void free_resource_data(res *p_res)
+{
+  if (!p_res)
+    return;
+  g_free((gchar*)p_res->status_msg);
+  g_free((gchar*)p_res->name);
+  g_free((gchar*)p_res->realjid);
+#ifdef JEP0022
+  g_free(p_res->jep22.last_msgid_sent);
+  g_free(p_res->jep22.last_msgid_rcvd);
+#endif
+#ifdef HAVE_GPGME
+  g_free(p_res->pgpdata.sign_keyid);
+#endif
+  g_free(p_res);
+}
+
 static void free_all_resources(GSList **reslist)
 {
   GSList *lip;
-  res *p_res;
 
-  for ( lip = *reslist; lip ; lip = g_slist_next(lip)) {
-    p_res = (res*)lip->data;
-    g_free((gchar*)p_res->status_msg);
-    g_free((gchar*)p_res->name);
-    g_free((gchar*)p_res->realjid);
-#ifdef JEP0022
-    g_free(p_res->jep22.last_msgid_sent);
-    g_free(p_res->jep22.last_msgid_rcvd);
-#endif
-#ifdef HAVE_GPGME
-    g_free(p_res->pgpdata.sign_keyid);
-#endif
-  }
+  for (lip = *reslist; lip ; lip = g_slist_next(lip))
+    free_resource_data((res*)lip->data);
   // Free all nodes but the first (which is static)
   g_slist_free(*reslist);
   *reslist = NULL;
@@ -222,22 +227,26 @@ static void del_resource(roster *rost, const char *resname)
   }
 
   // Free allocations and delete resource node
-  g_free(p_res->name);
-  g_free(p_res->status_msg);
-  g_free(p_res->realjid);
-#ifdef JEP0022
-  g_free(p_res->jep22.last_msgid_sent);
-  g_free(p_res->jep22.last_msgid_rcvd);
-#endif
-#ifdef HAVE_GPGME
-  g_free(p_res->pgpdata.sign_keyid);
-#endif
+  free_resource_data(p_res);
   rost->resource = g_slist_delete_link(rost->resource, p_res_elt);
   return;
 }
 
 
 /* ### Roster functions ### */
+
+static inline void free_roster_user_data(roster *roster_usr)
+{
+  if (!roster_usr)
+    return;
+  g_free((gchar*)roster_usr->jid);
+  g_free((gchar*)roster_usr->name);
+  g_free((gchar*)roster_usr->nickname);
+  g_free((gchar*)roster_usr->topic);
+  g_free((gchar*)roster_usr->offline_status_message);
+  free_all_resources(&roster_usr->resource);
+  g_free(roster_usr);
+}
 
 // Comparison function used to search in the roster (compares jids and types)
 static gint roster_compare_jid_type(roster *a, roster *b) {
@@ -402,14 +411,8 @@ void roster_del_user(const char *jid)
   if (roster_usr->flags & ROSTER_FLAG_MSG)
     unread_jid_add(roster_usr->jid);
 
-  // Let's free memory (jid, name, status message)
-  g_free((gchar*)roster_usr->jid);
-  g_free((gchar*)roster_usr->name);
-  g_free((gchar*)roster_usr->nickname);
-  g_free((gchar*)roster_usr->topic);
-  g_free((gchar*)roster_usr->offline_status_message);
-  free_all_resources(&roster_usr->resource);
-  g_free(roster_usr);
+  // Let's free roster_usr memory (jid, name, status message...)
+  free_roster_user_data(roster_usr);
 
   // That's a little complex, we need to dereference twice
   sl_group = ((roster*)sl_user->data)->list;
@@ -445,14 +448,8 @@ void roster_free(void)
       // If there is a pending unread message, keep track of it
       if (roster_usr->flags & ROSTER_FLAG_MSG)
         unread_jid_add(roster_usr->jid);
-      // Free name and jid
-      g_free((gchar*)roster_usr->jid);
-      g_free((gchar*)roster_usr->name);
-      g_free((gchar*)roster_usr->nickname);
-      g_free((gchar*)roster_usr->topic);
-      g_free((gchar*)roster_usr->offline_status_message);
-      free_all_resources(&roster_usr->resource);
-      g_free(roster_usr);
+      // Free roster_usr data (jid, name, status message...)
+      free_roster_user_data(roster_usr);
       sl_usr = g_slist_next(sl_usr);
     }
     // Free group's users list

@@ -443,7 +443,8 @@ static void roster_buddylock(char *bjid, bool lock)
   if (bjid) {
     // The JID has been specified.  Quick check...
     if (check_jid_syntax(bjid)) {
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", bjid);
+      scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
+                   "<%s> is not a valid Jabber ID.", bjid);
     } else {
       // Find the buddy
       GSList *roster_elt;
@@ -746,7 +747,8 @@ static void do_status_to(char *arg)
   if (fjid) {
     // The JID has been specified.  Quick check...
     if (check_jid_syntax(fjid)) {
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", fjid);
+      scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
+                   "<%s> is not a valid Jabber ID.", fjid);
       fjid = NULL;
     } else {
       // Convert jid to lowercase
@@ -801,7 +803,8 @@ static void do_add(char *arg)
   if (id) {
     // The JID has been specified.  Quick check...
     if (check_jid_syntax(id)) {
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", id);
+      scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
+                   "<%s> is not a valid Jabber ID.", id);
       id = NULL;
     } else {
       mc_strtolower(id);
@@ -920,7 +923,8 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj)
     return 1;
   }
   if (check_jid_syntax((char*)fjid)) {
-    scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", fjid);
+    scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
+                 "<%s> is not a valid Jabber ID.", fjid);
     return 1;
   }
 
@@ -2323,7 +2327,8 @@ static void do_authorization(char *arg)
       arg = NULL;
     } else {
       if (check_jid_syntax(arg)) {
-        scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", arg);
+        scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
+                     "<%s> is not a valid Jabber ID.", arg);
         free_arg_lst(paramlst);
         return;
       }
@@ -2428,7 +2433,8 @@ static void do_request(char *arg)
   if (fjid) {
     // The JID has been specified.  Quick check...
     if (check_jid_syntax(fjid)) {
-      scr_LogPrint(LPRINT_NORMAL, "<%s> is not a valid Jabber ID.", fjid);
+      scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
+                   "<%s> is not a valid Jabber ID.", fjid);
       fjid = NULL;
     } else {
       // Convert jid to lowercase

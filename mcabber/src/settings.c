@@ -149,9 +149,10 @@ int cfg_read_file(char *filename)
     if ((*line == '\n') || (*line == '\0') || (*line == '#'))
       continue;
 
-    if ((strchr(line, '=') != NULL)) {
-      // Only accept the set, alias and bind commands
+    if ((strchr(line, '=') != NULL) || !strncmp(line, "pgp ", strlen("pgp "))) {
+      // Only accept the set, alias, bind and pgp commands
       if (strncmp(line, "set ", strlen("set ")) &&
+          strncmp(line, "pgp ", strlen("pgp ")) &&
           strncmp(line, "bind ", strlen("bind ")) &&
           strncmp(line, "alias ", strlen("alias "))) {
         scr_LogPrint(LPRINT_LOGNORM,

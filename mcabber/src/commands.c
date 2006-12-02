@@ -69,6 +69,7 @@ static void do_version(char *arg);
 static void do_request(char *arg);
 static void do_event(char *arg);
 static void do_help(char *arg);
+static void do_pgp(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -113,6 +114,7 @@ void cmd_init(void)
           0, &do_move);
   cmd_add("msay", "Send a multi-lines message to the selected buddy",
           COMPL_MULTILINE, 0, &do_msay);
+  cmd_add("pgp", "Manage PGP settings", COMPL_PGP, COMPL_JID, &do_pgp);
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
@@ -222,6 +224,12 @@ void cmd_init(void)
   compl_add_category_word(COMPL_EVENTS, "accept");
   compl_add_category_word(COMPL_EVENTS, "ignore");
   compl_add_category_word(COMPL_EVENTS, "reject");
+
+  // PGP category
+  compl_add_category_word(COMPL_PGP, "disable");
+  compl_add_category_word(COMPL_PGP, "enable");
+  compl_add_category_word(COMPL_PGP, "info");
+  compl_add_category_word(COMPL_PGP, "setkey");
 }
 
 //  expandalias(line)
@@ -1353,10 +1361,6 @@ static void do_info(char *arg)
       }
 #endif
     }
-#ifdef HAVE_GPGME
-    if (settings_pgp_getdisabled(bjid))
-      scr_WriteIncomingMessage(bjid, "PGP is disabled", 0, HBB_PREFIX_NONE);
-#endif
   } else {
     if (name) scr_LogPrint(LPRINT_NORMAL, "Name: %s", name);
     scr_LogPrint(LPRINT_NORMAL, "Type: %s",
@@ -2525,6 +2529,109 @@ static void do_event(char *arg)
       g_free(p->data);
     }
     g_slist_free(evidlst);
+  }
+
+  free_arg_lst(paramlst);
+}
+
+static void do_pgp(char *arg)
+{
+  char **paramlst;
+  char *fjid, *subcmd, *keyid;
+  enum {
+    pgp_none,
+    pgp_enable,
+    pgp_disable,
+    pgp_setkey,
+    pgp_info
+  } op = 0;
+
+  paramlst = split_arg(arg, 3, 0); // subcmd, jid, [key]
+  subcmd = *paramlst;
+  fjid = *(paramlst+1);
+  keyid = *(paramlst+2);
+
+  if (!subcmd)
+    fjid = NULL;
+  if (!fjid)
+    keyid = NULL;
+
+  if (subcmd) {
+    if (!strcasecmp(subcmd, "enable"))
+      op = pgp_enable;
+    else if (!strcasecmp(subcmd, "disable"))
+      op = pgp_disable;
+    else if (!strcasecmp(subcmd, "setkey"))
+      op = pgp_setkey;
+    else if (!strcasecmp(subcmd, "info"))
+      op = pgp_info;
+  }
+
+  if (!op) {
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized or missing parameter!");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  // Allow special jid "" or "." (current buddy)
+  if (fjid && (!*fjid || !strcmp(fjid, ".")))
+    fjid = NULL;
+
+  if (fjid) {
+    // The JID has been specified.  Quick check...
+    if (check_jid_syntax(fjid) || !strchr(fjid, '@')) {
+      scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
+                   "<%s> is not a valid Jabber ID.", fjid);
+      fjid = NULL;
+    } else {
+      // Convert jid to lowercase and strip resource
+      char *p;
+      for (p = fjid; *p && *p != JID_RESOURCE_SEPARATOR; p++)
+        *p = tolower(*p);
+      if (*p == JID_RESOURCE_SEPARATOR)
+        *p = '\0';
+    }
+  } else {
+    gpointer bud = NULL;
+    if (current_buddy)
+      bud = BUDDATA(current_buddy);
+    if (bud) {
+      guint type = buddy_gettype(bud);
+      if (type & ROSTER_TYPE_USER)  // Is it a user?
+        fjid = (char*)buddy_getjid(bud);
+      else
+        scr_LogPrint(LPRINT_NORMAL, "The selected item should be a user.");
+    }
+  }
+
+  if (fjid) { // fjid is actually a bare jid...
+    GString *sbuf;
+    switch (op) {
+      case pgp_enable:
+      case pgp_disable:
+          settings_pgp_setdisabled(fjid, (op == pgp_disable ? TRUE : FALSE));
+          break;
+      case pgp_setkey:
+          settings_pgp_setkeyid(fjid, keyid);
+          break;
+      case pgp_info:
+          sbuf = g_string_new("");
+          if (settings_pgp_getkeyid(fjid)) {
+            g_string_printf(sbuf, "PGP Encryption key id: %s",
+                            settings_pgp_getkeyid(fjid));
+            scr_WriteIncomingMessage(fjid, sbuf->str, 0, HBB_PREFIX_INFO);
+          }
+          g_string_printf(sbuf, "PGP encryption is %s",
+                          (settings_pgp_getdisabled(fjid) ?  "disabled" :
+                           "enabled"));
+          scr_WriteIncomingMessage(fjid, sbuf->str, 0, HBB_PREFIX_INFO);
+          g_string_free(sbuf, TRUE);
+          break;
+      default:
+          break;
+    }
+  } else {
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a valid Jabber ID.");
   }
 
   free_arg_lst(paramlst);

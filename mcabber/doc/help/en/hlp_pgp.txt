@@ -1,0 +1,17 @@
+
+ /PGP disable|enable|info [jid]
+ /PGP setkey [jid [key]]
+
+This command manipulate PGP settings for the specified jid (by default the currently selected contact).
+Please note that PGP encryption won't be used if no remote PGP support is detected, even if PGP is enabled with this command.
+
+/pgp disable [jid]
+ Disable PGP encryption for jid (or the currently selected contact)
+/pgp enable [jid]
+ Enable PGP encryption for jid (or the currently selected contact)
+/pgp info [jid]
+ Show current PGP settings for the contact
+/pgp setkey [jid [key]]
+ Set the PGP key to be used to encrypt message for this contact.
+ If no key is provided, the current key is erased.
+ You can use the shortcut-jid "." for the currently selected contact.

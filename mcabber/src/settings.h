@@ -23,6 +23,7 @@
 
 #define mkcmdstr(cmd) COMMAND_CHARSTR cmd
 
+void    settings_init(void);
 int     cfg_read_file(char *filename);
 guint   parse_assigment(gchar *assignment,
                         const gchar **pkey, const gchar **pval);
@@ -34,6 +35,11 @@ const gchar *settings_get_status_msg(enum imstatus status);
 void    settings_foreach(guint type,
                          void (*pfunc)(void *param, char *k, char *v),
                          void *param);
+
+void    settings_pgp_setdisabled(const char *bjid, guint value);
+guint   settings_pgp_getdisabled(const char *bjid);
+void    settings_pgp_setkeyid(const char *bjid, const char *keyid);
+const char *settings_pgp_getkeyid(const char *bjid);
 
 char *default_muc_nickname(void);
 

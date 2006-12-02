@@ -1134,7 +1134,6 @@ struct pgp_data *buddy_resource_pgp(gpointer rosterdata, const char *resname)
   return NULL;
 }
 
-
 enum imrole buddy_getrole(gpointer rosterdata, const char *resname)
 {
   roster *roster_usr = rosterdata;

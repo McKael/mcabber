@@ -539,7 +539,6 @@ void jb_send_msg(const char *fjid, const char *text, int type,
   rname = strchr(fjid, JID_RESOURCE_SEPARATOR);
   barejid = jidtodisp(fjid);
   sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
-  g_free(barejid);
 
   // If we can get a resource name, we use it.  Else we use NULL,
   // which hopefully will give us the most likely resource.
@@ -549,11 +548,16 @@ void jb_send_msg(const char *fjid, const char *text, int type,
 
 #ifdef HAVE_GPGME
   if (type == ROSTER_TYPE_USER && sl_buddy && gpg_enabled()) {
-    struct pgp_data *res_pgpdata;
-    res_pgpdata = buddy_resource_pgp(sl_buddy->data, rname);
-    if (res_pgpdata && res_pgpdata->sign_keyid)
-      enc = gpg_encrypt(text, res_pgpdata->sign_keyid);
+    if (!settings_pgp_getdisabled(barejid)) { // disabled for this contact?
+      struct pgp_data *res_pgpdata;
+      res_pgpdata = buddy_resource_pgp(sl_buddy->data, rname);
+      if (res_pgpdata && res_pgpdata->sign_keyid)
+        enc = gpg_encrypt(text, res_pgpdata->sign_keyid);
+    }
   }
+#endif
+#if defined HAVE_GPGME || defined JEP0022 || defined JEP0085
+  g_free(barejid);
 #endif
 
   x = jutil_msgnew(strtype, (char*)fjid, NULL,

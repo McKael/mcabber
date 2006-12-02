@@ -1353,6 +1353,10 @@ static void do_info(char *arg)
       }
 #endif
     }
+#ifdef HAVE_GPGME
+    if (settings_pgp_getdisabled(bjid))
+      scr_WriteIncomingMessage(bjid, "PGP is disabled", 0, HBB_PREFIX_NONE);
+#endif
   } else {
     if (name) scr_LogPrint(LPRINT_NORMAL, "Name: %s", name);
     scr_LogPrint(LPRINT_NORMAL, "Type: %s",

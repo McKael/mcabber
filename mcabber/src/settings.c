@@ -32,11 +32,19 @@ static GSList *option;
 static GSList *alias;
 static GSList *binding;
 
-
 typedef struct {
   gchar *name;
   gchar *value;
 } T_setting;
+
+#ifdef HAVE_GPGME     /* PGP settings */
+static GHashTable *pgpopt;
+
+typedef struct {
+  gchar *pgp_keyid;   /* KeyId the contact is supposed to use */
+  guint pgp_disabled; /* If TRUE, PGP is disabled for outgoing messages */
+} T_pgpopt;
+#endif
 
 static inline GSList **get_list_ptr(guint type)
 {
@@ -61,6 +69,13 @@ static GSList *settings_find(GSList *list, const gchar *key)
 }
 
 /* -- */
+
+void settings_init(void)
+{
+#ifdef HAVE_GPGME
+  pgpopt = g_hash_table_new(&g_str_hash, &g_str_equal);
+#endif
+}
 
 //  cfg_read_file(filename)
 // Read and parse config file "filename".  If filename is NULL,
@@ -365,6 +380,90 @@ char *default_muc_nickname(void)
       *p = 0;
   }
   return nick;
+}
+
+
+/* PGP settings */
+
+//  settings_pgp_setdisabled(jid, value)
+// Enable/disable PGP encryption for jid.
+// (Set value to TRUE to disable encryption)
+void settings_pgp_setdisabled(const char *bjid, guint value)
+{
+#ifdef HAVE_GPGME
+  T_pgpopt *pgpdata;
+  pgpdata = g_hash_table_lookup(pgpopt, bjid);
+  if (!pgpdata) {
+    // If value is 0, we do not need to create a structure (that's
+    // the default value).
+    if (value) {
+      pgpdata = g_new0(T_pgpopt, 1);
+      pgpdata->pgp_disabled = value;
+      g_hash_table_insert(pgpopt, g_strdup(bjid), pgpdata);
+    }
+  } else {
+    pgpdata->pgp_disabled = value;
+    // We could remove the key/value if pgp_disabled is 0 and
+    // pgp_keyid is NULL, actually.
+  }
+#endif
+}
+
+//  settings_pgp_getdisabled(jid)
+// Return TRUE if PGP encryption should be disabled for jid.
+guint settings_pgp_getdisabled(const char *bjid)
+{
+#ifdef HAVE_GPGME
+  T_pgpopt *pgpdata;
+  pgpdata = g_hash_table_lookup(pgpopt, bjid);
+  if (pgpdata)
+    return pgpdata->pgp_disabled;
+  else
+    return FALSE; // default: not disabled
+#else
+  return TRUE;    // No PGP support, let's say it's disabled.
+#endif
+}
+
+//  settings_pgp_setkeyid(jid, keyid)
+// Set the PGP KeyId for user jid.
+// Use keyid = NULL to erase the previous KeyId.
+void settings_pgp_setkeyid(const char *bjid, const char *keyid)
+{
+#ifdef HAVE_GPGME
+  T_pgpopt *pgpdata;
+  pgpdata = g_hash_table_lookup(pgpopt, bjid);
+  if (!pgpdata) {
+    // If keyid is NULL, we do not need to create a structure (that's
+    // the default value).
+    if (keyid) {
+      pgpdata = g_new0(T_pgpopt, 1);
+      pgpdata->pgp_keyid = g_strdup(keyid);
+      g_hash_table_insert(pgpopt, g_strdup(bjid), pgpdata);
+    }
+  } else {
+    g_free(pgpdata->pgp_keyid);
+    if (keyid)
+      pgpdata->pgp_keyid = g_strdup(keyid);
+    else
+      pgpdata->pgp_keyid = NULL;
+    // We could remove the key/value if pgp_disabled is 0 and
+    // pgp_keyid is NULL, actually.
+  }
+#endif
+}
+
+//  settings_pgp_getkeyid(jid)
+// Get the PGP KeyId for user jid.
+const char *settings_pgp_getkeyid(const char *bjid)
+{
+#ifdef HAVE_GPGME
+  T_pgpopt *pgpdata;
+  pgpdata = g_hash_table_lookup(pgpopt, bjid);
+  if (pgpdata)
+    return pgpdata->pgp_keyid;
+#endif
+  return NULL;
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

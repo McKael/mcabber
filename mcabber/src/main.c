@@ -321,6 +321,7 @@ int main(int argc, char **argv)
   /* Initialize commands system and roster */
   cmd_init();
   roster_init();
+  settings_init();
   /* Initialize charset */
   scr_InitLocaleCharSet();
 

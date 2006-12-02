@@ -100,9 +100,9 @@ enum chatstate_support {
 };
 
 struct pgp_data {
-  gchar *sign_keyid;
+  gchar *sign_keyid;  // KeyId used by the contact to sign their presence/msg
 #ifdef HAVE_GPGME
-  gpgme_sigsum_t last_sigsum;
+  gpgme_sigsum_t last_sigsum; // Last signature summary
 #endif
 };
 

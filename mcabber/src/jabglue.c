@@ -544,21 +544,29 @@ void jb_send_msg(const char *fjid, const char *text, int type,
   // which hopefully will give us the most likely resource.
   if (rname)
     rname++;
-#endif
 
 #ifdef HAVE_GPGME
   if (type == ROSTER_TYPE_USER && sl_buddy && gpg_enabled()) {
     if (!settings_pgp_getdisabled(barejid)) { // disabled for this contact?
       struct pgp_data *res_pgpdata;
       res_pgpdata = buddy_resource_pgp(sl_buddy->data, rname);
-      if (res_pgpdata && res_pgpdata->sign_keyid)
-        enc = gpg_encrypt(text, res_pgpdata->sign_keyid);
+      if (res_pgpdata && res_pgpdata->sign_keyid) {
+        /* Remote client has PGP support (we have a signature).
+         * If the contact has a specific KeyId, we'll use it;
+         * if not, we'll use the key used for the signature.
+         * Both keys should match, in theory (cf. XEP-0027). */
+        const char *key;
+        key = settings_pgp_getkeyid(barejid);
+        if (!key)
+          key = res_pgpdata->sign_keyid;
+        enc = gpg_encrypt(text, key);
+      }
     }
   }
-#endif
-#if defined HAVE_GPGME || defined JEP0022 || defined JEP0085
+#endif // HAVE_GPGME
+
   g_free(barejid);
-#endif
+#endif // HAVE_GPGME || defined JEP0022 || defined JEP0085
 
   x = jutil_msgnew(strtype, (char*)fjid, NULL,
                    (enc ? "This message is PGP-encrypted." : (char*)text));
@@ -1479,11 +1487,22 @@ static void check_signature(const char *barejid, const char *rname,
 
   key = gpg_verify(p, text, &sigsum);
   if (key) {
+    const char *expectedkey;
+    char *buf;
     g_free(res_pgpdata->sign_keyid);
     res_pgpdata->sign_keyid = key;
     res_pgpdata->last_sigsum = sigsum;
     if (sigsum & GPGME_SIGSUM_RED) {
-      char *buf = g_strdup_printf("Bad signature from <%s/%s>", barejid, rname);
+      buf = g_strdup_printf("Bad signature from <%s/%s>", barejid, rname);
+      scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);
+      scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+      g_free(buf);
+    }
+    // Verify that the key id is the one we expect.
+    expectedkey = settings_pgp_getkeyid(barejid);
+    if (expectedkey && strcasecmp(key, expectedkey)) {
+      buf = g_strdup_printf("Warning: The KeyId from <%s/%s> doesn't match "
+                            "the key you set up", barejid, rname);
       scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);
       scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
       g_free(buf);

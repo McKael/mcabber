@@ -169,7 +169,7 @@ int cfg_read_file(char *filename)
 // to NULL and return FALSE.
 //
 // The caller should g_free() *pkey and *pval (if not NULL) after use.
-guint parse_assigment(gchar *assignment, const gchar **pkey, const gchar **pval)
+guint parse_assigment(gchar *assignment, gchar **pkey, gchar **pval)
 {
   char *key, *val, *t, *p;
 

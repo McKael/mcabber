@@ -1544,7 +1544,7 @@ static void do_move(char *arg)
 static void do_set(char *arg)
 {
   guint assign;
-  const gchar *option, *value;
+  gchar *option, *value;
   gchar *option_utf8;
 
   assign = parse_assigment(arg, &option, &value);
@@ -1553,19 +1553,19 @@ static void do_set(char *arg)
     return;
   }
   option_utf8 = to_utf8(option);
-  if (!assign) {
-    // This is a query
-    value = settings_opt_get(option_utf8);
-    if (value) {
-      scr_LogPrint(LPRINT_NORMAL, "%s = [%s]", option_utf8, value);
-    } else
+  g_free(option);
+  if (!assign) {  // This is a query
+    const char *val = settings_opt_get(option_utf8);
+    if (val)
+      scr_LogPrint(LPRINT_NORMAL, "%s = [%s]", option_utf8, val);
+    else
       scr_LogPrint(LPRINT_NORMAL, "Option %s is not set", option_utf8);
     g_free(option_utf8);
     return;
   }
   // Update the option
-  // XXX Maybe some options should be protected when user is connected
-  // (server, username, etc.).  And we should catch some options here, too
+  // Maybe some options should be protected when user is connected (server,
+  // username, etc.).  And we should catch some options here, too
   // (hide_offline_buddies for ex.)
   if (!value) {
     settings_del(SETTINGS_TYPE_OPTION, option_utf8);
@@ -1573,6 +1573,7 @@ static void do_set(char *arg)
     gchar *value_utf8 = to_utf8(value);
     settings_set(SETTINGS_TYPE_OPTION, option_utf8, value_utf8);
     g_free(value_utf8);
+    g_free(value);
   }
   g_free(option_utf8);
 }
@@ -1585,29 +1586,28 @@ static void dump_alias(char *k, char *v, void *param)
 static void do_alias(char *arg)
 {
   guint assign;
-  const gchar *alias, *value;
+  gchar *alias, *value;
 
   assign = parse_assigment(arg, &alias, &value);
   if (!alias) {
     settings_foreach(SETTINGS_TYPE_ALIAS, &dump_alias, NULL);
     return;
   }
-  if (!assign) {
-    // This is a query
-    value = settings_get(SETTINGS_TYPE_ALIAS, alias);
-    if (value) {
-      // XXX LPRINT_NOTUTF8 here, see below why it isn't encoded...
-      scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8, "%s = %s", alias, value);
-    } else
+  if (!assign) {  // This is a query
+    const char *val = settings_get(SETTINGS_TYPE_ALIAS, alias);
+    // NOTE: LPRINT_NOTUTF8 here, see below why it isn't encoded...
+    if (val)
+      scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8, "%s = %s", alias, val);
+    else
       scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
                    "Alias '%s' does not exist", alias);
-    return;
+    goto do_alias_return;
   }
   // Check the alias does not conflict with a registered command
   if (cmd_get(alias)) {
       scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
                    "'%s' is a reserved word!", alias);
-      return;
+      goto do_alias_return;
   }
   // Update the alias
   if (!value) {
@@ -1618,14 +1618,17 @@ static void do_alias(char *arg)
     }
   } else {
     /* Add alias to the completion list, if not already in.
-       XXX We're not UTF8-encoding "alias" and "value" here because UTF-8 is
+       NOTE: We're not UTF8-encoding "alias" and "value" here because UTF-8 is
        not yet supported in the UI... (and we use the values in the completion
        system)
     */
     if (!settings_get(SETTINGS_TYPE_ALIAS, alias))
       compl_add_category_word(COMPL_CMD, alias);
     settings_set(SETTINGS_TYPE_ALIAS, alias, value);
+    g_free(value);
   }
+do_alias_return:
+  g_free(alias);
 }
 
 static void dump_bind(char *k, char *v, void *param)
@@ -1636,20 +1639,20 @@ static void dump_bind(char *k, char *v, void *param)
 static void do_bind(char *arg)
 {
   guint assign;
-  const gchar *k_code, *value;
+  gchar *k_code, *value;
 
   assign = parse_assigment(arg, &k_code, &value);
   if (!k_code) {
     settings_foreach(SETTINGS_TYPE_BINDING, &dump_bind, NULL);
     return;
   }
-  if (!assign) {
-    // This is a query
-    value = settings_get(SETTINGS_TYPE_BINDING, k_code);
-    if (value) {
-      scr_LogPrint(LPRINT_NORMAL, "Key %s is bound to: %s", k_code, value);
-    } else
+  if (!assign) {  // This is a query
+    const char *val = settings_get(SETTINGS_TYPE_BINDING, k_code);
+    if (val)
+      scr_LogPrint(LPRINT_NORMAL, "Key %s is bound to: %s", k_code, val);
+    else
       scr_LogPrint(LPRINT_NORMAL, "Key %s is not bound.", k_code);
+    g_free(k_code);
     return;
   }
   // Update the key binding
@@ -1659,7 +1662,9 @@ static void do_bind(char *arg)
     gchar *value_utf8 = to_utf8(value);
     settings_set(SETTINGS_TYPE_BINDING, k_code, value_utf8);
     g_free(value_utf8);
+    g_free(value);
   }
+  g_free(k_code);
 }
 
 static void do_rawxml(char *arg)

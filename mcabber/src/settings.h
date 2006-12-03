@@ -25,8 +25,7 @@
 
 void    settings_init(void);
 int     cfg_read_file(char *filename);
-guint   parse_assigment(gchar *assignment,
-                        const gchar **pkey, const gchar **pval);
+guint   parse_assigment(gchar *assignment, gchar **pkey, gchar **pval);
 void    settings_set(guint type, const gchar *key, const gchar *value);
 void    settings_del(guint type, const gchar *key);
 const gchar *settings_get(guint type, const gchar *key);

@@ -350,6 +350,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
   time_t timestamp;
   char strtimestamp[64];
   char *buffer, *btext;
+  char *convbuf1 = NULL, *convbuf2 = NULL;
   va_list ap;
 
   if (!(flag & ~LPRINT_NOTUTF8)) return; // Shouldn't happen
@@ -368,7 +369,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 
     // Convert buffer to current locale for wprintw()
     if (!(flag & LPRINT_NOTUTF8))
-      buffer_locale = from_utf8(buffer);
+      buffer_locale = convbuf1 = from_utf8(buffer);
     else
       buffer_locale = buffer;
 
@@ -383,7 +384,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 
     // For the special status buffer, we need utf-8, but without the timestamp
     if (flag & LPRINT_NOTUTF8)
-      buf_specialwindow = to_utf8(btext);
+      buf_specialwindow = convbuf2 = to_utf8(btext);
     else
       buf_specialwindow = btext;
 
@@ -399,11 +400,8 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
         HBB_PREFIX_SPECIAL, 0);
     }
 
-    if (buf_specialwindow != btext)
-      g_free(buf_specialwindow);
-    if (!(flag & LPRINT_NOTUTF8))
-      g_free(buffer_locale);
-
+    g_free(convbuf1);
+    g_free(convbuf2);
     g_free(buffer);
   }
 

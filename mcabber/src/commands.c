@@ -1009,8 +1009,7 @@ static void do_msay(char *arg)
                  "the /msay command.");
     scr_LogPrint(LPRINT_NORMAL, "(Use \"%s begin\" to enter "
                  "multi-line mode...)", mkcmdstr("msay"));
-    free_arg_lst(paramlst);
-    return;
+    goto do_msay_return;
   }
 
   if (!strcasecmp(subcmd, "toggle")) {
@@ -1029,7 +1028,7 @@ static void do_msay(char *arg)
     if (scr_get_multimode())
       scr_LogPrint(LPRINT_NORMAL, "Leaving multi-line message mode.");
     scr_set_multimode(FALSE, NULL);
-    return;
+    goto do_msay_return;
   } else if ((!strcasecmp(subcmd, "begin")) ||
              (!strcasecmp(subcmd, "verbatim"))) {
     bool verbat;
@@ -1050,10 +1049,10 @@ static void do_msay(char *arg)
       scr_LogPrint(LPRINT_NORMAL, "Use \"%s abort\" to abort this mode.",
                    mkcmdstr("msay"));
     g_free(subj_utf8);
-    return;
+    goto do_msay_return;
   } else if (strcasecmp(subcmd, "send") && strcasecmp(subcmd, "send_to")) {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
-    return;
+    goto do_msay_return;
   }
 
   /* send/send_to command */
@@ -1061,7 +1060,7 @@ static void do_msay(char *arg)
   if (!scr_get_multimode()) {
     scr_LogPrint(LPRINT_NORMAL, "No message to send.  "
                  "Use \"%s begin\" first.", mkcmdstr("msay"));
-    return;
+    goto do_msay_return;
   }
 
   scr_set_chatmode(TRUE);
@@ -1079,20 +1078,20 @@ static void do_msay(char *arg)
     }
     g_free(arg);
     if (err)
-      return;
+      goto do_msay_return;
   } else { // Send to currently selected buddy
     gpointer bud;
     gchar *msg_utf8;
 
     if (!current_buddy) {
       scr_LogPrint(LPRINT_NORMAL, "Whom are you talking to?");
-      return;
+      goto do_msay_return;
     }
 
     bud = BUDDATA(current_buddy);
     if (!(buddy_gettype(bud) & (ROSTER_TYPE_USER|ROSTER_TYPE_ROOM))) {
       scr_LogPrint(LPRINT_NORMAL, "This is not a user.");
-      return;
+      goto do_msay_return;
     }
 
     buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
@@ -1104,6 +1103,8 @@ static void do_msay(char *arg)
   }
   scr_set_multimode(FALSE, NULL);
   scr_LogPrint(LPRINT_NORMAL, "You have left multi-line message mode.");
+do_msay_return:
+  free_arg_lst(paramlst);
 }
 
 static void do_say_to(char *arg)
@@ -2248,8 +2249,10 @@ static void do_room(char *arg)
   if (current_buddy) {
     bud = BUDDATA(current_buddy);
   } else {
-    if (strcasecmp(subcmd, "join"))
+    if (strcasecmp(subcmd, "join")) {
+      free_arg_lst(paramlst);
       return;
+    }
     // "room join" is a special case, we don't need to have a valid
     // current_buddy.
     bud = NULL;
@@ -2327,8 +2330,7 @@ static void do_authorization(char *arg)
 
   if (!subcmd || !*subcmd) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
-    free_arg_lst(paramlst);
-    return;
+    goto do_authorization_return;
   }
 
   // Use the provided jid, if it looks valid
@@ -2340,8 +2342,7 @@ static void do_authorization(char *arg)
       if (check_jid_syntax(arg)) {
         scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
                      "<%s> is not a valid Jabber ID.", arg);
-        free_arg_lst(paramlst);
-        return;
+        goto do_authorization_return;
       }
     }
   }
@@ -2351,7 +2352,7 @@ static void do_authorization(char *arg)
     guint type;
 
     if (!current_buddy)
-      return;
+      goto do_authorization_return;
     bud = BUDDATA(current_buddy);
 
     jid_utf8 = arg  = (char*)buddy_getjid(bud);
@@ -2359,7 +2360,7 @@ static void do_authorization(char *arg)
 
     if (!(type & (ROSTER_TYPE_USER|ROSTER_TYPE_AGENT))) {
       scr_LogPrint(LPRINT_NORMAL, "Invalid buddy.");
-      return;
+      goto do_authorization_return;
     }
   } else {
     jid_utf8 = to_utf8(arg);
@@ -2391,6 +2392,7 @@ static void do_authorization(char *arg)
   // Only free jid_utf8 if it has been allocated, i.e. if != arg.
   if (jid_utf8 && jid_utf8 != arg)
     g_free(jid_utf8);
+do_authorization_return:
   free_arg_lst(paramlst);
 }
 

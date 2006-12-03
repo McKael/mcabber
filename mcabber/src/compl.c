@@ -202,9 +202,14 @@ void compl_del_category_word(guint categ, const char *word)
 
 //  compl_get_category_list()
 // Returns a slist of all words in the categories specified by the given flags
-GSList *compl_get_category_list(guint cat_flags)
+// Iff this function sets *dynlist to TRUE, then the caller must free the
+// whole list after use.
+GSList *compl_get_category_list(guint cat_flags, guint *dynlist)
 {
   GSList *sl_cat;
+
+  *dynlist = FALSE;
+
   // Look for category
   // XXX Actually that's not that simple... cat_flags can be a combination
   // of several flags!
@@ -216,6 +221,7 @@ GSList *compl_get_category_list(guint cat_flags)
     return ((category*)sl_cat->data)->words;
 
   // Handle dynamic SLists
+  *dynlist = TRUE;
   if (cat_flags == COMPL_GROUPNAME) {
     return compl_list(ROSTER_TYPE_GROUP);
   }
@@ -229,6 +235,7 @@ GSList *compl_get_category_list(guint cat_flags)
     return evs_geteventslist(TRUE);
   }
 
+  *dynlist = FALSE;
   return NULL;
 }
 

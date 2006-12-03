@@ -2310,12 +2310,21 @@ static void scr_handle_tab(void)
   }
 
   if (!completion_started) {
-    GSList *list = compl_get_category_list(compl_categ);
+    guint dynlist;
+    GSList *list = compl_get_category_list(compl_categ, &dynlist);
     if (list) {
       char *prefix = g_strndup(row, ptr_inputline-row);
       // Init completion
       new_completion(prefix, list);
       g_free(prefix);
+      // Free the list if it's a dynamic one
+      if (dynlist) {
+        GSList *slp;
+        for (slp = list; slp; slp = g_slist_next(slp))
+          g_free(slp->data);
+        g_slist_free(list);
+
+      }
       // Now complete
       cchar = complete();
       if (cchar)

@@ -24,7 +24,7 @@
 
 void    compl_add_category_word(guint, const char *command);
 void    compl_del_category_word(guint categ, const char *word);
-GSList *compl_get_category_list(guint cat_flags);
+GSList *compl_get_category_list(guint cat_flags, guint *dynlist);
 
 void    new_completion(char *prefix, GSList *compl_cat);
 void    done_completion(void);

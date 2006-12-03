@@ -495,6 +495,7 @@ inline void jb_setprevstatus(void)
 
 //  new_msgid()
 // Generate a new id string.  The caller should free it.
+// The caller must free the string when no longer needed.
 static char *new_msgid(void)
 {
   static guint msg_idn;
@@ -522,6 +523,9 @@ void jb_send_msg(const char *fjid, const char *text, int type,
   xmlnode event;
   guint use_jep85 = 0;
   struct jep0085 *jep85 = NULL;
+#endif
+#if defined JEP0022
+  gchar *nmsgid = NULL;
 #endif
   gchar *enc = NULL;
 
@@ -631,7 +635,7 @@ void jb_send_msg(const char *fjid, const char *text, int type,
 
     // An id is mandatory when using JEP-0022.
     if (!msgid && (text || subject)) {
-      msgid = new_msgid();
+      msgid = nmsgid = new_msgid();
       // Let's update last_msgid_sent
       // (We do not update it when the msgid is provided by the caller,
       // because this is probably a special message...)
@@ -648,6 +652,9 @@ jb_send_msg_no_chatstates:
 
   jab_send(jc, x);
   xmlnode_free(x);
+#if defined JEP0022
+  g_free(nmsgid);
+#endif
 
   jb_reset_keepalive();
 }

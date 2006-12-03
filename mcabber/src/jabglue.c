@@ -998,7 +998,7 @@ void jb_updatebuddy(const char *bjid, const char *name, const char *group)
 
 void jb_request(const char *fjid, enum iqreq_type reqtype)
 {
-  GSList *resources;
+  GSList *resources, *p_res;
   GSList *roster_elt;
   void (*request_fn)(const char *);
   const char *strreqtype;
@@ -1049,13 +1049,15 @@ void jb_request(const char *fjid, enum iqreq_type reqtype)
     (*request_fn)(fjid); // Let's send a request anyway...
     scr_LogPrint(LPRINT_NORMAL, "Sent %s request to <%s>", strreqtype, fjid);
   }
-  for ( ; resources ; resources = g_slist_next(resources) ) {
+  for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
     gchar *fulljid;
-    fulljid = g_strdup_printf("%s/%s", fjid, (char*)resources->data);
+    fulljid = g_strdup_printf("%s/%s", fjid, (char*)p_res->data);
     (*request_fn)(fulljid);
     scr_LogPrint(LPRINT_NORMAL, "Sent %s request to <%s>", strreqtype, fulljid);
     g_free(fulljid);
+    g_free(p_res->data);
   }
+  g_slist_free(resources);
 }
 
 // Join a MUC room

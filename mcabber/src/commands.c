@@ -1282,7 +1282,7 @@ static void do_info(char *arg)
   buffer = g_new(char, 4096);
 
   if (bjid) {
-    GSList *resources;
+    GSList *resources, *p_res;
     char *bstr = "unknown";
 
     // Enter chat mode
@@ -1320,21 +1320,21 @@ static void do_info(char *arg)
         scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
       }
     }
-    for ( ; resources ; resources = g_slist_next(resources) ) {
+    for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
       gchar rprio;
       enum imstatus rstatus;
       const char *rst_msg;
       time_t rst_time;
       struct pgp_data *rpgp;
 
-      rprio   = buddy_getresourceprio(bud, resources->data);
-      rstatus = buddy_getstatus(bud, resources->data);
-      rst_msg = buddy_getstatusmsg(bud, resources->data);
-      rst_time = buddy_getstatustime(bud, resources->data);
-      rpgp = buddy_resource_pgp(bud, resources->data);
+      rprio   = buddy_getresourceprio(bud, p_res->data);
+      rstatus = buddy_getstatus(bud, p_res->data);
+      rst_msg = buddy_getstatusmsg(bud, p_res->data);
+      rst_time = buddy_getstatustime(bud, p_res->data);
+      rpgp = buddy_resource_pgp(bud, p_res->data);
 
       snprintf(buffer, 4095, "Resource: [%c] (%d) %s", imstatus2char[rstatus],
-               rprio, (char*)resources->data);
+               rprio, (char*)p_res->data);
       scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
       if (rst_msg) {
         snprintf(buffer, 4095, "Status message: %s", rst_msg);
@@ -1360,7 +1360,9 @@ static void do_info(char *arg)
         }
       }
 #endif
+      g_free(p_res->data);
     }
+    g_slist_free(resources);
   } else {
     if (name) scr_LogPrint(LPRINT_NORMAL, "Name: %s", name);
     scr_LogPrint(LPRINT_NORMAL, "Type: %s",
@@ -1390,7 +1392,7 @@ static void room_names(gpointer bud, char *arg)
 {
   const char *bjid;
   char *buffer;
-  GSList *resources;
+  GSList *resources, *p_res;
 
   if (*arg) {
     scr_LogPrint(LPRINT_NORMAL, "This action does not require a parameter.");
@@ -1408,22 +1410,23 @@ static void room_names(gpointer bud, char *arg)
   scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
 
   resources = buddy_getresources(bud);
-  for ( ; resources ; resources = g_slist_next(resources) ) {
+  for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
     enum imstatus rstatus;
     const char *rst_msg;
 
-    rstatus = buddy_getstatus(bud, resources->data);
-    rst_msg = buddy_getstatusmsg(bud, resources->data);
+    rstatus = buddy_getstatus(bud, p_res->data);
+    rst_msg = buddy_getstatusmsg(bud, p_res->data);
 
     snprintf(buffer, 4095, "[%c] %s", imstatus2char[rstatus],
-             (char*)resources->data);
+             (char*)p_res->data);
     scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
     if (rst_msg) {
       snprintf(buffer, 4095, "Status message: %s", rst_msg);
       scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
     }
+    g_free(p_res->data);
   }
-
+  g_slist_free(resources);
   g_free(buffer);
 }
 

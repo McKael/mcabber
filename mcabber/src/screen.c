@@ -1075,9 +1075,14 @@ void scr_UpdateChatStatus(int forceupdate)
 
   // No status message for groups & MUC rooms
   if (!isgrp && !ismuc) {
-    GSList *resources = buddy_getresources(BUDDATA(current_buddy));
+    GSList *resources, *p_res;
+    resources = buddy_getresources(BUDDATA(current_buddy));
     msg = buddy_getstatusmsg(BUDDATA(current_buddy),
                              resources ? resources->data : "");
+    // Free the resources list data
+    for (p_res = resources ; p_res ; p_res = g_slist_next(p_res))
+      g_free(p_res->data);
+    g_slist_free(resources);
   } else if (ismuc) {
     msg = buddy_gettopic(BUDDATA(current_buddy));
   }
@@ -1200,7 +1205,7 @@ void scr_DrawRoster(void)
   for (i=0; i<maxy && buddy; buddy = g_list_next(buddy)) {
     unsigned short bflags, btype, ismsg, isgrp, ismuc, ishid, isspe;
     gchar *rline_locale;
-    GSList *resources;
+    GSList *resources, *p_res;
 
     bflags = buddy_getflags(BUDDATA(buddy));
     btype = buddy_gettype(BUDDATA(buddy));
@@ -1220,16 +1225,16 @@ void scr_DrawRoster(void)
     pending = ' ';
 
     resources = buddy_getresources(BUDDATA(buddy));
-    for ( ; resources ; resources = g_slist_next(resources) ) {
+    for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
       guint events = buddy_resource_getevents(BUDDATA(buddy),
-                                              resources ? resources->data : "");
-      if (events & ROSTER_EVENT_PAUSED)
+                                              p_res ? p_res->data : "");
+      if ((events & ROSTER_EVENT_PAUSED) && pending != '+')
         pending = '.';
-      if (events & ROSTER_EVENT_COMPOSING) {
+      if (events & ROSTER_EVENT_COMPOSING)
         pending = '+';
-        break;
-      }
+      g_free(p_res->data);
     }
+    g_slist_free(resources);
 
     // Display message notice if there is a message flag, but not
     // for unfolded groups.

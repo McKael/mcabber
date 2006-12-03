@@ -28,14 +28,9 @@
 #include "utils.h"
 #include "logprint.h"
 
-static GSList *option;
-static GSList *alias;
-static GSList *binding;
-
-typedef struct {
-  gchar *name;
-  gchar *value;
-} T_setting;
+static GHashTable *option;
+static GHashTable *alias;
+static GHashTable *binding;
 
 #ifdef HAVE_GPGME     /* PGP settings */
 static GHashTable *pgpopt;
@@ -46,32 +41,21 @@ typedef struct {
 } T_pgpopt;
 #endif
 
-static inline GSList **get_list_ptr(guint type)
+static inline GHashTable *get_hash(guint type)
 {
-  if      (type == SETTINGS_TYPE_OPTION)  return &option;
-  else if (type == SETTINGS_TYPE_ALIAS)   return &alias;
-  else if (type == SETTINGS_TYPE_BINDING) return &binding;
+  if      (type == SETTINGS_TYPE_OPTION)  return option;
+  else if (type == SETTINGS_TYPE_ALIAS)   return alias;
+  else if (type == SETTINGS_TYPE_BINDING) return binding;
   return NULL;
-}
-
-// Return a pointer to the node with the requested key, or NULL if none found
-static GSList *settings_find(GSList *list, const gchar *key)
-{
-  GSList *ptr;
-
-  if (!list) return NULL;
-
-  for (ptr = list ; ptr; ptr = g_slist_next(ptr))
-    if (!strcasecmp(key, ((T_setting*)ptr->data)->name))
-      break;
-
-  return ptr;
 }
 
 /* -- */
 
 void settings_init(void)
 {
+  option  = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
+  alias   = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
+  binding = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
 #ifdef HAVE_GPGME
   pgpopt = g_hash_table_new(&g_str_hash, &g_str_equal);
 #endif
@@ -247,31 +231,16 @@ guint parse_assigment(gchar *assignment, const gchar **pkey, const gchar **pval)
 
 void settings_set(guint type, const gchar *key, const gchar *value)
 {
-  GSList **plist;
-  GSList *sptr;
-  T_setting *setting;
+  GHashTable *hash;
 
-  plist = get_list_ptr(type);
-  if (!plist) return;
+  hash = get_hash(type);
+  if (!hash)
+    return;
 
-  sptr = settings_find(*plist, key);
-  if (sptr) {
-    // The setting has been found.  We will update it or delete it.
-    setting = (T_setting*)sptr->data;
-    g_free(setting->value);
-    if (!value) {
-      // Let's remove the setting
-      g_free(setting->name);
-      *plist = g_slist_delete_link(*plist, sptr);
-    } else {
-      // Let's update the setting
-      setting->value = g_strdup(value);
-    }
-  } else if (value) {
-    setting = g_new(T_setting, 1);
-    setting->name  = g_strdup(key);
-    setting->value = g_strdup(value);
-    *plist = g_slist_append(*plist, setting);
+  if (!value) {
+    g_hash_table_remove(hash, key);
+  } else {
+    g_hash_table_insert(hash, g_strdup(key), g_strdup(value));
   }
 }
 
@@ -282,16 +251,13 @@ void settings_del(guint type, const gchar *key)
 
 const gchar *settings_get(guint type, const gchar *key)
 {
-  GSList **plist;
-  GSList *sptr;
-  T_setting *setting;
+  GHashTable *hash;
 
-  plist = get_list_ptr(type);
-  sptr = settings_find(*plist, key);
-  if (!sptr) return NULL;
+  hash = get_hash(type);
+  if (!hash)
+    return NULL;
 
-  setting = (T_setting*)sptr->data;
-  return setting->value;
+  return g_hash_table_lookup(hash, key);
 }
 
 int settings_get_int(guint type, const gchar *key)
@@ -344,21 +310,16 @@ const gchar *settings_get_status_msg(enum imstatus status)
 
 //  settings_foreach(type, pfunction, param)
 // Call pfunction(param, key, value) for each setting with requested type.
-void settings_foreach(guint type, void (*pfunc)(void *param, char *k, char *v),
+void settings_foreach(guint type, void (*pfunc)(char *k, char *v, void *param),
                       void *param)
 {
-  GSList **plist;
-  GSList *ptr;
-  T_setting *setting;
+  GHashTable *hash;
 
-  plist = get_list_ptr(type);
+  hash = get_hash(type);
+  if (!hash)
+    return;
 
-  if (!*plist) return;
-
-  for (ptr = *plist ; ptr; ptr = g_slist_next(ptr)) {
-    setting = ptr->data;
-    pfunc(param, setting->name, setting->value);
-  }
+  g_hash_table_foreach(hash, (GHFunc)pfunc, param);
 }
 
 

@@ -1573,7 +1573,7 @@ static void do_set(char *arg)
   g_free(option_utf8);
 }
 
-static void dump_alias(void *param, char *k, char *v)
+static void dump_alias(char *k, char *v, void *param)
 {
   scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8, "Alias %s = %s", k, v);
 }
@@ -1624,7 +1624,7 @@ static void do_alias(char *arg)
   }
 }
 
-static void dump_bind(void *param, char *k, char *v)
+static void dump_bind(char *k, char *v, void *param)
 {
   scr_LogPrint(LPRINT_NORMAL, "Key %4s is bound to: %s", k, v);
 }

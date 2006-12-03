@@ -33,7 +33,7 @@ const gchar *settings_get(guint type, const gchar *key);
 int     settings_get_int(guint type, const gchar *key);
 const gchar *settings_get_status_msg(enum imstatus status);
 void    settings_foreach(guint type,
-                         void (*pfunc)(void *param, char *k, char *v),
+                         void (*pfunc)(char *k, char *v, void *param),
                          void *param);
 
 void    settings_pgp_setdisabled(const char *bjid, guint value);

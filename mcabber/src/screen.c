@@ -57,7 +57,6 @@ static GHashTable *winbufhash;
 typedef struct {
   WINDOW *win;
   PANEL  *panel;
-  char   *name;
   GList  *hbuf;
   GList  *top;      // If top is NULL, we'll display the last lines
   char    cleared;  // For ex, user has issued a /clear command...
@@ -443,7 +442,6 @@ static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
   }
   wbkgd(tmp->win, get_color(COLOR_GENERAL));
   tmp->panel = new_panel(tmp->win);
-  tmp->name = g_strdup(title);
 
   if (!dont_show) {
     currentWindow = tmp;
@@ -604,7 +602,6 @@ static void scr_ShowWindow(const char *winId, int special)
       if (!statusWindow) {
         statusWindow = scr_CreateBuddyPanel(NULL, FALSE);
         statusWindow->hbuf = statushbuf;
-        statusWindow->name = g_strdup(winId);
       }
       win_entry = statusWindow;
     } else {
@@ -701,7 +698,6 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
       if (!statusWindow) {
         statusWindow = scr_CreateBuddyPanel(NULL, dont_show);
         statusWindow->hbuf = statushbuf;
-        //statusWindow->name = g_strdup(winId); // (winId NULL)
       }
       win_entry = statusWindow;
     } else {

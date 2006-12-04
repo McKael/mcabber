@@ -52,7 +52,7 @@ static unsigned short int Roster_Width;
 
 static inline void check_offset(int);
 
-static GSList *winbuflst;
+static GHashTable *winbufhash;
 
 typedef struct {
   WINDOW *win;
@@ -64,6 +64,10 @@ typedef struct {
   char    lock;
 } winbuf;
 
+struct dimensions {
+  int l;
+  int c;
+};
 
 static WINDOW *rosterWnd, *chatWnd, *inputWnd, *logWnd;
 static WINDOW *mainstatusWnd, *chatstatusWnd;
@@ -453,17 +457,20 @@ static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
 
   // If title is NULL, this is a special buffer
   if (title) {
+    char *id;
     // Load buddy history from file (if enabled)
     hlog_read_history(title, &tmp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
 
-    winbuflst = g_slist_append(winbuflst, tmp);
+    id = g_strdup(title);
+    mc_strtolower(id);
+    g_hash_table_insert(winbufhash, id, tmp);
   }
   return tmp;
 }
 
 static winbuf *scr_SearchWindow(const char *winId, int special)
 {
-  GSList *wblp;
+  char *id;
   winbuf *wbp;
 
   if (special)
@@ -472,14 +479,11 @@ static winbuf *scr_SearchWindow(const char *winId, int special)
   if (!winId)
     return NULL;
 
-  for (wblp = winbuflst; wblp; wblp = g_slist_next(wblp)) {
-    wbp = wblp->data;
-    if (wbp->name) {
-      if (!strcasecmp(wbp->name, winId))
-	return wbp;
-    }
-  }
-  return NULL;
+  id = g_strdup(winId);
+  mc_strtolower(id);
+  wbp = g_hash_table_lookup(winbufhash, id);
+  g_free(id);
+  return wbp;
 }
 
 int scr_BuddyBufferExists(const char *bjid)
@@ -833,6 +837,8 @@ void scr_DrawMainWindow(unsigned int fullinit)
   }
 
   if (fullinit) {
+    if (!winbufhash)
+      winbufhash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
     /* Create windows */
     rosterWnd = newwin(CHAT_WIN_HEIGHT, Roster_Width, chat_y_pos, roster_x_pos);
     chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - Roster_Width, chat_y_pos,
@@ -926,10 +932,14 @@ void scr_DrawMainWindow(unsigned int fullinit)
   return;
 }
 
-static inline void resize_win_buffer(winbuf *wbp, int x, int y,
-                                     int lines, int cols)
+static void resize_win_buffer(gpointer key, gpointer value, gpointer data)
 {
+  winbuf *wbp = value;
+  struct dimensions *dim = data;
   int chat_x_pos, chat_y_pos;
+
+  if (!(wbp && wbp->win))
+    return;
 
   if (log_win_on_top)
     chat_y_pos = Log_Win_Height-1;
@@ -942,7 +952,7 @@ static inline void resize_win_buffer(winbuf *wbp, int x, int y,
     chat_x_pos = Roster_Width;
 
   // Resize/move buddy window
-  wresize(wbp->win, lines, cols);
+  wresize(wbp->win, dim->l, dim->c);
   mvwin(wbp->win, chat_y_pos, chat_x_pos);
   werase(wbp->win);
   // If a panel exists, replace the old window with the new
@@ -959,9 +969,7 @@ static inline void resize_win_buffer(winbuf *wbp, int x, int y,
 // - Rewrap lines in each buddy buffer
 void scr_Resize(void)
 {
-  int x, y, lines, cols;
-  GSList *wblp;
-  winbuf *wbp;
+  struct dimensions dim;
 
   // First, update the global variables
   getmaxyx(stdscr, maxY, maxX);
@@ -974,21 +982,17 @@ void scr_Resize(void)
   scr_DrawMainWindow(FALSE);
 
   // Resize all buddy windows
-  x = Roster_Width;
-  y = 0;
-  lines = CHAT_WIN_HEIGHT;
-  cols = maxX - Roster_Width;
-  if (cols < 1) cols = 1;
+  dim.l = CHAT_WIN_HEIGHT;
+  dim.c = maxX - Roster_Width;
+  if (dim.c < 1)
+    dim.c = 1;
 
-  for (wblp = winbuflst; wblp; wblp = g_slist_next(wblp)) {
-    wbp = wblp->data;
-    if (wbp->win)
-      resize_win_buffer(wbp, x, y, lines, cols);
-  }
+  // Resize all buffers
+  g_hash_table_foreach(winbufhash, resize_win_buffer, &dim);
 
   // Resize/move special status buffer
   if (statusWindow)
-    resize_win_buffer(statusWindow, x, y, lines, cols);
+    resize_win_buffer(NULL, statusWindow, &dim);
 
   // Refresh current buddy window
   if (chatmode)

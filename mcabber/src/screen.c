@@ -117,13 +117,6 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 
 /* Functions */
 
-static int scr_WindowWidth(WINDOW * win)
-{
-  int x, y;
-  getmaxyx(win, y, x);
-  return x;
-}
-
 static int FindColor(const char *name)
 {
   if (!strcmp(name, "default"))
@@ -504,7 +497,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
   GList *hbuf_head;
   char date[64];
 
-  width = scr_WindowWidth(win_entry->win);
+  width = getmaxx(win_entry->win);
 
   // Should the window be empty?
   if (win_entry->cleared) {

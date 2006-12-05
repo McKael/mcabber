@@ -1,13 +1,25 @@
 
- /ROSTER bottom|top|hide_offline|show_offline|toggle_offline
- /ROSTER hide|show|toggle
+ /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER item_lock|item_unlock
+ /ROSTER bottom|top|up|down
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
+ /ROSTER hide|show|toggle
  /ROSTER note [-|text]
 
 The 'roster' command manipulates the roster/buddylist.
 Here are the available parameters:
 
+/roster hide_offline
+ Hide offline buddies
+/roster show_offline
+ Show offline buddies
+/roster toggle_offline
+ Toggle display of offline buddies
+/roster item_lock [jid]
+ Lock the roster item so it remains visible regardless of its status
+/roster item_unlock [jid]
+ Undo the effects of item_lock
 /roster bottom
  Jump to the bottom of the roster
 /roster top
@@ -16,30 +28,20 @@ Here are the available parameters:
  Move up in the roster
 /roster down
  Move down in the roster
-/roster hide_offline
- Hide offline buddies
-/roster show_offline
- Show offline buddies
-/roster toggle_offline
- Toggle display of offline buddies
-/roster hide
- Hide roster (full-width chat window)
-/roster show
- Show roster
-/roster toggle
- Toggle roster visibility
-/roster item_lock [jid]
- Lock the roster item so it remains visible regardless of its status
-/roster item_unlock [jid]
- Undo the effects of item_lock
-/roster search bud
- Search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
 /roster alternate
  Jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode.  This command is thus especially useful after commands like "/roster unread_next" (Ctrl-q).
 /roster unread_first
  Jump to the first unread message
 /roster unread_next
  Jump to the next unread message
+/roster search bud
+ Search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
+/roster hide
+ Hide roster (full-width chat window)
+/roster show
+ Show roster
+/roster toggle
+ Toggle roster visibility
 /roster note [-|text]
  Set/update/delete an annotation.
  If there is no text, the current item's annotation is displayed -- if you are in the status buffer, all notes are displayed.

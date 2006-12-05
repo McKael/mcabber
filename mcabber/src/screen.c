@@ -2414,6 +2414,13 @@ void scr_handle_CtrlC(void)
   refresh_inputline();
 }
 
+static void scr_handle_CtrlD(void)
+{
+  // Validate current multi-line
+  if (scr_get_multimode())
+    process_command(mkcmdstr("msay send"));
+}
+
 static void add_keyseq(char *seqstr, guint mkeycode, gint value)
 {
   keyseq *ks;
@@ -2759,6 +2766,9 @@ int process_key(keycode kcode)
         break;
     case 3:     // Ctrl-C
         scr_handle_CtrlC();
+        break;
+    case 4:     // Ctrl-D
+        scr_handle_CtrlD();
         break;
     case KEY_END:
     case 5:

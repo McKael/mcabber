@@ -95,7 +95,9 @@ Ctrl-l::        Force a refresh
 Up/Down::       Move in the input line history
 PgUp/PgDown::   Move inside the roster (buddylist)
 Tab::           Complete current word, in the input line
-Ctrl-g::        Cancel completion / ctrl-g
+Ctrl-g::        Cancel completion
+Ctrl-c::        Abort multi-line messages and completions
+Ctrl-d::        Send/terminate a multi-line message
 Ctrl-p/Ctrl-n:: Scroll up/down half a screen in the buffer window (chat mode)
 Ctrl-Left::     Move the cursor back to the start of the current or previous word
 Ctrl-Right::    Move the cursor forward to the end of the current or next word
@@ -277,7 +279,7 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         In multi-line mode, each line (except command lines) typed in the input
         line will be added to the multi-line message.  Once the message is
         finished, it can be sent to the current selected buddy with the "/msay
-        send" command. +
+        send" command (or Ctrl-d). +
         The 'begin' subcommand enables multi-line mode.  Note that it allows
         a message subject to be specified. +
         The 'verbatim' multi-line mode disables commands, so that it is

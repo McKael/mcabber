@@ -1,6 +1,7 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|kick|ban|role|affil
+ /ROOM bookmark [add|del] [-autojoin|+autojoin]
 
 Cette commande permet de gérer les salons de discussions MUC (Multi-User Chat).
 
@@ -29,8 +30,11 @@ Cette commande permet de gérer les salons de discussions MUC (Multi-User Chat).
 /room invite jid [raison]
  Invite l'utilisateur jid dans le salon
 /room kick pseudo [raison]
- Chasser le membre "pseudo" du salon
+ Chasse le membre "pseudo" du salon
 /room role jid role [raison]
- Changer le rôle de jid (role peut être "none", "visitor", "participant", "moderator")
+ Change le rôle de jid (role peut être "none", "visitor", "participant", "moderator")
 /room affil jid affil [raison]
- Changer l'affiliation de jid (affil peut être "none", "member", "admin", "owner")
+ Change l'affiliation de jid (affil peut être "none", "member", "admin", "owner")
+/room bookmark [add|del] [-autojoin|+autojoin]
+ Ajoute, supprime ou met à jour le signet (par défaut, ajoute).
+ Si "autojoin" est activé, mcabber entrera automatiquement dans la salle de conférence après s'être connecté au serveur.

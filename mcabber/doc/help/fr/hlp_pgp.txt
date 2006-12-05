@@ -1,0 +1,17 @@
+
+ /PGP disable|enable|info [jid]
+ /PGP setkey [jid [clé]]
+
+Cette commande permet de manipuler les paramètres PGP pour le contact jid (s'il n'est pas précisé, c'est le contact sélectionné).
+Veuillez noter que le chiffrement PGP ne sera pas utilisé si le support de PGP n'est pas détecté chez le client distant (i.e. le contact), même si vous activez PGP avec cette commande.
+
+/pgp disable [jid]
+ Désactive le chiffrement PGP pour jid (ou le contact sélectionné)
+/pgp enable [jid]
+ Active le chiffrement PGP pour jid (ou le contact sélectionné)
+/pgp info [jid]
+ Affiche les paramètres PGP du contact
+/pgp setkey [jid [key]]
+ Sélectionne la clé PGP à utiliser pour chiffrer les messages pour ce contact.
+ Si aucune clé n'est précisée, la clé actuellement sélectionnée est effacée.
+ Vous pouvez utiliser le raccourci "." pour désigner le contact sélectionné.

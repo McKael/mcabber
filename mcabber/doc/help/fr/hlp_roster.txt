@@ -1,11 +1,24 @@
 
- /ROSTER bottom|top|hide_offline|show_offline|toggle_offline
- /ROSTER hide|show|toggle
+ /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER item_lock|item_unlock
+ /ROSTER bottom|top|up|down
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
+ /ROSTER hide|show|toggle
+ /ROSTER note [-|text]
 
-Cette commande manipule le roster (liste de contacts).
+Cette commande permet de manipuler le roster (liste de contacts).
 
+/roster hide_offline
+ Cache les contacts non connectés
+/roster show_offline
+ Affiche les contacts non connectés
+/roster toggle_offline
+ Inverse l'affichage des contacts non connectés
+/roster item_lock [jid]
+ Affiche le contact dans le roster, même s'il est déconnecté
+/roster item_unlock [jid]
+ Annule l'effet de /roster item_lock
 /roster bottom
  Va à la fin de la liste de contact
 /roster top
@@ -14,27 +27,21 @@ Cette commande manipule le roster (liste de contacts).
  Monte dans le roster
 /roster down
  Descend dans le roster
-/roster hide_offline
- Cache les contacts non connectés
-/roster show_offline
- Affiche les contacts non connectés
-/roster toggle_offline
- Inverse l'affichage des contacts non connectés
-/roster hide
- Cache le roster (fenêtre de discussion en pleine largeur)
-/roster show
- Affiche le roster
-/roster toggle
- Inverse l'affichage du roster (hide/show)
-/roster item_lock [jid]
- Affiche le contact dans le roster, même s'il est déconnecté
-/roster item_unlock [jid]
- Annule l'effet de /roster item_lock
-/roster search bud
- Cherche un contact dont le nom ou le jid contient "bud" (seulement dans les contacts affichés)
 /roster alternate
  Va au contact alternatif. Ce contact "alternatif" est le dernier contact quitté tout en étant en mode discussion (chat mode). Cette commande est donc particulièrement utile après des commandes comme "/roster unread_next" (Ctrl-q).
 /roster unread_first
  Va au premier message non lu
 /roster unread_next
  Va au prochain message non lu
+/roster search bud
+ Cherche un contact dont le nom ou le jid contient "bud" (seulement dans les contacts affichés)
+/roster hide
+ Cache le roster (fenêtre de discussion en pleine largeur)
+/roster show
+ Affiche le roster
+/roster toggle
+ Inverse l'affichage du roster (hide/show)
+/roster note [-|texte]
+ Ajoute, modifie ou supprime une annotation.
+ Si le texte n'est pas précisé, l'annotation actuelle de l'élément sélectionné est affichée -- si vous êtes dans la fenêtre d'état (status), toutes les notes seront affichées.
+ Si le texte est "-", l'annotation est supprimée.

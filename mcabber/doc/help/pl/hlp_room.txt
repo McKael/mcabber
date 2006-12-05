@@ -1,6 +1,7 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|kick|ban|role|affil
+ /ROOM bookmark [add|del] [-autojoin|+autojoin]
 
 Komenda 'room' służy do obsługi wieloużytkownikowych chat-room'ów.
 
@@ -34,3 +35,6 @@ Komenda 'room' służy do obsługi wieloużytkownikowych chat-room'ów.
  Zmienia rolę użytkownika jid (może być: "none", "visitor", "participant", "moderator")
 /room affil jid affil [powód]
  Zmienia przynależność jid'a (może być: "none", "member", "admin", "owner")
+/room bookmark [add|del] [-autojoin|+autojoin]
+ Dodaje, usuwa, aktualizuje zakładki (domyślnie dodaje).
+ Jeśli ustawiona jest opcja "autojoin", mcabber automatycznie dołączy do danego MUC po połączeniu z serwerem.

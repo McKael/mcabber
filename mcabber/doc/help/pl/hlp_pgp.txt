@@ -1,0 +1,17 @@
+
+ /PGP disable|enable|info [jid]
+ /PGP setkey [jid [key]]
+
+Polecenie do zmiany ustawień PGP wybranego "jid" (domyślnie aktualnie wybrany kontakt).
+Uwaga: kodowanie PGP nie będzie użyte jeśli nie zostanie wykryta obsługa PGP po drugiej stronie, nawet jeśli PGP zostanie włączone tym poleceniem.
+
+/pgp disable [jid]
+ Wyłączenie kodowania PGP dla "jid" (albo dla aktualnie wybranej osoby)
+/pgp enable [jid]
+ Włączenie kodowania PGP dla "jid" (albo dla aktualnie wybranej osoby)
+/pgp info [jid]
+ Pokazuje aktualne ustawienia PGP dla kontaktu
+/pgp setkey [jid [key]]
+ Ustawienie klucza PGP dla tego kontaktu w celu kodowania wiadomości.
+ Jeśli nie podano żadnego klucza, obecny klucz jest usuwany.
+ Można podać zamiast jid skrót ".", który zostanie użyty do dodania aktualnie wybranego kontaktu.

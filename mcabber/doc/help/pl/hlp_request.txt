@@ -1,9 +1,13 @@
 
- /REQUEST time|version [jid]
+ /REQUEST last|time|vcard|version [jid]
 
 Wysyła zapytanie "IQ" do aktualnie zaznaczonej osoby, albo do podanego poprzez "jid" użytkownika. Jeżeli zasób nie jest podany wraz z jid'em, mcabber wyśle kwerendę do wszystkich mu znanych zasobów tego użytkownika.
 
+/request
+ Żąda "ostatnich" informacji (najczęściej czas bezczynności)
 /request time
- Żąda zwrócenia jaki jest obecnie czas u wybranej osoby
+ Żąda zwrócenia jaki jest obecnie czas u danej osoby
+/request vcard
+ Żada Vcard od danej osoby
 /request version
- Żąda zwrócenia wersji klienta osoby
+ Żąda zwrócenia wersji klienta danej osoby

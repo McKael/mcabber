@@ -1,12 +1,25 @@
 
- /ROSTER bottom|top|hide_offline|show_offline|toggle_offline
- /ROSTER hide|show|toggle
+ /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER item_lock|item_unlock
+ /ROSTER bottom|top|up|down
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
+ /ROSTER hide|show|toggle
+ /ROSTER note [-|text]
 
 Komenda służy do zarządzania listą kontaktów.
 Dostępne parametry:
 
+/roster hide_offline
+ Ukrywa niedostępnych
+/roster show_offline
+ Pokazuje niedostępnych
+/roster toggle_offline
+ Włącza/wyłącza niedostępnych
+/roster item_lock [jid]
+ Zablokuj wyświetlanie elementu rostera, tak aby był widoczny cały czas (bez względu na jego status)
+/roster item_unlock [jid]
+ Odblokuj wyświetlanie elementu rostera, element będzie widoczny ze względu na jego status
 /roster bottom
  Skacze na koniec listy kontaktów
 /roster top
@@ -15,27 +28,21 @@ Dostępne parametry:
  Porusza się w górę w liście kontaktów
 /roster down
  Porusza się w dół w liście kontaktów
-/roster hide_offline
- Ukrywa niedostępnych
-/roster show_offline
- Pokazuje niedostępnych
-/roster toggle_offline
- Włącza/wyłącza niedostępnych
-/roster hide
- Ukrywa całą liste kontaktów
-/roster show
- Pokazuje listę kontaktów
-/roster toggle
- Włącza/wyłącza listę kontaktów
-/roster item_lock [jid]
- Zablokuj wyświetlanie elementu rostera, tak aby był widoczny cały czas (bez względu na jego status)
-/roster item_unlock [jid]
- Odblokuj wyświetlanie elementu rostera, element będzie widoczny ze względu na jego status
-/roster search [osoba]
- Szuka osoby "osoba", lub osoby której nazwa zawiera słowo "osoba"
 /roster alternate
  Skacze do ostatniej osoby, która zmieniła stan z dostępnego na niedostępny (jest szczególnie przydatna po komendach typu "/roster unread_first")
 /roster unread_first
  Skacze do pierwszej nieprzeczytanej wiadomości
 /roster unread_next
  Skacze do następnej nieprzeczytanej wiadomości
+/roster search "osoba"
+ Szuka osoby "osoba", lub osoby której nazwa zawiera słowo "osoba"
+/roster hide
+ Ukrywa całą liste kontaktów
+/roster show
+ Pokazuje listę kontaktów
+/roster toggle
+ Włącza/wyłącza listę kontaktów
+/roster note [-|text]
+ Ustawia/aktualizuje/usuwa notatkę o użytkowniku.
+ Jeśli nie podano "text", notka aktualnego elementu jest wyświetlana -- jeśli jesteś w "status buffer", wszystkie notatki są wyświetlane.
+ Jeśli jako "text" podano "-", notatka jest kasowana.

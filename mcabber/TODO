@@ -6,20 +6,15 @@ BUGS:
 
 TODO:
 
-* Implement automatic reconnection after network failure
-* GPG support
 * Improve the completion system
 * Connect hook
 * Macros
 * Nick highlight
-* VCard support
 * Show number of online contacts in folded groups
 * Publish personal information
 * Colors for presence
-* Persistent room in the roster (join every connect)
 * MUC: advanced settings for room creation
 * MUC: display roles of room members
-* JEP-0022/0085: Message events / chat states (composing, etc.)
 * "Offline roster" (when disconnected)
 * Maybe cache iq:version and show version in /info, if available
 * Sort roster by status

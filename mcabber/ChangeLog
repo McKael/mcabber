@@ -5,7 +5,8 @@ mcabber (0.8.4-dev)
    (Alexis Hildebrandt, Mikael)
     New option "disable_chatstates"
  * XEP-0027 - Current Jabber OpenPGP Usage
-   New options: "pgp", "pgp_private_key"
+   New options "pgp", "pgp_private_key"
+   New command "/pgp"
  * XEP-0054 - VCard-temp (retrieval only)
    New command "/request vcard"
  * XEP-0048 - Bookmark Storage
@@ -20,9 +21,11 @@ mcabber (0.8.4-dev)
    roster (when offline contacts are hidden).
  * New options "log_win_on_top" and "roster_win_on_right"
  * MCabber answers IQ disco#info queries
+ * Ctrl-d sends multi-line messages (same as /msay send)
  * help: Add Ukrainian translations (Myhailo Danylenko)
  * Configurable command character (Alexis Hildebrandt)
  * Misc. bug fixes and improvements
+ * Update documentation and translations
 
  -- Mikael, ?
 

@@ -1379,22 +1379,32 @@ void foreach_group_member(gpointer groupdata,
 GSList *compl_list(guint type)
 {
   GSList *list = NULL;
-  GList  *buddy = buddylist;
+  GSList *sl_roster_elt = groups;
+  roster *roster_elt;
+  GSList *sl_roster_usrelt;
+  roster *roster_usrelt;
 
-  for ( ; buddy ; buddy = g_list_next(buddy)) {
-    guint btype = buddy_gettype(BUDDATA(buddy));
+  while (sl_roster_elt) {       // group list loop
+    roster_elt = (roster*) sl_roster_elt->data;
+
+    if (roster_elt->type & ROSTER_TYPE_SPECIAL)
+      continue; // Skip special items
 
     if (type == ROSTER_TYPE_GROUP) { // (group names)
-      if (btype == ROSTER_TYPE_GROUP) {
-        const char *bname = buddy_getname(BUDDATA(buddy));
-        if ((bname) && (*bname))
-          list = g_slist_append(list, from_utf8(bname));
-      }
+      if (roster_elt->name && *(roster_elt->name))
+        list = g_slist_append(list, from_utf8(roster_elt->name));
     } else { // ROSTER_TYPE_USER (jid) (or agent, or chatroom...)
-        const char *bjid = buddy_getjid(BUDDATA(buddy));
-        if (bjid)
-          list = g_slist_append(list, from_utf8(bjid));
+      sl_roster_usrelt = roster_elt->list;
+      while (sl_roster_usrelt) {  // user list loop
+        roster_usrelt = (roster*) sl_roster_usrelt->data;
+
+        if (roster_usrelt->jid)
+          list = g_slist_append(list, from_utf8(roster_usrelt->jid));
+
+        sl_roster_usrelt = g_slist_next(sl_roster_usrelt);
+      }
     }
+    sl_roster_elt = g_slist_next(sl_roster_elt);
   }
 
   return list;

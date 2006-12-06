@@ -1,8 +1,11 @@
 
- /ROSTER bottom|top|hide_offline|show_offline|toggle_offline
- /ROSTER hide|show|toggle
+ /ROSTER bottom|top|up|down|group_prev|group_next
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search ім'я
+ /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER item_lock|item_unlock
+ /ROSTER hide|show|toggle
+ /ROSTER note [-|text]
 
 Керує списком контактів.
 
@@ -14,27 +17,30 @@
  Перейти вище по списку.
 /roster down
  Перейти нижче по списку.
-/roster hide_offline
- Сховати неприсутні контакти.
-/roster show_offline
- Показувати неприсутні контакти також.
-/roster toggle_offline
- Переключити відображення неприсутніх контактів.
-/roster hide
- Сховати список.
-/roster show
- Показати список.
-/roster toggle
- Переключити відображення списку.
-/roster item_lock [jid]
- Закріплює вказаний об'єкт списку так, що він завжди відображується, незважаючи на свій статус.
-/roster item_unlock [jid]
- Відміняє дію item_lock.
-/roster search ім'я
- Шукати контакт з прізвиськом або jid, що вміщують "ім'я" (тільки в контактах, що відображуються)
+/roster group_prev
+/roster group_next
 /roster alternate
  Прейти до "альтернативного" контакту. "Альтернативний" контакт - це останній контакт, який був в режимі чату. Ця команда може використовуватись після команд типу "/roster unread_next" (Ctrl-q).
 /roster unread_first
  Перейти до першого непрочитанного повідомлення.
 /roster unread_next
  Перейти до наступного непрочитанного повідомлення.
+/roster search ім'я
+ Шукати контакт з прізвиськом або jid, що вміщують "ім'я" (тільки в контактах, що відображуються)
+/roster hide_offline
+ Сховати неприсутні контакти.
+/roster show_offline
+ Показувати неприсутні контакти також.
+/roster toggle_offline
+ Переключити відображення неприсутніх контактів.
+/roster item_lock [jid]
+ Закріплює вказаний об'єкт списку так, що він завжди відображується, незважаючи на свій статус.
+/roster item_unlock [jid]
+ Відміняє дію item_lock.
+/roster hide
+ Сховати список.
+/roster show
+ Показати список.
+/roster toggle
+ Переключити відображення списку.
+/roster note [-|text]

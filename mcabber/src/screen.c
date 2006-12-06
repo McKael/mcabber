@@ -1557,6 +1557,44 @@ void scr_RosterDown(void)
     scr_ShowBuddyWindow();
 }
 
+//  scr_RosterPrevGroup()
+// Go to the previous group in the buddylist
+void scr_RosterPrevGroup(void)
+{
+  GList *bud;
+
+  for (bud = current_buddy ; bud ; ) {
+    bud = g_list_previous(bud);
+    if (!bud)
+      break;
+    if (buddy_gettype(BUDDATA(bud)) & ROSTER_TYPE_GROUP) {
+      set_current_buddy(bud);
+      if (chatmode)
+        scr_ShowBuddyWindow();
+      break;
+    }
+  }
+}
+
+//  scr_RosterNextGroup()
+// Go to the next group in the buddylist
+void scr_RosterNextGroup(void)
+{
+  GList *bud;
+
+  for (bud = current_buddy ; bud ; ) {
+    bud = g_list_next(bud);
+    if (!bud)
+      break;
+    if (buddy_gettype(BUDDATA(bud)) & ROSTER_TYPE_GROUP) {
+      set_current_buddy(bud);
+      if (chatmode)
+        scr_ShowBuddyWindow();
+      break;
+    }
+  }
+}
+
 //  scr_RosterSearch(str)
 // Look forward for a buddy with jid/name containing str.
 void scr_RosterSearch(char *str)

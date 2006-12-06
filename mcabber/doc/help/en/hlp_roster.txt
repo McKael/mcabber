@@ -1,15 +1,35 @@
 
- /ROSTER hide_offline|show_offline|toggle_offline
- /ROSTER item_lock|item_unlock
- /ROSTER bottom|top|up|down
+ /ROSTER bottom|top|up|down|group_prev|group_next
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
+ /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER item_lock|item_unlock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
 
 The 'roster' command manipulates the roster/buddylist.
 Here are the available parameters:
 
+/roster bottom
+ Jump to the bottom of the roster
+/roster top
+ Jump to the top of the roster
+/roster up
+ Move up in the roster
+/roster down
+ Move down in the roster
+/roster group_prev
+ Jump to the previous group in the roster
+/roster group_next
+ Jump to the next group in the roster
+/roster alternate
+ Jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode.  This command is thus especially useful after commands like "/roster unread_next" (Ctrl-q).
+/roster unread_first
+ Jump to the first unread message
+/roster unread_next
+ Jump to the next unread message
+/roster search bud
+ Search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
 /roster hide_offline
  Hide offline buddies
 /roster show_offline
@@ -20,22 +40,6 @@ Here are the available parameters:
  Lock the roster item so it remains visible regardless of its status
 /roster item_unlock [jid]
  Undo the effects of item_lock
-/roster bottom
- Jump to the bottom of the roster
-/roster top
- Jump to the top of the roster
-/roster up
- Move up in the roster
-/roster down
- Move down in the roster
-/roster alternate
- Jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode.  This command is thus especially useful after commands like "/roster unread_next" (Ctrl-q).
-/roster unread_first
- Jump to the first unread message
-/roster unread_next
- Jump to the next unread message
-/roster search bud
- Search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
 /roster hide
  Hide roster (full-width chat window)
 /roster show

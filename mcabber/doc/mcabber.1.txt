@@ -330,10 +330,12 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         'affil' jid affil [reason];; change jid's affiliation (affil can be "none", "member", "admin", "owner")
         'bookmark'              add/update/remove a room bookmark, set/unset autojoin
 
-/roster bottom|top|hide_offline|show_offline|toggle_offline::
-/roster hide|show|toggle::
+/roster bottom|top|up|down|group_prev|group_next::
 /roster alternate|unread_first|unread_next::
 /roster search bud::
+/roster hide_offline|show_offline|toggle_offline::
+/roster item_lock|item_unlock::
+/roster hide|show|toggle::
 /roster note [-|text]::
         The 'roster' command manipulates the roster/buddylist.  Here are the available parameters:
 
@@ -341,18 +343,20 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         'top';;          jump to the top of the roster
         'up';;           move up in the roster
         'down';;         move down in the roster
-        'hide_offline';; hide offline buddies
-        'show_offline';; show offline buddies
-        'toggle_offline';; toggle display of offline buddies
-        'hide';;         hide roster (full-width chat window)
-        'show';;         show roster
-        'toggle';;       toggle roster visibility
-        'item_lock' jid;;   lock the roster item so it remains visible regardless of its status
-        'item_unlock' jid;; undo the effects of item_lock
-        'search' bud;;   search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
+        'group_prev';;   jump to the previous group in the roster
+        'group_next';;   jump to the next group in the roster
         'alternate';;    jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
         'unread_first';; jump to the first unread message
         'unread_next';;  jump to the next unread message
+        'search' bud;;   search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
+        'hide_offline';; hide offline buddies
+        'show_offline';; show offline buddies
+        'toggle_offline';; toggle display of offline buddies
+        'item_lock' jid;;   lock the roster item so it remains visible regardless of its status
+        'item_unlock' jid;; undo the effects of item_lock
+        'hide';;         hide roster (full-width chat window)
+        'show';;         show roster
+        'toggle';;       toggle roster visibility
         'note' [text];;  display or set an annotation (if text is "-", the annotation is deleted).  In the "status" buffer, it will display all annotations.
 
 /say text::

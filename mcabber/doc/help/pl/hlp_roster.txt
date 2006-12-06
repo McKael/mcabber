@@ -1,15 +1,35 @@
 
- /ROSTER hide_offline|show_offline|toggle_offline
- /ROSTER item_lock|item_unlock
- /ROSTER bottom|top|up|down
+ /ROSTER bottom|top|up|down|group_prev|group_next
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
+ /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER item_lock|item_unlock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
 
 Komenda służy do zarządzania listą kontaktów.
 Dostępne parametry:
 
+/roster bottom
+ Skacze na koniec listy kontaktów
+/roster top
+ Skacze na początek listy kontaktów
+/roster up
+ Porusza się w górę w liście kontaktów
+/roster down
+ Porusza się w dół w liście kontaktów
+/roster group_prev
+ Przejdź do poprzedniej grupy w rosterze
+/roster group_next
+ Przejdź do następnej grupy w rosterze
+/roster alternate
+ Skacze do ostatniej osoby, która zmieniła stan z dostępnego na niedostępny (jest szczególnie przydatna po komendach typu "/roster unread_first")
+/roster unread_first
+ Skacze do pierwszej nieprzeczytanej wiadomości
+/roster unread_next
+ Skacze do następnej nieprzeczytanej wiadomości
+/roster search "osoba"
+ Szuka osoby "osoba", lub osoby której nazwa zawiera słowo "osoba"
 /roster hide_offline
  Ukrywa niedostępnych
 /roster show_offline
@@ -20,22 +40,6 @@ Dostępne parametry:
  Zablokuj wyświetlanie elementu rostera, tak aby był widoczny cały czas (bez względu na jego status)
 /roster item_unlock [jid]
  Odblokuj wyświetlanie elementu rostera, element będzie widoczny ze względu na jego status
-/roster bottom
- Skacze na koniec listy kontaktów
-/roster top
- Skacze na początek listy kontaktów
-/roster up
- Porusza się w górę w liście kontaktów
-/roster down
- Porusza się w dół w liście kontaktów
-/roster alternate
- Skacze do ostatniej osoby, która zmieniła stan z dostępnego na niedostępny (jest szczególnie przydatna po komendach typu "/roster unread_first")
-/roster unread_first
- Skacze do pierwszej nieprzeczytanej wiadomości
-/roster unread_next
- Skacze do następnej nieprzeczytanej wiadomości
-/roster search "osoba"
- Szuka osoby "osoba", lub osoby której nazwa zawiera słowo "osoba"
 /roster hide
  Ukrywa całą liste kontaktów
 /roster show

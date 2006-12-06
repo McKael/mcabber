@@ -1,14 +1,34 @@
 
- /ROSTER hide_offline|show_offline|toggle_offline
- /ROSTER item_lock|item_unlock
- /ROSTER bottom|top|up|down
+ /ROSTER bottom|top|up|down|group_prev|group_next
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
+ /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER item_lock|item_unlock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
 
 Cette commande permet de manipuler le roster (liste de contacts).
 
+/roster bottom
+ Va à la fin de la liste de contact
+/roster top
+ Va au début de la liste de contact
+/roster up
+ Monte dans le roster
+/roster down
+ Descend dans le roster
+/roster group_prev
+ Va au groupe précédent in the roster
+/roster group_next
+ Va au groupe suivant in the roster
+/roster alternate
+ Va au contact alternatif. Ce contact "alternatif" est le dernier contact quitté tout en étant en mode discussion (chat mode). Cette commande est donc particulièrement utile après des commandes comme "/roster unread_next" (Ctrl-q).
+/roster unread_first
+ Va au premier message non lu
+/roster unread_next
+ Va au prochain message non lu
+/roster search bud
+ Cherche un contact dont le nom ou le jid contient "bud" (seulement dans les contacts affichés)
 /roster hide_offline
  Cache les contacts non connectés
 /roster show_offline
@@ -19,22 +39,6 @@ Cette commande permet de manipuler le roster (liste de contacts).
  Affiche le contact dans le roster, même s'il est déconnecté
 /roster item_unlock [jid]
  Annule l'effet de /roster item_lock
-/roster bottom
- Va à la fin de la liste de contact
-/roster top
- Va au début de la liste de contact
-/roster up
- Monte dans le roster
-/roster down
- Descend dans le roster
-/roster alternate
- Va au contact alternatif. Ce contact "alternatif" est le dernier contact quitté tout en étant en mode discussion (chat mode). Cette commande est donc particulièrement utile après des commandes comme "/roster unread_next" (Ctrl-q).
-/roster unread_first
- Va au premier message non lu
-/roster unread_next
- Va au prochain message non lu
-/roster search bud
- Cherche un contact dont le nom ou le jid contient "bud" (seulement dans les contacts affichés)
 /roster hide
  Cache le roster (fenêtre de discussion en pleine largeur)
 /roster show

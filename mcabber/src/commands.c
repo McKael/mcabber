@@ -147,6 +147,8 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "top");
   compl_add_category_word(COMPL_ROSTER, "up");
   compl_add_category_word(COMPL_ROSTER, "down");
+  compl_add_category_word(COMPL_ROSTER, "group_prev");
+  compl_add_category_word(COMPL_ROSTER, "group_next");
   compl_add_category_word(COMPL_ROSTER, "hide");
   compl_add_category_word(COMPL_ROSTER, "show");
   compl_add_category_word(COMPL_ROSTER, "toggle");
@@ -656,6 +658,10 @@ static void do_roster(char *arg)
     scr_RosterUp();
   } else if (!strcasecmp(subcmd, "down")) {
     scr_RosterDown();
+  } else if (!strcasecmp(subcmd, "group_prev")) {
+    scr_RosterPrevGroup();
+  } else if (!strcasecmp(subcmd, "group_next")) {
+    scr_RosterNextGroup();
   } else if (!strcasecmp(subcmd, "note")) {
     roster_note(arg);
   } else

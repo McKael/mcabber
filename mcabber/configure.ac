@@ -7,7 +7,8 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src])
 AM_CONFIG_HEADER(config.h)
 
-AC_PROG_LIBTOOL
+#AC_PROG_LIBTOOL
+AC_PROG_RANLIB
 
 # Checks for programs.
 AC_PROG_CC
@@ -24,38 +25,6 @@ if test "x$GCC" = "xyes"; then
 
     CFLAGS="$CFLAGS -Wall"
 fi
-
-# Checks for libraries.
-
-AC_CHECK_FUNC(initscr,,
-[
-    cf_ncurses="ncurses"
-    for lib in ncursesw ncurses
-    do
-        AC_CHECK_LIB($lib, waddnwstr, [cf_ncurses="$lib"; break])
-    done
-    AC_CHECK_LIB($cf_ncurses, initscr,
-        [LIBS="$LIBS -l$cf_ncurses"
-         if test "$cf_ncurses" = ncursesw; then
-            AC_CHECK_HEADERS([ncursesw/ncurses.h ncursesw/panel.h],,
-                 [AC_CHECK_HEADERS([ncurses.h panel.h],,
-                                   AC_MSG_ERROR([Missing header file]))])
-         else
-             AC_CHECK_HEADERS([ncurses/ncurses.h ncurses/panel.h],,
-                 [AC_CHECK_HEADERS([ncurses.h panel.h],,
-                                   AC_MSG_ERROR([Missing header file]))])
-         fi
-        ],
-        [CF_CURSES_LIBS])
-])
-
-AC_CHECK_LIB([panelw], [new_panel],,
-             AC_CHECK_LIB([panel], [new_panel])
-            )
-
-AC_CHECK_DECLS([strptime],,,
-[#define _GNU_SOURCE
-#include <time.h>])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -86,8 +55,48 @@ AC_CHECK_FUNCS([alarm bzero gethostbyname gethostname inet_ntoa isascii \
                 memmove memset modf select setlocale socket strcasecmp \
                 strchr strdup strncasecmp strrchr strstr strcasestr])
 
+
+AC_CHECK_DECLS([strptime],,,
+[#define _GNU_SOURCE
+#include <time.h>])
+
 # Check for tm_gmtoff
 MC_TM_GMTOFF
+
+# Checks for libraries.
+
+AC_CHECK_FUNC(initscr,,
+[
+    cf_ncurses="ncurses"
+    for lib in ncursesw ncurses
+    do
+        AC_CHECK_LIB($lib, waddnwstr,
+            [cf_ncurses="$lib"; cf_ncurses_unicode="yes"; break])
+    done
+    AC_CHECK_LIB($cf_ncurses, initscr,
+        [LIBS="$LIBS -l$cf_ncurses"
+         if test "$cf_ncurses" = ncursesw; then
+            AC_CHECK_HEADERS([ncursesw/ncurses.h ncursesw/panel.h],,
+                 [AC_CHECK_HEADERS([ncurses.h panel.h],,
+                                   AC_MSG_ERROR([Missing header file]))])
+         else
+             AC_CHECK_HEADERS([ncurses/ncurses.h ncurses/panel.h],,
+                 [AC_CHECK_HEADERS([ncurses.h panel.h],,
+                                   AC_MSG_ERROR([Missing header file]))])
+         fi
+        ],
+        [CF_CURSES_LIBS])
+])
+
+AC_CHECK_LIB([panelw], [new_panel],,
+             AC_CHECK_LIB([panel], [new_panel])
+            )
+
+if test x"$cf_ncurses_unicode" = x"yes"; then
+    AC_DEFINE([HAVE_UNICODE], [], [Define if ncurses have unicode support])
+else
+    AC_MSG_WARN([Your ncurses installation does not support unicode])
+fi
 
 # Check for glib
 AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),[g_list_append])

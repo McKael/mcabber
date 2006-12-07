@@ -3,9 +3,12 @@
 
 #include <config.h>
 
+#if defined HAVE_UNICODE && defined HAVE_WCHAR_H && defined HAVE_WCTYPE_H
+# define UNICODE
+#endif
+
 #ifdef HAVE_WCHAR_H
 # include <wchar.h>
-# define UNICODE
 # define get_char_width(c) (utf8_mode ? wcwidth(get_char(c)) : 1)
 #else
 # define wcwidth(c) 1
@@ -18,11 +21,6 @@
 # define iswblank(c) (c == ' ')
 # define iswalnum(c) isalnum(c)
 # define iswprint(c) isprint(c)
-# undef UNICODE
-#endif
-
-#ifndef HAVE_NCURSESW_NCURSES_H
-# undef UNICODE
 #endif
 
 extern int utf8_mode;

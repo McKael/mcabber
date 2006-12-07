@@ -8,7 +8,15 @@ the src/ directory after the build procedure)
 
 MCabber needs ncurses and ncurses development packages to build correctly.
 For UTF-8 terminal support, use ncursesw instead.
+Note: On FreeBSD (and maybe other BSD systems as well), it is recommended
+that you install ncurses from ports before compiling mcabber.
+You should also export LDFLAGS='-L/usr/local/lib' before running
+mcabber's configure to ensure that mcabber uses the ncurses installed
+from ports.  This is necessary as the version of ncurses included in
+the base system does not provide unicode support.
+
 If you want SSL support, you will need openssl lib & dev packages as well.
+
 If you want PGP support, install libgpgme (with dev package),
 version >= 1.0.0.
 

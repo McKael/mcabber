@@ -74,6 +74,7 @@ static PANEL *rosterPanel, *chatPanel, *inputPanel;
 static PANEL *mainstatusPanel, *chatstatusPanel;
 static PANEL *logPanel;
 static int maxY, maxX;
+static int prev_chatwidth;
 static winbuf *statusWindow;
 static winbuf *currentWindow;
 static GList  *statushbuf;
@@ -431,9 +432,11 @@ static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
     y = Log_Win_Height-1;
   else
     y = 0;
+
   lines = CHAT_WIN_HEIGHT;
   cols = maxX - Roster_Width;
-  if (cols < 1) cols = 1;
+  if (cols < 1)
+    cols = 1;
 
   tmp->win = newwin(lines, cols, y, x);
   while (!tmp->win) {
@@ -905,8 +908,12 @@ void scr_DrawMainWindow(unsigned int fullinit)
     // Build the buddylist at least once, to make sure the special buffer
     // is added
     buddylist_build();
+
+    // Init prev_chatwidth; this variable will be used to prevent us
+    // from rewrapping buffers when the width doesn't change.
+    prev_chatwidth = maxX - Roster_Width - PREFIX_WIDTH;
     // Wrap existing status buffer lines
-    hbuf_rebuild(&statushbuf, maxX - Roster_Width - PREFIX_WIDTH);
+    hbuf_rebuild(&statushbuf, prev_chatwidth);
 
 #ifndef UNICODE
     if (utf8_mode)
@@ -933,6 +940,7 @@ static void resize_win_buffer(gpointer key, gpointer value, gpointer data)
   winbuf *wbp = value;
   struct dimensions *dim = data;
   int chat_x_pos, chat_y_pos;
+  int new_chatwidth;
 
   if (!(wbp && wbp->win))
     return;
@@ -956,7 +964,10 @@ static void resize_win_buffer(gpointer key, gpointer value, gpointer data)
     replace_panel(wbp->panel, wbp->win);
   // Redo line wrapping
   wbp->top = hbuf_previous_persistent(wbp->top);
-  hbuf_rebuild(&wbp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
+
+  new_chatwidth = maxX - Roster_Width - PREFIX_WIDTH;
+  if (new_chatwidth != prev_chatwidth)
+    hbuf_rebuild(&wbp->hbuf, new_chatwidth);
 }
 
 //  scr_Resize()
@@ -989,6 +1000,9 @@ void scr_Resize(void)
   // Resize/move special status buffer
   if (statusWindow)
     resize_win_buffer(NULL, statusWindow, &dim);
+
+  // Update prev_chatwidth, now that all buffers have been resized
+  prev_chatwidth = maxX - Roster_Width - PREFIX_WIDTH;
 
   // Refresh current buddy window
   if (chatmode)

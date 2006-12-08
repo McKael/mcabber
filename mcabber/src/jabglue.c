@@ -663,28 +663,24 @@ jb_send_msg_no_chatstates:
 #ifdef JEP0085
 //  jb_send_jep85_chatstate()
 // Send a JEP-85 chatstate.
-static void jb_send_jep85_chatstate(const char *fjid, guint state)
+static void jb_send_jep85_chatstate(const char *bjid, const char *resname,
+                                    guint state)
 {
   xmlnode x;
   xmlnode event;
-  char *rname, *barejid;
   GSList *sl_buddy;
   const char *chattag;
+  char *rjid, *fjid = NULL;
   struct jep0085 *jep85 = NULL;
 
   if (!online) return;
 
-  rname = strchr(fjid, JID_RESOURCE_SEPARATOR);
-  barejid = jidtodisp(fjid);
-  sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
-  g_free(barejid);
+  sl_buddy = roster_find(bjid, jidsearch, ROSTER_TYPE_USER);
 
-  // If we can get a resource name, we use it.  Else we use NULL,
+  // If we have a resource name, we use it.  Else we use NULL,
   // which hopefully will give us the most likely resource.
-  if (rname)
-    rname++;
   if (sl_buddy)
-    jep85 = buddy_resource_jep85(sl_buddy->data, rname);
+    jep85 = buddy_resource_jep85(sl_buddy->data, resname);
 
   if (!jep85 || (jep85->support != CHATSTATES_SUPPORT_OK))
     return;
@@ -705,7 +701,11 @@ static void jb_send_jep85_chatstate(const char *fjid, guint state)
 
   jep85->last_state_sent = state;
 
-  x = jutil_msgnew(TMSG_CHAT, (char*)fjid, NULL, NULL);
+  if (resname)
+    fjid = g_strdup_printf("%s/%s", bjid, resname);
+
+  rjid = resname ? fjid : (char*)bjid;
+  x = jutil_msgnew(TMSG_CHAT, rjid, NULL, NULL);
 
   event = xmlnode_insert_tag(x, chattag);
   xmlnode_put_attrib(event, "xmlns", NS_CHATSTATES);
@@ -713,6 +713,7 @@ static void jb_send_jep85_chatstate(const char *fjid, guint state)
   jab_send(jc, x);
   xmlnode_free(x);
 
+  g_free(fjid);
   jb_reset_keepalive();
 }
 #endif
@@ -790,18 +791,37 @@ static void jb_send_jep22_event(const char *fjid, guint type)
 void jb_send_chatstate(gpointer buddy, guint chatstate)
 {
   const char *bjid;
-  struct jep0085 *jep85 = NULL;
-  struct jep0022 *jep22 = NULL;
+#ifdef JEP0085
+  GSList *resources, *p_res, *p_next;
+  struct jep0085 *jep85;
+#endif
+#ifdef JEP0022
+  struct jep0022 *jep22;
+#endif
 
   bjid = buddy_getjid(buddy);
   if (!bjid) return;
 
 #ifdef JEP0085
-  jep85 = buddy_resource_jep85(buddy, NULL);
-  if (jep85 && jep85->support == CHATSTATES_SUPPORT_OK) {
-    jb_send_jep85_chatstate(bjid, chatstate);
-    return;
+  /* Send the chatstate to the last resource (which should have the highest
+     priority).
+     If chatstate is "active", send an "active" state to all resources
+     which do not curently have this state.
+   */
+  resources = buddy_getresources(buddy);
+  for (p_res = resources ; p_res ; p_res = p_next) {
+    p_next = g_slist_next(p_res);
+    jep85 = buddy_resource_jep85(buddy, p_res->data);
+    if (jep85 && jep85->support == CHATSTATES_SUPPORT_OK) {
+      // If p_next is NULL, this is the highest (prio) resource, i.e.
+      // the one we are probably writing to.
+      if (!p_next || (jep85->last_state_sent != ROSTER_EVENT_ACTIVE &&
+                      chatstate == ROSTER_EVENT_ACTIVE))
+        jb_send_jep85_chatstate(bjid, p_res->data, chatstate);
+    }
+    g_free(p_res->data);
   }
+  g_slist_free(resources);
 #endif
 #ifdef JEP0022
   jep22 = buddy_resource_jep22(buddy, NULL);

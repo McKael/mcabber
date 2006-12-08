@@ -188,8 +188,14 @@ static res *get_or_add_resource(roster *rost, const char *resname, gchar prio)
 
   for (p = rost->resource; p; p = g_slist_next(p)) {
     res *r = p->data;
-    if (!strcmp(r->name, resname))
+    if (!strcmp(r->name, resname)) {
+      if (prio != r->prio) {
+        r->prio = prio;
+        rost->resource = g_slist_sort(rost->resource,
+                                      (GCompareFunc)&resource_compare_prio);
+      }
       return r;
+    }
   }
 
   // Resource not found
@@ -496,7 +502,6 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
 
   // New or updated resource
   p_res = get_or_add_resource(roster_usr, resname, prio);
-  p_res->prio = prio;
   p_res->status = bstat;
   if (p_res->status_msg) {
     g_free((gchar*)p_res->status_msg);

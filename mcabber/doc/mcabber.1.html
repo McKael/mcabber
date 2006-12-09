@@ -39,6 +39,16 @@ it cannot (un)register accounts yet.</p>
 </li>
 <li>
 <p>
+<b>PGP support</b>
+</p>
+</li>
+<li>
+<p>
+<b>Chat States</b> support (typing notifications)
+</p>
+</li>
+<li>
+<p>
 <b>History logging:</b>  If enabled (see the CONFIGURATION FILE section),
   <tt>mcabber</tt> can save discussions to history log files.
 </p>
@@ -114,6 +124,14 @@ leave the chat mode.</p>
 <table class="hlist">
 <tr valign="top">
 <td>
+Esc
+</td>
+<td>
+Disable chat mode
+</td>
+</tr>
+<tr valign="top">
+<td>
 Ctrl-a
 </td>
 <td>
@@ -165,7 +183,23 @@ Complete current word, in the input line
 Ctrl-g
 </td>
 <td>
-Cancel completion / ctrl-g
+Cancel completion
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-c
+</td>
+<td>
+Abort multi-line messages and completions
+</td>
+</tr>
+<tr valign="top">
+<td>
+Ctrl-d
+</td>
+<td>
+Send/terminate a multi-line message
 </td>
 </tr>
 <tr valign="top">
@@ -241,7 +275,7 @@ Jump to the next unread message
 </td>
 </tr>
 </table>
-<p>Additional key bindings may be specified using the /bind command described
+<p>Additional key bindings may be specified using the <b>/bind</b> command described
 in the COMMANDS section.</p>
 <h2>MCABBER'S ROSTER</h2>
 <p>The first listed resource on the roster is <b>[status]</b>, which keeps a log of
@@ -742,7 +776,7 @@ toggle the state (fold/unfold) of the current tree
         In multi-line mode, each line (except command lines) typed in the input
         line will be added to the multi-line message.  Once the message is
         finished, it can be sent to the current selected buddy with the "/msay
-        send" command.<br />
+        send" command (or Ctrl-d).<br />
         The <b>begin</b> subcommand enables multi-line mode.  Note that it allows
         a message subject to be specified.<br />
         The <b>verbatim</b> multi-line mode disables commands, so that it is
@@ -812,6 +846,49 @@ leave multi-line mode without sending the message
 </table>
 </dd>
 <dt><b>
+/pgp disable|enable|info [jid]
+</b></dt>
+<dt><b>
+/pgp setkey [jid [key]]
+</b></dt>
+<dd>
+        Manipulate PGP settings for the specified jid (by default the currently selected contact).  Please note that PGP encryption won't be used if no remote PGP support is detected, even if PGP is enabled with this command.
+<table class="hlist">
+<tr valign="top">
+<td>
+<b>disable</b> [jid]
+</td>
+<td>
+disable PGP encryption for jid (or the currently selected contact)
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>enable</b> [jid]
+</td>
+<td>
+enable PGP encryption for jid (or the currently selected contact)
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>info</b> [jid]
+</td>
+<td>
+show current PGP settings for the contact
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>setkey</b> [jid [key]]
+</td>
+<td>
+set the PGP key to be used to encrypt message for this contact.  If no key is provided, the current key is erased.  You can use the shortcut-jid "." for the currently selected contact.
+</td>
+</tr>
+</table>
+</dd>
+<dt><b>
 /rename name
 </b></dt>
 <dd>
@@ -820,7 +897,7 @@ leave multi-line mode without sending the message
         acknowledgment is received, so a slight delay can be noticed.
 </dd>
 <dt><b>
-/request time|version [jid]
+/request last|time|vcard|version [jid]
 </b></dt>
 <dd>
         Send a "IQ" query to the current buddy, or to the specified Jabber
@@ -832,6 +909,9 @@ leave multi-line mode without sending the message
 </b></dt>
 <dt><b>
 /room invite|kick|ban|role|affil
+</b></dt>
+<dt><b>
+/room bookmark [add|del] [-autojoin|+autojoin]
 </b></dt>
 <dd>
         The <b>room</b> command handles Multi-User Chat room actions.
@@ -954,21 +1034,31 @@ change jid's role (role can be "none", "visitor", "participant", "moderator")
 </td>
 <td>
 change jid's affiliation (affil can be "none", "member", "admin", "owner")
+        <b>bookmark</b>              add/update/remove a room bookmark, set/unset autojoin
 </td>
 </tr>
 </table>
 </dd>
 <dt><b>
-/roster bottom|top|hide_offline|show_offline|toggle_offline
-</b></dt>
-<dt><b>
-/roster hide|show|toggle
+/roster bottom|top|up|down|group_prev|group_next
 </b></dt>
 <dt><b>
 /roster alternate|unread_first|unread_next
 </b></dt>
 <dt><b>
 /roster search bud
+</b></dt>
+<dt><b>
+/roster hide_offline|show_offline|toggle_offline
+</b></dt>
+<dt><b>
+/roster item_lock|item_unlock
+</b></dt>
+<dt><b>
+/roster hide|show|toggle
+</b></dt>
+<dt><b>
+/roster note [-|text]
 </b></dt>
 <dd>
         The <b>roster</b> command manipulates the roster/buddylist.  Here are the available parameters:
@@ -1007,6 +1097,54 @@ move down in the roster
 </tr>
 <tr valign="top">
 <td>
+<b>group_prev</b>
+</td>
+<td>
+jump to the previous group in the roster
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>group_next</b>
+</td>
+<td>
+jump to the next group in the roster
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>alternate</b>
+</td>
+<td>
+jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>unread_first</b>
+</td>
+<td>
+jump to the first unread message
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>unread_next</b>
+</td>
+<td>
+jump to the next unread message
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>search</b> bud
+</td>
+<td>
+search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
+</td>
+</tr>
+<tr valign="top">
+<td>
 <b>hide_offline</b>
 </td>
 <td>
@@ -1027,6 +1165,22 @@ show offline buddies
 </td>
 <td>
 toggle display of offline buddies
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>item_lock</b> jid
+</td>
+<td>
+lock the roster item so it remains visible regardless of its status
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>item_unlock</b> jid
+</td>
+<td>
+undo the effects of item_lock
 </td>
 </tr>
 <tr valign="top">
@@ -1055,50 +1209,10 @@ toggle roster visibility
 </tr>
 <tr valign="top">
 <td>
-<b>item_lock</b> jid
+<b>note</b> [text]
 </td>
 <td>
-lock the roster item so it remains visible regardless of its status
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>item_unlock</b> jid
-</td>
-<td>
-undo the effects of item_lock
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>search</b> bud
-</td>
-<td>
-search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>alternate</b>
-</td>
-<td>
-jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>unread_first</b>
-</td>
-<td>
-jump to the first unread message
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>unread_next</b>
-</td>
-<td>
-jump to the next unread message
+display or set an annotation (if text is "-", the annotation is deleted).  In the "status" buffer, it will display all annotations.
 </td>
 </tr>
 </table>
@@ -1159,14 +1273,14 @@ consult the AUTHORS file for details.</p>
 <h2>RESOURCES</h2>
 <p><a href="http://www.lilotux.net/~mikael/mcabber/">Main web site</a></p>
 <h2>COPYING</h2>
-<p>Copyright &#169; 2005, 2006 Mikael Berthe.<br />
-Some portions are Copyright &#169; 2002-2004 <a href="mailto:cabber@ajmacias.com">cabber@ajmacias.com</a>.</p>
+<p>Copyright (C) 2005, 2006 Mikael Berthe.<br />
+Some portions are Copyright (C) 2002-2004 <a href="mailto:cabber@ajmacias.com">cabber@ajmacias.com</a>.</p>
 <p>Free use of this software is granted under the terms of the GNU General Public
 License (GPL).</p>
 <div id="footer">
 <p>
-Version 0.8.3-dev<br />
-Last updated 01-Oct-2006 23:57:04 CEST
+Version 0.9.0-dev<br />
+Last updated 09-Dec-2006 11:19:42 CEST
 </p>
 </div>
 </div>

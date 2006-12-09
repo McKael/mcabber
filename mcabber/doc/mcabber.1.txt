@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.8.4-dev, November 2006
+v0.9.0-dev, December 2006
 
 NAME
 ----
@@ -108,7 +108,7 @@ Ctrl-t::        Transpose chars
 Ctrl-o::        Accept line and put the next history line in the input line (accept-line-and-down-history)
 Ctrl-q::        Jump to the next unread message
 
-Additional key bindings may be specified using the /bind command described
+Additional key bindings may be specified using the '/bind' command described
 in the COMMANDS section.
 
 MCABBER'S ROSTER
@@ -298,6 +298,15 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         'toggle_verbatim';; same with verbatim multi-line mode
         'abort';;           leave multi-line mode without sending the message
 
+/pgp disable|enable|info [jid]::
+/pgp setkey [jid [key]]::
+        Manipulate PGP settings for the specified jid (by default the currently selected contact).  Please note that PGP encryption won't be used if no remote PGP support is detected, even if PGP is enabled with this command.
+
+        'disable' [jid];;   disable PGP encryption for jid (or the currently selected contact)
+        'enable' [jid];;    enable PGP encryption for jid (or the currently selected contact)
+        'info' [jid];;      show current PGP settings for the contact
+        'setkey' [jid [key]];;  set the PGP key to be used to encrypt message for this contact.  If no key is provided, the current key is erased.  You can use the shortcut-jid "." for the currently selected contact.
+
 /rename name::
         Rename current buddy or group to the given name.
         Please note that a group name change is only done when the server's
@@ -414,8 +423,8 @@ http://www.lilotux.net/~mikael/mcabber/[Main web site]
 
 COPYING
 -------
-Copyright (C) 2005, 2006 Mikael Berthe. +
-Some portions are Copyright (C) 2002-2004 mailto:cabber@ajmacias.com[].
+Copyright \(C) 2005, 2006 Mikael Berthe. +
+Some portions are Copyright \(C) 2002-2004 mailto:cabber@ajmacias.com[].
 
 Free use of this software is granted under the terms of the GNU General Public
 License (GPL).

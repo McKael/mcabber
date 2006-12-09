@@ -1,0 +1,4 @@
+
+ /CLEAR
+
+Dieser Befehl ist nur ein Alias für "/buffer clear" und leert damit das Chatfenster.

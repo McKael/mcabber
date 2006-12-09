@@ -1,0 +1,4 @@
+
+ /SET option [= value]
+
+Zeit die Variable "option" an, bzw. setzt sie auf "value"

@@ -1,0 +1,4 @@
+
+ /RENAME name
+
+Setzt den Namen des gerade ausgewählten Buddys bzw. der ausgewählten Gruppe auf "name".

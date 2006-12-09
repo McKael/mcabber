@@ -1,0 +1,4 @@
+
+ /VERSION
+
+Zeigt die verwendete mcabber Version an.

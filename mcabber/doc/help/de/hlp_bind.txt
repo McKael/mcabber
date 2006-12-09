@@ -1,0 +1,18 @@
+
+ /BIND [keycode [= command line]]
+
+Den Befehl "command line" auf die Taste mit dem keycode legen. Um herauszufinden, ob eine bestimmte Taste noch nicht belegt ist, drücke diese und schaue in das Logfenster. "Unknow key=256" bedeutet dann, dass du irgendeinen Befehl auf die Taste mit dem keycode 265 legen kannst.
+
+/bind
+ Zeigt alle Tastaturkürzel an
+/bind keycode
+ Zeigt den Befehl fuer die Taste mit dem keycode an
+/bind keycode=
+ Entkürzelt die Taste mit dem angegebenen keycode
+/bind keycode = command line
+ Legt den Befehl "command line" auf die Taste mit diesem keycode
+
+Beispiel: "/bind 265 = status away" (265 ist F1).
+
+Beachte dass Tastencodes unterschiedlich sein können, je nach der ncurses Konfiguration. 
+Und natürlich können anstatt direkten Befehlen auch Aliase auf Tasten gelegt werden. :]

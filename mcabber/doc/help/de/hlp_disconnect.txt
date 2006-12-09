@@ -1,0 +1,5 @@
+
+ /DISCONNECT
+
+Die Verbindung zum Jabber Server trennen.
+Denke daran, dass der Roster nur verfügbar ist, wenn man mit dem Jabber Server verbunden ist, sodass die Buddyliste auch leer ist, wenn man sich beim Server abmeldet.

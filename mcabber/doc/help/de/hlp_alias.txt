@@ -1,0 +1,16 @@
+
+ /ALIAS [name [= befehlszeile]]
+
+Dieser Befehl lässt dich Aliase erstellen, um anspruchsvolle Befehle durch Einfachere zu ersetzen.
+Du kannst die Aliase wie folgt verwalten:
+
+/alias
+ Alle definierten Aliase anzeigen
+/alias name
+ Wert des Alias "name" anzeigen
+/alias name=
+ Alias "name" zurücksetzen
+/alias name = befehlszeile
+ Alias "name" auf den Wert "befehlszeile" setzen
+
+Beispiel: "/alias binweg = status away"

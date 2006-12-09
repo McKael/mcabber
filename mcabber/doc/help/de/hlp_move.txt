@@ -1,0 +1,6 @@
+
+ /MOVE [groupname]
+
+Verschiebt den ausgewählten Buddy zu der Gruppe "groupname". Wenn keine Gruppe angegeben wurde, wird der Buddy zur Standardgruppe verschoben. Wenn die Gruppe "groupname" nicht existiert, wird sie erst erschaffen.
+
+Tipp: Wenn der Chatmodus aktiviert ist, kannst du "/roster alternate" benutzen um zu dem gerade bewegten Buddy zu springen.

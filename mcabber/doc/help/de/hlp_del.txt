@@ -1,0 +1,4 @@
+
+ /DEL
+
+Löscht den gerade ausgewählten Buddy vom Roster. Außerdem werden die automatischen Presence Benachrichtigungen vom/zum Buddy gestoppt.

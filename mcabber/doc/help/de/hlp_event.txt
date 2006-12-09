@@ -1,0 +1,15 @@
+
+ /EVENT #N|* accept|ignore|reject
+ /EVENT list
+
+Sagt mcabber was mit den wartenden Ereignissen passieren soll.
+Wenn der erste Parameter * ist, dann soll der Befehl auf alle wartenden Ereignisse angewendet werden.
+
+/event #N|* accept
+ Ereignis #N/alle Ereignisse werden angenommen
+/event #N|* ignore
+ Ereignis #N/alle Ereignisse werden ignoriert
+/event #N|* reject
+ Ereignis mit der Nummer #N/alle Ereignisse werden abgelehnt
+/event list
+ Zeigt alle noch nicht behandelten Ereignisse an

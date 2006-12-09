@@ -1,0 +1,14 @@
+
+ /AUTHORIZATION allow|cancel|request|request_unsubscribe [jid]
+
+Dieser Befehl verwaltet Presence Benachrichtigungen. Man kann diese bei Anderen erbitten. Weiterhin kann man kontrollieren wer die eigenen Benachrichtigungen bekommt.
+Wenn keine JID angegeben wurde, wird der gerade ausgewählte Buddy benutzt.
+
+/authorization allow
+ Erlaubt dem Buddy deine Presence Benachrichtigungen zu bekommen
+/authorization cancel
+ Stoppt die Presence Benachrichtigungen für diesen Buddy
+/authorization request
+ Fragt bei dem Buddy an, ob man seine Presence Benachrichtigungen bekommen darf
+/authorization request_unsubscribe
+ Höfliche Anfrage, dass man die Presence Benachrichtigungen nicht mehr bekommen will ;]

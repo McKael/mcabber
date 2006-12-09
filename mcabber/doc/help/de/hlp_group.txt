@@ -1,0 +1,11 @@
+
+ /GROUP fold|unfold|toggle
+
+Dieser Befehl verändert die Anzeige der gerade ausgewählten Gruppe
+
+/group fold
+ Verstecke die gerade ausgewählte Gruppe
+/group unfold
+ Die Gruppen-Ansicht aufklappen
+/group toggle
+ Verstecken/Aufklappen der ausgewählten Gruppe

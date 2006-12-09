@@ -1,0 +1,18 @@
+
+ /PGP disable|enable|info [jid]
+ /PGP setkey [jid [key]]
+
+Dieser Befehl verändert die PGP Einstellung für die übergebene JID(oder den gerade aktiven Buddy)
+Bitte beachte, dass PGP Verschlüsselung _nicht_ benutzt wird, wenn der andere kein PGP unterstützt, selbst wenn PGP mit diesem Befehl eingeschaltet wurde.
+
+/pgp disable [jid]
+ Schaltet PGP Verschlüsselung für die jid aus(oder den gerade aktiven Buddy)
+/pgp enable [jid]
+ Schaltet PGP Verschlüsselung für die jid ein(oder den gerade aktiven Buddy)
+/pgp info [jid]
+ Zeige die momentanen PGP-Einstellungen für die jid
+/pgp setkey [jid [key]]
+ Setzt den PGP Schlüssel, welcher für diese jid benutzt werden soll. 
+ Wenn kein Schlüssel angegeben wird, wird der Aktuelle nicht mehr benutzt.
+ Man kann auch "." anstatt einer jid benutzen, wenn man den gerade
+ ausgewählten Buddy meint.

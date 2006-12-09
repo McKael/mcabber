@@ -1,4 +1,4 @@
-mcabber (0.8.4-dev)
+mcabber (0.9.0-dev)
 
  * Auto-reconnection after a network or server failure
  * XEP-0022/XEP-0085 - Events/ChatStates support, a.k.a. typing notifications
@@ -19,11 +19,14 @@ mcabber (0.8.4-dev)
  * New commands /roster item_lock|item_unlock
    These commands allow us to lock a contact so that it stays visible in the
    roster (when offline contacts are hidden).
+ * New commands /roster group_prev|group_next
  * New options "log_win_on_top" and "roster_win_on_right"
+ * JID completion for hidden buddies/groups
  * MCabber answers IQ disco#info queries
  * Ctrl-d sends multi-line messages (same as /msay send)
  * help: Add Ukrainian translations (Myhailo Danylenko)
  * Configurable command character (Alexis Hildebrandt)
+ * Fix unicode detection on BSD systems
  * Misc. bug fixes and improvements
  * Update documentation and translations
 
@@ -111,7 +114,7 @@ mcabber (0.7.7)
  * MUC: Allow "/room join . [nick [pass]]" if the current item is a MUC room
  * MUC: Fix joining a room when the buddylist is empty
  * MUC: Try to work around some server and network issues
- * Ctrl-l now reread color option values
+ * Ctrl-l now rereads color option values
  * Tab characters are expanded when the "verbatim multi-line mode" is enabled
  * Disable file permission checks on Cygwin
  * Improve logging (especially, XML data isn't truncated anymore)

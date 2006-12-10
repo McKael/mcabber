@@ -793,7 +793,7 @@ void jb_send_chatstate(gpointer buddy, guint chatstate)
   const char *bjid;
 #ifdef JEP0085
   GSList *resources, *p_res, *p_next;
-  struct jep0085 *jep85;
+  struct jep0085 *jep85 = NULL;;
 #endif
 #ifdef JEP0022
   struct jep0022 *jep22;
@@ -822,6 +822,10 @@ void jb_send_chatstate(gpointer buddy, guint chatstate)
     g_free(p_res->data);
   }
   g_slist_free(resources);
+  // If the last resource had chatstates support when can return now,
+  // we don't want to send a JEP22 event.
+  if (jep85 && jep85->support == CHATSTATES_SUPPORT_OK)
+    return;
 #endif
 #ifdef JEP0022
   jep22 = buddy_resource_jep22(buddy, NULL);

@@ -2028,7 +2028,7 @@ static void room_privmsg(gpointer bud, char *arg)
   char **paramlst;
   gchar *nick, *cmdline;
 
-  paramlst = split_arg(arg, 2, 0); // nickname, message
+  paramlst = split_arg(arg, 2, 1); // nickname, message
   nick = *paramlst;
   arg = *(paramlst+1);
 

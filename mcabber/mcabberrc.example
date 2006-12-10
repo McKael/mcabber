@@ -72,7 +72,8 @@ set ssl = 0
 
 # Language
 # Help files have been translated into a few languages.
-# You can set lang to one of the following values: en (default), fr, pl, uk.
+# You can set lang to one of the following values: en (default),
+# de, fr, pl, uk.
 #set lang = en
 
 # Set hide_offline_buddies to 1 to display only connected buddies

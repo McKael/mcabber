@@ -14,5 +14,5 @@ Den Befehl "command line" auf die Taste mit dem keycode legen. Um herauszufinden
 
 Beispiel: "/bind 265 = status away" (265 ist F1).
 
-Beachte dass Tastencodes unterschiedlich sein können, je nach der ncurses Konfiguration. 
+Beachte dass Tastencodes unterschiedlich sein können, je nach der ncurses Konfiguration.
 Und natürlich können anstatt direkten Befehlen auch Aliase auf Tasten gelegt werden. :]

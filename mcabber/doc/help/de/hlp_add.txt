@@ -1,7 +1,7 @@
 
  /ADD [jid [nickname]]
 
-Fügt die Jabber ID "jid" zu deinem Roster(in der Standardgruppe) hinzu und schickt gleichzeitig eine Benachrichtigungsanfrage an den User. Wenn kein Nickname angegeben wurde, wird die jid benutzt. Wenn die auch fehlt, wird der momentan ausgewählte User aus dem Roster zur Standardgruppe hinzugefügt. 
+Fügt die Jabber ID "jid" zu deinem Roster(in der Standardgruppe) hinzu und schickt gleichzeitig eine Benachrichtigungsanfrage an den User. Wenn kein Nickname angegeben wurde, wird die jid benutzt. Wenn die auch fehlt, wird der momentan ausgewählte User aus dem Roster zur Standardgruppe hinzugefügt.
 
 /add [jid [nickname]]
  Füge "jid" als "nickname" zu deinem Roster hinzu.

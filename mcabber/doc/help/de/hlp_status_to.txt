@@ -1,8 +1,7 @@
 
  /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
 
-Sendet den angegebenen Status zu der jid. Wenn der aktuell ausgewählte Buddy
-gemeint ist, kann auch "." als jid benutzt werden.
+Sendet den angegebenen Status zu der jid. Wenn der aktuell ausgewählte Buddy gemeint ist, kann auch "." als jid benutzt werden.
 Beachte, dass der Status durch weitere /status Befehle überschrieben wird.
 Auch, wenn man das auto-away Feature benutzt!
 Denk auch daran, dass du in der jid eine Ressource angeben kannst.

@@ -1,0 +1,5 @@
+
+ /HELP [commando|+onderwerp]
+
+Toon helptekst voor commando "commando" of onderwerp "onderwerp".
+Voorbeeld: "/help buffer"

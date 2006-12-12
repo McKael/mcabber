@@ -1,0 +1,4 @@
+
+ /DEL
+
+Verwijder de actieve buddy uit ons roster, en zet het wederzijds toezenden van status veranderingen stop.

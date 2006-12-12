@@ -1,0 +1,6 @@
+
+ /HELP [commando|+onderwep]
+
+Toon informatie over een commando of onderwerp.
+Als geen argument is meegegeven, wordt een tekst over het gebruik van dit commando getoond.
+Beschikbare commando's: add, alias, authorization, bind, buffer, clear, connect, del, disconnect, event, group, help, info, move, msay, pgp, quit, rawxml, rename, request, room, roster, say_to, say, set, status_to, status, version.

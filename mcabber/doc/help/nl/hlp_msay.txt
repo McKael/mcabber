@@ -1,0 +1,21 @@
+
+ /MSAY begin|verbatim|send|send_to|toggle|abort
+
+Verstuur een meer-regelig bericht.  Om een enkel bericht te schrijven dat uit meerdere regels bestaat, moet de 'multi-regel modus' worden gebruikt.
+In deze modus wordt iedere invoerregel (behalve commando regels) toegevoegd aan het meerregelige bericht.  Wanneer het bericht af is kan het aan de actieve buddy worden verzonden met het "/msay send" commando.
+Het 'begin' subcommando start de multi-regel modus.  Hierbij is het mogelijk om een onderwerp mee te geven aan het bericht.
+In de 'verbatim' multi-regel modus kunnen commandos worden getypt zonder uitgevoerd te worden, zodat het mogelijk is om regels toe te voegen met een '/' karakter aan het begin.  Enkel het "/msay" commando (met 'send' of 'abort' parameters) kan worden gebruikt om verbatim modus te stoppen.
+Het 'toggle' subcommando kan met een toets worden verbonden om de multi-regel modus snel te kunnen starten (bijvoorbeeld, "bind M13 = msay toggle" om over te kunnen schakelen via de Meta-Enter toets combinatie).
+
+/msay begin [onderwerp]
+ Start de multi-regel modus
+/msay verbatim
+ Start de verbatim multi-regel modus
+/msay send
+ Verzend het huidige meer-regelige bericht naar de actieve buddy
+/msay send_to jid
+ Verzend het huidige meer-regelige bericht naar "jid"
+/msay toggle
+ In/uitschakelen van multi-regel modus (begin/send)
+/msay abort
+ Verlaat de multi-regel modus zonder het bericht te versturen

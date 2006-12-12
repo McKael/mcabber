@@ -1,0 +1,4 @@
+
+ /VERSION
+
+Toon de huidige versie van mcabber.

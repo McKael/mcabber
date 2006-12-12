@@ -1,0 +1,4 @@
+
+ /CONNECT
+
+Maak verbinding met de Jabber server.

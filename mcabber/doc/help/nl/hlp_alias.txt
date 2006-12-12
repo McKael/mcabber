@@ -1,0 +1,16 @@
+
+ /ALIAS [naam [= commando regel]]
+
+Met dit commando kunt u aliassen toevoegen ter vereenvoudiging van ingewikkelde commando reeksen.
+De aliassen kunnen worden bewerkt met:
+
+/alias
+ Print een lijst van de momenteel gedefinieerde aliassen
+/alias naam
+ Print de waarde van de alias genaamd "naam"
+/alias naam=
+ Verwijder de alias genaamd "naam"
+/alias naam = commando regel
+ Stel de alias genaamd "naam" in met de waarde "commando regel"
+
+Voorbeeld: "/alias weg = status away"

@@ -1,0 +1,4 @@
+
+ /RENAME naam
+
+Hernoem de actieve buddy of groep in de aangegeven "naam".

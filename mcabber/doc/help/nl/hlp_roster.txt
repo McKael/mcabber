@@ -1,0 +1,52 @@
+
+ /ROSTER bottom|top|up|down|group_prev|group_next
+ /ROSTER alternate|unread_first|unread_next
+ /ROSTER search bud
+ /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER item_lock|item_unlock
+ /ROSTER hide|show|toggle
+ /ROSTER note [-|text]
+
+Het 'roster' commando bewerkt het roster ofwel de buddy-lijst.
+Dit zijn de beschikbare parameters:
+
+/roster bottom
+ Spring naar het eind van het roster
+/roster top
+ Spring naar het begin van het roster
+/roster up
+ Beweeg omhoog in het roster
+/roster down
+ Beweeg omlaag in het roster
+/roster group_prev
+ Spring naar de voorgaande groep in het roster
+/roster group_next
+ Spring naar de volgende groep in het roster
+/roster alternate
+ Spring naar de buddy met wie je het laatst gesproken hebt in chat mode.  Dit commando is dus erg bruikbaar na een commando als "/roster unread_next" (Ctrl-q).
+/roster unread_first
+ Spring naar het eerste ongelezen bericht
+/roster unread_next
+ Spring naar het volgende ongelezen bericht
+/roster search bud
+ Zoek naar een buddy in wiens naam of jid het woord "bud" voorkomt (zoekt enkel in de zichtbare buddylijst)
+/roster hide_offline
+ Verberg offline buddies
+/roster show_offline
+ Toon offline buddies
+/roster toggle_offline
+ Schakel het aanzicht van offline buddies om (tonen/verbergen)
+/roster item_lock [jid]
+ Bevries jid zodat deze zichtbaar blijft ongeacht diens status
+/roster item_unlock [jid]
+ Maak het effect van 'item_lock' ongedaan
+/roster hide
+ Verberg het roster zodat het chat venster de volle breedte kan beslaan
+/roster show
+ Toon het roster
+/roster toggle
+ Schakel de zichtbaarheid van het roster om (tonen/verbergen)
+/roster note [-|tekst]
+ Instellen/aanpassen/verwijderen van een notitie.
+ Indien geen "tekst" is meegegeven, wordt de notitie getoond die behoort bij de actieve jid -- wanneer je in de status buffer staat worden alle notities wergegeven.
+ Indien de tekst "-" is, wordt de notitie gewist.

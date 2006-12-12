@@ -1,0 +1,5 @@
+
+ /MOVE [groepsnaam]
+
+Verplaats de actieve buddy naar de aangegeven groep.  Indien geen groep werd gespecificeerd wordt buddy verplaatst naar de standaard groep.  Indien de groep "groepsnaam" niet bestaat, wordt die eerst aangemaakt.
+Tip: indien chatmode actief is, kun je "/roster alternate" gebruiken om direct naar de verplaatste buddy te springen.

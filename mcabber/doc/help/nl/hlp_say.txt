@@ -1,0 +1,4 @@
+
+ /SAY tekst
+
+Verstuur het "tekst" bericht naar de actieve buddy. Dit kan bruikbaar zijn wanneer je een bericht wilt verzenden dat met een '/' begint.

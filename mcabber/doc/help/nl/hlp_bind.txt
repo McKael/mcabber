@@ -1,0 +1,17 @@
+
+ /BIND [keycode [= commando regel]]
+
+Verbind het commando "commando regel" met de toets "keycode".  Om te weten te komen of een bepaalde toets nog niet in gebruik is kun je het `mcabber` log venster observeren wanneer je de toets indrukt. Bijvoorbeeld: "Unknown key=265" betekent dat je een commando met toets #265 kan verbinden.
+
+/bind
+ Toon een lijst met huidige toets verbindingen
+/bind keycode
+ Toon de commando regel die met deze toets verbonden is
+/bind keycode=
+ Maak de toets met code "keycode" weer vrij
+/bind keycode = commando regel
+ Verbind "commando regel" met de toets die code "keycode" heeft
+
+Voorbeeld: "/bind 265 = status away" (265 is F1).
+NB: keycodes kunnen verschillen afhankelijk van je ncurses configuratie.
+Tip: in plaats van commando's kunnen ook aliassen worden gebruikt.

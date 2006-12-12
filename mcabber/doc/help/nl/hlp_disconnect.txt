@@ -1,0 +1,5 @@
+
+ /DISCONNECT
+
+Beëindig de verbinding met de Jabber server.
+NB: het Roster is alleen beschikbaar indien er een actieve verbinding met de server bestaat. De buddylijst is dus leeg indien niet verbonden.

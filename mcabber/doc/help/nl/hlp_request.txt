@@ -1,0 +1,13 @@
+
+ /REQUEST last|time|vcard|version [jid]
+
+Verstuur een "IQ" verzoek naar de actieve buddy, danwel naar het aangegeven Jabber account.  Indien de resource niet wordt aangegeven bij de jid, zal mcabber het verzoek verzenden aan alle voor dit account bekende resources.
+
+/request last
+ Verzoek "last" informatie (normalerwijs 'inactieve' tijd)
+/request time
+ Vraag de buddy om de tijd
+/request vcard
+ Vraag een VCard van de buddy
+/request version
+ Vraag de versie op van de buddy

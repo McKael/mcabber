@@ -1,0 +1,5 @@
+
+ /INFO
+
+Toon informatie over de geselecteerde entry (account, agent, groep...).
+Bij accounts worden de resources getoond alsmede de status, prioriteit en (indien aanwezig) een statusbericht van iedere resource.

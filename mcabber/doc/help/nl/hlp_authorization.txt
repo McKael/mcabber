@@ -1,0 +1,14 @@
+
+ /AUTHORIZATION allow|cancel|request|request_unsubscribe [jid]
+
+Met dit commando beheer je status meldingen: Je regelt het opvragen van status meldingen van personen op je roster, en ook aan wie meldingen gedaan worden over veranderingen in je eigen status.
+Indien geen JID wordt wordt opgegeven, wordt de actieve buddy gebruikt.
+
+/authorization allow
+ Buddy mag veranderingen in je status ontvangen
+/authorization cancel
+ Buddy zal niet langer veranderingen in je status ontvangen
+/authorization request
+ Vraag toestemming aan buddy om diens status veranderingen te mogen zien
+/authorization request_unsubscribe
+ Informeer buddy dat je niet langer diens status veranderingen wenst te krijgen

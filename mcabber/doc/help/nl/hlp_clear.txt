@@ -1,0 +1,4 @@
+
+ /CLEAR
+
+Dit commando is feitelijk een alias voor "/buffer clear".  Het wist het actieve chat venster.

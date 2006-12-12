@@ -1,0 +1,9 @@
+
+ /ADD [jid [nickname]]
+
+Voeg Jabber gebruiker "jid" toe aan het roster (in de standaard groep), en stuur een notificatie verzoek aan deze buddy.  Indien geen nickname wordt vermeld wordt de jid gebruikt.  Indien geen jid (of een lege string "") wordt opgegeven of indien de jid "." is, wordt de huidige buddy gebruikt.
+
+/add [jid [nickname]]
+ Voeg "jid" aan ons roster toe als "nickname"
+
+Voorbeeld: "/add iemand@jabber.server.com Iemand"

@@ -221,7 +221,7 @@ char *gpg_verify(const char *gpg_data, const char *text,
         if (vr && vr->signatures) {
           char *r = vr->signatures->fpr;
           // Found the fingerprint.  Let's try to get the key id.
-          if(!gpgme_get_key(ctx, r, &key, 0)) {
+          if (!gpgme_get_key(ctx, r, &key, 0) && key) {
             r = key->subkeys->keyid;
             gpgme_key_release(key);
           }
@@ -278,7 +278,7 @@ char *gpg_sign(const char *gpg_data)
     gpgme_set_passphrase_cb(ctx, passphrase_cb, 0);
 
   err = gpgme_get_key(ctx, gpg.private_key, &key, 1);
-  if (err) {
+  if (err || !key) {
     scr_LogPrint(LPRINT_LOGNORM, "GPGME error: private key not found");
     gpgme_release(ctx);
     return NULL;
@@ -404,7 +404,7 @@ char *gpg_encrypt(const char *gpg_data, const char *keyid)
   gpgme_set_armor(ctx, 1);
 
   err = gpgme_get_key(ctx, keyid, &key, 0);
-  if (!err) {
+  if (!err && key) {
     gpgme_key_t keys[] = { key, 0 };
     err = gpgme_data_new_from_mem(&in, gpg_data, strlen(gpg_data), 0);
     if (!err) {

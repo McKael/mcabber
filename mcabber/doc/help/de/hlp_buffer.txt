@@ -13,9 +13,9 @@ Befehl um den Puffer für den momentan ausgewählten Buddy zu verändern. Man ka
 /buffer top
  Springe zum Anfang des momentanen Chat Puffers
 /buffer up [n]
- Scrollt den Puffer um n Zeilen hoch. Ohne "n" um einen halben Bildschirm
+ Scrollt den Puffer um n Zeilen hoch. Gibt man keine Zahl an, scrollt er um einen halben Bildschirm
 /buffer down [n]
- Scrollt den Puffer um n Zeilen runter. Ohne "n" um einen halben Bildschirm
+ Scrollt den Puffer um n Zeilen runter. Gibt man keine Zahl an, scrollt er um einen halben Bildschirm
 /buffer date [date]
  Springe zu der ersten Zeile nach dem Datum, welches im Format "JJJJ-mm-tt" anstatt [date] angegeben werden muss
 /buffer % n

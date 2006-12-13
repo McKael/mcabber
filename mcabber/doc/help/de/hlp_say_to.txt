@@ -2,4 +2,4 @@
  /SAY_TO jid text
 
 Sendet die Nachricht "text" zu der jid.
-Denk daran, dass dieser Befehl die Nachricht an alle Ressourcen der jid gleichzeitig schicken wird. Wenn du unterschiedliche Nachrichten and diese schicken willst, musst du die Ressource mit angeben.
+Denk daran, dass dieser Befehl die Nachricht an alle Ressourcen der jid gleichzeitig schicken wird. Wenn du unterschiedliche Nachrichten an diese schicken willst, musst du die Ressource mit angeben.

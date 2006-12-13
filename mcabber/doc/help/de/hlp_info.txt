@@ -1,5 +1,5 @@
 
  /INFO
 
-Zeige Informationen über den ausgewählten Eintrag an(User, Agent, Gruppe).
-Bei Usern werden die Ressourcen mit dem Status, der Priorität und der Statusmeldung(wenn vorhanden) von jeder Ressource angezeigt.
+Zeige Informationen über den ausgewählten Eintrag an (User, Agent, Gruppe).
+Bei Usern werden die Ressourcen mit dem Status, der Priorität und der Statusmeldung (wenn vorhanden) von jeder Ressource angezeigt.

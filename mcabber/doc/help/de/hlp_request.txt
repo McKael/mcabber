@@ -1,7 +1,7 @@
 
  /REQUEST last|time|vcard|version [jid]
 
-Sendet eine "IQ" Anfrage an den Buddy oder zu dem spezifizierten Jabber User. Wenn die Ressource nicht von dieser jid angeboten wird, wird mcabber die Anfrage an alle bekannten Ressourcen des Benutzers schicken.
+Sendet spezielle Anfragen an den Buddy oder zu dem spezifizierten Jabber User. Wenn die Ressource nicht von dieser jid angeboten wird, wird mcabber die Anfrage an alle bekannten Ressourcen des Benutzers schicken.
 
 /request last
  "letzte" Information abfragen (meist nur die Idlezeit)

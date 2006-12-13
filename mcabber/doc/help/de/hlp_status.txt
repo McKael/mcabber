@@ -2,7 +2,7 @@
  /STATUS [online|avail|invisible|free|dnd|notavail|away [-|StatusMessage]]
 
 Zeigt den aktuellen Status an, bzw. setzt ihn.
-Wenn kein Status angegeben wurde, wird er angezeigt.
+Wenn kein Status angegeben wurde, wird der aktuelle Status angezeigt.
 Wenn eine Statusmeldung angegeben wurde, überschreibt diese die message* Variablen, welche in der Konfigurationsdatei gesetzt werden können.
 Wenn keine passende message* Variable gesetzt ist und keine Statusmeldung angegeben wurde, behält mcabber die momentane Statusmeldung.
-Wenn die Statusmeldung "-" ist, wird die gerade aktuelle gelöscht.
+Wenn die Statusmeldung "-" ist, wird die gerade Aktuelle gelöscht.

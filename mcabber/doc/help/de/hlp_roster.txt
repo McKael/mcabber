@@ -21,13 +21,13 @@ Hier die möglichen Parameter:
 /roster group_next
  Nächste Gruppe auswählen
 /roster alternate
- Zu dem Kontakt springen, mit dem man zuletzt gesprochen hat. Dieser Befehl ist besonders nützlich nachdem man Befehle wie "/roster unread_next" (strg+q) benutzt hat.
+ Zu dem Kontakt springen, mit dem man zuletzt gesprochen hat. Dieser Befehl ist besonders nützlich, nachdem man Befehle wie "/roster unread_next" (strg+q) benutzt hat.
 /roster unread_first
  Die erste ungelesene Nachricht öffnen
 /roster unread_next
  Die nächste ungelesene Nachricht öffnen
 /roster search bud
- Jemanden auf dem Roster suchen, der "bud" im Namen oder der jid hat(durchsucht nur die angezeigten Buddies)
+ Jemanden auf dem Roster suchen, der "bud" im Namen oder der jid hat (durchsucht nur die angezeigten Buddies)
 /roster hide_offline
  Alle Buddies die offline sind verstecken
 /roster show_offline
@@ -37,7 +37,7 @@ Hier die möglichen Parameter:
 /roster item_lock [jid]
  Anzeige von dem Buddy mit der jid sichern, sodass man ihn immer sieht, egal wie sein Status ist
 /roster item_unlock [jid]
- '/roster item_lock' rückgängig machen
+ "/roster item_lock" rückgängig machen
 /roster hide
  Den Roster verstecken, sodass das Chatfenster die ganze Breite bekommt
 /roster show

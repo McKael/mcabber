@@ -3,7 +3,7 @@
  /ROOM privmsg|invite|kick|ban|role|affil
  /ROOM bookmark [add|del] [-autojoin|+autojoin]
 
-Der 'room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
+Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
 
 /room join [room [nick [pass]]]
  Betrete den Raum "room" mit dem Nickname "nick". Wenn kein Nickname angegeben wurde, wird die "nickname" Option aus der Konfigurationsdatei benutzt. Das optionale Passwort kann für geschützte Chaträume angegeben werden. Verwende Anführungszeichen, wenn dein Nickname Leerzeichen enthält!
@@ -28,7 +28,7 @@ Der 'room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
 /room ban jid [grund]
  Verbannt den User mit der jid mit dem angegeben Grund
 /room invite jid [grund]
- Läd die jid [mit einem Grund] in den gerade aktiven MUC ein
+ Lädt die jid [mit einem Grund] in den gerade aktiven MUC ein
 /room kick nick [grund]
  Wirft den User "nick" aus dem Raum
 /room role jid rolle [grund]
@@ -37,4 +37,4 @@ Der 'room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
  Ändert die Zugehörigkeit der jid zum Raum. (zugh kann "none", "member", "admin" oder "owner" sein)
 /room bookmark [add|del] [-autojoin|+autojoin]
  Zum Hinzufügen, Löschen und Ändern von Raum-Bookmarks.
- Wenn autojoin gesetzt ist, wird mcabber nach dem verbinden zum Server diesem MUC automatisch betreten
+ Wenn autojoin gesetzt ist, wird mcabber nach dem verbinden zum Server diesen MUC automatisch betreten

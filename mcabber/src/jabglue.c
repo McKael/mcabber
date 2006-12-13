@@ -1480,6 +1480,34 @@ void jb_set_storage_rosternotes(const char *barejid, const char *note)
                  "Warning: you're not connected to the server.");
 }
 
+//  keys_mismatch(key, expectedkey)
+// Return TRUE if both keys are non-null and "expectedkey" doesn't match
+// the end of "key".
+// If one of the keys is null, return FALSE.
+// If expectedkey is less than 8 bytes long, return TRUE.
+//
+// Example: keys_mismatch("C9940A9BB0B92210", "B0B92210") will return FALSE.
+static bool keys_mismatch(const char *key, const char *expectedkey)
+{
+  int lk, lek;
+
+  if (!expectedkey || !key)
+    return FALSE;
+
+  lk = strlen(key);
+  lek = strlen(expectedkey);
+
+  // If the expectedkey is less than 8 bytes long, this is probably a
+  // user mistake so we consider it's a mismatch.
+  if (lek < 8)
+    return TRUE;
+
+  if (lek < lk)
+    key += lk - lek;
+
+  return strcasecmp(key, expectedkey);
+}
+
 //  check_signature(barejid, resourcename, xmldata, text)
 // Verify the signature (in xmldata) of "text" for the contact
 // barejid/resourcename.
@@ -1533,7 +1561,7 @@ static void check_signature(const char *barejid, const char *rname,
     }
     // Verify that the key id is the one we expect.
     expectedkey = settings_pgp_getkeyid(barejid);
-    if (expectedkey && strcasecmp(key, expectedkey)) {
+    if (keys_mismatch(key, expectedkey)) {
       buf = g_strdup_printf("Warning: The KeyId from <%s/%s> doesn't match "
                             "the key you set up", barejid, rname);
       scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);

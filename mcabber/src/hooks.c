@@ -92,13 +92,16 @@ inline void hk_message_in(const char *bjid, const char *resname,
   if (is_room) {
     if (!is_groupchat) {
       // This is a private message from a room participant
+      g_free(bmsg);
       if (!resname) {
         resname = "";
         wmsg = bmsg = g_strdup(msg);
       } else {
         wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", resname, msg);
-        if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME)))
+        if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME))) {
+          g_free(mmsg);
           wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
+        }
       }
     } else {
       // This is a regular chatroom message.

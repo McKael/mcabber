@@ -179,8 +179,11 @@ inline void hk_message_out(const char *bjid, const char *nick,
 
   if (nick) {
     wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
-    if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME)))
-      wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", nick, msg+4);
+    if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME))) {
+      const char *mynick = roster_getnickname(bjid);
+      wmsg = mmsg = g_strdup_printf("PRIV#<%s> *%s %s", nick,
+                                    (mynick ? mynick : "me"), msg+4);
+    }
   } else {
     wmsg = (char*)msg;
     if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME))) {

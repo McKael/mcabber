@@ -33,6 +33,8 @@
 
 static char *extcmd;
 
+static const char *COMMAND_ME = "/me ";
+
 inline void hk_message_in(const char *bjid, const char *resname,
                           time_t timestamp, const char *msg, const char *type,
                           guint encrypted)
@@ -56,15 +58,14 @@ inline void hk_message_in(const char *bjid, const char *resname,
     if (!resname) {
       message_flags = HBB_PREFIX_INFO | HBB_PREFIX_NOFLAG;
       resname = "";
-      bmsg = g_strdup_printf("~ %s", msg);
+      wmsg = bmsg = g_strdup_printf("~ %s", msg);
     } else {
-      bmsg = g_strdup_printf("<%s> %s", resname, msg);
+      wmsg = bmsg = g_strdup_printf("<%s> %s", resname, msg);
+      if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME)))
+        wmsg = mmsg = g_strdup_printf("*%s %s", resname, msg+4);
     }
-    wmsg = bmsg;
-    if (!strncmp(msg, mkcmdstr("me "), strlen(mkcmdstr("me "))))
-      wmsg = mmsg = g_strdup_printf("*%s %s", resname, msg+4);
   } else {
-    if (!strncmp(msg, mkcmdstr("me "), strlen(mkcmdstr("me "))))
+    if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME)))
       wmsg = mmsg = g_strdup_printf("*%s %s", bjid, msg+4);
     else
       wmsg = (char*) msg;
@@ -96,7 +97,7 @@ inline void hk_message_in(const char *bjid, const char *resname,
         wmsg = bmsg = g_strdup(msg);
       } else {
         wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", resname, msg);
-        if (!strncmp(msg, mkcmdstr("me "), strlen(mkcmdstr("me "))))
+        if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME)))
           wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
       }
     } else {
@@ -175,9 +176,11 @@ inline void hk_message_out(const char *bjid, const char *nick,
 
   if (nick) {
     wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
+    if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME)))
+      wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", nick, msg+4);
   } else {
     wmsg = (char*)msg;
-    if (!strncmp(msg, mkcmdstr("me "), strlen(mkcmdstr("me ")))) {
+    if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME))) {
       const char *myid = settings_opt_get("username");
       if (myid)
         wmsg = mmsg = g_strdup_printf("*%s %s", settings_opt_get("username"),
@@ -191,7 +194,8 @@ inline void hk_message_out(const char *bjid, const char *nick,
   scr_WriteOutgoingMessage(bjid, wmsg, (encrypted ? HBB_PREFIX_PGPCRYPT : 0));
 
   // We don't log private messages
-  if (!nick) hlog_write_message(bjid, timestamp, TRUE, msg);
+  if (!nick)
+    hlog_write_message(bjid, timestamp, TRUE, msg);
 
   // External command
   hk_ext_cmd(bjid, 'M', 'S', NULL);
@@ -344,11 +348,12 @@ void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data)
       datafname = NULL;
       scr_LogPrint(LPRINT_LOGNORM,
                    "Unable to create temp file for external command.");
+    } else {
+      write(fd, data_locale, strlen(data_locale));
+      write(fd, "\n", 1);
+      close(fd);
+      arg_data = datafname;
     }
-    write(fd, data_locale, strlen(data_locale));
-    write(fd, "\n", 1);
-    close(fd);
-    arg_data = datafname;
     g_free(data_locale);
   }
 

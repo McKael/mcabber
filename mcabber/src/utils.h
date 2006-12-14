@@ -28,7 +28,7 @@ inline void safe_usleep(unsigned int usec); /* Only for delays < 1s */
 
 int check_jid_syntax(char *fjid);
 
-void mc_strtolower(char *str);
+inline void mc_strtolower(char *str);
 
 void strip_arg_special_chars(char *s);
 char **split_arg(const char *arg, unsigned int n, int dontstriplast);

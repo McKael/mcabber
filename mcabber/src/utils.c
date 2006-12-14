@@ -366,7 +366,7 @@ int check_jid_syntax(char *fjid)
 }
 
 
-void mc_strtolower(char *str)
+inline void mc_strtolower(char *str)
 {
   if (!str) return;
   for ( ; *str; str++)

@@ -260,7 +260,7 @@ set message_autoaway = Auto-away (idle)
 
 # Contacts PGP information
 # You can provide a PGP key to be used for a given Jabber user, or
-# disbale PGP on a per-account basis.
+# disable PGP on a per-account basis.
 # If you provide a KeyId for a contact, it will be compared to the key the
 # contact uses to sign their presence/messages and it will be used for
 # all outgoing encrypted messages (that is, the contact signature key will

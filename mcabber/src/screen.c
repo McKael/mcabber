@@ -1372,13 +1372,19 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
     prefix |= HBB_PREFIX_IN;
 
   scr_WriteMessage(jidfrom, text, timestamp, prefix);
-  update_panels();
 }
 
 void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix)
 {
+  GSList *roster_elt;
+  roster_elt = roster_find(jidto, jidsearch,
+                           ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
+
   scr_WriteMessage(jidto, text, 0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT);
-  scr_ShowWindow(jidto, FALSE);
+
+  // Show jidto's buffer unless the buddy is not in the buddylist
+  if (roster_elt && g_list_position(buddylist, roster_elt->data) != -1)
+    scr_ShowWindow(jidto, FALSE);
 }
 
 static inline void set_autoaway(bool setaway)

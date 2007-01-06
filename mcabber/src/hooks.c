@@ -65,6 +65,7 @@ inline void hk_message_in(const char *bjid, const char *resname,
         wmsg = mmsg = g_strdup_printf("*%s %s", resname, msg+4);
     }
   } else {
+    bmsg = g_strdup(msg);
     if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME)))
       wmsg = mmsg = g_strdup_printf("*%s %s", bjid, msg+4);
     else

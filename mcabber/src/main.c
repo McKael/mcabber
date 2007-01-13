@@ -341,14 +341,17 @@ int main(int argc, char **argv)
      ncurses mode -- unless the username is unknown. */
   if (settings_opt_get("username") && !settings_opt_get("password")) {
     const char *p;
+    char *pwd;
     p = settings_opt_get("server");
     if (p)
       printf("Server: %s\n", p);
     p = settings_opt_get("username");
     if (p)
       printf("Username: %s\n", p);
-    settings_set(SETTINGS_TYPE_OPTION, "password",
-                 ask_password("Jabber password"));
+
+    pwd = ask_password("Jabber password");
+    settings_set(SETTINGS_TYPE_OPTION, "password", pwd);
+    g_free(pwd);
   }
 
   /* Initialize PGP system

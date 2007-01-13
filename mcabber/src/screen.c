@@ -1353,9 +1353,7 @@ inline void scr_WriteMessage(const char *bjid, const char *text,
 
   if (!timestamp) timestamp = time(NULL);
 
-  xtext = ut_expand_tabs(text); // Expand tabs
-
-  // XXX Are there other special chars we should filter out?
+  xtext = ut_expand_tabs(text); // Expand tabs and filter out some chars
 
   scr_WriteInWindow(bjid, xtext, timestamp, prefix_flags, FALSE);
 

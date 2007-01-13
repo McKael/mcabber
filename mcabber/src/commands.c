@@ -367,9 +367,12 @@ int process_command(char *line)
 
   // Command "quit"?
   if ((scr_get_multimode() != 2)
-      && (!strncasecmp(xpline, mkcmdstr("quit"), strlen(mkcmdstr("quit")))))
-    if (!xpline[5] || xpline[5] == ' ')
+      && (!strncasecmp(xpline, mkcmdstr("quit"), strlen(mkcmdstr("quit"))))) {
+    if (!xpline[5] || xpline[5] == ' ') {
+      g_free(xpline);
       return 255;
+    }
+  }
 
   // If verbatim multi-line mode, we check if another /msay command is typed
   if ((scr_get_multimode() == 2)

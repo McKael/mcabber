@@ -582,8 +582,7 @@ static void endElement(void *userdata, const char *name)
 
 	if(j->on_packet)
 	    (j->on_packet)(j, p);
-	else
-	    xmlnode_free(j->current);
+	xmlnode_free(j->current);
     }
 
     j->current = x;

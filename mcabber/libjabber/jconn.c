@@ -192,12 +192,16 @@ void jab_start(jconn j)
  */
 void jab_stop(jconn j)
 {
-    if(!j || j->state == JCONN_STATE_OFF) return;
-
+    if (!j) return;
+    if (j->parser) {
+	XML_ParserFree(j->parser);
+	j->parser = NULL;
+    }
     j->state = JCONN_STATE_OFF;
-    cw_close(j->fd);
-    j->fd = -1;
-    XML_ParserFree(j->parser);
+    if (j->fd >= 0) {
+	cw_close(j->fd);
+	j->fd = -1;
+    }
 }
 
 /*

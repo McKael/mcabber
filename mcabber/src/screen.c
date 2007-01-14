@@ -97,6 +97,7 @@ static short int  inputline_offset;
 static int    completion_started;
 static GList *cmdhisto;
 static GList *cmdhisto_cur;
+static guint  cmdhisto_nblines;
 static char   cmdhisto_backup[INPUTLINE_LENGTH+1];
 
 static int    chatstate; /* (0=active, 1=composing, 2=paused) */
@@ -2093,9 +2094,27 @@ void scr_append_multiline(const char *line)
 // Add a line to the inputLine history
 inline void scr_cmdhisto_addline(char *line)
 {
-  if (!line || !*line) return;
+  int max_histo_lines;
+
+  if (!line || !*line)
+    return;
+
+  max_histo_lines = settings_opt_get_int("cmdhistory_lines");
+
+  if (max_histo_lines < 0)
+    max_histo_lines = 1;
+
+  if (max_histo_lines)
+    while (cmdhisto_nblines >= (guint)max_histo_lines) {
+      if (cmdhisto_cur && cmdhisto_cur == cmdhisto)
+        break;
+      g_free(cmdhisto->data);
+      cmdhisto = g_list_delete_link(cmdhisto, cmdhisto);
+      cmdhisto_nblines--;
+    }
 
   cmdhisto = g_list_append(cmdhisto, g_strdup(line));
+  cmdhisto_nblines++;
 }
 
 //  scr_cmdhisto_prev()

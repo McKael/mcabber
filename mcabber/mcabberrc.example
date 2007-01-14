@@ -76,6 +76,11 @@ set ssl = 0
 # de, fr, nl, pl, ru, uk.
 #set lang = en
 
+# History
+# Number of lines to remember for the command line history
+# (default: 0, unlimited).
+set cmdhistory_lines = 250
+
 # Set hide_offline_buddies to 1 to display only connected buddies
 # in the roster.
 #set hide_offline_buddies = 0

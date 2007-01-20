@@ -56,7 +56,9 @@ static unsigned char online;
 
 static void statehandler(jconn, int);
 static void packethandler(jconn, jpacket);
-void handle_state_events(char* from, xmlnode xmldata);
+static void handle_state_events(char* from, xmlnode xmldata);
+
+static void evscallback_invitation(eviqs *evp, guint evcontext);
 
 static void logger(jconn j, int io, const char *buf)
 {
@@ -2152,6 +2154,71 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   g_free(r);
 }
 
+static void got_invite(char* from, char *to, char* reason, char* passwd)
+{
+  eviqs *evn;
+  event_muc_invitation *invitation;
+  GString *sbuf;
+
+  sbuf = g_string_new("");
+  if (reason) {
+    g_string_printf(sbuf,
+                    "Received an invitation to <%s>, from <%s>, reason: %s",
+                    to, from, reason);
+  } else {
+    g_string_printf(sbuf, "Received an invitation to <%s>, from <%s>",
+                    to, from);
+  }
+  scr_WriteIncomingMessage(from, sbuf->str, 0, HBB_PREFIX_INFO);
+  scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);
+
+  evn = evs_new(EVS_TYPE_INVITATION, EVS_MAX_TIMEOUT);
+  if (evn) {
+    evn->callback = &evscallback_invitation;
+    invitation = g_new(event_muc_invitation, 1);
+    invitation->to = g_strdup(to);
+    invitation->from = g_strdup(from);
+    invitation->passwd = g_strdup(passwd);
+    invitation->reason = g_strdup(reason);
+    evn->data = invitation;
+    evn->desc = g_strdup_printf("<%s> invites you to %s ", from, to);
+    g_string_printf(sbuf, "Please use /event %s accept|reject", evn->id);
+  } else {
+    g_string_printf(sbuf, "Unable to create a new event!");
+  }
+  scr_WriteIncomingMessage(from, sbuf->str, 0, HBB_PREFIX_INFO);
+  scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);
+  g_string_free(sbuf, TRUE);
+}
+
+// Specific MUC message handling (for example invitation processing)
+static void got_muc_message(char *from, xmlnode x)
+{
+  xmlnode invite = xmlnode_get_tag(x, "invite");
+  if (invite)
+  {
+    char* invite_from;
+    char *reason = NULL;
+    char *password = NULL;
+    xmlnode r;
+
+    invite_from = xmlnode_get_attrib(invite, "from");
+    r = xmlnode_get_tag(invite, "reason");
+    if (r)
+      reason = xmlnode_get_tag_data(r, NULL);
+    r = xmlnode_get_tag(invite, "password");
+    if (r)
+      password = xmlnode_get_tag_data(r, NULL);
+    if (invite_from)
+      got_invite(invite_from, from, reason, password);
+  }
+  // TODO
+  // handle status code = 100 ( not anonymous )
+  // handle status code = 170 ( changement de config )
+  // 10.2.1 Notification of Configuration Changes
+  // declined invitation
+}
+
 static void handle_packet_message(jconn conn, char *type, char *from,
                                   xmlnode xmldata)
 {
@@ -2227,10 +2294,16 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   if (from && body)
     gotmessage(type, from, body, enc, timestamp,
                xml_get_xmlns(xmldata, NS_SIGNED));
+
+  if (from) {
+    x = xml_get_xmlns(xmldata, "http://jabber.org/protocol/muc#user");
+    if (x && !strcmp(xmlnode_get_name(x), "x"))
+      got_muc_message(from, x);
+  }
   g_free(tmp);
 }
 
-void handle_state_events(char *from, xmlnode xmldata)
+static void handle_state_events(char *from, xmlnode xmldata)
 {
 #if defined JEP0022 || defined JEP0085
   xmlnode state_ns = NULL;
@@ -2391,6 +2464,74 @@ static void evscallback_subscription(eviqs *evp, guint evcontext)
   scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
   g_free(buf);
+}
+
+static void decline_invitation(event_muc_invitation *invitation, char *reason)
+{
+  // cut and paste from jb_room_invite
+  xmlnode x,y,z;
+
+  if (!invitation) return;
+  if (!invitation->to || !invitation->from) return;
+
+  x = jutil_msgnew(NULL, (char*)invitation->to, NULL, NULL);
+
+  y = xmlnode_insert_tag(x, "x");
+  xmlnode_put_attrib(y, "xmlns", "http://jabber.org/protocol/muc#user");
+
+  z = xmlnode_insert_tag(y, "decline");
+  xmlnode_put_attrib(z, "to", invitation->from);
+
+  if (reason) {
+    y = xmlnode_insert_tag(z, "reason");
+    xmlnode_insert_cdata(y, reason, (unsigned) -1);
+  }
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+  jb_reset_keepalive();
+}
+
+static void evscallback_invitation(eviqs *evp, guint evcontext)
+{
+  event_muc_invitation *invitation = evp->data;
+
+  // Sanity check
+  if (!invitation) {
+    // Shouldn't happen.
+    scr_LogPrint(LPRINT_LOGNORM, "Error in evs callback.");
+    return;
+  }
+
+  if (evcontext == EVS_CONTEXT_TIMEOUT) {
+    scr_LogPrint(LPRINT_LOGNORM, "Event %s timed out, cancelled.", evp->id);
+    goto evscallback_invitation_free;
+  }
+  if (evcontext == EVS_CONTEXT_CANCEL) {
+    scr_LogPrint(LPRINT_LOGNORM, "Event %s cancelled.", evp->id);
+    goto evscallback_invitation_free;
+  }
+  if (!(evcontext & EVS_CONTEXT_USER))
+    goto evscallback_invitation_free;
+  // Ok, let's work now.
+  // evcontext: 0, 1 == reject, accept
+
+  if (evcontext & ~EVS_CONTEXT_USER) {
+    char *nickname = default_muc_nickname();
+    jb_room_join(invitation->to, nickname, invitation->passwd);
+    g_free(nickname);
+  } else {
+    scr_LogPrint(LPRINT_LOGNORM, "Invitation to %s refused.", invitation->to);
+    decline_invitation(invitation, NULL);
+  }
+
+evscallback_invitation_free:
+  g_free(invitation->to);
+  g_free(invitation->from);
+  g_free(invitation->passwd);
+  g_free(invitation->reason);
+  g_free(invitation);
+  evp->data = NULL;
 }
 
 static void handle_packet_s10n(jconn conn, char *type, char *from,

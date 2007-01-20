@@ -12,7 +12,8 @@
 #define EVS_CONTEXT_USER    2U
 
 typedef enum {
-  EVS_TYPE_SUBSCRIPTION = 1
+  EVS_TYPE_SUBSCRIPTION = 1,
+  EVS_TYPE_INVITATION = 2
 } evs_type;
 
 /* Common structure for events (evs) and IQ requests (iqs) */
@@ -26,6 +27,13 @@ typedef struct {
   xmlnode xmldata;
   char *desc;
 } eviqs;
+
+typedef struct {
+  char* to;
+  char* from;
+  char* passwd;
+  char* reason;
+} event_muc_invitation;
 
 eviqs  *evs_new(guint8 type, time_t timeout);
 int     evs_del(const char *evid);

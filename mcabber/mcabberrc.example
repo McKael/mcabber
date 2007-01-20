@@ -128,6 +128,8 @@ set cmdhistory_lines = 250
 
 # External command for events
 # You can specify a script or process to be launched when an event occurs.
+# Set 'events_ignore_active_window' to 1 if you don't want the script to
+# be run for a message to the current active window (default: 0).
 #
 # If 'event_log_files' is set, a file is created and contains the body of
 # the message (incoming messages only); the file name is the last parameter.
@@ -143,6 +145,8 @@ set cmdhistory_lines = 250
 #   $events_command STATUS X jabber@id      (new buddy status is X)
 # See sample script in contrib/ directory.
 #set events_command = /home/mikael/.mcabber/eventcmd
+#
+#set events_ignore_active_window = 0
 #
 #set event_log_files = 0
 #set event_log_dir = /home/mikael/.mcabber/event_files

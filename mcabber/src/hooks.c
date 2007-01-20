@@ -43,6 +43,7 @@ inline void hk_message_in(const char *bjid, const char *resname,
   int is_groupchat = FALSE; // groupchat message
   int is_room = FALSE;      // window is a room window
   int log_muc_conf = FALSE;
+  int active_window = FALSE;
   int message_flags = 0;
   guint rtype = ROSTER_TYPE_USER;
   char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
@@ -136,10 +137,21 @@ inline void hk_message_in(const char *bjid, const char *resname,
       (!is_room || (is_groupchat && log_muc_conf && !timestamp)))
     hlog_write_message(bjid, timestamp, FALSE, wmsg);
 
+  if (settings_opt_get_int("events_ignore_active_window") &&
+      current_buddy && scr_get_chatmode()) {
+    gpointer bud = BUDDATA(current_buddy);
+    if (bud) {
+      const char *cjid = buddy_getjid(bud);
+      if (cjid && !strcasecmp(cjid, bjid))
+        active_window = TRUE;
+    }
+  }
+
   // External command
   // - We do not call hk_ext_cmd() for history lines in MUC
   // - We do call hk_ext_cmd() for private messages in a room
-  if ((is_groupchat && !timestamp) || !is_groupchat)
+  // - We do call hk_ext_cmd() for messages to the current window
+  if (!active_window && ((is_groupchat && !timestamp) || !is_groupchat))
     hk_ext_cmd(bjid, (is_groupchat ? 'G' : 'M'), 'R', wmsg);
 
   // Display the sender in the log window

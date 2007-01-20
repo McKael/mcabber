@@ -88,6 +88,7 @@ void scr_ShowBuddyWindow(void);
 int  scr_BuddyBufferExists(const char *jid);
 inline void scr_UpdateBuddyWindow(void);
 inline void scr_set_chatmode(int enable);
+inline int  scr_get_chatmode(void);
 inline void scr_set_multimode(int enable, char *subject);
 inline int  scr_get_multimode(void);
 void scr_setmsgflag_if_needed(const char *jid, int special);

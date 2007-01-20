@@ -1974,6 +1974,13 @@ inline void scr_set_chatmode(int enable)
   scr_UpdateChatStatus(TRUE);
 }
 
+//  scr_get_chatmode()
+// Public function to get chatmode state.
+inline int scr_get_chatmode(void)
+{
+  return chatmode;
+}
+
 //  scr_get_multimode()
 // Public function to get multimode status...
 inline int scr_get_multimode(void)

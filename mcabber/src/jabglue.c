@@ -2271,8 +2271,6 @@ static void handle_packet_message(jconn conn, char *type, char *from,
     }
   }
 
-  handle_state_events(from, xmldata);
-
   // Not used yet...
   x = xml_get_xmlns(xmldata, NS_ENCRYPTED);
   if (x && (p = xmlnode_get_data(x)) != NULL) {
@@ -2290,6 +2288,8 @@ static void handle_packet_message(jconn conn, char *type, char *from,
     // we probe it again.
     chatstates_reset_probed(from);
 #endif
+  } else {
+    handle_state_events(from, xmldata);
   }
   if (from && body)
     gotmessage(type, from, body, enc, timestamp,

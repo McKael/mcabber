@@ -982,6 +982,7 @@ static void do_say(char *arg)
   gpointer bud;
 
   scr_set_chatmode(TRUE);
+  scr_ShowBuddyWindow();
 
   if (!current_buddy) {
     scr_LogPrint(LPRINT_NORMAL,
@@ -1073,6 +1074,7 @@ static void do_msay(char *arg)
   }
 
   scr_set_chatmode(TRUE);
+  scr_ShowBuddyWindow();
 
   if (!strcasecmp(subcmd, "send_to")) {
     int err = FALSE;

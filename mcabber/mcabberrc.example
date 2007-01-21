@@ -287,7 +287,9 @@ alias notavail = status notavail
 #alias names = room names
 
 # Key bindings
-# Ctlr-X (24) bound to /roster alternate
+# Ctlr-q (17) bound to /roster unread_next
+bind 17 = roster unread_next
+# Ctlr-x (24) bound to /roster alternate
 bind 24 = roster alternate
 # F5 (269) bound to /roster toggle_offline  (centericq-like, IIRC)
 bind 269 = roster toggle_offline

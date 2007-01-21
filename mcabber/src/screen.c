@@ -2872,10 +2872,6 @@ int process_key(keycode kcode)
     case 14:    // Ctrl-n
         scr_BufferScrollUpDown(1, 0);
         break;
-    case 17:    // Ctrl-q
-        scr_CheckAutoAway(TRUE);
-        scr_RosterUnreadMessage(1); // next unread message
-        break;
     case 20:    // Ctrl-t
         readline_transpose_chars();
         break;

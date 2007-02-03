@@ -68,9 +68,9 @@ struct dimensions {
   int c;
 };
 
-static WINDOW *rosterWnd, *chatWnd, *inputWnd, *logWnd;
+static WINDOW *rosterWnd, *chatWnd, *activechatWnd, *inputWnd, *logWnd;
 static WINDOW *mainstatusWnd, *chatstatusWnd;
-static PANEL *rosterPanel, *chatPanel, *inputPanel;
+static PANEL *rosterPanel, *chatPanel, *activechatPanel, *inputPanel;
 static PANEL *mainstatusPanel, *chatstatusPanel;
 static PANEL *logPanel;
 static int maxY, maxX;
@@ -412,40 +412,17 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
   g_free(btext);
 }
 
-//  scr_CreateBuddyPanel(title, dontshow)
+//  scr_new_buddy(title, dontshow)
 // Note: title (aka winId) can be NULL for special buffers
-static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
+//static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
+static winbuf *scr_new_buddy(const char *title, int dont_show)
 {
-  int x;
-  int y;
-  int lines;
-  int cols;
   winbuf *tmp;
 
   tmp = g_new0(winbuf, 1);
 
-  // Dimensions
-  if (roster_win_on_right)
-    x = 0;
-  else
-    x = Roster_Width;
-  if (log_win_on_top)
-    y = Log_Win_Height-1;
-  else
-    y = 0;
-
-  lines = CHAT_WIN_HEIGHT;
-  cols = maxX - Roster_Width;
-  if (cols < 1)
-    cols = 1;
-
-  tmp->win = newwin(lines, cols, y, x);
-  while (!tmp->win) {
-    safe_usleep(250);
-    tmp->win = newwin(lines, cols, y, x);
-  }
-  wbkgd(tmp->win, get_color(COLOR_GENERAL));
-  tmp->panel = new_panel(tmp->win);
+  tmp->win = activechatWnd;
+  tmp->panel = activechatPanel;
 
   if (!dont_show) {
     currentWindow = tmp;
@@ -604,12 +581,12 @@ static void scr_ShowWindow(const char *winId, int special)
   if (!win_entry) {
     if (special) {
       if (!statusWindow) {
-        statusWindow = scr_CreateBuddyPanel(NULL, FALSE);
+        statusWindow = scr_new_buddy(NULL, FALSE);
         statusWindow->hbuf = statushbuf;
       }
       win_entry = statusWindow;
     } else {
-      win_entry = scr_CreateBuddyPanel(winId, FALSE);
+      win_entry = scr_new_buddy(winId, FALSE);
     }
   }
 
@@ -700,12 +677,12 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   if (!win_entry) {
     if (special) {
       if (!statusWindow) {
-        statusWindow = scr_CreateBuddyPanel(NULL, dont_show);
+        statusWindow = scr_new_buddy(NULL, dont_show);
         statusWindow->hbuf = statushbuf;
       }
       win_entry = statusWindow;
     } else {
-      win_entry = scr_CreateBuddyPanel(winId, dont_show);
+      win_entry = scr_new_buddy(winId, dont_show);
     }
   }
 
@@ -843,6 +820,8 @@ void scr_DrawMainWindow(unsigned int fullinit)
     rosterWnd = newwin(CHAT_WIN_HEIGHT, Roster_Width, chat_y_pos, roster_x_pos);
     chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - Roster_Width, chat_y_pos,
                        chat_x_pos);
+    activechatWnd = newwin(CHAT_WIN_HEIGHT, maxX - Roster_Width, chat_y_pos,
+                           chat_x_pos);
     logWnd    = newwin(Log_Win_Height-2, maxX, log_y_pos, 0);
     chatstatusWnd = newwin(1, maxX, chatstatus_y_pos, 0);
     mainstatusWnd = newwin(1, maxX, maxY-2, 0);
@@ -854,6 +833,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
     }
     wbkgd(rosterWnd,      get_color(COLOR_GENERAL));
     wbkgd(chatWnd,        get_color(COLOR_GENERAL));
+    wbkgd(activechatWnd,  get_color(COLOR_GENERAL));
     wbkgd(logWnd,         get_color(COLOR_GENERAL));
     wbkgd(chatstatusWnd,  get_color(COLOR_STATUS));
     wbkgd(mainstatusWnd,  get_color(COLOR_STATUS));
@@ -901,6 +881,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
     // Create panels
     rosterPanel = new_panel(rosterWnd);
     chatPanel   = new_panel(chatWnd);
+    activechatPanel = new_panel(activechatWnd);
     logPanel    = new_panel(logWnd);
     chatstatusPanel = new_panel(chatstatusWnd);
     mainstatusPanel = new_panel(mainstatusWnd);

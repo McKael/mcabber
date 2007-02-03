@@ -1753,9 +1753,10 @@ void scr_BufferClear(void)
   update_panels();
 }
 
-//  scr_BufferPurge()
+//  scr_BufferPurge(closebuf)
 // Purge/Drop the current buddy buffer
-void scr_BufferPurge(void)
+// If closebuf is 1, close the buffer.
+void scr_BufferPurge(int closebuf)
 {
   winbuf *win_entry;
   guint isspe;
@@ -1775,6 +1776,11 @@ void scr_BufferPurge(void)
 
   win_entry->cleared = FALSE;
   win_entry->top = NULL;
+
+  if (closebuf && !isspe) {
+    scr_set_chatmode(FALSE);
+    g_hash_table_remove(winbufhash, CURRENT_JID);
+  }
 
   // Refresh the window
   scr_UpdateBuddyWindow();

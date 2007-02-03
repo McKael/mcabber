@@ -1,17 +1,20 @@
 
- /BUFFER [clear|purge|top|bottom|date|%|search_backward|search_forward]
+ /BUFFER [clear|close|purge]
+ /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
 Buddy's buffer manipulation command.  Eg. you can search through buffer for "text", clear chat window etc.
 
 /buffer clear
  Clear the current buddy chat window
+/buffer close
+ Empty all contents of the buffer and close the current buddy chat window
 /buffer purge
  Clear the current buddy chat window and empty all contents of the chat buffer
-/buffer bottom
- Jump to the bottom of the current buddy chat buffer
 /buffer top
  Jump to the top of the current buddy chat buffer
+/buffer bottom
+ Jump to the bottom of the current buddy chat buffer
 /buffer up [n]
  Scroll the buffer up [n] lines (default: half a screen)
 /buffer down [n]

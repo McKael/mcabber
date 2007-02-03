@@ -1,17 +1,20 @@
 
- /BUFFER [clear|purge|top|bottom|date|%|search_backward|search_forward]
+ /BUFFER [clear|close|purge]
+ /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
 Cette commande permet de gérer les tampons de discussions avec les différents contacts. Par exemple vous pouvez rechercher un texte, effacer la fenêtre de discussion, etc.
 
 /buffer clear
  Efface la fenêtre du contact sélectionné
+/buffer close
+ Ferme la fenêtre du contact sélectionné après avoir vidé le contenu du tampon associé
 /buffer purge
  Efface la fenêtre du contact sélectionné et vide le contenu du tampon associé
-/buffer bottom
- Va à la fin du tampon
 /buffer top
  Va au début du tampon
+/buffer bottom
+ Va à la fin du tampon
 /buffer up [n]
  Défile vers le haut de [n] lignes (par défaut un demi écran)
 /buffer down [n]

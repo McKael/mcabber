@@ -1780,6 +1780,7 @@ void scr_BufferPurge(int closebuf)
   if (closebuf && !isspe) {
     scr_set_chatmode(FALSE);
     g_hash_table_remove(winbufhash, CURRENT_JID);
+    currentWindow = NULL;
   }
 
   // Refresh the window

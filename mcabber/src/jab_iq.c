@@ -820,7 +820,17 @@ static void handle_iq_disco_info(jconn conn, char *from, const char *id,
                      "var", NS_TIME);
   xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
                      "var", NS_VERSION);
+  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
+                     "var", NS_PING);
+  jab_send(jc, x);
+  xmlnode_free(x);
+}
 
+static void handle_iq_ping(jconn conn, char *from, const char *id,
+                           xmlnode xmldata)
+{
+  xmlnode x;
+  x = jutil_iqresult(xmldata);
   jab_send(jc, x);
   xmlnode_free(x);
 }
@@ -915,6 +925,13 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
   id = xmlnode_get_attrib(xmldata, "id");
   if (!id) {
     scr_LogPrint(LPRINT_LOG, "IQ get stanza with no ID, ignored.");
+    return;
+  }
+
+  x = xmlnode_get_tag(xmldata, "ping");
+  ns = xmlnode_get_attrib(x, "xmlns");
+  if (ns && !strcmp(ns, NS_PING)) {
+    handle_iq_ping(conn, from, id, xmldata);
     return;
   }
 

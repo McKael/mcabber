@@ -291,6 +291,8 @@ typedef struct xterror_struct
 #define NS_XMPP_TLS  "urn:ietf:params:xml:ns:xmpp-tls"
 #define NS_XMPP_STREAMS "urn:ietf:params:xml:ns:xmpp-streams"
 
+#define NS_PING      "urn:xmpp:ping"
+
 #define NS_JABBERD_STOREDPRESENCE "http://jabberd.org/ns/storedpresence"
 #define NS_JABBERD_HISTORY "http://jabberd.org/ns/history"
 

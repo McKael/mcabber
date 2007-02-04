@@ -1753,6 +1753,27 @@ void scr_BufferClear(void)
   update_panels();
 }
 
+//  buffer_purge()
+// key: winId/jid
+// value: winbuf structure
+// data: int, set to 1 if the buffer should be closed.
+// NOTE: does not work for special buffers.
+static void buffer_purge(gpointer key, gpointer value, gpointer data)
+{
+  int closebuf = (gint)data; // XXX GPOINTER_TO_INT?
+  winbuf *win_entry = value;
+
+  // Delete the current hbuf
+  hbuf_free(&win_entry->hbuf);
+
+  if (closebuf) {
+    g_hash_table_remove(winbufhash, key);
+  } else {
+    win_entry->cleared = FALSE;
+    win_entry->top = NULL;
+  }
+}
+
 //  scr_BufferPurge(closebuf)
 // Purge/Drop the current buddy buffer
 // If closebuf is 1, close the buffer.
@@ -1767,19 +1788,38 @@ void scr_BufferPurge(int closebuf)
   win_entry = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
-  // Delete the current hbuf
-  hbuf_free(&win_entry->hbuf);
-  if (isspe) {
+  if (!isspe) {
+    buffer_purge((gpointer)CURRENT_JID, win_entry, (gpointer)closebuf);
+    // XXX GINT_TO_POINTER?
+    if (closebuf) {
+      scr_set_chatmode(FALSE);
+      currentWindow = NULL;
+    }
+  } else {
+    // (Special buffer)
+    // Reset the current hbuf
+    hbuf_free(&win_entry->hbuf);
     // Currently it can only be the status buffer
     statushbuf = NULL;
+
+    win_entry->cleared = FALSE;
+    win_entry->top = NULL;
   }
 
-  win_entry->cleared = FALSE;
-  win_entry->top = NULL;
+  // Refresh the window
+  scr_UpdateBuddyWindow();
 
-  if (closebuf && !isspe) {
+  // Finished :)
+  update_panels();
+}
+
+void scr_BufferPurgeAll(int closebuf)
+{
+  g_hash_table_foreach(winbufhash, buffer_purge, (gpointer)closebuf);
+  // XXX GINT_TO_POINTER?
+
+  if (closebuf) {
     scr_set_chatmode(FALSE);
-    g_hash_table_remove(winbufhash, CURRENT_JID);
     currentWindow = NULL;
   }
 

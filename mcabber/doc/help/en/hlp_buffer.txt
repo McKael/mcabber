@@ -1,5 +1,5 @@
 
- /BUFFER [clear|close|purge]
+ /BUFFER [clear|close|close_all|purge]
  /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
@@ -9,6 +9,8 @@ Buddy's buffer manipulation command.  Eg. you can search through buffer for "tex
  Clear the current buddy chat window
 /buffer close
  Empty all contents of the buffer and close the current buddy chat window
+/buffer close_all
+ Empty all contents of the chat buffers and close the chat windows
 /buffer purge
  Clear the current buddy chat window and empty all contents of the chat buffer
 /buffer top

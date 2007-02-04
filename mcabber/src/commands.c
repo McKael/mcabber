@@ -175,6 +175,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_BUFFER, "%");
   compl_add_category_word(COMPL_BUFFER, "purge");
   compl_add_category_word(COMPL_BUFFER, "close");
+  compl_add_category_word(COMPL_BUFFER, "close_all");
   compl_add_category_word(COMPL_BUFFER, "scroll_lock");
   compl_add_category_word(COMPL_BUFFER, "scroll_unlock");
   compl_add_category_word(COMPL_BUFFER, "scroll_toggle");
@@ -1220,17 +1221,19 @@ static void do_buffer(char *arg)
   if (!current_buddy)
     return;
 
-  if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_GROUP) {
-    scr_LogPrint(LPRINT_NORMAL, "Groups have no buffer.");
-    return;
-  }
-
   paramlst = split_arg(arg, 2, 1); // subcmd, arg
   subcmd = *paramlst;
   arg = *(paramlst+1);
 
   if (!subcmd || !*subcmd) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_GROUP &&
+      strcasecmp(subcmd, "close_all")) {
+    scr_LogPrint(LPRINT_NORMAL, "Groups have no buffer.");
     free_arg_lst(paramlst);
     return;
   }
@@ -1243,6 +1246,8 @@ static void do_buffer(char *arg)
     scr_BufferClear();
   } else if (!strcasecmp(subcmd, "close")) {
     scr_BufferPurge(1);
+  } else if (!strcasecmp(subcmd, "close_all")) {
+    scr_BufferPurgeAll(1);
   } else if (!strcasecmp(subcmd, "purge")) {
     scr_BufferPurge(0);
   } else if (!strcasecmp(subcmd, "scroll_lock")) {

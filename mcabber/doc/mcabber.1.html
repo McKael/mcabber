@@ -442,7 +442,10 @@ You are participating in x@y.c conference room, and there are unread messages
         depend on your ncurses installation).
 </dd>
 <dt><b>
-/buffer clear|purge|top|bottom|date|%|search_backward|search_forward
+/buffer clear|close|close_all|purge
+</b></dt>
+<dt><b>
+/buffer top|bottom|date|%|search_backward|search_forward
 </b></dt>
 <dt><b>
 /buffer scroll_lock|scroll_unlock|scroll_toggle
@@ -461,6 +464,22 @@ clear the current buddy chat window
 </tr>
 <tr valign="top">
 <td>
+<b>close</b>
+</td>
+<td>
+empty all contents of the buffer and close the current buddy chat window
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>close_all</b>
+</td>
+<td>
+empty all contents of the chat buffers and close the chat windows
+</td>
+</tr>
+<tr valign="top">
+<td>
 <b>purge</b>
 </td>
 <td>
@@ -469,18 +488,18 @@ clear the current buddy chat window and empty all contents of the chat buffer
 </tr>
 <tr valign="top">
 <td>
-<b>bottom</b>
-</td>
-<td>
-jump to the bottom of the current buddy chat buffer
-</td>
-</tr>
-<tr valign="top">
-<td>
 <b>top</b>
 </td>
 <td>
 jump to the top of the current buddy chat buffer
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>bottom</b>
+</td>
+<td>
+jump to the bottom of the current buddy chat buffer
 </td>
 </tr>
 <tr valign="top">
@@ -1271,8 +1290,8 @@ Some portions are Copyright (C) 2002-2004 <a href="mailto:cabber@ajmacias.com">c
 License (GPL).</p>
 <div id="footer">
 <p>
-Version 0.9.0<br />
-Last updated 09-Dec-2006 11:19:42 CEST
+Version 0.9.1-dev<br />
+Last updated 04-Feb-2007 11:44:42 CEST
 </p>
 </div>
 </div>

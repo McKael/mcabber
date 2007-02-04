@@ -177,15 +177,18 @@ COMMANDS RELATED TO MCABBER
         Example: "/bind 265 = status online" (265 is F1 for me, but it may
         depend on your ncurses installation).
 
-/buffer clear|purge|top|bottom|date|%|search_backward|search_forward::
+/buffer clear|close|close_all|purge::
+/buffer top|bottom|date|%|search_backward|search_forward::
 /buffer scroll_lock|scroll_unlock|scroll_toggle::
         The 'buffer' command manipulates the current buddy's buffer
         (chat window).
 
         'clear';;                clear the current buddy chat window
+        'close';;                empty all contents of the buffer and close the current buddy chat window
+        'close_all';;            empty all contents of the chat buffers and close the chat windows
         'purge';;                clear the current buddy chat window and empty all contents of the chat buffer
-        'bottom';;               jump to the bottom of the current buddy chat buffer
         'top';;                  jump to the top of the current buddy chat buffer
+        'bottom';;               jump to the bottom of the current buddy chat buffer
         'up' [n];;               scroll the buffer up n lines (default: half a screen)
         'down' [n];;             scroll the buffer down n lines (default: half a screen)
         'date' date;;            jump to the first line after the specified date in the chat buffer (date format: "YYYY-mm-dd[THH:MM:SS]", "-" and ":" are optional)

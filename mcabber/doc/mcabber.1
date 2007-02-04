@@ -1,11 +1,11 @@
 .\"     Title: mcabber
 .\"    Author: Mikael BERTHE
 .\" Generator: DocBook XSL Stylesheets v1.71.0 <http://docbook.sf.net/>
-.\"      Date: 12/09/2006
+.\"      Date: 02/04/2007
 .\"    Manual: 
 .\"    Source: 
 .\"
-.TH "MCABBER" "1" "12/09/2006" "" ""
+.TH "MCABBER" "1" "02/04/2007" "" ""
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -319,7 +319,7 @@ mcabber
 in the log window when pressing the key, for example "Unknown key=265". "/bind keycode" displays the command line bound to the given keycode; "/bind keycode =" unbinds the given keycode. "/bind" displays a list of the bound keycodes. Note: aliases can be used in key bindings. Example: "/bind 265 = status online" (265 is F1 for me, but it may depend on your ncurses installation).
 .RE
 .PP
-/buffer clear|purge|top|bottom|date|%|search_backward|search_forward, /buffer scroll_lock|scroll_unlock|scroll_toggle
+/buffer clear|close|close_all|purge, /buffer top|bottom|date|%|search_backward|search_forward, /buffer scroll_lock|scroll_unlock|scroll_toggle
 .RS 3n
 The
 \fIbuffer\fR
@@ -345,25 +345,14 @@ T}:T{
 clear the current buddy chat window
 T}
 T{
-\fIsearch_forward\fR
-text
+\fIclose\fR
 T}:T{
-search for "text" in the current buddy chat buffer
+empty all contents of the buffer and close the current buddy chat window
 T}
 T{
-\fIscroll_lock\fR
+\fIclose_all\fR
 T}:T{
-lock buffer scrolling
-T}
-T{
-\fIscroll_unlock\fR
-T}:T{
-unlock buffer scrolling
-T}
-T{
-\fIscroll_toggle\fR
-T}:T{
-toggle buffer scrolling (lock/unlock)
+empty all contents of the chat buffers and close the chat windows
 T}
 T{
 \fIpurge\fR
@@ -371,14 +360,14 @@ T}:T{
 clear the current buddy chat window and empty all contents of the chat buffer
 T}
 T{
-\fIbottom\fR
-T}:T{
-jump to the bottom of the current buddy chat buffer
-T}
-T{
 \fItop\fR
 T}:T{
 jump to the top of the current buddy chat buffer
+T}
+T{
+\fIbottom\fR
+T}:T{
+jump to the bottom of the current buddy chat buffer
 T}
 T{
 \fIup\fR
@@ -409,6 +398,27 @@ T{
 text
 T}:T{
 search for "text" in the current buddy chat buffer
+T}
+T{
+\fIsearch_forward\fR
+text
+T}:T{
+search for "text" in the current buddy chat buffer
+T}
+T{
+\fIscroll_lock\fR
+T}:T{
+lock buffer scrolling
+T}
+T{
+\fIscroll_unlock\fR
+T}:T{
+unlock buffer scrolling
+T}
+T{
+\fIscroll_toggle\fR
+T}:T{
+toggle buffer scrolling (lock/unlock)
 T}
 .TE
 

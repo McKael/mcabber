@@ -413,8 +413,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 }
 
 //  scr_new_buddy(title, dontshow)
-// Note: title (aka winId) can be NULL for special buffers
-//static winbuf *scr_CreateBuddyPanel(const char *title, int dont_show)
+// Note: title (aka winId/jid) can be NULL for special buffers
 static winbuf *scr_new_buddy(const char *title, int dont_show)
 {
   winbuf *tmp;

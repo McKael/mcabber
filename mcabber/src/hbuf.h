@@ -33,7 +33,7 @@ typedef struct {
 } hbb_line;
 
 void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
-        guint prefix_flags, guint width);
+        guint prefix_flags, guint width, guint maxhbufblocks);
 void hbuf_free(GList **p_hbuf);
 void hbuf_rebuild(GList **p_hbuf, unsigned int width);
 GList *hbuf_previous_persistent(GList *l_line);

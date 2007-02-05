@@ -98,7 +98,8 @@ set cmdhistory_lines = 250
 # Defaults for logging, load_logs are 0 (disabled)
 # Note: the logging directory must exist if you enable logging, mcabber
 #       will not create it.
-# Note: these options, except 'max_history_age', are used at startup time.
+# Note: these options, except 'max_history_age' and 'max_history_blocks',
+# are used at startup time.
 #set logging = 1
 #set load_logs = 1
 #set logging_dir = /home/mikael/.mcabber/histo/
@@ -115,6 +116,10 @@ set cmdhistory_lines = 250
 # Default = 0 (disabled -- everything is loaded)
 # Note: this option is only used when reading history files, not later.
 #set max_history_age = 0
+#
+# You can specify a maximum number of data blocks per buffer (1 block contains
+# about 8kB).  The default is 0 (unlimited).  If set, this value must be > 2.
+#set max_history_blocks = 8
 
 # IQ settings
 # Set iq_version_hide_os to 1 if you do not want to allow people to retrieve

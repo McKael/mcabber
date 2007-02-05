@@ -395,7 +395,7 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
       printf("%s\n", buffer_locale);
       // ncurses are not initialized yet, so we call directly hbuf routine
       hbuf_add_line(&statushbuf, buf_specialwindow, timestamp,
-        HBB_PREFIX_SPECIAL, 0);
+        HBB_PREFIX_SPECIAL, 0, 0);
     }
 
     g_free(convbuf1);
@@ -691,7 +691,8 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 
   text_locale = from_utf8(text);
   hbuf_add_line(&win_entry->hbuf, text_locale, timestamp, prefix_flags,
-                maxX - Roster_Width - PREFIX_WIDTH);
+                maxX - Roster_Width - PREFIX_WIDTH,
+                get_max_history_blocks());
   g_free(text_locale);
 
   if (win_entry->cleared) {

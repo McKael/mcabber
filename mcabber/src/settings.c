@@ -428,4 +428,14 @@ const char *settings_pgp_getkeyid(const char *bjid)
   return NULL;
 }
 
+guint get_max_history_blocks(void)
+{
+  int max_num_of_blocks = settings_opt_get_int("max_history_blocks");
+  if (max_num_of_blocks < 0)
+    max_num_of_blocks = 0;
+  else if (max_num_of_blocks == 1)
+    max_num_of_blocks = 2;
+  return (guint)max_num_of_blocks;
+}
+
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

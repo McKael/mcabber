@@ -40,6 +40,8 @@ guint   settings_pgp_getdisabled(const char *bjid);
 void    settings_pgp_setkeyid(const char *bjid, const char *keyid);
 const char *settings_pgp_getkeyid(const char *bjid);
 
+guint get_max_history_blocks(void);
+
 char *default_muc_nickname(void);
 
 const gchar *isbound(int key);

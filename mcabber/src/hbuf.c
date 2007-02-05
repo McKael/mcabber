@@ -107,18 +107,20 @@ static inline void do_wrap(GList **p_hbuf, GList *first_hbuf_elt,
   }
 }
 
-//  hbuf_add_line(p_hbuf, text, prefix_flags, width)
+//  hbuf_add_line(p_hbuf, text, prefix_flags, width, maxhbufblocks)
 // Add a line to the given buffer.  If width is not null, then lines are
 // wrapped at this length.
+// maxhbufblocks is the maximum number of hbuf blocks we can allocate.  If
+// null, there is no limit.  If non-null, it should be >= 2.
 //
 // Note 1: Splitting according to width won't work if there are tabs; they
 //         should be expanded before.
 // Note 2: width does not include the ending \0.
 void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
-        guint prefix_flags, guint width)
+        guint prefix_flags, guint width, guint maxhbufblocks)
 {
   GList *curr_elt;
-  char *line, *end;
+  char *line;
   hbuf_block *hbuf_block_elt;
 
   if (!text) return;
@@ -149,7 +151,52 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   }
   if (hbuf_block_elt->ptr + strlen(text) >= hbuf_block_elt->ptr_end_alloc) {
     // Too long for the current allocated bloc, we need another one
-    hbuf_block_elt->ptr  = g_new0(char, HBB_BLOCKSIZE);
+    if (!maxhbufblocks) {
+      // No limit, let's allocate a new block
+      hbuf_block_elt->ptr  = g_new0(char, HBB_BLOCKSIZE);
+    } else {
+      GList *hbuf_head, *hbuf_elt;
+      hbuf_block *hbuf_b_elt;
+      guint n = 0;
+      hbuf_head = g_list_first(*p_hbuf);
+      // We need at least 2 allocated blocks
+      if (maxhbufblocks == 1)
+        maxhbufblocks = 2;
+      // Let's count the number of allocated areas
+      for (hbuf_elt = hbuf_head; hbuf_elt; hbuf_elt = g_list_next(hbuf_elt)) {
+        hbuf_b_elt = (hbuf_block*)(hbuf_elt->data);
+        if (hbuf_b_elt->flags & HBB_FLAG_ALLOC)
+          n++;
+      }
+      // If we can't allocate a new area, reuse the previous block(s)
+      if (n < maxhbufblocks) {
+        hbuf_block_elt->ptr  = g_new0(char, HBB_BLOCKSIZE);
+      } else {
+        // Let's use an old block, and free the extra blocks if needed
+        char *allocated_block = NULL;
+        while (n >= maxhbufblocks) {
+          /* --- */
+          int start_of_block = 1;
+          for (hbuf_elt = hbuf_head; hbuf_elt; hbuf_elt = hbuf_head) {
+            hbuf_b_elt = (hbuf_block*)(hbuf_elt->data);
+            if (hbuf_b_elt->flags & HBB_FLAG_ALLOC) {
+              if (start_of_block-- == 0)
+                break;
+              if (n == maxhbufblocks)
+                allocated_block = hbuf_b_elt->ptr;
+              else
+                g_free(hbuf_b_elt->ptr);
+            }
+            g_free(hbuf_b_elt);
+            hbuf_head = *p_hbuf = g_list_delete_link(hbuf_head, hbuf_elt);
+          }
+          n--;
+          /* --- */
+        }
+        memset(allocated_block, 0, HBB_BLOCKSIZE);
+        hbuf_block_elt->ptr = allocated_block;
+      }
+    }
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
     hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + HBB_BLOCKSIZE;
   }
@@ -158,7 +205,6 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   // Ok, now we can copy the text..
   strcpy(line, text);
   hbuf_block_elt->ptr_end = line + strlen(line) + 1;
-  end = hbuf_block_elt->ptr_end;
 
   curr_elt = g_list_last(*p_hbuf);
 

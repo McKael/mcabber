@@ -135,6 +135,7 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
   guint err = 0;
   guint ln = 0; // line number
   time_t starttime;
+  int max_num_of_blocks;
 
   if (!FileLoadLogs)
     return;
@@ -164,6 +165,8 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
     if (bufstat.st_size > 3145728)
       scr_LogPrint(LPRINT_LOGNORM, "Reading <%s> history file...", bjid);
   }
+
+  max_num_of_blocks = get_max_history_blocks();
 
   starttime = 0L;
   if (settings_opt_get_int("max_history_age") > 0) {
@@ -252,7 +255,8 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
       converted = from_utf8(&data[dataoffset+1]);
       if (converted) {
         xtext = ut_expand_tabs(converted); // Expand tabs
-        hbuf_add_line(p_buddyhbuf, xtext, timestamp, prefix_flags, width);
+        hbuf_add_line(p_buddyhbuf, xtext, timestamp, prefix_flags, width,
+                      max_num_of_blocks);
         if (xtext != converted)
           g_free(xtext);
         g_free(converted);

@@ -92,6 +92,8 @@ set cmdhistory_lines = 250
 
 # History logging
 # You can save the messages history: set logging = 1
+# Set 'logging_ignore_status' to 1 if you do not want to save status changes
+# (and status messages) to the log files (default: 0).
 # You can load (read) the messages history: set load_logs = 1
 # If you enable load_logs, you can use the 'max_history_age' setting below.
 # Default logging directory (logging_dir) is $HOME/.mcabber/histo/
@@ -103,6 +105,7 @@ set cmdhistory_lines = 250
 #set logging = 1
 #set load_logs = 1
 #set logging_dir = /home/mikael/.mcabber/histo/
+#set logging_ignore_status = 1
 
 # Set log_muc_conf to 1 to enable MUC chatrooms logging (default = 0)
 #set log_muc_conf = 1

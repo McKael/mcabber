@@ -77,6 +77,10 @@ static void write_histo_line(const char *bjid,
   if (!UseFileLogging)
     return;
 
+  // Do not log status messages when 'logging_ignore_status' is set
+  if (type == 'S' && settings_opt_get_int("logging_ignore_status"))
+    return;
+
   filename = user_histo_file(bjid);
 
   // If timestamp is null, get current date

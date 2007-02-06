@@ -660,6 +660,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   char *text_locale;
   int dont_show = FALSE;
   int special;
+  guint num_history_blocks;
   bool setmsgflg = FALSE;
 
   // Look for the window entry.
@@ -689,10 +690,16 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   if (win_entry->cleared)
     win_entry->top = g_list_last(win_entry->hbuf);
 
+  // Make sure we do not free the buffer while it's locked or when
+  // top is set.
+  if (win_entry->lock || win_entry->top)
+    num_history_blocks = 0U;
+  else
+    num_history_blocks = get_max_history_blocks();
+
   text_locale = from_utf8(text);
   hbuf_add_line(&win_entry->hbuf, text_locale, timestamp, prefix_flags,
-                maxX - Roster_Width - PREFIX_WIDTH,
-                get_max_history_blocks());
+                maxX - Roster_Width - PREFIX_WIDTH, num_history_blocks);
   g_free(text_locale);
 
   if (win_entry->cleared) {

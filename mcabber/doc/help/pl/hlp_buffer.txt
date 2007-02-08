@@ -6,12 +6,16 @@ Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. pr
 
 /buffer clear
  Czyści okno rozmowy
+/buffer close
+ Czyści cały bufor rozmowy i zamyka aktualne okno z rozmową
+/buffer close_all
+ Czyści wszystkie bufory rozmów i zamyka okna z rozmowami
 /buffer purge
  Czyści okno rozmowy i usuwa całą zawartość bufora rozmowy
-/buffer bottom
- Skacze na sam koniec bufora rozmowy
 /buffer top
  Skacze na sam początek bufora rozmowy
+/buffer bottom
+ Skacze na sam koniec bufora rozmowy
 /buffer up [n]
  Przesuwa bufor o "n" linijek do góry (domyślnie: pół ekranu)
 /buffer down [n]

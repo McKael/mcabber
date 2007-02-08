@@ -1,17 +1,22 @@
 
- /BUFFER [clear|purge|top|bottom|date|%|search_backward|search_forward]
+ /BUFFER [clear|close|close_all|purge]
+ /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
 Різноманітні операції з буфером розмови. Наприклад, ви можете шукати деякий текст в буфері, очистити вікно розмови, ітп.
 
 /buffer clear
  Очистити поточне вікно діалогу.
+/buffer close
+ Закрити вікно діалогу і витерти вміст буферу на додачу.
+/buffer close_all
+ Потерти всі буфери з пам'яті і позакривати вікна діалогу.
 /buffer purge
  Очистити вікно діалогу а також потерти його вміст з пам'яті.
-/buffer bottom
- Перейти до кінця буферу.
 /buffer top
  Перейти до початку буферу.
+/buffer bottom
+ Перейти до кінця буферу.
 /buffer up [n]
  Посунути буфер вверх на n рядків (якщо не вказано - пів екрану).
 /buffer down [n]

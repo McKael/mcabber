@@ -1,8 +1,25 @@
-mcabber (0.9.1-dev)
+mcabber (0.9.1)
 
- * 
+ * The Ctrl-q binding isn't hardcoded anymore
+ * Major memory management and speed improvement
+ * New commands "/buffer close" and "/buffer close_all"
+ * New options "cmdhistory_lines" and "max_history_blocks"
+ * New option "logging_ignore_status"
+ * Add a few event scripts (OSD and libnotify examples)
+ * New events option "events_ignore_active_window"
+ * Support for invitations to muc rooms (Michael Scherer)
+ * Response to XMPP Ping (XEP-0199) (Michael Scherer)
+ * Fix /say_to to contacts of a folded group (reported by Salvador)
+ * Fix a bug in the history logging (incoming "/me " messages)
+   (reported by Frank Zschockelt)
+ * Fix a few memory leaks (Michael Scherer)
+ * A few more misc. bug fixes and improvements
+ * Rewritten mcwizz setup script (Mulander)
+ * Add scripts to contrib: merge_history.py and filter_statusmsg.py
+   (Frank Zschockelt)
+ * help: Add Russian translation (Loenko Artyom)
 
- -- Mikael, ?
+ -- Mikael, 2007-02-10
 
 mcabber (0.9.0)
 

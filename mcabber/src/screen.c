@@ -568,6 +568,19 @@ static void scr_UpdateWindow(winbuf *win_entry)
   g_free(lines);
 }
 
+static winbuf * scr_CreateWindow(const char *winId, int special, int dont_show)
+{
+  if (special) {
+    if (!statusWindow) {
+      statusWindow = scr_new_buddy(NULL, dont_show);
+      statusWindow->hbuf = statushbuf;
+    }
+    return statusWindow;
+  } else {
+    return scr_new_buddy(winId, dont_show);
+  }
+}
+
 //  scr_ShowWindow()
 // Display the chat window with the given identifier.
 // "special" must be true if this is a special buffer window.
@@ -578,15 +591,7 @@ static void scr_ShowWindow(const char *winId, int special)
   win_entry = scr_SearchWindow(winId, special);
 
   if (!win_entry) {
-    if (special) {
-      if (!statusWindow) {
-        statusWindow = scr_new_buddy(NULL, FALSE);
-        statusWindow->hbuf = statushbuf;
-      }
-      win_entry = statusWindow;
-    } else {
-      win_entry = scr_new_buddy(winId, FALSE);
-    }
+    win_entry = scr_CreateWindow(winId, special, FALSE);
   }
 
   top_panel(win_entry->panel);
@@ -675,15 +680,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 
   // If the window entry doesn't exist yet, let's create it.
   if (!win_entry) {
-    if (special) {
-      if (!statusWindow) {
-        statusWindow = scr_new_buddy(NULL, dont_show);
-        statusWindow->hbuf = statushbuf;
-      }
-      win_entry = statusWindow;
-    } else {
-      win_entry = scr_new_buddy(winId, dont_show);
-    }
+    win_entry = scr_CreateWindow(winId, special, dont_show);
   }
 
   // The message must be displayed -> update top pointer

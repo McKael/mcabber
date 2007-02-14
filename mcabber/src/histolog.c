@@ -61,6 +61,33 @@ static char *user_histo_file(const char *bjid)
   return filename;
 }
 
+char *hlog_get_log_jid(const char *bjid)
+{
+  struct stat bufstat;
+  char *path;
+  char *log_jid = NULL;
+  
+  path = user_histo_file(bjid);
+  do {  
+    /*scr_LogPrint(LPRINT_NORMAL, "path=%s", path);*/
+    if(lstat(path, &bufstat) != 0)
+      break;
+    if(S_ISLNK(bufstat.st_mode)) {
+      g_free(log_jid);
+      log_jid = g_new(char, bufstat.st_size+1);
+      readlink(path, log_jid, bufstat.st_size);
+      g_free(path);
+      log_jid[bufstat.st_size] = '\0';
+      path = user_histo_file(log_jid);
+    } else {
+      g_free(path);
+      path = NULL;
+    }
+  } while( path );
+
+  return log_jid;
+}
+
 //  write_histo_line()
 // Adds a history (multi-)line to the jid's history logfile
 static void write_histo_line(const char *bjid,

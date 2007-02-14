@@ -412,6 +412,29 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
   g_free(btext);
 }
 
+static winbuf *scr_SearchWindow(const char *winId, int special)
+{
+  char *id;
+  winbuf *wbp;
+
+  if (special)
+    return statusWindow; // Only one special window atm.
+
+  if (!winId)
+    return NULL;
+
+  id = g_strdup(winId);
+  mc_strtolower(id);
+  wbp = g_hash_table_lookup(winbufhash, id);
+  g_free(id);
+  return wbp;
+}
+
+int scr_BuddyBufferExists(const char *bjid)
+{
+  return (scr_SearchWindow(bjid, FALSE) != NULL);
+}
+
 //  scr_new_buddy(title, dontshow)
 // Note: title (aka winId/jid) can be NULL for special buffers
 static winbuf *scr_new_buddy(const char *title, int dont_show)
@@ -436,37 +459,22 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
   // If title is NULL, this is a special buffer
   if (title) {
     char *id;
-    // Load buddy history from file (if enabled)
-    hlog_read_history(title, &tmp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
+    id = hlog_get_log_jid(title);
+    if (id) {
+      if(scr_BuddyBufferExists(id))
+        tmp->hbuf=(scr_SearchWindow(id, FALSE))->hbuf;
+      else
+        tmp->hbuf=(scr_new_buddy(id, TRUE))->hbuf;
+      g_free(id);
+    }
+    else // Load buddy history from file (if enabled)
+      hlog_read_history(title, &tmp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
 
     id = g_strdup(title);
     mc_strtolower(id);
     g_hash_table_insert(winbufhash, id, tmp);
   }
   return tmp;
-}
-
-static winbuf *scr_SearchWindow(const char *winId, int special)
-{
-  char *id;
-  winbuf *wbp;
-
-  if (special)
-    return statusWindow; // Only one special window atm.
-
-  if (!winId)
-    return NULL;
-
-  id = g_strdup(winId);
-  mc_strtolower(id);
-  wbp = g_hash_table_lookup(winbufhash, id);
-  g_free(id);
-  return wbp;
-}
-
-int scr_BuddyBufferExists(const char *bjid)
-{
-  return (scr_SearchWindow(bjid, FALSE) != NULL);
 }
 
 //  scr_UpdateWindow()
@@ -567,7 +575,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
   }
   g_free(lines);
 }
-
+    
 static winbuf * scr_CreateWindow(const char *winId, int special, int dont_show)
 {
   if (special) {

@@ -55,12 +55,16 @@ static inline void check_offset(int);
 static GHashTable *winbufhash;
 
 typedef struct {
+  GList  *hbuf;
+  GList  *top;     // If top is NULL, we'll display the last lines
+  char    cleared; // For ex, user has issued a /clear command...
+  char    lock;
+} buffdata;
+
+typedef struct {
   WINDOW *win;
   PANEL  *panel;
-  GList  *hbuf;
-  GList  *top;      // If top is NULL, we'll display the last lines
-  char    cleared;  // For ex, user has issued a /clear command...
-  char    lock;
+  buffdata *bd;
 } winbuf;
 
 struct dimensions {
@@ -462,17 +466,21 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
     id = hlog_get_log_jid(title);
     if (id) {
       if(scr_BuddyBufferExists(id))
-        tmp->hbuf=(scr_SearchWindow(id, FALSE))->hbuf;
+        tmp->bd=(scr_SearchWindow(id, FALSE))->bd;
       else
-        tmp->hbuf=(scr_new_buddy(id, TRUE))->hbuf;
+        tmp->bd=(scr_new_buddy(id, TRUE))->bd;
       g_free(id);
     }
-    else // Load buddy history from file (if enabled)
-      hlog_read_history(title, &tmp->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
+    else {// Load buddy history from file (if enabled)
+      tmp->bd = g_new0(buffdata, 1);
+      hlog_read_history(title, &tmp->bd->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
+    }
 
     id = g_strdup(title);
     mc_strtolower(id);
     g_hash_table_insert(winbufhash, id, tmp);
+  } else {
+    tmp->bd = g_new0(buffdata, 1);    
   }
   return tmp;
 }
@@ -490,32 +498,32 @@ static void scr_UpdateWindow(winbuf *win_entry)
   width = getmaxx(win_entry->win);
 
   // Should the window be empty?
-  if (win_entry->cleared) {
+  if (win_entry->bd->cleared) {
     werase(win_entry->win);
     return;
   }
 
-  // win_entry->top is the top message of the screen.  If it set to NULL, we
+  // win_entry->bd->top is the top message of the screen.  If it set to NULL, we
   // are displaying the last messages.
 
   // We will show the last CHAT_WIN_HEIGHT lines.
   // Let's find out where it begins.
-  if (!win_entry->top ||
-      (g_list_position(g_list_first(win_entry->hbuf), win_entry->top) == -1)) {
+  if (!win_entry->bd->top ||
+      (g_list_position(g_list_first(win_entry->bd->hbuf), win_entry->bd->top) == -1)) {
     // Move up CHAT_WIN_HEIGHT lines
-    win_entry->hbuf = g_list_last(win_entry->hbuf);
-    hbuf_head = win_entry->hbuf;
-    win_entry->top = NULL; // (Just to make sure)
+    win_entry->bd->hbuf = g_list_last(win_entry->bd->hbuf);
+    hbuf_head = win_entry->bd->hbuf;
+    win_entry->bd->top = NULL; // (Just to make sure)
     n = 0;
     while (hbuf_head && (n < CHAT_WIN_HEIGHT-1) && g_list_previous(hbuf_head)) {
       hbuf_head = g_list_previous(hbuf_head);
       n++;
     }
     // If the buffer is locked, remember current "top" line for the next time.
-    if (win_entry->lock)
-      win_entry->top = hbuf_head;
+    if (win_entry->bd->lock)
+      win_entry->bd->top = hbuf_head;
   } else
-    hbuf_head = win_entry->top;
+    hbuf_head = win_entry->bd->top;
 
   // Get the last CHAT_WIN_HEIGHT lines.
   lines = hbuf_get_lines(hbuf_head, CHAT_WIN_HEIGHT);
@@ -581,7 +589,7 @@ static winbuf * scr_CreateWindow(const char *winId, int special, int dont_show)
   if (special) {
     if (!statusWindow) {
       statusWindow = scr_new_buddy(NULL, dont_show);
-      statusWindow->hbuf = statushbuf;
+      statusWindow->bd->hbuf = statushbuf;
     }
     return statusWindow;
   } else {
@@ -605,7 +613,7 @@ static void scr_ShowWindow(const char *winId, int special)
   top_panel(win_entry->panel);
   currentWindow = win_entry;
   chatmode = TRUE;
-  if (!win_entry->lock)
+  if (!win_entry->bd->lock)
     roster_msg_setflag(winId, special, FALSE);
   if (!special)
     roster_setflags(winId, ROSTER_FLAG_LOCK, TRUE);
@@ -692,39 +700,39 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   }
 
   // The message must be displayed -> update top pointer
-  if (win_entry->cleared)
-    win_entry->top = g_list_last(win_entry->hbuf);
+  if (win_entry->bd->cleared)
+    win_entry->bd->top = g_list_last(win_entry->bd->hbuf);
 
   // Make sure we do not free the buffer while it's locked or when
   // top is set.
-  if (win_entry->lock || win_entry->top)
+  if (win_entry->bd->lock || win_entry->bd->top)
     num_history_blocks = 0U;
   else
     num_history_blocks = get_max_history_blocks();
 
   text_locale = from_utf8(text);
-  hbuf_add_line(&win_entry->hbuf, text_locale, timestamp, prefix_flags,
+  hbuf_add_line(&win_entry->bd->hbuf, text_locale, timestamp, prefix_flags,
                 maxX - Roster_Width - PREFIX_WIDTH, num_history_blocks);
   g_free(text_locale);
 
-  if (win_entry->cleared) {
-    win_entry->cleared = FALSE;
-    if (g_list_next(win_entry->top))
-      win_entry->top = g_list_next(win_entry->top);
+  if (win_entry->bd->cleared) {
+    win_entry->bd->cleared = FALSE;
+    if (g_list_next(win_entry->bd->top))
+      win_entry->bd->top = g_list_next(win_entry->bd->top);
   }
 
   // Make sure the last line appears in the window; update top if necessary
-  if (!win_entry->lock && win_entry->top) {
+  if (!win_entry->bd->lock && win_entry->bd->top) {
     int dist;
-    GList *first = g_list_first(win_entry->hbuf);
-    dist = g_list_position(first, g_list_last(win_entry->hbuf)) -
-           g_list_position(first, win_entry->top);
+    GList *first = g_list_first(win_entry->bd->hbuf);
+    dist = g_list_position(first, g_list_last(win_entry->bd->hbuf)) -
+           g_list_position(first, win_entry->bd->top);
     if (dist >= CHAT_WIN_HEIGHT)
-      win_entry->top = NULL;
+      win_entry->bd->top = NULL;
   }
 
   if (!dont_show) {
-    if (win_entry->lock)
+    if (win_entry->bd->lock)
       setmsgflg = TRUE;
     // Show and refresh the window
     top_panel(win_entry->panel);
@@ -957,11 +965,11 @@ static void resize_win_buffer(gpointer key, gpointer value, gpointer data)
   if (wbp->panel)
     replace_panel(wbp->panel, wbp->win);
   // Redo line wrapping
-  wbp->top = hbuf_previous_persistent(wbp->top);
+  wbp->bd->top = hbuf_previous_persistent(wbp->bd->top);
 
   new_chatwidth = maxX - Roster_Width - PREFIX_WIDTH;
   if (new_chatwidth != prev_chatwidth)
-    hbuf_rebuild(&wbp->hbuf, new_chatwidth);
+    hbuf_rebuild(&wbp->bd->hbuf, new_chatwidth);
 }
 
 //  scr_Resize()
@@ -1041,7 +1049,7 @@ void scr_UpdateChatStatus(int forceupdate)
   if (chatmode && !isgrp) {
     winbuf *win_entry;
     win_entry = scr_SearchWindow(buddy_getjid(BUDDATA(current_buddy)), isspe);
-    if (win_entry && win_entry->lock)
+    if (win_entry && win_entry->bd->lock)
       mvwprintw(chatstatusWnd, 0, 0, "*");
   }
 
@@ -1709,30 +1717,30 @@ void scr_BufferScrollUpDown(int updown, unsigned int nblines)
   } else {
     nbl = nblines;
   }
-  hbuf_top = win_entry->top;
+  hbuf_top = win_entry->bd->top;
 
   if (updown == -1) {   // UP
     if (!hbuf_top) {
-      hbuf_top = g_list_last(win_entry->hbuf);
-      if (!win_entry->cleared) {
+      hbuf_top = g_list_last(win_entry->bd->hbuf);
+      if (!win_entry->bd->cleared) {
         if (!nblines) nbl = nbl*3 - 1;
         else nbl += CHAT_WIN_HEIGHT - 1;
       } else {
-        win_entry->cleared = FALSE;
+        win_entry->bd->cleared = FALSE;
       }
     }
     for (n=0 ; hbuf_top && n < nbl && g_list_previous(hbuf_top) ; n++)
       hbuf_top = g_list_previous(hbuf_top);
-    win_entry->top = hbuf_top;
+    win_entry->bd->top = hbuf_top;
   } else {              // DOWN
     for (n=0 ; hbuf_top && n < nbl ; n++)
       hbuf_top = g_list_next(hbuf_top);
-    win_entry->top = hbuf_top;
+    win_entry->bd->top = hbuf_top;
     // Check if we are at the bottom
     for (n=0 ; hbuf_top && n < CHAT_WIN_HEIGHT-1 ; n++)
       hbuf_top = g_list_next(hbuf_top);
     if (!hbuf_top)
-      win_entry->top = NULL; // End reached
+      win_entry->bd->top = NULL; // End reached
   }
 
   // Refresh the window
@@ -1755,8 +1763,8 @@ void scr_BufferClear(void)
   win_entry = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
-  win_entry->cleared = TRUE;
-  win_entry->top = NULL;
+  win_entry->bd->cleared = TRUE;
+  win_entry->bd->top = NULL;
 
   // Refresh the window
   scr_UpdateWindow(win_entry);
@@ -1776,13 +1784,13 @@ static void buffer_purge(gpointer key, gpointer value, gpointer data)
   winbuf *win_entry = value;
 
   // Delete the current hbuf
-  hbuf_free(&win_entry->hbuf);
+  hbuf_free(&win_entry->bd->hbuf);
 
   if (closebuf) {
     g_hash_table_remove(winbufhash, key);
   } else {
-    win_entry->cleared = FALSE;
-    win_entry->top = NULL;
+    win_entry->bd->cleared = FALSE;
+    win_entry->bd->top = NULL;
   }
 }
 
@@ -1810,12 +1818,12 @@ void scr_BufferPurge(int closebuf)
   } else {
     // (Special buffer)
     // Reset the current hbuf
-    hbuf_free(&win_entry->hbuf);
+    hbuf_free(&win_entry->bd->hbuf);
     // Currently it can only be the status buffer
     statushbuf = NULL;
 
-    win_entry->cleared = FALSE;
-    win_entry->top = NULL;
+    win_entry->bd->cleared = FALSE;
+    win_entry->bd->top = NULL;
   }
 
   // Refresh the window
@@ -1859,21 +1867,21 @@ void scr_BufferScrollLock(int lock)
   if (!win_entry) return;
 
   if (lock == -1)
-    lock = !win_entry->lock;
+    lock = !win_entry->bd->lock;
 
   if (lock) {
-    win_entry->lock = TRUE;
+    win_entry->bd->lock = TRUE;
   } else {
-    win_entry->lock = FALSE;
-    //win_entry->cleared = FALSE;
+    win_entry->bd->lock = FALSE;
+    //win_entry->bd->cleared = FALSE;
     if (isspe || (buddy_getflags(BUDDATA(current_buddy)) & ROSTER_FLAG_MSG))
-      win_entry->top = NULL;
+      win_entry->bd->top = NULL;
   }
 
   // If chatmode is disabled and we're at the bottom of the buffer,
   // we need to set the "top" line, so we need to call scr_ShowBuddyWindow()
   // at least once.  (Maybe it will cause a double refresh...)
-  if (!chatmode && !win_entry->top) {
+  if (!chatmode && !win_entry->bd->top) {
     chatmode = TRUE;
     scr_ShowBuddyWindow();
     chatmode = FALSE;
@@ -1900,11 +1908,11 @@ void scr_BufferTopBottom(int topbottom)
   win_entry = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
-  win_entry->cleared = FALSE;
+  win_entry->bd->cleared = FALSE;
   if (topbottom == 1)
-    win_entry->top = NULL;
+    win_entry->bd->top = NULL;
   else
-    win_entry->top = g_list_first(win_entry->hbuf);
+    win_entry->bd->top = g_list_first(win_entry->bd->hbuf);
 
   // Refresh the window
   scr_UpdateWindow(win_entry);
@@ -1928,16 +1936,16 @@ void scr_BufferSearch(int direction, const char *text)
   win_entry = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
-  if (win_entry->top)
-    current_line = win_entry->top;
+  if (win_entry->bd->top)
+    current_line = win_entry->bd->top;
   else
-    current_line = g_list_last(win_entry->hbuf);
+    current_line = g_list_last(win_entry->bd->hbuf);
 
   search_res = hbuf_search(current_line, direction, text);
 
   if (search_res) {
-    win_entry->cleared = FALSE;
-    win_entry->top = search_res;
+    win_entry->bd->cleared = FALSE;
+    win_entry->bd->top = search_res;
 
     // Refresh the window
     scr_UpdateWindow(win_entry);
@@ -1967,10 +1975,10 @@ void scr_BufferPercent(int pc)
     return;
   }
 
-  search_res = hbuf_jump_percent(win_entry->hbuf, pc);
+  search_res = hbuf_jump_percent(win_entry->bd->hbuf, pc);
 
-  win_entry->cleared = FALSE;
-  win_entry->top = search_res;
+  win_entry->bd->cleared = FALSE;
+  win_entry->bd->top = search_res;
 
   // Refresh the window
   scr_UpdateWindow(win_entry);
@@ -1994,10 +2002,10 @@ void scr_BufferDate(time_t t)
   win_entry = scr_SearchWindow(CURRENT_JID, isspe);
   if (!win_entry) return;
 
-  search_res = hbuf_jump_date(win_entry->hbuf, t);
+  search_res = hbuf_jump_date(win_entry->bd->hbuf, t);
 
-  win_entry->cleared = FALSE;
-  win_entry->top = search_res;
+  win_entry->bd->cleared = FALSE;
+  win_entry->bd->top = search_res;
 
   // Refresh the window
   scr_UpdateWindow(win_entry);
@@ -2046,7 +2054,7 @@ void scr_setmsgflag_if_needed(const char *bjid, int special)
     if (current_id) {
       winbuf *win_entry = scr_SearchWindow(current_id, special);
       if (!win_entry) return;
-      iscurrentlocked = win_entry->lock;
+      iscurrentlocked = win_entry->bd->lock;
     }
   } else {
     current_id = NULL;

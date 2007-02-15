@@ -465,10 +465,10 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
     char *id;
     id = hlog_get_log_jid(title);
     if (id) {
-      if(scr_BuddyBufferExists(id))
-        tmp->bd=(scr_SearchWindow(id, FALSE))->bd;
-      else
-        tmp->bd=(scr_new_buddy(id, TRUE))->bd;
+      winbuf *wb = scr_SearchWindow(id, FALSE);
+      if (!wb)
+        wb = scr_new_buddy(id, TRUE);
+      tmp->bd=wb->bd;
       g_free(id);
     } else {  // Load buddy history from file (if enabled)
       tmp->bd = g_new0(buffdata, 1);
@@ -503,13 +503,13 @@ static void scr_UpdateWindow(winbuf *win_entry)
     return;
   }
 
-  // win_entry->bd->top is the top message of the screen.  If it set to NULL, we
-  // are displaying the last messages.
+  // win_entry->bd->top is the top message of the screen.  If it set to NULL,
+  // we are displaying the last messages.
 
   // We will show the last CHAT_WIN_HEIGHT lines.
   // Let's find out where it begins.
-  if (!win_entry->bd->top ||
-      (g_list_position(g_list_first(win_entry->bd->hbuf), win_entry->bd->top) == -1)) {
+  if (!win_entry->bd->top || (g_list_position(g_list_first(win_entry->bd->hbuf),
+                                              win_entry->bd->top) == -1)) {
     // Move up CHAT_WIN_HEIGHT lines
     win_entry->bd->hbuf = g_list_last(win_entry->bd->hbuf);
     hbuf_head = win_entry->bd->hbuf;

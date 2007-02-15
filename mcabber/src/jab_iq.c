@@ -71,11 +71,11 @@ struct adhoc_command {
 
 const struct adhoc_command adhoc_command_list[] = {
   { "http://jabber.org/protocol/rc#set-status",
-    "Set the client as away",
+    "Change client status",
     1,
     &handle_iq_command_set_status },
   { "http://jabber.org/protocol/rc#leave-groupchats",
-    "Leave groupchats",
+    "Leave groupchat(s)",
     1,
     &handle_iq_command_leave_groupchats },
   { NULL, NULL, 0, NULL },
@@ -840,7 +840,6 @@ static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
 }
 
 // FIXME  highly duplicated code
-// factorisation is doable
 static void send_iq_not_implemented(jconn conn, char *from, xmlnode xmldata)
 {
   xmlnode x, y, z;
@@ -1054,13 +1053,14 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
                                    "field?var=status-message"), "value");
       for (s = adhoc_status_list; !s->name || strcmp(s->name, value); s++);
       if (s->name) {
-        char* status = g_strdup_printf("%s %s", s->status, message);
-        xmlnode_put_attrib(command, "status", "completed");
-
+        char *status = g_strdup_printf("%s %s", s->status,
+                                       message ? message : "");
         setstatus(NULL, status);
         g_free(status);
+        xmlnode_put_attrib(command, "status", "completed");
         xmlnode_put_attrib(iq, "type", "result");
-        xmlnode_insert_dataform_result_message(command, "Status was changed");
+        xmlnode_insert_dataform_result_message(command,
+                                               "Status has been changed");
       }
     }
   }
@@ -1091,8 +1091,8 @@ static void _callback_foreach_buddy_groupchat(gpointer rosterdata, void *param)
   g_free(desc);
 }
 
-static void handle_iq_command_leave_groupchats(jconn conn, char *from, const char *id,
-                                          xmlnode xmldata)
+static void handle_iq_command_leave_groupchats(jconn conn, char *from,
+                                               const char *id, xmlnode xmldata)
 {
   char *action, *node, *sessionid;
   xmlnode iq, command, x;
@@ -1118,10 +1118,10 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from, const cha
     xmlnode_put_attrib(x, "xmlns", "jabber:x:data");
 
     xmlnode title = xmlnode_insert_tag(x, "title");
-    xmlnode_insert_cdata(title, "Leave groupchats", -1);
+    xmlnode_insert_cdata(title, "Leave groupchat(s)", -1);
 
     xmlnode instructions = xmlnode_insert_tag(x, "instructions");
-    xmlnode_insert_cdata(instructions, "What groupchats do you want to leave ?",
+    xmlnode_insert_cdata(instructions, "What groupchats do you want to leave?",
                          -1);
 
     xmlnode field = xmlnode_insert_tag(x, "field");
@@ -1134,7 +1134,7 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from, const cha
     field = xmlnode_insert_tag(x, "field");
     xmlnode_put_attrib(field, "type", "list-multi");
     xmlnode_put_attrib(field, "var", "groupchats");
-    xmlnode_put_attrib(field, "label", "Groupchats : ");
+    xmlnode_put_attrib(field, "label", "Groupchats: ");
     xmlnode_insert_tag(field, "required");
 
     foreach_buddy(ROSTER_TYPE_ROOM, &_callback_foreach_buddy_groupchat, &field);
@@ -1147,7 +1147,8 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from, const cha
       xmlnode gc = xmlnode_get_tag(form, "field?var=groupchats");
       xmlnode x;
 
-      for (x = xmlnode_get_firstchild(gc) ; x ; x = xmlnode_get_nextsibling(x)) {
+      for (x = xmlnode_get_firstchild(gc) ; x ; x = xmlnode_get_nextsibling(x))
+      {
         char* to_leave = xmlnode_get_tag_data(x, "value");
         if (to_leave) {
           GList* b = buddy_search_jid(to_leave);
@@ -1156,7 +1157,8 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from, const cha
         }
       }
       xmlnode_put_attrib(iq, "type", "result");
-      xmlnode_insert_dataform_result_message(command, "Groupchats were leaved");
+      xmlnode_insert_dataform_result_message(command,
+                                             "Groupchats have been left");
     }
   }
   xmlnode_put_attrib(iq, "to", xmlnode_get_attrib(xmldata, "from"));
@@ -1186,7 +1188,8 @@ static void handle_iq_commands(jconn conn, char *from, const char *id,
         if (!strcmp(node, command->name))
           command->callback(conn, from, id, xmldata);
       }
-      // "prev" action will get there, as we do not implement it, and do not autorise it
+      // "prev" action will get there, as we do not implement it,
+      // and do not authorize it
     } else {
       send_iq_commands_malformed_action(conn, from, xmldata);
     }

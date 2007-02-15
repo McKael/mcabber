@@ -470,17 +470,17 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
       else
         tmp->bd=(scr_new_buddy(id, TRUE))->bd;
       g_free(id);
-    }
-    else {// Load buddy history from file (if enabled)
+    } else {  // Load buddy history from file (if enabled)
       tmp->bd = g_new0(buffdata, 1);
-      hlog_read_history(title, &tmp->bd->hbuf, maxX - Roster_Width - PREFIX_WIDTH);
+      hlog_read_history(title, &tmp->bd->hbuf,
+                        maxX - Roster_Width - PREFIX_WIDTH);
     }
 
     id = g_strdup(title);
     mc_strtolower(id);
     g_hash_table_insert(winbufhash, id, tmp);
   } else {
-    tmp->bd = g_new0(buffdata, 1);    
+    tmp->bd = g_new0(buffdata, 1);
   }
   return tmp;
 }
@@ -583,8 +583,8 @@ static void scr_UpdateWindow(winbuf *win_entry)
   }
   g_free(lines);
 }
-    
-static winbuf * scr_CreateWindow(const char *winId, int special, int dont_show)
+
+static winbuf *scr_CreateWindow(const char *winId, int special, int dont_show)
 {
   if (special) {
     if (!statusWindow) {

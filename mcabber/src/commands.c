@@ -678,7 +678,7 @@ static void do_roster(char *arg)
 // Set your Jabber status.
 // - if recipient is not NULL, the status is sent to this contact only
 // - arg must be "status message" (message is optional)
-static void setstatus(const char *recipient, const char *arg)
+void setstatus(const char *recipient, const char *arg)
 {
   char **paramlst;
   char *status;
@@ -1991,7 +1991,7 @@ static void room_kick(gpointer bud, char *arg)
   free_arg_lst(paramlst);
 }
 
-static void room_leave(gpointer bud, char *arg)
+void room_leave(gpointer bud, char *arg)
 {
   gchar *roomid, *desc;
   const char *nickname;

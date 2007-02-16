@@ -1926,7 +1926,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   }
 
   // Check for departure/arrival
-  if (!mbnick && mbrole == role_none) {
+  if (!mbnick && ust == offline) {
     enum { leave=0, kick, ban } how = leave;
     bool we_left = FALSE;
 

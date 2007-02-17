@@ -38,3 +38,4 @@ The 'room' command handles Multi-User Chat room actions.
 /room bookmark [add|del] [-autojoin|+autojoin]
  Add, remove or update a bookmark (default is add).
  If autojoin is set, mcabber will automatically join the MUC room when it connects to the server.
+ To see the list of bookmarks, use /room bookmark in the status buffer.

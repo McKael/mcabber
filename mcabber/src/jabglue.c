@@ -1269,6 +1269,35 @@ void jb_room_invite(const char *room, const char *fjid, const char *reason)
   jb_reset_keepalive();
 }
 
+//  jb_get_all_storage_bookmarks()
+// Return a GSList with all storage bookmarks.
+// The caller should g_free the list (not the MUC jids).
+GSList *jb_get_all_storage_bookmarks(void)
+{
+  xmlnode x;
+  GSList *sl_bookmarks = NULL;
+
+  // If we have no bookmarks, probably the server doesn't support them.
+  if (!bookmarks)
+    return NULL;
+
+  // Walk through the storage bookmark tags
+  x = xmlnode_get_firstchild(bookmarks);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    const char *fjid;
+    const char *p;
+    p = xmlnode_get_name(x);
+    // If the node is a conference item, let's add the note to our list.
+    if (p && !strcmp(p, "conference")) {
+      fjid = xmlnode_get_attrib(x, "jid");
+      if (!fjid)
+        continue;
+      sl_bookmarks = g_slist_append(sl_bookmarks, fjid);
+    }
+  }
+  return sl_bookmarks;
+}
+
 //  jb_set_storage_bookmark(roomid, name, nick, passwd, autojoin)
 // Update the private storage bookmarks: add a conference room.
 // If name is nil, we remove the bookmark.

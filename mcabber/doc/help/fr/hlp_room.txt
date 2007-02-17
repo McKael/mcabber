@@ -38,3 +38,4 @@ Cette commande permet de gérer les salons de discussions MUC (Multi-User Chat).
 /room bookmark [add|del] [-autojoin|+autojoin]
  Ajoute, supprime ou met à jour le signet (par défaut, ajoute).
  Si "autojoin" est activé, mcabber entrera automatiquement dans la salle de conférence après s'être connecté au serveur.
+ Pour visualiser la liste des signets, tapez /room bookmark dans la fenêtre d'état (status).

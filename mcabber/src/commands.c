@@ -541,13 +541,15 @@ static void display_all_annotations(void)
 {
   GSList *notes;
   notes = jb_get_all_storage_rosternotes();
+
+  if (!notes)
+    return;
+
   // Call display_and_free_note() for each note,
   // with winId = NULL (special window)
   g_slist_foreach(notes, (GFunc)&display_and_free_note, NULL);
-  if (notes) {
-    scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
-    update_roster = TRUE;
-  }
+  scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+  update_roster = TRUE;
   g_slist_free(notes);
 }
 
@@ -2264,6 +2266,32 @@ static void room_bookmark(gpointer bud, char *arg)
   jb_set_storage_bookmark(roomid, name, nick, NULL, autojoin);
 }
 
+static void display_all_bookmarks(void)
+{
+  GSList *bm, *bmp;
+  GString *sbuf;
+
+  bm = jb_get_all_storage_bookmarks();
+
+  if (!bm)
+    return;
+
+  sbuf = g_string_new("");
+
+  scr_WriteIncomingMessage(NULL, "List of MUC bookmarks:", 0, HBB_PREFIX_INFO);
+
+  for (bmp = bm; bmp; bmp = g_slist_next(bmp)) {
+    g_string_printf(sbuf, "<%s>", (char*)bmp->data);
+    scr_WriteIncomingMessage(NULL, sbuf->str, 0, HBB_PREFIX_NONE);
+  }
+
+  scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+  update_roster = TRUE;
+  g_string_free(sbuf, TRUE);
+  g_slist_free(bm);
+}
+
+
 static void do_room(char *arg)
 {
   char **paramlst;
@@ -2343,7 +2371,10 @@ static void do_room(char *arg)
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_whois(bud, arg, TRUE);
   } else if (!strcasecmp(subcmd, "bookmark"))  {
-    if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
+    if (!arg && !buddy_getjid(BUDDATA(current_buddy)) &&
+        buddy_gettype(BUDDATA(current_buddy)) == ROSTER_TYPE_SPECIAL)
+      display_all_bookmarks();
+    else if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_bookmark(bud, arg);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");

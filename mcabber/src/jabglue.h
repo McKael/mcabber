@@ -76,6 +76,7 @@ int  jb_room_setattrib(const char *roomid, const char *fjid, const char *nick,
                        struct role_affil ra, const char *reason);
 void jb_iqs_display_list(void);
 void jb_request(const char *fjid, enum iqreq_type reqtype);
+GSList *jb_get_all_storage_bookmarks(void);
 void jb_set_storage_bookmark(const char *roomid, const char *name,
                              const char *nick, const char *passwd,
                              int autojoin);

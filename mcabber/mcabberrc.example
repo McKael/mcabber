@@ -196,6 +196,10 @@ set cmdhistory_lines = 250
 #set delete_on_reject = 0
 
 # MUC
+# Set 'muc_flag_joins' to 1 if you want the MUC rooms to be flagged in
+# the roster when somebody joins a room.  Set it to 2 if you want a flag
+# for leaves too.
+#set muc_flag_joins = 0
 # Set 'muc_auto_whois' to 1 if you want to call /room whois each time
 # somebody joins a room. (default: 0)
 #set muc_auto_whois = 0

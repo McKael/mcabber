@@ -1946,7 +1946,8 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     mbuf = g_strdup_printf("%s is now known as %s", rname, mbnick);
     scr_WriteIncomingMessage(roomjid, mbuf, usttime,
                              HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-    if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
+    if (log_muc_conf)
+      hlog_write_message(roomjid, 0, FALSE, mbuf);
     g_free(mbuf);
     buddy_resource_setname(room_elt->data, rname, mbnick);
     // Maybe it's _our_ nickname...
@@ -2026,12 +2027,13 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     }
 
     msgflags = HBB_PREFIX_INFO;
-    if (!we_left)
+    if (!we_left && settings_opt_get_int("muc_flag_joins") != 2)
       msgflags |= HBB_PREFIX_NOFLAG;
 
     scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags);
 
-    if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
+    if (log_muc_conf)
+      hlog_write_message(roomjid, 0, FALSE, mbuf);
 
     if (we_left) {
       scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
@@ -2062,7 +2064,8 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
         //       so we use 0 here.
         scr_WriteIncomingMessage(roomjid, mbuf, 0,
                                  HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-        if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
+        if (log_muc_conf)
+          hlog_write_message(roomjid, 0, FALSE, mbuf);
         g_free(mbuf);
         mbuf = g_strdup_printf("%s has joined", rname);
         new_member = TRUE;
@@ -2076,9 +2079,12 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     }
 
     if (mbuf) {
-      scr_WriteIncomingMessage(roomjid, mbuf, usttime,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
-      if (log_muc_conf) hlog_write_message(roomjid, 0, FALSE, mbuf);
+      msgflags = HBB_PREFIX_INFO;
+      if (!settings_opt_get_int("muc_flag_joins"))
+        msgflags |= HBB_PREFIX_NOFLAG;
+      scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags);
+      if (log_muc_conf)
+        hlog_write_message(roomjid, 0, FALSE, mbuf);
       g_free(mbuf);
     }
   }

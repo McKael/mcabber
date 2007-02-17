@@ -1292,7 +1292,7 @@ GSList *jb_get_all_storage_bookmarks(void)
       fjid = xmlnode_get_attrib(x, "jid");
       if (!fjid)
         continue;
-      sl_bookmarks = g_slist_append(sl_bookmarks, fjid);
+      sl_bookmarks = g_slist_append(sl_bookmarks, (char*)fjid);
     }
   }
   return sl_bookmarks;

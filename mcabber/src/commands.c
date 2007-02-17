@@ -880,6 +880,9 @@ static void do_del(char *arg)
     }
   }
 
+  // Close the buffer
+  scr_BufferPurge(1);
+
   scr_LogPrint(LPRINT_LOGNORM, "Removing <%s>...", bjid);
   jb_delbuddy(bjid);
   scr_UpdateBuddyWindow();

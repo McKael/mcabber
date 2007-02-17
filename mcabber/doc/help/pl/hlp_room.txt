@@ -9,7 +9,7 @@ Komenda 'room' służy do obsługi wieloużytkownikowych chat-room'ów.
  Dołącza do pokoju "pokój" z ksywą "nick".  Jeżeli nie ma podanego nicka (albo jeśli jest to pusty ciąg znaków), użyta jest opcja "nickname" z pliku konfiguracyjnego.  Jeżeli podany pokój jest prawidłowy, skrót "." może być użyty zamiast pełnego id pokoju. Opcjonalnie można podać hasło "hasło". Jeśli Twój "nick" zawiera spacje - użyj cudzysłowów.
 /room leave [wiadomość]
  Opuszcza aktualny pokój. Opcjonalnie można podać wiadomość "wiadomość"
-/room names
+/room names [--short|--quiet]
  Wyświetla kto jest w pokoju
 /room nick [nick]
  Zmienia Twoją ksywę w aktualnym pokoju na "nick"

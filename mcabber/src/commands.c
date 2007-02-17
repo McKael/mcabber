@@ -1413,10 +1413,17 @@ static void room_names(gpointer bud, char *arg)
   const char *bjid;
   char *buffer;
   GSList *resources, *p_res;
+  enum { style_normal = 0, style_short, style_quiet } style = 0;
 
   if (*arg) {
-    scr_LogPrint(LPRINT_NORMAL, "This action does not require a parameter.");
-    return;
+    if (!strcasecmp(arg, "--short"))
+      style = style_short;
+    else if (!strcasecmp(arg, "--quiet"))
+      style = style_quiet;
+    else {
+      scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
+      return;
+    }
   }
 
   // Enter chat mode
@@ -1437,12 +1444,20 @@ static void room_names(gpointer bud, char *arg)
     rstatus = buddy_getstatus(bud, p_res->data);
     rst_msg = buddy_getstatusmsg(bud, p_res->data);
 
-    snprintf(buffer, 4095, "[%c] %s", imstatus2char[rstatus],
-             (char*)p_res->data);
-    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
-    if (rst_msg) {
-      snprintf(buffer, 4095, "Status message: %s", rst_msg);
-      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
+    if (style == style_short) {
+      snprintf(buffer, 4095, "[%c] %s%s%s", imstatus2char[rstatus],
+               (char*)p_res->data,
+               rst_msg ? " -- " : "", rst_msg ? rst_msg : "");
+      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+    } else {
+      // (Style "normal" or "quiet")
+      snprintf(buffer, 4095, "[%c] %s", imstatus2char[rstatus],
+               (char*)p_res->data);
+      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+      if (rst_msg && style == style_normal) {
+        snprintf(buffer, 4095, "Status message: %s", rst_msg);
+        scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_NONE);
+      }
     }
     g_free(p_res->data);
   }

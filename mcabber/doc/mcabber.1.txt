@@ -326,7 +326,7 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
 
         'join' [room [nick [pass]]];; join "room", using "nick" as nickname.  If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.  A password can be provided to enter protected rooms.  If your nickname contains space characters, use quotes.
         'leave' [message];;     leave the current room
-        'names';;               display members of the current room
+        'names' [--short|--quiet];; display the members of the current room
         'nick' nick;;           change your nickname in the current room
         'privmsg' nick msg;;    send private message "msg" to "nick"
         'remove';;              remove the current room from the roster (you must have left this room before)

@@ -305,7 +305,7 @@ void hk_ext_cmd_init(const char *command)
     extcmd = NULL;
   }
   if (command)
-    extcmd = g_strdup(command);
+    extcmd = expand_filename(command);
 }
 
 //  hk_ext_cmd()
@@ -352,13 +352,17 @@ void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data)
   if (strchr("MG", type) && data && settings_opt_get_int("event_log_files")) {
     int fd;
     const char *prefix;
+    char *prefix_xp = NULL;
     char *data_locale;
 
     data_locale = from_utf8(data);
     prefix = settings_opt_get("event_log_dir");
-    if (!prefix)
+    if (prefix)
+      prefix = prefix_xp = expand_filename(prefix);
+    else
       prefix = ut_get_tmpdir();
     datafname = g_strdup_printf("%s/mcabber-%d.XXXXXX", prefix, getpid());
+    g_free(prefix_xp);
 
     // XXX Some old systems may require us to set umask first.
     fd = mkstemp(datafname);

@@ -104,7 +104,7 @@ set cmdhistory_lines = 250
 # are used at startup time.
 #set logging = 1
 #set load_logs = 1
-#set logging_dir = /home/mikael/.mcabber/histo/
+#set logging_dir = ~/.mcabber/histo/
 #set logging_ignore_status = 1
 
 # Set log_muc_conf to 1 to enable MUC chatrooms logging (default = 0)
@@ -153,12 +153,12 @@ set cmdhistory_lines = 250
 #   $events_command MSG MUC room_id [file]  (when receiving a MUC message)
 #   $events_command STATUS X jabber@id      (new buddy status is X)
 # See sample script in contrib/ directory.
-#set events_command = /home/mikael/.mcabber/eventcmd
+#set events_command = ~/.mcabber/eventcmd
 #
 #set events_ignore_active_window = 0
 #
 #set event_log_files = 0
-#set event_log_dir = /home/mikael/.mcabber/event_files
+#set event_log_dir = ~/.mcabber/event_files
 
 # External command status check
 # You can request mcabber to inspect exit status value after each
@@ -173,7 +173,7 @@ set cmdhistory_lines = 250
 #  lvl 2: debug logging (XML, etc.)
 # Default is level 0, no trace logging
 #set tracelog_level = 1
-#set tracelog_file = /home/mikael/mcabber.log
+#set tracelog_file = ~/.mcabber/mcabber.log
 
 # Set the auto-away timeout, in seconds.  If set to a value >0,
 # mcabber will change your status to away if no real activity is detected

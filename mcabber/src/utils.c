@@ -45,6 +45,19 @@
 static int DebugEnabled;
 static char *FName;
 
+//  expand_filename(filename)
+// Expand "~/" with the $HOME env. variable in a file name.
+// The caller must free the string after use.
+char *expand_filename(const char *fname)
+{
+  if (!strncmp(fname, "~/", 2)) {
+    char *homedir = getenv("HOME");
+    if (homedir)
+      return g_strdup_printf("%s%s", homedir, fname+1);
+  }
+  return g_strdup(fname);
+}
+
 void ut_InitDebug(int level, const char *filename)
 {
   FILE *fp;
@@ -58,16 +71,13 @@ void ut_InitDebug(int level, const char *filename)
   }
 
   if (filename)
-    FName = g_strdup(filename);
+    FName = expand_filename(filename);
   else {
     FName = getenv("HOME");
     if (!FName)
-      FName = "/tmp/mcabberlog";
+      FName = g_strdup("/tmp/mcabberlog");
     else {
-      char *tmpname = g_new(char, strlen(FName) + 12);
-      strcpy(tmpname, FName);
-      strcat(tmpname, "/mcabberlog");
-      FName = tmpname;
+      FName = g_strdup_printf("%s/mcabberlog", FName);
     }
   }
 
@@ -412,7 +422,7 @@ void strip_arg_special_chars(char *s)
 // Split the string arg into a maximum of n pieces, taking care of
 // double quotes.
 // Return a null-terminated array of strings.  This array should be freed
-// be the caller after use, for example with free_arg_lst().
+// by the caller after use, for example with free_arg_lst().
 // If dontstriplast is true, the Nth argument isn't stripped (i.e. no
 // processing of quote chars)
 char **split_arg(const char *arg, unsigned int n, int dontstriplast)

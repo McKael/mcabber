@@ -309,17 +309,21 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
 
   if (enable || loadfiles) {
     if (root_dir) {
+      char *xp_root_dir;
       int l = strlen(root_dir);
       if (l < 1) {
         scr_LogPrint(LPRINT_LOGNORM, "Error: logging dir name too short");
         UseFileLogging = FileLoadLogs = FALSE;
         return;
       }
+      xp_root_dir = expand_filename(root_dir);
       // RootDir must be slash-terminated
-      if (root_dir[l-1] == '/')
-        RootDir = g_strdup(root_dir);
-      else
-        RootDir = g_strdup_printf("%s/", root_dir);
+      if (root_dir[l-1] == '/') {
+        RootDir = xp_root_dir;
+      } else {
+        RootDir = g_strdup_printf("%s/", xp_root_dir);
+        g_free(xp_root_dir);
+      }
     } else {
       char *home = getenv("HOME");
       const char *dir = "/.mcabber/histo/";

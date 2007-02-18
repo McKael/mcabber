@@ -71,6 +71,7 @@ void mcabber_connect(void)
   int ssl;
   int sslverify = -1;
   const char *sslvopt = NULL, *cafile = NULL, *capath = NULL, *ciphers = NULL;
+  char *cafile_xp = NULL, *capath_xp = NULL;
   unsigned int port;
 
   servername = settings_opt_get("server");
@@ -112,7 +113,11 @@ void mcabber_connect(void)
     cafile = capath = ciphers = NULL;
   }
 #endif
-  cw_set_ssl_options(sslverify, cafile, capath, ciphers, servername);
+  if (cafile)   cafile_xp = expand_filename(cafile);
+  if (capath)   capath_xp = expand_filename(capath);
+  cw_set_ssl_options(sslverify, cafile_xp, capath_xp, ciphers, servername);
+  g_free(cafile_xp);
+  g_free(capath_xp);
 
   /* Connect to server */
   scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",

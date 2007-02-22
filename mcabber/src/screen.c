@@ -1287,9 +1287,9 @@ void scr_DrawRoster(void)
         sep = "+++";
       else
         sep = "---";
-      snprintf(rline, Roster_Width, " %c%s %s", pending, sep, name);
+      snprintf(rline, 4*Roster_Width, " %c%s %s", pending, sep, name);
     } else if (isspe) {
-      snprintf(rline, Roster_Width, " %c%s", pending, name);
+      snprintf(rline, 4*Roster_Width, " %c%s", pending, name);
     } else {
       char sepleft  = '[';
       char sepright = ']';

@@ -174,7 +174,7 @@ if test x"${debug}" = x"yes"; then
     fi # gcc
     CFLAGS="$CFLAGS -g"
 else
-    CFLAGS="$CFLAGS -O2"
+    CFLAGS="-O2 $CFLAGS"
 fi
 
 AC_ARG_ENABLE(hgcset,

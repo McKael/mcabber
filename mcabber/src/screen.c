@@ -293,6 +293,14 @@ static void init_keycodes(void)
   add_keyseq("[d", MKEY_EQUIV, 393); // Shift-Left
   add_keyseq("[5$", MKEY_SHIFT_PGUP, 0);   // Shift-PageUp
   add_keyseq("[6$", MKEY_SHIFT_PGDOWN, 0); // Shift-PageDown
+
+  // VT100
+  add_keyseq("[H", MKEY_EQUIV, KEY_HOME); // Home
+  add_keyseq("[F", MKEY_EQUIV, KEY_END);  // End
+
+  // Konsole Linux
+  add_keyseq("[1~", MKEY_EQUIV, KEY_HOME); // Home
+  add_keyseq("[4~", MKEY_EQUIV, KEY_END);  // End
 }
 
 void scr_InitLocaleCharSet(void)

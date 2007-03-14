@@ -70,6 +70,7 @@ static void do_request(char *arg);
 static void do_event(char *arg);
 static void do_help(char *arg);
 static void do_pgp(char *arg);
+static void do_iline(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -132,6 +133,7 @@ void cmd_init(void)
   cmd_add("status_to", "Show or set your status for one recipient",
           COMPL_JID, COMPL_STATUS, &do_status_to);
   cmd_add("version", "Show mcabber version", 0, 0, &do_version);
+  cmd_add("iline", "Manipulate input buffer", 0, 0, &do_iline);
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");
@@ -2713,6 +2715,43 @@ static void do_pgp(char *arg)
   }
 
   free_arg_lst(paramlst);
+}
+
+static void do_iline(char *arg)
+{
+  if (!strcasecmp(arg, "fword")) {
+    readline_forward_word();
+  } else if (!strcasecmp(arg, "bword")) {
+    readline_backward_word();
+  } else if (!strcasecmp(arg, "word_fdel")) {
+    readline_forward_kill_word();
+  } else if (!strcasecmp(arg, "word_bdel")) {
+    readline_backward_kill_word();
+  } else if (!strcasecmp(arg, "fchar")) {
+    readline_forward_char();
+  } else if (!strcasecmp(arg, "bchar")) {
+    readline_backward_char();
+  } else if (!strcasecmp(arg, "char_fdel")) {
+    readline_forward_kill_char();
+  } else if (!strcasecmp(arg, "char_bdel")) {
+    readline_backward_kill_char();
+  } else if (!strcasecmp(arg, "char_swp")) {
+    readline_transpose_chars();
+  } else if (!strcasecmp(arg, "hist_prev")) {
+    readline_hist_prev();
+  } else if (!strcasecmp(arg, "hist_next")) {
+    readline_hist_next();
+  } else if (!strcasecmp(arg, "iline_start")) {
+    readline_iline_start();
+  } else if (!strcasecmp(arg, "iline_end")) {
+    readline_iline_end();
+  } else if (!strcasecmp(arg, "iline_fdel")) {
+    readline_forward_kill_iline();
+  } else if (!strcasecmp(arg, "iline_bdel")) {
+    readline_backward_kill_iline();
+  } else if (!strcasecmp(arg, "send_multiline")) {
+    readline_send_multiline();
+  }
 }
 
 static void do_connect(char *arg)

@@ -127,6 +127,23 @@ void scr_RosterUnreadMessage(int);
 void scr_RosterJumpAlternate(void);
 void scr_BufferScrollUpDown(int updown, unsigned int nblines);
 
+void readline_transpose_chars(void);
+void readline_forward_kill_word(void);
+void readline_backward_kill_word(void);
+void readline_backward_word(void);
+void readline_forward_word(void);
+void readline_backward_char(void);
+void readline_forward_char(void);
+void readline_hist_prev(void);
+void readline_hist_next(void);
+void readline_backward_kill_char(void);
+void readline_forward_kill_char(void);
+void readline_iline_start(void);
+void readline_iline_end(void);
+void readline_backward_kill_iline(void);
+void readline_forward_kill_iline(void);
+void readline_send_multiline(void);
+
 #endif
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

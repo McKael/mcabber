@@ -2256,6 +2256,28 @@ void readline_transpose_chars(void)
   }
 }
 
+void readline_forward_kill_word(void)
+{
+  char *c, *old = ptr_inputline;
+  int spaceallowed = 1;
+
+  if (! *ptr_inputline) return;
+
+  for (c = ptr_inputline ; *c ; c = next_char(c)) {
+    if (!iswalnum(get_char(c))) {
+      if (iswblank(get_char(c))) {
+        if (!spaceallowed) break;
+      } else spaceallowed = 0;
+    } else spaceallowed = 0;
+  }
+
+  // Modify the line
+  for (;;) {
+    *old = *c++;
+    if (!*old++) break;
+  }
+}
+
 //  readline_backward_kill_word()
 // Kill the word before the cursor, in input line
 void readline_backward_kill_word(void)
@@ -2330,6 +2352,89 @@ void readline_forward_word(void)
   }
 
   check_offset(1);
+}
+
+void readline_backward_char(void)
+{
+  if (ptr_inputline == (char*)&inputLine) return;
+
+  ptr_inputline = prev_char(ptr_inputline, inputLine);
+  check_offset(-1);
+}
+
+void readline_forward_char(void)
+{
+  if (!*ptr_inputline) return;
+
+  ptr_inputline = next_char(ptr_inputline);
+  check_offset(1);
+}
+
+void readline_hist_prev(void)
+{
+  const char *l = scr_cmdhisto_prev(inputLine, ptr_inputline-inputLine);
+  if (l) strcpy(inputLine, l);
+}
+
+void readline_hist_next(void)
+{
+  const char *l = scr_cmdhisto_next(inputLine, ptr_inputline-inputLine);
+  if (l) strcpy(inputLine, l);
+}
+
+void readline_backward_kill_char(void)
+{
+  char *src, *c;
+
+  if (ptr_inputline == (char*)&inputLine)
+    return;
+
+  src = ptr_inputline;
+  c = prev_char(ptr_inputline, inputLine);
+  ptr_inputline = c;
+  for ( ; *src ; )
+    *c++ = *src++;
+  *c = 0;
+  check_offset(-1);
+}
+
+void readline_forward_kill_char(void)
+{
+  if (!*ptr_inputline)
+    return;
+
+  strcpy(ptr_inputline, next_char(ptr_inputline));
+}
+
+void readline_iline_start(void)
+{
+  ptr_inputline = inputLine;
+  inputline_offset = 0;
+}
+
+void readline_iline_end(void)
+{
+  for (; *ptr_inputline; ptr_inputline++) ;
+  check_offset(1);
+}
+
+void readline_backward_kill_iline(void)
+{
+  strcpy(inputLine, ptr_inputline);
+  ptr_inputline = inputLine;
+  inputline_offset = 0;
+}
+
+void readline_forward_kill_iline(void)
+{
+  *ptr_inputline = 0;
+}
+
+void readline_send_multiline(void)
+{
+  // Validate current multi-line
+  if (scr_get_multimode())
+    process_command(mkcmdstr("msay send"));
 }
 
 //  which_row()
@@ -2550,13 +2655,6 @@ void scr_handle_CtrlC(void)
   scr_end_current_completion();
   check_offset(-1);
   refresh_inputline();
-}
-
-static void scr_handle_CtrlD(void)
-{
-  // Validate current multi-line
-  if (scr_get_multimode())
-    process_command(mkcmdstr("msay send"));
 }
 
 static void add_keyseq(char *seqstr, guint mkeycode, gint value)
@@ -2805,30 +2903,16 @@ int process_key(keycode kcode)
     case 8:     // Ctrl-h
     case 127:   // Backspace too
     case KEY_BACKSPACE:
-        if (ptr_inputline != (char*)&inputLine) {
-          char *src = ptr_inputline;
-          char *c = prev_char(ptr_inputline, inputLine);
-          ptr_inputline = c;
-          for ( ; *src ; )
-            *c++ = *src++;
-          *c = 0;
-          check_offset(-1);
-        }
+        readline_backward_kill_char();
         break;
     case KEY_DC:// Del
-        if (*ptr_inputline)
-          strcpy(ptr_inputline, next_char(ptr_inputline));
+        readline_forward_kill_char();
         break;
     case KEY_LEFT:
-        if (ptr_inputline != (char*)&inputLine) {
-          ptr_inputline = prev_char(ptr_inputline, inputLine);
-          check_offset(-1);
-        }
+        readline_backward_char();
         break;
     case KEY_RIGHT:
-        if (*ptr_inputline)
-          ptr_inputline = next_char(ptr_inputline);
-          check_offset(1);
+        readline_forward_char();
         break;
     case 7:     // Ctrl-g
         scr_cancel_current_completion();
@@ -2876,18 +2960,10 @@ int process_key(keycode kcode)
         }
         break;
     case KEY_UP:
-        {
-          const char *l = scr_cmdhisto_prev(inputLine,
-                  ptr_inputline-inputLine);
-          if (l) strcpy(inputLine, l);
-        }
+        readline_hist_prev();
         break;
     case KEY_DOWN:
-        {
-          const char *l = scr_cmdhisto_next(inputLine,
-                  ptr_inputline-inputLine);
-          if (l) strcpy(inputLine, l);
-        }
+        readline_hist_next();
         break;
     case KEY_PPAGE:
         scr_CheckAutoAway(TRUE);
@@ -2898,29 +2974,20 @@ int process_key(keycode kcode)
         scr_RosterDown();
         break;
     case KEY_HOME:
-    case 1:
-        ptr_inputline = inputLine;
-        inputline_offset = 0;
+        readline_iline_start();
         break;
     case 3:     // Ctrl-C
         scr_handle_CtrlC();
         break;
-    case 4:     // Ctrl-D
-        scr_handle_CtrlD();
-        break;
     case KEY_END:
-    case 5:
-        for (; *ptr_inputline; ptr_inputline++) ;
-        check_offset(1);
+        readline_iline_end();
         break;
     case 21:    // Ctrl-u
-        strcpy(inputLine, ptr_inputline);
-        ptr_inputline = inputLine;
-        inputline_offset = 0;
+        readline_backward_kill_iline();
         break;
     case KEY_EOL:
     case 11:    // Ctrl-k
-        *ptr_inputline = 0;
+        readline_forward_kill_iline();
         break;
     case 16:    // Ctrl-p
         scr_BufferScrollUpDown(-1, 0);

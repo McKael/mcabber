@@ -51,6 +51,10 @@ static unsigned short int Log_Win_Height;
 static unsigned short int Roster_Width;
 
 static inline void check_offset(int);
+static void scr_cancel_current_completion(void);
+static void scr_end_current_completion(void);
+static void scr_insert_text(const char*);
+static void scr_handle_tab(void);
 
 static GHashTable *winbufhash;
 
@@ -2313,25 +2317,24 @@ void readline_backward_kill_word(void)
 // Move  back  to the start of the current or previous word
 void readline_backward_word(void)
 {
-  char *old_ptr_inputLine = ptr_inputline;
-  int spaceallowed = 1;
+  int i = 0;
 
   if (ptr_inputline == inputLine) return;
 
-  for (ptr_inputline = prev_char(ptr_inputline, inputLine) ;
-       ptr_inputline > inputLine ;
-       ptr_inputline = prev_char(ptr_inputline, inputLine)) {
-    if (!iswalnum(get_char(ptr_inputline))) {
-      if (iswblank(get_char(ptr_inputline))) {
-        if (!spaceallowed) break;
-      } else spaceallowed = 0;
-    } else spaceallowed = 0;
-  }
+  if (iswalnum(get_char(ptr_inputline)) &&
+      !iswalnum(get_char(prev_char(ptr_inputline, inputLine))))
+    i--;
 
-  if (ptr_inputline < prev_char(old_ptr_inputLine, inputLine)
-      && iswblank(get_char(ptr_inputline))
-      && iswblank(get_char(next_char(ptr_inputline))))
-    ptr_inputline = next_char(ptr_inputline);
+  for( ;
+      ptr_inputline > inputLine;
+      ptr_inputline = prev_char(ptr_inputline, inputLine)) {
+    if (!iswalnum(get_char(ptr_inputline))) {
+      if (i) {
+        ptr_inputline = next_char(ptr_inputline);
+        break;
+      }
+    } else i++;
+  }
 
   check_offset(-1);
 }
@@ -2340,15 +2343,54 @@ void readline_backward_word(void)
 // Move forward to the end of the next word
 void readline_forward_word(void)
 {
-  int spaceallowed = 1;
+  int stopsymbol_allowed = 1;
 
   while (*ptr_inputline) {
-    ptr_inputline = next_char(ptr_inputline);
     if (!iswalnum(get_char(ptr_inputline))) {
-      if (iswblank(get_char(ptr_inputline))) {
-        if (!spaceallowed) break;
-      } else spaceallowed = 0;
-    } else spaceallowed = 0;
+      if (!stopsymbol_allowed) break;
+    } else stopsymbol_allowed = 0;
+    ptr_inputline = next_char(ptr_inputline);
+  }
+
+  check_offset(1);
+}
+
+void readline_updowncase_word(int upcase)
+{
+  int stopsymbol_allowed = 1;
+
+  while (*ptr_inputline) {
+    if (!iswalnum(get_char(ptr_inputline))) {
+      if (!stopsymbol_allowed) break;
+    } else {
+      stopsymbol_allowed = 0;
+      if (upcase)
+        *ptr_inputline = towupper(get_char(ptr_inputline));
+      else
+        *ptr_inputline = towlower(get_char(ptr_inputline));
+    }
+    ptr_inputline = next_char(ptr_inputline);
+  }
+
+  check_offset(1);
+}
+
+void readline_capitalize_word(void)
+{
+  int stopsymbol_allowed = 1;
+  int upcased = 0;
+
+  while (*ptr_inputline) {
+    if (!iswalnum(get_char(ptr_inputline))) {
+      if (!stopsymbol_allowed) break;
+    } else {
+      stopsymbol_allowed = 0;
+      if (!upcased) {
+        *ptr_inputline = towupper(get_char(ptr_inputline));
+        upcased = 1;
+      } else *ptr_inputline = towlower(get_char(ptr_inputline));
+    }
+    ptr_inputline = next_char(ptr_inputline);
   }
 
   check_offset(1);
@@ -2368,6 +2410,93 @@ void readline_forward_char(void)
 
   ptr_inputline = next_char(ptr_inputline);
   check_offset(1);
+}
+
+int readline_accept_line(void)
+{
+  scr_CheckAutoAway(TRUE);
+  if (process_line(inputLine))
+    return 255;
+  // Add line to history
+  scr_cmdhisto_addline(inputLine);
+  // Reset the line
+  ptr_inputline = inputLine;
+  *ptr_inputline = 0;
+  inputline_offset = 0;
+
+  // Reset history line pointer
+  cmdhisto_cur = NULL;
+
+  return 0;
+}
+
+int readline_accept_line_down_hist(void)
+{
+  scr_CheckAutoAway(TRUE);
+  if (process_line(inputLine))
+    return 255;
+  // Add line to history
+  scr_cmdhisto_addline(inputLine);
+  // Reset the line
+  ptr_inputline = inputLine;
+  *ptr_inputline = 0;
+  inputline_offset = 0;
+
+  // Use next history line instead of a blank line
+  const char *l = scr_cmdhisto_next("", 0);
+  if (l) strcpy(inputLine, l);
+  // Reset backup history line
+  cmdhisto_backup[0] = 0;
+
+  return 0;
+}
+
+void readline_cancel_completion(void)
+{
+  scr_cancel_current_completion();
+  scr_end_current_completion();
+  check_offset(-1);
+}
+
+void readline_do_completion(void)
+{
+  int i, n;
+
+  if (scr_get_multimode() != 2) {
+    // Not in verbatim multi-line mode
+    scr_handle_tab();
+  } else {
+    // Verbatim multi-line mode: expand tab
+    char tabstr[9];
+    n = 8 - (ptr_inputline - inputLine) % 8;
+    for (i = 0; i < n; i++)
+      tabstr[i] = ' ';
+    tabstr[i] = '\0';
+    scr_insert_text(tabstr);
+  }
+  check_offset(0);
+}
+
+void readline_refresh_screen(void)
+{
+  scr_CheckAutoAway(TRUE);
+  ParseColors();
+  scr_Resize();
+  redrawwin(stdscr);
+}
+
+void readline_disable_chat_mode(void)
+{
+  scr_CheckAutoAway(TRUE);
+  currentWindow = NULL;
+  chatmode = FALSE;
+  if (current_buddy)
+    buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
+  scr_RosterVisibility(1);
+  scr_UpdateChatStatus(FALSE);
+  top_panel(chatPanel);
+  top_panel(inputPanel);
+  update_panels();
 }
 
 void readline_hist_prev(void)
@@ -2915,49 +3044,16 @@ int process_key(keycode kcode)
         readline_forward_char();
         break;
     case 7:     // Ctrl-g
-        scr_cancel_current_completion();
-        scr_end_current_completion();
-        check_offset(-1);
+        readline_cancel_completion();
         break;
     case 9:     // Tab
-        if (scr_get_multimode() != 2) {
-          // Not in verbatim multi-line mode
-          scr_handle_tab();
-        } else {
-          // Verbatim multi-line mode: expand tab
-          char tabstr[9];
-          int i, n;
-          n = 8 - (ptr_inputline - inputLine) % 8;
-          for (i = 0; i < n; i++)
-            tabstr[i] = ' ';
-          tabstr[i] = '\0';
-          scr_insert_text(tabstr);
-        }
-        check_offset(0);
+        readline_do_completion();
         break;
     case 13:    // Enter
+        if (readline_accept_line() == 255) return 255;
+        break;
     case 15:    // Ctrl-o ("accept-line-and-down-history")
-        scr_CheckAutoAway(TRUE);
-        if (process_line(inputLine))
-          return 255;
-        // Add line to history
-        scr_cmdhisto_addline(inputLine);
-        // Reset the line
-        ptr_inputline = inputLine;
-        *ptr_inputline = 0;
-        inputline_offset = 0;
-
-        if (key == 13)            // Enter
-        {
-          // Reset history line pointer
-          cmdhisto_cur = NULL;
-        } else {                  // down-history
-          // Use next history line instead of a blank line
-          const char *l = scr_cmdhisto_next("", 0);
-          if (l) strcpy(inputLine, l);
-          // Reset backup history line
-          cmdhisto_backup[0] = 0;
-        }
+        if (readline_accept_line_down_hist() == 255) return 255;
         break;
     case KEY_UP:
         readline_hist_prev();
@@ -3010,25 +3106,13 @@ int process_key(keycode kcode)
         readline_forward_word();
         break;
     case 12:    // Ctrl-l
-        scr_CheckAutoAway(TRUE);
-        ParseColors();
-        scr_Resize();
-        redrawwin(stdscr);
+        readline_refresh_screen();
         break;
     case KEY_RESIZE:
         scr_Resize();
         break;
     case 27:    // ESC
-        scr_CheckAutoAway(TRUE);
-        currentWindow = NULL;
-        chatmode = FALSE;
-        if (current_buddy)
-          buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-        scr_RosterVisibility(1);
-        scr_UpdateChatStatus(FALSE);
-        top_panel(chatPanel);
-        top_panel(inputPanel);
-        update_panels();
+        readline_disable_chat_mode();
         break;
     default:
         display_char = TRUE;

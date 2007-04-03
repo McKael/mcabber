@@ -71,6 +71,8 @@ static void do_event(char *arg);
 static void do_help(char *arg);
 static void do_pgp(char *arg);
 static void do_iline(char *arg);
+static void do_screen_refresh(char *arg);
+static void do_chat_disable(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -134,6 +136,8 @@ void cmd_init(void)
           COMPL_JID, COMPL_STATUS, &do_status_to);
   cmd_add("version", "Show mcabber version", 0, 0, &do_version);
   cmd_add("iline", "Manipulate input buffer", 0, 0, &do_iline);
+  cmd_add("screen_refresh", "Redraw mcabber screen", 0, 0, &do_screen_refresh);
+  cmd_add("chat_disable", "Disable chat mode", 0, 0, &do_chat_disable);
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");
@@ -2727,6 +2731,12 @@ static void do_iline(char *arg)
     readline_forward_kill_word();
   } else if (!strcasecmp(arg, "word_bdel")) {
     readline_backward_kill_word();
+  } else if (!strcasecmp(arg, "word_upcase")) {
+    readline_updowncase_word(1);
+  } else if (!strcasecmp(arg, "word_downcase")) {
+    readline_updowncase_word(0);
+  } else if (!strcasecmp(arg, "word_capit")) {
+    readline_capitalize_word();
   } else if (!strcasecmp(arg, "fchar")) {
     readline_forward_char();
   } else if (!strcasecmp(arg, "bchar")) {
@@ -2735,7 +2745,7 @@ static void do_iline(char *arg)
     readline_forward_kill_char();
   } else if (!strcasecmp(arg, "char_bdel")) {
     readline_backward_kill_char();
-  } else if (!strcasecmp(arg, "char_swp")) {
+  } else if (!strcasecmp(arg, "char_swap")) {
     readline_transpose_chars();
   } else if (!strcasecmp(arg, "hist_prev")) {
     readline_hist_prev();
@@ -2751,7 +2761,25 @@ static void do_iline(char *arg)
     readline_backward_kill_iline();
   } else if (!strcasecmp(arg, "send_multiline")) {
     readline_send_multiline();
+  } else if (!strcasecmp(arg, "iline_accept")) {
+    readline_accept_line();
+  } else if (!strcasecmp(arg, "iline_accept_down_hist")) { // May be too long
+    readline_accept_line_down_hist();
+  } else if (!strcasecmp(arg, "compl_cancel")) {
+    readline_cancel_completion();
+  } else if (!strcasecmp(arg, "compl_do")) {
+    readline_do_completion();
   }
+}
+
+static void do_screen_refresh(char *arg)
+{
+  readline_refresh_screen();
+}
+
+static void do_chat_disable(char *arg)
+{
+  readline_disable_chat_mode();
 }
 
 static void do_connect(char *arg)

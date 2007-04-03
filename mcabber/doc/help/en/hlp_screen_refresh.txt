@@ -1,0 +1,4 @@
+
+/SCREEN_REFRESH
+
+Refresh the mcabber screen.

@@ -1,0 +1,4 @@
+
+/CHAT_DISABLE
+
+Disable chat mode.

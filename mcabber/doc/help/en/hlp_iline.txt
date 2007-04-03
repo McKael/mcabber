@@ -1,0 +1,58 @@
+
+/ILINE fchar|bchar|char_fdel|char_bdel|char_swap
+/ILINE fword|bword|word_bdel|word_fdel
+/ILINE word_upcase|word_downcase|word_capit
+/ILINE hist_prev|hist_next
+/ILINE iline_start|iline_end|iline_fdel|iline_bdel
+/ILINE iline_accept|iline_accept_down_hist
+/ILINE compl_do|compl_cancel
+/ILINE send_multiline
+
+Input line commands
+
+/iline fchar
+ Move to the next letter
+/iline bchar
+ Move to the previous letter
+/iline char_fdel
+ Delete the letter at cursor position
+/iline char_bdel
+ Delete the letter before cursor position
+/iline char_swap
+ Transpose chars
+/iline fword
+ Move the cursor forward to the end of the current or next word
+/iline bword
+ Move the cursor back to the start of the current or previous word
+/iline word_bdel
+ Delete the word from cursor position to its start
+/iline word_fdel
+ Delete the word from cursor position to its end
+/iline word_upcase
+ Convert the word from cursor position to its end to upper case
+/iline word_downcase
+ Convert the word from cursor position to its end to down case
+/iline word_capit
+ Capitalize the word from cursor position to its end
+/iline hist_prev
+ Previous line of input line history
+/iline hist_next
+ Next line of input line history
+/iline iline_start
+ Go to the beginning of the input line
+/iline iline_end
+ Go to the end of the input line
+/iline iline_fdel
+ Delete from the cursor to the end of line
+/iline iline_bdel
+ Delete from beginning of the line to the cursor
+/iline iline_accept
+ Accept line
+/iline iline_accept_down_hist
+ Accept line and put the next history line in the input line
+/iline compl_do
+ Complete current word, in the input line
+/iline compl_cancel
+ Cancel completion
+/iline send_multiline
+ Send/terminate a multi-line message

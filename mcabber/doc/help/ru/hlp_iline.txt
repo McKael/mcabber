@@ -1,0 +1,58 @@
+
+/ILINE fchar|bchar|char_fdel|char_bdel|char_swap
+/ILINE fword|bword|word_bdel|word_fdel
+/ILINE word_upcase|word_downcase|word_capit
+/ILINE hist_prev|hist_next
+/ILINE iline_start|iline_end|iline_fdel|iline_bdel
+/ILINE iline_accept|iline_accept_down_hist
+/ILINE compl_do|compl_cancel
+/ILINE send_multiline
+
+Команды строки ввода.
+
+/iline fchar
+ Переместиться к следующему символу
+/iline bchar
+ Переместиться к предыдущему символу
+/iline char_fdel
+ Удалить символ на позиции курсора
+/iline char_bdel
+ Удалить символ предшедствующий позиции курсора
+/iline char_swap
+ Транспонировать символы
+/iline fword
+ Переместиться вперед к концу этого или следующего слова
+/iline bword
+ Переместиться назад к началу этого или предыдущего слова
+/iline word_bdel
+ Удалить слово с позиции курсора до его начала
+/iline word_fdel
+ Удалить слово с позиции предшедствующей курсору до его конца
+/iline word_upcase
+ Перевести слово в верхний регистр с позиции курсора
+/iline word_downcase
+ Перевести слово в нижний регистр с позиции курсора
+/iline word_capit
+ Сделать букву на позиции курсора заглавной, остальные до конца слова - строчными
+/iline hist_prev
+ Предыдущая строка истории строки ввода
+/iline hist_next
+ Следующая строка истории строки ввода
+/iline iline_start
+ Переместиться в начало строки ввода
+/iline iline_end
+ Переместиться в конец строки ввода
+/iline iline_fdel
+ Удалить строку с позиции курсора до конца
+/iline iline_bdel
+ Удалить строку с позиции предшедствующей курсору до начала
+/iline iline_accept
+ Закончить ввод, отправить строку текущему пользователю
+/iline iline_accept_down_hist
+ Закончить ввод, отправить строку текущему пользователю, поместить следующую строку истории в строку ввода
+/iline compl_do
+ Завершить текущее слово в строке ввода
+/iline compl_cancel
+ Отменить завершение слова
+/iline send_multiline
+ Послать/завершить многострочное сообщение

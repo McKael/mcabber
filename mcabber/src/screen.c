@@ -3029,7 +3029,21 @@ int process_key(keycode kcode)
     case 0:
     case ERR:
         break;
-    case 8:     // Ctrl-h
+    case 9:     // Tab
+        readline_do_completion();
+        break;
+    case 13:    // Enter
+        if (readline_accept_line() == 255) return 255;
+        break;
+    case 3:     // Ctrl-C
+        scr_handle_CtrlC();
+        break;
+    case KEY_RESIZE:
+        scr_Resize();
+        break;
+/*  case 4:     // Ctrl-D
+        readline_send_multiline();
+        break;
     case 127:   // Backspace too
     case KEY_BACKSPACE:
         readline_backward_kill_char();
@@ -3045,15 +3059,6 @@ int process_key(keycode kcode)
         break;
     case 7:     // Ctrl-g
         readline_cancel_completion();
-        break;
-    case 9:     // Tab
-        readline_do_completion();
-        break;
-    case 13:    // Enter
-        if (readline_accept_line() == 255) return 255;
-        break;
-    case 15:    // Ctrl-o ("accept-line-and-down-history")
-        if (readline_accept_line_down_hist() == 255) return 255;
         break;
     case KEY_UP:
         readline_hist_prev();
@@ -3071,9 +3076,6 @@ int process_key(keycode kcode)
         break;
     case KEY_HOME:
         readline_iline_start();
-        break;
-    case 3:     // Ctrl-C
-        scr_handle_CtrlC();
         break;
     case KEY_END:
         readline_iline_end();
@@ -3108,12 +3110,10 @@ int process_key(keycode kcode)
     case 12:    // Ctrl-l
         readline_refresh_screen();
         break;
-    case KEY_RESIZE:
-        scr_Resize();
-        break;
     case 27:    // ESC
         readline_disable_chat_mode();
         break;
+    */
     default:
         display_char = TRUE;
   } // switch

@@ -42,6 +42,9 @@
 #define IMSTATUS_NOTAVAILABLE   "notavail"
 #define IMSTATUS_DONOTDISTURB   "dnd"
 
+// Return value container for the following functions
+static int retval_for_cmds;
+
 // Commands callbacks
 static void do_roster(char *arg);
 static void do_status(char *arg);
@@ -96,6 +99,10 @@ static void cmd_add(const char *name, const char *help,
 
 //  cmd_init()
 // Commands table initialization
+// !!!
+// After changing commands names and it arguments names here, you must change
+// ones in init_bindings()!
+//
 void cmd_init(void)
 {
   cmd_add("add", "Add a jabber user", COMPL_JID, 0, &do_add);
@@ -413,9 +420,10 @@ int process_command(char *line)
   while (*p && (*p == ' '))
     p++;
   // Call command-specific function
+  retval_for_cmds = 0;
   (*curcmd->func)(p);
   g_free(xpline);
-  return 0;
+  return retval_for_cmds;
 }
 
 //  process_line(line)
@@ -2721,6 +2729,10 @@ static void do_pgp(char *arg)
   free_arg_lst(paramlst);
 }
 
+/* !!!
+  After changing the /iline arguments names here, you must change ones
+  in init_bindings().
+*/
 static void do_iline(char *arg)
 {
   if (!strcasecmp(arg, "fword")) {
@@ -2762,9 +2774,9 @@ static void do_iline(char *arg)
   } else if (!strcasecmp(arg, "send_multiline")) {
     readline_send_multiline();
   } else if (!strcasecmp(arg, "iline_accept")) {
-    readline_accept_line();
+    retval_for_cmds = readline_accept_line();
   } else if (!strcasecmp(arg, "iline_accept_down_hist")) { // May be too long
-    readline_accept_line_down_hist();
+    retval_for_cmds = readline_accept_line_down_hist();
   } else if (!strcasecmp(arg, "compl_cancel")) {
     readline_cancel_completion();
   } else if (!strcasecmp(arg, "compl_do")) {

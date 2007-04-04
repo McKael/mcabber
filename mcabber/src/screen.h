@@ -14,6 +14,12 @@
 # include <panel.h>
 #endif
 
+#ifdef WITH_ASPELL
+void spellcheck_init(void);
+void spellcheck_deinit(void);
+//static void spellcheck(char*, char*);
+#endif
+
 #include "logprint.h"
 
 // Length of the timestamp & flag prefix in the chat buffer window

@@ -152,6 +152,24 @@ if test "$with_ssl" != "no"; then
     fi
 fi
 
+# Check for Aspell stuff
+AC_ARG_ENABLE(aspell, [  --enable-aspell         Enable aspell support],
+              enable_aspell=$enableval, aspell="")
+if test "x$enable_aspell" = "xyes"; then
+    AC_CHECK_HEADERS(aspell.h, [ have_aspell_includes=yes ])
+    if test "x$have_aspell_includes" = "xyes"; then
+        AC_CHECK_LIB(aspell, new_aspell_config, [ have_aspell_libs=yes ])
+        if test "x$have_aspell_libs" = "xyes"; then
+            AC_DEFINE(WITH_ASPELL, 1, [define if you want aspell support])
+            LIBS="$LIBS -laspell"
+        else
+            enable_aspell=no
+        fi
+    else
+        enable_aspell=no
+    fi
+fi
+
 AC_DEFINE(BUILD_JABBER, 1, [build with jabber support])
 
 # Export $datadir to the source tree.

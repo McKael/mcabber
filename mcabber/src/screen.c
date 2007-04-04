@@ -29,6 +29,10 @@
 #include <langinfo.h>
 #include <config.h>
 
+#ifdef HAVE_ASPELL_H
+# include <aspell.h>
+#endif
+
 #include "screen.h"
 #include "utf8.h"
 #include "hbuf.h"
@@ -55,6 +59,11 @@ static void scr_cancel_current_completion(void);
 static void scr_end_current_completion(void);
 static void scr_insert_text(const char*);
 static void scr_handle_tab(void);
+
+#ifdef HAVE_ASPELL_H
+static void spellcheck(char *, char *);
+static inline int is_alpha(const char *);
+#endif
 
 static GHashTable *winbufhash;
 
@@ -100,6 +109,9 @@ static bool roster_win_on_right;
 static time_t LastActivity;
 
 static char       inputLine[INPUTLINE_LENGTH+1];
+#ifdef HAVE_ASPELL_H
+static char       maskLine[INPUTLINE_LENGTH+1];
+#endif
 static char      *ptr_inputline;
 static short int  inputline_offset;
 static int    completion_started;
@@ -127,6 +139,11 @@ static void add_keyseq(char *seqstr, guint mkeycode, gint value);
 void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
                        unsigned int prefix_flags, int force_show);
 
+#ifdef HAVE_ASPELL_H
+#define ASPELLBADCHAR 5
+AspellConfig *spell_config;
+AspellSpeller *spell_checker;
+#endif
 
 /* Functions */
 
@@ -2810,18 +2827,62 @@ static inline void check_offset(int direction)
   inputline_offset = c - inputLine;
 }
 
+#ifdef HAVE_ASPELL_H
+// prints inputLine with underlined words when misspelled
+static inline void print_checked_line(void)
+{
+  char *wprint_char_fmt = "%c";
+  int point;
+  char *ptrCur = inputLine + inputline_offset;
+
+#ifdef UNICODE
+  // We need this to display a single UTF-8 char... Any better solution?
+  if (utf8_mode)
+    wprint_char_fmt = "%lc";
+#endif
+
+  wmove(inputWnd, 0, 0); // problem with backspace
+
+  while (*ptrCur) {
+    point = ptrCur - inputLine;
+    if (maskLine[point])
+      wattrset(inputWnd, A_UNDERLINE);
+    wprintw(inputWnd, wprint_char_fmt, get_char(ptrCur));
+    wattrset(inputWnd, A_NORMAL);
+    ptrCur = next_char(ptrCur);
+  }
+}
+#endif
+
 static inline void refresh_inputline(void)
 {
-  mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
+#ifdef HAVE_ASPELL_H
+  if (settings_opt_get_int("aspell_enable")) {
+    memset(maskLine, 0, INPUTLINE_LENGTH+1);
+    spellcheck(inputLine, maskLine);
+  }
+  print_checked_line();
   wclrtoeol(inputWnd);
   if (*ptr_inputline) {
     // hack to set cursor pos. Characters can have different width,
     // so I know of no better way.
     char c = *ptr_inputline;
     *ptr_inputline = 0;
-    mvwprintw(inputWnd, 0,0, "%s", inputLine + inputline_offset);
+    print_checked_line();
     *ptr_inputline = c;
   }
+#else
+  mvwprintw(inputWnd, 0, 0, "%s", inputLine + inputline_offset);
+  wclrtoeol(inputWnd);
+  if (*ptr_inputline) {
+    // hack to set cursor pos. Characters can have different width,
+    // so I know of no better way.
+    char c = *ptr_inputline;
+    *ptr_inputline = 0;
+    mvwprintw(inputWnd, 0, 0, "%s", inputLine + inputline_offset);
+    *ptr_inputline = c;
+  }
+#endif
 }
 
 void scr_handle_CtrlC(void)
@@ -3133,5 +3194,112 @@ display:
   }
   return 0;
 }
+
+#ifdef HAVE_ASPELL_H
+// Aspell initialization
+void spellcheck_init(void)
+{
+  int aspell_enable           = settings_opt_get_int("aspell_enable");
+  const char *aspell_lang     = settings_opt_get("aspell_lang");
+  const char *aspell_encoding = settings_opt_get("aspell_encoding");
+  AspellCanHaveError *possible_err;
+
+  if (!aspell_enable)
+    return;
+
+  if (spell_checker) {
+    delete_aspell_speller(spell_checker);
+    delete_aspell_config(spell_config);
+    spell_checker = NULL;
+    spell_config = NULL;
+  }
+
+  spell_config = new_aspell_config();
+  aspell_config_replace(spell_config, "encoding", aspell_encoding);
+  aspell_config_replace(spell_config, "lang", aspell_lang);
+  possible_err = new_aspell_speller(spell_config);
+
+  if (aspell_error_number(possible_err) != 0) {
+    spell_checker = NULL;
+    delete_aspell_config(spell_config);
+    spell_config = NULL;
+  } else {
+    spell_checker = to_aspell_speller(possible_err);
+  }
+}
+
+// Deinitialization of Aspell spellchecker
+void spellcheck_deinit(void)
+{
+  if (spell_checker) {
+    delete_aspell_speller(spell_checker);
+    spell_checker = NULL;
+  }
+
+  if (spell_config) {
+    delete_aspell_config(spell_config);
+    spell_config = NULL;
+  }
+}
+
+// Spell checking function
+static void spellcheck(char *line, char *checked)
+{
+  const char *start, *line_start;
+
+  if (inputLine[0] == 0 || inputLine[0] == COMMAND_CHAR)
+    return;
+
+  line_start = line;
+
+  while (*line) {
+
+    if (!is_alpha(line)) {
+      line = next_char(line);
+      continue;
+    }
+
+    if (!strncmp(line, "http://", 7)) {
+      line += 7; // : and / characters are 1 byte long in utf8, right?
+
+      while (!strchr(" \t\r\n", *line))
+        line = next_char(line); // i think line++ would be fine here?
+
+      continue;
+    }
+
+    if (!strncmp(line, "ftp://", 6)) {
+      line += 6;
+
+      while (!strchr(" \t\r\n", *line))
+        line = next_char(line);
+
+      continue;
+    }
+
+    start = line;
+
+    while (is_alpha(line))
+      line = next_char(line);
+
+    if (spell_checker &&
+        aspell_speller_check(spell_checker, start, line - start) == 0)
+      memset(&checked[start - line_start], ASPELLBADCHAR, line - start);
+  }
+}
+
+// Universal isalpha function
+static inline int is_alpha(const char *c)
+{
+  if (utf8_mode) {
+    if (iswalpha(get_char(c)))
+      return 1;
+  } else {
+    if (isalpha(*c))
+      return 1;
+  }
+  return 0;
+}
+#endif
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

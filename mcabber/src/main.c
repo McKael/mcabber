@@ -376,6 +376,13 @@ int main(int argc, char **argv)
   if (optval || optval2)
     hlog_enable(optval, settings_opt_get("logging_dir"), optval2);
 
+#ifdef HAVE_ASPELL_H
+  /* Initialize aspell */
+  if (settings_opt_get_int("aspell_enable")) {
+    spellcheck_init();
+  }
+#endif
+
   optstring = settings_opt_get("events_command");
   if (optstring)
     hk_ext_cmd_init(optstring);
@@ -422,6 +429,12 @@ int main(int argc, char **argv)
   gpg_terminate();
 #endif
   scr_TerminateCurses();
+#ifdef HAVE_ASPELL_H
+  /* Deinitialize aspell */
+  if (settings_opt_get_int("aspell_enable")) {
+    spellcheck_deinit();
+  }
+#endif
 
   printf("\n\nThanks for using mcabber!\n");
 

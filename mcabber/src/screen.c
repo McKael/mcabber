@@ -307,6 +307,67 @@ static void init_keycodes(void)
   add_keyseq("[4~", MKEY_EQUIV, KEY_END);  // End
 }
 
+//  scr_init_bindings()
+// Create default key bindings
+// Return 0 if error and 1 if none
+void scr_init_bindings(void)
+{
+  GString *sbuf = g_string_new("");
+
+  // Common backspace key codes: 8, 127
+  settings_set(SETTINGS_TYPE_BINDING, "8", "iline char_bdel");    // Ctrl-h
+  settings_set(SETTINGS_TYPE_BINDING, "127", "iline char_bdel");
+  g_string_printf(sbuf, "%d", KEY_BACKSPACE);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline char_bdel");
+  g_string_printf(sbuf, "%d", KEY_DC);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline char_fdel");
+  g_string_printf(sbuf, "%d", KEY_LEFT);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline bchar");
+  g_string_printf(sbuf, "%d", KEY_RIGHT);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline fchar");
+  settings_set(SETTINGS_TYPE_BINDING, "7", "iline compl_cancel"); // Ctrl-g
+  g_string_printf(sbuf, "%d", KEY_UP);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline hist_prev");
+  g_string_printf(sbuf, "%d", KEY_DOWN);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline hist_next");
+  g_string_printf(sbuf, "%d", KEY_PPAGE);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "roster up");
+  g_string_printf(sbuf, "%d", KEY_NPAGE);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "roster down");
+  g_string_printf(sbuf, "%d", KEY_HOME);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline iline_start");
+  settings_set(SETTINGS_TYPE_BINDING, "1", "iline iline_start");  // Ctrl-a
+  g_string_printf(sbuf, "%d", KEY_END);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline iline_end");
+  settings_set(SETTINGS_TYPE_BINDING, "5", "iline iline_end");    // Ctrl-e
+  // Ctrl-o (accept-line-and-down-history):
+  settings_set(SETTINGS_TYPE_BINDING, "15", "iline iline_accept_down_hist");
+  settings_set(SETTINGS_TYPE_BINDING, "21", "iline iline_bdel");  // Ctrl-u
+  g_string_printf(sbuf, "%d", KEY_EOL);
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline iline_fdel");
+  settings_set(SETTINGS_TYPE_BINDING, "11", "iline iline_fdel");  // Ctrl-k
+  settings_set(SETTINGS_TYPE_BINDING, "16", "buffer up");         // Ctrl-p
+  settings_set(SETTINGS_TYPE_BINDING, "14", "buffer down");       // Ctrl-n
+  settings_set(SETTINGS_TYPE_BINDING, "20", "iline char_swap");   // Ctrl-t
+  settings_set(SETTINGS_TYPE_BINDING, "23", "iline word_bdel");   // Ctrl-w
+  settings_set(SETTINGS_TYPE_BINDING, "M98", "iline bword");      // Meta-b
+  settings_set(SETTINGS_TYPE_BINDING, "M102", "iline fword");     // Meta-f
+  // Ctrl-Left  (2 codes):
+  settings_set(SETTINGS_TYPE_BINDING, "515", "iline bword");
+  settings_set(SETTINGS_TYPE_BINDING, "516", "iline bword");
+  // Ctrl-Right (2 codes):
+  settings_set(SETTINGS_TYPE_BINDING, "517", "iline fword");
+  settings_set(SETTINGS_TYPE_BINDING, "518", "iline fword");
+  settings_set(SETTINGS_TYPE_BINDING, "12", "screen_refresh");    // Ctrl-l
+  settings_set(SETTINGS_TYPE_BINDING, "27", "chat_disable");      // Esc
+  settings_set(SETTINGS_TYPE_BINDING, "4", "iline send_multiline"); // Ctrl-d
+  settings_set(SETTINGS_TYPE_BINDING, "M117", "iline word_upcase"); // Meta-u
+  settings_set(SETTINGS_TYPE_BINDING, "M108", "iline word_downcase"); // Meta-l
+  settings_set(SETTINGS_TYPE_BINDING, "M99", "iline word_capit"); // Meta-c
+
+  g_string_free(sbuf, TRUE);
+}
+
 void scr_InitLocaleCharSet(void)
 {
   setlocale(LC_CTYPE, "");

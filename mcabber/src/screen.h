@@ -67,6 +67,8 @@ typedef struct {
   } mcode;
 } keycode;
 
+void scr_init_bindings(void);
+
 void scr_Getch(keycode *kcode);
 int process_key(keycode kcode);
 

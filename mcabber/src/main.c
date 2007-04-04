@@ -290,86 +290,6 @@ void main_init_pgp(void)
 #endif /* HAVE_GPGME */
 }
 
-// Create default bindings
-// Return 0 if error and 1 if none
-int init_bindings(void)
-{
-  char *tmp;
-
-  if ( !(tmp = (char*)malloc(10)) ) {
-    scr_LogPrint(LPRINT_LOGNORM, "Not enough memory!");
-    fprintf(stderr, "Not enough memory!");
-    return 0;
-  }
-
-  // Ctrl-h
-  settings_set(SETTINGS_TYPE_BINDING, "8", "iline char_bdel");
-  settings_set(SETTINGS_TYPE_BINDING, "127", "iline char_bdel");
-  sprintf(tmp, "%d", KEY_BACKSPACE);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "iline char_bdel");
-  sprintf(tmp, "%d", KEY_DC);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "iline char_fdel");
-  sprintf(tmp, "%d", KEY_LEFT);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "iline bchar");
-  sprintf(tmp, "%d", KEY_RIGHT);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "iline fchar");
-  // Ctrl-g
-  settings_set(SETTINGS_TYPE_BINDING, "7", "iline compl_cancel");
-  sprintf(tmp, "%d", KEY_UP);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "iline hist_prev");
-  sprintf(tmp, "%d", KEY_DOWN);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "iline hist_next");
-  sprintf(tmp, "%d", KEY_PPAGE);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "roster up");
-  sprintf(tmp, "%d", KEY_NPAGE);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "roster down");
-  sprintf(tmp, "%d", KEY_HOME);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "iline iline_start");
-  // Ctrl-a
-  settings_set(SETTINGS_TYPE_BINDING, "1", "iline iline_start");
-  sprintf(tmp, "%d", KEY_END);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "iline iline_end");
-  // Ctrl-e
-  settings_set(SETTINGS_TYPE_BINDING, "5", "iline iline_end");
-  // Ctrl-o
-  settings_set(SETTINGS_TYPE_BINDING, "15", "iline iline_accept_down_hist");
-  // Ctrl-u
-  settings_set(SETTINGS_TYPE_BINDING, "21", "iline iline_bdel");
-  sprintf(tmp, "%d", KEY_EOL);
-  settings_set(SETTINGS_TYPE_BINDING, tmp, "iline iline_fdel");
-  // Ctrl-k
-  settings_set(SETTINGS_TYPE_BINDING, "11", "iline iline_fdel");
-  // Ctrl-p
-  settings_set(SETTINGS_TYPE_BINDING, "16", "buffer up");
-  // Ctrl-n
-  settings_set(SETTINGS_TYPE_BINDING, "14", "buffer down");
-  // Ctrl-t
-  settings_set(SETTINGS_TYPE_BINDING, "20", "iline char_swap");
-  // Ctrl-w
-  settings_set(SETTINGS_TYPE_BINDING, "23", "iline word_bdel");
-  // Ctrl-Left  (2 codes)
-  settings_set(SETTINGS_TYPE_BINDING, "515", "iline bword");
-  settings_set(SETTINGS_TYPE_BINDING, "516", "iline bword");
-  // Ctrl-Right (2 codes)
-  settings_set(SETTINGS_TYPE_BINDING, "517", "iline fword");
-  settings_set(SETTINGS_TYPE_BINDING, "518", "iline fword");
-  // Ctrl-l
-  settings_set(SETTINGS_TYPE_BINDING, "12", "screen_repaint");
-  // Esc
-  settings_set(SETTINGS_TYPE_BINDING, "27", "chat_disable");
-  // Ctrl-d
-  settings_set(SETTINGS_TYPE_BINDING, "4", "iline send_multiline");
-  // Meta-u
-  settings_set(SETTINGS_TYPE_BINDING, "M117", "iline word_upcase");
-  // Meta-l
-  settings_set(SETTINGS_TYPE_BINDING, "M108", "iline word_downcase");
-  // Meta-c
-  settings_set(SETTINGS_TYPE_BINDING, "M99", "iline word_capit");
-
-  free(tmp);
-  return 1;
-}
-
 int main(int argc, char **argv)
 {
   char *configFile = NULL;
@@ -403,15 +323,13 @@ int main(int argc, char **argv)
       }
   }
 
-  /* Initialize commands system and roster */
+  /* Initialize command system, roster and default key bindings */
   cmd_init();
   roster_init();
   settings_init();
+  scr_init_bindings();
   /* Initialize charset */
   scr_InitLocaleCharSet();
-
-  /* Creating default bindings */
-  if (!init_bindings()) exit(EXIT_FAILURE);
 
   /* Parsing config file... */
   ret = cfg_read_file(configFile);

@@ -2774,9 +2774,9 @@ static void do_iline(char *arg)
   } else if (!strcasecmp(arg, "send_multiline")) {
     readline_send_multiline();
   } else if (!strcasecmp(arg, "iline_accept")) {
-    retval_for_cmds = readline_accept_line();
-  } else if (!strcasecmp(arg, "iline_accept_down_hist")) { // May be too long
-    retval_for_cmds = readline_accept_line_down_hist();
+    retval_for_cmds = readline_accept_line(FALSE);
+  } else if (!strcasecmp(arg, "iline_accept_down_hist")) {
+    retval_for_cmds = readline_accept_line(TRUE);
   } else if (!strcasecmp(arg, "compl_cancel")) {
     readline_cancel_completion();
   } else if (!strcasecmp(arg, "compl_do")) {

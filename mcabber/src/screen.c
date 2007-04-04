@@ -2473,7 +2473,10 @@ void readline_forward_char(void)
   check_offset(1);
 }
 
-int readline_accept_line(void)
+//  readline_accept_line(down_history)
+// Validate current command line.
+// If down_history is true, load the next history line.
+int readline_accept_line(int down_history)
 {
   scr_CheckAutoAway(TRUE);
   if (process_line(inputLine))
@@ -2485,30 +2488,16 @@ int readline_accept_line(void)
   *ptr_inputline = 0;
   inputline_offset = 0;
 
-  // Reset history line pointer
-  cmdhisto_cur = NULL;
-
-  return 0;
-}
-
-int readline_accept_line_down_hist(void)
-{
-  scr_CheckAutoAway(TRUE);
-  if (process_line(inputLine))
-    return 255;
-  // Add line to history
-  scr_cmdhisto_addline(inputLine);
-  // Reset the line
-  ptr_inputline = inputLine;
-  *ptr_inputline = 0;
-  inputline_offset = 0;
-
-  // Use next history line instead of a blank line
-  const char *l = scr_cmdhisto_next("", 0);
-  if (l) strcpy(inputLine, l);
-  // Reset backup history line
-  cmdhisto_backup[0] = 0;
-
+  if (down_history) {
+    // Use next history line instead of a blank line
+    const char *l = scr_cmdhisto_next("", 0);
+    if (l) strcpy(inputLine, l);
+    // Reset backup history line
+    cmdhisto_backup[0] = 0;
+  } else {
+    // Reset history line pointer
+    cmdhisto_cur = NULL;
+  }
   return 0;
 }
 
@@ -3094,7 +3083,8 @@ int process_key(keycode kcode)
         readline_do_completion();
         break;
     case 13:    // Enter
-        if (readline_accept_line() == 255) return 255;
+        if (readline_accept_line(FALSE) == 255)
+          return 255;
         break;
     case 3:     // Ctrl-C
         scr_handle_CtrlC();

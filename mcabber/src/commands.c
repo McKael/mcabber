@@ -1121,7 +1121,8 @@ static void do_msay(char *arg)
     }
 
     bud = BUDDATA(current_buddy);
-    if (!(buddy_gettype(bud) & (ROSTER_TYPE_USER|ROSTER_TYPE_ROOM))) {
+    if (!(buddy_gettype(bud) &
+          (ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM))) {
       scr_LogPrint(LPRINT_NORMAL, "This is not a user.");
       goto do_msay_return;
     }

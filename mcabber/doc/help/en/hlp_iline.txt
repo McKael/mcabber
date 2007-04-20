@@ -1,12 +1,12 @@
 
-/ILINE fchar|bchar|char_fdel|char_bdel|char_swap
-/ILINE fword|bword|word_bdel|word_fdel
-/ILINE word_upcase|word_downcase|word_capit
-/ILINE hist_prev|hist_next
-/ILINE iline_start|iline_end|iline_fdel|iline_bdel
-/ILINE iline_accept|iline_accept_down_hist
-/ILINE compl_do|compl_cancel
-/ILINE send_multiline
+ /ILINE fchar|bchar|char_fdel|char_bdel|char_swap
+ /ILINE fword|bword|word_bdel|word_fdel
+ /ILINE word_upcase|word_downcase|word_capit
+ /ILINE hist_prev|hist_next
+ /ILINE iline_start|iline_end|iline_fdel|iline_bdel
+ /ILINE iline_accept|iline_accept_down_hist
+ /ILINE compl_do|compl_cancel
+ /ILINE send_multiline
 
 Input line commands
 

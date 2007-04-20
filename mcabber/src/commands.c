@@ -355,17 +355,19 @@ static void send_message(const char *msg, const char *subj)
   }
 }
 
-//  process_command(line)
+//  process_command(line, iscmd)
 // Process a command line.
+// If iscmd is TRUE, process the command even if verbatim mmode is set;
+// it is intended to be used for key bindings.
 // Return 255 if this is the /quit command, and 0 for the other commands.
-int process_command(char *line)
+int process_command(char *line, guint iscmd)
 {
   char *p;
   char *xpline;
   cmd *curcmd;
 
   // We do alias expansion here
-  if (scr_get_multimode() != 2)
+  if (iscmd || scr_get_multimode() != 2)
     xpline = expandalias(line);
   else
     xpline = line; // No expansion in verbatim multi-line mode
@@ -381,7 +383,7 @@ int process_command(char *line)
     *p = 0;
 
   // Command "quit"?
-  if ((scr_get_multimode() != 2)
+  if ((iscmd || scr_get_multimode() != 2)
       && (!strncasecmp(xpline, mkcmdstr("quit"), strlen(mkcmdstr("quit"))))) {
     if (!xpline[5] || xpline[5] == ' ') {
       g_free(xpline);
@@ -390,7 +392,7 @@ int process_command(char *line)
   }
 
   // If verbatim multi-line mode, we check if another /msay command is typed
-  if ((scr_get_multimode() == 2)
+  if (!iscmd && scr_get_multimode() == 2
       && (strncasecmp(xpline, mkcmdstr("msay "), strlen(mkcmdstr("msay "))))) {
     // It isn't an /msay command
     scr_append_multiline(xpline);
@@ -455,8 +457,8 @@ int process_line(char *line)
     return 0;
   }
 
-  /* It is (probably) a command -- except for verbatim multi-line mode */
-  return process_command(line);
+  /* It is _probably_ a command -- except for verbatim multi-line mode */
+  return process_command(line, FALSE);
 }
 
 // Helper routine for buffer item_{lock,unlock}

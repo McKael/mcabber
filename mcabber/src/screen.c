@@ -2632,7 +2632,7 @@ void readline_send_multiline(void)
 {
   // Validate current multi-line
   if (scr_get_multimode())
-    process_command(mkcmdstr("msay send"));
+    process_command(mkcmdstr("msay send"), TRUE);
 }
 
 //  which_row()
@@ -2891,7 +2891,7 @@ void scr_handle_CtrlC(void)
 {
   if (!Curses) return;
   // Leave multi-line mode
-  process_command(mkcmdstr("msay abort"));
+  process_command(mkcmdstr("msay abort"), TRUE);
   // Same as Ctrl-g, now
   scr_cancel_current_completion();
   scr_end_current_completion();
@@ -3084,7 +3084,7 @@ static int bindcommand(keycode kcode)
     boundcmd_locale = from_utf8(boundcmd);
     cmdline = g_strdup_printf(mkcmdstr("%s"), boundcmd_locale);
     scr_CheckAutoAway(TRUE);
-    if (process_command(cmdline))
+    if (process_command(cmdline, TRUE))
       return 255; // Quit
     g_free(boundcmd_locale);
     g_free(cmdline);

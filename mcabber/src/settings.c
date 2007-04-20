@@ -147,7 +147,7 @@ int cfg_read_file(char *filename)
       // Set the leading COMMAND_CHAR to build a command line
       // and process the command
       *(--line) = COMMAND_CHAR;
-      process_command(line);
+      process_command(line, TRUE);
     } else {
       scr_LogPrint(LPRINT_LOGNORM,
                    "Error in configuration file (l. %d): no assignment", ln);

@@ -377,6 +377,7 @@ void scr_init_bindings(void)
   settings_set(SETTINGS_TYPE_BINDING, "518", "iline fword");
   settings_set(SETTINGS_TYPE_BINDING, "12", "screen_refresh");    // Ctrl-l
   settings_set(SETTINGS_TYPE_BINDING, "27", "chat_disable");      // Esc
+  settings_set(SETTINGS_TYPE_BINDING, "M27", "chat_disable");     // Esc-Esc
   settings_set(SETTINGS_TYPE_BINDING, "4", "iline send_multiline"); // Ctrl-d
   settings_set(SETTINGS_TYPE_BINDING, "M117", "iline word_upcase"); // Meta-u
   settings_set(SETTINGS_TYPE_BINDING, "M108", "iline word_downcase"); // Meta-l
@@ -3114,16 +3115,6 @@ int process_key(keycode kcode)
         key = kcode.value;
         break;
     case MKEY_META:
-        key = ERR;
-        switch (kcode.value) {
-          case 27:
-              key = 27;
-              break;
-          default:
-              if (bindcommand(kcode) == 255)
-                return 255;
-        }
-        break;
     default:
         if (bindcommand(kcode) == 255)
           return 255;

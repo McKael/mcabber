@@ -1,0 +1,4 @@
+
+ /CHAT_DISABLE
+
+Cette commande permet de désactiver le mode « discussion ».

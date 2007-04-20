@@ -344,9 +344,11 @@ void scr_init_bindings(void)
   settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline fchar");
   settings_set(SETTINGS_TYPE_BINDING, "7", "iline compl_cancel"); // Ctrl-g
   g_string_printf(sbuf, "%d", KEY_UP);
-  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline hist_prev");
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str,
+               "iline hist_beginning_search_bwd");
   g_string_printf(sbuf, "%d", KEY_DOWN);
-  settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "iline hist_next");
+  settings_set(SETTINGS_TYPE_BINDING, sbuf->str,
+               "iline hist_beginning_search_fwd");
   g_string_printf(sbuf, "%d", KEY_PPAGE);
   settings_set(SETTINGS_TYPE_BINDING, sbuf->str, "roster up");
   g_string_printf(sbuf, "%d", KEY_NPAGE);
@@ -2568,16 +2570,40 @@ void readline_disable_chat_mode(void)
   update_panels();
 }
 
-void readline_hist_prev(void)
+void readline_hist_beginning_search_bwd(void)
 {
   const char *l = scr_cmdhisto_prev(inputLine, ptr_inputline-inputLine);
   if (l) strcpy(inputLine, l);
 }
 
-void readline_hist_next(void)
+void readline_hist_beginning_search_fwd(void)
 {
   const char *l = scr_cmdhisto_next(inputLine, ptr_inputline-inputLine);
   if (l) strcpy(inputLine, l);
+}
+
+void readline_hist_prev(void)
+{
+  const char *l = scr_cmdhisto_prev(inputLine, 0);
+  if (l) {
+    strcpy(inputLine, l);
+    // Set the pointer at the EOL.
+    // We have to move it to BOL first, because we could be too far already.
+    readline_iline_start();
+    readline_iline_end();
+  }
+}
+
+void readline_hist_next(void)
+{
+  const char *l = scr_cmdhisto_next(inputLine, 0);
+  if (l) {
+    strcpy(inputLine, l);
+    // Set the pointer at the EOL.
+    // We have to move it to BOL first, because we could be too far already.
+    readline_iline_start();
+    readline_iline_end();
+  }
 }
 
 void readline_backward_kill_char(void)

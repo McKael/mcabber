@@ -2,6 +2,7 @@
  /ILINE fchar|bchar|char_fdel|char_bdel|char_swap
  /ILINE fword|bword|word_bdel|word_fdel
  /ILINE word_upcase|word_downcase|word_capit
+ /ILINE hist_beginning_search_bwd|hist_beginning_search_fwd
  /ILINE hist_prev|hist_next
  /ILINE iline_start|iline_end|iline_fdel|iline_bdel
  /ILINE iline_accept|iline_accept_down_hist
@@ -34,6 +35,8 @@
  Перевести слово в нижний регистр с позиции курсора
 /iline word_capit
  Сделать букву на позиции курсора заглавной, остальные до конца слова - строчными
+/iline hist_beginning_search_bwd
+/iline hist_beginning_search_fwd
 /iline hist_prev
  Предыдущая строка истории строки ввода
 /iline hist_next

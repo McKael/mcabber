@@ -2,6 +2,7 @@
  /ILINE fchar|bchar|char_fdel|char_bdel|char_swap
  /ILINE fword|bword|word_bdel|word_fdel
  /ILINE word_upcase|word_downcase|word_capit
+ /ILINE hist_beginning_search_bwd|hist_beginning_search_fwd
  /ILINE hist_prev|hist_next
  /ILINE iline_start|iline_end|iline_fdel|iline_bdel
  /ILINE iline_accept|iline_accept_down_hist
@@ -34,6 +35,10 @@ Input line commands
  Convert the word from cursor position to its end to down case
 /iline word_capit
  Capitalize the word from cursor position to its end
+/iline hist_beginning_search_bwd
+ Search backward in the history for a  line  beginning  with  the current  line  up  to the cursor (this leaves the cursor in its original position)
+/iline hist_beginning_search_fwd
+ Search forward in the history for a  line  beginning  with  the current  line  up  to the cursor (this leaves the cursor in its original position)
 /iline hist_prev
  Previous line of input line history
 /iline hist_next

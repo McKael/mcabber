@@ -2,6 +2,7 @@
  /ILINE fchar|bchar|char_fdel|char_bdel|char_swap
  /ILINE fword|bword|word_bdel|word_fdel
  /ILINE word_upcase|word_downcase|word_capit
+ /ILINE hist_beginning_search_bwd|hist_beginning_search_fwd
  /ILINE hist_prev|hist_next
  /ILINE iline_start|iline_end|iline_fdel|iline_bdel
  /ILINE iline_accept|iline_accept_down_hist
@@ -34,6 +35,10 @@ Cette commande permet de manipuler la ligne de commandes. En général elle sera
  Convertir la fin du mot en minuscules depuis le curseur
 /iline word_capit
  Mettre une lettre capitale sous le curseur (ou au prochain mot) et aller à la fin du mot
+/iline hist_beginning_search_bwd
+ Chercher la ligne précédente de l'historique ligne de commande commençant comme la ligne actuelle jusqu'au curseur (le curseur est laissé à la même position)
+/iline hist_beginning_search_fwd
+ Chercher la ligne suivante de l'historique ligne de commande commençant comme la ligne actuelle jusqu'au curseur (le curseur est laissé à la même position)
 /iline hist_prev
  Charger la ligne précédente de l'historique ligne de commande
 /iline hist_next

@@ -2762,6 +2762,10 @@ static void do_iline(char *arg)
     readline_backward_kill_char();
   } else if (!strcasecmp(arg, "char_swap")) {
     readline_transpose_chars();
+  } else if (!strcasecmp(arg, "hist_beginning_search_bwd")) {
+    readline_hist_beginning_search_bwd();
+  } else if (!strcasecmp(arg, "hist_beginning_search_fwd")) {
+    readline_hist_beginning_search_fwd();
   } else if (!strcasecmp(arg, "hist_prev")) {
     readline_hist_prev();
   } else if (!strcasecmp(arg, "hist_next")) {

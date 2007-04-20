@@ -149,6 +149,8 @@ void readline_cancel_completion(void);
 void readline_do_completion(void);
 void readline_refresh_screen(void);
 void readline_disable_chat_mode(void);
+void readline_hist_beginning_search_bwd(void);
+void readline_hist_beginning_search_fwd(void);
 void readline_hist_prev(void);
 void readline_hist_next(void);
 void readline_backward_kill_char(void);

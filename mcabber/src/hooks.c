@@ -67,9 +67,16 @@ inline void hk_message_in(const char *bjid, const char *resname,
     }
   } else {
     bmsg = g_strdup(msg);
-    if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME)))
-      wmsg = mmsg = g_strdup_printf("*%s %s", bjid, msg+4);
-    else
+    if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME))) {
+      gchar *shortid = g_strdup(bjid);
+      if (settings_opt_get_int("buddy_me_fulljid") == FALSE) {
+        gchar *p = strchr(shortid, '@'); // Truncate the jid
+        if (p)
+          *p = '\0';
+      }
+      wmsg = mmsg = g_strdup_printf("*%s %s", shortid, msg+4);
+      g_free(shortid);
+    } else
       wmsg = (char*) msg;
   }
 

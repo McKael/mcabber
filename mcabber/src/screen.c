@@ -369,6 +369,7 @@ void scr_init_bindings(void)
   settings_set(SETTINGS_TYPE_BINDING, "23", "iline word_bdel");   // Ctrl-w
   settings_set(SETTINGS_TYPE_BINDING, "M98", "iline bword");      // Meta-b
   settings_set(SETTINGS_TYPE_BINDING, "M102", "iline fword");     // Meta-f
+  settings_set(SETTINGS_TYPE_BINDING, "M100", "iline word_fdel"); // Meta-d
   // Ctrl-Left  (2 codes):
   settings_set(SETTINGS_TYPE_BINDING, "515", "iline bword");
   settings_set(SETTINGS_TYPE_BINDING, "516", "iline bword");

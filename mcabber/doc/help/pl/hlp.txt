@@ -3,4 +3,4 @@
 
 Wyświetla pomoc dotyczącą danej komendy lub tematu.
 Jeśli nie podano żadnego argumentu, zostanie wyświetlona pomoc o sposobie użycia danej komendy.
-Dostępne komendy: add, alias, authorization, bind, buffer, clear, connect, del, disconnect, event, group, help, info, move, msay, quit, rawxml, pgp, rename, request, room, roster, say_to, say, set, status_to, status, version.
+Dostępne komendy: add, alias, authorization, bind, buffer, chat_disable, clear, connect, del, disconnect, event, group, help, iline, info, move, msay, pgp, quit, rawxml, rename, request, room, roster, say_to, say, screen_refresh, set, status_to, status, version.

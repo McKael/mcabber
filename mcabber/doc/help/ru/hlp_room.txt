@@ -34,7 +34,7 @@
 /room role jid role [reason]
  Изменить статус  пользователя "jid" (статус может быть "none", "visitor", "participant", "moderator")
 /room affil jid affil [reason]
- Принять пользователя "jid" в члены конференции (члены могут быть "none", "member", "admin", "owner") 
+ Принять пользователя "jid" в члены конференции (члены могут быть "none", "member", "admin", "owner")
 /room bookmark [add|del] [-autojoin|+autojoin]
  Добавить, удалить или обновить закладку (по умолчанию: add - добавить)
  Если включена опция autojoin, mcabber автоматически подключается к конференции после соединения с Jabber-сервером.

@@ -1,0 +1,63 @@
+
+ /ILINE fchar|bchar|char_fdel|char_bdel|char_swap
+ /ILINE fword|bword|word_bdel|word_fdel
+ /ILINE word_upcase|word_downcase|word_capit
+ /ILINE hist_beginning_search_bwd|hist_beginning_search_fwd
+ /ILINE hist_prev|hist_next
+ /ILINE iline_start|iline_end|iline_fdel|iline_bdel
+ /ILINE iline_accept|iline_accept_down_hist
+ /ILINE compl_do|compl_cancel
+ /ILINE send_multiline
+
+Команди редагування рядка.
+
+/iline fchar
+ Пересунутись на символ вперед.
+/iline bchar
+ Парейти на літеру назад.
+/iline char_fdel
+ Потерти поточний символ.
+/iline char_bdel
+ Витерти попередній символ.
+/iline char_swap
+ Переставити літери місцями.
+/iline fword
+ Пересунути курсор до наступного кінця слова.
+/iline bword
+ Пересунути курсор на початок слова.
+/iline word_fdel
+ Вилучити кінець слова, починаючи від курсору.
+/iline word_bdel
+ Витерти початок слова, починаючи від курсору.
+/iline word_upcase
+ Обернути до верхнього регістру літери від курсору й до кінця слова.
+/iline word_downcase
+ Перетворити літери з початку слова до курсору у нижній регістр.
+/iline word_capit
+ Приводить слово (від курсору до проміжку) до форми власного імені (Київ).
+/iline hist_beginning_search_bwd
+ Шукати в зворотньому напрямку по історії рядок, що збігається з поточним від початку до курсору (команда не зрушить курсор з місця).
+/iline hist_beginning_search_fwd
+ Шукати з далі у історії рядок, що збігається з поточним від початку до курсору (виконання команди не рухає курсор).
+/iline hist_prev
+ Попередній рядок з історії уводу.
+/iline hist_next
+ Наступний рядок в історії.
+/iline iline_start
+ Перескочити на початок рядка.
+/iline iline_end
+ Перескочити до кінця рядка.
+/iline iline_fdel
+ Вилучити кінець рядка, починаючи з курсору.
+/iline iline_bdel
+ Вилучити початок рядка до позиції курсору.
+/iline iline_accept
+ Затвердити рядок.
+/iline iline_accept_down_hist
+ Перейти до наступного рядка в історії, затвердивши поточний.
+/iline compl_do
+ Доповнити поточне слово.
+/iline compl_cancel
+ Скасувати попереднє доповнення.
+/iline send_multiline
+ Завершити й надіслати багаторядкове повідомлення.

@@ -7,7 +7,7 @@
 /authorization allow
  Дозволяє отримувати повідомлення про ваш статус.
 /authorization cancel
- Відміняє підписку на ваші повідомлення про статус.
+ Скасовує підписку на ваші повідомлення про присутність.
 /authorization request
  Надсилає запит на повідомлення про присутність.
 /authorization request_unsubscribe

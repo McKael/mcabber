@@ -1,0 +1,4 @@
+
+ /SOURCE fichier
+
+Cette commande permet de lire un fichier de configuration.

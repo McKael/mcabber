@@ -1,0 +1,4 @@
+
+ /SOURCE file
+
+Read a configuration file.

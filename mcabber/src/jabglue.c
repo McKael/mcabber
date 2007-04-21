@@ -1511,6 +1511,7 @@ void jb_set_storage_rosternotes(const char *barejid, const char *note)
                  "Warning: you're not connected to the server.");
 }
 
+#ifdef HAVE_GPGME
 //  keys_mismatch(key, expectedkey)
 // Return TRUE if both keys are non-null and "expectedkey" doesn't match
 // the end of "key".
@@ -1538,6 +1539,7 @@ static bool keys_mismatch(const char *key, const char *expectedkey)
 
   return strcasecmp(key, expectedkey);
 }
+#endif
 
 //  check_signature(barejid, resourcename, xmldata, text)
 // Verify the signature (in xmldata) of "text" for the contact

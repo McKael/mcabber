@@ -76,6 +76,7 @@ static void do_pgp(char *arg);
 static void do_iline(char *arg);
 static void do_screen_refresh(char *arg);
 static void do_chat_disable(char *arg);
+static void do_source(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -138,6 +139,7 @@ void cmd_init(void)
           &do_say_to);
   //cmd_add("search");
   cmd_add("set", "Set/query an option value", 0, 0, &do_set);
+  cmd_add("source", "Read a configuration file", 0, 0, &do_source);
   cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status);
   cmd_add("status_to", "Show or set your status for one recipient",
           COMPL_JID, COMPL_STATUS, &do_status_to);
@@ -2799,6 +2801,26 @@ static void do_screen_refresh(char *arg)
 static void do_chat_disable(char *arg)
 {
   readline_disable_chat_mode();
+}
+
+static void do_source(char *arg)
+{
+  static int recur_level;
+  gchar *filename;
+  if (!*arg) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing filename.");
+    return;
+  }
+  if (recur_level > 20) {
+    scr_LogPrint(LPRINT_LOGNORM, "** Too many source commands!");
+    return;
+  }
+  filename = g_strdup(arg);
+  strip_arg_special_chars(filename);
+  recur_level++;
+  cfg_read_file(filename, FALSE);
+  recur_level--;
+  g_free(filename);
 }
 
 static void do_connect(char *arg)

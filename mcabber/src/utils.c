@@ -648,4 +648,13 @@ strcasestr (const char *haystack, const char *needle)
 }
 #endif /* !HAVE_STRCASESTR */
 
+//  startswith(str, word)
+// Returns TRUE if string str starts with word.
+int startswith(const char *str, const char *word)
+{
+  if (!strncmp(str, word, strlen(word)))
+    return TRUE;
+  return FALSE;
+}
+
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

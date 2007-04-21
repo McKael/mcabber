@@ -332,7 +332,7 @@ int main(int argc, char **argv)
   scr_InitLocaleCharSet();
 
   /* Parsing config file... */
-  ret = cfg_read_file(configFile);
+  ret = cfg_read_file(configFile, TRUE);
   /* free() configFile if it has been allocated during options parsing */
   g_free(configFile);
   /* Leave if there was an error in the config. file */

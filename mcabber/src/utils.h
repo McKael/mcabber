@@ -43,6 +43,8 @@ char *ut_expand_tabs(const char *text);
 char *strcasestr(const char *haystack, const char *needle);
 #endif
 
+int startswith(const char *str, const char *word);
+
 #endif // __UTILS_H__
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

@@ -24,7 +24,7 @@
 #define mkcmdstr(cmd) COMMAND_CHARSTR cmd
 
 void    settings_init(void);
-int     cfg_read_file(char *filename);
+int     cfg_read_file(char *filename, guint mainfile);
 guint   parse_assigment(gchar *assignment, gchar **pkey, gchar **pval);
 void    settings_set(guint type, const gchar *key, const gchar *value);
 void    settings_del(guint type, const gchar *key);

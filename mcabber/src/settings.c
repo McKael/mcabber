@@ -61,11 +61,14 @@ void settings_init(void)
 #endif
 }
 
-//  cfg_read_file(filename)
+//  cfg_read_file(filename, mainfile)
 // Read and parse config file "filename".  If filename is NULL,
 // try to open the configuration file at the default locations.
+// mainfile must be set to TRUE for the startup config file.
+// If mainfile is TRUE, the permissions of the configuration file will
+// be fixed if they're insecure.
 //
-int cfg_read_file(char *filename)
+int cfg_read_file(char *filename, guint mainfile)
 {
   FILE *fp;
   char *buf;
@@ -75,7 +78,14 @@ int cfg_read_file(char *filename)
 
   if (!filename) {
     // Use default config file locations
-    char *home = getenv("HOME");
+    char *home;
+
+    if (!mainfile) {
+      scr_LogPrint(LPRINT_LOGNORM, "No file name provided");
+      return -1;
+    }
+
+    home = getenv("HOME");
     if (!home) {
       scr_LogPrint(LPRINT_LOG, "Can't find home dir!");
       fprintf(stderr, "Can't find home dir!\n");
@@ -95,17 +105,25 @@ int cfg_read_file(char *filename)
     // Check configuration file permissions
     // As it could contain sensitive data, we make it user-readable only
     checkset_perm(filename, TRUE);
+    scr_LogPrint(LPRINT_LOGNORM, "Reading %s", filename);
     // Check mcabber dir.  There we just warn, we don't change the modes
     sprintf(filename, "%s/.mcabber/", home);
     checkset_perm(filename, FALSE);
     g_free(filename);
+    filename = NULL;
   } else {
     if ((fp = fopen(filename, "r")) == NULL) {
-      perror("Cannot open configuration file");
+      const char *msg = "Cannot open configuration file";
+      if (mainfile)
+        perror(msg);
+      else
+        scr_LogPrint(LPRINT_LOGNORM, "%s (%s).", msg, filename);
       return -2;
     }
     // Check configuration file permissions (see above)
-    checkset_perm(filename, TRUE);
+    // We don't change the permissions if that's not the main file.
+    checkset_perm(filename, mainfile);
+    scr_LogPrint(LPRINT_LOGNORM, "Reading %s", filename);
   }
 
   buf = g_new(char, 512);
@@ -133,12 +151,13 @@ int cfg_read_file(char *filename)
     if ((*line == '\n') || (*line == '\0') || (*line == '#'))
       continue;
 
-    if ((strchr(line, '=') != NULL) || !strncmp(line, "pgp ", strlen("pgp "))) {
-      // Only accept the set, alias, bind and pgp commands
-      if (strncmp(line, "set ", strlen("set ")) &&
-          strncmp(line, "pgp ", strlen("pgp ")) &&
-          strncmp(line, "bind ", strlen("bind ")) &&
-          strncmp(line, "alias ", strlen("alias "))) {
+    // We only allow assignments line, except for commands "pgp" and "source"
+    if ((strchr(line, '=') != NULL) ||
+        startswith(line, "pgp ") || startswith(line, "source ")) {
+      // Only accept the set, alias, bind, pgp and source commands
+      if (!startswith(line, "set ")   && !startswith(line, "bind ") &&
+          !startswith(line, "alias ") && !startswith(line, "pgp ")  &&
+          !startswith(line, "source ")) {
         scr_LogPrint(LPRINT_LOGNORM,
                      "Error in configuration file (l. %d): bad command", ln);
         err++;
@@ -156,6 +175,9 @@ int cfg_read_file(char *filename)
   }
   g_free(buf);
   fclose(fp);
+
+  if (filename)
+    scr_LogPrint(LPRINT_LOGNORM, "Loaded %s.", filename);
   return err;
 }
 

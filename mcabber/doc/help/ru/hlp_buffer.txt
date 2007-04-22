@@ -1,13 +1,18 @@
 
- /BUFFER [clear|purge|top|bottom|date|%|search_backward|search_forward]
+ /BUFFER [clear|close|close_all|purge]
+ /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
 Команда для управления буфером (от переводчика: историей переписки) с пользователеми jabber. То есть, Вы можете искать текст прямо в буфере (истории переписки), очищать окно чата и т.д.
 
 /buffer clear
  Отчищает текущее окно чата
+/buffer close
+ Отчищает весь контент текущего буфера и закрывает окно чата с текущим пользователем
+/buffer close_all
+ Отчищает весь контент буфера чата и закрывает окно чата
 /buffer purge
- Очищает текущее окно чата и очищает все содержимое буфера (истории переписки) 
+ Очищает текущее окно чата и очищает все содержимое буфера (истории переписки)
 /buffer bottom
  Перемещает к концу буфера (истории переписки) с текущим пользователем
 /buffer top

@@ -247,6 +247,7 @@ void cmd_init(void)
   // PGP category
   compl_add_category_word(COMPL_PGP, "disable");
   compl_add_category_word(COMPL_PGP, "enable");
+  compl_add_category_word(COMPL_PGP, "force");
   compl_add_category_word(COMPL_PGP, "info");
   compl_add_category_word(COMPL_PGP, "setkey");
 }
@@ -322,7 +323,7 @@ cmd *cmd_get(const char *command)
 static void send_message(const char *msg, const char *subj)
 {
   const char *bjid;
-  guint crypted;
+  gint crypted;
 
   if (!jb_getonline()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
@@ -343,6 +344,11 @@ static void send_message(const char *msg, const char *subj)
   // Network part
   jb_send_msg(bjid, msg, buddy_gettype(BUDDATA(current_buddy)), subj, NULL,
               &crypted);
+
+  if (crypted == -1) {
+    scr_LogPrint(LPRINT_LOGNORM, "Encryption error.  Message was not sent.");
+    return;
+  }
 
   // Hook
   if (buddy_gettype(BUDDATA(current_buddy)) != ROSTER_TYPE_ROOM) {
@@ -954,7 +960,8 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj)
 {
   char *bare_jid, *rp;
   char *hmsg;
-  guint crypted;
+  gint crypted;
+  gint retval = 0;
 
   if (!fjid || !*fjid) {
     scr_LogPrint(LPRINT_NORMAL, "You must specify a Jabber ID.");
@@ -994,12 +1001,19 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj)
   // Network part
   jb_send_msg(fjid, msg, ROSTER_TYPE_USER, subj, NULL, &crypted);
 
+  if (crypted == -1) {
+    scr_LogPrint(LPRINT_LOGNORM, "Encryption error.  Message was not sent.");
+    retval = 1;
+    goto send_message_to_return;
+  }
+
   // Hook
   hk_message_out(bare_jid, rp, 0, hmsg, crypted);
-  if (hmsg != msg) g_free(hmsg);
 
+send_message_to_return:
+  if (hmsg != msg) g_free(hmsg);
   if (rp) g_free(bare_jid);
-  return 0;
+  return retval;
 }
 
 static void do_say(char *arg)
@@ -2640,8 +2654,10 @@ static void do_pgp(char *arg)
     pgp_enable,
     pgp_disable,
     pgp_setkey,
+    pgp_force,
     pgp_info
   } op = 0;
+  int force = FALSE;
 
   paramlst = split_arg(arg, 3, 0); // subcmd, jid, [key]
   subcmd = *paramlst;
@@ -2660,6 +2676,12 @@ static void do_pgp(char *arg)
       op = pgp_disable;
     else if (!strcasecmp(subcmd, "setkey"))
       op = pgp_setkey;
+    else if ((!strcasecmp(subcmd, "force")) ||
+             (!strcasecmp(subcmd, "+force"))) {
+      op = pgp_force;
+      force = TRUE;
+    } else if (!strcasecmp(subcmd, "-force"))
+      op = pgp_force;
     else if (!strcasecmp(subcmd, "info"))
       op = pgp_info;
   }
@@ -2702,11 +2724,15 @@ static void do_pgp(char *arg)
   }
 
   if (fjid) { // fjid is actually a bare jid...
+    guint disabled;
     GString *sbuf;
     switch (op) {
       case pgp_enable:
       case pgp_disable:
           settings_pgp_setdisabled(fjid, (op == pgp_disable ? TRUE : FALSE));
+          break;
+      case pgp_force:
+          settings_pgp_setforce(fjid, force);
           break;
       case pgp_setkey:
           settings_pgp_setkeyid(fjid, keyid);
@@ -2718,10 +2744,15 @@ static void do_pgp(char *arg)
                             settings_pgp_getkeyid(fjid));
             scr_WriteIncomingMessage(fjid, sbuf->str, 0, HBB_PREFIX_INFO);
           }
+          disabled = settings_pgp_getdisabled(fjid);
           g_string_printf(sbuf, "PGP encryption is %s",
-                          (settings_pgp_getdisabled(fjid) ?  "disabled" :
-                           "enabled"));
+                          (disabled ?  "disabled" : "enabled"));
           scr_WriteIncomingMessage(fjid, sbuf->str, 0, HBB_PREFIX_INFO);
+          if (!disabled && settings_pgp_getforce(fjid)) {
+            scr_WriteIncomingMessage(fjid,
+                                     "Encryption enforced (no negotiation)",
+                                     0, HBB_PREFIX_INFO);
+          }
           g_string_free(sbuf, TRUE);
           break;
       default:

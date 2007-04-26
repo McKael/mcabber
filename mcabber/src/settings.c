@@ -38,6 +38,7 @@ static GHashTable *pgpopt;
 typedef struct {
   gchar *pgp_keyid;   /* KeyId the contact is supposed to use */
   guint pgp_disabled; /* If TRUE, PGP is disabled for outgoing messages */
+  guint pgp_force;    /* If TRUE, PGP is used w/o negotiation */
 } T_pgpopt;
 #endif
 
@@ -403,9 +404,49 @@ guint settings_pgp_getdisabled(const char *bjid)
   if (pgpdata)
     return pgpdata->pgp_disabled;
   else
-    return FALSE; // default: not disabled
+    return FALSE; // Default: not disabled
 #else
   return TRUE;    // No PGP support, let's say it's disabled.
+#endif
+}
+
+//  settings_pgp_setforce(jid, value)
+// Force (or not) PGP encryption for jid.
+// When value is TRUE, PGP support will be assumed for the remote client.
+void settings_pgp_setforce(const char *bjid, guint value)
+{
+#ifdef HAVE_GPGME
+  T_pgpopt *pgpdata;
+  pgpdata = g_hash_table_lookup(pgpopt, bjid);
+  if (!pgpdata) {
+    // If value is 0, we do not need to create a structure (that's
+    // the default value).
+    if (value) {
+      pgpdata = g_new0(T_pgpopt, 1);
+      pgpdata->pgp_force = value;
+      g_hash_table_insert(pgpopt, g_strdup(bjid), pgpdata);
+    }
+  } else {
+    pgpdata->pgp_force = value;
+  }
+  if (!pgpdata->pgp_keyid)
+    scr_LogPrint(LPRINT_NORMAL, "Warning: the Key Id is not set!");
+#endif
+}
+
+//  settings_pgp_getforce(jid)
+// Return TRUE if PGP enforcement is set for jid.
+guint settings_pgp_getforce(const char *bjid)
+{
+#ifdef HAVE_GPGME
+  T_pgpopt *pgpdata;
+  pgpdata = g_hash_table_lookup(pgpopt, bjid);
+  if (pgpdata)
+    return pgpdata->pgp_force;
+  else
+    return FALSE; // Default
+#else
+  return FALSE;   // No PGP support
 #endif
 }
 

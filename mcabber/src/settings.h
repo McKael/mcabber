@@ -37,6 +37,8 @@ void    settings_foreach(guint type,
 
 void    settings_pgp_setdisabled(const char *bjid, guint value);
 guint   settings_pgp_getdisabled(const char *bjid);
+void    settings_pgp_setforce(const char *bjid, guint value);
+guint   settings_pgp_getforce(const char *bjid);
 void    settings_pgp_setkeyid(const char *bjid, const char *keyid);
 const char *settings_pgp_getkeyid(const char *bjid);
 

@@ -510,10 +510,11 @@ static char *new_msgid(void)
 }
 
 //  jb_send_msg(jid, test, type, subject, msgid, *encrypted)
-// When encrypted is not NULL, the function set *encrypted to TRUE if the
-// message has been PGP-encrypted.
+// When encrypted is not NULL, the function set *encrypted to 1 if the
+// message has been PGP-encrypted.  If encryption enforcement is set and
+// encryption fails, *encrypted is set to -1.
 void jb_send_msg(const char *fjid, const char *text, int type,
-                 const char *subject, const char *msgid, guint *encrypted)
+                 const char *subject, const char *msgid, gint *encrypted)
 {
   xmlnode x;
   gchar *strtype;
@@ -532,7 +533,7 @@ void jb_send_msg(const char *fjid, const char *text, int type,
   gchar *enc = NULL;
 
   if (encrypted)
-    *encrypted = FALSE;
+    *encrypted = 0;
 
   if (!online) return;
 
@@ -553,19 +554,29 @@ void jb_send_msg(const char *fjid, const char *text, int type,
 
 #ifdef HAVE_GPGME
   if (type == ROSTER_TYPE_USER && sl_buddy && gpg_enabled()) {
-    if (!settings_pgp_getdisabled(barejid)) { // disabled for this contact?
+    if (!settings_pgp_getdisabled(barejid)) { // not disabled for this contact?
+      guint force;
       struct pgp_data *res_pgpdata;
+      force = settings_pgp_getforce(barejid);
       res_pgpdata = buddy_resource_pgp(sl_buddy->data, rname);
-      if (res_pgpdata && res_pgpdata->sign_keyid) {
-        /* Remote client has PGP support (we have a signature).
+      if (force || (res_pgpdata && res_pgpdata->sign_keyid)) {
+        /* Remote client has PGP support (we have a signature)
+         * OR encryption is enforced (force = TRUE).
          * If the contact has a specific KeyId, we'll use it;
          * if not, we'll use the key used for the signature.
          * Both keys should match, in theory (cf. XEP-0027). */
         const char *key;
         key = settings_pgp_getkeyid(barejid);
-        if (!key)
+        if (!key && res_pgpdata)
           key = res_pgpdata->sign_keyid;
-        enc = gpg_encrypt(text, key);
+        if (key)
+          enc = gpg_encrypt(text, key);
+        if (!enc && force) {
+          if (encrypted)
+            *encrypted = -1;
+          g_free(barejid);
+          return;
+        }
       }
     }
   }
@@ -587,7 +598,7 @@ void jb_send_msg(const char *fjid, const char *text, int type,
     xmlnode_put_attrib(y, "xmlns", NS_ENCRYPTED);
     xmlnode_insert_cdata(y, enc, (unsigned) -1);
     if (encrypted)
-      *encrypted = TRUE;
+      *encrypted = 1;
     g_free(enc);
   }
 

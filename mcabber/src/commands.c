@@ -2837,7 +2837,7 @@ static void do_chat_disable(char *arg)
 static void do_source(char *arg)
 {
   static int recur_level;
-  gchar *filename;
+  gchar *filename, *expfname;
   if (!*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Missing filename.");
     return;
@@ -2848,10 +2848,12 @@ static void do_source(char *arg)
   }
   filename = g_strdup(arg);
   strip_arg_special_chars(filename);
+  expfname = expand_filename(filename);
   recur_level++;
-  cfg_read_file(filename, FALSE);
+  cfg_read_file(expfname, FALSE);
   recur_level--;
   g_free(filename);
+  g_free(expfname);
 }
 
 static void do_connect(char *arg)

@@ -2,7 +2,7 @@
 # This script can be used to delete status messages from history files.
 #
 # If you want to clean all histories from status messages:
-# $ for i in ~/.mcabber/histo/*; do ./filter_statusmsg.py $i > foo; mv foo $i; done
+# $ for i in ~/.mcabber/histo/*; do if [[ ! -h $i ]]; then ./filter_statusmsg.py $i > foo; mv foo $i; fi; done
 #
 # Frank Zschockelt, 05.01.2007
 import sys

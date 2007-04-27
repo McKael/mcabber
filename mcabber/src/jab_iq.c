@@ -1257,7 +1257,6 @@ static void handle_iq_ping(jconn conn, char *from, const char *id,
   xmlnode x;
   x = jutil_iqresult(xmldata);
   jab_send(jc, x);
-  xmlnode_free(x);
 }
 
 static void handle_iq_version(jconn conn, char *from, const char *id,

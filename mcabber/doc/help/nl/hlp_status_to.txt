@@ -1,7 +1,7 @@
 
  /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [StatusBericht]
 
-Verstuur de gespecificeerde status naar het gespecificeerde Jabber account.
+Verstuur de aangegeven status naar het gespecificeerde Jabber account.
 Indien de gespecificeerde jid "." is, wordt de actieve buddy gebruikt.
 NB: deze status wordt overschreven door latere "/status" commando's.  Als de "auto-away" optie actief is, zal de status ook overschreven worden.
 NB: De jid kan een resource bevatten (bijvoorbeeld account@server/resource).

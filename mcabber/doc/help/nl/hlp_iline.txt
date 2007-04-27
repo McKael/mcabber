@@ -1,0 +1,63 @@
+
+ /ILINE fchar|bchar|char_fdel|char_bdel|char_swap
+ /ILINE fword|bword|word_bdel|word_fdel
+ /ILINE word_upcase|word_downcase|word_capit
+ /ILINE hist_beginning_search_bwd|hist_beginning_search_fwd
+ /ILINE hist_prev|hist_next
+ /ILINE iline_start|iline_end|iline_fdel|iline_bdel
+ /ILINE iline_accept|iline_accept_down_hist
+ /ILINE compl_do|compl_cancel
+ /ILINE send_multiline
+
+Invoer-regel commando's
+
+/iline fchar
+ Beweeg naar het volgende karakter
+/iline bchar
+ Beweeg naar het vorige karakter
+/iline char_fdel
+ Verwijder het karakter op de cursor positie
+/iline char_bdel
+ Verwijder het karakter voor de cursor positie
+/iline char_swap
+ Wissel karakters om
+/iline fword
+ Verplaats de cursor voorwaarts naar het eind van het huidige of volgende woord
+/iline bword
+ Verplaats de cursor achterwaarts naar het begin van het huidige of vorige woord
+/iline word_bdel
+ Verwijder het woord vanaf het begin tot de cursor positie
+/iline word_fdel
+ Verwijder het woord vanaf de cursor positie tot het eind
+/iline word_upcase
+ Converteer het woord naar hoofdletters vanaf de cursor positie tot het eind
+/iline word_downcase
+ Converteer het woord naar kleine letters vanaf de cursor positie tot het eind
+/iline word_capit
+ Converteer het woord naar kleine letters - met de eerste letter als hoofdletter - vanaf de cursor positie tot het eind
+/iline hist_beginning_search_bwd
+ Zoek achterwaarts in de geschiedenis naar een regel die begint met de huidige regeltekst tot aan de cursor (dit laat de cursor op de originele positie staan)
+/iline hist_beginning_search_fwd
+ Zoek voorwaarts in de geschiedenis naar een regel die begint met de huidige regeltekst tot aan de cursor (dit laat de cursor op de originele positie staan)
+/iline hist_prev
+ Vorige regel in de geschiedenis van invoerregels
+/iline hist_next
+ Volgende regel in de geschiedenis van invoerregels
+/iline iline_start
+ Ga naar het begin van de invoerregel
+/iline iline_end
+ Ga naar het eind van de invoerregel
+/iline iline_fdel
+ Verwijder vanaf de cursor tot het eind van de regel
+/iline iline_bdel
+ Verwijder vanaf het begin van de regel tot aan de cursor
+/iline iline_accept
+ Accepteer regel
+/iline iline_accept_down_hist
+ Accepteer regel en plaats de volgende regel uit de geschiedenis op de invoerregel
+/iline compl_do
+ Completeer het huidige woord op de invoerregel
+/iline compl_cancel
+ Stop het completeren
+/iline send_multiline
+ Verstuur/beeindig een meer-regelig bericht

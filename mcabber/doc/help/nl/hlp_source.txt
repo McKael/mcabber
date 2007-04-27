@@ -1,0 +1,4 @@
+
+ /SOURCE file
+
+Lees een configuratie-bestand in.

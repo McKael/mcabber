@@ -1,17 +1,19 @@
 
- /PGP disable|enable|info [jid]
+ /PGP disable|enable|force|info [jid]
  /PGP setkey [jid [key]]
 
 Dit commando manipuleert de PGP instellingen voor het specifieke jid (standaard is dat de actieve buddy).
-Houd er rekening mee dat er geen PGP versleuteling gebruikt wordt indien PGP ondersteuning aan de andere kant ontbreekt, zelfs wanneer PGP geactiveerd is met "/pgp enable"
+Houd er rekening mee dat er geen PGP versleuteling gebruikt wordt indien PGP ondersteuning aan de andere kant ontbreekt, zelfs wanneer PGP geactiveerd is met "/pgp enable". PGP versleuteling kan geforceerd worden met het "force" sub-commando.
 
 /pgp disable [jid]
  Uitzetten van PGP versleuteling voor jid (of de actieve buddy)
 /pgp enable [jid]
  Activeren van PGP versleuteling voor jid (of de actieve buddy)
+/pgp [+|-]force [jid]
+ PGP versleuteling afdwingen, zelfs voor offline berichten, en ga er altijd vanuit dat de ontvanger PGP versleuteling ondersteunt.  Indien een bericht niet kan worden versleuteld (ontbrekende sleutel of sleutel id), zal het niet verstuurd worden.  Deze optie wordt genegeerd indien PGP versleuteling is uitgezet.
 /pgp info [jid]
  Toon de huidige PGP instellingen voor de buddy
 /pgp setkey [jid [key]]
- Stel de PGP sleutel in die wordt gebruikt voor het versleutelen van berichten voor de buddy.
- Indien geen sleutel wordt aangegeven, wordt de actieve sleutel gewist.
+ Stel de PGP sleutel om te gebruiken voor het versleutelen van berichten voor de buddy.
+ Indien geen sleutel wordt opgegeven, wordt de actieve sleutel gewist.
  Je kunt de verkorte schrijfwijze "." gebruiken voor de actieve buddy.

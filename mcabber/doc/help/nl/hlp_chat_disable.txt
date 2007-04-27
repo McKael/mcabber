@@ -1,0 +1,4 @@
+
+ /CHAT_DISABLE
+
+Chat mode uitzetten.

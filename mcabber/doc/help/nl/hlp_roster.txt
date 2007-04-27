@@ -48,5 +48,5 @@ Dit zijn de beschikbare parameters:
  Schakel de zichtbaarheid van het roster om (tonen/verbergen)
 /roster note [-|tekst]
  Instellen/aanpassen/verwijderen van een notitie.
- Indien geen "tekst" is meegegeven, wordt de notitie getoond die behoort bij de actieve jid -- wanneer je in de status buffer staat worden alle notities wergegeven.
+ Indien geen "tekst" is meegegeven, wordt de notitie getoond die behoort bij de actieve jid -- wanneer je in de status buffer staat worden alle notities weergegeven.
  Indien de tekst "-" is, wordt de notitie gewist.

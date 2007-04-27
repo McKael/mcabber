@@ -1,0 +1,4 @@
+
+ /SCREEN_REFRESH
+
+Die Anzeige von mcabber aktualisieren.

@@ -1,0 +1,67 @@
+
+ /ILINE fchar|bchar|char_fdel|char_bdel|char_swap
+ /ILINE fword|bword|word_bdel|word_fdel
+ /ILINE word_upcase|word_downcase|word_capit
+ /ILINE hist_beginning_search_bwd|hist_beginning_search_fwd
+ /ILINE hist_prev|hist_next
+ /ILINE iline_start|iline_end|iline_fdel|iline_bdel
+ /ILINE iline_accept|iline_accept_down_hist
+ /ILINE compl_do|compl_cancel
+ /ILINE send_multiline
+
+Befehle für die Eingabezeile
+
+/iline fchar
+ Zum nächsten Zeichen bewegen
+/iline bchar
+ Zum vorherigen Zeichen bewegen
+/iline char_fdel
+ Das Zeichen unter dem Cursor löschen
+/iline char_bdel
+ Das Zeichen vor dem Cursor löschen
+/iline char_swap
+ Zeichen vertauschen
+/iline fword
+ Den Cursor bis zum Ende des ersten Wortes von rechts bewegen
+/iline bword
+ Den Cursor an den Anfang des ersten Wortes von links setzen
+/iline word_bdel
+ Die Zeichen des Wortes von der Cursor Position bis zum Anfang löschen
+/iline word_fdel
+ Die Zeichen des Wortes von der Cursor Position bis zum Ende löschen
+/iline word_upcase
+ Die Zeichen des Wortes von der Cursor Position bis zum Ende groß machen
+/iline word_downcase
+ Die Zeichen des Wortes von der Cursor Position bis zum Ende klein machen
+/iline word_capit
+ Den ersten Buchstaben des Wortes unter dem Cursor groß, den Rest der
+ Buchstaben klein machen
+/iline hist_beginning_search_bwd
+ In der History rückwärts nach dem schon eingegebenen Anfang suchen (Der Cursor
+ bleibt dabei an der gleichen Stelle)
+/iline hist_beginning_search_fwd
+ In der History vorwärts nach dem schon eingegebenen Anfang suchen (Der Cursor
+ bleibt dabei an der gleichen Stelle)
+/iline hist_prev
+ Vorherige Zeile der History
+/iline hist_next
+ Nächste Zeile der History
+/iline iline_start
+ Der Cursor springt an den Anfang der Eingabezeile
+/iline iline_end
+ Der Cursor springt an das Ende der Eingabezeile
+/iline iline_fdel
+ Alle Zeichen vom Cursor bis zum Ende der Zeile löschen
+/iline iline_bdel
+ Alle Zeichen vom Cursor bis zum Beginn der Zeile löschen
+/iline iline_accept
+ Zeile akzeptieren
+/iline iline_accept_down_hist
+ Zeile akzeptieren und die nächste Zeile aus der History in die Eingabezeile
+ schreiben
+/iline compl_do
+ Das derzeitig ausgewählte Wort vervollständigen
+/iline compl_cancel
+ Vervollständigen abbrechen
+/iline send_multiline
+ Eine mehrzeilige Nachricht senden

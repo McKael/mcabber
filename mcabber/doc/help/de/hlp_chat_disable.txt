@@ -1,0 +1,4 @@
+
+ /CHAT_DISABLE
+
+Den Chatmodus verlassen.

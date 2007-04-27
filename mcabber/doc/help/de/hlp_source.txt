@@ -1,0 +1,4 @@
+
+ /SOURCE file
+
+Eine Konfigurationsdatei laden.

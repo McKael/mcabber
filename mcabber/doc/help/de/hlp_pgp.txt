@@ -1,14 +1,22 @@
 
- /PGP disable|enable|info [jid]
+ /PGP disable|enable|force|info [jid]
  /PGP setkey [jid [key]]
 
 Dieser Befehl verändert die PGP Einstellung für die übergebene JID (oder den gerade aktiven Buddy).
-Bitte beachte, dass PGP Verschlüsselung _nicht_ benutzt wird, wenn der andere kein PGP unterstützt, selbst wenn PGP mit diesem Befehl eingeschaltet wurde.
+Bitte beachte, dass PGP Verschlüsselung _nicht_ benutzt wird, wenn der andere
+kein PGP unterstützt, selbst wenn PGP mit diesem Befehl eingeschaltet wurde.
+Man kann die Verschlüsselung allerdings durch "force" erzwingen.
 
 /pgp disable [jid]
  Schaltet PGP Verschlüsselung für die jid aus (oder dem gerade aktiven Buddy)
 /pgp enable [jid]
  Schaltet PGP Verschlüsselung für die jid ein (oder dem gerade aktiven Buddy)
+/pgp [+|-]force [jid]
+ PGP Verschlüsselung erzwingen, selbst bei offline Nachrichten. Es wird
+ ausserdem angenommen, dass alle Buddies PGP benutzen. Wenn eine Nachricht
+ nicht verschlüsselt werden kann, weil zum Beispiel der Schlüssel für den
+ Buddy fehlt, wird die Nachricht überhaupt nicht gesendet. Diese Option wird
+ ignoriert, wenn PGP deaktiviert ist.
 /pgp info [jid]
  Zeige die momentanen PGP-Einstellungen für die jid
 /pgp setkey [jid [key]]

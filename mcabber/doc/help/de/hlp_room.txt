@@ -37,4 +37,5 @@ Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
  Ändert die Zugehörigkeit der jid zum Raum. (zugh kann "none", "member", "admin" oder "owner" sein)
 /room bookmark [add|del] [-autojoin|+autojoin]
  Zum Hinzufügen, Löschen und Ändern von Raum-Bookmarks.
- Wenn autojoin gesetzt ist, wird mcabber nach dem verbinden zum Server diesen MUC automatisch betreten
+ Wenn autojoin gesetzt ist, wird mcabber nach dem verbinden zum Server diesen MUC automatisch betreten.
+ Um die Liste der Bookmarks zu sehen, benutze "/room bookmark", bei ausgewähltem Status Buffer.

@@ -648,11 +648,13 @@ strcasestr (const char *haystack, const char *needle)
 }
 #endif /* !HAVE_STRCASESTR */
 
-//  startswith(str, word)
+//  startswith(str, word, ignore_case)
 // Returns TRUE if string str starts with word.
-int startswith(const char *str, const char *word)
+int startswith(const char *str, const char *word, guint ignore_case)
 {
-  if (!strncmp(str, word, strlen(word)))
+  if (ignore_case && !strncasecmp(str, word, strlen(word)))
+    return TRUE;
+  else if (!ignore_case && !strncmp(str, word, strlen(word)))
     return TRUE;
   return FALSE;
 }

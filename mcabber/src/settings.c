@@ -154,11 +154,13 @@ int cfg_read_file(char *filename, guint mainfile)
 
     // We only allow assignments line, except for commands "pgp" and "source"
     if ((strchr(line, '=') != NULL) ||
-        startswith(line, "pgp ") || startswith(line, "source ")) {
+        startswith(line, "pgp ", FALSE) || startswith(line, "source ", FALSE)) {
       // Only accept the set, alias, bind, pgp and source commands
-      if (!startswith(line, "set ")   && !startswith(line, "bind ") &&
-          !startswith(line, "alias ") && !startswith(line, "pgp ")  &&
-          !startswith(line, "source ")) {
+      if (!startswith(line, "set ", FALSE)   &&
+          !startswith(line, "bind ", FALSE)  &&
+          !startswith(line, "alias ", FALSE) &&
+          !startswith(line, "pgp ", FALSE)   &&
+          !startswith(line, "source ", FALSE)) {
         scr_LogPrint(LPRINT_LOGNORM,
                      "Error in configuration file (l. %d): bad command", ln);
         err++;

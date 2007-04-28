@@ -43,7 +43,7 @@ char *ut_expand_tabs(const char *text);
 char *strcasestr(const char *haystack, const char *needle);
 #endif
 
-int startswith(const char *str, const char *word);
+int startswith(const char *str, const char *word, guint ignore_case);
 
 #endif // __UTILS_H__
 

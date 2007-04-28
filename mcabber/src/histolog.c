@@ -280,7 +280,7 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
     if (type == 'M') {
       char *converted;
       if (info == 'S')
-        prefix_flags = HBB_PREFIX_OUT | HBB_PREFIX_HLIGHT;
+        prefix_flags = HBB_PREFIX_OUT | HBB_PREFIX_HLIGHT_OUT;
       else
         prefix_flags = HBB_PREFIX_IN;
       converted = from_utf8(&data[dataoffset+1]);

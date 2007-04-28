@@ -178,6 +178,7 @@ static void ParseColors(void)
     "", "",
     "general",
     "msgout",
+    "msghl",
     "status",
     "roster",
     "rostersel",
@@ -226,6 +227,10 @@ static void ParseColors(void)
           break;
       case COLOR_MSGOUT:
           init_pair(i+1, ((color) ? FindColor(color) : COLOR_CYAN),
+                    FindColor(background));
+          break;
+      case COLOR_MSGHL:
+          init_pair(i+1, ((color) ? FindColor(color) : COLOR_YELLOW),
                     FindColor(background));
           break;
       case COLOR_STATUS:
@@ -629,8 +634,10 @@ static void scr_UpdateWindow(winbuf *win_entry)
     // NOTE: update PREFIX_WIDTH if you change the date format!!
     // You need to set it to the whole prefix length + 1
     if (line) {
-      if (line->flags & HBB_PREFIX_HLIGHT)
+      if (line->flags & HBB_PREFIX_HLIGHT_OUT)
         wattrset(win_entry->win, get_color(COLOR_MSGOUT));
+      else if (line->flags & HBB_PREFIX_HLIGHT)
+        wattrset(win_entry->win, get_color(COLOR_MSGHL));
 
       if (line->timestamp && !(line->flags & HBB_PREFIX_SPECIAL)) {
         strftime(date, 30, "%m-%d %H:%M", localtime(&line->timestamp));
@@ -665,7 +672,8 @@ static void scr_UpdateWindow(winbuf *win_entry)
 
       wprintw(win_entry->win, "%s", line->text); // Display text line
 
-      if (line->flags & HBB_PREFIX_HLIGHT)
+      if (line->flags & HBB_PREFIX_HLIGHT_OUT ||
+          line->flags & HBB_PREFIX_HLIGHT)
         wattrset(win_entry->win, get_color(COLOR_GENERAL));
       wclrtoeol(win_entry->win);
       g_free(line->text);
@@ -1462,7 +1470,8 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
         time_t timestamp, guint prefix)
 {
   if (!(prefix &
-        ~HBB_PREFIX_NOFLAG & ~HBB_PREFIX_HLIGHT & ~HBB_PREFIX_PGPCRYPT))
+        ~HBB_PREFIX_NOFLAG & ~HBB_PREFIX_HLIGHT & ~HBB_PREFIX_HLIGHT_OUT &
+        ~HBB_PREFIX_PGPCRYPT))
     prefix |= HBB_PREFIX_IN;
 
   scr_WriteMessage(jidfrom, text, timestamp, prefix);
@@ -1474,7 +1483,7 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix)
   roster_elt = roster_find(jidto, jidsearch,
                            ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
 
-  scr_WriteMessage(jidto, text, 0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT);
+  scr_WriteMessage(jidto, text, 0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT);
 
   // Show jidto's buffer unless the buddy is not in the buddylist
   if (roster_elt && g_list_position(buddylist, roster_elt->data) != -1)

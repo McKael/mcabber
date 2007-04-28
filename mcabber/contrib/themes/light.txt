@@ -4,6 +4,7 @@
 set color_background   = white
 set color_general      = black
 set color_msgout       = cyan
+set color_msghl        = yellow
 set color_bgstatus     = black
 set color_status       = green
 set color_roster       = blue

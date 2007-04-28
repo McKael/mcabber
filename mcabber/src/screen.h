@@ -40,6 +40,7 @@ void spellcheck_deinit(void);
 enum colors {
   COLOR_GENERAL = 3,
   COLOR_MSGOUT,
+  COLOR_MSGHL,
   COLOR_STATUS,
   COLOR_ROSTER,
   COLOR_ROSTERSEL,

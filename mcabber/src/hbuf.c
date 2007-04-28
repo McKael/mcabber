@@ -294,7 +294,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
 {
   unsigned int i;
   hbuf_block *blk;
-  guchar last_persist_prefixflags = 0;
+  guint last_persist_prefixflags = 0;
   GList *last_persist;  // last persistent flags
   hbb_line **array, **array_elt;
 
@@ -327,8 +327,9 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
       if ((blk->flags & HBB_FLAG_PERSISTENT) && blk->prefix.flags) {
         last_persist_prefixflags = blk->prefix.flags;
       } else {
-        // Propagate highlighting flag
-        (*array_elt)->flags |= last_persist_prefixflags & HBB_PREFIX_HLIGHT;
+        // Propagate highlighting flags
+        (*array_elt)->flags |= last_persist_prefixflags &
+                               (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT);
       }
 
       hbuf = g_list_next(hbuf);

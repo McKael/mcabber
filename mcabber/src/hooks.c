@@ -30,6 +30,7 @@
 #include "hbuf.h"
 #include "settings.h"
 #include "utils.h"
+#include "utf8.h"
 
 static char *extcmd;
 
@@ -112,13 +113,27 @@ inline void hk_message_in(const char *bjid, const char *resname,
           wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
         }
       }
+      message_flags |= HBB_PREFIX_HLIGHT;
     } else {
       // This is a regular chatroom message.
-      // Let's see if we are the message sender, in which case we'll
-      // highlight it.
       const char *nick = buddy_getnickname(roster_usr->data);
-      if (resname && nick && !strcmp(resname, nick))
-        message_flags |= HBB_PREFIX_HLIGHT;
+
+      if (nick) {
+        // Let's see if we are the message sender, in which case we'll
+        // highlight it.
+        if (resname && !strcmp(resname, nick)) {
+          message_flags |= HBB_PREFIX_HLIGHT_OUT;
+        } else {
+          // We're not the sender.  Can we see our nick?
+          if (startswith(msg, nick, TRUE)) {
+            // The message starts with our nick.  Let's check it's not
+            // followed immediately by an alphnumeric character.
+            if (!iswalnum(get_char(msg+strlen(nick))))
+              message_flags |= HBB_PREFIX_HLIGHT;
+          }
+          // We could do a more global check...
+        }
+      }
     }
   }
 

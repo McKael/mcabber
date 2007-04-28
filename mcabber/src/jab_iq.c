@@ -1,7 +1,7 @@
 /*
  * jab_iq.c     -- Jabber protocol IQ-related fonctions
  *
- * Copyright (C) 2005, 2006 Mikael Berthe <bmikael@lists.lilotux.net>
+ * Copyright (C) 2005-2007 Mikael Berthe <mikael@lilotux.net>
  * Some parts initially came from the centericq project:
  * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
  * Some small parts come from the Gaim project <http://gaim.sourceforge.net/>

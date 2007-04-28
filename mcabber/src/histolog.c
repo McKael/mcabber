@@ -1,7 +1,7 @@
 /*
  * histolog.c   -- File history handling
  *
- * Copyright (C) 2005, 2006 Mikael Berthe <bmikael@lists.lilotux.net>
+ * Copyright (C) 2005-2007 Mikael Berthe <mikael@lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -353,8 +353,7 @@ inline void hlog_write_message(const char *bjid, time_t timestamp, int sent,
 inline void hlog_write_status(const char *bjid, time_t timestamp,
         enum imstatus status, const char *status_msg)
 {
-  // #1 XXX Check status value?
-  // #2 We could add a user-readable comment
+  // XXX Check status value?
   write_histo_line(bjid, timestamp, 'S', toupper(imstatus2char[status]),
           status_msg);
 }

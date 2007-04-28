@@ -1,7 +1,7 @@
 /*
  * jabglue.c    -- Jabber protocol handling
  *
- * Copyright (C) 2005, 2006 Mikael Berthe <bmikael@lists.lilotux.net>
+ * Copyright (C) 2005-2007 Mikael Berthe <mikael@lilotux.net>
  * Parts come from the centericq project:
  * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
  *

@@ -53,7 +53,7 @@ AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm bzero gethostbyname gethostname inet_ntoa isascii \
                 memmove memset modf select setlocale socket strcasecmp \
-                strchr strdup strncasecmp strrchr strstr strcasestr])
+                strchr strdup strncasecmp strrchr strstr strcasestr vsnprintf])
 
 
 AC_CHECK_DECLS([strptime],,,

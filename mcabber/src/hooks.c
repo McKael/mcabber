@@ -123,15 +123,27 @@ inline void hk_message_in(const char *bjid, const char *resname,
         // highlight it.
         if (resname && !strcmp(resname, nick)) {
           message_flags |= HBB_PREFIX_HLIGHT_OUT;
-        } else {
+        } else if (!settings_opt_get_int("muc_disable_nick_hl")) {
           // We're not the sender.  Can we see our nick?
-          if (startswith(msg, nick, TRUE)) {
-            // The message starts with our nick.  Let's check it's not
-            // followed immediately by an alphnumeric character.
-            if (!iswalnum(get_char(msg+strlen(nick))))
+          const char *msgptr = msg;
+          while ((msgptr = strcasestr(msgptr, nick)) != NULL) {
+            const char *leftb, *rightb;
+            // The message contains our nick.  Let's check it's not
+            // in the middle of another word (i.e. preceded/followed
+            // immediately by an alphanumeric character or an underscore.
+            rightb = msgptr+strlen(nick);
+            if (msgptr == msg)
+              leftb = NULL;
+            else
+              leftb = prev_char((char*)msgptr, msg);
+            msgptr = next_char((char*)msgptr);
+            // Check left boundary
+            if (leftb && (iswalnum(get_char(leftb)) || get_char(leftb) == '_'))
+              continue;
+            // Check right boundary
+            if (!iswalnum(get_char(rightb)) && get_char(rightb) != '_')
               message_flags |= HBB_PREFIX_HLIGHT;
           }
-          // We could do a more global check...
         }
       }
     }

@@ -212,6 +212,10 @@ set cmdhistory_lines = 250
 # Set 'muc_auto_whois' to 1 if you want to call /room whois each time
 # somebody joins a room. (default: 0)
 #set muc_auto_whois = 0
+#
+# Set 'muc_disable_nick_hl' to 1 if you don't want mcabber to color lines
+# containing your nickname in a MUC room.
+#set muc_disable_nick_hl = 0
 
 # Status messages
 # The "message" value will override all others, take care!

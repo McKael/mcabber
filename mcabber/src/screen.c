@@ -391,6 +391,8 @@ void scr_init_bindings(void)
   settings_set(SETTINGS_TYPE_BINDING, "M108", "iline word_downcase"); // Meta-l
   settings_set(SETTINGS_TYPE_BINDING, "M99", "iline word_capit"); // Meta-c
 
+  settings_set(SETTINGS_TYPE_BINDING, "265", "help"); // Bind F1 to help...
+
   g_string_free(sbuf, TRUE);
 }
 

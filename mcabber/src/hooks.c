@@ -197,10 +197,13 @@ inline void hk_message_in(const char *bjid, const char *resname,
                  name, bjid, (resname ? resname : ""));
   }
 
-  // Beep, if enabled
-  if ((!is_groupchat) && !(message_flags & HBB_PREFIX_ERR) &&
-      settings_opt_get_int("beep_on_message")) {
-    scr_Beep();
+  // Beep, if enabled:
+  // - if it's a private message
+  // - if it's a public message and it's highlighted
+  if (settings_opt_get_int("beep_on_message")) {
+    if ((!is_groupchat && !(message_flags & HBB_PREFIX_ERR)) ||
+        (is_groupchat  && (message_flags & HBB_PREFIX_HLIGHT)))
+      scr_Beep();
   }
 
   // We need to update the roster if the sender is unknown or

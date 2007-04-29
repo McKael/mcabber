@@ -62,7 +62,6 @@ static void scr_handle_tab(void);
 
 #ifdef HAVE_ASPELL_H
 static void spellcheck(char *, char *);
-static inline int is_alpha(const char *);
 #endif
 
 static GHashTable *winbufhash;
@@ -3283,7 +3282,7 @@ static void spellcheck(char *line, char *checked)
 
   while (*line) {
 
-    if (!is_alpha(line)) {
+    if (!iswalpha(get_char(line))) {
       line = next_char(line);
       continue;
     }
@@ -3308,26 +3307,13 @@ static void spellcheck(char *line, char *checked)
 
     start = line;
 
-    while (is_alpha(line))
+    while (iswalpha(get_char(line)))
       line = next_char(line);
 
     if (spell_checker &&
         aspell_speller_check(spell_checker, start, line - start) == 0)
       memset(&checked[start - line_start], ASPELLBADCHAR, line - start);
   }
-}
-
-// Universal isalpha function
-static inline int is_alpha(const char *c)
-{
-  if (utf8_mode) {
-    if (iswalpha(get_char(c)))
-      return 1;
-  } else {
-    if (isalpha(*c))
-      return 1;
-  }
-  return 0;
 }
 #endif
 

@@ -123,7 +123,8 @@ int cfg_read_file(char *filename, guint mainfile)
     }
     // Check configuration file permissions (see above)
     // We don't change the permissions if that's not the main file.
-    checkset_perm(filename, mainfile);
+    if (mainfile)
+      checkset_perm(filename, TRUE);
     scr_LogPrint(LPRINT_LOGNORM, "Reading %s", filename);
   }
 

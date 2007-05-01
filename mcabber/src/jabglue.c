@@ -58,7 +58,7 @@ static void statehandler(jconn, int);
 static void packethandler(jconn, jpacket);
 static void handle_state_events(char* from, xmlnode xmldata);
 
-static void evscallback_invitation(eviqs *evp, guint evcontext);
+static int evscallback_invitation(eviqs *evp, guint evcontext);
 
 static void logger(jconn j, int io, const char *buf)
 {
@@ -1746,6 +1746,8 @@ void display_server_error(xmlnode x)
   char *s;
   const char *p;
 
+  if (!x) return;
+
   /* RFC3920:
    *    The <error/> element:
    *       o  MUST contain a child element corresponding to one of the defined
@@ -2142,8 +2144,8 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   if (type && !strcmp(type, TMSG_ERROR)) {
     xmlnode x;
     scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", r);
-    if ((x = xmlnode_get_tag(xmldata, TMSG_ERROR)) != NULL)
-      display_server_error(x);
+    x = xmlnode_get_tag(xmldata, TMSG_ERROR);
+    display_server_error(x);
 
     // Let's check it isn't a nickname conflict.
     // XXX Note: We should handle the <conflict/> string condition.
@@ -2331,8 +2333,8 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   timestamp = xml_get_timestamp(xmldata);
 
   if (type && !strcmp(type, TMSG_ERROR)) {
-    if ((x = xmlnode_get_tag(xmldata, TMSG_ERROR)) != NULL)
-      display_server_error(x);
+    x = xmlnode_get_tag(xmldata, TMSG_ERROR);
+    display_server_error(x);
 #if defined JEP0022 || defined JEP0085
     // If the JEP85/22 support is probed, set it back to unknown so that
     // we probe it again.
@@ -2467,7 +2469,7 @@ static void handle_state_events(char *from, xmlnode xmldata)
 #endif
 }
 
-static void evscallback_subscription(eviqs *evp, guint evcontext)
+static int evscallback_subscription(eviqs *evp, guint evcontext)
 {
   char *barejid;
   char *buf;
@@ -2475,20 +2477,20 @@ static void evscallback_subscription(eviqs *evp, guint evcontext)
   if (evcontext == EVS_CONTEXT_TIMEOUT) {
     scr_LogPrint(LPRINT_LOGNORM, "Event %s timed out, cancelled.",
                  evp->id);
-    return;
+    return 0;
   }
   if (evcontext == EVS_CONTEXT_CANCEL) {
     scr_LogPrint(LPRINT_LOGNORM, "Event %s cancelled.", evp->id);
-    return;
+    return 0;
   }
   if (!(evcontext & EVS_CONTEXT_USER))
-    return;
+    return 0;
 
   // Sanity check
   if (!evp->data) {
     // Shouldn't happen, data should be set to the barejid.
     scr_LogPrint(LPRINT_LOGNORM, "Error in evs callback.");
-    return;
+    return 0;
   }
 
   // Ok, let's work now.
@@ -2514,6 +2516,7 @@ static void evscallback_subscription(eviqs *evp, guint evcontext)
   scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
   g_free(buf);
+  return 0;
 }
 
 static void decline_invitation(event_muc_invitation *invitation, char *reason)
@@ -2542,7 +2545,7 @@ static void decline_invitation(event_muc_invitation *invitation, char *reason)
   jb_reset_keepalive();
 }
 
-static void evscallback_invitation(eviqs *evp, guint evcontext)
+static int evscallback_invitation(eviqs *evp, guint evcontext)
 {
   event_muc_invitation *invitation = evp->data;
 
@@ -2550,7 +2553,7 @@ static void evscallback_invitation(eviqs *evp, guint evcontext)
   if (!invitation) {
     // Shouldn't happen.
     scr_LogPrint(LPRINT_LOGNORM, "Error in evs callback.");
-    return;
+    return 0;
   }
 
   if (evcontext == EVS_CONTEXT_TIMEOUT) {
@@ -2582,6 +2585,7 @@ evscallback_invitation_free:
   g_free(invitation->reason);
   g_free(invitation);
   evp->data = NULL;
+  return 0;
 }
 
 static void handle_packet_s10n(jconn conn, char *type, char *from,

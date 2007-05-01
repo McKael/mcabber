@@ -110,7 +110,7 @@ int evs_callback(const char *evid, guint evcontext)
   // IQ processing
   // Note: If xml_result is NULL, this is a timeout
   if (i->callback)
-    (*i->callback)(i, evcontext);
+    (void)(*i->callback)(i, evcontext);
 
   evs_del(evid);
   return 0;

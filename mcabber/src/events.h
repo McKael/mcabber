@@ -23,7 +23,7 @@ typedef struct {
   time_t ts_expire;
   guint8 type;
   gpointer data;
-  void (*callback)();
+  int (*callback)();
   xmlnode xmldata;
   char *desc;
 } eviqs;

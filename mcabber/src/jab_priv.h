@@ -41,7 +41,7 @@ eviqs *iqs_new(guint8 type, const char *ns, const char *prefix, time_t timeout);
 int  iqs_del(const char *iqid);
 int  iqs_callback(const char *iqid, xmlnode xml_result, guint iqcontext);
 void iqs_check_timeout(time_t now_t);
-void iqscallback_auth(eviqs *iqp, xmlnode xml_result);
+int  iqscallback_auth(eviqs *iqp, xmlnode xml_result);
 void request_version(const char *fulljid);
 void request_time(const char *fulljid);
 void request_last(const char *fulljid);

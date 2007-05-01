@@ -172,6 +172,7 @@ static eviqs *iqs_find(const char *iqid)
 int iqs_callback(const char *iqid, xmlnode xml_result, guint iqcontext)
 {
   eviqs *i;
+  int retval = 0;
 
   i = iqs_find(iqid);
   if (!i) return -1;
@@ -179,10 +180,10 @@ int iqs_callback(const char *iqid, xmlnode xml_result, guint iqcontext)
   // IQ processing
   // Note: If xml_result is NULL, this is a timeout
   if (i->callback)
-    (*i->callback)(i, xml_result, iqcontext);
+    retval = (*i->callback)(i, xml_result, iqcontext);
 
   iqs_del(iqid);
-  return 0;
+  return retval;
 }
 
 void iqs_check_timeout(time_t now_t)
@@ -288,7 +289,7 @@ static void handle_iq_roster(xmlnode x)
     scr_UpdateBuddyWindow();
 }
 
-static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
+static int iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p;
@@ -296,18 +297,18 @@ static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   char *buf;
 
   // Leave now if we cannot process xml_result
-  if (!xml_result || iqcontext) return;
+  if (!xml_result || iqcontext) return -1;
 
   ansqry = xmlnode_get_tag(xml_result, "query");
   if (!ansqry) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result!");
-    return;
+    return 0;
   }
   // Display IQ result sender...
   p = xmlnode_get_attrib(xml_result, "from");
   if (!p) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
-    return;
+    return 0;
   }
   bjid = p;
 
@@ -340,6 +341,7 @@ static void iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
     g_free(buf);
   }
+  return 0;
 }
 
 void request_version(const char *fulljid)
@@ -352,7 +354,7 @@ void request_version(const char *fulljid)
   jab_send(jc, iqn->xmldata);
 }
 
-static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
+static int iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p;
@@ -360,18 +362,18 @@ static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   char *buf;
 
   // Leave now if we cannot process xml_result
-  if (!xml_result || iqcontext) return;
+  if (!xml_result || iqcontext) return -1;
 
   ansqry = xmlnode_get_tag(xml_result, "query");
   if (!ansqry) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result!");
-    return;
+    return 0;
   }
   // Display IQ result sender...
   p = xmlnode_get_attrib(xml_result, "from");
   if (!p) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result (no sender name).");
-    return;
+    return 0;
   }
   bjid = p;
 
@@ -404,6 +406,7 @@ static void iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
     g_free(buf);
   }
+  return 0;
 }
 
 void request_time(const char *fulljid)
@@ -416,7 +419,7 @@ void request_time(const char *fulljid)
   jab_send(jc, iqn->xmldata);
 }
 
-static void iqscallback_last(eviqs *iqp, xmlnode xml_result, guint iqcontext)
+static int iqscallback_last(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p;
@@ -424,18 +427,18 @@ static void iqscallback_last(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   char *buf;
 
   // Leave now if we cannot process xml_result
-  if (!xml_result || iqcontext) return;
+  if (!xml_result || iqcontext) return -1;
 
   ansqry = xmlnode_get_tag(xml_result, "query");
   if (!ansqry) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:last result!");
-    return;
+    return 0;
   }
   // Display IQ result sender...
   p = xmlnode_get_attrib(xml_result, "from");
   if (!p) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:last result (no sender name).");
-    return;
+    return 0;
   }
   bjid = p;
 
@@ -477,6 +480,7 @@ static void iqscallback_last(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO);
     g_free(buf);
   }
+  return 0;
 }
 
 void request_last(const char *fulljid)
@@ -600,7 +604,7 @@ static void handle_vcard_node(const char *barejid, xmlnode vcardnode)
   }
 }
 
-static void iqscallback_vcard(eviqs *iqp, xmlnode xml_result, guint iqcontext)
+static int iqscallback_vcard(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
   xmlnode ansqry;
   char *p;
@@ -608,13 +612,13 @@ static void iqscallback_vcard(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   char *buf;
 
   // Leave now if we cannot process xml_result
-  if (!xml_result || iqcontext) return;
+  if (!xml_result || iqcontext) return -1;
 
   // Display IQ result sender...
   p = xmlnode_get_attrib(xml_result, "from");
   if (!p) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:vCard result (no sender name).");
-    return;
+    return 0;
   }
   bjid = p;
 
@@ -625,7 +629,7 @@ static void iqscallback_vcard(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   ansqry = xmlnode_get_tag(xml_result, "vCard");
   if (!ansqry) {
     scr_LogPrint(LPRINT_LOGNORM, "Empty IQ:vCard result!");
-    return;
+    return 0;
   }
 
   // bjid should really be the "bare JID", let's strip the resource
@@ -637,6 +641,7 @@ static void iqscallback_vcard(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 
   // Get result data...
   handle_vcard_node(bjid, ansqry);
+  return 0;
 }
 
 void request_vcard(const char *bjid)
@@ -707,20 +712,36 @@ static void storage_bookmarks_parse_conference(xmlnode xmldata)
   g_free(bjid);
 }
 
-static void iqscallback_storage_bookmarks(eviqs *iqp, xmlnode xml_result,
-                                          guint iqcontext)
+static int iqscallback_storage_bookmarks(eviqs *iqp, xmlnode xml_result,
+                                         guint iqcontext)
 {
   xmlnode x, ansqry;
   char *p;
 
+  if (iqcontext == IQS_CONTEXT_ERROR) {
+    // No server support, or no bookmarks?
+    p = xmlnode_get_name(xmlnode_get_firstchild(xml_result));
+    if (p && !strcmp(p, "item-not-found")) {
+      // item-no-found means the server has Private Storage, but it's
+      // currently empty.
+      xmlnode_free(bookmarks);
+      bookmarks = xmlnode_new_tag("storage");
+      xmlnode_put_attrib(bookmarks, "xmlns", "storage:bookmarks");
+      // We return 0 so that the IQ error message be
+      // not displayed, as it isn't a real error.
+      return 0;
+    }
+    return -1; // Unhandled error
+  }
+
   // Leave now if we cannot process xml_result
-  if (!xml_result || iqcontext) return;
+  if (!xml_result || iqcontext) return 0;
 
   ansqry = xmlnode_get_tag(xml_result, "query");
   ansqry = xmlnode_get_tag(ansqry, "storage");
   if (!ansqry) {
     scr_LogPrint(LPRINT_LOG, "Invalid IQ:private result! (storage:bookmarks)");
-    return;
+    return 0;
   }
 
   // Walk through the storage tags
@@ -734,6 +755,7 @@ static void iqscallback_storage_bookmarks(eviqs *iqp, xmlnode xml_result,
   // Copy the bookmarks node
   xmlnode_free(bookmarks);
   bookmarks = xmlnode_dup(ansqry);
+  return 0;
 }
 
 static void request_storage_bookmarks(void)
@@ -750,24 +772,42 @@ static void request_storage_bookmarks(void)
   jab_send(jc, iqn->xmldata);
 }
 
-static void iqscallback_storage_rosternotes(eviqs *iqp, xmlnode xml_result,
-                                            guint iqcontext)
+static int iqscallback_storage_rosternotes(eviqs *iqp, xmlnode xml_result,
+                                           guint iqcontext)
 {
   xmlnode ansqry;
 
+  if (iqcontext == IQS_CONTEXT_ERROR) {
+    const char *p;
+    // No server support, or no roster notes?
+    p = xmlnode_get_name(xmlnode_get_firstchild(xml_result));
+    if (p && !strcmp(p, "item-not-found")) {
+      // item-no-found means the server has Private Storage, but it's
+      // currently empty.
+      xmlnode_free(rosternotes);
+      rosternotes = xmlnode_new_tag("storage");
+      xmlnode_put_attrib(rosternotes, "xmlns", "storage:rosternotes");
+      // We return 0 so that the IQ error message be
+      // not displayed, as it isn't a real error.
+      return 0;
+    }
+    return -1; // Unhandled error
+  }
+
   // Leave now if we cannot process xml_result
-  if (!xml_result || iqcontext) return;
+  if (!xml_result || iqcontext) return 0;
 
   ansqry = xmlnode_get_tag(xml_result, "query");
   ansqry = xmlnode_get_tag(ansqry, "storage");
   if (!ansqry) {
     scr_LogPrint(LPRINT_LOG, "Invalid IQ:private result! "
                  "(storage:rosternotes)");
-    return;
+    return 0;
   }
   // Copy the rosternotes node
   xmlnode_free(rosternotes);
   rosternotes = xmlnode_dup(ansqry);
+  return 0;
 }
 
 static void request_storage_rosternotes(void)
@@ -784,7 +824,7 @@ static void request_storage_rosternotes(void)
   jab_send(jc, iqn->xmldata);
 }
 
-void iqscallback_auth(eviqs *iqp, xmlnode xml_result)
+int iqscallback_auth(eviqs *iqp, xmlnode xml_result)
 {
   if (jstate == STATE_GETAUTH) {
     eviqs *iqn;
@@ -806,6 +846,7 @@ void iqscallback_auth(eviqs *iqp, xmlnode xml_result)
     request_storage_rosternotes();
     jstate = STATE_LOGGED;
   }
+  return 0;
 }
 
 static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
@@ -1429,10 +1470,10 @@ void handle_packet_iq(jconn conn, char *type, char *from, xmlnode xmldata)
   } else if (!strcmp(type, "set")) {
     handle_iq_set(conn, from, xmldata);
   } else if (!strcmp(type, TMSG_ERROR)) {
+    // Display a message only if the error isn't caught by a callback.
     xmlnode x = xmlnode_get_tag(xmldata, TMSG_ERROR);
-    if (x)
+    if (iqs_callback(xmlnode_get_attrib(xmldata, "id"), x, IQS_CONTEXT_ERROR))
       display_server_error(x);
-    iqs_callback(xmlnode_get_attrib(xmldata, "id"), NULL, IQS_CONTEXT_ERROR);
   }
 }
 

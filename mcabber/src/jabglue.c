@@ -1804,6 +1804,8 @@ static void statehandler(jconn conn, int state)
         bookmarks = NULL;
         // Free roster
         roster_free();
+        xmlnode_free(rosternotes);
+        rosternotes = NULL;
         // Update display
         update_roster = TRUE;
         scr_UpdateBuddyWindow();

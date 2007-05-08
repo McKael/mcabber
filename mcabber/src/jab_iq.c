@@ -104,36 +104,22 @@ const struct adhoc_status adhoc_status_list[] = {
 
 //  entity_version()
 // Return a static version string for Entity Capabilities.
-// It should be specific to the client version, so we'll append
-// a random string if it's a dev version and there's no changeset, or
-// if it's been modified locally.
+// It should be specific to the client version, please change the id
+// if you alter mcabber's disco support (or add something to the version
+// number) so that it doesn't conflict with the official client.
 const char *entity_version(void)
 {
   static char *ver;
-  char *tver;
 
   if (ver)
     return ver;
 
 #ifdef HGCSET
-  tver = g_strdup_printf("%s-%s", PACKAGE_VERSION, HGCSET);
-  if (strlen(HGCSET) == 12)
-    ver = tver;
+  ver = g_strdup_printf("%s-%s", PACKAGE_VERSION, HGCSET);
 #else
-  tver = g_strdup(PACKAGE_VERSION);
-  if (!strcasestr(PACKAGE_VERSION, "-dev"))
-    ver = tver; // Official release
+  ver = g_strdup(PACKAGE_VERSION);
 #endif
 
-  // If this isn't an official release, or if the changeset shows the source
-  // code has been modified locally, we alter the release id.
-  if (!ver) {
-    unsigned int n;
-    srand(time(NULL));
-    n = (unsigned int)(10.0 + 6.0 * rand() / (RAND_MAX + 1.0));
-    ver = g_strdup_printf("%s~%x", tver, n);
-    g_free(tver);
-  }
   return ver;
 }
 
@@ -1316,6 +1302,8 @@ static void disco_info_set_ext(xmlnode ansquery, const char *ext)
 // Add features attributes to ansquery.  If entitycaps is TRUE, assume
 // that we're answering an Entity Caps request (if not, the request was
 // a basic discovery query).
+// Please change the entity version string if you modify mcabber disco
+// source code, so that it doesn't conflict with the upstream client.
 static void disco_info_set_default(xmlnode ansquery, guint entitycaps)
 {
   xmlnode y;

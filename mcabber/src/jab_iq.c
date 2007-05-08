@@ -34,6 +34,10 @@
 #include "hbuf.h"
 #include "commands.h"
 
+#ifdef ENABLE_HGCSET
+# include "hgcset.h"
+#endif
+
 
 // Bookmarks for IQ:private storage
 xmlnode bookmarks;
@@ -97,6 +101,41 @@ const struct adhoc_status adhoc_status_list[] = {
   {"offline", "Offline", "offline"},
   {NULL, NULL, NULL},
 };
+
+//  entity_version()
+// Return a static version string for Entity Capabilities.
+// It should be specific to the client version, so we'll append
+// a random string if it's a dev version and there's no changeset, or
+// if it's been modified locally.
+const char *entity_version(void)
+{
+  static char *ver;
+  char *tver;
+
+  if (ver)
+    return ver;
+
+#ifdef HGCSET
+  tver = g_strdup_printf("%s-%s", PACKAGE_VERSION, HGCSET);
+  if (strlen(HGCSET) == 12)
+    ver = tver;
+#else
+  tver = g_strdup(PACKAGE_VERSION);
+  if (!strcasestr(PACKAGE_VERSION, "-dev"))
+    ver = tver; // Official release
+#endif
+
+  // If this isn't an official release, or if the changeset shows the source
+  // code has been modified locally, we alter the release id.
+  if (!ver) {
+    unsigned int n;
+    srand(time(NULL));
+    n = (1U + (unsigned int)rand()) >> 8;
+    ver = g_strdup_printf("%s~%x", tver, n);
+    g_free(tver);
+  }
+  return ver;
+}
 
 //  iqs_new(type, namespace, prefix, timeout)
 // Create a query (GET, SET) IQ structure.  This function should not be used
@@ -1258,36 +1297,83 @@ static void handle_iq_disco_items(jconn conn, char *from, const char *id,
   }
 }
 
+//  disco_info_set_ext(ansquery, ext)
+// Add features attributes to ansquery for extension ext.
+static void disco_info_set_ext(xmlnode ansquery, const char *ext)
+{
+  char *nodename;
+  nodename = g_strdup_printf("%s#%s", MCABBER_CAPS_NODE, ext);
+  xmlnode_put_attrib(ansquery, "node", nodename);
+  g_free(nodename);
+  if (!strcasecmp(ext, "csn")) {
+    // I guess it's ok to send this even if it's not compiled in.
+    xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                       "var", NS_CHATSTATES);
+  }
+}
+
+//  disco_info_set_default(ansquery, entitycaps)
+// Add features attributes to ansquery.  If entitycaps is TRUE, assume
+// that we're answering an Entity Caps request (if not, the request was
+// a basic discovery query).
+static void disco_info_set_default(xmlnode ansquery, guint entitycaps)
+{
+  xmlnode y;
+  char *eversion;
+
+  eversion = g_strdup_printf("%s#%s", MCABBER_CAPS_NODE, entity_version());
+  xmlnode_put_attrib(ansquery, "node", eversion);
+  g_free(eversion);
+
+  y = xmlnode_insert_tag(ansquery, "identity");
+  xmlnode_put_attrib(y, "category", "client");
+  xmlnode_put_attrib(y, "type", "pc");
+  xmlnode_put_attrib(y, "name", PACKAGE_NAME);
+
+  xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                     "var", NS_DISCO_INFO);
+  xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                     "var", NS_MUC);
+#ifdef JEP0085
+  // Advertise ChatStates only if we're not using Entity Capabilities
+  if (!entitycaps)
+    xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                       "var", NS_CHATSTATES);
+#endif
+  xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                     "var", NS_TIME);
+  xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                     "var", NS_VERSION);
+  xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                     "var", NS_PING);
+  xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                     "var", NS_COMMANDS);
+}
+
 static void handle_iq_disco_info(jconn conn, char *from, const char *id,
                                  xmlnode xmldata)
 {
-  xmlnode x, y;
+  xmlnode x;
   xmlnode myquery;
+  char *node;
 
   x = jutil_iqnew(JPACKET__RESULT, NS_DISCO_INFO);
   xmlnode_put_attrib(x, "id", id);
   xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
   myquery = xmlnode_get_tag(x, "query");
 
-  y = xmlnode_insert_tag(myquery, "identity");
-  xmlnode_put_attrib(y, "category", "client");
-  xmlnode_put_attrib(y, "type", "pc");
-  xmlnode_put_attrib(y, "name", PACKAGE_NAME);
+  node = xmlnode_get_attrib(xmlnode_get_tag(xmldata, "query"), "node");
+  if (node && startswith(node, MCABBER_CAPS_NODE "#", FALSE)) {
+    const char *param = node+strlen(MCABBER_CAPS_NODE)+1;
+    if (!strcmp(param, entity_version()))
+      disco_info_set_default(myquery, TRUE);  // client#version
+    else
+      disco_info_set_ext(myquery, param);     // client#extension
+  } else {
+    // Basic discovery request
+    disco_info_set_default(myquery, FALSE);
+  }
 
-  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
-                     "var", NS_DISCO_INFO);
-  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
-                     "var", NS_MUC);
-  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
-                     "var", NS_CHATSTATES);
-  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
-                     "var", NS_TIME);
-  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
-                     "var", NS_VERSION);
-  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
-                     "var", NS_PING);
-  xmlnode_put_attrib(xmlnode_insert_tag(myquery, "feature"),
-                     "var", NS_COMMANDS);
   jab_send(jc, x);
   xmlnode_free(x);
 }

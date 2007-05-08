@@ -6,7 +6,10 @@
 #include "jabglue.h"
 #include "events.h"
 
-#define JABBER_AGENT_GROUP "Jabber Agents"
+/* XEP-0115 (Entity Capabilities) node */
+#define MCABBER_CAPS_NODE   "http://mcabber.lilotux.net/caps"
+
+#define JABBER_AGENT_GROUP  "Jabber Agents"
 
 enum enum_jstate {
   STATE_CONNECTING,
@@ -32,6 +35,7 @@ extern enum enum_jstate jstate;
 extern xmlnode bookmarks, rosternotes;
 
 extern char *mcabber_version(void);
+const char *entity_version(void);
 
 
 char *jidtodisp(const char *fjid);

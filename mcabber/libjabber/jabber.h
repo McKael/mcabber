@@ -281,9 +281,11 @@ typedef struct xterror_struct
 #define NS_DISCO_ITEMS "http://jabber.org/protocol/disco#items"
 #define NS_IQ_AUTH    "http://jabber.org/features/iq-auth"
 #define NS_REGISTER_FEATURE "http://jabber.org/features/iq-register"
-#define NS_MUC       "http://jabber.org/protocol/muc"
+
+#define NS_CAPS       "http://jabber.org/protocol/caps"
 #define NS_CHATSTATES "http://jabber.org/protocol/chatstates"
 #define NS_COMMANDS   "http://jabber.org/protocol/commands"
+#define NS_MUC        "http://jabber.org/protocol/muc"
 
 #define NS_XDBGINSERT "jabber:xdb:ginsert"
 #define NS_XDBNSLIST  "jabber:xdb:nslist"

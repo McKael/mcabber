@@ -323,6 +323,23 @@ inline const char *jb_getstatusmsg()
   return mystatusmsg;
 }
 
+//  insert_entity_capabilities(presence_stanza)
+// Entity Capabilities (XEP-0115)
+static void insert_entity_capabilities(xmlnode x)
+{
+  xmlnode y;
+  const char *ver = entity_version();
+
+  y = xmlnode_insert_tag(x, "c");
+  xmlnode_put_attrib(y, "xmlns", NS_CAPS);
+  xmlnode_put_attrib(y, "node", MCABBER_CAPS_NODE);
+  xmlnode_put_attrib(y, "ver", ver);
+#ifdef JEP0085
+  if (!chatstates_disabled)
+    xmlnode_put_attrib(y, "ext", "csn");
+#endif
+}
+
 static void roompresence(gpointer room, void *presencedata)
 {
   const char *bjid;
@@ -435,6 +452,7 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg,
   if (online) {
     const char *s_msg = (st != invisible ? msg : NULL);
     x = presnew(st, recipient, s_msg);
+    insert_entity_capabilities(x); // Entity Capabilities (XEP-0115)
 #ifdef HAVE_GPGME
     if (!do_not_sign && gpg_enabled()) {
       char *signature;

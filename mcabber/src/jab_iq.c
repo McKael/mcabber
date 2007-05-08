@@ -130,7 +130,7 @@ const char *entity_version(void)
   if (!ver) {
     unsigned int n;
     srand(time(NULL));
-    n = (1U + (unsigned int)rand()) >> 8;
+    n = (unsigned int)(10.0 + 6.0 * rand() / (RAND_MAX + 1.0));
     ver = g_strdup_printf("%s~%x", tver, n);
     g_free(tver);
   }

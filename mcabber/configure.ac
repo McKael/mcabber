@@ -196,8 +196,8 @@ else
 fi
 
 AC_ARG_ENABLE(hgcset,
-    [AC_HELP_STRING(--enable-hgcset, Add Mercurial changeset)],
-    hgcset=$enableval, hgcset="")
+    [AC_HELP_STRING(--disable-hgcset, Do not use Mercurial changeset value)],
+    hgcset=$enableval, hgcset="yes")
 AM_CONDITIONAL(HGCSET, test x$hgcset = xyes)
 if test "${hgcset}" = "yes"; then
     AC_DEFINE(ENABLE_HGCSET, 1, [Use Mercurial changeset])

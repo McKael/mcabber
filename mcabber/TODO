@@ -2,14 +2,17 @@
 BUGS:
 
 * mcabber does not work with gnutls
+* renaming a MUC room should update the bookmark, not add a roster entry
 
 
 TODO:
 
 * Improve the completion system
+* XEP-0202: Entity Time
+* XEP-0203: Delayed Delivery (replaces -0091)
 * Connect hook
 * Macros
-* Nick highlight
+* OTR encryption?
 * Show number of online contacts in folded groups
 * Publish personal information
 * Colors for presence
@@ -19,19 +22,29 @@ TODO:
 * Maybe cache iq:version and show version in /info, if available
 * Sort roster by status
 * 2-levels roster display (jids, resources)
+* XEP-0186: Invisible
 * "Ignore list" (privacy lists)
-  See JEP-0191: Simple Communications Blocking (very new)
+  See XEP-0191: Simple Communications Blocking
 * Use DNS _xmpp-client._tcp service
-* Options scrollback_time/scrollback_lines (a la irssi)
+* Mouse support?
 
 * File transfer? :)
 
 * Commands:
 
   - /roster enable|disable xml
+  - /highlight nick
   - /info [jid]
     (request info to the server if the buddy is not in the roster)
   - /server register|unregister
   - /search <jid>|name
     (server search)
-
+  - Per room settings?
+    /room setopt [+|-]autowhois ?
+    /room setopt [+|-]'flag_joins' ?
+  - A command (display?) to display only a few states in the roster
+    . /roster display of      Display avail/ffc people
+    . /roster display -       Display nobody (but incoming messages)
+    . /roster display ofdna   == hide_offline
+    . /roster display ofdna_  == default behaviour
+    (Or roster mask)

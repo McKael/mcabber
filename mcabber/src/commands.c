@@ -113,6 +113,7 @@ void cmd_init(void)
   cmd_add("bind", "Add an key binding", 0, 0, &do_bind);
   cmd_add("buffer", "Manipulate current buddy's buffer (chat window)",
           COMPL_BUFFER, 0, &do_buffer);
+  cmd_add("chat_disable", "Disable chat mode", 0, 0, &do_chat_disable);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
   cmd_add("connect", "Connect to the server", 0, 0, &do_connect);
   cmd_add("del", "Delete the current buddy", 0, 0, &do_del);
@@ -120,6 +121,7 @@ void cmd_init(void)
   cmd_add("event", "Process an event", COMPL_EVENTSID, COMPL_EVENTS, &do_event);
   cmd_add("group", "Change group display settings", COMPL_GROUP, 0, &do_group);
   cmd_add("help", "Display some help", COMPL_CMD, 0, &do_help);
+  cmd_add("iline", "Manipulate input buffer", 0, 0, &do_iline);
   cmd_add("info", "Show basic info on current buddy", 0, 0, &do_info);
   cmd_add("move", "Move the current buddy to another group", COMPL_GROUPNAME,
           0, &do_move);
@@ -137,6 +139,7 @@ void cmd_init(void)
   cmd_add("say", "Say something to the selected buddy", 0, 0, &do_say);
   cmd_add("say_to", "Say something to a specific buddy", COMPL_JID, 0,
           &do_say_to);
+  cmd_add("screen_refresh", "Redraw mcabber screen", 0, 0, &do_screen_refresh);
   //cmd_add("search");
   cmd_add("set", "Set/query an option value", 0, 0, &do_set);
   cmd_add("source", "Read a configuration file", 0, 0, &do_source);
@@ -144,9 +147,6 @@ void cmd_init(void)
   cmd_add("status_to", "Show or set your status for one recipient",
           COMPL_JID, COMPL_STATUS, &do_status_to);
   cmd_add("version", "Show mcabber version", 0, 0, &do_version);
-  cmd_add("iline", "Manipulate input buffer", 0, 0, &do_iline);
-  cmd_add("screen_refresh", "Redraw mcabber screen", 0, 0, &do_screen_refresh);
-  cmd_add("chat_disable", "Disable chat mode", 0, 0, &do_chat_disable);
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");

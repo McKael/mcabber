@@ -1884,13 +1884,13 @@ void scr_BufferClear(void)
 // NOTE: does not work for special buffers.
 static void buffer_purge(gpointer key, gpointer value, gpointer data)
 {
-  int closebuf = (gint)data; // XXX GPOINTER_TO_INT?
+  int *p_closebuf = data;
   winbuf *win_entry = value;
 
   // Delete the current hbuf
   hbuf_free(&win_entry->bd->hbuf);
 
-  if (closebuf) {
+  if (*p_closebuf) {
     g_hash_table_remove(winbufhash, key);
   } else {
     win_entry->bd->cleared = FALSE;
@@ -1905,6 +1905,7 @@ void scr_BufferPurge(int closebuf)
 {
   winbuf *win_entry;
   guint isspe;
+  guint *p_closebuf;
 
   // Get win_entry
   if (!current_buddy) return;
@@ -1913,8 +1914,10 @@ void scr_BufferPurge(int closebuf)
   if (!win_entry) return;
 
   if (!isspe) {
-    buffer_purge((gpointer)CURRENT_JID, win_entry, (gpointer)closebuf);
-    // XXX GINT_TO_POINTER?
+    p_closebuf = g_new(guint, 1);
+    *p_closebuf = closebuf;
+    buffer_purge((gpointer)CURRENT_JID, win_entry, p_closebuf);
+    g_free(p_closebuf);
     if (closebuf) {
       scr_set_chatmode(FALSE);
       currentWindow = NULL;
@@ -1939,8 +1942,12 @@ void scr_BufferPurge(int closebuf)
 
 void scr_BufferPurgeAll(int closebuf)
 {
-  g_hash_table_foreach(winbufhash, buffer_purge, (gpointer)closebuf);
-  // XXX GINT_TO_POINTER?
+  guint *p_closebuf;
+  p_closebuf = g_new(guint, 1);
+
+  *p_closebuf = closebuf;
+  g_hash_table_foreach(winbufhash, buffer_purge, p_closebuf);
+  g_free(p_closebuf);
 
   if (closebuf) {
     scr_set_chatmode(FALSE);

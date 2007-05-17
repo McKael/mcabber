@@ -253,11 +253,11 @@ char *gpg_sign(const char *gpg_data)
 {
   gpgme_ctx_t ctx;
   gpgme_data_t in, out;
-  char *p;
   char *signed_data = NULL;
   size_t nread;
   gpgme_key_t key;
   gpgme_error_t err;
+  //char *p;
 
   if (!gpg.enabled || !gpg.private_key)
     return NULL;
@@ -273,9 +273,12 @@ char *gpg_sign(const char *gpg_data)
   gpgme_set_textmode(ctx, 0);
   gpgme_set_armor(ctx, 1);
 
+  /*
   p = getenv("GPG_AGENT_INFO");
   if (!(p && strchr(p, ':')))
     gpgme_set_passphrase_cb(ctx, passphrase_cb, 0);
+  */
+  gpgme_set_passphrase_cb(ctx, passphrase_cb, 0);
 
   err = gpgme_get_key(ctx, gpg.private_key, &key, 1);
   if (err || !key) {
@@ -321,12 +324,13 @@ char *gpg_decrypt(const char *gpg_data)
 {
   gpgme_ctx_t ctx;
   gpgme_data_t in, out;
-  char *p, *data;
+  char *data;
   char *decrypted_data = NULL;
   size_t nread;
   gpgme_error_t err;
   const char prefix[] = "-----BEGIN PGP MESSAGE-----\n\n";
   const char suffix[] = "\n-----END PGP MESSAGE-----\n";
+  //char *p;
 
   if (!gpg.enabled)
     return NULL;
@@ -340,9 +344,12 @@ char *gpg_decrypt(const char *gpg_data)
 
   gpgme_set_protocol(ctx, GPGME_PROTOCOL_OpenPGP);
 
+  /*
   p = getenv("GPG_AGENT_INFO");
   if (!(p && strchr(p, ':')))
     gpgme_set_passphrase_cb(ctx, passphrase_cb, 0);
+  */
+  gpgme_set_passphrase_cb(ctx, passphrase_cb, 0);
 
   // Surround the given data with the prefix & suffix
   data = g_new(char, sizeof(prefix) + sizeof(suffix) + strlen(gpg_data));

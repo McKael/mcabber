@@ -247,12 +247,13 @@ void main_init_pgp(void)
 #ifdef HAVE_GPGME
   const char *pk, *pp;
   char *typed_passwd = NULL;
-  char *p;
   bool pgp_invalid = FALSE;
   bool pgp_agent;
+  //char *p;
 
-  p = getenv("GPG_AGENT_INFO");
-  pgp_agent = (p && strchr(p, ':'));
+  //p = getenv("GPG_AGENT_INFO");
+  //pgp_agent = (p && strchr(p, ':'));
+  pgp_agent = FALSE;
 
   pk = settings_opt_get("pgp_private_key");
   pp = settings_opt_get("pgp_passphrase");

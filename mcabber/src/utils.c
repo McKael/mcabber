@@ -50,6 +50,8 @@ static char *FName;
 // The caller must free the string after use.
 char *expand_filename(const char *fname)
 {
+  if (!fname)
+    return NULL;
   if (!strncmp(fname, "~/", 2)) {
     char *homedir = getenv("HOME");
     if (homedir)

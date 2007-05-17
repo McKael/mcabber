@@ -71,7 +71,7 @@ void mcabber_connect(void)
   int ssl;
   int sslverify = -1;
   const char *sslvopt = NULL, *cafile = NULL, *capath = NULL, *ciphers = NULL;
-  char *cafile_xp = NULL, *capath_xp = NULL;
+  static char *cafile_xp, *capath_xp;
   unsigned int port;
 
   servername = settings_opt_get("server");
@@ -79,6 +79,11 @@ void mcabber_connect(void)
   password   = settings_opt_get("password");
   resource   = settings_opt_get("resource");
   proxy_host = settings_opt_get("proxy_host");
+
+  // Free the ca*_xp strings if they've already been set.
+  g_free(cafile_xp);
+  g_free(capath_xp);
+  cafile_xp = capath_xp = NULL;
 
   if (!servername) {
     scr_LogPrint(LPRINT_NORMAL, "Server name has not been specified!");
@@ -113,11 +118,11 @@ void mcabber_connect(void)
     cafile = capath = ciphers = NULL;
   }
 #endif
-  if (cafile)   cafile_xp = expand_filename(cafile);
-  if (capath)   capath_xp = expand_filename(capath);
+  cafile_xp = expand_filename(cafile);
+  capath_xp = expand_filename(capath);
   cw_set_ssl_options(sslverify, cafile_xp, capath_xp, ciphers, servername);
-  g_free(cafile_xp);
-  g_free(capath_xp);
+  // We can't free the ca*_xp variables now, because they're not duplicated
+  // in cw_set_ssl_options().
 
   /* Connect to server */
   scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",

@@ -849,8 +849,11 @@ static void request_storage_rosternotes(void)
   jab_send(jc, iqn->xmldata);
 }
 
-int iqscallback_auth(eviqs *iqp, xmlnode xml_result)
+int iqscallback_auth(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 {
+  if (iqcontext == IQS_CONTEXT_ERROR)
+    return -1;
+
   if (jstate == STATE_GETAUTH) {
     eviqs *iqn;
 

@@ -136,6 +136,10 @@ void scr_RosterUnreadMessage(int);
 void scr_RosterJumpAlternate(void);
 void scr_BufferScrollUpDown(int updown, unsigned int nblines);
 
+#ifdef DEBUG_ENABLE
+void scr_BufferList(void);
+#endif
+
 void readline_transpose_chars(void);
 void readline_forward_kill_word(void);
 void readline_backward_kill_word(void);

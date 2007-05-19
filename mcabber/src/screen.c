@@ -2125,6 +2125,28 @@ void scr_BufferDate(time_t t)
   update_panels();
 }
 
+#ifdef DEBUG_ENABLE
+//  buffer_list()
+// key: winId/jid
+// value: winbuf structure
+// data: none.
+static void buffer_list(gpointer key, gpointer value, gpointer data)
+{
+  winbuf *win_entry = value;
+  scr_LogPrint(LPRINT_NORMAL, " %s  (%ld)", key,
+               g_list_length(g_list_first(win_entry->bd->hbuf)));
+}
+
+void scr_BufferList(void)
+{
+  scr_LogPrint(LPRINT_NORMAL, "Buffer list:");
+  scr_LogPrint(LPRINT_NORMAL, " [status]  (%ld)",
+               g_list_length(g_list_first(statusWindow->bd->hbuf)));
+  g_hash_table_foreach(winbufhash, buffer_list, NULL);
+  scr_LogPrint(LPRINT_NORMAL, "End of buffer list.");
+}
+#endif
+
 //  scr_set_chatmode()
 // Public function to (un)set chatmode...
 inline void scr_set_chatmode(int enable)

@@ -1308,6 +1308,10 @@ static void do_buffer(char *arg)
     buffer_date(arg);
   } else if (*subcmd == '%') {
     buffer_percent(subcmd+1, arg);
+#ifdef DEBUG_ENABLE
+  } else if (!strcasecmp(subcmd, "list")) {
+    scr_BufferList();
+#endif
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

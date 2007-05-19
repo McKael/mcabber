@@ -2132,16 +2132,19 @@ void scr_BufferDate(time_t t)
 // data: none.
 static void buffer_list(gpointer key, gpointer value, gpointer data)
 {
+  GList *head;
   winbuf *win_entry = value;
-  scr_LogPrint(LPRINT_NORMAL, " %s  (%ld)", key,
-               g_list_length(g_list_first(win_entry->bd->hbuf)));
+
+  head = g_list_first(win_entry->bd->hbuf);
+
+  scr_LogPrint(LPRINT_NORMAL, " %s  (%u/%u)", key,
+               g_list_length(head), hbuf_get_blocks_number(head));
 }
 
 void scr_BufferList(void)
 {
   scr_LogPrint(LPRINT_NORMAL, "Buffer list:");
-  scr_LogPrint(LPRINT_NORMAL, " [status]  (%ld)",
-               g_list_length(g_list_first(statusWindow->bd->hbuf)));
+  buffer_list("[status]", statusWindow, NULL);
   g_hash_table_foreach(winbufhash, buffer_list, NULL);
   scr_LogPrint(LPRINT_NORMAL, "End of buffer list.");
 }

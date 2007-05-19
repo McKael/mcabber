@@ -44,6 +44,10 @@ GList *hbuf_search(GList *hbuf, int direction, const char *string);
 GList *hbuf_jump_date(GList *hbuf, time_t t);
 GList *hbuf_jump_percent(GList *hbuf, int pc);
 
+#ifdef DEBUG_ENABLE
+guint hbuf_get_blocks_number(GList *p_hbuf);
+#endif
+
 #endif /* __HBUF_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

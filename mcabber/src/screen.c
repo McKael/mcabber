@@ -2815,17 +2815,37 @@ static void scr_handle_tab(void)
     guint dynlist;
     GSList *list = compl_get_category_list(compl_categ, &dynlist);
     if (list) {
+      guint n;
       char *prefix = g_strndup(row, ptr_inputline-row);
       // Init completion
-      new_completion(prefix, list);
+      n = new_completion(prefix, list);
       g_free(prefix);
+      if (n == 0 && nrow == -1) {
+        // This is a MUC room and we can't complete from the beginning of the
+        // line.  Let's try a bit harder and complete the current word.
+        row = prev_char(ptr_inputline, inputLine);
+        while (row >= inputLine) {
+          if (!iswalnum(get_char(row)) && get_char(row) != '_') {
+              row = next_char((char*)row);
+              break;
+          }
+          if (row == inputLine)
+            break;
+          row = prev_char((char*)row, inputLine);
+        }
+        // There's no need to try again if row == inputLine
+        if (row > inputLine) {
+          prefix = g_strndup(row, ptr_inputline-row);
+          new_completion(prefix, list);
+          g_free(prefix);
+        }
+      }
       // Free the list if it's a dynamic one
       if (dynlist) {
         GSList *slp;
         for (slp = list; slp; slp = g_slist_next(slp))
           g_free(slp->data);
         g_slist_free(list);
-
       }
       // Now complete
       cchar = complete();

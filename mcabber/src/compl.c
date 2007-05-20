@@ -57,7 +57,8 @@ static compl *InputCompl;
 // . compl_cat = pointer to a completion category list (list of *char)
 // Set the InputCompl pointer to an allocated compl structure.
 // done_completion() must be called when finished.
-void new_completion(char *prefix, GSList *compl_cat)
+// Returns the number of possible completions.
+guint new_completion(char *prefix, GSList *compl_cat)
 {
   compl *c;
   GSList *sl_cat;
@@ -69,7 +70,7 @@ void new_completion(char *prefix, GSList *compl_cat)
 
   c = g_new0(compl, 1);
   // Build the list of matches
-  for (sl_cat=compl_cat; sl_cat; sl_cat = g_slist_next(sl_cat)) {
+  for (sl_cat = compl_cat; sl_cat; sl_cat = g_slist_next(sl_cat)) {
     char *word = sl_cat->data;
     if (!strncasecmp(prefix, word, len)) {
       if (strlen(word) != len)
@@ -78,6 +79,7 @@ void new_completion(char *prefix, GSList *compl_cat)
   }
   c->next = c->list;
   InputCompl = c;
+  return g_slist_length(c->list);
 }
 
 //  done_completion();

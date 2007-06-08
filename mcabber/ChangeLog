@@ -1,4 +1,4 @@
-mcabber (0.9.2-dev)
+mcabber (0.9.2)
 
  * XEP-0115 - Entity Capabilities
  * "~" (HOME directory) is allowed in the configuration options
@@ -9,6 +9,7 @@ mcabber (0.9.2-dev)
  * mcabber will load symlinked histories only once, now (Frank Zschockelt)
  * Partial support for XEP-0146 [Remote Controlling Clients] (Michael Scherer)
  * Line highlighting in MUC rooms
+ * Improve MUC nickname completion
  * /roster bookmark in the status buffer now shows all bookmarks
  * PGP encryption can be enforced with the "/pgp force" command
  * New options "muc_flag_joins", "buddy_me_fulljid"

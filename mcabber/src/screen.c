@@ -395,6 +395,41 @@ void scr_init_bindings(void)
   g_string_free(sbuf, TRUE);
 }
 
+//  is_speckey(key)
+// Return TRUE if key is a special code, i.e. no char should be displayed on
+// the screen.  It's not very nice, it's a workaround for the systems where
+// isprint(KEY_PPAGE) returns TRUE...
+static int is_speckey(int key)
+{
+  switch (key) {
+    case 127:
+    case 393:
+    case 402:
+    case KEY_BACKSPACE:
+    case KEY_DC:
+    case KEY_LEFT:
+    case KEY_RIGHT:
+    case KEY_UP:
+    case KEY_DOWN:
+    case KEY_PPAGE:
+    case KEY_NPAGE:
+    case KEY_HOME:
+    case KEY_END:
+    case KEY_EOL:
+        return TRUE;
+  }
+
+  // Fn keys
+  if (key >= 265 && key < 265+12)
+    return TRUE;
+
+  // Special key combinations
+  if (key >= 513 && key <= 521)
+    return TRUE;
+
+  return FALSE;
+}
+
 void scr_InitLocaleCharSet(void)
 {
   setlocale(LC_CTYPE, "");
@@ -3239,7 +3274,7 @@ int process_key(keycode kcode)
 
 display:
   if (display_char) {
-    if (kcode.utf8 ? iswprint(key) : isprint(key)) {
+    if (kcode.utf8 ? iswprint(key) : (isprint(key) && !is_speckey(key))) {
       char tmpLine[INPUTLINE_LENGTH+1];
 
       // Check the line isn't too long

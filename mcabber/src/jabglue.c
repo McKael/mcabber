@@ -2230,6 +2230,7 @@ static void got_invite(char* from, char *to, char* reason, char* passwd)
   event_muc_invitation *invitation;
   GString *sbuf;
   char *barejid;
+  GSList *room_elt;
 
   sbuf = g_string_new("");
   if (reason) {
@@ -2262,6 +2263,12 @@ static void got_invite(char* from, char *to, char* reason, char* passwd)
   scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO);
   scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);
   g_string_free(sbuf, TRUE);
+
+  // Make sure the barejid is a room in the roster
+  room_elt = roster_find(barejid, jidsearch, 0);
+  if (room_elt)
+    buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
+
   g_free(barejid);
 }
 

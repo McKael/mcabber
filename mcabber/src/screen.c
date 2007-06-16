@@ -2860,7 +2860,7 @@ static void scr_handle_tab(void)
         // line.  Let's try a bit harder and complete the current word.
         row = prev_char(ptr_inputline, inputLine);
         while (row >= inputLine) {
-          if (!iswalnum(get_char(row)) && get_char(row) != '_') {
+          if (iswspace(get_char(row)) || get_char(row) == '(') {
               row = next_char((char*)row);
               break;
           }

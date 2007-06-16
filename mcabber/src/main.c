@@ -319,12 +319,12 @@ int main(int argc, char **argv)
     } else
       switch (c) {
       case 'h':
-	printf("Usage: %s [-f mcabberrc_file]\n\n", argv[0]);
+        printf("Usage: %s [-f mcabberrc_file]\n\n", argv[0]);
         printf("Thanks to AjMacias for cabber!\n\n");
-	return 0;
+        return 0;
       case 'f':
-	configFile = g_strdup(optarg);
-	break;
+        configFile = g_strdup(optarg);
+        break;
       }
   }
 
@@ -423,7 +423,7 @@ int main(int argc, char **argv)
       scr_CheckAutoAway(FALSE);
 
       if (update_roster)
-	scr_DrawRoster();
+        scr_DrawRoster();
 
       jb_main();
     }

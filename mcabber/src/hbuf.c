@@ -175,7 +175,6 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
         // Let's use an old block, and free the extra blocks if needed
         char *allocated_block = NULL;
         while (n >= maxhbufblocks) {
-          /* --- */
           int start_of_block = 1;
           for (hbuf_elt = hbuf_head; hbuf_elt; hbuf_elt = hbuf_head) {
             hbuf_b_elt = (hbuf_block*)(hbuf_elt->data);
@@ -191,7 +190,6 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
             hbuf_head = *p_hbuf = g_list_delete_link(hbuf_head, hbuf_elt);
           }
           n--;
-          /* --- */
         }
         memset(allocated_block, 0, HBB_BLOCKSIZE);
         hbuf_block_elt->ptr = allocated_block;

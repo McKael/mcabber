@@ -105,8 +105,7 @@ void ut_InitDebug(int level, const char *filename)
   }
   fchmod(fileno(fp), S_IRUSR|S_IWUSR);
 
-  fprintf(fp, "New trace log started.\n"
-	  "----------------------\n");
+  fprintf(fp, "New trace log started.\n----------------------\n");
   fclose(fp);
 }
 

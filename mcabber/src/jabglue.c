@@ -2229,6 +2229,7 @@ static void got_invite(char* from, char *to, char* reason, char* passwd)
   eviqs *evn;
   event_muc_invitation *invitation;
   GString *sbuf;
+  char *barejid;
 
   sbuf = g_string_new("");
   if (reason) {
@@ -2239,7 +2240,9 @@ static void got_invite(char* from, char *to, char* reason, char* passwd)
     g_string_printf(sbuf, "Received an invitation to <%s>, from <%s>",
                     to, from);
   }
-  scr_WriteIncomingMessage(from, sbuf->str, 0, HBB_PREFIX_INFO);
+
+  barejid = jidtodisp(from);
+  scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO);
   scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);
 
   evn = evs_new(EVS_TYPE_INVITATION, EVS_MAX_TIMEOUT);
@@ -2256,9 +2259,10 @@ static void got_invite(char* from, char *to, char* reason, char* passwd)
   } else {
     g_string_printf(sbuf, "Unable to create a new event!");
   }
-  scr_WriteIncomingMessage(from, sbuf->str, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO);
   scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);
   g_string_free(sbuf, TRUE);
+  g_free(barejid);
 }
 
 // Specific MUC message handling (for example invitation processing)

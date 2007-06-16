@@ -1,0 +1,63 @@
+
+ /ILINE fchar|bchar|char_fdel|char_bdel|char_swap
+ /ILINE fword|bword|word_bdel|word_fdel
+ /ILINE word_upcase|word_downcase|word_capit
+ /ILINE hist_beginning_search_bwd|hist_beginning_search_fwd
+ /ILINE hist_prev|hist_next
+ /ILINE iline_start|iline_end|iline_fdel|iline_bdel
+ /ILINE iline_accept|iline_accept_down_hist
+ /ILINE compl_do|compl_cancel
+ /ILINE send_multiline
+
+Polecenia odnoszące się do lini komend
+
+/iline fchar
+ Przechodzi do następnego znaku
+/iline bchar
+ Przechodzi do poprzedniego znaku
+/iline char_fdel
+ Usunięcie znaku z aktualnej pozycji kursora
+/iline char_bdel
+ Usunięcie znaku przed aktualną pozycją kursora
+/iline char_swap
+ Zamiana znaków
+/iline fword
+ Przesuwa kursor na koniec aktualnego lub następnego wyrazu
+/iline bword
+ Przesuwa kursor na początek aktualnego lub poprzedniego wyrazu
+/iline word_bdel
+ Kasuje wyraz od aktualnej pozycji kursora do jego początku
+/iline word_fdel
+ Kasuje wyraz od aktualnej pozycji kursora do jego końca
+/iline word_upcase
+ Zamienia wszystkie litery na wielkie w aktualnym wyrazie
+/iline word_downcase
+ Zamienia wszystkie litery na małe w aktualnym wyrazie
+/iline word_capit
+ Zamienia pierwszą literę w wyrazie na dużą, a resztę na małe.
+/iline hist_beginning_search_bwd
+ Szuka wstecz w historii linii zaczynającej się od aktualnego wyrazu aż do pozycji kursora (pozycja kursora nie zmienia się)
+/iline hist_beginning_search_fwd
+ Szuka naprzód w historii linii zaczynającej się od aktualnego wyrazu aż do pozycji kursora (pozycja kursora nie zmienia się)
+/iline hist_prev
+ Poprzednia linia z historii
+/iline hist_next
+ Następna linia z historii
+/iline iline_start
+ Przechodzi na początek linii
+/iline iline_end
+ Przechodzi na koniec linii
+/iline iline_fdel
+ Kasuje znaki od aktualnej pozycji kursora do końca linii
+/iline iline_bdel
+ Kasuje znaki od początku linii do aktualnej pozycji kursora
+/iline iline_accept
+ Akceptuje wprowadzoną linię
+/iline iline_accept_down_hist
+ Akceptuje linie i wstawia następną z historii do linii komend
+/iline compl_do
+ Dopełnia aktualne słowo w linii komend
+/iline compl_cancel
+ Anuluje dopełnienie
+/iline send_multiline
+ Wysyła/przerywa tworzenie wiadomości wielolinijkowej

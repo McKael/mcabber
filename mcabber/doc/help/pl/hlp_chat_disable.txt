@@ -1,0 +1,4 @@
+
+ /CHAT_DISABLE
+
+Wyłączenie trybu rozmowy.

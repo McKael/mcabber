@@ -1,0 +1,4 @@
+
+ /SOURCE plik
+
+Wczytuje plik konfiguracyjny.

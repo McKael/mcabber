@@ -1,5 +1,6 @@
 
- /BUFFER [clear|purge|top|bottom|date|%|search_backward|search_forward]
+ /BUFFER [clear|close|close_all|purge]
+ /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
 Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. przeszukać bufor rozmowy w poszukiwaniu podanego wyrazu, możemy wyczyścić zawartość bufora itp.

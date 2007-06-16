@@ -156,6 +156,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_STATUS, "dnd");
   compl_add_category_word(COMPL_STATUS, "notavail");
   compl_add_category_word(COMPL_STATUS, "away");
+  compl_add_category_word(COMPL_STATUS, "offline");
 
   // Roster category
   compl_add_category_word(COMPL_ROSTER, "bottom");

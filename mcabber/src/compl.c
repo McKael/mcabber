@@ -32,6 +32,7 @@
 #include <string.h>
 
 #include "compl.h"
+#include "utf8.h"
 #include "roster.h"
 #include "events.h"
 
@@ -121,7 +122,14 @@ const char *complete()
   }
   r = (char*)c->next->data;
   c->next = g_slist_next(c->next);
-  c->len_compl = strlen(r);
+  if (!utf8_mode) {
+    c->len_compl = strlen(r);
+  } else {
+    char *wc;
+    c->len_compl = 0;
+    for (wc = r; *wc; wc = next_char(wc))
+      c->len_compl += get_char_width(wc);
+  }
   return r;
 }
 
@@ -152,9 +160,7 @@ void compl_add_category_word(guint categ, const char *word)
     ;
   if (nword > word) nword--;
   if (*nword != ' ') {  // Add a space
-    nword = g_new(char, strlen(word)+2);
-    strcpy(nword, word);
-    strcat(nword, " ");
+    nword = g_strdup_printf("%s ", word);
   } else {              // word is fine
     nword = g_strdup(word);
   }
@@ -184,9 +190,7 @@ void compl_del_category_word(guint categ, const char *word)
     ;
   if (nword > word) nword--;
   if (*nword != ' ') {  // Add a space
-    nword = g_new(char, strlen(word)+2);
-    strcpy(nword, word);
-    strcat(nword, " ");
+    nword = g_strdup_printf("%s ", word);
   } else {              // word is fine
     nword = g_strdup(word);
   }

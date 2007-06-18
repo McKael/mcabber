@@ -3357,6 +3357,8 @@ void spellcheck_deinit(void)
   }
 }
 
+#define aspell_isalpha(c) (utf8_mode ? iswalpha(get_char(c)) : isalpha(*c))
+
 // Spell checking function
 static void spellcheck(char *line, char *checked)
 {
@@ -3369,7 +3371,7 @@ static void spellcheck(char *line, char *checked)
 
   while (*line) {
 
-    if (!iswalpha(get_char(line))) {
+    if (!aspell_isalpha(line)) {
       line = next_char(line);
       continue;
     }
@@ -3394,7 +3396,7 @@ static void spellcheck(char *line, char *checked)
 
     start = line;
 
-    while (iswalpha(get_char(line)))
+    while (aspell_isalpha(line))
       line = next_char(line);
 
     if (spell_checker &&

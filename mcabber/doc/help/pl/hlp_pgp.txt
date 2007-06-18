@@ -10,7 +10,7 @@ Uwaga: szyfrowanie PGP nie będzie użyte jeśli nie zostanie wykryta obsługa P
 /pgp enable [jid]
  Włączenie kodowania PGP dla "jid" (albo dla aktualnie wybranej osoby)
 /pgp [+|-]force [jid]
- Wymusza szyfrowanie PGP, nawet dla wiadomości offline, przyjmuje że odbiorca ma włączoną obsługe PGP. Jeśli wiadomość nie może być zaszyfrowana (brakujący klucz lub id kluczu). Ta opcja jest pomijana gdy obsługa PGP jest wyłączona.
+ Wymusza szyfrowanie PGP, nawet dla wiadomości offline, przyjmuje że odbiorca ma włączoną obsługę PGP. Jeśli wiadomość nie może być zaszyfrowana (brakujący klucz lub id kluczu). Ta opcja jest pomijana gdy obsługa PGP jest wyłączona.
 /pgp info [jid]
  Pokazuje aktualne ustawienia PGP dla kontaktu
 /pgp setkey [jid [key]]

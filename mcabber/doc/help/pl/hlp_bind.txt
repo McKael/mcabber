@@ -1,7 +1,7 @@
 
  /BIND [kod_klawisza [= polecenie]]
 
-Podpięcie polecenia do klawisza podanego jako [kod_klawisza].  Aby sprawdzić które klawisze nie są używane naciśnij dany klawisz, a następnie zobacz co zostanie wypisane w oknie logowania 'mcabber'. Na przykład: "Unknown key=265" oznacza że możesz podpiąć komendę pod klawisz #265.
+Podpięcie polecenia do klawisza podanego jako [kod_klawisza].  Aby sprawdzić, które klawisze nie są używane naciśnij dany klawisz, a następnie zobacz co zostanie wypisane w oknie logowania 'mcabber'. Na przykład: "Unknown key=265" oznacza że możesz podpiąć komendę pod klawisz #265.
 
 /bind
  Wyświetla wszystkie aktualnie zdefiniowane podpięcia

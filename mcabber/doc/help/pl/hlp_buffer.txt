@@ -32,6 +32,6 @@ Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. pr
 /buffer scroll_lock
  Blokuje możliwość przesuwania tekstu w buforze
 /buffer scroll_unlock
- Odblokowywuje możliwość przesuwania tekstu w buforze
+ Odblokowuje możliwość przesuwania tekstu w buforze
 /buffer scroll_toggle
  Zmienia stan (blokowanie/odblokowanie) przesuwania w buforze

@@ -16,11 +16,11 @@ Komenda 'room' służy do obsługi wieloużytkownikowych chat-room'ów.
 /room privmsg [nick] [wiadomość]
  Wysyła prywatną wiadomość [wiadomość] do osoby "nick"
 /room remove
- Usuwa aktualny pokój z listy kotaktów (musisz najpierw opuścić pokój)
+ Usuwa aktualny pokój z listy kontaktów (musisz najpierw opuścić pokój)
 /room topic
- Ustawia temat w aktualnum pokoju
+ Ustawia temat w aktualnym pokoju
 /room unlock
- Odblokowywuje aktualny pokój (jeśli jestes jego właścicielem)
+ Odblokowuje aktualny pokój (jeśli jesteś jego właścicielem)
 /room destroy [powód]
  Niszczy aktualny pokój (używać z rozwagą!)
 /room whois [nick]

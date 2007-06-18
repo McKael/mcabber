@@ -9,7 +9,7 @@
  /ILINE compl_do|compl_cancel
  /ILINE send_multiline
 
-Polecenia odnoszące się do lini komend
+Polecenia odnoszące się do linii komend
 
 /iline fchar
  Przechodzi do następnego znaku

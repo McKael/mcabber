@@ -1341,7 +1341,7 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
 
   // If we have no bookmarks, probably the server doesn't support them.
   if (!bookmarks) {
-    scr_LogPrint(LPRINT_LOGNORM,
+    scr_LogPrint(LPRINT_NORMAL,
                  "Sorry, your server doesn't seem to support private storage.");
     return;
   }
@@ -1362,7 +1362,8 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
         // create a new one.
         xmlnode_hide(x);
         changed = TRUE;
-        break;
+        if (!name)
+          scr_LogPrint(LPRINT_LOGNORM, "Deleting bookmark...");
       }
     }
   }
@@ -1378,6 +1379,7 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
     if (passwd)
       xmlnode_insert_cdata(xmlnode_insert_tag(x, "password"), passwd, -1);
     changed = TRUE;
+    scr_LogPrint(LPRINT_LOGNORM, "Updating bookmarks...");
   }
 
   if (!changed)
@@ -1451,7 +1453,7 @@ struct annotation *jb_get_storage_rosternotes(const char *barejid, int silent)
   // If we have no rosternotes, probably the server doesn't support them.
   if (!rosternotes) {
     if (!silent)
-      scr_LogPrint(LPRINT_LOGNORM, "Sorry, "
+      scr_LogPrint(LPRINT_NORMAL, "Sorry, "
                    "your server doesn't seem to support private storage.");
     return NULL;
   }
@@ -1487,7 +1489,7 @@ void jb_set_storage_rosternotes(const char *barejid, const char *note)
 
   // If we have no rosternotes, probably the server doesn't support them.
   if (!rosternotes) {
-    scr_LogPrint(LPRINT_LOGNORM,
+    scr_LogPrint(LPRINT_NORMAL,
                  "Sorry, your server doesn't seem to support private storage.");
     return;
   }

@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-<meta name="generator" content="AsciiDoc 7.1.2" />
+<meta name="generator" content="AsciiDoc 8.2.1" />
 <meta name="author" content="Mikael BERTHE" />
 <meta name="author-email" content="mcabber@lilotux.net" />
 <link rel="stylesheet" href="./manpage.css" type="text/css" />
@@ -414,16 +414,19 @@ You are participating in x@y.c conference room, and there are unread messages
 </td>
 </tr>
 </table>
+<h2>COMMANDS</h2>
+<p>Please refer to the online help (command /help), it is probably more up-to-date than this manpage.  Furthermore, help files have been translated into several languages.<br />
+You will find an overview of the <tt>mcabber</tt> commands in this manual.</p>
 <h2>COMMANDS RELATED TO MCABBER</h2>
 <dl>
 <dt><b>
 /alias [name [= command line]]
 </b></dt>
 <dd>
-        Add "name" as an alias for "command line".<br />
-        Aliases are expanded only once, thus they can not be chained.<br />
-        "/alias name" displays the value associated with the "name" alias;<br />
-        "/alias name =" unsets the "name" alias.<br />
+        Add "name" as an alias for "command line". <tt>
+        Aliases are expanded only once, thus they can not be chained. </tt>
+        "/alias name" displays the value associated with the "name" alias; <tt>
+        "/alias name =" unsets the "name" alias. </tt>
         "/alias" displays a list of the existing aliases.<br />
         Example: "/alias away = status away".
 </dd>
@@ -431,13 +434,13 @@ You are participating in x@y.c conference room, and there are unread messages
 /bind [keycode [= command line]]
 </b></dt>
 <dd>
-        Bind a command line to the key with the "keycode" code number.<br />
+        Bind a command line to the key with the "keycode" code number. <tt>
         Keycodes of unused keys are displayed by <tt>mcabber</tt> in the log window
-        when pressing the key, for example "Unknown key=265".<br />
-        "/bind keycode" displays the command line bound to the given keycode;<br />
-        "/bind keycode =" unbinds the given keycode.<br />
-        "/bind" displays a list of the bound keycodes.<br />
-        Note: aliases can be used in key bindings.<br />
+        when pressing the key, for example "Unknown key=265". </tt>
+        "/bind keycode" displays the command line bound to the given keycode; <tt>
+        "/bind keycode =" unbinds the given keycode. </tt>
+        "/bind" displays a list of the bound keycodes. <tt>
+        Note: aliases can be used in key bindings. </tt>
         Example: "/bind 265 = status online" (265 is F1 for me, but it may
         depend on your ncurses installation).
 </dd>
@@ -593,6 +596,18 @@ toggle buffer scrolling (lock/unlock)
 </b></dt>
 <dd>
         Disconnect and leave <tt>mcabber(1)</tt>.
+</dd>
+<dt><b>
+/set option[=value]
+</b></dt>
+<dd>
+        Display or set an option value.
+</dd>
+<dt><b>
+/source [file]
+</b></dt>
+<dd>
+        Read a configuration file.
 </dd>
 <dt><b>
 /version
@@ -783,17 +798,17 @@ toggle the state (fold/unfold) of the current tree
 </b></dt>
 <dd>
         Send a multi-line message.  To write a single message with several
-        lines, the <b>multi-line mode</b> should be used.<br />
+        lines, the <b>multi-line mode</b> should be used. <tt>
         In multi-line mode, each line (except command lines) typed in the input
         line will be added to the multi-line message.  Once the message is
         finished, it can be sent to the current selected buddy with the "/msay
-        send" command (or Ctrl-d).<br />
+        send" command (or Ctrl-d). </tt>
         The <b>begin</b> subcommand enables multi-line mode.  Note that it allows
-        a message subject to be specified.<br />
+        a message subject to be specified. <tt>
         The <b>verbatim</b> multi-line mode disables commands, so that it is
         possible to enter lines starting with a slash.  Only the "/msay"
         command (with send or abort parameters) can be used to exit verbatim
-        mode.<br />
+        mode. </tt>
         The <b>toggle</b> and <b>toggle_verbatim</b> subcommands can be bound to a key to
         use the multi-line mode quickly (for example, "bind M109 = msay toggle"
         to switch using the Meta-m combination).
@@ -857,7 +872,7 @@ leave multi-line mode without sending the message
 </table>
 </dd>
 <dt><b>
-/pgp disable|enable|info [jid]
+/pgp disable|enable|force|info [jid]
 </b></dt>
 <dt><b>
 /pgp setkey [jid [key]]
@@ -879,6 +894,14 @@ disable PGP encryption for jid (or the currently selected contact)
 </td>
 <td>
 enable PGP encryption for jid (or the currently selected contact)
+</td>
+</tr>
+<tr valign="top">
+<td>
+<b>force</b> [jid]
+</td>
+<td>
+enforce PGP encryption, even for offline messages, and always assume the recipient has PGP support
 </td>
 </tr>
 <tr valign="top">
@@ -945,10 +968,10 @@ leave the current room
 </tr>
 <tr valign="top">
 <td>
-<b>names</b>
+<b>names</b> [--short|--quiet]
 </td>
 <td>
-display members of the current room
+display the members of the current room
 </td>
 </tr>
 <tr valign="top">
@@ -1248,8 +1271,8 @@ display or set an annotation (if text is "-", the annotation is deleted).  In th
 /status [online|avail|invisible|free|dnd|notavail|away [-|StatusMessage]]
 </b></dt>
 <dd>
-        Show or set the current status.<br />
-        If no status is specified, display the current status.<br />
+        Show or set the current status. <tt>
+        If no status is specified, display the current status. </tt>
         If a status message is specified, it will overrride the message*
         variables (these variables can be set in the configuration file).
         If no relevant message* variable is set and no status message provided,
@@ -1260,8 +1283,8 @@ display or set an annotation (if text is "-", the annotation is deleted).  In th
 /status_to jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
 </b></dt>
 <dd>
-        Send the requested status to the specified Jabber user.<br />
-        If the specified jid is ".", the current buddy is used.<br />
+        Send the requested status to the specified Jabber user. <tt>
+        If the specified jid is ".", the current buddy is used. </tt>
         Note: this status will be overridden by subsequent "/status" commands.
         If you are using the auto-away feature, the status will overridden
         too.<br />
@@ -1284,14 +1307,14 @@ consult the AUTHORS file for details.</p>
 <h2>RESOURCES</h2>
 <p><a href="http://www.lilotux.net/~mikael/mcabber/">Main web site</a></p>
 <h2>COPYING</h2>
-<p>Copyright (C) 2005, 2006 Mikael Berthe.<br />
+<p>Copyright (C) 2005, 2006, 2007 Mikael Berthe.<br />
 Some portions are Copyright (C) 2002-2004 <a href="mailto:cabber@ajmacias.com">cabber@ajmacias.com</a>.</p>
 <p>Free use of this software is granted under the terms of the GNU General Public
 License (GPL).</p>
 <div id="footer">
 <p>
 Version 0.9.3-dev<br />
-Last updated 04-Feb-2007 11:44:42 CEST
+Last updated 17-Jun-2007 17:36:09 CEST
 </p>
 </div>
 </div>

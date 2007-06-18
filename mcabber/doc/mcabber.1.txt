@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.9.3-dev, February 2007
+v0.9.3-dev, June 2007
 
 NAME
 ----
@@ -156,6 +156,11 @@ Examples:
         ' \{a\} Jane';;   Jane is away, but she cannot see your online status
         '#[C] x@y.c';;    You are participating in x@y.c conference room, and there are unread messages
 
+COMMANDS
+--------
+Please refer to the online help (command /help), it is probably more up-to-date than this manpage.  Furthermore, help files have been translated into several languages. +
+You will find an overview of the `mcabber` commands in this manual.
+
 COMMANDS RELATED TO MCABBER
 ---------------------------
 /alias [name [= command line]]::
@@ -207,6 +212,12 @@ COMMANDS RELATED TO MCABBER
 
 /quit::
         Disconnect and leave `mcabber(1)`.
+
+/set option[=value]::
+        Display or set an option value.
+
+/source [file]::
+        Read a configuration file.
 
 /version::
         Display mcabber version
@@ -300,12 +311,13 @@ COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
         'toggle_verbatim';; same with verbatim multi-line mode
         'abort';;           leave multi-line mode without sending the message
 
-/pgp disable|enable|info [jid]::
+/pgp disable|enable|force|info [jid]::
 /pgp setkey [jid [key]]::
         Manipulate PGP settings for the specified jid (by default the currently selected contact).  Please note that PGP encryption won't be used if no remote PGP support is detected, even if PGP is enabled with this command.
 
         'disable' [jid];;   disable PGP encryption for jid (or the currently selected contact)
         'enable' [jid];;    enable PGP encryption for jid (or the currently selected contact)
+        [-]'force' [jid];;  enforce PGP encryption, even for offline messages, and always assume the recipient has PGP support
         'info' [jid];;      show current PGP settings for the contact
         'setkey' [jid [key]];;  set the PGP key to be used to encrypt message for this contact.  If no key is provided, the current key is erased.  You can use the shortcut-jid "." for the currently selected contact.
 
@@ -425,7 +437,7 @@ http://www.lilotux.net/~mikael/mcabber/[Main web site]
 
 COPYING
 -------
-Copyright \(C) 2005, 2006 Mikael Berthe. +
+Copyright \(C) 2005, 2006, 2007 Mikael Berthe. +
 Some portions are Copyright \(C) 2002-2004 mailto:cabber@ajmacias.com[].
 
 Free use of this software is granted under the terms of the GNU General Public

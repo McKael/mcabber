@@ -1,14 +1,16 @@
 
- /PGP disable|enable|info [jid]
+ /PGP disable|enable|force|info [jid]
  /PGP setkey [jid [key]]
 
 Polecenie do zmiany ustawień PGP wybranego "jid" (domyślnie aktualnie wybrany kontakt).
-Uwaga: kodowanie PGP nie będzie użyte jeśli nie zostanie wykryta obsługa PGP po drugiej stronie, nawet jeśli PGP zostanie włączone tym poleceniem.
+Uwaga: szyfrowanie PGP nie będzie użyte jeśli nie zostanie wykryta obsługa PGP po drugiej stronie (nawet jeśli PGP zostanie włączone tym poleceniem). Szyfrowanie PGP można wymusić komendą "force".
 
 /pgp disable [jid]
  Wyłączenie kodowania PGP dla "jid" (albo dla aktualnie wybranej osoby)
 /pgp enable [jid]
  Włączenie kodowania PGP dla "jid" (albo dla aktualnie wybranej osoby)
+/pgp [+|-]force [jid]
+ Wymusza szyfrowanie PGP, nawet dla wiadomości offline, przyjmuje że odbiorca ma włączoną obsługe PGP. Jeśli wiadomość nie może być zaszyfrowana (brakujący klucz lub id kluczu). Ta opcja jest pomijana gdy obsługa PGP jest wyłączona.
 /pgp info [jid]
  Pokazuje aktualne ustawienia PGP dla kontaktu
 /pgp setkey [jid [key]]

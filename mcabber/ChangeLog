@@ -1,6 +1,10 @@
 mcabber (0.9.3-dev)
 
- * 
+ * Enable gpg-agent again
+ * Improve MUC nickname completion
+ * Fix a roster bug when receiving a MUC invitation
+ * Fix Aspell support on some systems
+ * Update manpage and Polish translation
 
  -- Mikael, ?
 

@@ -1,4 +1,4 @@
-mcabber (0.9.3-dev)
+mcabber (0.9.3)
 
  * Enable gpg-agent again
  * Improve MUC nickname completion
@@ -6,7 +6,7 @@ mcabber (0.9.3-dev)
  * Fix Aspell support on some systems
  * Update manpage and Polish translation
 
- -- Mikael, ?
+ -- Mikael, 2007-06-19
 
 mcabber (0.9.2)
 

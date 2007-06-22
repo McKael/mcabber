@@ -101,7 +101,6 @@ static int multimode;
 static char *multiline, *multimode_subj;
 int update_roster;
 int utf8_mode = 0;
-static bool Autoaway;
 static bool Curses;
 static bool log_win_on_top;
 static bool roster_win_on_right;

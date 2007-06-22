@@ -37,6 +37,7 @@ extern xmlnode bookmarks, rosternotes;
 extern char *mcabber_version(void);
 const char *entity_version(void);
 
+extern time_t iqlast;           /* last message/status change time */
 
 char *jidtodisp(const char *fjid);
 void handle_packet_iq(jconn conn, char *type, char *from, xmlnode xmldata);

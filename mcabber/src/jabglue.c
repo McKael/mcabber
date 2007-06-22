@@ -60,6 +60,7 @@ static void handle_state_events(char* from, xmlnode xmldata);
 
 static int evscallback_invitation(eviqs *evp, guint evcontext);
 
+
 static void logger(jconn j, int io, const char *buf)
 {
   scr_LogPrint(LPRINT_DEBUG, "%03s: %s", ((io == 0) ? "OUT" : "IN"), buf);
@@ -323,6 +324,11 @@ inline const char *jb_getstatusmsg()
   return mystatusmsg;
 }
 
+inline void update_last_use(void)
+{
+  iqlast = time(NULL);
+}
+
 //  insert_entity_capabilities(presence_stanza)
 // Entity Capabilities (XEP-0115)
 static void insert_entity_capabilities(xmlnode x)
@@ -501,6 +507,9 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg,
     else
       mystatusmsg = NULL;
   }
+
+  if (!Autoaway)
+    update_last_use();
 
   // Update status line
   scr_UpdateMainStatus(TRUE);
@@ -681,6 +690,8 @@ void jb_send_msg(const char *fjid, const char *text, int type,
 jb_send_msg_no_chatstates:
   xmlnode_put_attrib(x, "id", msgid);
 
+  if (mystatus != invisible)
+    update_last_use();
   jab_send(jc, x);
   xmlnode_free(x);
 #if defined JEP0022
@@ -1845,6 +1856,7 @@ static void statehandler(jconn conn, int state)
         scr_LogPrint(LPRINT_LOGNORM, "[Jabber] Communication with the server "
                      "established");
         online = TRUE;
+        update_last_use();
         // We set AutoConnection to true after the 1st successful connection
         AutoConnection = true;
         break;

@@ -107,6 +107,8 @@ inline const char *scr_get_multimode_subj(void);
 
 inline void scr_Beep(void);
 
+bool Autoaway;
+
 long int scr_GetAutoAwayTimeout(time_t now);
 void scr_CheckAutoAway(int activity);
 

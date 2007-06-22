@@ -46,6 +46,8 @@ xmlnode rosternotes;
 
 static GSList *iqs_list;
 
+time_t iqlast; // last message/status change time
+
 // Enum for vCard attributes
 enum vcard_attr {
   vcard_home    = 1<<0,
@@ -1369,6 +1371,33 @@ static void handle_iq_disco_info(jconn conn, char *from, const char *id,
   xmlnode_free(x);
 }
 
+inline double seconds_since_last_use(void)
+{
+  return difftime(time(NULL), iqlast);
+}
+
+static void handle_iq_last(jconn conn, char *from, const char *id,
+                           xmlnode xmldata)
+{
+  xmlnode x;
+  xmlnode myquery;
+  char *seconds;
+
+  scr_LogPrint(LPRINT_LOGNORM, "Received an IQ last time request from <%s>",
+               from);
+
+  x = jutil_iqnew(JPACKET__RESULT, NS_LAST);
+  xmlnode_put_attrib(x, "id", id);
+  xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
+  myquery = xmlnode_get_tag(x, "query");
+  seconds = g_strdup_printf("%.0f", seconds_since_last_use());
+  xmlnode_put_attrib(myquery, "seconds", seconds);
+  g_free(seconds);
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+}
+
 static void handle_iq_ping(jconn conn, char *from, const char *id,
                            xmlnode xmldata)
 {
@@ -1485,6 +1514,9 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
     handle_iq_disco_items(conn, from, id, xmldata);
   } else if (ns && !strcmp(ns, NS_VERSION)) {
     handle_iq_version(conn, from, id, xmldata);
+  } else if (ns && !strcmp(ns, NS_LAST) &&
+             !settings_opt_get_int("iq_last_disable")) {
+    handle_iq_last(conn, from, id, xmldata);
   } else if (ns && !strcmp(ns, NS_TIME)) {
     handle_iq_time(conn, from, id, xmldata);
   } else {

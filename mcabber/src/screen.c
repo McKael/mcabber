@@ -2182,6 +2182,8 @@ void scr_BufferList(void)
   buffer_list("[status]", statusWindow, NULL);
   g_hash_table_foreach(winbufhash, buffer_list, NULL);
   scr_LogPrint(LPRINT_NORMAL, "End of buffer list.");
+  scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+  update_roster = TRUE;
 }
 #endif
 

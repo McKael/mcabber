@@ -335,15 +335,30 @@ static void insert_entity_capabilities(xmlnode x)
 {
   xmlnode y;
   const char *ver = entity_version();
+  char *exts, *exts2;
+
+  exts = NULL;
 
   y = xmlnode_insert_tag(x, "c");
   xmlnode_put_attrib(y, "xmlns", NS_CAPS);
   xmlnode_put_attrib(y, "node", MCABBER_CAPS_NODE);
   xmlnode_put_attrib(y, "ver", ver);
 #ifdef JEP0085
-  if (!chatstates_disabled)
-    xmlnode_put_attrib(y, "ext", "csn");
+  if (!chatstates_disabled) {
+    exts2 = g_strjoin(" ", "csn", exts, NULL);
+    g_free(exts);
+    exts = exts2;
+  }
 #endif
+  if (!settings_opt_get_int("iq_last_disable")) {
+    exts2 = g_strjoin(" ", "iql", exts, NULL);
+    g_free(exts);
+    exts = exts2;
+  }
+  if (exts) {
+    xmlnode_put_attrib(y, "ext", exts);
+    g_free(exts);
+  }
 }
 
 static void roompresence(gpointer room, void *presencedata)

@@ -112,14 +112,15 @@ const struct adhoc_status adhoc_status_list[] = {
 const char *entity_version(void)
 {
   static char *ver;
+  const char *PVERSION = PACKAGE_VERSION "+iql";
 
   if (ver)
     return ver;
 
 #ifdef HGCSET
-  ver = g_strdup_printf("%s-%s", PACKAGE_VERSION, HGCSET);
+  ver = g_strdup_printf("%s-%s", PVERSION, HGCSET);
 #else
-  ver = g_strdup(PACKAGE_VERSION);
+  ver = g_strdup(PVERSION);
 #endif
 
   return ver;
@@ -1301,6 +1302,11 @@ static void disco_info_set_ext(xmlnode ansquery, const char *ext)
     xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
                        "var", NS_CHATSTATES);
   }
+  if (!strcasecmp(ext, "iql")) {
+    // I guess it's ok to send this even if it's not compiled in.
+    xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                       "var", NS_LAST);
+  }
 }
 
 //  disco_info_set_default(ansquery, entitycaps)
@@ -1341,6 +1347,9 @@ static void disco_info_set_default(xmlnode ansquery, guint entitycaps)
                      "var", NS_PING);
   xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
                      "var", NS_COMMANDS);
+  if (!entitycaps)
+    xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                       "var", NS_LAST);
 }
 
 static void handle_iq_disco_info(jconn conn, char *from, const char *id,

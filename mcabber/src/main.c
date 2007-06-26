@@ -324,13 +324,18 @@ int main(int argc, char **argv)
     } else
       switch (c) {
       case 'h':
+      case '?':
         printf("Usage: %s [-f mcabberrc_file]\n\n", argv[0]);
-        printf("Thanks to AjMacias for cabber!\n\n");
-        return 0;
+        return (c == 'h' ? 0 : -1);
       case 'f':
         configFile = g_strdup(optarg);
         break;
       }
+  }
+
+  if (optind < argc) {
+    fprintf(stderr, "Usage: %s [-f mcabberrc_file]\n\n", argv[0]);
+    return -1;
   }
 
   /* Initialize command system, roster and default key bindings */

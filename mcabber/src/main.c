@@ -247,7 +247,29 @@ static void credits(void)
   g_free(v);
 }
 
-void main_init_pgp(void)
+static void compile_options(void)
+{
+  puts("Installation data directory: " DATA_DIR "\n");
+#ifdef HAVE_UNICODE
+  puts("Compiled with unicode support.");
+#endif
+#ifdef HAVE_OPENSSL
+  puts("Compiled with OpenSSL support.");
+#elif defined HAVE_GNUTLS
+  puts("Compiled with GnuTLS support.");
+#endif
+#ifdef HAVE_GPGME
+  puts("Compiled with GPG support.");
+#endif
+#ifdef WITH_ASPELL
+  puts("Compiled with Aspell support.");
+#endif
+#ifdef DEBUG_ENABLE
+  puts("Compiled with debugging support.");
+#endif
+}
+
+static void main_init_pgp(void)
 {
 #ifdef HAVE_GPGME
   const char *pk, *pp;
@@ -318,15 +340,18 @@ int main(int argc, char **argv)
 
   /* Parse command line options */
   while (1) {
-    int c = getopt(argc, argv, "hf:");
+    int c = getopt(argc, argv, "hvf:");
     if (c == -1) {
       break;
     } else
       switch (c) {
       case 'h':
       case '?':
-        printf("Usage: %s [-f mcabberrc_file]\n\n", argv[0]);
+        printf("Usage: %s [-h|-v|-f mcabberrc_file]\n\n", argv[0]);
         return (c == 'h' ? 0 : -1);
+      case 'v':
+        compile_options();
+        return 0;
       case 'f':
         configFile = g_strdup(optarg);
         break;
@@ -334,7 +359,7 @@ int main(int argc, char **argv)
   }
 
   if (optind < argc) {
-    fprintf(stderr, "Usage: %s [-f mcabberrc_file]\n\n", argv[0]);
+    fprintf(stderr, "Usage: %s [-h|-v|-f mcabberrc_file]\n\n", argv[0]);
     return -1;
   }
 

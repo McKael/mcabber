@@ -9,7 +9,7 @@ mcabber - a simple Jabber console client
 
 SYNOPSIS
 --------
-'mcabber' [ -h | -v | -f configfile ]
+'mcabber' [ -h | -V | -f configfile ]
 
 DESCRIPTION
 -----------

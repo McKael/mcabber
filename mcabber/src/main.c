@@ -340,16 +340,16 @@ int main(int argc, char **argv)
 
   /* Parse command line options */
   while (1) {
-    int c = getopt(argc, argv, "hvf:");
+    int c = getopt(argc, argv, "hVf:");
     if (c == -1) {
       break;
     } else
       switch (c) {
       case 'h':
       case '?':
-        printf("Usage: %s [-h|-v|-f mcabberrc_file]\n\n", argv[0]);
+        printf("Usage: %s [-h|-V|-f mcabberrc_file]\n\n", argv[0]);
         return (c == 'h' ? 0 : -1);
-      case 'v':
+      case 'V':
         compile_options();
         return 0;
       case 'f':
@@ -359,7 +359,7 @@ int main(int argc, char **argv)
   }
 
   if (optind < argc) {
-    fprintf(stderr, "Usage: %s [-h|-v|-f mcabberrc_file]\n\n", argv[0]);
+    fprintf(stderr, "Usage: %s [-h|-V|-f mcabberrc_file]\n\n", argv[0]);
     return -1;
   }
 

@@ -27,6 +27,8 @@ Cette commande permet de gérer les salons de discussions MUC (Multi-User Chat).
  Affiche les informations MUC sur "pseudo"
 /room ban jid [raison]
  Bannit l'utilisateur jid du salon
+/room unban jid
+ Supprime le ban sur l'utilisateur jid dans le salon
 /room invite jid [raison]
  Invite l'utilisateur jid dans le salon
 /room kick pseudo [raison]

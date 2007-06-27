@@ -27,6 +27,8 @@ Het 'room' commando verzorgt de Multi-User Chat (MUC) room acties.
  Toon MUC informatie over "nick"
 /room ban jid [reden]
  Verban jid uit de huidige chatroom
+/room unban jid
+ Verwijder de ban van jid in de huidige chatroom
 /room invite jid [reden]
  Nodig jid uit in de huidige chatroom
 /room kick nick [reden]

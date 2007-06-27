@@ -27,6 +27,8 @@ The 'room' command handles Multi-User Chat room actions.
  Display MUC information about "nick"
 /room ban jid [reason]
  Ban jid from the current room
+/room unban jid
+ Unban jid from the current room
 /room invite jid [reason]
  Invite jid to the current room
 /room kick nick [reason]

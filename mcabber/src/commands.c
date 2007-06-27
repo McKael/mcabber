@@ -225,6 +225,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROOM, "remove");
   compl_add_category_word(COMPL_ROOM, "role");
   compl_add_category_word(COMPL_ROOM, "topic");
+  compl_add_category_word(COMPL_ROOM, "unban");
   compl_add_category_word(COMPL_ROOM, "unlock");
   compl_add_category_word(COMPL_ROOM, "whois");
 
@@ -2018,6 +2019,27 @@ static void room_ban(gpointer bud, char *arg)
   free_arg_lst(paramlst);
 }
 
+// The expected argument is a Jabber id
+static void room_unban(gpointer bud, char *arg)
+{
+  gchar *fjid = arg;
+  gchar *jid_utf8;
+  struct role_affil ra;
+  const char *roomid = buddy_getjid(bud);
+
+  if (!fjid || !*fjid) {
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
+    return;
+  }
+
+  ra.type = type_affil;
+  ra.val.affil = affil_none;
+
+  jid_utf8 = to_utf8(fjid);
+  jb_room_setattrib(roomid, jid_utf8, NULL, ra, NULL);
+  g_free(jid_utf8);
+}
+
 // The expected argument is a nickname
 static void room_kick(gpointer bud, char *arg)
 {
@@ -2381,6 +2403,9 @@ static void do_room(char *arg)
   } else if (!strcasecmp(subcmd, "ban"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_ban(bud, arg);
+  } else if (!strcasecmp(subcmd, "unban"))  {
+    if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
+      room_unban(bud, arg);
   } else if (!strcasecmp(subcmd, "kick"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
       room_kick(bud, arg);

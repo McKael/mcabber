@@ -27,6 +27,8 @@ Komenda 'room' służy do obsługi wieloużytkownikowych chat-room'ów.
  Wyświetla informację MUC osoby "nick"
 /room ban jid [powód]
  Banuje jid z powodu "powód" (opcjonalnie)
+/room unban jid
+ Odbanowanie jid z aktualnego pokoju
 /room invite jid [powód]
  Zaprasza osobę jid do aktualnego pokoju z powodu "powód" (opcjonalnie)
 /room kick nick [powód]

@@ -26,7 +26,9 @@ Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
 /room whois nick
  Zeigt Infos über "nick" bzgl. des MUC an
 /room ban jid [grund]
- Verbannt den User mit der jid mit dem angegeben Grund
+ Verbannt die JID mit einem (optionalem) Grund
+/room unban jid
+ Entbanne die JID für den aktiven Raum
 /room invite jid [grund]
  Lädt die jid [mit einem Grund] in den gerade aktiven MUC ein
 /room kick nick [grund]

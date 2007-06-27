@@ -27,6 +27,8 @@
  Показать информацию о пользователе "nick"
 /room ban jid [reason]
  Наложить запрет (забанить) пользователя "jid" в текущей конференции
+/room unban jid
+ Unban jid from the current room
 /room invite jid [reason]
  Пригласить пользователя "jid" в текущую конференцию
 /room kick nick [reason]

@@ -27,6 +27,8 @@
  Друкує інформацію про "прізвисько".
 /room ban jid [причина]
  Вибанити jid з кімнати.
+/room unban jid
+ Unban jid from the current room
 /room invite jid [причина]
  Запросити jid до поточної кімнати.
 /room kick прізвисько [причина]

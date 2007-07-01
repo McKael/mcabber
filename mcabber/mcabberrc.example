@@ -139,8 +139,11 @@ set cmdhistory_lines = 250
 #set iq_version_hide_os = 0
 #
 # Set iq_last_disable to 1 if you want to disable response to jabber:iq:last
-# queries (XEP-0012).
+# queries (XEP-0012).  Set iq_last_disable_when_notavail to 1 if you want
+# to disable Last Activity reports only when the not-available status is set.
+# (Default is 0 for both options)
 #set iq_last_disable = 0
+#set iq_last_disable = 1
 
 # Beep
 # Set beep_on_message to 1 if you want mcabber to beep when receiving

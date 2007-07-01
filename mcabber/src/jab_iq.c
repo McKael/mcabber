@@ -931,6 +931,26 @@ static void send_iq_not_implemented(jconn conn, char *from, xmlnode xmldata)
   xmlnode_free(x);
 }
 
+// FIXME  highly duplicated code
+static void send_iq_not_available(jconn conn, char *from, xmlnode xmldata)
+{
+  xmlnode x, y, z;
+  // Not available.
+  x = xmlnode_dup(xmldata);
+  xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
+  xmlnode_hide_attrib(x, "from");
+
+  xmlnode_put_attrib(x, "type", TMSG_ERROR);
+  y = xmlnode_insert_tag(x, TMSG_ERROR);
+  xmlnode_put_attrib(y, "code", "503");
+  xmlnode_put_attrib(y, "type", "cancel");
+  z = xmlnode_insert_tag(y, "service-unavailable");
+  xmlnode_put_attrib(z, "xmlns", NS_XMPP_STANZAS);
+
+  jab_send(conn, x);
+  xmlnode_free(x);
+}
+
 /*
 static void send_iq_commands_bad_action(jconn conn, char *from, xmlnode xmldata)
 {
@@ -1523,9 +1543,13 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
     handle_iq_disco_items(conn, from, id, xmldata);
   } else if (ns && !strcmp(ns, NS_VERSION)) {
     handle_iq_version(conn, from, id, xmldata);
-  } else if (ns && !strcmp(ns, NS_LAST) &&
-             !settings_opt_get_int("iq_last_disable")) {
-    handle_iq_last(conn, from, id, xmldata);
+  } else if (ns && !strcmp(ns, NS_LAST)) {
+    if (!settings_opt_get_int("iq_last_disable") &&
+        (!settings_opt_get_int("iq_last_disable_when_notavail") ||
+         jb_getstatus() != notavail))
+      handle_iq_last(conn, from, id, xmldata);
+    else
+      send_iq_not_available(conn, from, xmldata);
   } else if (ns && !strcmp(ns, NS_TIME)) {
     handle_iq_time(conn, from, id, xmldata);
   } else {

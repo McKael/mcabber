@@ -1,6 +1,6 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
- /ROOM privmsg|invite|kick|ban|role|affil
+ /ROOM privmsg|invite|kick|ban|unban|role|affil
  /ROOM bookmark [add|del] [+autojoin|-autojoin]
 
 Команда, відповідальна за дії при багатокористувацькій розмові.
@@ -28,7 +28,7 @@
 /room ban jid [причина]
  Вибанити jid з кімнати.
 /room unban jid
- Unban jid from the current room
+ Знімає бан (блокування) з jid у поточній кімнаті.
 /room invite jid [причина]
  Запросити jid до поточної кімнати.
 /room kick прізвисько [причина]

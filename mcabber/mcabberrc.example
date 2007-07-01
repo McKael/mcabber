@@ -143,7 +143,7 @@ set cmdhistory_lines = 250
 # to disable Last Activity reports only when the not-available status is set.
 # (Default is 0 for both options)
 #set iq_last_disable = 0
-#set iq_last_disable = 1
+#set iq_last_disable_when_notavail = 1
 
 # Beep
 # Set beep_on_message to 1 if you want mcabber to beep when receiving

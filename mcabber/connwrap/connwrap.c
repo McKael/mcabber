@@ -498,7 +498,7 @@ int cw_nb_connect(int sockfd, const struct sockaddr *serv_addr, int addrlen,
     }
 #endif
     if ( !(*state & CW_CONNECT_WANT_SOMETHING)) {
-	rc = connect(sockfd, serv_addr, addrlen);
+	rc = cw_connect(sockfd, serv_addr, addrlen, 0);
     } else { /* check if the socket is connected correctly */
 	int optlen = sizeof(int), optval;
 	if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval,

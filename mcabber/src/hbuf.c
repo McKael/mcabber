@@ -149,6 +149,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
     text = "[ERR:LINE_TOO_LONG]";
     hbuf_block_elt->prefix.flags |= HBB_PREFIX_INFO;
   }
+
   if (hbuf_block_elt->ptr + strlen(text) >= hbuf_block_elt->ptr_end_alloc) {
     // Too long for the current allocated bloc, we need another one
     if (!maxhbufblocks) {
@@ -327,7 +328,10 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
       } else {
         // Propagate highlighting flags
         (*array_elt)->flags |= last_persist_prefixflags &
-                               (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT);
+                               (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT |
+                                HBB_PREFIX_INFO | HBB_PREFIX_IN);
+        //Continuation of a message - omit the prefix
+        (*array_elt)->flags |= HBB_PREFIX_CONT;
       }
 
       hbuf = g_list_next(hbuf);

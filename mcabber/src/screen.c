@@ -182,6 +182,8 @@ static void ParseColors(void)
     "rostersel",
     "rosterselmsg",
     "rosternewmsg",
+    "info",
+    "msgin",
     NULL
   };
 
@@ -249,6 +251,14 @@ static void ParseColors(void)
           break;
       case COLOR_ROSTERNMSG:
           init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
+                    FindColor(background));
+          break;
+      case COLOR_INFO:
+          init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
+                    FindColor(background));
+          break;
+      case COLOR_MSGIN:
+          init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
                     FindColor(background));
           break;
     }
@@ -673,42 +683,52 @@ static void scr_UpdateWindow(winbuf *win_entry)
         wattrset(win_entry->win, get_color(COLOR_MSGOUT));
       else if (line->flags & HBB_PREFIX_HLIGHT)
         wattrset(win_entry->win, get_color(COLOR_MSGHL));
+      else if (line->flags & HBB_PREFIX_INFO)
+        wattrset(win_entry->win, get_color(COLOR_INFO));
+      else if (line->flags & HBB_PREFIX_IN)
+        wattrset(win_entry->win, get_color(COLOR_MSGIN));
 
-      if (line->timestamp && !(line->flags & HBB_PREFIX_SPECIAL)) {
+      if (line->timestamp &&
+          !(line->flags & (HBB_PREFIX_SPECIAL|HBB_PREFIX_CONT))) {
         strftime(date, 30, "%m-%d %H:%M", localtime(&line->timestamp));
       } else
         strcpy(date, "           ");
-      if (line->flags & HBB_PREFIX_INFO) {
-        char dir = '*';
-        if (line->flags & HBB_PREFIX_IN)
-          dir = '<';
-        else if (line->flags & HBB_PREFIX_OUT)
-          dir = '>';
-        wprintw(win_entry->win, "%.11s *%c* ", date, dir);
-      } else if (line->flags & HBB_PREFIX_ERR) {
-        char dir = '#';
-        if (line->flags & HBB_PREFIX_IN)
-          dir = '<';
-        else if (line->flags & HBB_PREFIX_OUT)
-          dir = '>';
-        wprintw(win_entry->win, "%.11s #%c# ", date, dir);
-      } else if (line->flags & HBB_PREFIX_IN) {
-        char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '=';
-        wprintw(win_entry->win, "%.11s <%c= ", date, cryptflag);
-      } else if (line->flags & HBB_PREFIX_OUT) {
-        char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '-';
-        wprintw(win_entry->win, "%.11s -%c> ", date, cryptflag);
-      } else if (line->flags & HBB_PREFIX_SPECIAL) {
-        strftime(date, 30, "%m-%d %H:%M:%S", localtime(&line->timestamp));
-        wprintw(win_entry->win, "%.14s  ", date);
+      if (!(line->flags & HBB_PREFIX_CONT)) {
+        if (line->flags & HBB_PREFIX_INFO) {
+          char dir = '*';
+          if (line->flags & HBB_PREFIX_IN)
+            dir = '<';
+          else if (line->flags & HBB_PREFIX_OUT)
+            dir = '>';
+          wprintw(win_entry->win, "%.11s *%c* ", date, dir);
+        } else if (line->flags & HBB_PREFIX_ERR) {
+          char dir = '#';
+          if (line->flags & HBB_PREFIX_IN)
+            dir = '<';
+          else if (line->flags & HBB_PREFIX_OUT)
+            dir = '>';
+          wprintw(win_entry->win, "%.11s #%c# ", date, dir);
+        } else if (line->flags & HBB_PREFIX_IN) {
+          char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '=';
+          wprintw(win_entry->win, "%.11s <%c= ", date, cryptflag);
+        } else if (line->flags & HBB_PREFIX_OUT) {
+          char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '-';
+          wprintw(win_entry->win, "%.11s -%c> ", date, cryptflag);
+        } else if (line->flags & HBB_PREFIX_SPECIAL) {
+          strftime(date, 30, "%m-%d %H:%M:%S", localtime(&line->timestamp));
+          wprintw(win_entry->win, "%.14s  ", date);
+        } else {
+          wprintw(win_entry->win, "%.11s     ", date);
+        }
       } else {
-        wprintw(win_entry->win, "%.11s     ", date);
+        wprintw(win_entry->win, "                " );
       }
 
       wprintw(win_entry->win, "%s", line->text); // Display text line
 
-      if (line->flags & HBB_PREFIX_HLIGHT_OUT ||
-          line->flags & HBB_PREFIX_HLIGHT)
+      // Return the color back
+      if (line->flags & (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT
+                         | HBB_PREFIX_INFO | HBB_PREFIX_IN))
         wattrset(win_entry->win, get_color(COLOR_GENERAL));
       wclrtoeol(win_entry->win);
       g_free(line->text);

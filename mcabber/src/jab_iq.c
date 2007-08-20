@@ -354,19 +354,19 @@ static int iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   p = xmlnode_get_tag_data(ansqry, "name");
   if (p) {
     buf = g_strdup_printf("Name:    %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
     g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "version");
   if (p) {
     buf = g_strdup_printf("Version: %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
     g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "os");
   if (p) {
     buf = g_strdup_printf("OS:      %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
     g_free(buf);
   }
   return 0;
@@ -419,19 +419,19 @@ static int iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   p = xmlnode_get_tag_data(ansqry, "utc");
   if (p) {
     buf = g_strdup_printf("UTC:  %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
     g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "tz");
   if (p) {
     buf = g_strdup_printf("TZ:   %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
     g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "display");
   if (p) {
     buf = g_strdup_printf("Time: %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
     g_free(buf);
   }
   return 0;
@@ -496,11 +496,12 @@ static int iqscallback_last(eviqs *iqp, xmlnode xml_result, guint iqcontext)
     g_string_append_printf(sbuf, "%02ld:", s/3600L);
     s %= 3600L;
     g_string_append_printf(sbuf, "%02ld:%02ld", s/60L, s%60L);
-    scr_WriteIncomingMessage(bjid, sbuf->str, 0, HBB_PREFIX_NONE);
+    scr_WriteIncomingMessage(bjid, sbuf->str,
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
     g_string_free(sbuf, TRUE);
   } else {
     scr_WriteIncomingMessage(bjid, "No idle time reported.",
-                             0, HBB_PREFIX_NONE);
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
   }
   p = xmlnode_get_data(ansqry);
   if (p) {
@@ -540,7 +541,7 @@ static void display_vcard_item(const char *bjid, const char *label,
                         (vcard_attrib & vcard_pref ? "[pref]" : ""),
                         (vcard_attrib ? " " : ""),
                         text);
-  scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_NONE);
+  scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
   g_free(buf);
 }
 

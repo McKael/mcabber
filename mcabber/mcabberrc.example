@@ -249,6 +249,8 @@ set message_autoaway = Auto-away (idle)
 #
 # background: background color of the chat window and the log window
 # general:    text color in the chat window and the log window
+# info:       text color in the chat window for info messages
+# msgin:      text color in the chat window for incoming messages
 # msgout:     text color in the chat window for outgoing messages
 # msghl:      text color in the chat window for highlighted messages (MUC)
 # bgstatus:   background color of the status lines
@@ -261,6 +263,8 @@ set message_autoaway = Auto-away (idle)
 #
 #set color_background   = black
 #set color_general      = white
+#set color_info	 = white
+#set color_msgin        = white
 #set color_msgout       = cyan
 #set color_msghl        = yellow
 #set color_bgstatus     = blue

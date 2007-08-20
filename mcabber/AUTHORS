@@ -1,4 +1,4 @@
-MCabber is maintained by Mikael Berthe <bmikael@lists.lilotux.net>
+MCabber is maintained by Mikael Berthe <mikael@lilotux.net>
 
 Parts come from differents projects (the origin is mentioned in
 the source headers, usually).
@@ -8,6 +8,7 @@ Thanks to the Gaim project, and to all members of the Jabber community!
 
 Thanks to Michal Jeczalik Jr (aka salvador) and Philip M. White (aka pmw)
 for their help (documentation, suggestions, etc.).
+Thanks to hednod for hosting the mcabber wiki.
 
 Thanks to the following contributors:
   Reimar Döffinger
@@ -16,19 +17,26 @@ Thanks to the following contributors:
   Christof Meerwald
   Myhailo Danylenko
   Alexis Hildebrandt
-  Frank Zschockelt
+  Frank Zschockelt (aka franky)
   Michael Scherer
   Oleg Nemanov (aka Lego_12239)
   Piotr Zielonka (aka entragian)
+  Michal Vaner (aka vorner)
 
 Translators:
   FR    Mikael Berthe
-  PL    Michal Jeczalik Jr
+  PL    Michal Jeczalik Jr (aka salvador)
   UK    Myhailo Danylenko
   DE    Frank Zschockelt
   NL    Eric Hameleers
   RU    Loenko Artyom (aka dive)
   IT    Alessandro Dotti Contra
+
+I'd like to thank the regular members of the mcabber MUC room for their ideas
+and suggestions: Wolfram, bb, MysticOne...
+
+Mikael
+
 
 =====
 Here is the original acknowledgement from the cabber project:

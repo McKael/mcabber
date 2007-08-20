@@ -1,6 +1,6 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
- /ROOM privmsg|invite|kick|ban|role|affil
+ /ROOM privmsg|invite|kick|ban|unban|role|affil
  /ROOM bookmark [add|del] [-autojoin|+autojoin]
 
 Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
@@ -28,6 +28,8 @@ Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
  Mostra le informazioni MUC relative a "nick"
 /room ban jid [motivo]
  Esilia jid dalla stanza corrente
+/room unban jid
+ Riammette jid alla stanza corrente
 /room invite jid [motivo]
  Invita jid nella stanza corrente
 /room kick nick [motivo]

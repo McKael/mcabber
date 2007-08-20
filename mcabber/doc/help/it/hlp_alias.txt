@@ -1,0 +1,17 @@
+
+ /ALIAS [nome [= comando]]
+
+Questo comando consente di definire alias che possono semplificare l'uso di
+comandi sofisticati.
+Gli alias possono essere gestiti come segue:
+
+/alias
+ Stampa la lista degli alias attualmente definiti
+/alias nome
+ Stampa il valore dell'alias definito da "nome"
+/alias nome=
+ Cancella l'alias chiamato "nome"
+/alias nome = comando
+ Definisce l'alias "nome" associandolo a "comando"
+
+Esempio: "/alias assente = status away"

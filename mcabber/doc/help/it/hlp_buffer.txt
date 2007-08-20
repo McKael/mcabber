@@ -1,0 +1,37 @@
+
+ /BUFFER [clear|close|close_all|purge]
+ /BUFFER [top|bottom|date|%|search_backward|search_forward]
+ /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
+
+Comandi per la manipolazione del buffer del contatto. Per esempio, è possibile cercare nel buffer la parola "text", pulire la finestra della chat etc.
+
+/buffer clear
+ Pulisce la finestra di chat del contatto corrente
+/buffer close
+ Svuota tutti contenuti presenti nel buffer e chiude la finestra di chat del contatto corrente
+/buffer close_all
+ Svuota tutti i contenuti presenti in tutti i buffer e chiude le finestre di chat
+/buffer purge
+ Pulisce la finestra di chat del contatto corrente e svuota tutti i contenuti del buffer
+/buffer top
+ Salta all'inizio del buffer di chat del contatto corrente
+/buffer bottom
+ Salta alla fine del buffer di chat del contatto corrente
+/buffer up [n]
+ Fa scorrere indietro il buffer di [n] linee (default: metà schermo)
+/buffer down [n]
+ Fa scorrere avanti il buffer di [n] linee (default: metà schermo)
+/buffer date [data]
+ Salta alla prima linea successiva alla [data] specificata nel buffer di chat (formato della data: "YYYY-mm-dd")
+/buffer % n
+ Salta alla posizione %n del buffer di chat corrente
+/buffer search_backward [testo]
+ Ricerca all'indietro [testo] nel buffer di chat del contatto corrente
+/buffer search_forward text
+ Ricerca in avanti [testo] nel buffer di chat del contatto corrente
+/buffer scroll_lock
+ Blocca lo scorrimento del buffer
+/buffer scroll_unlock
+ Sblocca lo scorrimento del buffer
+/buffer scroll_toggle
+ Cambia la modalità di scorrimento del buffer (bloccato/sbloccato)

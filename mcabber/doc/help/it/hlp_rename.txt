@@ -1,0 +1,4 @@
+
+ /RENAME nome
+
+Rinomina il contatto od il gruppo correnti usando "nome".

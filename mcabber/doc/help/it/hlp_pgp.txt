@@ -1,0 +1,19 @@
+
+ /PGP disable|enable|force|info [jid]
+ /PGP setkey [jid [chiave]]
+
+Questo comando manipola le impostazioni PGP per il jid specificato (di default, il contatto correntemente selezionato).
+Nota che la cifratura PGP non viene utilizzate se non viene rilevato alcun supporto PGP esterno, anche se si utilizza questo comando. Puoi forzare l'uso della cifratura PGP con il sottocomando "force".
+
+/pgp disable [jid]
+ Disabilita la cifratura PGP per jid (o per il contatto correntemente selezionato)
+/pgp enable [jid]
+ Abilita la cifratura PGP per jid (o per il contatto correntemente selezionato)
+/pgp [+|-]force [jid]
+ Forza l'uso della cifratura PGP, anche per i messaggi offline, e suppone che il destinatario abbia il supporto per PGP. Se non messaggio non può essere cifrato (perchè manca la chiave o l'id della chiave), il messaggio non viene spedito. Questa opzione viene ignorata se il supporto per PGP è disabilitato
+/pgp info [jid]
+ Mostra le impostazioni PGP per il contatto
+/pgp setkey [jid [chiave]]
+ Imposta la chiave PGP da utilizzare per cifrare i messaggi diretti a questo contatto.
+ Se non viene fornita alcuna chiave, la chiave corrente viene cancellata.
+ Puoi usare "." per fare riferimento al contatto corrente.

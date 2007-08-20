@@ -1,0 +1,4 @@
+
+ /SOURCE file
+
+Legge un file di configurazione.

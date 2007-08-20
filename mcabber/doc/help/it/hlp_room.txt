@@ -1,0 +1,42 @@
+
+ /ROOM join|leave|names|nick|remove|topic|unlock|destroy
+ /ROOM privmsg|invite|kick|ban|role|affil
+ /ROOM bookmark [add|del] [-autojoin|+autojoin]
+
+Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
+
+/room join [stanza [nick [pass]]]
+ Entra nella "stanza", utilizzando "nick" come nickname. Se non viene specificato un nickname (o se la stringa è vuota), viene utilizzato il valore dell'opzione "nickname" (vedi il file di configurazione di esempio). Se l'elemento correntemente selezionato viene riconosciuto da mcabber come una stanza, si può utilizzare "." al posto dell'id completo. Si può inserire una password per entrare nelle stanza protette. Se il nickname contiene spazi, usate gli apici.
+
+/room leave [message]
+ Abbandona la stanza corrente
+/room names [--short|--quiet]
+ Elenca i membri della stanza
+/room nick newnick
+ Cambia il tuo nickname nella stanza corrente
+/room privmsg nick msg
+ Invia un messaggio privato a "nick"
+/room remove
+ Rimuove la stanza corrente dal roster (devi prima lasciare la stanza)
+/room topic argomento
+ Imposta l'argomento della stanza corrente
+/room unlock
+ Sblocca la stanza corrente (se ne sei il proprietario)
+/room destroy [reason]
+ Distrugge la stanza corrente (usare con cautela!)
+/room whois nick
+ Mostra le informazioni MUC relative a "nick"
+/room ban jid [motivo]
+ Esilia jid dalla stanza corrente
+/room invite jid [motivo]
+ Invita jid nella stanza corrente
+/room kick nick [motivo]
+ Caccia "nick" dalla stanza corrente
+/room role jid role [motivo]
+ Cambia il ruolo di jid (il ruolo può essere "none", "visitor", "participant", "moderator")
+/room affil jid affil [motivo]
+ Cambia l'affiliazione di jid (l'affiliazione può essere "none", "member", "admin", "owner")
+/room bookmark [add|del] [-autojoin|+autojoin]
+ Aggiunge, rimuove o aggiorna un bookmark (di default aggiunge).
+ Se è impostato l'autojoin, mcabber entrerà automaticamente nella stanza quando si connette al server.
+ Per visualizzare l'elenco dei bookmark, utilizzare /room bookmark nel buffer di stato.

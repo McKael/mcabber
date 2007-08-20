@@ -1,0 +1,4 @@
+
+ /SAY testo
+
+Manda il messaggio "testo" al contatto correntemente selezionato. Può essere utile se vuoi inviare un messaggio che comincia, per esempio, con uno slash (/).

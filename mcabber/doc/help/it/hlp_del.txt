@@ -1,0 +1,4 @@
+
+ /DEL
+
+Elimina il contatto corrente dal roster, cancellando la sottoscrizione alle reciproche notifiche della propria presenza.

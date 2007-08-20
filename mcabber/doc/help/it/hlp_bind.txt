@@ -1,0 +1,17 @@
+
+ /BIND [keycode [= commando]]
+
+Collega il comando al tasto specificato da "keycode". Per verificare quali tasti siano non utlizzati al momento basta guardare alla finestra di log di mcabber e premere i tasti desiderati. Per esempio: "Unknown key=265" significa che è possibile assegnare un comando al tasto #265.
+
+/bind
+ Mostra la lista dei collegamenti attivi
+/bind keycode
+ Mostra il comando associato al tasto specificato da keycode
+/bind keycode=
+ Cancella il comando associato al tasto "keycode"
+/bind keycode = commando
+ Associa "comando" al tasto con codice "keycode"
+
+Esempio: "/bind 265 = status away" (265 è F1).
+Nota: i keycode possono essere diversi a seconda della configurazione delle ncurses.
+Suggerimento: al posto dei comandi si possono usare anche gli alias.

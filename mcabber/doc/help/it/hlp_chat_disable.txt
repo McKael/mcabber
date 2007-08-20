@@ -1,0 +1,4 @@
+
+ /CHAT_DISABLE
+
+Disabilita la modalità chat

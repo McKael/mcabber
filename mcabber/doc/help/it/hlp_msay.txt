@@ -1,0 +1,21 @@
+
+ /MSAY begin|verbatim|send|send_to|toggle|abort
+
+Invia un messaggio multilinea. Per scrivere un singolo messaggio di diverse linee, deve essere usato il modo 'multi-line'.
+In modo multi-line, ogni linea (eccetto i comandi) inserita viene aggiunta al messaggio. Una volta che il messaggio è finito, può essere spedito al contatto corrente con il comando "/msay send".
+Il sottocomando 'begin' abilita il modo multi-linea. Notate che consente di specificare un oggetto per il messaggio.
+Il modo multi-linea 'verbatim' disabilita i comandi, in modo da consentire l'inserimento di linee che cominciano con uno slash. Solo il comando "msay" (con i parametre 'send' o 'abort') può essere usato per uscire dalla modalità multi-linea.
+Il sottocomando 'toggle' può essere associato ad un tasto per utilizzare il modo multi-linea velocemente (per esempio, "bind M13 = msay toggle" per attivare/disattivare ;a modalità con la combinazione Meta-Enter).
+
+/msay begin [oggetto]
+ Entra in modalità multi-linea
+/msay verbatim
+ Entra in modalità multi-linea verbatim
+/msay send
+ Invia il messaggio multi-linea al contatto correntemente selezionato
+/msay send_to jid
+ Invia il messaggio multi-linea a "jid"
+/msay toggle
+ Entra ed esce dalla modalità multi-linea
+/msay abort
+ Abbandona la modalità multi-linea senza spedire il messaggio

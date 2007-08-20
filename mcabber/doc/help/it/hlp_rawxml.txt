@@ -1,0 +1,10 @@
+
+ /RAWXML send stringa
+
+Invia "stringa" (in formato raw XML) al server jabber.
+Non viene effettuato alcun controllo sulla stringa inviata.
+
+ATTENZIONE!
+Usatelo solo se sapete cosa state facendo, o potreste interrompere la connessione.
+
+Esempio: "/rawxml send <presence><show>away</show></presence>"

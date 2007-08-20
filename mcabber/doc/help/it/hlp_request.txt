@@ -1,0 +1,13 @@
+
+ /REQUEST last|time|vcard|version [jid]
+
+Invia una query "IQ" al contatto corrente, od all'utente jabber specificato. Se la risorsa non viene specificata con il jid, mcabber invia un richiesta per tutte le risorse conosciute per l'utente.
+
+/request last
+ Richiede l'informazione "last" (solitamente il tempo di inattività)
+/request time
+ Richiede l'ora al contatto
+/request vcard
+ Richiede la vCard al contatto
+/request version
+ Richiede la versione al contatto

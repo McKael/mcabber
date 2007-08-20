@@ -1,0 +1,63 @@
+
+ /ILINE fchar|bchar|char_fdel|char_bdel|char_swap
+ /ILINE fword|bword|word_bdel|word_fdel
+ /ILINE word_upcase|word_downcase|word_capit
+ /ILINE hist_beginning_search_bwd|hist_beginning_search_fwd
+ /ILINE hist_prev|hist_next
+ /ILINE iline_start|iline_end|iline_fdel|iline_bdel
+ /ILINE iline_accept|iline_accept_down_hist
+ /ILINE compl_do|compl_cancel
+ /ILINE send_multiline
+
+Comandi disponibili:
+
+/iline fchar
+ Spostati alla lettera successiva
+/iline bchar
+ Spostati alla lettera precedente
+/iline char_fdel
+ Cancella la lettera alla posizione del cursore
+/iline char_bdel
+ Cancella la lettera prima della posizione del cursore
+/iline char_swap
+ Scambia i caratteri
+/iline fword
+ Sposta il cursore in avanti fino al termine delle parola prossima o corrente
+/iline bword
+ Sposta il cursore indietro all'inizio della parola precedente o corrente
+/iline word_bdel
+ Cancella la parola dall'inizio alla posizione del cursore
+/iline word_fdel
+ Canella la parola dalla posizione del cursore alla fine
+/iline word_upcase
+ Converti in maiuscolo la parola dalla posizione del cursore alla fine
+/iline word_downcase
+ Converti in minuscolo la parola dalla posizione del cursore alla fine
+/iline word_capit
+ Converti in maiuscolo la parola dalla posizione del cursore alla fine
+/iline hist_beginning_search_bwd
+ Cerca all'indietro nella history una riga che cominci con la linea corrente fino alla posizione del cursore (lasciando il cursore nella posizione originale)
+/iline hist_beginning_search_fwd
+ Cerca in avanti nella history una riga che cominci con la linea corrente fino alla posizione del cursore (lasciando il cursore nella posizione originale)
+/iline hist_prev
+ La riga precedente nella history
+/iline hist_next
+ La riga successiva nella history
+/iline iline_start
+ Vai all'inizio della riga di input
+/iline iline_end
+ Vai alla fine della riga di input
+/iline iline_fdel
+ Cancella dal cursore alla fine della riga
+/iline iline_bdel
+ Cancella dall'inizio della riga fino alla posizione del cursore
+/iline iline_accept
+ Accetta la linea
+/iline iline_accept_down_hist
+ Accetta la linea ad inserisci la prossima linea della history nella riga di input
+/iline compl_do
+ Completa la parola corrente nella riga di input
+/iline compl_cancel
+ Cancella il completamento
+/iline send_multiline
+ Invia/termina un messaggio multi-linea

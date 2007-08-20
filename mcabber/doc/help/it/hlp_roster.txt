@@ -1,0 +1,52 @@
+
+ /ROSTER bottom|top|up|down|group_prev|group_next
+ /ROSTER alternate|unread_first|unread_next
+ /ROSTER search bud
+ /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER item_lock|item_unlock
+ /ROSTER hide|show|toggle
+ /ROSTER note [-|testo]
+
+Il comando 'roster' manipola la lista dei contatti.
+Ecco i parametri disponibili.
+
+/roster bottom
+ Salta in fondo al roster
+/roster top
+ Salta in cima al roster
+/roster up
+ Sposta verso l'alto
+/roster down
+ Sposta verso il basso
+/roster group_prev
+ Salta al gruppo precedente
+/roster group_next
+ Salta al gruppo successivo
+/roster alternate
+ Salta al conatto alternativo. Il contatto alternatico è l'ultimo contatto con cui hai parlato in modalità chat. Questo comando è quindi utlie dopo comandi quali "/roster unread_next" (Ctrl-q).
+/roster unread_first
+ Salta al primo messaggio non letto
+/roster unread_next
+ Salta al messaggio non letto successivo
+/roster search bud
+ Cerca il contatto il cui nome o jid contengono "bud" (solo nella lista contatti visualizzata)
+/roster hide_offline
+ Nasconde i contatti offline
+/roster show_offline
+ Mostra i contatti offline
+/roster toggle_offline
+ Visualizza/Nasconde i contatti offline
+/roster item_lock [jid]
+ Blocca un elemento del roster in modo che rimanga visibile a prescindere dal suo stato
+/roster item_unlock [jid]
+ Cancella gli effetti di item_lock
+/roster hide
+ Nasconde il roster (chat a finestra piena)
+/roster show
+ Mostra il roster
+/roster toggle
+ Mostra/Nasconde il roster
+/roster note [-|testo]
+ Imposta/aggiorna/cancella una annotazione
+ Se "testo" non viene specificato, viene visualizzata l'annotazione dell'elemento corrente -- se ti trovi nel buffer di stato, vengono visualizzate tutte le note.
+ Se "testo" e "-", la nota viene cancellata.

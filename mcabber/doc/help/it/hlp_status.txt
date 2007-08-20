@@ -1,0 +1,8 @@
+
+ /STATUS [online|avail|invisible|free|dnd|notavail|away [-|Messaggio di stato]]
+
+Mostra od imposta lo stato corrente.
+Se non viene specificato uno stato, visualizza lo stato corrente.
+Se viene specificato un messaggio, la variabili message* verranno sovrascritte (queste variabili possono essere impostate nel file di configurazione).
+Se nessuna variabile message* è impostata, e non viene specificato alcun messaggio di stato, viene mantenuto lo stato corrente.
+Se "Messaggio di stato" è "-", lo stato corrente viene cancellato.

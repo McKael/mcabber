@@ -1,0 +1,9 @@
+
+ /ADD [jid [nickname]]
+
+Aggiunge il nickname "jid" al roster (nel gruppo di default), ed invia una richiesta di notifica a questo contatto. Se non viene specificato alcun nickname, viene usato il jid. Se non viene fornito alcun jid (oppure viene fornita una stringa nulla ""), o il jid è ".", viene utilizzato il contatto corrente.
+
+/add [jid [nickname]]
+ Aggiunge al roster "jid" come "nickname"
+
+Esempio: "/add somebody@jabber.server.com Somebody"

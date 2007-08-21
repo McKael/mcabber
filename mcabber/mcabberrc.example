@@ -279,6 +279,13 @@ set message_autoaway = Auto-away (idle)
 #set color_rosterselmsg = red
 #set color_rosternewmsg = red
 
+#You can color roster items by their status and JID. For example, to have all
+#roster items white, just all contacts from jabber.org that are away, not
+#available or do not disturb yellow, you do this:
+#
+#color roster * * white
+#color roster adn *@jabber.org yellow
+
 # Style
 # Note: the "log_win_height" and "roster_width" values below can be set
 # in real time when mcabber is running.  Refresh the screen (Ctrl-l) to

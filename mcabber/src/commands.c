@@ -77,6 +77,7 @@ static void do_iline(char *arg);
 static void do_screen_refresh(char *arg);
 static void do_chat_disable(char *arg);
 static void do_source(char *arg);
+static void do_color(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -147,6 +148,7 @@ void cmd_init(void)
   cmd_add("status_to", "Show or set your status for one recipient",
           COMPL_JID, COMPL_STATUS, &do_status_to);
   cmd_add("version", "Show mcabber version", 0, 0, &do_version);
+  cmd_add("color", "Set coloring options", COMPL_COLOR, 0, &do_color);
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");
@@ -252,6 +254,9 @@ void cmd_init(void)
   compl_add_category_word(COMPL_PGP, "force");
   compl_add_category_word(COMPL_PGP, "info");
   compl_add_category_word(COMPL_PGP, "setkey");
+
+  // Color category
+  compl_add_category_word(COMPL_COLOR, "roster");
 }
 
 //  expandalias(line)
@@ -697,6 +702,41 @@ static void do_roster(char *arg)
     scr_RosterNextGroup();
   } else if (!strcasecmp(subcmd, "note")) {
     roster_note(arg);
+  } else
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
+  free_arg_lst(paramlst);
+}
+
+void do_color(char *arg)
+{
+  char **paramlst;
+  char *subcmd;
+
+  paramlst = split_arg(arg, 2, 1); // subcmd, arg
+  subcmd = *paramlst;
+  arg = *(paramlst+1);
+
+  if (!subcmd || !*subcmd) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if (!strcasecmp(subcmd, "roster")) {
+    char **arglist = split_arg(arg, 3, 0);
+    char *status = *arglist, *wildcard = arglist[1], *color = arglist[2];
+    if (status && !strcmp(status, "clear")) { // Not a color command, clear all
+      scr_RosterClearColor();
+      update_roster = TRUE;
+    } else {
+      if (!status || !*status || !wildcard || !*wildcard || !color || !*color) {
+        scr_LogPrint(LPRINT_NORMAL, "Missing argument");
+      } else {
+        update_roster = scr_RosterColor(status, wildcard, color)
+                        || update_roster;
+      }
+    }
+    free_arg_lst(arglist);
   } else
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   free_arg_lst(paramlst);

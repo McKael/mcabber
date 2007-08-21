@@ -143,9 +143,59 @@ AspellConfig *spell_config;
 AspellSpeller *spell_checker;
 #endif
 
+typedef struct {
+  char *status, *wildcard;
+  int color;
+  GPatternSpec *compiled;
+} rostercolor;
+
+GSList *rostercolrules = NULL;
+
 /* Functions */
 
-static int FindColor(const char *name)
+static int color_conv_table[] = {
+  COLOR_BLACK,
+  COLOR_RED,
+  COLOR_GREEN,
+  COLOR_YELLOW,
+  COLOR_BLUE,
+  COLOR_MAGENTA,
+  COLOR_CYAN,
+  COLOR_WHITE
+};
+
+static int color_conv_table_fg[] = {
+  COLOR_BLACK_FG,
+  COLOR_RED_FG,
+  COLOR_GREEN_FG,
+  COLOR_YELLOW_FG,
+  COLOR_BLUE_FG,
+  COLOR_MAGENTA_FG,
+  COLOR_CYAN_FG,
+  COLOR_WHITE_FG
+};
+
+static int color_to_color_fg(int color)
+{
+  unsigned i = 0;
+  for ( ; i < sizeof color_conv_table / sizeof *color_conv_table; i++)
+    if (color == color_conv_table[i])
+      return color_conv_table_fg[i];
+  return -1;
+}
+
+static int color_fg_to_color(int color)
+{
+  unsigned i = 0;
+  if (color >= COLOR_BLACK_BOLD_FG)
+    color -= COLOR_BLACK_BOLD_FG - COLOR_BLACK_FG;
+  for ( ; i < sizeof color_conv_table_fg / sizeof *color_conv_table_fg; i++)
+    if (color == color_conv_table_fg[i])
+      return color_conv_table[i];
+  return -1;
+}
+
+static int FindColorInternal(const char *name)
 {
   if (!strcmp(name, "default"))
     return -1;
@@ -166,8 +216,85 @@ static int FindColor(const char *name)
   if (!strcmp(name, "white"))
     return COLOR_WHITE;
 
+  return -2;
+}
+
+static int FindColor(const char *name)
+{
+  int result = FindColorInternal(name);
+  if (result != -2)
+    return result;
+
   scr_LogPrint(LPRINT_LOGNORM, "ERROR: Wrong color: %s", name);
   return -1;
+}
+
+static void free_rostercolrule(rostercolor *col)
+{
+  g_free(col->status);
+  g_free(col->wildcard);
+  g_pattern_spec_free(col->compiled);
+  g_free(col);
+}
+
+void scr_RosterClearColor(void)
+{
+  GSList *head;
+  for (head = rostercolrules; head; head = g_slist_next(head)) {
+    free_rostercolrule(head->data);
+  }
+  g_slist_free(rostercolrules);
+  rostercolrules = NULL;
+}
+
+bool scr_RosterColor(const char *status, const char *wildcard,
+                     const char *color)
+{
+  GSList *head;
+  GSList *found = NULL;
+  for (head = rostercolrules; head; head = g_slist_next(head)) {
+    rostercolor *rc = head->data;
+    if ((!strcmp(status, rc->status)) && (!strcmp(wildcard, rc->wildcard))) {
+      found = head;
+      break;
+    }
+  }
+  if (!strcmp(color,"-")) {//Delete the rule
+    if (found) {
+      free_rostercolrule(found->data);
+      rostercolrules = g_slist_delete_link(rostercolrules, found);
+      return TRUE;
+    } else {
+      scr_LogPrint(LPRINT_NORMAL, "No such color rule, nothing removed");
+      return FALSE;
+    }
+  } else {
+    bool isbright = false;
+    int cl;
+    if (!strncmp(color, "bright", 6)) {
+      isbright = true;
+      color += 6;
+    }
+    cl = color_to_color_fg(FindColorInternal(color));
+    if (isbright)
+      cl += COLOR_BLACK_BOLD_FG - COLOR_BLACK_FG;
+    if (cl < 0 ) {
+      scr_LogPrint(LPRINT_NORMAL, "No such color name");
+      return FALSE;
+    }
+    if (found) {
+      rostercolor *rc = found->data;
+      rc->color = cl;
+    } else {
+      rostercolor *rc = g_new(rostercolor, 1);
+      rc->status = g_strdup(status);
+      rc->wildcard = g_strdup(wildcard);
+      rc->compiled = g_pattern_spec_new(wildcard);
+      rc->color = cl;
+      rostercolrules = g_slist_prepend(rostercolrules, rc);
+    }
+    return TRUE;
+  }
 }
 
 static void ParseColors(void)
@@ -262,6 +389,11 @@ static void ParseColors(void)
                     FindColor(background));
           break;
     }
+  }
+  for (i = COLOR_BLACK_FG; i < COLOR_max; i++) {
+    init_pair(i, color_fg_to_color(i), FindColor(background));
+    if (i >= COLOR_BLACK_BOLD_FG)
+      COLOR_ATTRIB[i] = A_BOLD;
   }
 }
 
@@ -1429,8 +1561,22 @@ void scr_DrawRoster(void)
     } else {
       if (pending == '#')
         wattrset(rosterWnd, get_color(COLOR_ROSTERNMSG));
-      else
-        wattrset(rosterWnd, get_color(COLOR_ROSTER));
+      else {
+        int color = get_color(COLOR_ROSTER);
+        if ((!isspe) && (!isgrp)) {//Look for color rules
+          GSList *head;
+          const char *jid = buddy_getjid(BUDDATA(buddy));
+          for (head = rostercolrules; head; head = g_slist_next(head)) {
+            rostercolor *rc = head->data;
+            if (g_pattern_match_string(rc->compiled, jid) &&
+                (!strcmp("*", rc->status) || strchr(rc->status, status))) {
+              color = get_color(rc->color);
+              break;
+            }
+          }
+        }
+        wattrset(rosterWnd, color);
+      }
     }
 
     if (Roster_Width > 7)

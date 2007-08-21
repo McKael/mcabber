@@ -1,0 +1,16 @@
+
+ /COLOR roster (status wildcard (color|-)|clear)
+
+The 'color' command allows setting dynamic color properties of the screen.
+
+/color roster clear
+ Remove all color rules for the roster.
+ All roster items will get its default color.
+/color roster status wildcard color
+ Set a color rule (or overwrite, if it already exists).
+ The status is string containing all statuses the roster item can have for the
+ rule to match, or * if any status is OK.
+ Wildcard is the file-matching wildcard that will be applied to JID.
+ Color is the wanted color.
+ If color is -, the rule is removed.
+ If more than one rule matches, the color from the last created (not overwritten) is used.

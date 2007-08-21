@@ -1,0 +1,15 @@
+
+ /COLOR roster (état joker (couleur|-)|clear)
+
+Cette commande permet de configurer des couleurs dynamiques.
+
+/color roster clear
+ Supprime toutes les règles de couleurs du roster.
+ Tous les éléments du roster auront leur couleur par défaut.
+/color roster état joker couleur
+ Définit (ou bien redéfinit) une règle de couleur.
+ "état" est une chaîne contenant tous les états pour lesquels la règle doit s'appliquer, ou bien * si la règle doit s'appliquer quel que soit l'état.
+ "joker" est un motif (comme pour les filtres de fichiers) qui sera appliqué au JID.
+ "couleur" est la couleur désirée.
+ Si la couleur est -, la règle est supprimée.
+ Lorsque plusieurs règles s'appliquent, la couleur de la dernière règle créée (pas redéfinie...) est utilisée.

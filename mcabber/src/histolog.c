@@ -193,8 +193,10 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
   // If file is large (> 3MB here), display a message to inform the user
   // (it can take a while...)
   if (!fstat(fileno(fp), &bufstat)) {
-    if (bufstat.st_size > 3145728)
-      scr_LogPrint(LPRINT_LOGNORM, "Reading <%s> history file...", bjid);
+    if (bufstat.st_size > 3145728) {
+      scr_LogPrint(LPRINT_NORMAL, "Reading <%s> history file...", bjid);
+      scr_DoUpdate();
+    }
   }
 
   max_num_of_blocks = get_max_history_blocks();

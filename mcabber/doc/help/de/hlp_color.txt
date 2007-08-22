@@ -1,0 +1,20 @@
+
+ /COLOR roster (status wildcard (color|-)|clear)
+
+Der 'color' Befehl macht es möglich dynamisch Farben des Rosters zu verändern.
+
+/color roster clear
+ Löscht alle definierten Farbregeln, sodass die Standardfarben wieder benutzt
+ werden.
+
+/color roster status wildcard color
+ Setzt eine Farbregel, bzw. überschreibt eine, wenn sie schon existierte.
+
+ "status" ist ein String der alle Status angibt, auf welche diese Regel
+ zutreffen soll(oder "*" für jeden möglichen Status).
+ Mit Wildcards kann man festlegen auf welche JIDs diese Regel angewendet
+ werden soll.
+ color muss durch die gewünschte Farbe ersetzt werden.
+ Wenn für color "-" eingesetzt wird, wird die Regel gelöscht.
+ Wenn mehr als eine Regel zutrifft, wird die Farbe von der zuletzt
+ erschaffenen Regel benutzt.

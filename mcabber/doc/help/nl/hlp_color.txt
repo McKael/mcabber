@@ -1,0 +1,15 @@
+
+ /COLOR roster (status joker (color|-)|clear)
+
+Met het 'color' commando kunnen dynamisch de kleur eigenschappen van het scherm worden aangepast.
+
+/color roster clear
+ Verwijder alle kleur-definities voor het roster.
+ Alle roster elementen zullen hun standaard kleuren terug krijgen.
+/color roster status joker kleur
+ Stel een kleur in (of overschrijf een bestaande definitie).
+ 'Status' is een tekst die alle mogelijke statusen beschrijft waarin een roster element zich mag bevinden om bij de definitie te passen, of '*' indien elke status OK is.
+ 'Joker' is een patroon (zoals ook gebruikt wordt voor het passen op bestandsnamen) dat op de JID toegepast zal worden.
+ 'Kleur' is de gewenste kleur.
+ Indien de waarde voor kleur '-' is, wordt de kleur-definitie verwijderd.
+ Wanneer meer dan een definitie van toepassing is, wordt de kleur gebruikt van de laatst aangemaakte (niet overschreven) definitie.

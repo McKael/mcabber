@@ -3,7 +3,9 @@
 
 set color_background   = blue
 set color_general      = white
+set color_info         = white
 set color_msgout       = cyan
+set color_msgin        = cyan
 set color_msghl        = yellow
 set color_bgstatus     = yellow
 set color_status       = red

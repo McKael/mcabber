@@ -237,6 +237,7 @@ static void free_rostercolrule(rostercolor *col)
   g_free(col);
 }
 
+// Removes all roster coloring rules
 void scr_RosterClearColor(void)
 {
   GSList *head;
@@ -247,6 +248,13 @@ void scr_RosterClearColor(void)
   rostercolrules = NULL;
 }
 
+// Adds, modifies or removes roster coloring rule
+// color set to "-" removes the rule,
+// otherwise it is modified (if exists) or added
+//
+// Returns weather it was successfull (therefore the roster should be
+// redrawed) or not. If it failed, for example because of invalid color
+// name, it also prints the error.
 bool scr_RosterColor(const char *status, const char *wildcard,
                      const char *color)
 {

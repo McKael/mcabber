@@ -2633,9 +2633,12 @@ void readline_backward_kill_word(void)
     } else spaceallowed = 0;
   }
 
-  if (c != inputLine || iswblank(get_char(c)))
+  if (c == inputLine && *c == COMMAND_CHAR && old != c+1) {
+      c = next_char(c);
+  } else if (c != inputLine || iswblank(get_char(c))) {
     if ((c < prev_char(ptr_inputline, inputLine)) && (!iswalnum(get_char(c))))
       c = next_char(c);
+  }
 
   // Modify the line
   ptr_inputline = c;

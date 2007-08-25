@@ -148,7 +148,7 @@ void scr_RosterJumpJid(char *);
 void scr_BufferTopBottom(int topbottom);
 void scr_BufferClear(void);
 void scr_BufferScrollLock(int lock);
-void scr_BufferPurge(int);
+void scr_BufferPurge(int, const char*);
 void scr_BufferPurgeAll(int);
 void scr_BufferSearch(int direction, const char *text);
 void scr_BufferPercent(int pc);

@@ -7,11 +7,11 @@ Cette commande permet de gérer les tampons de discussions avec les différents 
 
 /buffer clear
  Efface la fenêtre du contact sélectionné
-/buffer close
+/buffer close [jid]
  Ferme la fenêtre du contact sélectionné après avoir vidé le contenu du tampon associé
 /buffer close_all
  Ferme les fenêtres dde tous les contacts après avoir vidé le contenu des tampons associés
-/buffer purge
+/buffer purge [jid]
  Efface la fenêtre du contact sélectionné et vide le contenu du tampon associé
 /buffer top
  Va au début du tampon

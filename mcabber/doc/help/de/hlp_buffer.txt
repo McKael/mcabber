@@ -7,11 +7,11 @@ Befehl um den Puffer für den momentan ausgewählten Buddy zu verändern. Man ka
 
 /buffer clear
  Leere das gerade offene Chatfenster
-/buffer close
+/buffer close [jid]
  Leert den Inhalt des Puffers und schließt das momentan geöffnete Chatfenster
 /buffer close_all
  Leert alle Chatpuffer und schließt alle Chatfenster
-/buffer purge
+/buffer purge [jid]
  Leere das Chatfenster und lösche den Inhalt des Chatpuffers
 /buffer top
  Springe zum Anfang des momentanen Chat Puffers

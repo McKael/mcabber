@@ -7,11 +7,11 @@ Comandi per la manipolazione del buffer del contatto. Per esempio, è possibile c
 
 /buffer clear
  Pulisce la finestra di chat del contatto corrente
-/buffer close
+/buffer close [jid]
  Svuota tutti contenuti presenti nel buffer e chiude la finestra di chat del contatto corrente
 /buffer close_all
  Svuota tutti i contenuti presenti in tutti i buffer e chiude le finestre di chat
-/buffer purge
+/buffer purge [jid]
  Pulisce la finestra di chat del contatto corrente e svuota tutti i contenuti del buffer
 /buffer top
  Salta all'inizio del buffer di chat del contatto corrente

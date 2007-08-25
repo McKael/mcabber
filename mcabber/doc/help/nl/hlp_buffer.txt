@@ -7,11 +7,11 @@ Manipuleer de chat buffer van de actieve buddy.  Je kunt bijvoorbeeld de buffer 
 
 /buffer clear
  Wis het chat venster van de actieve buddy
-/buffer close
+/buffer close [jid]
  Wis de volledige inhoud van de chat buffer en sluit het venster van de actieve buddy
 /buffer close_all
  Wis de volledige inhoud van alle chat buffers en sluit alle chat vensters
-/buffer purge
+/buffer purge [jid]
  Wis het chat venster van de actieve buddy en verwijder de volledige inhoud van de chat buffer
 /buffer top
  Spring naar het begin van de chat buffer van de actieve buddy

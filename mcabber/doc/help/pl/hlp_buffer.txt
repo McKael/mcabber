@@ -7,11 +7,11 @@ Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. pr
 
 /buffer clear
  Czyści okno rozmowy
-/buffer close
+/buffer close [jid]
  Czyści cały bufor rozmowy i zamyka aktualne okno z rozmową
 /buffer close_all
  Czyści wszystkie bufory rozmów i zamyka okna z rozmowami
-/buffer purge
+/buffer purge [jid]
  Czyści okno rozmowy i usuwa całą zawartość bufora rozmowy
 /buffer top
  Skacze na sam początek bufora rozmowy

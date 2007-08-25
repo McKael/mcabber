@@ -947,7 +947,7 @@ static void do_del(char *arg)
   }
 
   // Close the buffer
-  scr_BufferPurge(1);
+  scr_BufferPurge(1, NULL);
 
   scr_LogPrint(LPRINT_LOGNORM, "Removing <%s>...", bjid);
   jb_delbuddy(bjid);
@@ -1325,11 +1325,11 @@ static void do_buffer(char *arg)
   } else if (!strcasecmp(subcmd, "clear")) {
     scr_BufferClear();
   } else if (!strcasecmp(subcmd, "close")) {
-    scr_BufferPurge(1);
+    scr_BufferPurge(1, arg);
   } else if (!strcasecmp(subcmd, "close_all")) {
     scr_BufferPurgeAll(1);
   } else if (!strcasecmp(subcmd, "purge")) {
-    scr_BufferPurge(0);
+    scr_BufferPurge(0, arg);
   } else if (!strcasecmp(subcmd, "scroll_lock")) {
     scr_BufferScrollLock(1);
   } else if (!strcasecmp(subcmd, "scroll_unlock")) {

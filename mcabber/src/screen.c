@@ -2098,25 +2098,32 @@ static void buffer_purge(gpointer key, gpointer value, gpointer data)
   }
 }
 
-//  scr_BufferPurge(closebuf)
-// Purge/Drop the current buddy buffer
+//  scr_BufferPurge(closebuf, jid)
+// Purge/Drop the current buddy buffer or jid's buffer if jid != NULL.
 // If closebuf is 1, close the buffer.
-void scr_BufferPurge(int closebuf)
+void scr_BufferPurge(int closebuf, const char *jid)
 {
   winbuf *win_entry;
   guint isspe;
   guint *p_closebuf;
+  const char *cjid;
 
-  // Get win_entry
-  if (!current_buddy) return;
-  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
-  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
+  if (jid) {
+    cjid = jid;
+    isspe = FALSE;
+  } else {
+    // Get win_entry
+    if (!current_buddy) return;
+    cjid = CURRENT_JID;
+    isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  }
+  win_entry = scr_SearchWindow(cjid, isspe);
   if (!win_entry) return;
 
   if (!isspe) {
     p_closebuf = g_new(guint, 1);
     *p_closebuf = closebuf;
-    buffer_purge((gpointer)CURRENT_JID, win_entry, p_closebuf);
+    buffer_purge((gpointer)cjid, win_entry, p_closebuf);
     g_free(p_closebuf);
     if (closebuf) {
       scr_set_chatmode(FALSE);

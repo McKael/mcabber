@@ -311,6 +311,12 @@ set message_autoaway = Auto-away (idle)
 # - 3: "name" (if the name is the same as the jid, use <jid/res>)
 #set buddy_format = 2
 #
+# Time format:
+# - 0: (default) Date and time
+# - 1: Time only
+# - 2: None
+#set time_prefix = 0
+#
 # When a contacts sends "/me ", mcabber displays "*user ", where user
 # is the local part of the contact's jid.
 # If you want mcabber to display the complete bare jid (user@server.com),

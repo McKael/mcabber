@@ -22,9 +22,6 @@ void spellcheck_deinit(void);
 
 #include "logprint.h"
 
-// Length of the timestamp & flag prefix in the chat buffer window
-#define PREFIX_WIDTH    17
-
 #define INPUTLINE_LENGTH  1024
 
 // Only used in screen.c; this is the maximum line number

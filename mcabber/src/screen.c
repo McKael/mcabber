@@ -628,6 +628,40 @@ inline void scr_Beep(void)
   beep();
 }
 
+// This and following belongs to dynamic setting of time prefix
+static const char *timeprefixes[] = {
+  "%m-%d %H:%M ",
+  "%H:%M ",
+  " "
+};
+
+static const char *spectimeprefixes[] = {
+  "%m-%d %H:%M:%S   ",
+  "%H:%M:%S   ",
+  "   "
+};
+
+static int timepreflengths[] = {
+  17,
+  11,
+  6
+};
+
+static const char *gettprefix()
+{
+  return timeprefixes[settings_opt_get_int("time_prefix")];
+}
+
+static const char *getspectprefix()
+{
+  return spectimeprefixes[settings_opt_get_int("time_prefix")];
+}
+
+static unsigned getprefixwidth()
+{
+  return timepreflengths[settings_opt_get_int("time_prefix")];
+}
+
 //  scr_LogPrint(...)
 // Display a message in the log window.
 // This function will convert from UTF-8 unless the LPRINT_NOTUTF8 flag is set.
@@ -757,7 +791,7 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
     } else {  // Load buddy history from file (if enabled)
       tmp->bd = g_new0(buffdata, 1);
       hlog_read_history(title, &tmp->bd->hbuf,
-                        maxX - Roster_Width - PREFIX_WIDTH);
+                        maxX - Roster_Width - getprefixwidth());
     }
 
     id = g_strdup(title);
@@ -816,8 +850,6 @@ static void scr_UpdateWindow(winbuf *win_entry)
   for (n = 0; n < CHAT_WIN_HEIGHT; n++) {
     wmove(win_entry->win, n, 0);
     line = *(lines+n);
-    // NOTE: update PREFIX_WIDTH if you change the date format!!
-    // You need to set it to the whole prefix length + 1
     if (line) {
       if (line->flags & HBB_PREFIX_HLIGHT_OUT)
         wattrset(win_entry->win, get_color(COLOR_MSGOUT));
@@ -830,7 +862,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
 
       if (line->timestamp &&
           !(line->flags & (HBB_PREFIX_SPECIAL|HBB_PREFIX_CONT))) {
-        strftime(date, 30, "%m-%d %H:%M", localtime(&line->timestamp));
+        strftime(date, 30, gettprefix(), localtime(&line->timestamp));
       } else
         strcpy(date, "           ");
       if (!(line->flags & HBB_PREFIX_CONT)) {
@@ -840,30 +872,32 @@ static void scr_UpdateWindow(winbuf *win_entry)
             dir = '<';
           else if (line->flags & HBB_PREFIX_OUT)
             dir = '>';
-          wprintw(win_entry->win, "%.11s *%c* ", date, dir);
+          wprintw(win_entry->win, "%s*%c* ", date, dir);
         } else if (line->flags & HBB_PREFIX_ERR) {
           char dir = '#';
           if (line->flags & HBB_PREFIX_IN)
             dir = '<';
           else if (line->flags & HBB_PREFIX_OUT)
             dir = '>';
-          wprintw(win_entry->win, "%.11s #%c# ", date, dir);
+          wprintw(win_entry->win, "%s#%c# ", date, dir);
         } else if (line->flags & HBB_PREFIX_IN) {
           char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '=';
-          wprintw(win_entry->win, "%.11s <%c= ", date, cryptflag);
+          wprintw(win_entry->win, "%s<%c= ", date, cryptflag);
         } else if (line->flags & HBB_PREFIX_OUT) {
           char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '-';
-          wprintw(win_entry->win, "%.11s -%c> ", date, cryptflag);
+          wprintw(win_entry->win, "%s-%c> ", date, cryptflag);
         } else if (line->flags & HBB_PREFIX_SPECIAL) {
-          strftime(date, 30, "%m-%d %H:%M:%S", localtime(&line->timestamp));
-          wprintw(win_entry->win, "%.14s  ", date);
+          strftime(date, 30, getspectprefix(), localtime(&line->timestamp));
+          wprintw(win_entry->win, "%s   ", date);
         } else {
-          wprintw(win_entry->win, "%.11s     ", date);
+          wprintw(win_entry->win, "%s    ", date);
         }
       } else {
         wprintw(win_entry->win, "                " );
       }
 
+      // Make sure we are at the right position
+      wmove(win_entry->win, n, getprefixwidth()-1);
       wprintw(win_entry->win, "%s", line->text); // Display text line
 
       // Return the color back
@@ -1009,7 +1043,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 
   text_locale = from_utf8(text);
   hbuf_add_line(&win_entry->bd->hbuf, text_locale, timestamp, prefix_flags,
-                maxX - Roster_Width - PREFIX_WIDTH, num_history_blocks);
+                maxX - Roster_Width - getprefixwidth(), num_history_blocks);
   g_free(text_locale);
 
   if (win_entry->bd->cleared) {
@@ -1210,7 +1244,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
 
     // Init prev_chatwidth; this variable will be used to prevent us
     // from rewrapping buffers when the width doesn't change.
-    prev_chatwidth = maxX - Roster_Width - PREFIX_WIDTH;
+    prev_chatwidth = maxX - Roster_Width - getprefixwidth();
     // Wrap existing status buffer lines
     hbuf_rebuild(&statushbuf, prev_chatwidth);
 
@@ -1264,7 +1298,7 @@ static void resize_win_buffer(gpointer key, gpointer value, gpointer data)
   // Redo line wrapping
   wbp->bd->top = hbuf_previous_persistent(wbp->bd->top);
 
-  new_chatwidth = maxX - Roster_Width - PREFIX_WIDTH;
+  new_chatwidth = maxX - Roster_Width - getprefixwidth();
   if (new_chatwidth != prev_chatwidth)
     hbuf_rebuild(&wbp->bd->hbuf, new_chatwidth);
 }
@@ -1301,7 +1335,7 @@ void scr_Resize(void)
     resize_win_buffer(NULL, statusWindow, &dim);
 
   // Update prev_chatwidth, now that all buffers have been resized
-  prev_chatwidth = maxX - Roster_Width - PREFIX_WIDTH;
+  prev_chatwidth = maxX - Roster_Width - getprefixwidth();
 
   // Refresh current buddy window
   if (chatmode)

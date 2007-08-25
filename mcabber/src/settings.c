@@ -28,6 +28,10 @@
 #include "utils.h"
 #include "logprint.h"
 
+// Maximum line length 
+// (probably best to use the same value as INPUTLINE_LENGTH)
+#define CONFLINE_LENGTH  1024
+
 static GHashTable *option;
 static GHashTable *alias;
 static GHashTable *binding;
@@ -128,9 +132,9 @@ int cfg_read_file(char *filename, guint mainfile)
     scr_LogPrint(LPRINT_LOGNORM, "Reading %s", filename);
   }
 
-  buf = g_new(char, 512);
+  buf = g_new(char, CONFLINE_LENGTH+1);
 
-  while (fgets(buf+1, 511, fp) != NULL) {
+  while (fgets(buf+1, CONFLINE_LENGTH, fp) != NULL) {
     // The first char is reserved to add a '/', to make a command line
     line = buf+1;
     ln++;

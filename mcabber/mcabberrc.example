@@ -14,7 +14,6 @@
 # Warning to GTalk users! please see the FAQ:
 # <http://www.probsd.net/mcabber/index.php/Main_Page#FAQ>
 
-
 set username = yourusername
 # Note: if the password contains leading or trailing spaces, you must
 # enclose it with quotes: set password = " example password "
@@ -27,6 +26,9 @@ set resource = mcabber
 
 # SSL options:
 # Set ssl non-zero to use SSL (this also sets the default port to 5223).
+# * Please note that certificate verification is NOT yet supported if
+#   mcabber is compiled with GnuTLS (only works with OpenSSL).
+#   You can use mcabber -V to check.
 # Set ssl_verify to 0 to disable certificate verification, or non-zero
 # to set desired maximum CA verification depth. Use -1 to specify an
 # unlimited depth.
@@ -267,7 +269,7 @@ set message_autoaway = Auto-away (idle)
 #
 #set color_background   = black
 #set color_general      = white
-#set color_info	 = white
+#set color_info         = white
 #set color_msgin        = white
 #set color_msgout       = cyan
 #set color_msghl        = yellow

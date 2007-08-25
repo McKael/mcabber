@@ -1363,6 +1363,8 @@ static void disco_info_set_default(xmlnode ansquery, guint entitycaps)
   xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
                      "var", NS_TIME);
   xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
+                     "var", NS_XMPP_TIME);
+  xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
                      "var", NS_VERSION);
   xmlnode_put_attrib(xmlnode_insert_tag(ansquery, "feature"),
                      "var", NS_PING);
@@ -1473,7 +1475,7 @@ static void handle_iq_version(jconn conn, char *from, const char *id,
 
 // This function borrows some code from the Gaim project
 static void handle_iq_time(jconn conn, char *from, const char *id,
-                              xmlnode xmldata)
+                           xmlnode xmldata)
 {
   xmlnode x;
   xmlnode myquery;
@@ -1517,6 +1519,60 @@ static void handle_iq_time(jconn conn, char *from, const char *id,
 }
 
 // This function borrows some code from the Gaim project
+static void handle_iq_time202(jconn conn, char *from, const char *id,
+                              xmlnode xmldata)
+{
+  xmlnode x;
+  xmlnode myquery;
+  char *buf, *utf8_buf;
+  time_t now_t;
+  struct tm *now;
+  char const *sign;
+  int diff;
+
+  time(&now_t);
+
+  scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>", from);
+
+  buf = g_new0(char, 512);
+
+  x = jutil_iqnew(JPACKET__RESULT, NULL);
+  xmlnode_hide(xmlnode_get_tag(x, "query"));
+  xmlnode_put_attrib(xmlnode_insert_tag(x, "time"), "xmlns", NS_XMPP_TIME);
+  xmlnode_put_attrib(x, "id", id);
+  xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
+  myquery = xmlnode_get_tag(x, "time");
+
+  now = localtime(&now_t);
+
+  if (now->tm_isdst < 0)
+    diff = 0;
+  else
+    diff = now->tm_gmtoff;
+  if (diff < 0) {
+    sign = "-";
+    diff = -diff;
+  } else {
+    sign = "+";
+  }
+  diff /= 60;
+  snprintf(buf, 512, "%c%02d:%02d", *sign, diff / 60, diff % 60);
+  if ((utf8_buf = to_utf8(buf))) {
+    xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "tzo"), utf8_buf, -1);
+    g_free(utf8_buf);
+  }
+
+  now = gmtime(&now_t);
+
+  strftime(buf, 512, "%Y-%m-%dT%TZ", now);
+  xmlnode_insert_cdata(xmlnode_insert_tag(myquery, "utc"), buf, -1);
+
+  jab_send(jc, x);
+  xmlnode_free(x);
+  g_free(buf);
+}
+
+// This function borrows some code from the Gaim project
 static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
 {
   const char *id, *ns;
@@ -1533,6 +1589,13 @@ static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
   ns = xmlnode_get_attrib(x, "xmlns");
   if (ns && !strcmp(ns, NS_PING)) {
     handle_iq_ping(conn, from, id, xmldata);
+    return;
+  }
+
+  x = xmlnode_get_tag(xmldata, "time");
+  ns = xmlnode_get_attrib(x, "xmlns");
+  if (ns && !strcmp(ns, NS_XMPP_TIME)) {
+    handle_iq_time202(conn, from, id, xmldata);
     return;
   }
 

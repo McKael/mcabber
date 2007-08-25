@@ -31,6 +31,7 @@ This is an overview of mcabber Jabber features:
   XEP-0145 - Annotations
   XEP-0146 - Remote Controlling Clients
   XEP-0199 - XMPP Ping
+  XEP-0203 - Delayed Delivery
 
 This software is under development, please give me some feedback (and some
 patches if you can!).  Or just tell me you're using it... ;-)

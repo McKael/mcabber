@@ -1905,6 +1905,10 @@ static time_t xml_get_timestamp(xmlnode xmldata)
   xmlnode x;
   char *p;
 
+  x = xml_get_xmlns(xmldata, NS_XMPP_DELAY);
+  if (x && !strcmp(xmlnode_get_name(x), "delay") &&
+      (p = xmlnode_get_attrib(x, "stamp")) != NULL)
+    return from_iso8601(p, 1);
   x = xml_get_xmlns(xmldata, NS_DELAY);
   if ((p = xmlnode_get_attrib(x, "stamp")) != NULL)
     return from_iso8601(p, 1);

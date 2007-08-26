@@ -813,6 +813,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
   hbb_line **lines, *line;
   GList *hbuf_head;
   char date[64];
+  int color;
 
   width = getmaxx(win_entry->win);
 
@@ -853,13 +854,18 @@ static void scr_UpdateWindow(winbuf *win_entry)
     line = *(lines+n);
     if (line) {
       if (line->flags & HBB_PREFIX_HLIGHT_OUT)
-        wattrset(win_entry->win, get_color(COLOR_MSGOUT));
+        color = COLOR_MSGOUT;
       else if (line->flags & HBB_PREFIX_HLIGHT)
-        wattrset(win_entry->win, get_color(COLOR_MSGHL));
+        color = COLOR_MSGHL;
       else if (line->flags & HBB_PREFIX_INFO)
-        wattrset(win_entry->win, get_color(COLOR_INFO));
+        color = COLOR_INFO;
       else if (line->flags & HBB_PREFIX_IN)
-        wattrset(win_entry->win, get_color(COLOR_MSGIN));
+        color = COLOR_MSGIN;
+      else
+        color = COLOR_GENERAL;
+
+      if (color != COLOR_GENERAL)
+        wattrset(win_entry->win, get_color(color));
 
       if (line->timestamp &&
           !(line->flags & (HBB_PREFIX_SPECIAL|HBB_PREFIX_CONT))) {
@@ -899,26 +905,27 @@ static void scr_UpdateWindow(winbuf *win_entry)
 
       // Make sure we are at the right position
       wmove(win_entry->win, n, getprefixwidth()-1);
-      wprintw(win_entry->win, "%s", line->text); // Display text line
-      wclrtoeol(win_entry->win);
 
       //The MUC nick - overwrite with propper color
-      if (line->mucnicklen) {
+      if (line->mucnicklen && (line->flags & HBB_PREFIX_IN)) {
         //Store the char after the nick
         char tmp = line->text[line->mucnicklen];
         //TODO choose the color in proper way
         wattrset(win_entry->win, get_color(COLOR_RED_BOLD_FG));
-        wmove(win_entry->win, n, getprefixwidth()-1);
         //Terminate the string after the nick
         line->text[line->mucnicklen] = '\0';
         wprintw(win_entry->win, "%s", line->text);
         //Return the char
         line->text[line->mucnicklen] = tmp;
+        //Return the color back
+        wattrset(win_entry->win, get_color(color));
       }
 
+      wprintw(win_entry->win, "%s", line->text+line->mucnicklen); // Display text line
+      wclrtoeol(win_entry->win);
+
       // Return the color back
-      if ((line->flags & (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT
-          | HBB_PREFIX_INFO | HBB_PREFIX_IN)) || (line->mucnicklen))
+      if (color != COLOR_GENERAL)
         wattrset(win_entry->win, get_color(COLOR_GENERAL));
       g_free(line->text);
       g_free(line);

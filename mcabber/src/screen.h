@@ -106,7 +106,8 @@ void scr_UpdateMainStatus(int forceupdate);
 void scr_UpdateChatStatus(int forceupdate);
 void scr_RosterVisibility(int status);
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
-                              time_t timestamp, guint prefix);
+                              time_t timestamp, guint prefix,
+                              unsigned mucnicklen);
 void scr_WriteOutgoingMessage(const char *jidto,   const char *text,
                               guint prefix);
 void scr_ShowBuddyWindow(void);

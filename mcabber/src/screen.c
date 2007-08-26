@@ -135,7 +135,8 @@ GSList *keyseqlist;
 static void add_keyseq(char *seqstr, guint mkeycode, gint value);
 
 void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
-                       unsigned int prefix_flags, int force_show);
+                       unsigned int prefix_flags, int force_show,
+                       unsigned mucnicklen);
 
 #ifdef HAVE_ASPELL_H
 #define ASPELLBADCHAR 5
@@ -712,12 +713,12 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
       wprintw(logWnd, "\n%s", buffer_locale);
       update_panels();
       scr_WriteInWindow(NULL, buf_specialwindow, timestamp,
-                        HBB_PREFIX_SPECIAL, FALSE);
+                        HBB_PREFIX_SPECIAL, FALSE, 0);
     } else {
       printf("%s\n", buffer_locale);
       // ncurses are not initialized yet, so we call directly hbuf routine
       hbuf_add_line(&statushbuf, buf_specialwindow, timestamp,
-        HBB_PREFIX_SPECIAL, 0, 0);
+        HBB_PREFIX_SPECIAL, 0, 0, 0);
     }
 
     g_free(convbuf1);
@@ -899,12 +900,26 @@ static void scr_UpdateWindow(winbuf *win_entry)
       // Make sure we are at the right position
       wmove(win_entry->win, n, getprefixwidth()-1);
       wprintw(win_entry->win, "%s", line->text); // Display text line
+      wclrtoeol(win_entry->win);
+
+      //The MUC nick - overwrite with propper color
+      if (line->mucnicklen) {
+        //Store the char after the nick
+        char tmp = line->text[line->mucnicklen];
+        //TODO choose the color in proper way
+        wattrset(win_entry->win, get_color(COLOR_RED_BOLD_FG));
+        wmove(win_entry->win, n, getprefixwidth()-1);
+        //Terminate the string after the nick
+        line->text[line->mucnicklen] = '\0';
+        wprintw(win_entry->win, "%s", line->text);
+        //Return the char
+        line->text[line->mucnicklen] = tmp;
+      }
 
       // Return the color back
-      if (line->flags & (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT
-                         | HBB_PREFIX_INFO | HBB_PREFIX_IN))
+      if ((line->flags & (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT
+          | HBB_PREFIX_INFO | HBB_PREFIX_IN)) || (line->mucnicklen))
         wattrset(win_entry->win, get_color(COLOR_GENERAL));
-      wclrtoeol(win_entry->win);
       g_free(line->text);
       g_free(line);
     } else {
@@ -1006,7 +1021,8 @@ inline void scr_UpdateBuddyWindow(void)
 // Lines are splitted when they are too long to fit in the chat window.
 // If this window doesn't exist, it is created.
 void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
-                       unsigned int prefix_flags, int force_show)
+                       unsigned int prefix_flags, int force_show,
+                       unsigned mucnicklen)
 {
   winbuf *win_entry;
   char *text_locale;
@@ -1043,7 +1059,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 
   text_locale = from_utf8(text);
   hbuf_add_line(&win_entry->bd->hbuf, text_locale, timestamp, prefix_flags,
-                maxX - Roster_Width - getprefixwidth(), num_history_blocks);
+                maxX - Roster_Width - getprefixwidth(), num_history_blocks, mucnicklen);
   g_free(text_locale);
 
   if (win_entry->bd->cleared) {
@@ -1694,7 +1710,8 @@ void scr_RosterVisibility(int status)
 }
 
 inline void scr_WriteMessage(const char *bjid, const char *text,
-                             time_t timestamp, guint prefix_flags)
+                             time_t timestamp, guint prefix_flags,
+                             unsigned mucnicklen)
 {
   char *xtext;
 
@@ -1702,7 +1719,7 @@ inline void scr_WriteMessage(const char *bjid, const char *text,
 
   xtext = ut_expand_tabs(text); // Expand tabs and filter out some chars
 
-  scr_WriteInWindow(bjid, xtext, timestamp, prefix_flags, FALSE);
+  scr_WriteInWindow(bjid, xtext, timestamp, prefix_flags, FALSE, mucnicklen);
 
   if (xtext != (char*)text)
     g_free(xtext);
@@ -1710,14 +1727,14 @@ inline void scr_WriteMessage(const char *bjid, const char *text,
 
 // If prefix is NULL, HBB_PREFIX_IN is supposed.
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
-        time_t timestamp, guint prefix)
+        time_t timestamp, guint prefix, unsigned mucnicklen)
 {
   if (!(prefix &
         ~HBB_PREFIX_NOFLAG & ~HBB_PREFIX_HLIGHT & ~HBB_PREFIX_HLIGHT_OUT &
         ~HBB_PREFIX_PGPCRYPT))
     prefix |= HBB_PREFIX_IN;
 
-  scr_WriteMessage(jidfrom, text, timestamp, prefix);
+  scr_WriteMessage(jidfrom, text, timestamp, prefix, mucnicklen);
 }
 
 void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix)
@@ -1726,7 +1743,7 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix)
   roster_elt = roster_find(jidto, jidsearch,
                            ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
 
-  scr_WriteMessage(jidto, text, 0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT);
+  scr_WriteMessage(jidto, text, 0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT, 0);
 
   // Show jidto's buffer unless the buddy is not in the buddylist
   if (roster_elt && g_list_position(buddylist, roster_elt->data) != -1)

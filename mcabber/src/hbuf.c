@@ -38,6 +38,7 @@ typedef struct {
   // (for ex. when HBB_FLAG_PERSISTENT is set).
   struct { // hbuf_line_info
     time_t timestamp;
+    unsigned mucnicklen;
     guint  flags;
   } prefix;
 } hbuf_block;
@@ -117,7 +118,8 @@ static inline void do_wrap(GList **p_hbuf, GList *first_hbuf_elt,
 //         should be expanded before.
 // Note 2: width does not include the ending \0.
 void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
-        guint prefix_flags, guint width, guint maxhbufblocks)
+        guint prefix_flags, guint width, guint maxhbufblocks,
+        unsigned mucnicklen)
 {
   GList *curr_elt;
   char *line;
@@ -128,6 +130,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   hbuf_block_elt = g_new0(hbuf_block, 1);
   hbuf_block_elt->prefix.timestamp  = timestamp;
   hbuf_block_elt->prefix.flags      = prefix_flags;
+  hbuf_block_elt->prefix.mucnicklen = mucnicklen;
   if (!*p_hbuf) {
     hbuf_block_elt->ptr  = g_new(char, HBB_BLOCKSIZE);
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
@@ -319,9 +322,10 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
       blk = (hbuf_block*)(hbuf->data);
       maxlen = blk->ptr_end - blk->ptr;
       *array_elt = (hbb_line*)g_new(hbb_line, 1);
-      (*array_elt)->timestamp = blk->prefix.timestamp;
-      (*array_elt)->flags     = blk->prefix.flags;
-      (*array_elt)->text      = g_strndup(blk->ptr, maxlen);
+      (*array_elt)->timestamp  = blk->prefix.timestamp;
+      (*array_elt)->flags      = blk->prefix.flags;
+      (*array_elt)->mucnicklen = blk->prefix.mucnicklen;
+      (*array_elt)->text       = g_strndup(blk->ptr, maxlen);
 
       if ((blk->flags & HBB_FLAG_PERSISTENT) && blk->prefix.flags) {
         last_persist_prefixflags = blk->prefix.flags;
@@ -332,6 +336,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
                                 HBB_PREFIX_INFO | HBB_PREFIX_IN);
         //Continuation of a message - omit the prefix
         (*array_elt)->flags |= HBB_PREFIX_CONT;
+        (*array_elt)->mucnicklen = 0;//The nick is in the first one
       }
 
       hbuf = g_list_next(hbuf);

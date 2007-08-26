@@ -289,7 +289,7 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
       if (converted) {
         xtext = ut_expand_tabs(converted); // Expand tabs
         hbuf_add_line(p_buddyhbuf, xtext, timestamp, prefix_flags, width,
-                      max_num_of_blocks);
+                      max_num_of_blocks, 0);
         if (xtext != converted)
           g_free(xtext);
         g_free(converted);

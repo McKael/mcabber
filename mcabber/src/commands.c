@@ -537,7 +537,7 @@ static void display_and_free_note(struct annotation *note, const char *winId)
   if (!winId) {
     // We're writing to the status window, so let's show the jid too.
     g_string_printf(sbuf, "Annotation on <%s>", note->jid);
-    scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag);
+    scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag, 0);
     msg_flag = HBB_PREFIX_INFO | HBB_PREFIX_CONT;
   }
 
@@ -546,7 +546,7 @@ static void display_and_free_note(struct annotation *note, const char *winId)
     strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S",
              localtime(&note->cdate));
     g_string_printf(sbuf, "Note created  %s", tbuf);
-    scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag);
+    scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag, 0);
     msg_flag = HBB_PREFIX_INFO | HBB_PREFIX_CONT;
   }
   // If we have the modification date, display it
@@ -555,12 +555,12 @@ static void display_and_free_note(struct annotation *note, const char *winId)
     strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S",
              localtime(&note->mdate));
     g_string_printf(sbuf, "Note modified %s", tbuf);
-    scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag);
+    scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag, 0);
     msg_flag = HBB_PREFIX_INFO | HBB_PREFIX_CONT;
   }
   // Note text
   g_string_printf(sbuf, "Note: %s", note->text);
-  scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag);
+  scr_WriteIncomingMessage(winId, sbuf->str, 0, msg_flag, 0);
 
   g_string_free(sbuf, TRUE);
   g_free(note->text);
@@ -624,7 +624,7 @@ static void roster_note(char *arg)
       display_and_free_note(note, bjid);
     } else {
       scr_WriteIncomingMessage(bjid, "This item doesn't have a note.", 0,
-                               HBB_PREFIX_INFO);
+                               HBB_PREFIX_INFO, 0);
     }
   }
 }
@@ -1394,17 +1394,17 @@ static void do_info(char *arg)
     scr_ShowBuddyWindow();
 
     snprintf(buffer, 4095, "jid:  <%s>", bjid);
-    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
     if (name) {
       snprintf(buffer, 4095, "Name: %s", name);
-      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
     }
 
     if (type == ROSTER_TYPE_USER)       bstr = "user";
     else if (type == ROSTER_TYPE_ROOM)  bstr = "chatroom";
     else if (type == ROSTER_TYPE_AGENT) bstr = "agent";
     snprintf(buffer, 127, "Type: %s", bstr);
-    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
 
     if (esub == sub_both)     bstr = "both";
     else if (esub & sub_from) bstr = "from";
@@ -1413,7 +1413,7 @@ static void do_info(char *arg)
     snprintf(buffer, 64, "Subscription: %s", bstr);
     if (esub & sub_pending)
       strcat(buffer, " (pending)");
-    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
 
     resources = buddy_getresources(bud);
     if (!resources && type == ROSTER_TYPE_USER) {
@@ -1421,7 +1421,7 @@ static void do_info(char *arg)
       const char *rst_msg = buddy_getstatusmsg(bud, "");
       if (rst_msg) {
         snprintf(buffer, 4095, "Last status message: %s", rst_msg);
-        scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+        scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
       }
     }
     for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
@@ -1439,11 +1439,11 @@ static void do_info(char *arg)
 
       snprintf(buffer, 4095, "Resource: [%c] (%d) %s", imstatus2char[rstatus],
                rprio, (char*)p_res->data);
-      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
       if (rst_msg) {
         snprintf(buffer, 4095, "Status message: %s", rst_msg);
         scr_WriteIncomingMessage(bjid, buffer,
-                                 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+                                 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
       }
       if (rst_time) {
         char tbuf[128];
@@ -1451,20 +1451,20 @@ static void do_info(char *arg)
         strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
         snprintf(buffer, 127, "Status timestamp: %s", tbuf);
         scr_WriteIncomingMessage(bjid, buffer,
-                                 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+                                 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
       }
 #ifdef HAVE_GPGME
       if (rpgp && rpgp->sign_keyid) {
         snprintf(buffer, 4095, "PGP key id: %s", rpgp->sign_keyid);
         scr_WriteIncomingMessage(bjid, buffer,
-                                 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+                                 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
         if (rpgp->last_sigsum) {
           gpgme_sigsum_t ss = rpgp->last_sigsum;
           snprintf(buffer, 4095, "Last PGP signature: %s",
                   (ss & GPGME_SIGSUM_GREEN ? "good":
                    (ss & GPGME_SIGSUM_RED ? "bad" : "unknown")));
           scr_WriteIncomingMessage(bjid, buffer,
-                                   0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+                                   0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
         }
       }
 #endif
@@ -1490,7 +1490,7 @@ static void do_info(char *arg)
       g_free(note->jid);
       g_free(note);
       scr_WriteIncomingMessage(bjid, "(This item has an annotation)", 0,
-                               HBB_PREFIX_INFO);
+                               HBB_PREFIX_INFO, 0);
     }
   }
 }
@@ -1522,7 +1522,7 @@ static void room_names(gpointer bud, char *arg)
 
   buffer = g_new(char, 4096);
   strncpy(buffer, "Room members:", 127);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
 
   resources = buddy_getresources(bud);
   for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
@@ -1536,16 +1536,16 @@ static void room_names(gpointer bud, char *arg)
       snprintf(buffer, 4095, "[%c] %s%s%s", imstatus2char[rstatus],
                (char*)p_res->data,
                rst_msg ? " -- " : "", rst_msg ? rst_msg : "");
-      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
     } else {
       // (Style "normal" or "quiet")
       snprintf(buffer, 4095, "[%c] %s", imstatus2char[rstatus],
                (char*)p_res->data);
-      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
       if (rst_msg && style == style_normal) {
         snprintf(buffer, 4095, "Status message: %s", rst_msg);
         scr_WriteIncomingMessage(bjid, buffer,
-                                 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+                                 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
       }
     }
     g_free(p_res->data);
@@ -2306,10 +2306,10 @@ void room_whois(gpointer bud, char *arg, guint interactive)
   buffer = g_new(char, 4096);
 
   snprintf(buffer, 4095, "Whois [%s]", nick);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
   snprintf(buffer, 4095, "Status   : [%c] %s", imstatus2char[rstatus],
            rst_msg);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
 
   if (rst_time) {
     char tbuf[128];
@@ -2317,23 +2317,23 @@ void room_whois(gpointer bud, char *arg, guint interactive)
     strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
     snprintf(buffer, 127, "Timestamp: %s", tbuf);
     scr_WriteIncomingMessage(bjid, buffer,
-                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
   }
 
   if (realjid) {
     snprintf(buffer, 4095, "JID      : <%s>", realjid);
     scr_WriteIncomingMessage(bjid, buffer,
-                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
   }
 
   snprintf(buffer, 4095, "Role     : %s", strrole[role]);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
   snprintf(buffer, 4095, "Affiliat.: %s", straffil[affil]);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
   snprintf(buffer, 4095, "Priority : %d", rprio);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
 
-  scr_WriteIncomingMessage(bjid, "End of WHOIS", 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(bjid, "End of WHOIS", 0, HBB_PREFIX_INFO, 0);
 
   g_free(buffer);
   g_free(nick);
@@ -2388,12 +2388,12 @@ static void display_all_bookmarks(void)
 
   sbuf = g_string_new("");
 
-  scr_WriteIncomingMessage(NULL, "List of MUC bookmarks:", 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(NULL, "List of MUC bookmarks:", 0, HBB_PREFIX_INFO, 0);
 
   for (bmp = bm; bmp; bmp = g_slist_next(bmp)) {
     g_string_printf(sbuf, "<%s>", (char*)bmp->data);
     scr_WriteIncomingMessage(NULL, sbuf->str,
-                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT);
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
   }
 
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
@@ -2820,16 +2820,16 @@ static void do_pgp(char *arg)
           if (settings_pgp_getkeyid(fjid)) {
             g_string_printf(sbuf, "PGP Encryption key id: %s",
                             settings_pgp_getkeyid(fjid));
-            scr_WriteIncomingMessage(fjid, sbuf->str, 0, HBB_PREFIX_INFO);
+            scr_WriteIncomingMessage(fjid, sbuf->str, 0, HBB_PREFIX_INFO, 0);
           }
           disabled = settings_pgp_getdisabled(fjid);
           g_string_printf(sbuf, "PGP encryption is %s",
                           (disabled ?  "disabled" : "enabled"));
-          scr_WriteIncomingMessage(fjid, sbuf->str, 0, HBB_PREFIX_INFO);
+          scr_WriteIncomingMessage(fjid, sbuf->str, 0, HBB_PREFIX_INFO, 0);
           if (!disabled && settings_pgp_getforce(fjid)) {
             scr_WriteIncomingMessage(fjid,
                                      "Encryption enforced (no negotiation)",
-                                     0, HBB_PREFIX_INFO);
+                                     0, HBB_PREFIX_INFO, 0);
           }
           g_string_free(sbuf, TRUE);
           break;

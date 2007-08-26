@@ -1645,7 +1645,7 @@ static void check_signature(const char *barejid, const char *rname,
     res_pgpdata->last_sigsum = sigsum;
     if (sigsum & GPGME_SIGSUM_RED) {
       buf = g_strdup_printf("Bad signature from <%s/%s>", barejid, rname);
-      scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO, 0);
       scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
       g_free(buf);
     }
@@ -1654,7 +1654,7 @@ static void check_signature(const char *barejid, const char *rname,
     if (keys_mismatch(key, expectedkey)) {
       buf = g_strdup_printf("Warning: The KeyId from <%s/%s> doesn't match "
                             "the key you set up", barejid, rname);
-      scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO, 0);
       scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
       g_free(buf);
     }
@@ -1698,7 +1698,7 @@ static void gotmessage(char *type, const char *from, const char *body,
 
     mbuf = g_strdup_printf("Unexpected groupchat packet!");
     scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
-    scr_WriteIncomingMessage(bjid, mbuf, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(bjid, mbuf, 0, HBB_PREFIX_INFO, 0);
     g_free(mbuf);
 
     // Send back an unavailable packet
@@ -1988,7 +1988,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     mbuf = g_strdup_printf("Unexpected groupchat packet!");
 
     scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
-    scr_WriteIncomingMessage(roomjid, mbuf, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(roomjid, mbuf, 0, HBB_PREFIX_INFO, 0);
     g_free(mbuf);
     // Send back an unavailable packet
     jb_setstatus(offline, roomjid, "", TRUE);
@@ -2013,7 +2013,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   if (statuscode == 303 && mbnick) {
     mbuf = g_strdup_printf("%s is now known as %s", rname, mbnick);
     scr_WriteIncomingMessage(roomjid, mbuf, usttime,
-                             HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+                             HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
     if (log_muc_conf)
       hlog_write_message(roomjid, 0, FALSE, mbuf);
     g_free(mbuf);
@@ -2098,7 +2098,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     if (!we_left && settings_opt_get_int("muc_flag_joins") != 2)
       msgflags |= HBB_PREFIX_NOFLAG;
 
-    scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags);
+    scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
 
     if (log_muc_conf)
       hlog_write_message(roomjid, 0, FALSE, mbuf);
@@ -2131,7 +2131,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
         // Note: the usttime timestamp is related to the other member,
         //       so we use 0 here.
         scr_WriteIncomingMessage(roomjid, mbuf, 0,
-                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
         if (log_muc_conf)
           hlog_write_message(roomjid, 0, FALSE, mbuf);
         g_free(mbuf);
@@ -2150,7 +2150,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       msgflags = HBB_PREFIX_INFO;
       if (!settings_opt_get_int("muc_flag_joins"))
         msgflags |= HBB_PREFIX_NOFLAG;
-      scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags);
+      scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
       if (log_muc_conf)
         hlog_write_message(roomjid, 0, FALSE, mbuf);
       g_free(mbuf);
@@ -2276,7 +2276,7 @@ static void got_invite(char* from, char *to, char* reason, char* passwd)
   }
 
   barejid = jidtodisp(from);
-  scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO, 0);
   scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);
 
   evn = evs_new(EVS_TYPE_INVITATION, EVS_MAX_TIMEOUT);
@@ -2293,7 +2293,7 @@ static void got_invite(char* from, char *to, char* reason, char* passwd)
   } else {
     g_string_printf(sbuf, "Unable to create a new event!");
   }
-  scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO, 0);
   scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);
   g_string_free(sbuf, TRUE);
 
@@ -2368,7 +2368,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
         mbuf = g_strdup_printf("%s has set the topic to: %s", r, subj);
       }
       scr_WriteIncomingMessage(s, mbuf, 0,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG);
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
       if (settings_opt_get_int("log_muc_conf"))
         hlog_write_message(s, 0, FALSE, mbuf);
       g_free(s);
@@ -2575,7 +2575,7 @@ static int evscallback_subscription(eviqs *evp, guint evcontext)
         jb_delbuddy(barejid);
     }
   }
-  scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(barejid, buf, 0, HBB_PREFIX_INFO, 0);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
   g_free(buf);
   return 0;
@@ -2672,13 +2672,13 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
 
     buf = g_strdup_printf("<%s> wants to subscribe to your presence updates",
                           from);
-    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);
 
     if (msg) {
       buf = g_strdup_printf("<%s> said: %s", from, msg);
-      scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+      scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
       replace_nl_with_dots(buf);
       scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
       g_free(buf);
@@ -2695,7 +2695,7 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     } else {
       buf = g_strdup_printf("Unable to create a new event!");
     }
-    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);
   } else if (!strcmp(type, "unsubscribe")) {
@@ -2703,14 +2703,14 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     jb_subscr_cancel_auth(from);
     buf = g_strdup_printf("<%s> is unsubscribing from your "
                           "presence updates", from);
-    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);
   } else if (!strcmp(type, "subscribed")) {
     /* The sender has allowed us to receive their presence */
     buf = g_strdup_printf("<%s> has allowed you to receive their "
                           "presence updates", from);
-    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);
   } else if (!strcmp(type, "unsubscribed")) {
@@ -2720,7 +2720,7 @@ static void handle_packet_s10n(jconn conn, char *type, char *from,
     update_roster = TRUE;
     buf = g_strdup_printf("<%s> has cancelled your subscription to "
                           "their presence updates", from);
-    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);
   } else {

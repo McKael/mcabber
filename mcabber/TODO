@@ -1,21 +1,24 @@
 
 BUGS:
 
-* mcabber does not work with gnutls
-* renaming a MUC room should update the bookmark, not add a roster entry
+* SSL certificate verification does not work with gnutls
+* Renaming a MUC room should update the bookmark, not add a roster entry
 
 
 TODO:
 
 * Improve the completion system
-* XEP-0202: Entity Time
-* XEP-0203: Delayed Delivery (replaces -0091)
 * Connect hook
 * Macros
-* OTR encryption?
+* Use new Entity Time specs (XEP-0202) if possible in
+ /request time.
+* OTR encryption? [WIP]
+* New option to display only username in the roster when the name hasn't been
+  set.
+* Remember group state (folded/unfolded) (using private storage for example)
+* Enable /roster search for offline (hidden) buddies (hidden groups, etc.)
 * Show number of online contacts in folded groups
 * Publish personal information
-* Colors for presence
 * MUC: advanced settings for room creation
 * MUC: display roles of room members
 * "Offline roster" (when disconnected)
@@ -27,6 +30,7 @@ TODO:
   See XEP-0191: Simple Communications Blocking
 * Use DNS _xmpp-client._tcp service
 * Mouse support?
+* Human-readable key binding config?
 
 * File transfer? :)
 

@@ -1,7 +1,7 @@
 
  /BIND [kod_klawisza [= polecenie]]
 
-Podpięcie polecenia do klawisza podanego jako [kod_klawisza].  Aby sprawdzić, które klawisze nie są używane naciśnij dany klawisz, a następnie zobacz co zostanie wypisane w oknie logowania 'mcabber'. Na przykład: "Unknown key=265" oznacza że możesz podpiąć komendę pod klawisz #265.
+Podpięcie polecenia do klawisza podanego jako [kod_klawisza].  Aby sprawdzić, które klawisze nie są używane naciśnij dany klawisz, a następnie zobacz co zostanie wypisane w oknie logowania 'mcabber'. Na przykład: "Unknown key=265" oznacza że możesz podpiąć polecenie pod klawisz #265.
 
 /bind
  Wyświetla wszystkie aktualnie zdefiniowane podpięcia
@@ -14,4 +14,4 @@ Podpięcie polecenia do klawisza podanego jako [kod_klawisza].  Aby sprawdzić, 
 
 Przykład: "/bind 265 = status away" (265 to klawisz F1).
 Uwaga: kody klawiszów mogą być różne w zależności od konfiguracji ncurses.
-Podpowiedź: zamiast komend mogą być używane aliasy.
+Podpowiedź: zamiast poleceń mogą być używane aliasy.

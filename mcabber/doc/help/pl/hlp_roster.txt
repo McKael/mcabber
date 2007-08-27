@@ -7,7 +7,7 @@
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
 
-Komenda służy do zarządzania listą kontaktów.
+Polecenie służy do zarządzania listą kontaktów.
 Dostępne parametry:
 
 /roster bottom
@@ -23,7 +23,7 @@ Dostępne parametry:
 /roster group_next
  Przejdź do następnej grupy w rosterze
 /roster alternate
- Skacze do ostatniej osoby, która zmieniła stan z dostępnego na niedostępny (jest szczególnie przydatna po komendach typu "/roster unread_first")
+ Skacze do ostatniej osoby, która zmieniła stan z dostępnego na niedostępny (jest szczególnie przydatna po poleceniach typu "/roster unread_first")
 /roster unread_first
  Skacze do pierwszej nieprzeczytanej wiadomości
 /roster unread_next

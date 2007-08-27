@@ -1,0 +1,15 @@
+
+ /COLOR roster (status wildcard (color|-)|clear)
+
+Polecenie 'color' pozwala zarządzać kolorami ekranu w sposób dynamiczny.
+
+/color roster clear
+ Usuwa wszystkie reguły w rosterze.
+ Kolory wszystkich elementów rostera zostaną ustawione na kolor domyślny.
+/color roster status wildcard color
+ Ustawia regułe koloru (lub nadpisuje, jeśli już taka istnieje).
+ 'status' zawiera wszystkie statusy elementów rostera, które będą pasować do reguły lub * dla wszystkich statusów.
+ 'wildcard' to zakres JIDów (np. mikael*)
+ 'color' to kolor, którego chcemy użyć.
+ Jeśli 'color' ustawimy na wartość -, reguła jest usuwana.
+ Jeśli więcej niż jedna reguła pasuje, wybierany jest kolor z ostatnio stworzonej (nie nadpisanej) reguły.

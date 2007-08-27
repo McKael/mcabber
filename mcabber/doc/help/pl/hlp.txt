@@ -1,6 +1,6 @@
 
- /HELP [command|+topic]
+ /HELP [polecenie|+temat]
 
-Wyświetla pomoc dotyczącą danej komendy lub tematu.
-Jeśli nie podano żadnego argumentu, zostanie wyświetlona pomoc o sposobie użycia danej komendy.
-Dostępne komendy: add, alias, authorization, bind, buffer, chat_disable, clear, color, connect, del, disconnect, event, group, help, iline, info, move, msay, pgp, quit, rawxml, rename, request, room, roster, say_to, say, screen_refresh, set, source, status_to, status, version.
+Wyświetla pomoc dotyczącą danego polecenia lub tematu.
+Jeśli nie podano żadnego argumentu, zostanie wyświetlona pomoc o sposobie użycia.
+Dostępne polecenia: add, alias, authorization, bind, buffer, chat_disable, clear, color, connect, del, disconnect, event, group, help, iline, info, move, msay, pgp, quit, rawxml, rename, request, room, roster, say_to, say, screen_refresh, set, source, status_to, status, version.

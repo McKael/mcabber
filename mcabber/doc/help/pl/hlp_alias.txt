@@ -1,7 +1,7 @@
 
  /ALIAS [nazwa [= polecenie]]
 
-Polecenie to pozwala dodawać aliasy, które sprawiają, że używanie długich i skomplikowanych komend staje się łatwiejsze.
+Polecenie to pozwala dodawać aliasy, które sprawiają, że używanie długich i skomplikowanych poleceń staje się łatwiejsze.
 Możesz zarządzać aliasami w następujący sposób:
 
 /alias

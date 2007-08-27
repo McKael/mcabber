@@ -3,7 +3,7 @@
  /PGP setkey [jid [key]]
 
 Polecenie do zmiany ustawień PGP wybranego "jid" (domyślnie aktualnie wybrany kontakt).
-Uwaga: szyfrowanie PGP nie będzie użyte jeśli nie zostanie wykryta obsługa PGP po drugiej stronie (nawet jeśli PGP zostanie włączone tym poleceniem). Szyfrowanie PGP można wymusić komendą "force".
+Uwaga: szyfrowanie PGP nie będzie użyte jeśli nie zostanie wykryta obsługa PGP po drugiej stronie (nawet jeśli PGP zostanie włączone tym poleceniem). Szyfrowanie PGP można wymusić przełącznikiem "force".
 
 /pgp disable [jid]
  Wyłączenie kodowania PGP dla "jid" (albo dla aktualnie wybranej osoby)

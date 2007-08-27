@@ -3,5 +3,5 @@
 
 Wysyła aktualny status do wybranej osoby.
 Jeśli jako jid podasz ".", aktualnie wybrana osoba zobaczy wybrany status.
-Porada: ta komenda jest zastępowana przez komendę "/status".  Jeśli używasz auto-away, status także zostanie zastąpiony.
+Porada: to polecenie jest zastępowane przez polecenie "/status".  Jeśli używasz auto-away, status także zostanie zastąpiony.
 Porada: jid może zawierać zasób (np. użytkownik@serwer/zasób).

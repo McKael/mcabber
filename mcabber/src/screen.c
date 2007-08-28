@@ -1036,7 +1036,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
       wmove(win_entry->win, n, getprefixwidth()-1);
 
       //The MUC nick - overwrite with propper color
-      if (line->mucnicklen && (line->flags & HBB_PREFIX_IN)) {
+      if (line->mucnicklen) {
         //Store the char after the nick
         char tmp = line->text[line->mucnicklen];
         muccoltype type = glob_muccol, *typetmp;
@@ -1068,7 +1068,9 @@ static void scr_UpdateWindow(winbuf *win_entry)
         }
         if (nickcolors)
           actual = g_hash_table_lookup(nickcolors, line->text);
-        if (actual && ((type == MC_ALL) || (actual->manual)))
+        if (actual && ((type == MC_ALL) || (actual->manual))
+            && (line->flags & HBB_PREFIX_IN) &&
+           (!(line->flags & HBB_PREFIX_HLIGHT_OUT)))
           wattrset(win_entry->win, get_color(actual->color));
         wprintw(win_entry->win, "%s", line->text);
         //Return the char

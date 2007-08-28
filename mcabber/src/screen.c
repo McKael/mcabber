@@ -317,6 +317,15 @@ void scr_MucNickColor(const char *nick, const char *color)
     g_free(snick);//They are not saved in the hash
     g_free(mnick);
     need_update = true;
+  } else if (!strcmp(color, "!")) {
+    if (nickcolors) {
+      g_free(g_hash_table_lookup(nickcolors, snick));
+      g_hash_table_remove(nickcolors, snick);
+      g_hash_table_remove(nickcolors, mnick);
+    }
+    g_free(snick);//They are not saved in the hash
+    g_free(mnick);
+    need_update = true;
   } else {
     int cl = get_user_color(color);
     if (cl < 0) {
@@ -507,39 +516,41 @@ static void ParseColors(void)
     if (i >= COLOR_BLACK_BOLD_FG)
       COLOR_ATTRIB[i] = A_BOLD;
   }
-  char *ncolors = g_strdup(settings_opt_get("nick_colors")),
-      *ncolor_start = ncolors;
-  if (ncolors) {
-    while (*ncolors) {
-      if ((*ncolors == ' ') || (*ncolors == '\t')) {
-        ncolors ++;
-      } else {
-        char *end = ncolors;
-        bool ended = false;
-        while (*end && (*end != ' ') && (*end != '\t'))
-          end++;
-        if (!end)
-          ended = true;
-        *end = '\0';
-        int cl = get_user_color(ncolors);
-        if (cl < 0) {
-          scr_LogPrint(LPRINT_NORMAL, "Unknown color %s", ncolors);
+  if (!nickcols) {
+    char *ncolors = g_strdup(settings_opt_get("nick_colors")),
+         *ncolor_start = ncolors;
+    if (ncolors) {
+      while (*ncolors) {
+        if ((*ncolors == ' ') || (*ncolors == '\t')) {
+          ncolors ++;
         } else {
-          nickcols = g_realloc(nickcols, (++nickcolcount) * sizeof *nickcols);
-          nickcols[nickcolcount-1] = cl;
+          char *end = ncolors;
+          bool ended = false;
+          while (*end && (*end != ' ') && (*end != '\t'))
+            end++;
+          if (!end)
+            ended = true;
+          *end = '\0';
+          int cl = get_user_color(ncolors);
+          if (cl < 0) {
+            scr_LogPrint(LPRINT_NORMAL, "Unknown color %s", ncolors);
+          } else {
+            nickcols = g_realloc(nickcols, (++nickcolcount) * sizeof *nickcols);
+            nickcols[nickcolcount-1] = cl;
+          }
+          if (ended)
+            ncolors = NULL;
+          else
+            ncolors = end+1;
         }
-        if (ended)
-          ncolors = NULL;
-        else
-          ncolors = end+1;
       }
+      g_free(ncolor_start);
     }
-    g_free(ncolor_start);
-  }
-  if (!nickcols) {//Fallback to have something
-    nickcolcount = 1;
-    nickcols = g_new(int, 1);
-    *nickcols = COLOR_GENERAL;
+    if (!nickcols) {//Fallback to have something
+      nickcolcount = 1;
+      nickcols = g_new(int, 1);
+      *nickcols = COLOR_GENERAL;
+    }
   }
 }
 

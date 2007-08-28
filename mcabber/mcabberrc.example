@@ -288,6 +288,14 @@ set message_autoaway = Auto-away (idle)
 #color roster * * white
 #color roster adn *@jabber.org yellow
 
+#You can let mcabber color nicks in MUC.
+#These colors will by used automatically:
+#set nick_colors = red green blue
+#color muc *
+#
+#If you want someone's nick to be the same all the time:
+#color mucnick my_friend yellow
+
 # Style
 # Note: the "log_win_height" and "roster_width" values below can be set
 # in real time when mcabber is running.  Refresh the screen (Ctrl-l) to

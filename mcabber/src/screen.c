@@ -521,7 +521,7 @@ static void ParseColors(void)
         if (!end)
           ended = true;
         *end = '\0';
-        int cl = color_to_color_fg(FindColorInternal(ncolors));
+        int cl = get_user_color(ncolors);
         if (cl < 0) {
           scr_LogPrint(LPRINT_NORMAL, "Unknown color %s", ncolors);
         } else {
@@ -1203,6 +1203,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   int special;
   guint num_history_blocks;
   bool setmsgflg = FALSE;
+  char *nicktmp, *nicklocaltmp;
 
   // Look for the window entry.
   special = (winId == NULL);
@@ -1231,6 +1232,14 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     num_history_blocks = get_max_history_blocks();
 
   text_locale = from_utf8(text);
+  //Convert the nick alone and compute its length
+  if (mucnicklen) {
+    nicktmp = g_strndup(text, mucnicklen);
+    nicklocaltmp = from_utf8(nicktmp);
+    mucnicklen = strlen(nicklocaltmp);
+    g_free(nicklocaltmp);
+    g_free(nicktmp);
+  }
   hbuf_add_line(&win_entry->bd->hbuf, text_locale, timestamp, prefix_flags,
                 maxX - Roster_Width - getprefixwidth(), num_history_blocks, mucnicklen);
   g_free(text_locale);

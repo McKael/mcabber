@@ -92,6 +92,13 @@ typedef struct {
   } mcode;
 } keycode;
 
+typedef enum {
+  MC_ALL,
+  MC_PRESET,
+  MC_OFF,
+  MC_REMOVE
+} muccoltype;
+
 void scr_init_bindings(void);
 
 void scr_Getch(keycode *kcode);
@@ -156,6 +163,8 @@ void scr_RosterJumpAlternate(void);
 void scr_BufferScrollUpDown(int updown, unsigned int nblines);
 bool scr_RosterColor(const char *status, const char *wildcard, const char *color);
 void scr_RosterClearColor(void);
+void scr_MucColor(const char *muc, muccoltype type);
+void scr_MucNickColor(const char *nick, const char *color);
 
 #ifdef DEBUG_ENABLE
 void scr_BufferList(void);

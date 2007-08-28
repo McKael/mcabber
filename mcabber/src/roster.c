@@ -867,6 +867,8 @@ void buddy_hide_group(gpointer rosterdata, int hide)
 
 const char *buddy_getjid(gpointer rosterdata)
 {
+  if (!rosterdata)
+    return NULL;
   roster *roster_usr = rosterdata;
   return roster_usr->jid;
 }
@@ -1270,7 +1272,7 @@ guint buddy_getflags(gpointer rosterdata)
 // Look for a buddy with specified jid.
 // Search begins at buddylist; if no match is found in the the buddylist,
 // return NULL;
-GList *buddy_search_jid(char *jid)
+GList *buddy_search_jid(const char *jid)
 {
   GList *buddy;
   roster *roster_usr;

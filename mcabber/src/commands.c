@@ -257,6 +257,8 @@ void cmd_init(void)
 
   // Color category
   compl_add_category_word(COMPL_COLOR, "roster");
+  compl_add_category_word(COMPL_COLOR, "muc");
+  compl_add_category_word(COMPL_COLOR, "mucnick");
 }
 
 //  expandalias(line)
@@ -724,7 +726,7 @@ void do_color(char *arg)
 
   if (!strcasecmp(subcmd, "roster")) {
     char **arglist = split_arg(arg, 3, 0);
-    char *status = *arglist, *wildcard = arglist[1], *color = arglist[2];
+    char *status = *arglist, *wildcard = to_utf8(arglist[1]), *color = arglist[2];
     if (status && !strcmp(status, "clear")) { // Not a color command, clear all
       scr_RosterClearColor();
       update_roster = TRUE;
@@ -736,6 +738,44 @@ void do_color(char *arg)
                         || update_roster;
       }
     }
+    free_arg_lst(arglist);
+    g_free(wildcard);
+  } else if (!strcasecmp(subcmd, "muc")) {
+    char **arglist = split_arg(arg, 2, 0);
+    char *free_muc = to_utf8(*arglist);
+    const char *muc = free_muc, *mode = arglist[1];
+    if (!muc || !*muc)
+      scr_LogPrint(LPRINT_NORMAL, "What MUC?");
+    else {
+      if (!strcmp(muc, "."))
+        if (!(muc = CURRENT_JID))
+          scr_LogPrint(LPRINT_NORMAL, "No JID selected");
+      if (muc) {
+        if (check_jid_syntax(muc) && strcmp(muc, "*"))
+          scr_LogPrint(LPRINT_NORMAL, "Not a JID");
+        else {
+          if (!mode || !*mode || !strcasecmp(mode, "on"))
+            scr_MucColor(muc, MC_ALL);
+          else if (!strcasecmp(mode, "preset"))
+            scr_MucColor(muc, MC_PRESET);
+          else if (!strcasecmp(mode, "off"))
+            scr_MucColor(muc, MC_OFF);
+          else if (!strcmp(mode, "-"))
+            scr_MucColor(muc, MC_REMOVE);
+          else
+            scr_LogPrint(LPRINT_NORMAL, "Unknown coloring mode");
+        }
+      }
+    }
+    free_arg_lst(arglist);
+    g_free(free_muc);
+  } else if (!strcasecmp(subcmd, "mucnick")) {
+    char **arglist = split_arg(arg, 2, 0);
+    const char *nick = *arglist, *color = arglist[1];
+    if (!nick || !*nick || !color || !*color)
+      scr_LogPrint(LPRINT_NORMAL, "Missing argument");
+    else
+      scr_MucNickColor(nick, color);
     free_arg_lst(arglist);
   } else
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");

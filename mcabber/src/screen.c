@@ -28,6 +28,7 @@
 #include <locale.h>
 #include <langinfo.h>
 #include <config.h>
+#include <assert.h>
 
 #ifdef HAVE_ASPELL_H
 # include <aspell.h>
@@ -150,7 +151,17 @@ typedef struct {
   GPatternSpec *compiled;
 } rostercolor;
 
-GSList *rostercolrules = NULL;
+static GSList *rostercolrules = NULL;
+
+static GHashTable *muccolors = NULL, *nickcolors = NULL;
+
+typedef struct {
+  bool manual;//Manually set?
+  int color;
+} nickcolor;
+
+static int nickcolcount = 0, *nickcols = NULL;
+static muccoltype glob_muccol = MC_OFF;
 
 /* Functions */
 
@@ -228,6 +239,90 @@ static int FindColor(const char *name)
 
   scr_LogPrint(LPRINT_LOGNORM, "ERROR: Wrong color: %s", name);
   return -1;
+}
+
+static void ensure_string_htable(GHashTable **table,
+    GDestroyNotify value_destroy_func)
+{
+  if (*table)//Have it already
+    return;
+  *table = g_hash_table_new_full(g_str_hash, g_str_equal,
+      g_free, value_destroy_func);
+}
+
+// Sets the coloring mode for given MUC
+// The MUC room does not need to be in the roster at that time
+// muc - the JID of room
+// type - the new type
+void scr_MucColor(const char *muc, muccoltype type)
+{
+  gchar *muclow = g_utf8_strdown(muc, -1);
+  if (type == MC_REMOVE) {//Remove it
+    if (strcmp(muc, "*")) {
+      if (muccolors && g_hash_table_lookup(muccolors, muclow))
+        g_hash_table_remove(muccolors, muclow);
+    } else {
+      scr_LogPrint(LPRINT_NORMAL, "Can not remove global coloring mode");
+    }
+    g_free(muclow);
+  } else {//Add or overwrite
+    if (strcmp(muc, "*")) {
+      ensure_string_htable(&muccolors, g_free);
+      muccoltype *value = g_new(muccoltype, 1);
+      *value = type;
+      g_hash_table_replace(muccolors, muclow, value);
+    } else {
+      glob_muccol = type;
+      g_free(muclow);
+    }
+  }
+  //Need to redraw?
+  if (chatmode && ((buddy_search_jid(muc) == current_buddy) || !strcmp(muc, "*")))
+    scr_UpdateBuddyWindow();
+}
+
+// Sets the color for nick in MUC
+// If color is "-", the color is marked as automaticly assigned and is
+// not used if the room is in the "preset" mode
+void scr_MucNickColor(const char *nick, const char *color)
+{
+  char *snick = g_strdup_printf("<%s>", nick), *mnick = g_strdup_printf("*%s ", nick);
+  bool need_update = false;
+  if (!strcmp(color, "-")) {//Remove the color
+    if (nickcolors) {
+      nickcolor *nc = g_hash_table_lookup(nickcolors, snick);
+      if (nc) {//Have this nick already
+        nc->manual = false;
+        nc = g_hash_table_lookup(nickcolors, mnick);
+        assert(nc);//Must have both at the same time
+        nc->manual = false;
+      }// Else -> no color saved, nothing to delete
+    }
+    g_free(snick);//They are not saved in the hash
+    g_free(mnick);
+    need_update = true;
+  } else {
+    int cl = color_to_color_fg(FindColorInternal(color));
+    if (cl < 0) {
+      scr_LogPrint(LPRINT_NORMAL, "No such color name");
+      g_free(snick);
+      g_free(mnick);
+    } else {
+      nickcolor *nc = g_new(nickcolor, 1);
+      ensure_string_htable(&nickcolors, NULL);
+      nc->manual = true;
+      nc->color = cl;
+      //Free the struct, if any there already
+      g_free(g_hash_table_lookup(nickcolors, mnick));
+      //Save the new ones
+      g_hash_table_replace(nickcolors, mnick, nc);
+      g_hash_table_replace(nickcolors, snick, nc);
+      need_update = true;
+    }
+  }
+  if (need_update && chatmode &&
+      (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_ROOM))
+    scr_UpdateBuddyWindow();
 }
 
 static void free_rostercolrule(rostercolor *col)
@@ -403,6 +498,40 @@ static void ParseColors(void)
     init_pair(i, color_fg_to_color(i), FindColor(background));
     if (i >= COLOR_BLACK_BOLD_FG)
       COLOR_ATTRIB[i] = A_BOLD;
+  }
+  char *ncolors = g_strdup(settings_opt_get("nick_colors")),
+      *ncolor_start = ncolors;
+  if (ncolors) {
+    while (*ncolors) {
+      if ((*ncolors == ' ') || (*ncolors == '\t')) {
+        ncolors ++;
+      } else {
+        char *end = ncolors;
+        bool ended = false;
+        while (*end && (*end != ' ') && (*end != '\t'))
+          end++;
+        if (!end)
+          ended = true;
+        *end = '\0';
+        int cl = color_to_color_fg(FindColorInternal(ncolors));
+        if (cl < 0) {
+          scr_LogPrint(LPRINT_NORMAL, "Unknown color %s", ncolors);
+        } else {
+          nickcols = g_realloc(nickcols, (++nickcolcount) * sizeof *nickcols);
+          nickcols[nickcolcount-1] = cl;
+        }
+        if (ended)
+          ncolors = NULL;
+        else
+          ncolors = end+1;
+      }
+    }
+    g_free(ncolor_start);
+  }
+  if (!nickcols) {//Fallback to have something
+    nickcolcount = 1;
+    nickcols = g_new(int, 1);
+    *nickcols = COLOR_GENERAL;
   }
 }
 
@@ -910,10 +1039,37 @@ static void scr_UpdateWindow(winbuf *win_entry)
       if (line->mucnicklen && (line->flags & HBB_PREFIX_IN)) {
         //Store the char after the nick
         char tmp = line->text[line->mucnicklen];
-        //TODO choose the color in proper way
-        wattrset(win_entry->win, get_color(COLOR_RED_BOLD_FG));
+        muccoltype type = glob_muccol, *typetmp;
         //Terminate the string after the nick
         line->text[line->mucnicklen] = '\0';
+        char *mucjid = g_utf8_strdown(CURRENT_JID, -1);
+        if (muccolors) {
+          typetmp = g_hash_table_lookup(muccolors, mucjid);
+          if (typetmp)
+            type = *typetmp;
+        }
+        g_free(mucjid);
+        nickcolor *actual = NULL;
+        // Need to generate some random color?
+        if ((type == MC_ALL) && (!nickcolors ||
+            !g_hash_table_lookup(nickcolors, line->text))) {
+          ensure_string_htable(&nickcolors, NULL);
+          char *snick = g_strdup(line->text), *mnick = g_strdup(line->text);
+          nickcolor *nc = g_new(nickcolor, 1);
+          nc->color = nickcols[random() % nickcolcount];
+          nc->manual = false;
+          *snick = '<';
+          snick[strlen(snick)-1] = '>';
+          *mnick = '*';
+          mnick[strlen(mnick)-1] = ' ';
+          //Insert them
+          g_hash_table_insert(nickcolors, snick, nc);
+          g_hash_table_insert(nickcolors, mnick, nc);
+        }
+        if (nickcolors)
+          actual = g_hash_table_lookup(nickcolors, line->text);
+        if (actual && ((type == MC_ALL) || (actual->manual)))
+          wattrset(win_entry->win, get_color(actual->color));
         wprintw(win_entry->win, "%s", line->text);
         //Return the char
         line->text[line->mucnicklen] = tmp;

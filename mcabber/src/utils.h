@@ -28,7 +28,7 @@ time_t from_iso8601(const char *timestamp, int utc);
 
 inline void safe_usleep(unsigned int usec); /* Only for delays < 1s */
 
-int check_jid_syntax(char *fjid);
+int check_jid_syntax(const char *fjid);
 
 inline void mc_strtolower(char *str);
 

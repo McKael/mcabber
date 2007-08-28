@@ -317,10 +317,10 @@ inline void safe_usleep(unsigned int usec)
  * Check if the full JID is valid
  * Return 0 if it is valid, non zero otherwise
  */
-int check_jid_syntax(char *fjid)
+int check_jid_syntax(const char *fjid)
 {
-  char *str;
-  char *domain, *resource;
+  const char *str;
+  const char *domain, *resource;
   int domlen;
 
   if (!fjid) return 1;

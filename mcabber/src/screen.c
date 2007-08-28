@@ -241,6 +241,22 @@ static int FindColor(const char *name)
   return -1;
 }
 
+static int get_user_color(const char *color)
+{
+  bool isbright = false;
+  int cl;
+  if (!strncmp(color, "bright", 6)) {
+    isbright = true;
+    color += 6;
+  }
+  cl = color_to_color_fg(FindColorInternal(color));
+  if (cl < 0)
+    return cl;
+  if (isbright)
+    cl += COLOR_BLACK_BOLD_FG - COLOR_BLACK_FG;
+  return cl;
+}
+
 static void ensure_string_htable(GHashTable **table,
     GDestroyNotify value_destroy_func)
 {
@@ -302,7 +318,7 @@ void scr_MucNickColor(const char *nick, const char *color)
     g_free(mnick);
     need_update = true;
   } else {
-    int cl = color_to_color_fg(FindColorInternal(color));
+    int cl = get_user_color(color);
     if (cl < 0) {
       scr_LogPrint(LPRINT_NORMAL, "No such color name");
       g_free(snick);
@@ -373,15 +389,7 @@ bool scr_RosterColor(const char *status, const char *wildcard,
       return FALSE;
     }
   } else {
-    bool isbright = false;
-    int cl;
-    if (!strncmp(color, "bright", 6)) {
-      isbright = true;
-      color += 6;
-    }
-    cl = color_to_color_fg(FindColorInternal(color));
-    if (isbright)
-      cl += COLOR_BLACK_BOLD_FG - COLOR_BLACK_FG;
+    int cl = get_user_color(color);
     if (cl < 0 ) {
       scr_LogPrint(LPRINT_NORMAL, "No such color name");
       return FALSE;

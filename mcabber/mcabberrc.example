@@ -291,7 +291,8 @@ set message_autoaway = Auto-away (idle)
 #You can let mcabber color nicks in MUC.
 #These colors will by used automatically:
 #set nick_colors = red green blue
-#color muc *
+#This turns coloring of all mucs on
+#color muc * on
 #
 #If you want someone's nick to be the same all the time:
 #color mucnick my_friend yellow

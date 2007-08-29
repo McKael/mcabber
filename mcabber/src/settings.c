@@ -27,8 +27,9 @@
 #include "commands.h"
 #include "utils.h"
 #include "logprint.h"
+#include "otr.h"
 
-// Maximum line length 
+// Maximum line length
 // (probably best to use the same value as INPUTLINE_LENGTH)
 #define CONFLINE_LENGTH  1024
 
@@ -46,11 +47,19 @@ typedef struct {
 } T_pgpopt;
 #endif
 
+#ifdef HAVE_LIBOTR
+static GHashTable *otrpolicy;
+static enum otr_policy default_policy;
+#endif
+
 static inline GHashTable *get_hash(guint type)
 {
   if      (type == SETTINGS_TYPE_OPTION)  return option;
   else if (type == SETTINGS_TYPE_ALIAS)   return alias;
   else if (type == SETTINGS_TYPE_BINDING) return binding;
+#ifdef HAVE_LIBOTR
+  else if (type == SETTINGS_TYPE_OTR)     return otrpolicy;
+#endif
   return NULL;
 }
 
@@ -63,6 +72,9 @@ void settings_init(void)
   binding = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
 #ifdef HAVE_GPGME
   pgpopt = g_hash_table_new(&g_str_hash, &g_str_equal);
+#endif
+#ifdef HAVE_LIBOTR
+  otrpolicy = g_hash_table_new(&g_str_hash, &g_str_equal);
 #endif
 }
 
@@ -157,17 +169,19 @@ int cfg_read_file(char *filename, guint mainfile)
     if ((*line == '\n') || (*line == '\0') || (*line == '#'))
       continue;
 
-    // We only allow assignments line, except for commands "pgp", "source"
-    // and "color"
+    // We only allow assignments line, except for commands "pgp", "source",
+    // "color" and "otrpolicy"
     if ((strchr(line, '=') != NULL) ||
         startswith(line, "pgp ", FALSE) || startswith(line, "source ", FALSE) ||
-        startswith(line, "color ", FALSE)) {
+        startswith(line, "color ", FALSE) ||
+        startswith(line, "otrpolicy", FALSE)) {
       // Only accept the set, alias, bind, pgp and source commands
       if (!startswith(line, "set ", FALSE)   &&
           !startswith(line, "bind ", FALSE)  &&
           !startswith(line, "alias ", FALSE) &&
           !startswith(line, "pgp ", FALSE)   &&
           !startswith(line, "source ", FALSE) &&
+          !startswith(line, "otrpolicy ", FALSE) &&
           !startswith(line, "color ", FALSE)) {
         scr_LogPrint(LPRINT_LOGNORM,
                      "Error in configuration file (l. %d): bad command", ln);
@@ -499,6 +513,64 @@ const char *settings_pgp_getkeyid(const char *bjid)
     return pgpdata->pgp_keyid;
 #endif
   return NULL;
+}
+
+/* otr settings */
+
+#ifdef HAVE_LIBOTR
+static void remove_default_policies(char * k, char * policy, void * defaultp)
+{
+  if (*(enum otr_policy *)policy == *(enum otr_policy *)defaultp) {
+    g_free((enum otr_policy *) policy);
+    g_hash_table_remove(otrpolicy, k);
+  }
+}
+#endif
+
+void settings_otr_setpolicy(const char *bjid, guint value)
+{
+#ifdef HAVE_LIBOTR
+  enum otr_policy *otrdata;
+
+  if (!bjid) {
+    default_policy = value;
+    /* refresh hash */
+    settings_foreach(SETTINGS_TYPE_OTR, &remove_default_policies, &value);
+    return;
+  }
+
+  otrdata = g_hash_table_lookup(otrpolicy, bjid);
+
+  if (value == default_policy) {
+    if (otrdata) {
+      g_free(otrdata);
+      g_hash_table_remove(otrpolicy, bjid);
+    }
+  } else if (otrdata) {
+    *otrdata = value;
+  } else {
+    otrdata = g_new(enum otr_policy, 1);
+    *otrdata = value;
+    g_hash_table_insert(otrpolicy, g_strdup(bjid), otrdata);
+  }
+#endif
+}
+
+guint settings_otr_getpolicy(const char *bjid)
+{
+#ifdef HAVE_LIBOTR
+  enum otr_policy * otrdata;
+  if (!bjid)
+    return default_policy;
+
+  otrdata = g_hash_table_lookup(otrpolicy, bjid);
+  if (otrdata)
+    return *otrdata;
+  else
+    return default_policy;
+#else
+  return 0;
+#endif
 }
 
 guint get_max_history_blocks(void)

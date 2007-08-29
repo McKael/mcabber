@@ -14,6 +14,9 @@
 #define SETTINGS_TYPE_OPTION    1
 #define SETTINGS_TYPE_ALIAS     2
 #define SETTINGS_TYPE_BINDING   3
+#ifdef HAVE_LIBOTR
+#define SETTINGS_TYPE_OTR       4
+#endif
 
 #define COMMAND_CHAR    '/'
 #define COMMAND_CHARSTR "/"

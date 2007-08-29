@@ -41,6 +41,7 @@
 #include "hooks.h"
 #include "utils.h"
 #include "pgp.h"
+#include "otr.h"
 
 #ifdef ENABLE_HGCSET
 # include "hgcset.h"
@@ -151,6 +152,9 @@ void mcabber_connect(void)
   }
 
   bjid = compose_jid(username, servername, resource);
+#if defined(HAVE_LIBOTR)
+  otr_init(bjid);
+#endif
   jc = jb_connect(bjid, servername, port, ssl, password);
   g_free(bjid);
 
@@ -260,6 +264,9 @@ static void compile_options(void)
 #endif
 #ifdef HAVE_GPGME
   puts("Compiled with GPG support.");
+#endif
+#ifdef HAVE_LIBOTR
+  puts("Compiled with OTR support.");
 #endif
 #ifdef WITH_ASPELL
   puts("Compiled with Aspell support.");
@@ -464,6 +471,9 @@ int main(int argc, char **argv)
     }
   }
 
+#ifdef HAVE_LIBOTR
+  otr_terminate();
+#endif
   jb_disconnect();
 #ifdef HAVE_GPGME
   gpg_terminate();

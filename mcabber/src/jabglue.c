@@ -33,6 +33,7 @@
 #include "histolog.h"
 #include "commands.h"
 #include "pgp.h"
+#include "otr.h"
 
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
@@ -551,7 +552,7 @@ static char *new_msgid(void)
   return g_strdup_printf("%u%d", msg_idn, (int)(now%10L));
 }
 
-//  jb_send_msg(jid, test, type, subject, msgid, *encrypted)
+//  jb_send_msg(jid, text, type, subject, msgid, *encrypted)
 // When encrypted is not NULL, the function set *encrypted to 1 if the
 // message has been PGP-encrypted.  If encryption enforcement is set and
 // encryption fails, *encrypted is set to -1.
@@ -560,6 +561,7 @@ void jb_send_msg(const char *fjid, const char *text, int type,
 {
   xmlnode x;
   gchar *strtype;
+  int otr_msg = 0;
 #if defined HAVE_GPGME || defined JEP0022 || defined JEP0085
   char *rname, *barejid;
   GSList *sl_buddy;
@@ -584,7 +586,7 @@ void jb_send_msg(const char *fjid, const char *text, int type,
   else
     strtype = TMSG_CHAT;
 
-#if defined HAVE_GPGME || defined JEP0022 || defined JEP0085
+#if defined HAVE_GPGME || defined HAVE_LIBOTR || defined JEP0022 || defined JEP0085
   rname = strchr(fjid, JID_RESOURCE_SEPARATOR);
   barejid = jidtodisp(fjid);
   sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
@@ -593,6 +595,23 @@ void jb_send_msg(const char *fjid, const char *text, int type,
   // which hopefully will give us the most likely resource.
   if (rname)
     rname++;
+
+#ifdef HAVE_LIBOTR
+  if (msgid && strcmp(msgid, "otrinject") == 0)
+    msgid = NULL;
+  else {
+    otr_msg = otr_send((char **)&text, barejid);
+    if (!text) {
+      g_free(barejid);
+      if (encrypted)
+        *encrypted = -1;
+      return;
+    }
+  }
+  if (otr_msg && encrypted) {
+    *encrypted = 1;
+  }
+#endif
 
 #ifdef HAVE_GPGME
   if (type == ROSTER_TYPE_USER && sl_buddy && gpg_enabled()) {
@@ -1669,6 +1688,7 @@ static void gotmessage(char *type, const char *from, const char *body,
   char *bjid;
   const char *rname, *s;
   char *decrypted = NULL;
+  int otr_msg = 0, free_msg = 0;
 
   bjid = jidtodisp(from);
 
@@ -1685,6 +1705,14 @@ static void gotmessage(char *type, const char *from, const char *body,
   // Check signature of an unencrypted message
   if (xmldata_signed && gpg_enabled())
     check_signature(bjid, rname, xmldata_signed, decrypted);
+#endif
+
+#ifdef HAVE_LIBOTR
+  otr_msg = otr_receive((char **)&body, bjid, &free_msg);
+  if(!body){
+    g_free(bjid);
+    return;
+  }
 #endif
 
   // Check for unexpected groupchat messages
@@ -1715,6 +1743,8 @@ static void gotmessage(char *type, const char *from, const char *body,
 
     g_free(bjid);
     g_free(decrypted);
+    if(free_msg)
+      g_free((char *)body);
 
     buddylist_build();
     scr_DrawRoster();
@@ -1729,12 +1759,14 @@ static void gotmessage(char *type, const char *from, const char *body,
       (type && strcmp(type, "chat")) ||
       ((s = settings_opt_get("server")) != NULL && !strcasecmp(bjid, s))) {
     hk_message_in(bjid, rname, timestamp, body, type,
-                  (decrypted ? TRUE : FALSE));
+                  ((decrypted || otr_msg) ? TRUE : FALSE));
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", bjid);
   }
   g_free(bjid);
   g_free(decrypted);
+  if(free_msg)
+    g_free((char *)body);
 }
 
 static const char *defaulterrormsg(int code)

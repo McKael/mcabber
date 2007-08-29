@@ -32,6 +32,7 @@
 #include "utils.h"
 #include "settings.h"
 #include "events.h"
+#include "otr.h"
 
 #define IMSTATUS_AWAY           "away"
 #define IMSTATUS_ONLINE         "online"
@@ -78,6 +79,8 @@ static void do_screen_refresh(char *arg);
 static void do_chat_disable(char *arg);
 static void do_source(char *arg);
 static void do_color(char *arg);
+static void do_otr(char *arg);
+static void do_otrpolicy(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
@@ -129,6 +132,8 @@ void cmd_init(void)
   cmd_add("msay", "Send a multi-lines message to the selected buddy",
           COMPL_MULTILINE, 0, &do_msay);
   cmd_add("pgp", "Manage PGP settings", COMPL_PGP, COMPL_JID, &do_pgp);
+  cmd_add("otr", "Manage OTR settings", COMPL_OTR, COMPL_JID, &do_otr);
+  cmd_add("otrpolicy", "Manage OTR policies", COMPL_JID, COMPL_OTRPOLICY, &do_otrpolicy);
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
@@ -254,6 +259,22 @@ void cmd_init(void)
   compl_add_category_word(COMPL_PGP, "force");
   compl_add_category_word(COMPL_PGP, "info");
   compl_add_category_word(COMPL_PGP, "setkey");
+
+  // OTR category
+  compl_add_category_word(COMPL_OTR, "start");
+  compl_add_category_word(COMPL_OTR, "stop");
+  compl_add_category_word(COMPL_OTR, "fingerprint");
+  compl_add_category_word(COMPL_OTR, "smpq");
+  compl_add_category_word(COMPL_OTR, "smpr");
+  compl_add_category_word(COMPL_OTR, "smpa");
+  compl_add_category_word(COMPL_OTR, "info");
+  compl_add_category_word(COMPL_OTR, "key");
+
+  // OTR Policy category
+  compl_add_category_word(COMPL_OTRPOLICY, "plain");
+  compl_add_category_word(COMPL_OTRPOLICY, "manual");
+  compl_add_category_word(COMPL_OTRPOLICY, "opportunistic");
+  compl_add_category_word(COMPL_OTRPOLICY, "always");
 
   // Color category
   compl_add_category_word(COMPL_COLOR, "roster");
@@ -2881,6 +2902,223 @@ static void do_pgp(char *arg)
   }
 
   free_arg_lst(paramlst);
+}
+
+static void do_otr(char *arg)
+{
+#ifdef HAVE_LIBOTR
+  char **paramlst;
+  char *fjid, *subcmd, *keyid;
+  enum {
+    otr_none,
+    otr_start,
+    otr_stop,
+    otr_fpr,
+    otr_smpq,
+    otr_smpr,
+    otr_smpa,
+    otr_k,
+    otr_info
+  } op = 0;
+
+  paramlst = split_arg(arg, 3, 0); // subcmd, jid, [key]
+  subcmd = *paramlst;
+  fjid = *(paramlst+1);
+  keyid = *(paramlst+2);
+
+  if (!subcmd)
+    fjid = NULL;
+  if (!fjid)
+    keyid = NULL;
+
+  if (subcmd) {
+    if (!strcasecmp(subcmd, "start"))
+      op = otr_start;
+    else if (!strcasecmp(subcmd, "stop"))
+      op = otr_stop;
+    else if (!strcasecmp(subcmd, "fingerprint"))
+      op = otr_fpr;
+    else if (!strcasecmp(subcmd, "smpq"))
+      op = otr_smpq;
+    else if (!strcasecmp(subcmd, "smpr"))
+      op = otr_smpr;
+    else if (!strcasecmp(subcmd, "smpa"))
+      op = otr_smpa;
+    else if (!strcasecmp(subcmd, "key"))
+      op = otr_k;
+    else if (!strcasecmp(subcmd, "info"))
+      op = otr_info;
+  }
+
+  if (!op) {
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized or missing parameter!");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if(op == otr_k)
+    otr_key();
+  else {
+    // Allow special jid "" or "." (current buddy)
+    if (fjid && (!*fjid || !strcmp(fjid, ".")))
+      fjid = NULL;
+
+    if (fjid) {
+      // The JID has been specified.  Quick check...
+      if (check_jid_syntax(fjid) || !strchr(fjid, '@')) {
+        scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
+                     "<%s> is not a valid Jabber ID.", fjid);
+        fjid = NULL;
+      } else {
+        // Convert jid to lowercase and strip resource
+        char *p;
+        for (p = fjid; *p && *p != JID_RESOURCE_SEPARATOR; p++)
+          *p = tolower(*p);
+        if (*p == JID_RESOURCE_SEPARATOR)
+          *p = '\0';
+      }
+    } else {
+      gpointer bud = NULL;
+      if (current_buddy)
+        bud = BUDDATA(current_buddy);
+      if (bud) {
+        guint type = buddy_gettype(bud);
+        if (type & ROSTER_TYPE_USER)  // Is it a user?
+          fjid = (char*)buddy_getjid(bud);
+        else
+          scr_LogPrint(LPRINT_NORMAL, "The selected item should be a user.");
+      }
+    }
+
+    if (fjid) { // fjid is actually a bare jid...
+      switch (op) {
+        case otr_start:
+          otr_establish(fjid);          break;
+        case otr_stop:
+          otr_disconnect(fjid);         break;
+        case otr_fpr:
+          otr_fingerprint(fjid, keyid); break;
+        case otr_smpq:
+          otr_smp_query(fjid, keyid);   break;
+        case otr_smpr:        
+          otr_smp_respond(fjid, keyid); break;
+        case otr_smpa:
+          otr_smp_abort(fjid);          break;
+        case otr_info:
+          otr_print_info(fjid);         break;
+        default:
+          break;
+      }
+    } else
+      scr_LogPrint(LPRINT_NORMAL, "Please specify a valid Jabber ID.");
+  }
+  free_arg_lst(paramlst);
+
+#else
+  scr_LogPrint(LPRINT_NORMAL, "Please recompile mcabber with libotr enabled.");
+#endif /* HAVE_LIBOTR */
+}
+
+#ifdef HAVE_LIBOTR
+static char * string_for_otrpolicy(enum otr_policy p)
+{
+  switch (p) {
+    case plain:         return "plain";
+    case opportunistic: return "opportunistic";
+    case manual:        return "manual";
+    case always:        return "always";
+    default:            return "unknown";
+  }
+}
+
+static void dump_otrpolicy(char * k, char * v, void * nothing)
+{
+  scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8, "otrpolicy for %s: %s", k,
+               string_for_otrpolicy(*(enum otr_policy*)v));
+}
+#endif
+
+static void do_otrpolicy(char *arg)
+{
+#ifdef HAVE_LIBOTR
+  char **paramlst;
+  char *fjid, *policy;
+  enum otr_policy p;
+
+  paramlst = split_arg(arg, 2, 0); // [jid|default] policy
+  fjid = *paramlst;
+  policy = *(paramlst+1);
+
+  if (!fjid && !policy) {
+    scr_LogPrint(LPRINT_NORMAL, "default otrpolicy: %s",
+                 string_for_otrpolicy(settings_otr_getpolicy(NULL)));
+    settings_foreach(SETTINGS_TYPE_OTR, &dump_otrpolicy, NULL);
+    return;
+  }
+
+  if (!policy) {
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized or missing parameter!");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if (!strcasecmp(policy, "plain"))
+    p = plain;
+  else if (!strcasecmp(policy, "manual"))
+    p = manual;
+  else if (!strcasecmp(policy, "opportunistic"))
+    p = opportunistic;
+  else if (!strcasecmp(policy, "always"))
+    p = always;
+  else {
+    /* Fail, we don't know _this_ policy*/
+  }
+
+  if(!strcasecmp(fjid, "default")){
+    /*set default policy*/
+    settings_otr_setpolicy(NULL, p);
+    return;
+  }
+  // Allow special jid "" or "." (current buddy)
+  if (fjid && (!*fjid || !strcmp(fjid, ".")))
+    fjid = NULL;
+
+  if (fjid) {
+    // The JID has been specified.  Quick check...
+    if (check_jid_syntax(fjid) || !strchr(fjid, '@')) {
+      scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8,
+                   "<%s> is not a valid Jabber ID.", fjid);
+      fjid = NULL;
+    } else {
+      // Convert jid to lowercase and strip resource
+      char *p;
+      for (p = fjid; *p && *p != JID_RESOURCE_SEPARATOR; p++)
+        *p = tolower(*p);
+      if (*p == JID_RESOURCE_SEPARATOR)
+        *p = '\0';
+    }
+  } else {
+    gpointer bud = NULL;
+    if (current_buddy)
+      bud = BUDDATA(current_buddy);
+    if (bud) {
+      guint type = buddy_gettype(bud);
+      if (type & ROSTER_TYPE_USER)  // Is it a user?
+        fjid = (char*)buddy_getjid(bud);
+      else
+        scr_LogPrint(LPRINT_NORMAL, "The selected item should be a user.");
+    }
+  }
+
+  if (fjid)
+    settings_otr_setpolicy(fjid, p);
+  else
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a valid Jabber ID.");
+
+  free_arg_lst(paramlst);
+#else
+  scr_LogPrint(LPRINT_NORMAL, "Please recompile mcabber with libotr enabled.");
+#endif /* HAVE_LIBOTR */
 }
 
 /* !!!

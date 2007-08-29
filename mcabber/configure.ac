@@ -113,6 +113,18 @@ if test x"${enable_gpgme}" != x"no"; then
         [Define if you use GPGME to support OpenPGP]))
 fi
 
+# Check for otr
+AC_ARG_ENABLE(otr, [  --enable-otr            Enable OTR (Off-the-Record) messaging support],
+              enable_otr=$enableval, otr="")
+if test "x$enable_otr" = "xyes"; then
+  # Look for libgcrypt and libotr
+  AM_PATH_LIBGCRYPT(1.2.2, [
+          AM_PATH_LIBOTR(3.1.0, ,
+                         AC_MSG_ERROR(libotr 3.1.0 or newer is required.))
+      ], AC_MSG_ERROR(libgcrypt 1.2.2 or newer is required.)
+  )
+fi
+
 AC_ARG_WITH(ssl, [  --with-ssl              enable SSL secured connections using either OpenSSL
                           or GnuTLS],
         [with_ssl=$withval])

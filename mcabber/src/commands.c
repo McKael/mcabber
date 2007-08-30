@@ -3053,11 +3053,14 @@ static void do_otrpolicy(char *arg)
     scr_LogPrint(LPRINT_NORMAL, "default otrpolicy: %s",
                  string_for_otrpolicy(settings_otr_getpolicy(NULL)));
     settings_foreach(SETTINGS_TYPE_OTR, &dump_otrpolicy, NULL);
+    free_arg_lst(paramlst);
     return;
   }
 
   if (!policy) {
-    scr_LogPrint(LPRINT_NORMAL, "Unrecognized or missing parameter!");
+    scr_LogPrint(LPRINT_NORMAL,
+                 "Please call otrpolicy correctly: /otrpolicy (default|jid) "
+                 "(plain|manual|opportunistic|always)");
     free_arg_lst(paramlst);
     return;
   }
@@ -3072,11 +3075,15 @@ static void do_otrpolicy(char *arg)
     p = always;
   else {
     /* Fail, we don't know _this_ policy*/
+    scr_LogPrint(LPRINT_NORMAL, "mcabber doesn't support _this_ policy!");
+    free_arg_lst(paramlst);
+    return;
   }
 
   if(!strcasecmp(fjid, "default")){
     /*set default policy*/
     settings_otr_setpolicy(NULL, p);
+    free_arg_lst(paramlst);
     return;
   }
   // Allow special jid "" or "." (current buddy)

@@ -45,6 +45,11 @@ guint   settings_pgp_getforce(const char *bjid);
 void    settings_pgp_setkeyid(const char *bjid, const char *keyid);
 const char *settings_pgp_getkeyid(const char *bjid);
 
+#ifdef HAVE_LIBOTR
+guint   settings_otr_getpolicy(const char *bjid);
+void    settings_otr_setpolicy(const char *bjid, guint value);
+#endif
+
 guint get_max_history_blocks(void);
 
 char *default_muc_nickname(void);

@@ -5,6 +5,7 @@
 
 #include <libotr/proto.h>
 #include <libotr/message.h>
+#include <libotr/privkey.h>
 
 enum otr_policy {
   plain,
@@ -13,7 +14,7 @@ enum otr_policy {
   always
 };
 
-int  otr_init(const char *jid);
+void otr_init(const char *jid);
 void otr_terminate(void);
 
 void otr_establish  (const char * buddy);

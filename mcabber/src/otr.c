@@ -29,13 +29,14 @@
 #include "jab_priv.h"
 #include "roster.h"
 #include "utils.h"
+#include "screen.h"
+#include "settings.h"
 
 
 static OtrlUserState userstate = NULL;
 static char * account = NULL;
 static char * keyfile = NULL;
 static char * fprfile = NULL;
-static enum otr_policy policy = manual;
 
 
 static OtrlPolicy cb_policy             (void *opdata, ConnContext *ctx);
@@ -83,22 +84,24 @@ static int        cb_max_message_size   (void *opdata, ConnContext *context);
 
 static OtrlMessageAppOps ops =
 {
-  policy:                 cb_policy,
-  create_privkey:         cb_create_privkey,
-  is_logged_in:           cb_is_logged_in,
-  inject_message:         cb_inject_message,
-  notify:                 cb_notify,
-  display_otr_message:    cb_display_otr_message,
-  update_context_list:    cb_update_context_list,
-  protocol_name:          cb_protocol_name,
-  protocol_name_free:     cb_protocol_name_free,
-  new_fingerprint:        cb_new_fingerprint,
-  write_fingerprints:     cb_write_fingerprints,
-  gone_secure:            cb_gone_secure,
-  gone_insecure:          cb_gone_insecure,
-  still_secure:           cb_still_secure,
-  log_message:            cb_log_message,
-  max_message_size:       cb_max_message_size
+  cb_policy,
+  cb_create_privkey,
+  cb_is_logged_in,
+  cb_inject_message,
+  cb_notify,
+  cb_display_otr_message,
+  cb_update_context_list,
+  cb_protocol_name,
+  cb_protocol_name_free,
+  cb_new_fingerprint,
+  cb_write_fingerprints,
+  cb_gone_secure,
+  cb_gone_insecure,
+  cb_still_secure,
+  cb_log_message,
+  cb_max_message_size,
+  NULL, /*account_name*/
+  NULL  /*account_name_free*/
 };
 
 static void otr_message_disconnect(ConnContext *ctx);
@@ -107,7 +110,7 @@ static void otr_startstop(const char * buddy, int start);
 static void otr_handle_smp_tlvs(OtrlTLV * tlvs, ConnContext * ctx);
 
 
-int otr_init(const char *jid)
+void otr_init(const char *jid)
 {
   char * root = expand_filename("~/.mcabber/otr/");
   account = jidtodisp(jid);
@@ -284,7 +287,7 @@ static void otr_handle_smp_tlvs(OtrlTLV * tlvs, ConnContext * ctx)
   }
 
   if (sbuf) {
-    scr_WriteIncomingMessage(ctx->username, sbuf, 0, HBB_PREFIX_INFO);
+    scr_WriteIncomingMessage(ctx->username, sbuf, 0, HBB_PREFIX_INFO, 0);
     g_free(sbuf);
   }
 }
@@ -401,9 +404,9 @@ void otr_print_info(const char * buddy)
   }
   if (p == OTRL_POLICY_NEVER)
     policy = "plain";
-  else if (p == OTRL_POLICY_OPPORTUNISTIC & ~OTRL_POLICY_ALLOW_V1)
+  else if (p == (OTRL_POLICY_OPPORTUNISTIC & ~OTRL_POLICY_ALLOW_V1))
     policy = "opportunistic";
-  else if (p == OTRL_POLICY_MANUAL & ~OTRL_POLICY_ALLOW_V1)
+  else if (p == (OTRL_POLICY_MANUAL & ~OTRL_POLICY_ALLOW_V1))
     policy = "manual";
   else if (p == (OTRL_POLICY_ALWAYS & ~OTRL_POLICY_ALLOW_V1))
     policy = "always";
@@ -439,11 +442,12 @@ void otr_smp_query(const char * buddy, const char * secret)
   }
 
   if (ctx) {
-    otrl_message_initiate_smp(userstate, &ops, NULL, ctx, secret,
+    otrl_message_initiate_smp(userstate, &ops, NULL, ctx,
+                              (const unsigned char *)secret,
                               strlen(secret));
     scr_WriteIncomingMessage(ctx->username,
                              "OTR: Socialist Millionaires' Protocol "
-                             "initiated.", 0, HBB_PREFIX_INFO);
+                             "initiated.", 0, HBB_PREFIX_INFO, 0);
   }
 }
 
@@ -464,11 +468,12 @@ void otr_smp_respond(const char * buddy, const char * secret)
                    "Initiation!");
       return;
     }
-    otrl_message_respond_smp(userstate, &ops, NULL, ctx, secret,
+    otrl_message_respond_smp(userstate, &ops, NULL, ctx,
+                             (const unsigned char *)secret,
                              strlen(secret));
     scr_WriteIncomingMessage(ctx->username,
                              "OTR: Socialist Millionaires' Protocol: "
-                             "response sent", 0, HBB_PREFIX_INFO);
+                             "response sent", 0, HBB_PREFIX_INFO, 0);
   }
 }
 
@@ -480,7 +485,7 @@ void otr_smp_abort(const char * buddy)
     otrl_message_abort_smp(userstate, &ops, NULL, ctx);
     scr_WriteIncomingMessage(ctx->username,
                              "OTR: Socialist Millionaires' Protocol aborted.",
-                             0, HBB_PREFIX_INFO);
+                             0, HBB_PREFIX_INFO, 0);
   }
 }
 
@@ -517,6 +522,8 @@ static OtrlPolicy cb_policy(void *opdata, ConnContext *ctx)
     case always:
       return OTRL_POLICY_ALWAYS & ~OTRL_POLICY_ALLOW_V1;
   }
+
+  return OTRL_POLICY_MANUAL & ~OTRL_POLICY_ALLOW_V1;
 }
 
 /* Create a private key for the given accountname/protocol if
@@ -576,9 +583,10 @@ static void cb_notify(void *opdata, OtrlNotifyLevel level,
     case OTRL_NOTIFY_ERROR:   type = "error";   break;
     case OTRL_NOTIFY_WARNING: type = "warning"; break;
     case OTRL_NOTIFY_INFO:    type = "info";    break;
+    default:                  type = "unknown";
   }
   sbuf = g_strdup_printf("OTR %s:%s\n%s\n%s",type,title, primary, secondary);
-  scr_WriteIncomingMessage(username, sbuf, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(username, sbuf, 0, HBB_PREFIX_INFO, 0);
   g_free(sbuf);
 }
 
@@ -592,7 +600,7 @@ static int cb_display_otr_message(void *opdata, const char *accountname,
                                   const char *protocol, const char *username,
                                   const char *msg)
 {
-  scr_WriteIncomingMessage(username, msg, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(username, msg, 0, HBB_PREFIX_INFO, 0);
   return 0;
 }
 
@@ -628,7 +636,7 @@ static void cb_new_fingerprint(void *opdata, OtrlUserState us,
 
   otrl_privkey_hash_to_human(readable, fingerprint);
   sbuf = g_strdup_printf("OTR: new fingerprint: %s", readable);
-  scr_WriteIncomingMessage(username, sbuf, 0, HBB_PREFIX_INFO);
+  scr_WriteIncomingMessage(username, sbuf, 0, HBB_PREFIX_INFO, 0);
   g_free(sbuf);
 }
 
@@ -642,14 +650,14 @@ static void cb_write_fingerprints(void *opdata)
 static void cb_gone_secure(void *opdata, ConnContext *context)
 {
   scr_WriteIncomingMessage(context->username, "OTR: channel established", 0,
-                           HBB_PREFIX_INFO);
+                           HBB_PREFIX_INFO, 0);
 }
 
 /* A ConnContext has left a secure state. */
 static void cb_gone_insecure(void *opdata, ConnContext *context)
 {
   scr_WriteIncomingMessage(context->username, "OTR: channel closed", 0,
-                           HBB_PREFIX_INFO);
+                           HBB_PREFIX_INFO, 0);
 }
 
 /* We have completed an authentication, using the D-H keys we
@@ -657,7 +665,7 @@ static void cb_gone_insecure(void *opdata, ConnContext *context)
 static void cb_still_secure(void *opdata, ConnContext *context, int is_reply)
 {
   scr_WriteIncomingMessage(context->username, "OTR: channel reestablished", 0,
-                           HBB_PREFIX_INFO);
+                           HBB_PREFIX_INFO, 0);
 }
 
 /* Log a message.  The passed message will end in "\n". */

@@ -1,5 +1,5 @@
 /*
- * otr.c      -- Off-The-Record Messaging for mcabber
+ * otr.c        -- Off-The-Record Messaging for mcabber
  *
  * Copyright (C) 2007 Frank Zschockelt <mcabber_otr@freakysoft.de>
  *

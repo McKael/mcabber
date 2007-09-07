@@ -66,13 +66,12 @@ char *hlog_get_log_jid(const char *bjid)
   struct stat bufstat;
   char *path;
   char *log_jid = NULL;
-  
+
   path = user_histo_file(bjid);
-  do {  
-    /*scr_LogPrint(LPRINT_NORMAL, "path=%s", path);*/
-    if(lstat(path, &bufstat) != 0)
+  do {
+    if (lstat(path, &bufstat) != 0)
       break;
-    if(S_ISLNK(bufstat.st_mode)) {
+    if (S_ISLNK(bufstat.st_mode)) {
       g_free(log_jid);
       log_jid = g_new(char, bufstat.st_size+1);
       readlink(path, log_jid, bufstat.st_size);

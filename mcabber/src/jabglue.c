@@ -561,7 +561,9 @@ void jb_send_msg(const char *fjid, const char *text, int type,
 {
   xmlnode x;
   gchar *strtype;
+#ifdef HAVE_LIBOTR
   int otr_msg = 0;
+#endif
 #if defined HAVE_GPGME || defined JEP0022 || defined JEP0085
   char *rname, *barejid;
   GSList *sl_buddy;

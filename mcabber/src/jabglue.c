@@ -557,10 +557,11 @@ static char *new_msgid(void)
 // message has been PGP-encrypted.  If encryption enforcement is set and
 // encryption fails, *encrypted is set to -1.
 void jb_send_msg(const char *fjid, const char *text, int type,
-                 const char *subject, const char *msgid, gint *encrypted)
+                 const char *subject, const char *msgid, gint *encrypted,
+                 const char *type_overwrite)
 {
   xmlnode x;
-  gchar *strtype;
+  const gchar *strtype;
 #ifdef HAVE_LIBOTR
   int otr_msg = 0;
 #endif
@@ -583,10 +584,14 @@ void jb_send_msg(const char *fjid, const char *text, int type,
 
   if (!online) return;
 
-  if (type == ROSTER_TYPE_ROOM)
-    strtype = TMSG_GROUPCHAT;
-  else
-    strtype = TMSG_CHAT;
+  if (type_overwrite)
+    strtype = type_overwrite;
+  else {
+    if (type == ROSTER_TYPE_ROOM)
+      strtype = TMSG_GROUPCHAT;
+    else
+      strtype = TMSG_CHAT;
+  }
 
 #if defined HAVE_GPGME || defined HAVE_LIBOTR || defined JEP0022 || defined JEP0085
   rname = strchr(fjid, JID_RESOURCE_SEPARATOR);

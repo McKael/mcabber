@@ -62,7 +62,8 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg,
                   int do_not_sign);
 inline void jb_setprevstatus(void);
 void jb_send_msg(const char *fjid, const char *text, int type,
-                 const char *subject, const char *id, gint *encrypted);
+                 const char *subject, const char *id, gint *encrypted,
+                 const char *type_overwrite);
 void jb_send_raw(const char *str);
 void jb_send_chatstate(gpointer buddy, guint chatstate);
 void jb_keepalive(void);

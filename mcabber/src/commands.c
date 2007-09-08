@@ -82,6 +82,8 @@ static void do_color(char *arg);
 static void do_otr(char *arg);
 static void do_otrpolicy(char *arg);
 
+static void do_say_internal(char *arg, int parse_flags);
+
 // Global variable for the commands list
 static GSList *Commands;
 
@@ -347,52 +349,6 @@ cmd *cmd_get(const char *command)
   return NULL;
 }
 
-//  send_message(msg)
-// Write the message in the buddy's window and send the message on
-// the network.
-static void send_message(const char *msg, const char *subj)
-{
-  const char *bjid;
-  gint crypted;
-
-  if (!jb_getonline()) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
-    return;
-  }
-
-  if (!current_buddy) {
-    scr_LogPrint(LPRINT_NORMAL, "No buddy is currently selected.");
-    return;
-  }
-
-  bjid = CURRENT_JID;
-  if (!bjid) {
-    scr_LogPrint(LPRINT_NORMAL, "No buddy is currently selected.");
-    return;
-  }
-
-  // Network part
-  jb_send_msg(bjid, msg, buddy_gettype(BUDDATA(current_buddy)), subj, NULL,
-              &crypted);
-
-  if (crypted == -1) {
-    scr_LogPrint(LPRINT_LOGNORM, "Encryption error.  Message was not sent.");
-    return;
-  }
-
-  // Hook
-  if (buddy_gettype(BUDDATA(current_buddy)) != ROSTER_TYPE_ROOM) {
-    // local part (UI, logging, etc.)
-    gchar *hmsg;
-    if (subj)
-      hmsg = g_strdup_printf("[%s]\n%s", subj, msg);
-    else
-      hmsg = (char*)msg;
-    hk_message_out(bjid, NULL, 0, hmsg, crypted);
-    if (hmsg != msg) g_free(hmsg);
-  }
-}
-
 //  process_command(line, iscmd)
 // Process a command line.
 // If iscmd is TRUE, process the command even if verbatim mmode is set;
@@ -491,7 +447,7 @@ int process_line(char *line)
     if (scr_get_multimode())
       scr_append_multiline(line);
     else
-      do_say(line);
+      do_say_internal(line, 0);
     return 0;
   }
 
@@ -1059,13 +1015,19 @@ static void do_group(char *arg)
   if (leave_buddywindow) scr_ShowBuddyWindow();
 }
 
-static int send_message_to(const char *fjid, const char *msg, const char *subj)
+static int send_message_to(const char *fjid, const char *msg, const char *subj,
+                           const char *type_overwrite)
 {
   char *bare_jid, *rp;
   char *hmsg;
   gint crypted;
   gint retval = 0;
+  int isroom;
 
+  if (!jb_getonline()) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
+    return 1;
+  }
   if (!fjid || !*fjid) {
     scr_LogPrint(LPRINT_NORMAL, "You must specify a Jabber ID.");
     return 1;
@@ -1090,10 +1052,12 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj)
 
   // Check if we're sending a message to a conference room
   // If not, we must make sure rp is NULL, for hk_message_out()
+  isroom = !!roster_find(bare_jid, jidsearch, ROSTER_TYPE_ROOM);
   if (rp) {
-    if (roster_find(bare_jid, jidsearch, ROSTER_TYPE_ROOM)) rp++;
+    if (isroom) rp++;
     else rp = NULL;
   }
+  isroom = isroom && (!rp || !*rp);
 
   // local part (UI, logging, etc.)
   if (subj)
@@ -1102,7 +1066,9 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj)
     hmsg = (char*)msg;
 
   // Network part
-  jb_send_msg(fjid, msg, ROSTER_TYPE_USER, subj, NULL, &crypted);
+  jb_send_msg(fjid, msg, (isroom ? ROSTER_TYPE_ROOM : ROSTER_TYPE_USER),
+              subj, NULL, &crypted,
+              type_overwrite);
 
   if (crypted == -1) {
     scr_LogPrint(LPRINT_LOGNORM, "Encryption error.  Message was not sent.");
@@ -1111,7 +1077,8 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj)
   }
 
   // Hook
-  hk_message_out(bare_jid, rp, 0, hmsg, crypted);
+  if(!isroom)
+    hk_message_out(bare_jid, rp, 0, hmsg, crypted);
 
 send_message_to_return:
   if (hmsg != msg) g_free(hmsg);
@@ -1119,9 +1086,52 @@ send_message_to_return:
   return retval;
 }
 
-static void do_say(char *arg)
+//  send_message(msg, subj, type_overwrite)
+// Write the message in the buddy's window and send the message on
+// the network.
+static void send_message(const char *msg, const char *subj,
+                         const char *type_overwrite)
+{
+  const char *bjid;
+
+  if (!current_buddy) {
+    scr_LogPrint(LPRINT_NORMAL, "No buddy is currently selected.");
+    return;
+  }
+
+  bjid = CURRENT_JID;
+  if (!bjid) {
+    scr_LogPrint(LPRINT_NORMAL, "No buddy is currently selected.");
+    return;
+  }
+
+  send_message_to(bjid, msg, subj, type_overwrite);
+}
+
+static const char *scan_mtype(char **arg)
+{
+  //Try splitting it
+  char **parlist = split_arg(*arg, 2, 1);
+  const char *result = NULL;
+  //Is it any good parameter?
+  if(parlist && *parlist) {
+    if(!strcmp("-n", *parlist)) {
+      result = TMSG_NORMAL;
+    } else if(!strcmp("-h", *parlist)) {
+      result = TMSG_HEADLINE;
+    }
+    if(result || (!strcmp("--", *parlist)))
+      *arg += strlen(*arg) - (parlist[1] ? strlen(parlist[1]) : 0);
+  }
+  //Anything found? -> skip it
+  free_arg_lst(parlist);
+  return result;
+}
+
+static void do_say_internal(char *arg, int parse_flags)
 {
   gpointer bud;
+  const char *msgtype = NULL;
 
   scr_set_chatmode(TRUE);
   scr_ShowBuddyWindow();
@@ -1140,9 +1150,15 @@ static void do_say(char *arg)
   }
 
   buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
+  if(parse_flags)
+    msgtype = scan_mtype(&arg);
   arg = to_utf8(arg);
-  send_message(arg, NULL);
+  send_message(arg, NULL, msgtype);
   g_free(arg);
+}
+
+static void do_say(char *arg) {
+  do_say_internal(arg, 1);
 }
 
 static void do_msay(char *arg)
@@ -1221,12 +1237,13 @@ static void do_msay(char *arg)
   if (!strcasecmp(subcmd, "send_to")) {
     int err = FALSE;
     gchar *msg_utf8;
+    const char *msg_type = scan_mtype(&arg);
     // Let's send to the specified JID.  We leave now if there
     // has been an error (so we don't leave multi-line mode).
     arg = to_utf8(arg);
     msg_utf8 = to_utf8(scr_get_multiline());
     if (msg_utf8) {
-      err = send_message_to(arg, msg_utf8, scr_get_multimode_subj());
+      err = send_message_to(arg, msg_utf8, scr_get_multimode_subj(), msg_type);
       g_free(msg_utf8);
     }
     g_free(arg);
@@ -1251,7 +1268,7 @@ static void do_msay(char *arg)
     buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
     msg_utf8 = to_utf8(scr_get_multiline());
     if (msg_utf8) {
-      send_message(msg_utf8, scr_get_multimode_subj());
+      send_message(msg_utf8, scr_get_multimode_subj(), scan_mtype(&arg));
       g_free(msg_utf8);
     }
   }
@@ -1265,12 +1282,14 @@ static void do_say_to(char *arg)
 {
   char **paramlst;
   char *fjid, *msg;
+  const char *msg_type = NULL;
 
   if (!jb_getonline()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
 
+  msg_type = scan_mtype(&arg);
   paramlst = split_arg(arg, 2, 1); // jid, message
   fjid = *paramlst;
   msg = *(paramlst+1);
@@ -1284,7 +1303,7 @@ static void do_say_to(char *arg)
   fjid = to_utf8(fjid);
   msg = to_utf8(msg);
 
-  send_message_to(fjid, msg, NULL);
+  send_message_to(fjid, msg, NULL, msg_type);
 
   g_free(fjid);
   g_free(msg);
@@ -2286,7 +2305,7 @@ static void room_topic(gpointer bud, char *arg)
   arg = to_utf8(arg);
   // Set the topic
   msg = g_strdup_printf("%s has set the topic to: %s", mkcmdstr("me"), arg);
-  jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg, NULL, NULL);
+  jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg, NULL, NULL, NULL);
   g_free(arg);
   g_free(msg);
 }

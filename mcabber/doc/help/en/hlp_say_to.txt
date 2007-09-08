@@ -1,5 +1,6 @@
 
- /SAY_TO jid text
+ /SAY_TO [-n|-h|--] jid text
 
 Send the "text" message to the specified jid.
 Please note that this command doesn't set the default resource for a contact, so if you want to send several messages to a specific resource you will have to use "/say_to" for each message.
+The "-n" flag turn the message to "normal" type, "-h" to "headline". "--" can be used to send chat message beginning with -n or -h.

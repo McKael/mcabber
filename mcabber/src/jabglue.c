@@ -653,7 +653,7 @@ void jb_send_msg(const char *fjid, const char *text, int type,
   g_free(barejid);
 #endif // HAVE_GPGME || defined JEP0022 || defined JEP0085
 
-  x = jutil_msgnew(strtype, (char*)fjid, NULL,
+  x = jutil_msgnew((char*)strtype, (char*)fjid, NULL,
                    (enc ? "This message is PGP-encrypted." : (char*)text));
   if (subject) {
     xmlnode y;

@@ -141,7 +141,18 @@ void otr_terminate(void)
 
   g_free(account);
   account = NULL;
+
+  /* XXX This #ifdef is a quick workaround: when mcabber
+   * is linked to both gnutls and libotr, libgcrypt will
+   * segfault when we call otrl_userstate_free().
+   * This is reported to be a bug in libgcrypt :-/
+   * Mikael
+   */
+#if defined(HAVE_GNUTLS) && !defined(HAVE_OPENSSL)
+  if (!settings_opt_get_int("ssl"))
+#endif
   otrl_userstate_free(userstate);
+
   userstate = NULL;
   g_free(keyfile);
   keyfile = NULL;

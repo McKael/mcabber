@@ -471,6 +471,7 @@ int main(int argc, char **argv)
     }
   }
 
+  scr_TerminateCurses();
 #ifdef HAVE_LIBOTR
   otr_terminate();
 #endif
@@ -478,7 +479,6 @@ int main(int argc, char **argv)
 #ifdef HAVE_GPGME
   gpg_terminate();
 #endif
-  scr_TerminateCurses();
 #ifdef HAVE_ASPELL_H
   /* Deinitialize aspell */
   if (settings_opt_get_int("aspell_enable")) {

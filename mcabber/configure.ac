@@ -215,6 +215,8 @@ if test "${hgcset}" = "yes"; then
     AC_DEFINE(ENABLE_HGCSET, 1, [Use Mercurial changeset])
 fi
 
+AM_CONDITIONAL([OTR], [test x$libotr_found = xyes])
+
 # We need _GNU_SOURCE for strptime() and strcasestr()
 CFLAGS="$CFLAGS -D_GNU_SOURCE"
 

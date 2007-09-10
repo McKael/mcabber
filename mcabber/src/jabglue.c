@@ -1126,10 +1126,8 @@ void jb_request(const char *fjid, enum iqreq_type reqtype)
 
   // vCard request
   if (reqtype == iqreq_vcard) {
-    char *bjid = jidtodisp(fjid);
-    request_vcard(bjid);
-    scr_LogPrint(LPRINT_NORMAL, "Sent vCard request to <%s>", bjid);
-    g_free(bjid);
+    request_vcard(fjid);
+    scr_LogPrint(LPRINT_NORMAL, "Sent vCard request to <%s>", fjid);
     return;
   }
 

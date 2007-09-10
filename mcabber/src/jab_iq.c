@@ -676,22 +676,17 @@ static int iqscallback_vcard(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 void request_vcard(const char *bjid)
 {
   eviqs *iqn;
-  char *barejid;
-
-  barejid = jidtodisp(bjid);
 
   // Create a new IQ structure.  We use NULL for the namespace because
   // we'll have to use a special tag, not the usual "query" one.
   iqn = iqs_new(JPACKET__GET, NULL, "vcard", IQS_DEFAULT_TIMEOUT);
-  xmlnode_put_attrib(iqn->xmldata, "to", barejid);
+  xmlnode_put_attrib(iqn->xmldata, "to", bjid);
   // Remove the useless <query/> tag, and insert a vCard one.
   xmlnode_hide(xmlnode_get_tag(iqn->xmldata, "query"));
   xmlnode_put_attrib(xmlnode_insert_tag(iqn->xmldata, "vCard"),
                      "xmlns", NS_VCARD);
   iqn->callback = &iqscallback_vcard;
   jab_send(jc, iqn->xmldata);
-
-  g_free(barejid);
 }
 
 static void storage_bookmarks_parse_conference(xmlnode xmldata)

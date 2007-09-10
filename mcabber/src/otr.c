@@ -186,6 +186,11 @@ static void otr_startstop(const char * buddy, int start)
 
   if (start) {
     OtrlPolicy policy = cb_policy(NULL, ctx);
+    if (policy == plain) {
+      scr_LogPrint(LPRINT_LOGNORM, "The OTR policy for this user is set to"
+      " plain. You have to change it first.");
+      return;
+    }
     msg = otrl_proto_default_query_msg(ctx->accountname, policy);
     cb_inject_message(NULL, ctx->accountname, ctx->protocol, ctx->username,
                       msg);

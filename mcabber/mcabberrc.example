@@ -96,9 +96,15 @@ set ssl = 0
 # (default: 0, unlimited).
 set cmdhistory_lines = 250
 
-# Set hide_offline_buddies to 1 to display only connected buddies
-# in the roster.
-#set hide_offline_buddies = 0
+# You can set up a mask to filter buddies and display them according to
+# their status.  The mask should contain the shortcut letters of the
+# status you want to see ([o]nline, [f]ree_for_chat, [d]o_not_disturb,
+# [n]ot_available, [a]way, [_]offline).
+# For example, to display everybody the filter should be "ofdna_" (default).
+# To display only the connected buddies, use "ofdna".
+# Please note that this option is only used at startup (once mcabber is
+# runnning yu can use "/roster display").
+#set roster_display_filter = ofdna_
 
 # Typing notifications, Chat States, Events (JEP-22/85)
 # Set disable_chatstates to 1 if you don't want to use typing notifications.

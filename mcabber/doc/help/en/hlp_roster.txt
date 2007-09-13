@@ -2,7 +2,7 @@
  /ROSTER bottom|top|up|down|group_prev|group_next
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
- /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER display|hide_offline|show_offline|toggle_offline
  /ROSTER item_lock|item_unlock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
@@ -30,10 +30,15 @@ Here are the available parameters:
  Jump to the next unread message
 /roster search bud
  Search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
+/roster display [mask]
+ See or update the roster filter.
+ The mask should contain the shortcut letters of the status you want to see ([o]nline, [f]ree_for_chat, [d]o_not_disturb, [n]ot_available, [a]way, [_]offline).
+ For example "ofdna" to display only connected buddies.
+ "*" can be used as a shortcut to display all contacts.
 /roster hide_offline
- Hide offline buddies
+ Hide offline buddies (same as /roster display ofdna)
 /roster show_offline
- Show offline buddies
+ Show offline buddies (same as /roster display ofdna_)
 /roster toggle_offline
  Toggle display of offline buddies
 /roster item_lock [jid]

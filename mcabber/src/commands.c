@@ -177,6 +177,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "hide");
   compl_add_category_word(COMPL_ROSTER, "show");
   compl_add_category_word(COMPL_ROSTER, "toggle");
+  compl_add_category_word(COMPL_ROSTER, "display");
   compl_add_category_word(COMPL_ROSTER, "hide_offline");
   compl_add_category_word(COMPL_ROSTER, "show_offline");
   compl_add_category_word(COMPL_ROSTER, "toggle_offline");
@@ -652,6 +653,8 @@ static void do_roster(char *arg)
     buddylist_set_hide_offline_buddies(-1);
     buddylist_build();
     update_roster = TRUE;
+  } else if (!strcasecmp(subcmd, "display")) {
+    scr_RosterDisplay(arg);
   } else if (!strcasecmp(subcmd, "item_lock")) {
     roster_buddylock(arg, TRUE);
   } else if (!strcasecmp(subcmd, "item_unlock")) {

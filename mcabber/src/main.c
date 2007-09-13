@@ -440,8 +440,18 @@ int main(int argc, char **argv)
   jb_set_keepalive_delay(ping);
   scr_LogPrint(LPRINT_DEBUG, "Ping interval established: %d secs", ping);
 
-  if (settings_opt_get_int("hide_offline_buddies") > 0)
-    buddylist_set_hide_offline_buddies(TRUE);
+  if (settings_opt_get_int("hide_offline_buddies") > 0) { // XXX Deprecated
+    scr_RosterDisplay("ofdna");
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "* Warning: 'hide_offline_buddies' is deprecated.");
+  } else {
+    optstring = settings_opt_get("roster_display_filter");
+    if (optstring)
+      scr_RosterDisplay(optstring);
+    // Empty filter isn't allowed...
+    if (!buddylist_get_filter())
+      scr_RosterDisplay("*");
+  }
 
   chatstates_disabled = settings_opt_get_int("disable_chatstates");
 

@@ -2092,7 +2092,7 @@ static void set_current_buddy(GList *newbuddy)
   // We should rebuild the buddylist but not everytime
   // Here we check if we were locking a buddy who is actually offline,
   // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
-  if (prev_st == offline && buddylist_get_hide_offline_buddies())
+  if (!(buddylist_get_filter() & 1<<prev_st))
     buddylist_build();
   update_roster = TRUE;
 }
@@ -2247,6 +2247,38 @@ void scr_RosterJumpAlternate(void)
   set_current_buddy(alternate_buddy);
   if (chatmode)
     scr_ShowBuddyWindow();
+}
+
+//  scr_RosterDisplay(filter)
+// Set the roster filter mask.  If filter is null/empty, the current
+// mask is displayed.
+void scr_RosterDisplay(const char *filter)
+{
+  guchar status;
+  enum imstatus budstate;
+  char strfilter[imstatus_size+1];
+  char *psfilter;
+
+  if (filter && *filter) {
+    int show_all = (*filter == '*');
+    status = 0;
+    for (budstate = 0; budstate < imstatus_size-1; budstate++)
+      if (strchr(filter, imstatus2char[budstate]) || show_all)
+        status |= 1<<budstate;
+    buddylist_set_filter(status);
+    buddylist_build();
+    update_roster = TRUE;
+    return;
+  }
+
+  // Display current filter
+  psfilter = strfilter;
+  status = buddylist_get_filter();
+  for (budstate = 0; budstate < imstatus_size-1; budstate++)
+    if (status & 1<<budstate)
+      *psfilter++ = imstatus2char[budstate];
+  *psfilter = '\0';
+  scr_LogPrint(LPRINT_NORMAL, "Roster status filter: %s", strfilter);
 }
 
 //  scr_BufferScrollUpDown()

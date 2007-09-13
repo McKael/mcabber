@@ -11,13 +11,15 @@
 enum imstatus {
     offline,
     available,
-    invisible,
     freeforchat,
     dontdisturb,
     notavail,
     away,
+    invisible,
     imstatus_size
 };
+
+extern char imstatus2char[]; // Should match enum above
 
 enum imrole {
   role_none,
@@ -156,7 +158,9 @@ void    roster_unsubscribed(const char *jid);
 void    buddylist_build(void);
 void    buddy_hide_group(gpointer rosterdata, int hide);
 void    buddylist_set_hide_offline_buddies(int hide);
-inline int buddylist_get_hide_offline_buddies(void);
+inline int buddylist_isset_filter(void);
+void    buddylist_set_filter(guchar);
+guchar  buddylist_get_filter(void);
 const char *buddy_getjid(gpointer rosterdata);
 void        buddy_setname(gpointer rosterdata, char *newname);
 const char *buddy_getname(gpointer rosterdata);

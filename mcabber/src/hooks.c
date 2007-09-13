@@ -209,10 +209,10 @@ inline void hk_message_in(const char *bjid, const char *resname,
   }
 
   // We need to update the roster if the sender is unknown or
-  // if the sender is offline/invisible and hide_offline_buddies is set
+  // if the sender is offline/invisible and a filter is set.
   if (new_guy ||
       (buddy_getstatus(roster_usr->data, NULL) == offline &&
-       buddylist_get_hide_offline_buddies()))
+       buddylist_isset_filter()))
   {
     update_roster = TRUE;
   }

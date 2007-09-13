@@ -150,6 +150,7 @@ void scr_RosterPrevGroup(void);
 void scr_RosterNextGroup(void);
 void scr_RosterSearch(char *);
 void scr_RosterJumpJid(char *);
+void scr_RosterDisplay(const char *);
 void scr_BufferTopBottom(int topbottom);
 void scr_BufferClear(void);
 void scr_BufferScrollLock(int lock);

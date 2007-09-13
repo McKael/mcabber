@@ -128,7 +128,7 @@ static void write_histo_line(const char *bjid,
    *
    * Types:
    * - M message    Info: S (send) R (receive)
-   * - S status     Info: [_oifdna]
+   * - S status     Info: [_ofdnai]
    * We don't check them, we'll trust the caller.
    */
 

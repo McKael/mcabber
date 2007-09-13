@@ -45,7 +45,7 @@ guint AutoConnection;
 enum enum_jstate jstate;
 
 char imstatus2char[imstatus_size+1] = {
-    '_', 'o', 'i', 'f', 'd', 'n', 'a', '\0'
+    '_', 'o', 'f', 'd', 'n', 'a', 'i', '\0'
 };
 
 static time_t LastPingTime;

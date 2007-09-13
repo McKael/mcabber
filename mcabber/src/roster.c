@@ -90,7 +90,7 @@ typedef struct {
 
 /* ### Variables ### */
 
-static int hide_offline_buddies;
+static guchar display_filter;
 static GSList *groups;
 static GSList *unread_list;
 static GHashTable *unread_jids;
@@ -102,6 +102,9 @@ static roster roster_special;
 
 void unread_jid_add(const char *jid);
 int  unread_jid_del(const char *jid);
+
+#define DFILTER_ALL     63
+#define DFILTER_ONLINE  62
 
 
 /* ### Initialization ### */
@@ -751,17 +754,31 @@ void roster_unsubscribed(const char *jid)
 // "hide" values: 1=hide 0=show_all -1=invert
 void buddylist_set_hide_offline_buddies(int hide)
 {
-  if (hide < 0)                     // NEG   (invert)
-    hide_offline_buddies = !hide_offline_buddies;
-  else if (hide == 0)               // FALSE (don't hide)
-    hide_offline_buddies = 0;
-  else                              // TRUE  (hide)
-    hide_offline_buddies = 1;
+  if (hide < 0) {               // NEG   (invert)
+    if (display_filter == DFILTER_ALL)
+      display_filter = DFILTER_ONLINE;
+    else
+      display_filter = DFILTER_ALL;
+  } else if (hide == 0) {       // FALSE (don't hide -- andfo_)
+    display_filter = DFILTER_ALL;
+  } else {                      // TRUE  (hide -- andfo)
+    display_filter = DFILTER_ONLINE;
+  }
 }
 
-inline int buddylist_get_hide_offline_buddies(void)
+inline int buddylist_isset_filter(void)
 {
-  return hide_offline_buddies;
+  return (display_filter != DFILTER_ALL);
+}
+
+void buddylist_set_filter(guchar filter)
+{
+  display_filter = filter;
+}
+
+guchar buddylist_get_filter(void)
+{
+  return display_filter;
 }
 
 //  buddylist_build()
@@ -794,16 +811,8 @@ void buddylist_build(void)
   while (sl_roster_elt) {
     GSList *sl_roster_usrelt;
     roster *roster_usrelt;
-    guint pending_group = FALSE;
+    guint pending_group = TRUE;
     roster_elt = (roster*) sl_roster_elt->data;
-
-    // Add the group now unless hide_offline_buddies is set,
-    // in which case we'll add it only if an online buddy belongs to it.
-    // We take care to keep the current_buddy in the list, too.
-    if (!hide_offline_buddies || roster_elt == roster_current_buddy)
-      buddylist = g_list_append(buddylist, roster_elt);
-    else
-      pending_group = TRUE;
 
     shrunk_group = roster_elt->flags & ROSTER_FLAG_HIDE;
 
@@ -812,19 +821,17 @@ void buddylist_build(void)
       roster_usrelt = (roster*) sl_roster_usrelt->data;
 
       // Buddy will be added if either:
-      // - hide_offline_buddies is FALSE
-      // - buddy is not offline
+      // - buddy's status matches the display_filter
       // - buddy has a lock (for example the buddy window is currently open)
       // - buddy has a pending (non-read) message
       // - group isn't hidden (shrunk)
       // - this is the current_buddy
-      if (!hide_offline_buddies || roster_usrelt == roster_current_buddy ||
-          (buddy_getstatus((gpointer)roster_usrelt, NULL) != offline) ||
+      if (roster_usrelt == roster_current_buddy ||
+          display_filter & 1<<buddy_getstatus((gpointer)roster_usrelt, NULL) ||
           (buddy_getflags((gpointer)roster_usrelt) &
                (ROSTER_FLAG_LOCK | ROSTER_FLAG_USRLOCK | ROSTER_FLAG_MSG))) {
         // This user should be added.  Maybe the group hasn't been added yet?
-        if (pending_group &&
-            (hide_offline_buddies || roster_usrelt == roster_current_buddy)) {
+        if (pending_group) {
           // It hasn't been done yet
           buddylist = g_list_append(buddylist, roster_elt);
           pending_group = FALSE;

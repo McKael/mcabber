@@ -2247,7 +2247,7 @@ static void room_nick(gpointer bud, char *arg)
 static void room_privmsg(gpointer bud, char *arg)
 {
   char **paramlst;
-  gchar *nick, *cmdline;
+  gchar *fjid, *nick, *fjid_utf8, *msg;
 
   paramlst = split_arg(arg, 2, 1); // nickname, message
   nick = *paramlst;
@@ -2260,9 +2260,13 @@ static void room_privmsg(gpointer bud, char *arg)
     return;
   }
 
-  cmdline = g_strdup_printf("%s/%s %s", buddy_getjid(bud), nick, arg);
-  do_say_to(cmdline);
-  g_free(cmdline);
+  fjid = g_strdup_printf("%s/%s", buddy_getjid(bud), nick);
+  fjid_utf8 = to_utf8(fjid);
+  msg = to_utf8(arg);
+  send_message_to(fjid_utf8, msg, NULL, NULL);
+  g_free(fjid);
+  g_free(fjid_utf8);
+  g_free(msg);
   free_arg_lst(paramlst);
 }
 

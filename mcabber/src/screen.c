@@ -517,31 +517,31 @@ static void ParseColors(void)
       COLOR_ATTRIB[i] = A_BOLD;
   }
   if (!nickcols) {
-    char *ncolors = g_strdup(settings_opt_get("nick_colors")),
-         *ncolor_start = ncolors;
+    char *ncolors = g_strdup(settings_opt_get("nick_colors"));
     if (ncolors) {
-      while (*ncolors) {
+      char *ncolor_start, *ncolor_end;
+      ncolor_start = ncolor_end = ncolors;
+
+      while (*ncolor_end)
+        ncolor_end++;
+
+      while (ncolors < ncolor_end && *ncolors) {
         if ((*ncolors == ' ') || (*ncolors == '\t')) {
-          ncolors ++;
+          ncolors++;
         } else {
           char *end = ncolors;
-          bool ended = false;
+          int cl;
           while (*end && (*end != ' ') && (*end != '\t'))
             end++;
-          if (!end)
-            ended = true;
           *end = '\0';
-          int cl = get_user_color(ncolors);
+          cl = get_user_color(ncolors);
           if (cl < 0) {
             scr_LogPrint(LPRINT_NORMAL, "Unknown color %s", ncolors);
           } else {
             nickcols = g_realloc(nickcols, (++nickcolcount) * sizeof *nickcols);
             nickcols[nickcolcount-1] = cl;
           }
-          if (ended)
-            ncolors = NULL;
-          else
-            ncolors = end+1;
+          ncolors = end+1;
         }
       }
       g_free(ncolor_start);

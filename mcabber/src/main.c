@@ -284,12 +284,19 @@ static void main_init_pgp(void)
   char *p;
   bool pgp_invalid = FALSE;
   bool pgp_agent;
+  int retries;
 
   p = getenv("GPG_AGENT_INFO");
   pgp_agent = (p && strchr(p, ':'));
 
   pk = settings_opt_get("pgp_private_key");
   pp = settings_opt_get("pgp_passphrase");
+
+  if (settings_opt_get("pgp_passphrase_retries"))
+    retries = settings_opt_get_int("pgp_passphrase_retries");
+  else
+    retries = 2;
+
   if (!pk) {
     scr_LogPrint(LPRINT_LOGNORM, "WARNING: unkown PGP private key");
     pgp_invalid = TRUE;
@@ -309,7 +316,7 @@ static void main_init_pgp(void)
   if (!pgp_agent && pk && pp && gpg_test_passphrase()) {
     // Let's check the pasphrase
     int i;
-    for (i = 0; i < 2; i++) {
+    for (i = 1; retries < 0 || i <= retries; i++) {
       typed_passwd = ask_password("PGP passphrase"); // Ask again...
       if (typed_passwd) {
         gpg_set_passphrase(typed_passwd);
@@ -319,7 +326,7 @@ static void main_init_pgp(void)
       if (!gpg_test_passphrase())
         break; // Ok
     }
-    if (i == 2)
+    if (i > retries)
       pgp_invalid = TRUE;
   }
   if (pgp_invalid)

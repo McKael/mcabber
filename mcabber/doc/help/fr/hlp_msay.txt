@@ -17,3 +17,5 @@ Astuce : la sous-commande 'toggle' peut être affectée à une touche pour utili
  Bascule le mode multi-lignes (begin/send)
 /msay abort
  Abandonne le mode multi-lignes sans envoyer le message
+
+L'option "-n" permet d'envoyer un message de type "normal", et l'option "-h" un message de type "headline", au lieu du type par défaut "chat".

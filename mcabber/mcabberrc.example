@@ -108,7 +108,7 @@ set cmdhistory_lines = 250
 # For example, to display everybody the filter should be "ofdna_" (default).
 # To display only the connected buddies, use "ofdna".
 # Please note that this option is only used at startup (once mcabber is
-# runnning yu can use "/roster display").
+# running you can use "/roster display").
 #set roster_display_filter = ofdna_
 
 # Typing notifications, Chat States, Events (JEP-22/85)

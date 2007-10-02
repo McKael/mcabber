@@ -1,4 +1,5 @@
 
- /SAY texte
+ /SAY [-n|-h|--] texte
 
 Envoie le message "texte" au contact sélectionné. Par exemple, cela peut être utile pour envoyer un message commençant par un '/'.
+L'option "-n" permet d'envoyer un message de type "normal", et l'option "-h" un message de type "headline". Il est possible d'utiliser "--" pour envoyer des messages commençant par -n ou -h.

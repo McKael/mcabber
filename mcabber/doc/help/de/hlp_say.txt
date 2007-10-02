@@ -1,5 +1,5 @@
 
- /SAY text
+ /SAY [-n|-h|--] text
 
 Sendet den "text" zu dem gerade ausgewählten Buddy.
 Dieser Befehl kann unter Umständen nützlich sein, z.B. wenn man dem User Nachrichten schicken will, die mit einem / beginnen.

@@ -2,7 +2,7 @@
  /ROSTER bottom|top|up|down|group_prev|group_next
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search ім'я
- /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER display|hide_offline|show_offline|toggle_offline
  /ROSTER item_lock|item_unlock
  /ROSTER hide|show|toggle
  /ROSTER note [-|текст]
@@ -29,6 +29,7 @@
  Перейти до наступного непрочитанного повідомлення.
 /roster search ім'я
  Шукати контакт з прізвиськом або jid, що вміщують "ім'я" (тільки в контактах, що відображуються)
+/roster display [mask]
 /roster hide_offline
  Сховати неприсутні контакти.
 /roster show_offline

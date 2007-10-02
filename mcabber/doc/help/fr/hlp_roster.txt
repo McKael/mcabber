@@ -2,7 +2,7 @@
  /ROSTER bottom|top|up|down|group_prev|group_next
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
- /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER display|hide_offline|show_offline|toggle_offline
  /ROSTER item_lock|item_unlock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
@@ -29,6 +29,11 @@ Cette commande permet de manipuler le roster (liste de contacts).
  Va au prochain message non lu
 /roster search bud
  Cherche un contact dont le nom ou le jid contient "bud" (seulement dans les contacts affichés)
+/roster display [masque]
+ Affiche ou met à jour le filtre du roster.
+ Le masque doit contenir les lettres-raccourcis des états que vous voulez voir affichés ([o]nline, [f]ree_for_chat, [d]o_not_disturb, [n]ot_available, [a]way, [_]offline).
+ Par exemple "ofdna" pour n'afficher que les contacts connectés.
+ "*" peut être utilisé comme raccourci pour afficher tous les contacts.
 /roster hide_offline
  Cache les contacts non connectés
 /roster show_offline

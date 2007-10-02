@@ -2,7 +2,7 @@
  /ROSTER bottom|top|up|down|group_prev|group_next
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
- /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER display|hide_offline|show_offline|toggle_offline
  /ROSTER item_lock|item_unlock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
@@ -28,6 +28,7 @@ Hier die möglichen Parameter:
  Die nächste ungelesene Nachricht öffnen
 /roster search bud
  Jemanden auf dem Roster suchen, der "bud" im Namen oder der jid hat (durchsucht nur die angezeigten Buddies)
+/roster display [mask]
 /roster hide_offline
  Alle Buddies die offline sind verstecken
 /roster show_offline

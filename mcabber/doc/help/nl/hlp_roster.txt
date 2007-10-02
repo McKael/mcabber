@@ -2,7 +2,7 @@
  /ROSTER bottom|top|up|down|group_prev|group_next
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
- /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER display|hide_offline|show_offline|toggle_offline
  /ROSTER item_lock|item_unlock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
@@ -30,6 +30,7 @@ Dit zijn de beschikbare parameters:
  Spring naar het volgende ongelezen bericht
 /roster search bud
  Zoek naar een buddy in wiens naam of jid het woord "bud" voorkomt (zoekt enkel in de zichtbare buddylijst)
+/roster display [mask]
 /roster hide_offline
  Verberg offline buddies
 /roster show_offline

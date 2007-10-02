@@ -2,7 +2,7 @@
  /ROSTER bottom|top|up|down|group_prev|group_next
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
- /ROSTER hide_offline|show_offline|toggle_offline
+ /ROSTER display|hide_offline|show_offline|toggle_offline
  /ROSTER item_lock|item_unlock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
@@ -30,6 +30,7 @@ Dostępne parametry:
  Skacze do następnej nieprzeczytanej wiadomości
 /roster search "osoba"
  Szuka osoby "osoba", lub osoby której nazwa zawiera słowo "osoba"
+/roster display [mask]
 /roster hide_offline
  Ukrywa niedostępnych
 /roster show_offline

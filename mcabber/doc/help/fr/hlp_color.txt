@@ -1,5 +1,7 @@
 
  /COLOR roster (état joker (couleur|-)|clear)
+ /COLOR mucnick nick (couleur|-|!)
+ /COLOR muc (jid|.|*) [on|preset|off|-]
 
 Cette commande permet de configurer des couleurs dynamiques.
 
@@ -13,3 +15,14 @@ Cette commande permet de configurer des couleurs dynamiques.
  "couleur" est la couleur désirée.
  Si la couleur est -, la règle est supprimée.
  Lorsque plusieurs règles s'appliquent, la couleur de la dernière règle créée (pas redéfinie...) est utilisée.
+/color mucnick nick (couleur|-|!)
+ Indique que le pseudonyme "nick" doit être affiché avec la couleur précisée. Si la coloration des pseudos est activée dans un salon MUC, cette couleur sera utilisée.
+ Si la couleur est "-", la couleur sera marquée comme automatique (ce qui signifie qu'il n'y aura pas de coloration si le mode est "preset", mais la couleur sera conservée si le mode est "on").
+ Si la couleur est "!", une nouvelle couleur sera choisie aléatoirement et sera marquée comme automatique.
+/color muc (jid|.|*) [on|preset|off|-]
+ Configure le mode de coloration des pseudonymes de salon(s) MUC.
+ Si un JID est précisé ("." étant le JID de l'élément sélectionné), le mode sera appliqué au salon sélectionné. Si * est utilisé, le mode sera appliqué pour toutes les conférences, à l'exception de celles configurées par leur JID (on parlera de mode global).
+ Avec le mode est "on", tous les pseudonymes sont colorés. Avec le mode "preset", seuls les pseudonymes précisés avec la commande /color mucnick sont colorés. Avec le mode "off", la coloration est désactivée.
+ S'il n'est pas précisé, le mode sera mis à "on".
+ Le mode "-" supprime le mode configuré pour le JID précisé (et donc le mode global sera utilisé). Le mode global ne peut pas être supprimé.
+ Le mode global par défaut est "off".

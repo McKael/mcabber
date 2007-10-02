@@ -11,9 +11,9 @@ Het 'toggle' subcommando kan met een toets worden verbonden om de multi-regel mo
  Start de multi-regel modus
 /msay verbatim
  Start de verbatim multi-regel modus
-/msay send
+/msay send [-n|-h]
  Verzend het huidige meer-regelige bericht naar de actieve buddy
-/msay send_to jid
+/msay send_to [-n|-h] jid
  Verzend het huidige meer-regelige bericht naar "jid"
 /msay toggle
  In/uitschakelen van multi-regel modus (begin/send)

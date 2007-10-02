@@ -9,9 +9,9 @@ Astuce : la sous-commande 'toggle' peut être affectée à une touche pour utili
  Active le mode multi-lignes. Il est possible de spécifier un sujet.
 /msay verbatim
  Active le mode multi-lignes "verbatim". Ce mode désactive les commandes, ce qui permet de saisir des lignes commençant par un '/'. Seule la commande "/msay" (avec les paramètres "send" ou "abort") peut-être utilisée pour quitter le mode verbatim.
-/msay send
+/msay send [-n|-h]
  Envoie le message multi-lignes au contact sélectionné
-/msay send_to jid
+/msay send_to [-n|-h] jid
  Envoie le message multi-lignes à "jid"
 /msay toggle
  Bascule le mode multi-lignes (begin/send)

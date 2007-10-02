@@ -1,5 +1,7 @@
 
  /COLOR roster (status joker (color|-)|clear)
+ /COLOR mucnick nick (color|-|!)
+ /COLOR muc (jid|.|*) [on|preset|off|-]
 
 Met het 'color' commando kunnen dynamisch de kleur eigenschappen van het scherm worden aangepast.
 
@@ -13,3 +15,5 @@ Met het 'color' commando kunnen dynamisch de kleur eigenschappen van het scherm 
  'Kleur' is de gewenste kleur.
  Indien de waarde voor kleur '-' is, wordt de kleur-definitie verwijderd.
  Wanneer meer dan een definitie van toepassing is, wordt de kleur gebruikt van de laatst aangemaakte (niet overschreven) definitie.
+/color mucnick nick (color|-|!)
+/color muc (jid|.|*) [on|preset|off|-]

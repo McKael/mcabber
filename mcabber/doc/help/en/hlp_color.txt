@@ -1,6 +1,6 @@
 
  /COLOR roster (status wildcard (color|-)|clear)
- /COLOR mucnick nick (color|-)
+ /COLOR mucnick nick (color|-|!)
  /COLOR muc (jid|.|*) [on|preset|off|-]
 
 The 'color' command allows setting dynamic color properties of the screen.
@@ -12,8 +12,8 @@ The 'color' command allows setting dynamic color properties of the screen.
  If color is -, the rule is removed.
  If more than one rule matches, the color from the last created (not overwritten) is used.
 /color mucnick nick (color|-|!)
- Marks the nick to be colored by given color. If a muc has colored nicks, this one will be used. If color is -, the color is marked as chosen automatically, which means it will not be used in 'preset' coloring mode, but will stay the same in 'on' coloring mode. If the color is !, a new color is randomly choosen and marked automatic.
+ Marks the nick to be colored by given color. If a MUC has colored nicks, this one will be used. If color is -, the color is marked as chosen automatically, which means it will not be used in 'preset' coloring mode, but will stay the same in 'on' coloring mode. If the color is !, a new color is randomly choosen and marked automatic.
 /color muc (jid|.|*) [on|preset|off|-]
- Sets a muc nick coloring mode. If a jid (. means currently selected jid) is provided, the mode will apply to this specific MUC. If * is used, it will be applied to all MUCs, except the ones set by their jid.
- Mode 'on' colors all nicks, 'preset' only the ones manually set by /color mucnick command and 'off' colors none. If not specified, defaults to 'on' Mode '-' removes the mode from given JID, which means the global one will apply. You can not remove the global mode.
+ Sets a MUC nick coloring mode. If a jid (. means currently selected jid) is provided, the mode will apply to this specific MUC. If * is used, it will be applied to all MUCs, except the ones set by their jid.
+ Mode 'on' colors all nicks, 'preset' only the ones manually set by /color mucnick command and 'off' colors none. If not specified, defaults to 'on'. Mode '-' removes the mode from given JID, which means the global one will apply. You can not remove the global mode.
  Default global coloring mode is 'off'.

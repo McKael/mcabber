@@ -11,9 +11,9 @@ Il sottocomando 'toggle' può essere associato ad un tasto per utilizzare il modo
  Entra in modalità multi-linea
 /msay verbatim
  Entra in modalità multi-linea verbatim
-/msay send
+/msay send [-n|-h]
  Invia il messaggio multi-linea al contatto correntemente selezionato
-/msay send_to jid
+/msay send_to [-n|-h] jid
  Invia il messaggio multi-linea a "jid"
 /msay toggle
  Entra ed esce dalla modalità multi-linea

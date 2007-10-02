@@ -11,9 +11,9 @@ Tryb 'verbatim' umożliwia wpisywanie linii zaczynających się od ukośnika '/'
  Zaczyna redagowanie nowej wiadomości wielolinijkowej o temacie "temat"
 /msay verbatim
  Wchodzi w tryb pozwalający na wpisywanie linii zaczynających się od ukośnika
-/msay send
+/msay send [-n|-h]
  Wysyła wiadomość do aktualnie wybranej osoby
-/msay send_to [jid]
+/msay send_to [-n|-h] jid
  Wysyła wiadomość do osoby z jabber id "jid"
 /msay toggle
  Włącza/wyłącza tryb wielolinijkowy (begin/send)

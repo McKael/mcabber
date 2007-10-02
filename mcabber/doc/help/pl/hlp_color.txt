@@ -1,5 +1,7 @@
 
  /COLOR roster (status wildcard (color|-)|clear)
+ /COLOR mucnick nick (color|-|!)
+ /COLOR muc (jid|.|*) [on|preset|off|-]
 
 Polecenie 'color' pozwala zarządzać kolorami ekranu w sposób dynamiczny.
 
@@ -13,3 +15,5 @@ Polecenie 'color' pozwala zarządzać kolorami ekranu w sposób dynamiczny.
  'color' to kolor, którego chcemy użyć.
  Jeśli 'color' ustawimy na wartość -, reguła jest usuwana.
  Jeśli więcej niż jedna reguła pasuje, wybierany jest kolor z ostatnio stworzonej (nie nadpisanej) reguły.
+/color mucnick nick (color|-|!)
+/color muc (jid|.|*) [on|preset|off|-]

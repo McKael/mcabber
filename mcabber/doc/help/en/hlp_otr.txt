@@ -1,10 +1,10 @@
 
- /otr key
- /otr start|stop|info [jid]
- /otr fingerprint [jid [fpr]]
- /otr smpq|smpr [jid] secret
- /otr smpa [jid]
- 
+ /OTR key
+ /OTR start|stop|info [jid]
+ /OTR fingerprint [jid [fpr]]
+ /OTR smpq|smpr [jid] secret
+ /OTR smpa [jid]
+
 You can use the shortcut-jid "." for the currently selected contact.
 
 /otr key
@@ -19,8 +19,8 @@ You can use the shortcut-jid "." for the currently selected contact.
  Show the active fingerprint of an OTR channel.
  If the fingerprint is provided instead of "fpr", the fingerprint will become trusted. If you replace "fpr" by some bogus string the fingerprint will loose the trusted status.
 /otr smpq [jid] secret
- Initiate the Socialist Millionaires Protocol with the secret and the buddy.  
+ Initiate the Socialist Millionaires Protocol with the secret and the buddy
 /otr smpr [jid] secret
- Respond to the Initiation of the jid with the secret.
+ Respond to the Initiation of the jid with the secret
 /otr smpa [jid]
- Abort the running Socialist Millionaires Protocol.
+ Abort the running Socialist Millionaires Protocol

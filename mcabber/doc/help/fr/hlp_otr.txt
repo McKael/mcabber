@@ -1,0 +1,27 @@
+
+ /OTR key
+ /OTR start|stop|info [jid]
+ /OTR fingerprint [jid [empreinte]]
+ /OTR smpq|smpr [jid] secret
+ /OTR smpa [jid]
+
+Cette commande permet de gérer les sessions OTR (Off-The-Record).
+Vous pouvez utiliser le raccourci "." pour indiquer le JID du contact sélectionné.
+
+/otr key
+ Affiche l'emprunte de votre clé privée
+/otr start [jid]
+ Ouvre une session OTR avec le JID précisé (ou le contact sélectionné)
+/otr stop [jid]
+ Ferme la session OTR avec le JID précisé (ou le contact sélectionné)
+/otr info [jid]
+ Affiche les informations OTR concernant le JID précisé (ou le contact sélectionné)
+/otr fingerprint [jid [empreinte]]
+ Affiche l'empreinte actuelle d'une session OTR.
+ Si une empreinte est fournie, la session sera considérée comme sécurisée si et seulement si les deux empreintes correspondent.
+/otr smpq [jid] secret
+ Initie le "Socialist Millionaires Protocol" avec JID en utilisant la chaîne "secret"
+/otr smpr [jid] secret
+ Répond à la demande SMP de l'utilisateur JID en utilisant la chaîne "secret"
+/otr smpa [jid]
+ Abandonne le "Socialist Millionaires Protocol" en cours

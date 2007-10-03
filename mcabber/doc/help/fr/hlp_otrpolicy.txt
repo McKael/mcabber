@@ -1,0 +1,20 @@
+
+ /OTRPOLICY
+ /OTRPOLICY (default|jid) (plain|manual|opportunistic|always)
+
+Cette commande permet de visualiser et définir les règles (politiques) d'utilisation du protocole OTR (Off-The-Record).
+Vous pouvez utiliser le raccourci "." pour indiquer le JID du contact sélectionné.
+
+/otrpolicy
+ Affiche toutes les politiques OTR dans la fenêtre status.
+/otrpolicy (default|jid) (plain|manual|opportunistic|always)
+ Définit soit la politique par défaut, soit la politique concernant le JID sélectionné
+
+ La polique "plain" ne devrait pas être utilisée, les messages sont envoyés et reçus sans les chiffrer/déchiffrer.
+
+ Si vous mettez la politique "manual", vous ou votre correspondant aurez à démarrer la session OTR à la main (par exemple avec /otr start).
+
+ La politique "opportunistic" permet de le faire automatiquement, en envoyant une séquence spéciale d'espaces à la fin des messages non chiffrés. De cette façon, l'autre client Jabber avec support OTR sait que vous voulez utiliser OTR. Notez bien que le premier message sera toujours transmis en clair avec cette méthode.
+
+ Avec la politique "always", les messages ne seront jamais transmis en clair. Si vous essayez d'envoyer un message non chiffré, mcabber essaiera d'ouvrir une session OTR. Essayez de réenvoyer ce message lorsque vous aurez la confirmation que la session a bien été ouverte.
+ Si quelqu'un vous envoie des messages non chiffrés alors que la polique est "always", vous pourrez lire ce message mais il ne sera pas sauvé dans les archives.

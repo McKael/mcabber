@@ -362,6 +362,11 @@ set message_autoaway = Auto-away (idle)
 #pgp disable foo@bar.org
 #pgp setkey bar@foo.net C9940A9BB0B92210
 
+# OTR directory
+# If mcabber is built with OTR (Off-The-Record) support, you can specify
+# the OTR directory with the otr_dir option (default = ~/.mcabber/otr/).
+#set otr_dir = "~/.mcabber/otr/"
+
 # Aliases
 alias me = say /me
 alias online   = status online

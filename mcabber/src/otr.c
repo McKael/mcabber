@@ -109,10 +109,11 @@ static ConnContext * otr_get_context(const char *buddy);
 static void otr_startstop(const char * buddy, int start);
 static void otr_handle_smp_tlvs(OtrlTLV * tlvs, ConnContext * ctx);
 
+static char * otr_get_dir(void);
 
 void otr_init(const char *jid)
 {
-  char * root = expand_filename("~/.mcabber/otr/");
+  char * root = otr_get_dir();
   account = jidtodisp(jid);
   keyfile = g_strdup_printf("%s%s.key", root, account);
   fprfile = g_strdup_printf("%s%s.fpr", root, account);
@@ -135,7 +136,7 @@ void otr_terminate(void)
 {
   ConnContext * ctx;
 
-  for(ctx = userstate->context_root; ctx; ctx = ctx->next)
+  for (ctx = userstate->context_root; ctx; ctx = ctx->next)
     if (ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED)
       otr_message_disconnect(ctx);
 
@@ -156,6 +157,16 @@ void otr_terminate(void)
   userstate = NULL;
   g_free(keyfile);
   keyfile = NULL;
+}
+
+static char * otr_get_dir(void)
+{
+  char * configured_dir = (char *)settings_opt_get("otr_dir");
+
+  if (configured_dir)
+    return expand_filename(configured_dir);
+  else
+    return expand_filename("~/.mcabber/otr/");
 }
 
 static ConnContext * otr_get_context(const char *buddy)
@@ -548,6 +559,7 @@ static void cb_create_privkey(void *opdata, const char *accountname,
                               const char *protocol)
 {
   gcry_error_t e;
+  char * root;
 
   scr_LogPrint(LPRINT_LOGNORM,
                "Generating new OTR key for %s. This may take a while...",
@@ -556,9 +568,12 @@ static void cb_create_privkey(void *opdata, const char *accountname,
 
   e = otrl_privkey_generate(userstate, keyfile, accountname, protocol);
 
-  if (e)
-    scr_LogPrint(LPRINT_LOGNORM, "OTR key generation failed!"
-                 " Please mkdir ~/.mcabber/otr/ and restart mcabber.");
+  if (e) {
+    root = otr_get_dir();
+    scr_LogPrint(LPRINT_LOGNORM, "OTR key generation failed! Please mkdir "
+                 "%s if you want to use otr encryption.", root);
+    g_free(root);
+  }
   else
     scr_LogPrint(LPRINT_LOGNORM, "OTR key generated.");
 }

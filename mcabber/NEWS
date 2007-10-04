@@ -1,3 +1,10 @@
+mcabber (0.9.4)
+
+ * The option 'hide_offline_buddies' is deprecated, the new option
+   roster_display_filter should be used instead.
+
+ -- Mikael, ?
+
 mcabber (0.9.1)
 
  * The Ctrl-q binding is not hardcoded anymore and should be set in the

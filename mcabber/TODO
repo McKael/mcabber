@@ -12,7 +12,6 @@ TODO:
 * Macros
 * Use new Entity Time specs (XEP-0202) if possible in
  /request time.
-* OTR encryption? [WIP]
 * New option to display only username in the roster when the name hasn't been
   set.
 * Remember group state (folded/unfolded) (using private storage for example)

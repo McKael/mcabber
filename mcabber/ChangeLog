@@ -1,5 +1,26 @@
 mcabber (0.9.4-dev)
- * 
+
+ * New mcabber command line option -V (displays the version)
+ * MCabber can be linked against GnuTLS
+ * Optional OTR support (Frank Zschockelt)
+   New commands /otr and /otrpolicy
+ * New command /room unban
+ * New command /roster display to filter the contacts per status
+ * New command /color (Michal 'vorner' Vaner)
+   - Add configurable roster colors
+   - Add configurable colors for info and incoming messages
+ * MUC nickname coloring (vorner)
+ * Add selectable time prefixes (vorner)
+ * Implement /buffer close|purge [jid]
+ * XEP-0203 - Delayed Delivery
+ * Improve iq:last support (Michael Scherer)
+ * Allow sending normal and headline messages (vorner)
+ * Allow longer lines in config file
+ * Fix proxy usage when SSL is disabled
+ * Misc. bugfixes
+ * New Italian translation (Alessandro Dotti Contra)
+ * Update online documentation and translations
+
  -- Mikael, ?
 
 mcabber (0.9.3)
@@ -150,7 +171,7 @@ mcabber (0.7.7)
 
  * New "status" special buffer
    This buffer contains the log window data.
- * Mcabber does not stop when there is no configuration file
+ * MCabber does not stop when there is no configuration file
  * New command "/help" (online help)
  * New command "/authorization request_unsubscribe"
  * New command "/msay toggle_verbatim"
@@ -172,7 +193,7 @@ mcabber (0.7.7)
    subscription request is rejected.
  * New option "max_history_age"
  * MUC: New option "muc_auto_whois"
- * MUC: Mcabber can join password-protected chatrooms
+ * MUC: MCabber can join password-protected chatrooms
  * MUC: Allow "/room join . [nick [pass]]" if the current item is a MUC room
  * MUC: Fix joining a room when the buddylist is empty
  * MUC: Try to work around some server and network issues

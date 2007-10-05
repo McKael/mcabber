@@ -200,7 +200,7 @@ if test x"${debug}" = x"yes"; then
         else
             CFLAGS="$CFLAGS -W"
         fi
-        CFLAGS="$CFLAGS -Wno-unused-parameter -pedantic -std=gnu99 -O0"
+        CFLAGS="$CFLAGS -Wno-unused-parameter -pedantic -std=gnu99 -fgnu89-inline -O0"
     fi # gcc
     CFLAGS="$CFLAGS -g"
 else

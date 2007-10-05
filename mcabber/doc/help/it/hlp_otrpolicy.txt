@@ -1,0 +1,18 @@
+
+ /OTRPOLICY
+ /OTRPOLICY (default|jid) (plain|manual|opportunistic|always)
+
+Si può usare '.' per indicare il contatto correntemente selezionato.
+
+/otrpolicy
+ Mostra tutte le politiche OTR nel buffer di stato
+/otrpolicy (default|jid) (plain|manual|opportunistic|always)
+ Imposta sia la politica di default che quella per il jid specificato
+
+ La policy plain non dovrebbe mai essere usata, dato che non consente la ricezione e l'invio di messaggi cifrati con OTR.
+
+ Se la policy viene impostata su 'manual', tu o il tuo corrispondente dovrete iniziare la cifratura OTR manualmente (ad esempio, con /otr start).
+
+ La policy 'opportunistic' fa si che venga inviata una speciale sequenza di spazi al termine di un messaggio non cifrato. In questo modo, l'altro client capace di OTR capirà che vuoi utilizzare OTR. Da notare che, utilizzando questa policy, il primo messaggio non sarà mai cifrato.
+
+ Con la policy 'always' nessun messaggio verrà inviato in chiaro. Se provi ad inviare un messaggio non cifrato, mcabber proverà a stabilire un canale OTR. Devi reinviare il messaggio appena ricevuta la notifica che il canale è stato stabilito. Se qualcuno ti invia un messaggio in chiaro con la policy impostata a 'always', sarà possibile leggere il messaggio, ma questi non verrà salvato nella history.

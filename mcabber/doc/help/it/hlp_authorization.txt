@@ -6,12 +6,9 @@ Se non viene specificato nessun JID viene utilizzato il contatto correntemente s
 
 /authorization allow
  Permette al contatto di ricevere gli aggiornamenti della tua presenza
-
 /authorization cancel
  Elimina la sottoscrizione del contatto agli aggiornamenti della tua presenza
-
 /authorization request
  Richiede la sottoscrizione agli aggiornamenti della presenza del contatto
-
 /authorization request_unsubscribe
  Richiede di cancellare la sottoscrizione agli aggiornamenti della presenza del contatto

@@ -1,5 +1,7 @@
 
- /SAY_TO jid testo
+ /SAY_TO [-n|-h|--] jid testo
 
 Invia il messaggio "testo" al jid specificato.
 Nota che questo comando non imposta una risorsa di default per un contatto, quindi se vuoi inviare diversi messaggi alla specifica risorsa devi usare "/say_to" per ciascun messaggio.
+
+L'opzione "-n" trasforma il messaggio in "normale", "-h" in "headline". "--" può essere utilizzato per inviare messaggi che comincino con -n o -h.

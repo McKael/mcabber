@@ -31,10 +31,14 @@ Ecco i parametri disponibili.
 /roster search bud
  Cerca il contatto il cui nome o jid contengono "bud" (solo nella lista contatti visualizzata)
 /roster display [mask]
+ Mostra o aggiorna il filtro per il roster.
+ La maschera consiste di una lettera corrispondente allo stato che vuoi visualizzare ([o]nline, [f]ree_for_chat, [d]o_not_disturb, [n]ot_available, [a]way, [_]offline).
+ Per esempio, "ofdna" mostra solo i contatti connessi.
+ "*" può essere usato come scorciatoio per visualizzare tutti i contatti.
 /roster hide_offline
- Nasconde i contatti offline
+ Nasconde i contatti offline (come /roster display ofdna)
 /roster show_offline
- Mostra i contatti offline
+ Mostra i contatti offline (come /roster display ofdna_)
 /roster toggle_offline
  Visualizza/Nasconde i contatti offline
 /roster item_lock [jid]

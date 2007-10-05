@@ -19,3 +19,5 @@ Il sottocomando 'toggle' può essere associato ad un tasto per utilizzare il modo
  Entra ed esce dalla modalità multi-linea
 /msay abort
  Abbandona la modalità multi-linea senza spedire il messaggio
+
+Le opzioni -n o -h modificano il messaggio in "normal" o "headline" rispettivamente.

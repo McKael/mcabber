@@ -3026,7 +3026,7 @@ static void do_otr(char *arg)
           otr_fingerprint(fjid, keyid); break;
         case otr_smpq:
           otr_smp_query(fjid, keyid);   break;
-        case otr_smpr:        
+        case otr_smpr:
           otr_smp_respond(fjid, keyid); break;
         case otr_smpa:
           otr_smp_abort(fjid);          break;
@@ -3106,7 +3106,7 @@ static void do_otrpolicy(char *arg)
     return;
   }
 
-  if(!strcasecmp(fjid, "default")){
+  if(!strcasecmp(fjid, "default") || !strcasecmp(fjid, "*")){
     /*set default policy*/
     settings_otr_setpolicy(NULL, p);
     free_arg_lst(paramlst);

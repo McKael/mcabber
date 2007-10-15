@@ -19,3 +19,5 @@ Het 'toggle' subcommando kan met een toets worden verbonden om de multi-regel mo
  In/uitschakelen van multi-regel modus (begin/send)
 /msay abort
  Verlaat de multi-regel modus zonder het bericht te versturen
+
+De -n of -h vlag verandert het bericht respectievelijk in "normaal" of "koptekst" ('headline'), in tegenstelling tot het standaard "chat" bericht.

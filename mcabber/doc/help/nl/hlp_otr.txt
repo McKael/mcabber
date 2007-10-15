@@ -1,0 +1,26 @@
+
+ /OTR key
+ /OTR start|stop|info [jid]
+ /OTR fingerprint [jid [fpr]]
+ /OTR smpq|smpr [jid] secret
+ /OTR smpa [jid]
+
+De verkorte jid-notatie "." kan worden gebruikt voor het actueel geselecteerde contact.
+
+/otr key
+ Print de vingerafdruk van je prive-sleutel in de Status Buffer
+/otr start [jid]
+ Open een OTR kanaal naar de gespecificeerde jid (danwel het huidige geselecteerde contact)
+/otr stop [jid]
+ Sluit het OTR kanaal naar de gespecificeerde jid (danwel het huidige geselecteerde contact)
+/otr info [jid]
+ Toon actuele OTR status voor de gespecificeerde jid (danwel het huidige geselecteerde contact)
+/otr fingerprint [jid [fpr]]
+ Toon de actieve vingerafdruk van een OTR kanaal.
+ Indien een echte vingerafdruk wordt meegegeven in plaats van de tekst "fpr", zal deze vingerafdruk "vertrouwd" worden. Wanneer "fpr" door een verzonnen tekst wordt vervangen, zal de vingerafdruk zijn "vertrouwde" status verliezen.
+/otr smpq [jid] geheim
+ Initieer het 'Socialist Millionaires Protocol' met de buddy, gebruik makend van het 'geheim'
+/otr smpr [jid] geheim
+ Antwoord op de SMP Initiatie van de jid met het 'geheim'
+/otr smpa [jid]
+ Stop het lopende Socialist Millionaires Protocol

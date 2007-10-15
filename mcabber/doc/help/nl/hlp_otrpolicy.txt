@@ -1,0 +1,18 @@
+
+ /OTRPOLICY
+ /OTRPOLICY (default|jid) (plain|manual|opportunistic|always)
+
+De verkorte jid-notatie "." kan worden gebruikt voor het actueel geselecteerde contact.
+
+/otrpolicy
+ Print alle otr richtlijnen (off-the-record policies) naar de status buffer
+/otrpolicy (default|jid) (plain|manual|opportunistic|always)
+ Stel de standaard richtlijn in, danwel de richtlijn voor de aangegeven jid.
+
+ De "plain" (of 'open') richtlijn zou feitelijk nooit moeten worden gebruikt, omdat het daarmee niet mogelijk is om otr-versleutelde berichten te ontvangen of te verzenden.
+
+ Indien de richtlijn op "manual" ('handmatig') wordt ingesteld, moet jij of je chat partner de otr versleuteling handmatig starten (bijv. via /otr start).
+
+ De richtlijn "opportunistic" ('opportunistisch') doet dat zelf door een speciale keten van blanco karakters mee te sturen aan het eind van onversleutelde berichten. Daardoor komt een otr-capabel chat programma er achter dat je otr wilt gebruiken. Merk op, dat het eerste bericht altijd onversleuteld zal zijn bij gebruik van deze richtlijn.
+
+ Met de richtlijn ingesteld op "always" ('altijd') zal geen enkel bericht onversleuteld worden verzonden. Bij een poging om het eerste bericht onversleuteld te versturen zal mcabber proberen een otr verbinding tot stand te brengen. Stuur aub het bericht opnieuw nadat mcabber meldt dat een otr verbinding tot stand is gebracht. Wanneer iemand je onversleutelde berichten stuurt terwijl de richtlijn is ingesteld op "always", zul je deze tekst wel kunnen lezen maar de berichten zullen niet in de geschiedenis worden opgeslagen.

@@ -31,10 +31,14 @@ Dit zijn de beschikbare parameters:
 /roster search bud
  Zoek naar een buddy in wiens naam of jid het woord "bud" voorkomt (zoekt enkel in de zichtbare buddylijst)
 /roster display [mask]
+ Toon het roster filter of pas het aan.
+ Het masker moet de snelkoppelings-letters bevatten van de status die je wilt zien ([o]nline, [f]ree_for_chat, [d]o_not_disturb, [n]ot_available, [a]way, [_]offline).
+ Bij voorbeeld "ofdna" om enkel de ingelogde buddies te tonen.
+ "*" kan worden gebruikt om alle contacten te tonen.
 /roster hide_offline
- Verberg offline buddies
+ Verberg offline buddies (zelfde als /roster display ofdna)
 /roster show_offline
- Toon offline buddies
+ Toon offline buddies (zelfde als /roster display ofdna_)
 /roster toggle_offline
  Schakel het aanzicht van offline buddies om (tonen/verbergen)
 /roster item_lock [jid]

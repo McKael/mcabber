@@ -2,3 +2,4 @@
  /SAY [-n|-h|--] tekst
 
 Verstuur het "tekst" bericht naar de actieve buddy. Dit kan bruikbaar zijn wanneer je een bericht wilt verzenden dat met een '/' begint.
+De "-n" vlag verandert het bericht in het type "normaal", "-h" to "koptekst" ('headline'). "--" kan gebruikt worden om een bericht te verzenden dat begint met '-n' of '-h'.

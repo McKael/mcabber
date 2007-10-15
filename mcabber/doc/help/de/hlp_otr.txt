@@ -1,0 +1,26 @@
+
+ /OTR key
+ /OTR start|stop|info [jid]
+ /OTR fingerprint [jid [fpr]]
+ /OTR smpq|smpr [jid] secret
+ /OTR smpa [jid]
+
+Man kann auch "." anstatt einer jid benutzen, wenn man den gerade ausgewählten Buddy meint.
+
+/otr key
+ Zeigt den Fingerprint deines privaten Schlüssels im Status Buffer an.
+/otr start [jid]
+ Öffnet einen OTR Kanal zu der angegebenen JID(oder dem gerade ausgewähltem Buddy).
+/otr stop [jid]
+ Schliesst einen OTR Kanal zu der angegebenen JID(oder dem gerade ausgewähltem Buddy).
+/otr info [jid]
+ Zeigt den aktuellen OTR Status für die angegebene JID(oder dem gerade ausgewähltem Buddy) an.
+/otr fingerprint [jid [fpr]]
+ Zeigt den Fingerprint eines aufgebauten Kanals an. 
+ Um dem Schlüssel des Users zu vertrauen, muss man den Fingerprint explizit anstatt "fpr" angeben. Wenn man dem Schlüssel nicht mehr vertrauen will, muss man anstatt "fpr" irgendetwas anderes als den Fingerprint angeben.
+/otr smpq [jid] geheimnis
+ Startet das Socialist Millionaires Protocol mit dem angegebenen Geheimnis und dem Buddy.
+/otr smpr [jid] geheimnis
+ Beantwortet eine SMP Anfrage mit dem Geheimnis.
+/otr smpa [jid]
+ Bricht das Socialist Millionaires Protocol ab.

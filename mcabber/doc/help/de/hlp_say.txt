@@ -3,3 +3,5 @@
 
 Sendet den "text" zu dem gerade ausgewählten Buddy.
 Dieser Befehl kann unter Umständen nützlich sein, z.B. wenn man dem User Nachrichten schicken will, die mit einem / beginnen.
+Mit den Schaltern -n und -h kann man den Typ der Nachricht setzen(normal und headline).
+Wenn man mal eine Nachricht mit -n oder -h am Anfang verschicken will, kann man auch "--" als Flag benutzen, damit mcabber die Nachricht mit dem Nachrichtentyp "chat" verschickt.

@@ -1,0 +1,18 @@
+
+ /OTRPOLICY
+ /OTRPOLICY (default|jid) (plain|manual|opportunistic|always)
+
+Man kann auch "." anstatt einer jid benutzen, wenn man den gerade ausgewählten Buddy meint.
+
+/otrpolicy
+ Zeigt die Verhalten von OTR im Status Buffer an.
+/otrpolicy (default|jid) (plain|manual|opportunistic|always)
+ Setzt entweder das Standardverhalten oder das Verhalten für die gegebene JID.
+
+ "plain" sollte eigentlich nie benutzt werden, weil man damit nicht mehr in der Lage ist, OTR verschlüsselte Nachrichten zu senden oder zu empfangen.
+
+ Wenn man das Verhalten auf "manual" setzt, musst man selbst oder der Chatpartner den OTR Kanal per Hand aufmachen(z.B. mit /otr start).
+
+ "opportunistic" macht das selbstständig, indem die erste gesendete Nachricht noch eine spezielle Sequenz von Leerzeichen und Tabs angehangen bekommt. So weiss der andere OTR fähige Client sofort, dass man OTR benutzen will. Zu beachten ist aber, dass die erste Nachricht immer unverschlüsselt sein wird.
+
+ Mit "always" wird keine Nachricht mehr im Klartext geschickt. Sobald man die erste Nachricht verschicken will, wird mcabber versuchen einen OTR Kanal aufzubauen. Sollte man in der Zeit noch mehr Messages schicken, muss man sie evt. noch einmal senden. Wenn man eine unverschluesselte Nachricht in diesem Modus bekommt, so kann man die Nachricht zwar lesen, sie wird aber nicht in der History gespeichert.

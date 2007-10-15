@@ -16,4 +16,15 @@ Der 'color' Befehl macht es möglich dynamisch Farben des Rosters zu verändern.
  Wenn für color "-" eingesetzt wird, wird die Regel gelöscht.
  Wenn mehr als eine Regel zutrifft, wird die Farbe von der zuletzt erschaffenen Regel benutzt.
 /color mucnick nick (color|-|!)
+ Setzt dem MUC Nicknamen die übergebene Farbe. Diese wird allerdings nur benutzt, wenn für den MUC auch Farben angeschalten sind.
+ Wenn anstt einer Farbe "-" angegeben wird, wird die Färbung nur vorgenommen, wenn der MUC im Farbmodus "on" ist. Gibt man anstatt der Farbe ein ! an, so wird zufällig eine Farbe gewählt, die dann auch nur benutzt wird, wenn der MUC im Farbmodus on ist.
 /color muc (jid|.|*) [on|preset|off|-]
+ Setzt den MUC Farbenmodus. Wenn eine JID angegeben wird, dann wird der Modus
+ nur für diesen MUC gesetzt. Anstatt einer JID kann auch . für den gerade
+ ausgewählten oder * für alle MUCs(außer die, die einen eigenen Modus haben) angegeben werden.
+ Durch den Modus "on" werden alle Nicks eingefärbt, durch "preset" nur die,
+ die davor explizit per /color mucnick gesetzt wurden und "off" schaltet
+ dieses Feature ganz aus. Wenn hier nichts angegeben wurde, wird der Modus auf
+ "on" gesetzt. Um den Modus zu entfernen, gibt man "-" an. Dadurch wird dann
+ der Globale auf diesen MUC angewendet, welchen man nicht entfernen kann.
+ Standardmäßig ist der globale Modus "off".

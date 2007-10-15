@@ -28,7 +28,13 @@ Hier die möglichen Parameter:
  Die nächste ungelesene Nachricht öffnen
 /roster search bud
  Jemanden auf dem Roster suchen, der "bud" im Namen oder der jid hat (durchsucht nur die angezeigten Buddies)
-/roster display [mask]
+/roster display [maske]
+ Mit diesem Befehl kann man festlegen, welche Buddies angezeigt werden sollen.
+ Als Maske werden die Buchstaben fuer die Statusse benutzt.
+ ([o]nline, [f]ree_for_chat, [d]o_not_disturb, [n]ot_available, [a]way, [_]offline).
+ Mit der Maske "ofdna" werden alle Buddies angezeigt, die gerade online sind.
+ Um alle Buddies anzuzeigen kann man auch das Kürzel "*" statt ofdna_ benutzen.
+ Gibt man keine Maske an, wird die aktuelle Maske im Status Buffer angezeigt.
 /roster hide_offline
  Alle Buddies die offline sind verstecken
 /roster show_offline

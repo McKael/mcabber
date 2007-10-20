@@ -2294,6 +2294,10 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   g_free(r);
 }
 
+//  got_invite(from, to, reason, passwd)
+// This function should be called when receiving an invitation from user
+// "from", to enter the room "to".  Optional reason and room password can
+// be provided.
 static void got_invite(char* from, char *to, char* reason, char* passwd)
 {
   eviqs *evn;
@@ -2333,8 +2337,10 @@ static void got_invite(char* from, char *to, char* reason, char* passwd)
   scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO, 0);
   scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);
   g_string_free(sbuf, TRUE);
+  g_free(barejid);
 
-  // Make sure the barejid is a room in the roster
+  // Make sure the MUC room barejid is a room in the roster
+  barejid = jidtodisp(to);
   room_elt = roster_find(barejid, jidsearch, 0);
   if (room_elt)
     buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);

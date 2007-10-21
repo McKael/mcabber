@@ -36,7 +36,7 @@ char *straffil[] = { /* Should match enum roster.h */
   "none",
   "owner",
   "admin",
-  "memeber",
+  "member",
   "outcast"
 };
 

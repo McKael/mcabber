@@ -112,7 +112,7 @@ const struct adhoc_status adhoc_status_list[] = {
 const char *entity_version(void)
 {
   static char *ver;
-  const char *PVERSION = PACKAGE_VERSION "+iql";
+  const char *PVERSION = PACKAGE_VERSION; // "+xxx";
 
   if (ver)
     return ver;

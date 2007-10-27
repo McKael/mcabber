@@ -1,4 +1,4 @@
-mcabber (0.9.4-dev)
+mcabber (0.9.4)
 
  * New mcabber command line option -V (displays the version)
  * MCabber can be linked against GnuTLS
@@ -21,7 +21,7 @@ mcabber (0.9.4-dev)
  * New Italian translation (Alessandro Dotti Contra)
  * Update online documentation and translations
 
- -- Mikael, ?
+ -- Mikael, 2007-10-27
 
 mcabber (0.9.3)
 

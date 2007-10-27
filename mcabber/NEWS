@@ -3,7 +3,7 @@ mcabber (0.9.4)
  * The option 'hide_offline_buddies' is deprecated, the new option
    roster_display_filter should be used instead.
 
- -- Mikael, ?
+ -- Mikael, 2007-10-27
 
 mcabber (0.9.1)
 

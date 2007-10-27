@@ -1,12 +1,9 @@
 [Desktop Entry]
 Encoding=UTF-8
-Version=0.9.3
-Name=MCabber
 Type=Application
-Comment=Console Jabber Client
-Terminal=true
-Exec=mcabber
-Path=
-Icon=
-Categories=ConsoleOnly;System;Application;Network;InstantMessaging
+Name=MCabber
 GenericName=Jabber IM Client
+Comment=Console Jabber Client
+Exec=mcabber
+Terminal=true
+Categories=ConsoleOnly;System;Network;InstantMessaging;Chat;

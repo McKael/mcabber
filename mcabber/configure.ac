@@ -24,6 +24,9 @@ if test "x$GCC" = "xyes"; then
     AC_MSG_RESULT($gccver)
 
     CFLAGS="$CFLAGS -Wall"
+    if test x"$gccvermajor" = x"4" -a x"$gccverminor" = x"2"; then
+        DBGCFLAGS="-fgnu89-inline"
+    fi
 fi
 
 # Checks for header files.
@@ -200,7 +203,7 @@ if test x"${debug}" = x"yes"; then
         else
             CFLAGS="$CFLAGS -W"
         fi
-        CFLAGS="$CFLAGS -Wno-unused-parameter -pedantic -std=gnu99 -fgnu89-inline -O0"
+        CFLAGS="$CFLAGS -Wno-unused-parameter -pedantic -std=gnu99 $DBGCFLAGS -O0"
     fi # gcc
     CFLAGS="$CFLAGS -g"
 else

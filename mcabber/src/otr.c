@@ -163,10 +163,21 @@ static char * otr_get_dir(void)
 {
   char * configured_dir = (char *)settings_opt_get("otr_dir");
 
-  if (configured_dir)
-    return expand_filename(configured_dir);
-  else
+  if (configured_dir && *configured_dir) {
+    char *xp_conf_dir;
+    int l;
+    xp_conf_dir = expand_filename(configured_dir);
+    // The path must be slash-terminated
+    l = strlen(xp_conf_dir);
+    if (xp_conf_dir[l-1] != '/') {
+      char *xp_conf_dir_tmp = xp_conf_dir;
+      xp_conf_dir = g_strdup_printf("%s/", xp_conf_dir_tmp);
+      g_free(xp_conf_dir_tmp);
+    }
+    return xp_conf_dir;
+  } else {
     return expand_filename("~/.mcabber/otr/");
+  }
 }
 
 static ConnContext * otr_get_context(const char *buddy)

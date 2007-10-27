@@ -354,19 +354,22 @@ static int iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   p = xmlnode_get_tag_data(ansqry, "name");
   if (p) {
     buf = g_strdup_printf("Name:    %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+    scr_WriteIncomingMessage(bjid, buf,
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "version");
   if (p) {
     buf = g_strdup_printf("Version: %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+    scr_WriteIncomingMessage(bjid, buf,
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "os");
   if (p) {
     buf = g_strdup_printf("OS:      %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+    scr_WriteIncomingMessage(bjid, buf,
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   return 0;
@@ -419,19 +422,22 @@ static int iqscallback_time(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   p = xmlnode_get_tag_data(ansqry, "utc");
   if (p) {
     buf = g_strdup_printf("UTC:  %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+    scr_WriteIncomingMessage(bjid, buf,
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "tz");
   if (p) {
     buf = g_strdup_printf("TZ:   %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+    scr_WriteIncomingMessage(bjid, buf,
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = xmlnode_get_tag_data(ansqry, "display");
   if (p) {
     buf = g_strdup_printf("Time: %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+    scr_WriteIncomingMessage(bjid, buf,
+                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   return 0;

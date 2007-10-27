@@ -1714,7 +1714,7 @@ static void gotmessage(char *type, const char *from, const char *body,
 
 #ifdef HAVE_LIBOTR
   otr_msg = otr_receive((char **)&body, bjid, &free_msg);
-  if(!body){
+  if (!body) {
     g_free(bjid);
     return;
   }
@@ -1748,7 +1748,7 @@ static void gotmessage(char *type, const char *from, const char *body,
 
     g_free(bjid);
     g_free(decrypted);
-    if(free_msg)
+    if (free_msg)
       g_free((char *)body);
 
     buddylist_build();
@@ -1770,7 +1770,7 @@ static void gotmessage(char *type, const char *from, const char *body,
   }
   g_free(bjid);
   g_free(decrypted);
-  if(free_msg)
+  if (free_msg)
     g_free((char *)body);
 }
 

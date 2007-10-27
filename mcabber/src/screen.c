@@ -293,7 +293,8 @@ void scr_MucColor(const char *muc, muccoltype type)
     }
   }
   //Need to redraw?
-  if (chatmode && ((buddy_search_jid(muc) == current_buddy) || !strcmp(muc, "*")))
+  if (chatmode &&
+      ((buddy_search_jid(muc) == current_buddy) || !strcmp(muc, "*")))
     scr_UpdateBuddyWindow();
 }
 
@@ -302,8 +303,10 @@ void scr_MucColor(const char *muc, muccoltype type)
 // not used if the room is in the "preset" mode
 void scr_MucNickColor(const char *nick, const char *color)
 {
-  char *snick = g_strdup_printf("<%s>", nick), *mnick = g_strdup_printf("*%s ", nick);
+  char *snick, *mnick;
   bool need_update = false;
+  snick = g_strdup_printf("<%s>", nick);
+  mnick = g_strdup_printf("*%s ", nick);
   if (!strcmp(color, "-")) {//Remove the color
     if (nickcolors) {
       nickcolor *nc = g_hash_table_lookup(nickcolors, snick);
@@ -1098,7 +1101,8 @@ static void scr_UpdateWindow(winbuf *win_entry)
         wattrset(win_entry->win, get_color(color));
       }
 
-      wprintw(win_entry->win, "%s", line->text+line->mucnicklen); // Display text line
+      // Display text line
+      wprintw(win_entry->win, "%s", line->text+line->mucnicklen);
       wclrtoeol(win_entry->win);
 
       // Return the color back
@@ -1252,7 +1256,8 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     g_free(nicktmp);
   }
   hbuf_add_line(&win_entry->bd->hbuf, text_locale, timestamp, prefix_flags,
-                maxX - Roster_Width - getprefixwidth(), num_history_blocks, mucnicklen);
+                maxX - Roster_Width - getprefixwidth(), num_history_blocks,
+                mucnicklen);
   g_free(text_locale);
 
   if (win_entry->bd->cleared) {
@@ -1936,7 +1941,8 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix)
   roster_elt = roster_find(jidto, jidsearch,
                            ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
 
-  scr_WriteMessage(jidto, text, 0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT, 0);
+  scr_WriteMessage(jidto, text,
+                   0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT, 0);
 
   // Show jidto's buffer unless the buddy is not in the buddylist
   if (roster_elt && g_list_position(buddylist, roster_elt->data) != -1)
@@ -2945,9 +2951,9 @@ void readline_backward_word(void)
       !iswalnum(get_char(prev_char(ptr_inputline, inputLine))))
     i--;
 
-  for( ;
-      ptr_inputline > inputLine;
-      ptr_inputline = prev_char(ptr_inputline, inputLine)) {
+  for ( ;
+       ptr_inputline > inputLine;
+       ptr_inputline = prev_char(ptr_inputline, inputLine)) {
     if (!iswalnum(get_char(ptr_inputline))) {
       if (i) {
         ptr_inputline = next_char(ptr_inputline);

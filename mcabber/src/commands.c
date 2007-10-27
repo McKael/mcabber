@@ -133,9 +133,10 @@ void cmd_init(void)
           0, &do_move);
   cmd_add("msay", "Send a multi-lines message to the selected buddy",
           COMPL_MULTILINE, 0, &do_msay);
-  cmd_add("pgp", "Manage PGP settings", COMPL_PGP, COMPL_JID, &do_pgp);
   cmd_add("otr", "Manage OTR settings", COMPL_OTR, COMPL_JID, &do_otr);
-  cmd_add("otrpolicy", "Manage OTR policies", COMPL_JID, COMPL_OTRPOLICY, &do_otrpolicy);
+  cmd_add("otrpolicy", "Manage OTR policies", COMPL_JID, COMPL_OTRPOLICY,
+          &do_otrpolicy);
+  cmd_add("pgp", "Manage PGP settings", COMPL_PGP, COMPL_JID, &do_pgp);
   cmd_add("quit", "Exit the software", 0, 0, NULL);
   cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
@@ -705,8 +706,13 @@ void do_color(char *arg)
   }
 
   if (!strcasecmp(subcmd, "roster")) {
+    char *status, *wildcard, *color;
     char **arglist = split_arg(arg, 3, 0);
-    char *status = *arglist, *wildcard = to_utf8(arglist[1]), *color = arglist[2];
+
+    status = *arglist;
+    wildcard = to_utf8(arglist[1]);
+    color = arglist[2];
+
     if (status && !strcmp(status, "clear")) { // Not a color command, clear all
       scr_RosterClearColor();
       update_roster = TRUE;
@@ -1080,7 +1086,7 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
   }
 
   // Hook
-  if(!isroom)
+  if (!isroom)
     hk_message_out(bare_jid, rp, 0, hmsg, crypted);
 
 send_message_to_return:
@@ -1117,13 +1123,13 @@ static const char *scan_mtype(char **arg)
   char **parlist = split_arg(*arg, 2, 1);
   const char *result = NULL;
   //Is it any good parameter?
-  if(parlist && *parlist) {
-    if(!strcmp("-n", *parlist)) {
+  if (parlist && *parlist) {
+    if (!strcmp("-n", *parlist)) {
       result = TMSG_NORMAL;
-    } else if(!strcmp("-h", *parlist)) {
+    } else if (!strcmp("-h", *parlist)) {
       result = TMSG_HEADLINE;
     }
-    if(result || (!strcmp("--", *parlist)))
+    if (result || (!strcmp("--", *parlist)))
       *arg += strlen(*arg) - (parlist[1] ? strlen(parlist[1]) : 0);
   }
   //Anything found? -> skip it
@@ -1153,7 +1159,7 @@ static void do_say_internal(char *arg, int parse_flags)
   }
 
   buddy_setflags(bud, ROSTER_FLAG_LOCK, TRUE);
-  if(parse_flags)
+  if (parse_flags)
     msgtype = scan_mtype(&arg);
   arg = to_utf8(arg);
   send_message(arg, NULL, msgtype);
@@ -2396,7 +2402,8 @@ void room_whois(gpointer bud, char *arg, guint interactive)
   scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
   snprintf(buffer, 4095, "Status   : [%c] %s", imstatus2char[rstatus],
            rst_msg);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+  scr_WriteIncomingMessage(bjid, buffer,
+                           0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
 
   if (rst_time) {
     char tbuf[128];
@@ -2414,11 +2421,14 @@ void room_whois(gpointer bud, char *arg, guint interactive)
   }
 
   snprintf(buffer, 4095, "Role     : %s", strrole[role]);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+  scr_WriteIncomingMessage(bjid, buffer,
+                           0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
   snprintf(buffer, 4095, "Affiliat.: %s", straffil[affil]);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+  scr_WriteIncomingMessage(bjid, buffer,
+                           0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
   snprintf(buffer, 4095, "Priority : %d", rprio);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+  scr_WriteIncomingMessage(bjid, buffer,
+                           0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
 
   scr_WriteIncomingMessage(bjid, "End of WHOIS", 0, HBB_PREFIX_INFO, 0);
 
@@ -2475,7 +2485,8 @@ static void display_all_bookmarks(void)
 
   sbuf = g_string_new("");
 
-  scr_WriteIncomingMessage(NULL, "List of MUC bookmarks:", 0, HBB_PREFIX_INFO, 0);
+  scr_WriteIncomingMessage(NULL, "List of MUC bookmarks:",
+                           0, HBB_PREFIX_INFO, 0);
 
   for (bmp = bm; bmp; bmp = g_slist_next(bmp)) {
     g_string_printf(sbuf, "<%s>", (char*)bmp->data);
@@ -2982,7 +2993,7 @@ static void do_otr(char *arg)
     return;
   }
 
-  if(op == otr_k)
+  if (op == otr_k)
     otr_key();
   else {
     // Allow special jid "" or "." (current buddy)
@@ -3106,7 +3117,7 @@ static void do_otrpolicy(char *arg)
     return;
   }
 
-  if(!strcasecmp(fjid, "default") || !strcasecmp(fjid, "*")){
+  if (!strcasecmp(fjid, "default") || !strcasecmp(fjid, "*")) {
     /*set default policy*/
     settings_otr_setpolicy(NULL, p);
     free_arg_lst(paramlst);

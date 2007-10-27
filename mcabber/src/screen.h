@@ -162,7 +162,8 @@ void scr_BufferDate(time_t t);
 void scr_RosterUnreadMessage(int);
 void scr_RosterJumpAlternate(void);
 void scr_BufferScrollUpDown(int updown, unsigned int nblines);
-bool scr_RosterColor(const char *status, const char *wildcard, const char *color);
+bool scr_RosterColor(const char *status, const char *wildcard,
+                     const char *color);
 void scr_RosterClearColor(void);
 void scr_MucColor(const char *muc, muccoltype type);
 void scr_MucNickColor(const char *nick, const char *color);

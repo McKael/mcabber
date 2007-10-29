@@ -430,7 +430,8 @@ void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data)
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
-    if (execl(extcmd, extcmd, arg_type, arg_info, bjid, arg_data, NULL) == -1) {
+    if (execl(extcmd, extcmd, arg_type, arg_info, bjid, arg_data,
+              (char *)NULL) == -1) {
       // scr_LogPrint(LPRINT_LOGNORM, "Cannot execute external command.");
       exit(1);
     }

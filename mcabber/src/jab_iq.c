@@ -664,6 +664,7 @@ static int iqscallback_vcard(eviqs *iqp, xmlnode xml_result, guint iqcontext)
   ansqry = xmlnode_get_tag(xml_result, "vCard");
   if (!ansqry) {
     scr_LogPrint(LPRINT_LOGNORM, "Empty IQ:vCard result!");
+    g_free(buf);
     return 0;
   }
 

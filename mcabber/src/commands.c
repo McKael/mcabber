@@ -1590,13 +1590,15 @@ static void room_names(gpointer bud, char *arg)
   const char *bjid;
   char *buffer;
   GSList *resources, *p_res;
-  enum { style_normal = 0, style_short, style_quiet } style = 0;
+  enum { style_normal = 0, style_detail, style_short, style_quiet } style = 0;
 
   if (*arg) {
     if (!strcasecmp(arg, "--short"))
       style = style_short;
     else if (!strcasecmp(arg, "--quiet"))
       style = style_quiet;
+    else if (!strcasecmp(arg, "--detail"))
+      style = style_detail;
     else {
       scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
       return;
@@ -1627,14 +1629,27 @@ static void room_names(gpointer bud, char *arg)
                rst_msg ? " -- " : "", rst_msg ? rst_msg : "");
       scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
     } else {
-      // (Style "normal" or "quiet")
+      // (Style "normal", "detail" or "quiet")
       snprintf(buffer, 4095, "[%c] %s", imstatus2char[rstatus],
                (char*)p_res->data);
       scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
-      if (rst_msg && style == style_normal) {
+      if (rst_msg && style != style_quiet) {
         snprintf(buffer, 4095, "Status message: %s", rst_msg);
         scr_WriteIncomingMessage(bjid, buffer,
                                  0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+      }
+      if (style == style_detail) {
+        enum imrole role = buddy_getrole(bud, p_res->data);
+        enum imaffiliation affil = buddy_getaffil(bud, p_res->data);
+
+        snprintf(buffer, 4095, "Role: %s", strrole[role]);
+        scr_WriteIncomingMessage(bjid, buffer,
+                                 0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+        if (affil != affil_none) {
+          snprintf(buffer, 4095, "Affiliat.: %s", straffil[affil]);
+          scr_WriteIncomingMessage(bjid, buffer,
+                                   0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+        }
       }
     }
     g_free(p_res->data);

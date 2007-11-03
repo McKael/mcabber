@@ -9,7 +9,7 @@ The 'room' command handles Multi-User Chat room actions.
  Join "room", using "nick" as nickname.  If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.  A password can be provided to enter protected rooms.  If your nickname contains space characters, use quotes.
 /room leave [message]
  Leave the current room
-/room names [--short|--quiet]
+/room names [--detail|--short|--quiet]
  Display members of the current room
 /room nick newnick
  Change your nickname in the current room

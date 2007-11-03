@@ -2052,7 +2052,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     scr_WriteIncomingMessage(roomjid, mbuf, usttime,
                              HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
     if (log_muc_conf)
-      hlog_write_message(roomjid, 0, FALSE, mbuf);
+      hlog_write_message(roomjid, 0, -1, mbuf);
     g_free(mbuf);
     buddy_resource_setname(room_elt->data, rname, mbnick);
     // Maybe it's _our_ nickname...
@@ -2138,7 +2138,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
 
     if (log_muc_conf)
-      hlog_write_message(roomjid, 0, FALSE, mbuf);
+      hlog_write_message(roomjid, 0, -1, mbuf);
 
     if (we_left) {
       scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
@@ -2170,7 +2170,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
         scr_WriteIncomingMessage(roomjid, mbuf, 0,
                                  HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
         if (log_muc_conf)
-          hlog_write_message(roomjid, 0, FALSE, mbuf);
+          hlog_write_message(roomjid, 0, -1, mbuf);
         g_free(mbuf);
         mbuf = g_strdup_printf("%s has joined", rname);
         new_member = TRUE;
@@ -2189,7 +2189,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
         msgflags |= HBB_PREFIX_NOFLAG;
       scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
       if (log_muc_conf)
-        hlog_write_message(roomjid, 0, FALSE, mbuf);
+        hlog_write_message(roomjid, 0, -1, mbuf);
       g_free(mbuf);
     }
   }
@@ -2413,7 +2413,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       scr_WriteIncomingMessage(s, mbuf, 0,
                                HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
       if (settings_opt_get_int("log_muc_conf"))
-        hlog_write_message(s, 0, FALSE, mbuf);
+        hlog_write_message(s, 0, -1, mbuf);
       g_free(s);
       g_free(mbuf);
       // The topic is displayed in the chat status line, so refresh now.

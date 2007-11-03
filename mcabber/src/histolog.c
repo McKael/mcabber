@@ -122,14 +122,15 @@ static void write_histo_line(const char *bjid,
   for (p=data ; *p ; p++)
     if (*p == '\n') len++;
 
-  /* Line format: "TI yyyymmddThh:mm:ssZ [data]"
-   * (Old format: "TI DDDDDDDDDD LLL [data])"
+  /* Line format: "TI yyyymmddThh:mm:ssZ LLL [data]"
    * T=Type, I=Info, yyyymmddThh:mm:ssZ=date, LLL=0-padded-len
    *
    * Types:
-   * - M message    Info: S (send) R (receive)
+   * - M message    Info: S (send) R (receive) I (info)
    * - S status     Info: [_ofdnai]
-   * We don't check them, we'll trust the caller.
+   * We don't check them, we trust the caller.
+   * (Info messages are not sent nor received, they're generated
+   * locally by mcabber.)
    */
 
   fp = fopen(filename, "a");
@@ -241,8 +242,8 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
     len = (guint) atoi(&data[22]);
 
     // Some checks
-    if (((type == 'M') && (info != 'S' && info != 'R')) ||
-        ((type == 'I') && (!strchr("OAIFDN", info)))) {
+    if (((type == 'M') && (info != 'S' && info != 'R' && info != 'I')) ||
+        ((type == 'S') && (!strchr("_OFDNAI", info)))) {
       if (!err) {
         scr_LogPrint(LPRINT_LOGNORM, "Error in history file format (%s), l.%u",
                      bjid, ln);
@@ -280,10 +281,13 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
 
     if (type == 'M') {
       char *converted;
-      if (info == 'S')
+      if (info == 'S') {
         prefix_flags = HBB_PREFIX_OUT | HBB_PREFIX_HLIGHT_OUT;
-      else
+      } else {
         prefix_flags = HBB_PREFIX_IN;
+        if (info == 'I')
+          prefix_flags = HBB_PREFIX_INFO;
+      }
       converted = from_utf8(&data[dataoffset+1]);
       if (converted) {
         xtext = ut_expand_tabs(converted); // Expand tabs
@@ -348,7 +352,18 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
 inline void hlog_write_message(const char *bjid, time_t timestamp, int sent,
         const char *msg)
 {
-  write_histo_line(bjid, timestamp, 'M', ((sent) ? 'S' : 'R'), msg);
+  guchar info;
+  /* sent=1   message sent by mcabber
+   * sent=0   message received by mcabber
+   * sent=-1  local info message
+   */
+  if (sent == 1)
+    info = 'S';
+  else if (sent == 0)
+    info = 'R';
+  else
+    info = 'I';
+  write_histo_line(bjid, timestamp, 'M', info, msg);
 }
 
 inline void hlog_write_status(const char *bjid, time_t timestamp,

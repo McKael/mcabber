@@ -171,7 +171,7 @@ inline void hk_message_in(const char *bjid, const char *resname,
   //   option is off (and it is not a history line)
   if (!(message_flags & HBB_PREFIX_ERR) &&
       (!is_room || (is_groupchat && log_muc_conf && !timestamp)))
-    hlog_write_message(bjid, timestamp, FALSE, wmsg);
+    hlog_write_message(bjid, timestamp, 0, wmsg);
 
   if (settings_opt_get_int("events_ignore_active_window") &&
       current_buddy && scr_get_chatmode()) {
@@ -253,7 +253,7 @@ inline void hk_message_out(const char *bjid, const char *nick,
 
   // We don't log private messages
   if (!nick)
-    hlog_write_message(bjid, timestamp, TRUE, msg);
+    hlog_write_message(bjid, timestamp, 1, msg);
 
   // External command
   hk_ext_cmd(bjid, 'M', 'S', NULL);

@@ -608,7 +608,8 @@ static void cb_inject_message(void *opdata, const char *accountname,
                               const char *message)
 {
   char * id = g_strdup("otrinject");
-  jb_send_msg(recipient, message, ROSTER_TYPE_USER, "", id, NULL, NULL);
+  if (roster_gettype(recipient) == ROSTER_TYPE_USER)
+    jb_send_msg(recipient, message, ROSTER_TYPE_USER, "", id, NULL, NULL);
   g_free(id);
 }
 

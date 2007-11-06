@@ -606,7 +606,7 @@ void jb_send_msg(const char *fjid, const char *text, int type,
 #ifdef HAVE_LIBOTR
   if (msgid && strcmp(msgid, "otrinject") == 0)
     msgid = NULL;
-  else {
+  else if (type == ROSTER_TYPE_USER) {
     otr_msg = otr_send((char **)&text, barejid);
     if (!text) {
       g_free(barejid);

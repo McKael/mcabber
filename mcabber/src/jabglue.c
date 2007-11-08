@@ -1856,6 +1856,10 @@ void display_server_error(xmlnode x)
   s = xmlnode_get_tag_data(x, "text");
   if (s && *s) desc = s;
 
+  // If we still have no description, let's give up
+  if (!desc)
+    return;
+
   // Strip trailing newlines
   sdesc = g_strdup(desc);
   for (s = sdesc; *s; s++) ;

@@ -324,6 +324,11 @@ set message_autoaway = Auto-away (idle)
 #set log_win_on_top = 0
 #set roster_win_on_right = 0
 #
+# By default, the displayed name of a contact in the roster window will
+# be the jid if no name has been specified.  You can use the following
+# option if you only want to see the username part.
+#set roster_hide_domain = 0
+#
 # Buddy name format (in status window):
 # - 0: (default) "<jid/resource>"
 # - 1: "name <jid/resource>" (name is omitted if same as the jid)

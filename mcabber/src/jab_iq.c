@@ -263,6 +263,7 @@ static void handle_iq_roster(xmlnode x)
   guint roster_type;
 
   for (y = xmlnode_get_tag(x, "item"); y; y = xmlnode_get_nextsibling(y)) {
+    char *name_tmp = NULL;
 
     fjid = xmlnode_get_attrib(y, "jid");
     name = xmlnode_get_attrib(y, "name");
@@ -296,8 +297,16 @@ static void handle_iq_roster(xmlnode x)
     if (ask && !strcmp(ask, "subscribe"))
       esub |= sub_pending;
 
-    if (!name)
-      name = cleanalias;
+    if (!name) {
+      if (!settings_opt_get_int("roster_hide_domain")) {
+        name = cleanalias;
+      } else {
+        char *p;
+        name = name_tmp = g_strdup(cleanalias);
+        p = strchr(name_tmp, JID_DOMAIN_SEPARATOR);
+        if (p)  *p = '\0';
+      }
+    }
 
     // Tricky... :-\  My guess is that if there is no JID_DOMAIN_SEPARATOR,
     // this is an agent.
@@ -308,6 +317,7 @@ static void handle_iq_roster(xmlnode x)
 
     roster_add_user(cleanalias, name, group, roster_type, esub);
 
+    g_free(name_tmp);
     g_free(cleanalias);
   }
 

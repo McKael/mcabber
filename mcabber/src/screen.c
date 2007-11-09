@@ -2397,10 +2397,18 @@ void scr_BufferPurge(int closebuf, const char *jid)
   guint isspe;
   guint *p_closebuf;
   const char *cjid;
+  guint hold_chatmode = FALSE;
 
   if (jid) {
     cjid = jid;
     isspe = FALSE;
+    // If closebuf is TRUE, it's probably better not to leave chat mode
+    // if the change isn't related to the current buffer.
+    if (closebuf && current_buddy) {
+      if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL ||
+          strcasecmp(jid, CURRENT_JID))
+        hold_chatmode = TRUE;
+    }
   } else {
     // Get win_entry
     if (!current_buddy) return;
@@ -2415,7 +2423,7 @@ void scr_BufferPurge(int closebuf, const char *jid)
     *p_closebuf = closebuf;
     buffer_purge((gpointer)cjid, win_entry, p_closebuf);
     g_free(p_closebuf);
-    if (closebuf) {
+    if (closebuf && !hold_chatmode) {
       scr_set_chatmode(FALSE);
       currentWindow = NULL;
     }

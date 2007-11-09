@@ -362,9 +362,15 @@ set message_autoaway = Auto-away (idle)
 #pgp disable foo@bar.org
 #pgp setkey bar@foo.net C9940A9BB0B92210
 
+# OTR (Off-The-Record messaging) support
+# (Only available if mcabber is built with OTR support)
+# Set otr to 1 to enable OTR support.
+# You cannot change this option once mcabber is running.
+#set otr = 0
+#
 # OTR directory
-# If mcabber is built with OTR (Off-The-Record) support, you can specify
-# the OTR directory with the otr_dir option (default = ~/.mcabber/otr/).
+# You can specify the OTR directory with the otr_dir option
+# (default = ~/.mcabber/otr/).
 #set otr_dir = "~/.mcabber/otr/"
 
 # Aliases

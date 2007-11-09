@@ -604,19 +604,21 @@ void jb_send_msg(const char *fjid, const char *text, int type,
     rname++;
 
 #ifdef HAVE_LIBOTR
-  if (msgid && strcmp(msgid, "otrinject") == 0)
-    msgid = NULL;
-  else if (type == ROSTER_TYPE_USER) {
-    otr_msg = otr_send((char **)&text, barejid);
-    if (!text) {
-      g_free(barejid);
-      if (encrypted)
-        *encrypted = -1;
-      return;
+  if (otr_enabled()) {
+    if (msgid && strcmp(msgid, "otrinject") == 0)
+      msgid = NULL;
+    else if (type == ROSTER_TYPE_USER) {
+      otr_msg = otr_send((char **)&text, barejid);
+      if (!text) {
+        g_free(barejid);
+        if (encrypted)
+          *encrypted = -1;
+        return;
+      }
     }
-  }
-  if (otr_msg && encrypted) {
-    *encrypted = 1;
+    if (otr_msg && encrypted) {
+      *encrypted = 1;
+    }
   }
 #endif
 
@@ -1692,7 +1694,8 @@ static void gotmessage(char *type, const char *from, const char *body,
 {
   char *bjid;
   const char *rname, *s;
-  char *decrypted = NULL;
+  char *decrypted_pgp = NULL;
+  char *decrypted_otr = NULL;
   int otr_msg = 0, free_msg = 0;
 
   bjid = jidtodisp(from);
@@ -1702,21 +1705,24 @@ static void gotmessage(char *type, const char *from, const char *body,
 
 #ifdef HAVE_GPGME
   if (enc && gpg_enabled()) {
-    decrypted = gpg_decrypt(enc);
-    if (decrypted) {
-      body = decrypted;
+    decrypted_pgp = gpg_decrypt(enc);
+    if (decrypted_pgp) {
+      body = decrypted_pgp;
     }
   }
   // Check signature of an unencrypted message
   if (xmldata_signed && gpg_enabled())
-    check_signature(bjid, rname, xmldata_signed, decrypted);
+    check_signature(bjid, rname, xmldata_signed, decrypted_pgp);
 #endif
 
 #ifdef HAVE_LIBOTR
-  otr_msg = otr_receive((char **)&body, bjid, &free_msg);
-  if (!body) {
-    g_free(bjid);
-    return;
+  if (otr_enabled()) {
+    decrypted_otr = (char*)body;
+    otr_msg = otr_receive(&decrypted_otr, bjid, &free_msg);
+    if (!decrypted_otr) {
+      goto gotmessage_return;
+    }
+    body = decrypted_otr;
   }
 #endif
 
@@ -1746,14 +1752,9 @@ static void gotmessage(char *type, const char *from, const char *body,
       buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
     }
 
-    g_free(bjid);
-    g_free(decrypted);
-    if (free_msg)
-      g_free((char *)body);
-
     buddylist_build();
     scr_DrawRoster();
-    return;
+    goto gotmessage_return;
   }
 
   // We don't call the message_in hook if 'block_unsubscribed' is true and
@@ -1764,14 +1765,17 @@ static void gotmessage(char *type, const char *from, const char *body,
       (type && strcmp(type, "chat")) ||
       ((s = settings_opt_get("server")) != NULL && !strcasecmp(bjid, s))) {
     hk_message_in(bjid, rname, timestamp, body, type,
-                  ((decrypted || otr_msg) ? TRUE : FALSE));
+                  ((decrypted_pgp || otr_msg) ? TRUE : FALSE));
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", bjid);
   }
+
+gotmessage_return:
+  // Clean up and exit
   g_free(bjid);
-  g_free(decrypted);
+  g_free(decrypted_pgp);
   if (free_msg)
-    g_free((char *)body);
+    g_free(decrypted_otr);
 }
 
 static const char *defaulterrormsg(int code)

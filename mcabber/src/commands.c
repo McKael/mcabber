@@ -2973,6 +2973,12 @@ static void do_otr(char *arg)
     otr_info
   } op = 0;
 
+  if (!otr_enabled()) {
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "Warning: OTR hasn't been enabled -- command ignored.");
+    return;
+  }
+
   paramlst = split_arg(arg, 3, 0); // subcmd, jid, [key]
   subcmd = *paramlst;
   fjid = *(paramlst+1);
@@ -3096,6 +3102,12 @@ static void do_otrpolicy(char *arg)
   char **paramlst;
   char *fjid, *policy;
   enum otr_policy p;
+
+  if (!otr_enabled()) {
+    scr_LogPrint(LPRINT_LOGNORM,
+                 "Warning: OTR hasn't been enabled -- command ignored.");
+    return;
+  }
 
   paramlst = split_arg(arg, 2, 0); // [jid|default] policy
   fjid = *paramlst;

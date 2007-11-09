@@ -38,6 +38,7 @@ static char * account = NULL;
 static char * keyfile = NULL;
 static char * fprfile = NULL;
 
+static int otr_is_enabled = FALSE;
 
 static OtrlPolicy cb_policy             (void *opdata, ConnContext *ctx);
 static void       cb_create_privkey     (void *opdata,
@@ -113,15 +114,23 @@ static char * otr_get_dir(void);
 
 void otr_init(const char *jid)
 {
-  char * root = otr_get_dir();
+  char *root;
+
+  otr_is_enabled = !!settings_opt_get_int("otr");
+
+  if (!otr_is_enabled)
+    return;
+
+  OTRL_INIT;
+
+  userstate = otrl_userstate_create ();
+
+  root = otr_get_dir();
   account = jidtodisp(jid);
   keyfile = g_strdup_printf("%s%s.key", root, account);
   fprfile = g_strdup_printf("%s%s.fpr", root, account);
   g_free(root);
 
-  OTRL_INIT;
-
-  userstate = otrl_userstate_create ();
   if (otrl_privkey_read(userstate, keyfile)){
     scr_LogPrint(LPRINT_LOGNORM, "Could not read OTR key from %s", keyfile);
     cb_create_privkey(NULL, account, "jabber");
@@ -135,6 +144,9 @@ void otr_init(const char *jid)
 void otr_terminate(void)
 {
   ConnContext * ctx;
+
+  if (!otr_is_enabled)
+    return;
 
   for (ctx = userstate->context_root; ctx; ctx = ctx->next)
     if (ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED)
@@ -721,6 +733,18 @@ static void cb_log_message(void *opdata, const char *message)
 static int cb_max_message_size(void *opdata, ConnContext *context)
 {
   return 8192;
+}
+
+int otr_enabled(void)
+{
+  return otr_is_enabled;
+}
+
+#else /* !HAVE_LIBOTR */
+
+int otr_enabled(void)
+{
+  return FALSE;
 }
 
 #endif /* HAVE_LIBOTR */

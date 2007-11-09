@@ -1,6 +1,10 @@
 mcabber (0.9.5-dev)
 
- * 
+ * [OTR] New option 'otr' (to enable OTR support in the conf. file)
+ * [OTR] Disable OTR encryption for non-user contacts
+ * [MUC] Add "/room names --detail"
+ * History logfile: Use a special code (MI) for local MUC info messages
+ * Misc. bugfixes
 
  -- Mikael, ?
 

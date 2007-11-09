@@ -161,7 +161,7 @@ void otr_terminate(void)
 
 static char * otr_get_dir(void)
 {
-  char * configured_dir = (char *)settings_opt_get("otr_dir");
+  const char *configured_dir = settings_opt_get("otr_dir");
 
   if (configured_dir && *configured_dir) {
     char *xp_conf_dir;
@@ -597,7 +597,7 @@ static void cb_create_privkey(void *opdata, const char *accountname,
 static int cb_is_logged_in(void *opdata, const char *accountname,
                            const char *protocol, const char *recipient)
 {
-  int ret = (roster_getstatus((char *)recipient, NULL) != offline);
+  int ret = (roster_getstatus(recipient, NULL) != offline);
   return ret;
 }
 

@@ -290,8 +290,8 @@ void cmd_init(void)
 //  expandalias(line)
 // If there is one, expand the alias in line and returns a new allocated line
 // If no alias is found, returns line
-// Note : if the returned pointer is different from line, the caller should
-//        g_free() the pointer after use
+// Note: if the returned pointer is different from line, the caller should
+//       g_free() the pointer after use
 char *expandalias(const char *line)
 {
   const char *p1, *p2;
@@ -1707,7 +1707,7 @@ static void do_rename(char *arg)
 {
   gpointer bud;
   const char *bjid, *group;
-  guint type;
+  guint type, on_srv;
   char *newname, *p;
   char *name_utf8;
 
@@ -1715,9 +1715,10 @@ static void do_rename(char *arg)
     return;
   bud = BUDDATA(current_buddy);
 
-  bjid  = buddy_getjid(bud);
-  group = buddy_getgroupname(bud);
-  type  = buddy_gettype(bud);
+  bjid   = buddy_getjid(bud);
+  group  = buddy_getgroupname(bud);
+  type   = buddy_gettype(bud);
+  on_srv = buddy_getonserverflag(bud);
 
   if (type & ROSTER_TYPE_SPECIAL) {
     scr_LogPrint(LPRINT_NORMAL, "You can't rename this item.");
@@ -1727,6 +1728,13 @@ static void do_rename(char *arg)
   if (!*arg && !(type & ROSTER_TYPE_GROUP)) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify a new name.");
     return;
+  }
+
+  if (!(type & ROSTER_TYPE_GROUP) && !on_srv) {
+    scr_LogPrint(LPRINT_NORMAL,
+                 "Note: this item will be added to your server roster.");
+    // TODO
+    // If this is a MUC room, we may want to update the bookmark instead...
   }
 
   newname = g_strdup(arg);

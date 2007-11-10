@@ -1,11 +1,11 @@
 
- /GROUP fold|unfold|toggle
+ /GROUP fold|unfold|toggle [groupname]
 
 Dieser Befehl verändert die Anzeige der gerade ausgewählten Gruppe
 
-/group fold
+/group fold [groupname]
  Verstecke die gerade ausgewählte Gruppe
-/group unfold
+/group unfold [groupname]
  Die Gruppen-Ansicht aufklappen
-/group toggle
+/group toggle [groupname]
  Verstecken/Aufklappen der ausgewählten Gruppe

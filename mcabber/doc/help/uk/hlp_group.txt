@@ -1,11 +1,11 @@
 
- /GROUP fold|unfold|toggle
+ /GROUP fold|unfold|toggle [groupname]
 
 Змінює відображення поточної групи.
 
-/group fold
+/group fold [groupname]
  Згорнути дерево поточної групи у списку.
-/group unfold
+/group unfold [groupname]
  Розгорнути дерево поточної групи у списку.
-/group toggle
+/group toggle [groupname]
  Змінити стан відображення поточної групи.

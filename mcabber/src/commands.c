@@ -989,8 +989,10 @@ static void do_del(char *arg)
 
 static void do_group(char *arg)
 {
-  gpointer group;
+  gpointer group = NULL;
   guint leave_buddywindow;
+  char **paramlst;
+  char *subcmd;
 
   if (!*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
@@ -1000,9 +1002,23 @@ static void do_group(char *arg)
   if (!current_buddy)
     return;
 
-  group = buddy_getgroup(BUDDATA(current_buddy));
+  paramlst = split_arg(arg, 2, 1); // subcmd, [arg]
+  subcmd = *paramlst;
+  arg = *(paramlst+1);
+
+  if (!subcmd || !*subcmd)
+    goto do_group_return;   // Should not happen anyway
+
+  if (arg && *arg) {
+    GSList *roster_elt;
+    roster_elt = roster_find(arg, namesearch, ROSTER_TYPE_GROUP);
+    if (roster_elt)
+      group = buddy_getgroup(roster_elt->data);
+  } else {
+    group = buddy_getgroup(BUDDATA(current_buddy));
+  }
   if (!group)
-    return;
+    goto do_group_return;
 
   // We'll have to redraw the chat window if we're not currently on the group
   // entry itself, because it means we'll have to leave the current buddy
@@ -1011,24 +1027,28 @@ static void do_group(char *arg)
 
   if (!(buddy_gettype(group) & ROSTER_TYPE_GROUP)) {
     scr_LogPrint(LPRINT_NORMAL, "You need to select a group.");
-    return;
+    goto do_group_return;
   }
 
-  if (!strcasecmp(arg, "expand") || !strcasecmp(arg, "unfold")) {
+  if (!strcasecmp(subcmd, "expand") || !strcasecmp(subcmd, "unfold")) {
     buddy_setflags(group, ROSTER_FLAG_HIDE, FALSE);
-  } else if (!strcasecmp(arg, "shrink") || !strcasecmp(arg, "fold")) {
+  } else if (!strcasecmp(subcmd, "shrink") || !strcasecmp(subcmd, "fold")) {
     buddy_setflags(group, ROSTER_FLAG_HIDE, TRUE);
-  } else if (!strcasecmp(arg, "toggle")) {
+  } else if (!strcasecmp(subcmd, "toggle")) {
     buddy_setflags(group, ROSTER_FLAG_HIDE,
-            !(buddy_getflags(group) & ROSTER_FLAG_HIDE));
+                   !(buddy_getflags(group) & ROSTER_FLAG_HIDE));
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
-    return;
+    goto do_group_return;
   }
 
   buddylist_build();
   update_roster = TRUE;
-  if (leave_buddywindow) scr_ShowBuddyWindow();
+  if (leave_buddywindow)
+    scr_ShowBuddyWindow();
+
+do_group_return:
+  free_arg_lst(paramlst);
 }
 
 static int send_message_to(const char *fjid, const char *msg, const char *subj,

@@ -1,11 +1,11 @@
 
- /GROUP fold|unfold|toggle
+ /GROUP fold|unfold|toggle [groupname]
 
 Dit commando verandert het aanzicht van de huidige groep.
 
-/group fold
+/group fold [groupname]
  Verbergen (inklappen) van de huidige group in het roster
-/group unfold
+/group unfold [groupname]
  Tonen (uitklappen) van de huidige group in het roster
-/group toggle
+/group toggle [groupname]
  Omschakelen van het aanzicht van de huidige groep (in-/uitklappen)

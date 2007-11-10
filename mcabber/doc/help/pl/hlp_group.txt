@@ -1,11 +1,11 @@
 
- /GROUP fold|unfold|toggle
+ /GROUP fold|unfold|toggle [groupname]
 
 To polecenie pozwala zarządzać sposobem wyświetlania grupy.
 
-/group fold
+/group fold [groupname]
  Zwija obecne drzewo grupy w liście kontaktów
-/group unfold
+/group unfold [groupname]
  Rozwija obecne drzewo grupy w liście kontaktów
-/group toggle
+/group toggle [groupname]
  Przełącza między stanem (zwinięty/rozwinięty) w obecnym drzewie grupy

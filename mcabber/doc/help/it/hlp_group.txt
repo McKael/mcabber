@@ -1,11 +1,11 @@
 
- /GROUP fold|unfold|toggle
+ /GROUP fold|unfold|toggle [groupname]
 
 Questo comando cambia la visualizzazione del gruppo corrente.
 
-/group fold
+/group fold [groupname]
  Chiude (collassa) l'albero del gruppo corrente nel roster
-/group unfold
+/group unfold [groupname]
  Apre (espande) l'albero del gruppo corrente nel roster
-/group toggle
+/group toggle [groupname]
  Cambia lo stato (collassato/espanso) dell'albero corrente

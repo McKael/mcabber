@@ -139,6 +139,8 @@ void jb_disconnect(void)
   if (!jc) return;
 
   if (online) {
+    // Launch pre-disconnect internal hook
+    hook_execute_internal("hook-pre-disconnect");
     // Announce it to  everyone else
     jb_setstatus(offline, NULL, "", FALSE);
     // End the XML flow

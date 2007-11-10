@@ -206,6 +206,10 @@ set cmdhistory_lines = 250
 # 'hook-post-connect' is executed when mcabber has connected to the server
 # and the roster has been received.
 #set hook-post-connect = status dnd
+#
+# 'hook-pre-disconnect' is executed just before mcabber disconnects from
+# the server.
+#set hook-pre-disconnect = say_to foo@bar Goodbye!
 
 # Traces logging
 # If you want advanced traces, please specify a file and a level here.

@@ -292,12 +292,12 @@ void cmd_init(void)
 // If no alias is found, returns line
 // Note : if the returned pointer is different from line, the caller should
 //        g_free() the pointer after use
-char *expandalias(char *line)
+char *expandalias(const char *line)
 {
   const char *p1, *p2;
   char *word;
   const gchar *value;
-  char *newline = line;
+  char *newline = (char*)line;
 
   // Ignore leading COMMAND_CHAR
   for (p1 = line ; *p1 == COMMAND_CHAR ; p1++)
@@ -357,7 +357,7 @@ cmd *cmd_get(const char *command)
 // If iscmd is TRUE, process the command even if verbatim mmode is set;
 // it is intended to be used for key bindings.
 // Return 255 if this is the /quit command, and 0 for the other commands.
-int process_command(char *line, guint iscmd)
+int process_command(const char *line, guint iscmd)
 {
   char *p;
   char *xpline;
@@ -367,9 +367,9 @@ int process_command(char *line, guint iscmd)
   if (iscmd || scr_get_multimode() != 2)
     xpline = expandalias(line);
   else
-    xpline = line; // No expansion in verbatim multi-line mode
+    xpline = (char*)line; // No expansion in verbatim multi-line mode
 
-  // We want to have a copy
+  // We want to use a copy
   if (xpline == line)
     xpline = g_strdup(line);
 
@@ -430,7 +430,7 @@ int process_command(char *line, guint iscmd)
 // If this isn't a command, this is a message and it is sent to the
 // currently selected buddy.
 // Return 255 if the line is the /quit command, or 0.
-int process_line(char *line)
+int process_line(const char *line)
 {
   if (!*line) { // User only pressed enter
     if (scr_get_multimode()) {
@@ -450,7 +450,7 @@ int process_line(char *line)
     if (scr_get_multimode())
       scr_append_multiline(line);
     else
-      do_say_internal(line, 0);
+      do_say_internal((char*)line, 0);
     return 0;
   }
 

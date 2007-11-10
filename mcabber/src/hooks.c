@@ -31,6 +31,7 @@
 #include "settings.h"
 #include "utils.h"
 #include "utf8.h"
+#include "commands.h"
 
 static char *extcmd;
 
@@ -329,6 +330,29 @@ inline void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
                imstatus2char[old_status], imstatus2char[new_status],
                (msg ? msg : ""));
   //hlog_write_status(NULL, 0, status);
+}
+
+
+/* Internal commands */
+
+void hook_execute_internal(const char *hookname)
+{
+  const char *hook_command;
+  char *buf;
+  char *cmdline;
+
+  hook_command = settings_opt_get(hookname);
+  if (!hook_command)
+    return;
+
+  buf = g_strdup_printf("Running %s...", hookname);
+  scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+
+  cmdline = g_strdup_printf(mkcmdstr("%s"), hook_command);
+  process_command(hook_command, TRUE); // XXX Note: /quit won't work.
+
+  g_free(cmdline);
+  g_free(buf);
 }
 
 

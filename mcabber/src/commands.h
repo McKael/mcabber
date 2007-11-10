@@ -13,9 +13,9 @@ typedef struct {
 
 void cmd_init(void);
 cmd *cmd_get(const char *command);
-int  process_line(char *line);
-int  process_command(char *line, guint iscmd);
-char *expandalias(char *line);
+int  process_line(const char *line);
+int  process_command(const char *line, guint iscmd);
+char *expandalias(const char *line);
 
 extern char *mcabber_version(void);
 extern void mcabber_connect(void);

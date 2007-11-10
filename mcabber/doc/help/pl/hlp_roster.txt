@@ -3,7 +3,7 @@
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
  /ROSTER display|hide_offline|show_offline|toggle_offline
- /ROSTER item_lock|item_unlock
+ /ROSTER item_lock|item_unlock|item_toggle_lock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
 
@@ -41,6 +41,7 @@ Dostępne parametry:
  Zablokuj wyświetlanie elementu rostera, tak aby był widoczny cały czas (bez względu na jego status)
 /roster item_unlock [jid]
  Odblokuj wyświetlanie elementu rostera, element będzie widoczny ze względu na jego status
+/roster item_toggle_lock [jid]
 /roster hide
  Ukrywa całą liste kontaktów
 /roster show

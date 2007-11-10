@@ -3,7 +3,7 @@
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
  /ROSTER display|hide_offline|show_offline|toggle_offline
- /ROSTER item_lock|item_unlock
+ /ROSTER item_lock|item_unlock|item_toggle_lock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
 
@@ -45,6 +45,7 @@ Dit zijn de beschikbare parameters:
  Bevries jid zodat deze zichtbaar blijft ongeacht diens status
 /roster item_unlock [jid]
  Maak het effect van 'item_lock' ongedaan
+/roster item_toggle_lock [jid]
 /roster hide
  Verberg het roster zodat het chat venster de volle breedte kan beslaan
 /roster show

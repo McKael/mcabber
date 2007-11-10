@@ -184,6 +184,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "toggle_offline");
   compl_add_category_word(COMPL_ROSTER, "item_lock");
   compl_add_category_word(COMPL_ROSTER, "item_unlock");
+  compl_add_category_word(COMPL_ROSTER, "item_toggle_lock");
   compl_add_category_word(COMPL_ROSTER, "alternate");
   compl_add_category_word(COMPL_ROSTER, "search");
   compl_add_category_word(COMPL_ROSTER, "unread_first");
@@ -457,8 +458,9 @@ int process_line(char *line)
   return process_command(line, FALSE);
 }
 
-// Helper routine for buffer item_{lock,unlock}
-static void roster_buddylock(char *bjid, bool lock)
+// Helper routine for buffer item_{lock,unlock,toggle_lock}
+// "lock" values: 1=lock 0=unlock -1=invert
+static void roster_buddylock(char *bjid, int lock)
 {
   gpointer bud = NULL;
   bool may_need_refresh = FALSE;
@@ -491,10 +493,13 @@ static void roster_buddylock(char *bjid, bool lock)
 
   // Update the ROSTER_FLAG_USRLOCK flag
   if (bud) {
+    if (lock == -1)
+      lock = !(buddy_getflags(bud) & ROSTER_FLAG_USRLOCK);
     buddy_setflags(bud, ROSTER_FLAG_USRLOCK, lock);
-    if (may_need_refresh)
+    if (may_need_refresh) {
       buddylist_build();
       update_roster = TRUE;
+    }
   }
 }
 
@@ -657,9 +662,11 @@ static void do_roster(char *arg)
   } else if (!strcasecmp(subcmd, "display")) {
     scr_RosterDisplay(arg);
   } else if (!strcasecmp(subcmd, "item_lock")) {
-    roster_buddylock(arg, TRUE);
+    roster_buddylock(arg, 1);
   } else if (!strcasecmp(subcmd, "item_unlock")) {
-    roster_buddylock(arg, FALSE);
+    roster_buddylock(arg, 0);
+  } else if (!strcasecmp(subcmd, "item_toggle_lock")) {
+    roster_buddylock(arg, -1);
   } else if (!strcasecmp(subcmd, "unread_first")) {
     scr_RosterUnreadMessage(0);
   } else if (!strcasecmp(subcmd, "unread_next")) {

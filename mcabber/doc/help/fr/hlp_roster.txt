@@ -3,7 +3,7 @@
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search bud
  /ROSTER display|hide_offline|show_offline|toggle_offline
- /ROSTER item_lock|item_unlock
+ /ROSTER item_lock|item_unlock|item_toggle_lock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
 
@@ -44,6 +44,8 @@ Cette commande permet de manipuler le roster (liste de contacts).
  Affiche le contact dans le roster, même s'il est déconnecté
 /roster item_unlock [jid]
  Annule l'effet de /roster item_lock
+/roster item_toggle_lock [jid]
+ Inverse le verrou (lock)
 /roster hide
  Cache le roster (fenêtre de discussion en pleine largeur)
 /roster show

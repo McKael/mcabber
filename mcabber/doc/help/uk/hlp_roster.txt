@@ -3,7 +3,7 @@
  /ROSTER alternate|unread_first|unread_next
  /ROSTER search ім'я
  /ROSTER display|hide_offline|show_offline|toggle_offline
- /ROSTER item_lock|item_unlock
+ /ROSTER item_lock|item_unlock|item_toggle_lock
  /ROSTER hide|show|toggle
  /ROSTER note [-|текст]
 
@@ -44,6 +44,7 @@
  Закріплює вказаний об'єкт списку так, що він завжди відображується, незважаючи на свій статус.
 /roster item_unlock [jid]
  Відміняє дію item_lock.
+/roster item_toggle_lock [jid]
 /roster hide
  Сховати список.
 /roster show

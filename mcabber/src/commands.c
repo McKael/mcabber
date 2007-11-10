@@ -1486,7 +1486,7 @@ static void do_info(char *arg)
 {
   gpointer bud;
   const char *bjid, *name;
-  guint type;
+  guint type, on_srv;
   char *buffer;
   enum subscr esub;
 
@@ -1498,6 +1498,7 @@ static void do_info(char *arg)
   name   = buddy_getname(bud);
   type   = buddy_gettype(bud);
   esub   = buddy_getsubscription(bud);
+  on_srv = buddy_getonserverflag(bud);
 
   buffer = g_new(char, 4096);
 
@@ -1521,6 +1522,11 @@ static void do_info(char *arg)
     else if (type == ROSTER_TYPE_AGENT) bstr = "agent";
     snprintf(buffer, 127, "Type: %s", bstr);
     scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
+
+    if (!on_srv) {
+      scr_WriteIncomingMessage(bjid, "(Local item, not on the server)",
+                               0, HBB_PREFIX_INFO, 0);
+    }
 
     if (esub == sub_both)     bstr = "both";
     else if (esub & sub_from) bstr = "from";
@@ -1587,7 +1593,7 @@ static void do_info(char *arg)
       g_free(p_res->data);
     }
     g_slist_free(resources);
-  } else {
+  } else {  /* Item has no jid */
     if (name) scr_LogPrint(LPRINT_NORMAL, "Name: %s", name);
     scr_LogPrint(LPRINT_NORMAL, "Type: %s",
                  type == ROSTER_TYPE_GROUP ? "group" :

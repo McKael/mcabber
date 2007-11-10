@@ -309,7 +309,7 @@ static void handle_iq_roster(xmlnode x)
     else
       roster_type = ROSTER_TYPE_AGENT;
 
-    roster_add_user(cleanalias, name, group, roster_type, esub);
+    roster_add_user(cleanalias, name, group, roster_type, esub, 1);
 
     g_free(name_tmp);
     g_free(cleanalias);
@@ -755,7 +755,8 @@ static void storage_bookmarks_parse_conference(xmlnode xmldata)
   // Make sure this is a room (it can be a conversion user->room)
   room_elt = roster_find(bjid, jidsearch, 0);
   if (!room_elt) {
-    room_elt = roster_add_user(bjid, name, NULL, ROSTER_TYPE_ROOM, sub_none);
+    room_elt = roster_add_user(bjid, name, NULL, ROSTER_TYPE_ROOM,
+                               sub_none, -1);
   } else {
     buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
     /*

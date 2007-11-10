@@ -77,6 +77,9 @@ typedef struct {
   gchar *topic;
   guint inside_room;
 
+  /* on_server is TRUE if the item is present on the server roster */
+  guint on_server;
+
   /* To keep track of last status message */
   gchar *offline_status_message;
 
@@ -337,8 +340,9 @@ GSList *roster_add_group(const char *name)
 }
 
 // Returns a pointer to the new user, or existing user with that name
+// Note: if onserver is -1, the flag won't be changed.
 GSList *roster_add_user(const char *jid, const char *name, const char *group,
-                        guint type, enum subscr esub)
+                        guint type, enum subscr esub, gint onserver)
 {
   roster *roster_usr;
   roster *my_group;
@@ -367,6 +371,8 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
     oldgroupname = ((roster*)((GSList*)roster_usr->list)->data)->name;
     if (group && strcmp(oldgroupname, group))
       buddy_setgroup(slist->data, (char*)group);
+    if (onserver != -1)
+      buddy_setonserverflag(slist->data, onserver);
     return slist;
   }
   // #2 add group if necessary
@@ -393,6 +399,8 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
   roster_usr->type = type;
   roster_usr->subscription = esub;
   roster_usr->list = slist;    // (my_group SList element)
+  if (onserver == 1)
+    roster_usr->on_server = TRUE;
   // #4 Insert node (sorted)
   my_group->list = g_slist_insert_sorted(my_group->list, roster_usr,
                                          (GCompareFunc)&roster_compare_name);
@@ -496,7 +504,8 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   // If we can't find it, we add it
   if (sl_user == NULL)
-    sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER, sub_none);
+    sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER,
+                              sub_none, -1);
 
   // If there is no resource name, we can leave now
   if (!resname) return;
@@ -586,7 +595,7 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   // If we can't find it, we add it
   if (sl_user == NULL) {
-    sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER, sub_none);
+    sl_user = roster_add_user(jid, NULL, NULL, ROSTER_TYPE_USER, sub_none, -1);
     new_roster_item = TRUE;
   }
 
@@ -1273,6 +1282,20 @@ guint buddy_getflags(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->flags;
+}
+
+//  buddy_setonserverflag()
+// Set the on_server flag
+void buddy_setonserverflag(gpointer rosterdata, guint onserver)
+{
+  roster *roster_usr = rosterdata;
+  roster_usr->on_server = onserver;
+}
+
+guint buddy_getonserverflag(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->on_server;
 }
 
 //  buddy_search_jid(jid)

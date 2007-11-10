@@ -2198,7 +2198,7 @@ void scr_RosterJumpJid(char *barejid)
   // Create it if necessary
   if (!roster_elt)
     roster_elt = roster_add_user(barejid, NULL, NULL, ROSTER_TYPE_USER,
-                                 sub_none);
+                                 sub_none, -1);
   // Set a lock to see it in the buddylist
   buddy_setflags(BUDDATA(roster_elt), ROSTER_FLAG_LOCK, TRUE);
   buddylist_build();

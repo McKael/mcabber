@@ -1031,7 +1031,7 @@ void jb_addbuddy(const char *bjid, const char *name, const char *group)
 
   jb_subscr_request_auth(cleanjid);
 
-  roster_add_user(cleanjid, name, group, ROSTER_TYPE_USER, sub_pending);
+  roster_add_user(cleanjid, name, group, ROSTER_TYPE_USER, sub_pending, -1);
   g_free(cleanjid);
   buddylist_build();
 
@@ -1190,7 +1190,8 @@ void jb_room_join(const char *room, const char *nickname, const char *passwd)
   room_elt = roster_find(room, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_ROOM);
   // Add room if it doesn't already exist
   if (!room_elt) {
-    room_elt = roster_add_user(room, NULL, NULL, ROSTER_TYPE_ROOM, sub_none);
+    room_elt = roster_add_user(room, NULL, NULL, ROSTER_TYPE_ROOM,
+                               sub_none, -1);
   } else {
     // Make sure this is a room (it can be a conversion user->room)
     buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
@@ -1749,7 +1750,8 @@ static void gotmessage(char *type, const char *from, const char *body,
     // Make sure this is a room (it can be a conversion user->room)
     room_elt = roster_find(bjid, jidsearch, 0);
     if (!room_elt) {
-      room_elt = roster_add_user(bjid, NULL, NULL, ROSTER_TYPE_ROOM, sub_none);
+      room_elt = roster_add_user(bjid, NULL, NULL, ROSTER_TYPE_ROOM,
+                                 sub_none, -1);
     } else {
       buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
     }
@@ -1988,7 +1990,8 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     // Add room if it doesn't already exist
     // It shouldn't happen, there is probably something wrong (server or
     // network issue?)
-    room_elt = roster_add_user(roomjid, NULL, NULL, ROSTER_TYPE_ROOM, sub_none);
+    room_elt = roster_add_user(roomjid, NULL, NULL, ROSTER_TYPE_ROOM,
+                               sub_none, -1);
     scr_LogPrint(LPRINT_LOGNORM, "Strange MUC presence message");
   } else {
     // Make sure this is a room (it can be a conversion user->room)

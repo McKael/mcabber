@@ -33,6 +33,7 @@
 #include "settings.h"
 #include "hbuf.h"
 #include "commands.h"
+#include "hooks.h"
 
 #ifdef ENABLE_HGCSET
 # include "hgcset.h"
@@ -246,13 +247,6 @@ void jb_iqs_display_list(void)
   scr_LogPrint(LPRINT_LOGNORM, "End of IQ list.");
 }
 
-static void request_roster(void)
-{
-  eviqs *iqn = iqs_new(JPACKET__GET, NS_ROSTER, "Roster", IQS_DEFAULT_TIMEOUT);
-  jab_send(jc, iqn->xmldata);
-  iqs_del(iqn->id); // XXX
-}
-
 static void handle_iq_roster(xmlnode x)
 {
   xmlnode y;
@@ -325,6 +319,44 @@ static void handle_iq_roster(xmlnode x)
   update_roster = TRUE;
   if (need_refresh)
     scr_UpdateBuddyWindow();
+}
+
+//  This callback is reached when mcabber receives the first roster update
+// after the connection.
+static int iqscallback_gotroster(eviqs *iqp, xmlnode xml_result, guint iqcontext)
+{
+  xmlnode x;
+  char *ns;
+
+  // Leave now if we cannot process xml_result
+  if (!xml_result || iqcontext) return -1;
+
+  // Only execute the hook if the roster has been successfully retrieved
+  if (iqcontext != IQS_CONTEXT_RESULT)
+    return 0;
+
+  x = xmlnode_get_tag(xml_result, "query");
+  if (!x)
+    return -1;
+  ns = xmlnode_get_attrib(x, "xmlns");
+  if (!ns)
+    return -1;
+
+  if (!strcmp(ns, NS_ROSTER))   // The check is probably useless...
+    handle_iq_roster(x);
+
+  // Post-login stuff
+  jb_setprevstatus();
+  hook_execute_internal("hook-post-connect");
+
+  return 0;
+}
+
+static void request_roster(void)
+{
+  eviqs *iqn = iqs_new(JPACKET__GET, NS_ROSTER, "Roster", IQS_DEFAULT_TIMEOUT);
+  iqn->callback = &iqscallback_gotroster;
+  jab_send(jc, iqn->xmldata);
 }
 
 static int iqscallback_version(eviqs *iqp, xmlnode xml_result, guint iqcontext)
@@ -895,33 +927,14 @@ int iqscallback_auth(eviqs *iqp, xmlnode xml_result, guint iqcontext)
 
 static void handle_iq_result(jconn conn, char *from, xmlnode xmldata)
 {
-  xmlnode x;
-  char *id;
-  char *ns;
+  char *id = xmlnode_get_attrib(xmldata, "id");
 
-  id = xmlnode_get_attrib(xmldata, "id");
   if (!id) {
     scr_LogPrint(LPRINT_LOG, "IQ result stanza with no ID, ignored.");
     return;
   }
 
-  if (!iqs_callback(id, xmldata, IQS_CONTEXT_RESULT))
-    return;
-
-  x = xmlnode_get_tag(xmldata, "query");
-  if (!x) return;
-
-  ns = xmlnode_get_attrib(x, "xmlns");
-  if (!ns) return;
-
-  if (!strcmp(ns, NS_ROSTER)) {
-    handle_iq_roster(x);
-
-    // Post-login stuff
-    // Usually we request the roster only at connection time
-    // so we should be there only once.  (That's ugly, however)
-    jb_setprevstatus();
-  }
+  (void)iqs_callback(id, xmldata, IQS_CONTEXT_RESULT);
 }
 
 // FIXME  highly duplicated code

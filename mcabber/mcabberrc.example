@@ -199,6 +199,14 @@ set cmdhistory_lines = 250
 # exit value is 2.
 #set eventcmd_checkstatus = 0
 
+# Internal hooks
+# You can ask mcabber to execute an internal command when a special event
+# occurs (for example when it connects to the server).
+#
+# 'hook-post-connect' is executed when mcabber has connected to the server
+# and the roster has been received.
+#set hook-post-connect = status dnd
+
 # Traces logging
 # If you want advanced traces, please specify a file and a level here.
 # There are currently 2 traceloglog levels:

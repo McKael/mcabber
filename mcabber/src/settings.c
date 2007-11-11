@@ -87,6 +87,7 @@ void settings_init(void)
 //
 int cfg_read_file(char *filename, guint mainfile)
 {
+  static unsigned int runtime;
   FILE *fp;
   char *buf;
   char *line, *eol;
@@ -106,7 +107,8 @@ int cfg_read_file(char *filename, guint mainfile)
     if (!home) {
       scr_LogPrint(LPRINT_LOG, "Can't find home dir!");
       fprintf(stderr, "Can't find home dir!\n");
-      return -1;
+      err = -1;
+      goto cfg_read_file_return;
     }
     filename = g_new(char, strlen(home)+24);
     sprintf(filename, "%s/.mcabber/mcabberrc", home);
@@ -116,14 +118,15 @@ int cfg_read_file(char *filename, guint mainfile)
       if ((fp = fopen(filename, "r")) == NULL) {
         fprintf(stderr, "Cannot open config file!\n");
         g_free(filename);
-        return -1;
+        err = -1;
+        goto cfg_read_file_return;
       }
     }
     // Check configuration file permissions
-    // As it could contain sensitive data, we make it user-readable only
+    // As it could contain sensitive data, we make it user-readable only.
     checkset_perm(filename, TRUE);
     scr_LogPrint(LPRINT_LOGNORM, "Reading %s", filename);
-    // Check mcabber dir.  There we just warn, we don't change the modes
+    // Check mcabber dir.  Here we just warn, we don't change the modes.
     sprintf(filename, "%s/.mcabber/", home);
     checkset_perm(filename, FALSE);
     g_free(filename);
@@ -135,7 +138,8 @@ int cfg_read_file(char *filename, guint mainfile)
         perror(msg);
       else
         scr_LogPrint(LPRINT_LOGNORM, "%s (%s).", msg, filename);
-      return -2;
+      err = -2;
+      goto cfg_read_file_return;
     }
     // Check configuration file permissions (see above)
     // We don't change the permissions if that's not the main file.
@@ -170,21 +174,24 @@ int cfg_read_file(char *filename, guint mainfile)
       continue;
 
     // We only allow assignments line, except for commands "pgp", "source",
-    // "color" and "otrpolicy"
-    if ((strchr(line, '=') != NULL) ||
-        startswith(line, "pgp ", FALSE) || startswith(line, "source ", FALSE) ||
-        startswith(line, "color ", FALSE) ||
+    // "color" and "otrpolicy", unless we're in runtime (i.e. not startup).
+    if (runtime ||
+        (strchr(line, '=') != NULL)        ||
+        startswith(line, "pgp ", FALSE)    ||
+        startswith(line, "source ", FALSE) ||
+        startswith(line, "color ", FALSE)  ||
         startswith(line, "otrpolicy", FALSE)) {
       // Only accept the set, alias, bind, pgp and source commands
-      if (!startswith(line, "set ", FALSE)   &&
-          !startswith(line, "bind ", FALSE)  &&
-          !startswith(line, "alias ", FALSE) &&
-          !startswith(line, "pgp ", FALSE)   &&
+      if (!runtime &&
+          !startswith(line, "set ", FALSE)    &&
+          !startswith(line, "bind ", FALSE)   &&
+          !startswith(line, "alias ", FALSE)  &&
+          !startswith(line, "pgp ", FALSE)    &&
           !startswith(line, "source ", FALSE) &&
-          !startswith(line, "otrpolicy ", FALSE) &&
-          !startswith(line, "color ", FALSE)) {
-        scr_LogPrint(LPRINT_LOGNORM,
-                     "Error in configuration file (l. %d): bad command", ln);
+          !startswith(line, "color ", FALSE)  &&
+          !startswith(line, "otrpolicy ", FALSE)) {
+        scr_LogPrint(LPRINT_LOGNORM, "Error in configuration file (l. %d): "
+                     "this command can't be used here", ln);
         err++;
         continue;
       }
@@ -193,8 +200,8 @@ int cfg_read_file(char *filename, guint mainfile)
       *(--line) = COMMAND_CHAR;
       process_command(line, TRUE);
     } else {
-      scr_LogPrint(LPRINT_LOGNORM,
-                   "Error in configuration file (l. %d): no assignment", ln);
+      scr_LogPrint(LPRINT_LOGNORM, "Error in configuration file (l. %d): "
+                   "this is not an assignment", ln);
       err++;
     }
   }
@@ -203,6 +210,12 @@ int cfg_read_file(char *filename, guint mainfile)
 
   if (filename)
     scr_LogPrint(LPRINT_LOGNORM, "Loaded %s.", filename);
+
+cfg_read_file_return:
+  // If we're done with the main file parsing, we can assume that
+  // the next time this function is called will be at run time.
+  if (mainfile)
+    runtime = TRUE;
   return err;
 }
 

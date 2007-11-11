@@ -4,7 +4,7 @@
  * Copyright (C) 2005-2007 Mikael Berthe <mikael@lilotux.net>
  * Some parts initially came from the centericq project:
  * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
- * Some small parts come from the Gaim project <http://gaim.sourceforge.net/>
+ * Some small parts come from the Pidgin project <http://pidgin.im/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1499,7 +1499,7 @@ static void handle_iq_version(jconn conn, char *from, const char *id,
   xmlnode_free(x);
 }
 
-// This function borrows some code from the Gaim project
+// This function borrows some code from the Pidgin project
 static void handle_iq_time(jconn conn, char *from, const char *id,
                            xmlnode xmldata)
 {
@@ -1544,7 +1544,7 @@ static void handle_iq_time(jconn conn, char *from, const char *id,
   g_free(buf);
 }
 
-// This function borrows some code from the Gaim project
+// This function borrows some code from the Pidgin project
 static void handle_iq_time202(jconn conn, char *from, const char *id,
                               xmlnode xmldata)
 {
@@ -1598,7 +1598,7 @@ static void handle_iq_time202(jconn conn, char *from, const char *id,
   g_free(buf);
 }
 
-// This function borrows some code from the Gaim project
+// This function borrows some code from the Pidgin project
 static void handle_iq_get(jconn conn, char *from, xmlnode xmldata)
 {
   const char *id, *ns;

@@ -198,7 +198,8 @@ int cfg_read_file(char *filename, guint mainfile)
       // Set the leading COMMAND_CHAR to build a command line
       // and process the command
       *(--line) = COMMAND_CHAR;
-      process_command(line, TRUE);
+      if (process_command(line, TRUE) == 255)
+        mcabber_set_terminate_ui();
     } else {
       scr_LogPrint(LPRINT_LOGNORM, "Error in configuration file (l. %d): "
                    "this is not an assignment", ln);

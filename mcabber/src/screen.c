@@ -3697,7 +3697,7 @@ static int bindcommand(keycode kcode)
 
 //  process_key(key)
 // Handle the pressed key, in the command line (bottom).
-int process_key(keycode kcode)
+void process_key(keycode kcode)
 {
   int key = kcode.value;
   int display_char = FALSE;
@@ -3712,8 +3712,10 @@ int process_key(keycode kcode)
         break;
     case MKEY_META:
     default:
-        if (bindcommand(kcode) == 255)
-          return 255;
+        if (bindcommand(kcode) == 255) {
+          mcabber_set_terminate_ui();
+          return;
+        }
         key = ERR; // Do not process any further
   }
 
@@ -3731,8 +3733,10 @@ int process_key(keycode kcode)
         readline_do_completion();
         break;
     case 13:    // Enter
-        if (readline_accept_line(FALSE) == 255)
-          return 255;
+        if (readline_accept_line(FALSE) == 255) {
+          mcabber_set_terminate_ui();
+          return;
+        }
         break;
     case 3:     // Ctrl-C
         scr_handle_CtrlC();
@@ -3751,7 +3755,7 @@ display:
 
       // Check the line isn't too long
       if (strlen(inputLine) + 4 > INPUTLINE_LENGTH)
-        return 0;
+        return;
 
       // Insert char
       strcpy(tmpLine, ptr_inputline);
@@ -3760,8 +3764,10 @@ display:
       check_offset(1);
     } else {
       // Look for a key binding.
-      if (!kcode.utf8 && (bindcommand(kcode) == 255))
-        return 255;
+      if (!kcode.utf8 && (bindcommand(kcode) == 255)) {
+          mcabber_set_terminate_ui();
+          return;
+        }
     }
   }
 
@@ -3779,7 +3785,7 @@ display:
     if (chatstate)
       time(&chatstate_timestamp);
   }
-  return 0;
+  return;
 }
 
 #ifdef HAVE_ASPELL_H

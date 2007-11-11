@@ -349,7 +349,8 @@ void hook_execute_internal(const char *hookname)
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
 
   cmdline = from_utf8(hook_command);
-  process_command(cmdline, TRUE); // XXX Note: /quit won't work.
+  if (process_command(cmdline, TRUE) == 255)
+    mcabber_set_terminate_ui();
 
   g_free(cmdline);
   g_free(buf);

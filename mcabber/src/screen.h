@@ -102,7 +102,7 @@ typedef enum {
 void scr_init_bindings(void);
 
 void scr_Getch(keycode *kcode);
-int process_key(keycode kcode);
+void process_key(keycode kcode);
 
 void scr_InitLocaleCharSet(void);
 void scr_InitCurses(void);

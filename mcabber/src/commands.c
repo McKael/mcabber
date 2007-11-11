@@ -386,6 +386,12 @@ int process_command(const char *line, guint iscmd)
       g_free(xpline);
       return 255;
     }
+  } else if (iscmd && !strncasecmp(xpline, "quit", 4) &&
+             (!xpline[4] || xpline[4] == ' ')) {
+    // If iscmd is true we can have the command without the command prefix
+    // character (usually '/').
+    g_free(xpline);
+    return 255;
   }
 
   // If verbatim multi-line mode, we check if another /msay command is typed

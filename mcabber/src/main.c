@@ -51,6 +51,8 @@
 # define WAIT_ANY -1
 #endif
 
+static unsigned int terminate_ui;
+
 static struct termios *backup_termios;
 
 char *mcabber_version(void)
@@ -336,6 +338,11 @@ static void main_init_pgp(void)
 #endif /* HAVE_GPGME */
 }
 
+void mcabber_set_terminate_ui(void)
+{
+  terminate_ui = TRUE;
+}
+
 int main(int argc, char **argv)
 {
   char *configFile = NULL;
@@ -472,12 +479,12 @@ int main(int argc, char **argv)
 
   scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
 
-  for (ret = 0 ; ret != 255 ; ) {
+  while (!terminate_ui) {
     scr_DoUpdate();
     scr_Getch(&kcode);
 
     if (kcode.value != ERR) {
-      ret = process_key(kcode);
+      process_key(kcode);
     } else {
       scr_CheckAutoAway(FALSE);
 

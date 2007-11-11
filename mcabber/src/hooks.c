@@ -348,8 +348,8 @@ void hook_execute_internal(const char *hookname)
   buf = g_strdup_printf("Running %s...", hookname);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
 
-  cmdline = g_strdup_printf(mkcmdstr("%s"), hook_command);
-  process_command(hook_command, TRUE); // XXX Note: /quit won't work.
+  cmdline = from_utf8(hook_command);
+  process_command(cmdline, TRUE); // XXX Note: /quit won't work.
 
   g_free(cmdline);
   g_free(buf);

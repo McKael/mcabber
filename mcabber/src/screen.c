@@ -3678,13 +3678,10 @@ static int bindcommand(keycode kcode)
   boundcmd = settings_get(SETTINGS_TYPE_BINDING, asciikey);
 
   if (boundcmd) {
-    gchar *cmdline, *boundcmd_locale;
-    boundcmd_locale = from_utf8(boundcmd);
-    cmdline = g_strdup_printf(mkcmdstr("%s"), boundcmd_locale);
+    gchar *cmdline = from_utf8(boundcmd);
     scr_CheckAutoAway(TRUE);
     if (process_command(cmdline, TRUE))
       return 255; // Quit
-    g_free(boundcmd_locale);
     g_free(cmdline);
     return 0;
   }

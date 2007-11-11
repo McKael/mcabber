@@ -1353,6 +1353,31 @@ void jb_room_invite(const char *room, const char *fjid, const char *reason)
   jb_reset_keepalive();
 }
 
+//  jb_is_bookmarked()
+// Return TRUE if there's a bookmark for the given jid.
+guint jb_is_bookmarked(const char *bjid)
+{
+  xmlnode x;
+
+  if (!bookmarks)
+    return FALSE;
+
+  // Walk through the storage bookmark tags
+  x = xmlnode_get_firstchild(bookmarks);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    const char *fjid;
+    const char *p;
+    p = xmlnode_get_name(x);
+    // If the node is a conference item, check the jid.
+    if (p && !strcmp(p, "conference")) {
+      fjid = xmlnode_get_attrib(x, "jid");
+      if (fjid && !strcasecmp(bjid, fjid))
+        return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 //  jb_get_all_storage_bookmarks()
 // Return a GSList with all storage bookmarks.
 // The caller should g_free the list (not the MUC jids).

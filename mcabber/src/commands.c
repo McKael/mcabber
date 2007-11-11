@@ -999,6 +999,7 @@ static void do_group(char *arg)
   guint leave_buddywindow;
   char **paramlst;
   char *subcmd;
+  enum { group_unfold = 0, group_fold, group_toggle } group_state = 0;
 
   if (!*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
@@ -1029,29 +1030,39 @@ static void do_group(char *arg)
   // We'll have to redraw the chat window if we're not currently on the group
   // entry itself, because it means we'll have to leave the current buddy
   // chat window.
-  leave_buddywindow = (group != BUDDATA(current_buddy));
+  leave_buddywindow = (group != BUDDATA(current_buddy) &&
+                       group == buddy_getgroup(BUDDATA(current_buddy)));
+
 
   if (!(buddy_gettype(group) & ROSTER_TYPE_GROUP)) {
     scr_LogPrint(LPRINT_NORMAL, "You need to select a group.");
     goto do_group_return;
   }
 
-  if (!strcasecmp(subcmd, "expand") || !strcasecmp(subcmd, "unfold")) {
-    buddy_setflags(group, ROSTER_FLAG_HIDE, FALSE);
-  } else if (!strcasecmp(subcmd, "shrink") || !strcasecmp(subcmd, "fold")) {
-    buddy_setflags(group, ROSTER_FLAG_HIDE, TRUE);
-  } else if (!strcasecmp(subcmd, "toggle")) {
-    buddy_setflags(group, ROSTER_FLAG_HIDE,
-                   !(buddy_getflags(group) & ROSTER_FLAG_HIDE));
-  } else {
+  if (!strcasecmp(subcmd, "expand") || !strcasecmp(subcmd, "unfold"))
+    group_state = group_unfold;
+  else if (!strcasecmp(subcmd, "shrink") || !strcasecmp(subcmd, "fold"))
+    group_state = group_fold;
+  else if (!strcasecmp(subcmd, "toggle"))
+    group_state = group_toggle;
+  else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
     goto do_group_return;
   }
 
+  if (group_state != group_unfold && leave_buddywindow)
+    scr_RosterPrevGroup();
+
+  if (group_state == group_unfold)
+    buddy_setflags(group, ROSTER_FLAG_HIDE, FALSE);
+  else if (group_state == group_fold)
+    buddy_setflags(group, ROSTER_FLAG_HIDE, TRUE);
+  else if (group_state == group_toggle)
+    buddy_setflags(group, ROSTER_FLAG_HIDE,
+                   !(buddy_getflags(group) & ROSTER_FLAG_HIDE));
+
   buddylist_build();
   update_roster = TRUE;
-  if (leave_buddywindow)
-    scr_ShowBuddyWindow();
 
 do_group_return:
   free_arg_lst(paramlst);

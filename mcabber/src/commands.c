@@ -3161,12 +3161,6 @@ static void do_otrpolicy(char *arg)
   char *fjid, *policy;
   enum otr_policy p;
 
-  if (!otr_enabled()) {
-    scr_LogPrint(LPRINT_LOGNORM,
-                 "Warning: OTR hasn't been enabled -- command ignored.");
-    return;
-  }
-
   paramlst = split_arg(arg, 2, 0); // [jid|default] policy
   fjid = *paramlst;
   policy = *(paramlst+1);

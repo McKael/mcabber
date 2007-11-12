@@ -505,10 +505,8 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg,
       room_presence.msg = msg;
       foreach_buddy(ROSTER_TYPE_ROOM, &roompresence, &room_presence);
     }
-  }
 
-  if (online) {
-    // We'll need to update the roster if we switch to/from offline because
+    // We'll have to update the roster if we switch to/from offline because
     // we don't know the presences of buddies when offline...
     if (mystatus == offline || st == offline)
       update_roster = TRUE;
@@ -516,8 +514,10 @@ void jb_setstatus(enum imstatus st, const char *recipient, const char *msg,
     hk_mystatuschange(0, mystatus, st, (st != invisible ? msg : ""));
     mystatus = st;
   }
+
   if (st)
     mywantedstatus = st;
+
   if (msg != mystatusmsg) {
     g_free(mystatusmsg);
     if (*msg)

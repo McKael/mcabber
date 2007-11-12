@@ -338,11 +338,9 @@ static int iqscallback_gotroster(eviqs *iqp, xmlnode xml_result, guint iqcontext
   x = xmlnode_get_tag(xml_result, "query");
   if (!x)
     return -1;
-  ns = xmlnode_get_attrib(x, "xmlns");
-  if (!ns)
-    return -1;
 
-  if (!strcmp(ns, NS_ROSTER))   // The check is probably useless...
+  ns = xmlnode_get_attrib(x, "xmlns");
+  if (ns && !strcmp(ns, NS_ROSTER))
     handle_iq_roster(x);
 
   // Post-login stuff

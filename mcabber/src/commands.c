@@ -363,6 +363,9 @@ int process_command(const char *line, guint iscmd)
   char *xpline;
   cmd *curcmd;
 
+  if (!line)
+    return 0;
+
   // We do alias expansion here
   if (iscmd || scr_get_multimode() != 2)
     xpline = expandalias(line);

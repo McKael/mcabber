@@ -365,14 +365,18 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
     // That's an update
     roster_usr = slist->data;
     roster_usr->subscription = esub;
+    if (onserver >= 0)
+      buddy_setonserverflag(slist->data, onserver);
     if (name)
       buddy_setname(slist->data, (char*)name);
     // Let's check if the group name has changed
     oldgroupname = ((roster*)((GSList*)roster_usr->list)->data)->name;
-    if (group && strcmp(oldgroupname, group))
+    if (group && strcmp(oldgroupname, group)) {
       buddy_setgroup(slist->data, (char*)group);
-    if (onserver != -1)
-      buddy_setonserverflag(slist->data, onserver);
+      // Note: buddy_setgroup() updates the user lists so we cannot
+      // use slist anymore.
+      return roster_find(jid, jidsearch, 0);
+    }
     return slist;
   }
   // #2 add group if necessary
@@ -891,6 +895,8 @@ const char *buddy_getjid(gpointer rosterdata)
 
 //  buddy_setgroup()
 // Change the group of current buddy
+//
+// Note: buddy_setgroup() updates the user lists.
 //
 void buddy_setgroup(gpointer rosterdata, char *newgroupname)
 {

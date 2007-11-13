@@ -458,7 +458,7 @@ char **split_arg(const char *arg, unsigned int n, int dontstriplast)
       *(arglst+i) = g_strndup(start, p-start);
       strip_arg_special_chars(*(arglst+i));
       for (start = p+1; *start && *start == ' '; start++) ;
-      p = start;
+      p = start-1;
       i++;
     }
   }

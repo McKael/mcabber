@@ -800,7 +800,7 @@ void setstatus(const char *recipient, const char *arg)
     return;
   }
 
-  paramlst = split_arg(arg, 2, 0); // status, message
+  paramlst = split_arg(arg, 2, 1); // status, message
   status = *paramlst;
   msg = *(paramlst+1);
 

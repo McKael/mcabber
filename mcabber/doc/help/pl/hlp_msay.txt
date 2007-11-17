@@ -19,3 +19,5 @@ Tryb 'verbatim' umożliwia wpisywanie linii zaczynających się od ukośnika '/'
  Włącza/wyłącza tryb wielolinijkowy (begin/send)
 /msay abort
  Opuszcza tryb wielolinijkowy bez wysyłania wiadomości
+
+Flagi -n oraz -h tworzą odpowiednio wiadomość typu "normal" (normalna) oraz "headline" (nagłówek). Domyślny typ wiadomości to "chat".

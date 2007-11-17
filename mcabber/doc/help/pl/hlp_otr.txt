@@ -1,0 +1,27 @@
+
+ /OTR key
+ /OTR start|stop|info [jid]
+ /OTR fingerprint [jid [fpr]]
+ /OTR smpq|smpr [jid] secret
+ /OTR smpa [jid]
+
+Wartość "." może być używana jako skrót oznaczający aktualnie wybrany kontakt.
+
+/otr key
+ Wyświetla odcisk twojego klucza prywatnego w oknie statusu
+/otr start [jid]
+ Tworzy kanał OTR dla podanego jid (lub aktualnie wybranego)
+/otr stop [jid]
+ Zamyka kanał OTR dla podanego jid (lub aktualnie wybranego)
+/otr info [jid]
+ Wyświetla aktualny status OTR dla podanego jid (lub aktualnie wybranego kontaktu)
+/otr fingerprint [jid [fpr]]
+ Wyświetla aktywny odcisk kanału OTR.
+ Jeżeli podano odcisk zamiast 'fpr' stanie się on zaufany. Jeżeli 'fpr' zostanie ustawione na przypadkowy ciąg znaków skrót utraci status zaufanego.
+/otr smpq [jid] secret
+ Inicjuje protokół "Socialist Millionaires Protocol" dla jid ze wskazanym 'secret'
+/otr smpr [jid] secret
+ Odpowiada na żądanie "Socialist Millionaires Protocol" używając 'secret' oraz podanego jid
+/otr smpa [jid]
+ Zakończ działanie protokołu "Socialist Millionaires Protocol"
+

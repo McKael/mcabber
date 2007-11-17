@@ -1,0 +1,18 @@
+
+ /OTRPOLICY
+ /OTRPOLICY (default|jid) (plain|manual|opportunistic|always)
+
+Wartość "." może być używana jako skrót oznaczający aktualnie wybrany kontakt.
+
+/otrpolicy
+ Wyświetla ustawienia polityki OTR w buforze statusu.
+/otrpolicy (default|jid) (plain|manual|opportunistic|always)
+ Ustawia politykę OTR (domyślną lub dla podanego "jid").
+
+ Wartość 'plain' nie powinna być używana, gdyż uniemożliwia otrzymywanie i wysyłanie zaszyfrowanych wiadomości OTR.
+
+ Jeżeli zostanie wybrana wartość 'manual', ty albo twój rozmówca musi jawnie rozpocząć (np. poleceniem /otr start) szyfrowanie OTR.
+
+ Wartość 'opportunistic' powoduje automatyczne włączenie szyfrowania OTR w przypadku klientów, które na to pozwalają(wysyłana jest specjalna sekwencja znaków na końcu nieszyfrowanej wiadomości, by to sprawdzić). Należy zauważyć, że w tym trybie pierwsza wiadomość będzie zawsze nieszyfrowana.
+
+ W przypadku wybranej wartości 'always' wszystkie wysyłane wiadomości będą szyfrowane. W momencie wysłania pierwszej wiadomości niezaszyfrowanej mcabber spróbuje utworzyć kanał OTR. Gdy otrzymasz wiadomość, że kanał został utworzony, prześlij pierwszą wiadomość jeszcze raz. Jeżeli w tym trybie ktoś będzie wysyłał do ciebie wiadomości nieszyfrowanym tekstem, będziesz mógł je odczytać, ale nie zostaną one zapisane w historii.

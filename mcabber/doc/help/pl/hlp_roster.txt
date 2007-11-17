@@ -23,7 +23,7 @@ Dostępne parametry:
 /roster group_next
  Przejdź do następnej grupy w rosterze
 /roster alternate
- Skacze do ostatniej osoby, która zmieniła stan z dostępnego na niedostępny (jest szczególnie przydatna po poleceniach typu "/roster unread_first")
+ Skacze do ostatniej osoby, która zmieniła stan z dostępnego na niedostępny. Jest szczególnie przydatna po poleceniach typu "/roster unread_next" (Ctrl-q).
 /roster unread_first
  Skacze do pierwszej nieprzeczytanej wiadomości
 /roster unread_next
@@ -31,17 +31,22 @@ Dostępne parametry:
 /roster search "osoba"
  Szuka osoby "osoba", lub osoby której nazwa zawiera słowo "osoba"
 /roster display [mask]
+ Wyświetla lub aktualizuje filtr rostera.
+ "mask" powinna składać się z liter statusu, który ma być wyświetlany (np. [o]nline, [f]ree_for_chat, [d]o_not_disturb, [n]ot_available, [a]way, [_] offline).
+ Na przykład "ofdna" oznacza, że wyświetlani będą tylko połączeni znajomi.
+  "*"  może być użyte jako skrót do wyświetlania wszystkich kontaktów
 /roster hide_offline
- Ukrywa niedostępnych
+ Ukrywa niedostępnych (działa jak /roster display ofdna)
 /roster show_offline
- Pokazuje niedostępnych
+ Pokazuje niedostępnych (działa jak /roster display ofdna_)
 /roster toggle_offline
- Włącza/wyłącza niedostępnych
+ Włącza/wyłącza wyświetlanie niedostępnych
 /roster item_lock [jid]
  Zablokuj wyświetlanie elementu rostera, tak aby był widoczny cały czas (bez względu na jego status)
 /roster item_unlock [jid]
- Odblokuj wyświetlanie elementu rostera, element będzie widoczny ze względu na jego status
+ Odblokuj wyświetlanie elementu rostera (działanie odwrotne do /roster item_lock [jid])
 /roster item_toggle_lock [jid]
+ Włącz/wyłącz blokowanie wyświetlania elementu rostera
 /roster hide
  Ukrywa całą liste kontaktów
 /roster show

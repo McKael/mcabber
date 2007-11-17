@@ -2,3 +2,4 @@
  /SAY [-n|-h|--] tekst
 
 Wysyła wiadomość "tekst" do aktualnie wybranej osoby. Jest użyteczna jeśli chcesz wysłać wiadomość zaczynającą się od ukośnika '/'.
+Flaga "-n"  oraz "-h" pozwala ustawić tryby: "normal" oraz "headline". "--" może zostać użyte gdy wiadomość zaczyna się od -n lub -h.

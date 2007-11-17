@@ -3,7 +3,7 @@
  /EVENT list
 
 Zarządza oczekującymi zdarzeniami.
-Jeżeli pierwszy parametrem to '*', polecenie będzie dotyczyła wszystkich oczekujących zdarzeń.
+Jeżeli pierwszy parametr to '*', polecenie będzie dotyczyło wszystkich oczekujących zdarzeń.
 
 /event #N|* accept
  Zdarzenie o podanym numerze (#N) lub wszystkie (*) będą akceptowane

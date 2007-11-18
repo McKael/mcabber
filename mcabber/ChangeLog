@@ -1,10 +1,19 @@
 mcabber (0.9.5-dev)
 
+ * Implement internal hooks: post-connect, pre-disconnect
+ * Extend command /source; any command can be used in a sourced file
+   once mcabber is running
  * [OTR] New option 'otr' (to enable OTR support in the conf. file)
  * [OTR] Disable OTR encryption for non-user contacts
+ * [SSL] Do not connect when the SSL settings can't be used
  * [MUC] Add "/room names --detail"
+ * Add command /roster item_toggle_lock
+ * A group name can be specified in the /group command
+ * [UI] Remove the restriction on the message sizes for displaying
+   incoming messages
  * History logfile: Use a special code (MI) for local MUC info messages
- * Misc. bugfixes
+ * Usual misc. improvements and bugfixes
+ * Update Polish translation
 
  -- Mikael, ?
 

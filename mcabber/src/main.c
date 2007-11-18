@@ -114,16 +114,23 @@ void mcabber_connect(void)
   ciphers = settings_opt_get("ssl_ciphers");
 
 #if !defined(HAVE_OPENSSL) && !defined(HAVE_GNUTLS)
-  if (ssl || sslvopt || cafile || capath || ciphers) {
-    scr_LogPrint(LPRINT_LOGNORM,
-             "** Warning: SSL is NOT available, ignoring ssl-related setting");
+  if (ssl) {
+    scr_LogPrint(LPRINT_LOGNORM, "** Error: SSL is NOT available, "
+                 "do not set the option 'ssl'.");
+    return;
+  } else if (sslvopt || cafile || capath || ciphers) {
+    scr_LogPrint(LPRINT_LOGNORM, "** Warning: SSL is NOT available, "
+                 "ignoring ssl-related settings");
     ssl = sslverify = 0;
     cafile = capath = ciphers = NULL;
   }
 #elif defined HAVE_GNUTLS
-  if (sslverify >= 0) {
-    scr_LogPrint(LPRINT_LOGNORM, "Warning: SSL certificate checking "
-                 "is not supported yet with GnuTLS");
+  if (sslverify != 0) {
+    scr_LogPrint(LPRINT_LOGNORM, "** Error: SSL certificate checking "
+                 "is not supported yet with GnuTLS.");
+    scr_LogPrint(LPRINT_LOGNORM,
+                 " * Please set 'ssl_verify' to 0 explicitly!");
+    return;
   }
 #endif
   cafile_xp = expand_filename(cafile);

@@ -1,3 +1,11 @@
+mcabber (0.9.5)
+
+ * The option 'otr' must now be set in the configuration file in
+   order to be able to use the OTR (Off-The-Record messaging)
+   support.
+
+ -- Mikael, 2007-11-19
+
 mcabber (0.9.4)
 
  * The option 'hide_offline_buddies' is deprecated, the new option

@@ -1,4 +1,4 @@
-mcabber (0.9.5-dev)
+mcabber (0.9.5)
 
  * Implement internal hooks: post-connect, pre-disconnect
  * Extend command /source; any command can be used in a sourced file
@@ -15,7 +15,7 @@ mcabber (0.9.5-dev)
  * Usual misc. improvements and bugfixes
  * Update Polish translation
 
- -- Mikael, ?
+ -- Mikael, 2007-11-19
 
 mcabber (0.9.4)
 

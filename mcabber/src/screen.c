@@ -794,6 +794,7 @@ static const char *spectimeprefixes[] = {
 };
 
 static int timepreflengths[] = {
+  // (length of the corresponding timeprefix + 5)
   17,
   11,
   6
@@ -801,17 +802,20 @@ static int timepreflengths[] = {
 
 static const char *gettprefix()
 {
-  return timeprefixes[settings_opt_get_int("time_prefix")];
+  guint n = settings_opt_get_int("time_prefix");
+  return timeprefixes[(n < 3 ? n : 0)];
 }
 
 static const char *getspectprefix()
 {
-  return spectimeprefixes[settings_opt_get_int("time_prefix")];
+  guint n = settings_opt_get_int("time_prefix");
+  return spectimeprefixes[(n < 3 ? n : 0)];
 }
 
 static unsigned getprefixwidth()
 {
-  return timepreflengths[settings_opt_get_int("time_prefix")];
+  guint n = settings_opt_get_int("time_prefix");
+  return timepreflengths[(n < 3 ? n : 0)];
 }
 
 //  scr_LogPrint(...)
@@ -960,13 +964,14 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
 static void scr_UpdateWindow(winbuf *win_entry)
 {
   int n;
-  int width;
+  int width, prefixwidth;
   hbb_line **lines, *line;
   GList *hbuf_head;
   char date[64];
   int color;
 
   width = getmaxx(win_entry->win);
+  prefixwidth = getprefixwidth();
 
   // Should the window be empty?
   if (win_entry->bd->cleared) {
@@ -1055,14 +1060,14 @@ static void scr_UpdateWindow(winbuf *win_entry)
       }
 
       // Make sure we are at the right position
-      wmove(win_entry->win, n, getprefixwidth()-1);
+      wmove(win_entry->win, n, prefixwidth-1);
 
-      //The MUC nick - overwrite with propper color
+      // The MUC nick - overwrite with proper color
       if (line->mucnicklen) {
-        //Store the char after the nick
+        // Store the char after the nick
         char tmp = line->text[line->mucnicklen];
         muccoltype type = glob_muccol, *typetmp;
-        //Terminate the string after the nick
+        // Terminate the string after the nick
         line->text[line->mucnicklen] = '\0';
         char *mucjid = g_utf8_strdown(CURRENT_JID, -1);
         if (muccolors) {
@@ -1084,7 +1089,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
           snick[strlen(snick)-1] = '>';
           *mnick = '*';
           mnick[strlen(mnick)-1] = ' ';
-          //Insert them
+          // Insert them
           g_hash_table_insert(nickcolors, snick, nc);
           g_hash_table_insert(nickcolors, mnick, nc);
         }
@@ -1095,9 +1100,9 @@ static void scr_UpdateWindow(winbuf *win_entry)
            (!(line->flags & HBB_PREFIX_HLIGHT_OUT)))
           wattrset(win_entry->win, get_color(actual->color));
         wprintw(win_entry->win, "%s", line->text);
-        //Return the char
+        // Return the char
         line->text[line->mucnicklen] = tmp;
-        //Return the color back
+        // Return the color back
         wattrset(win_entry->win, get_color(color));
       }
 

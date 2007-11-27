@@ -56,6 +56,25 @@ enum findwhat {
   namesearch
 };
 
+extern char *strprintstatus[];
+
+// Note: do not change the ordering as these values are visible
+// to the user (option 'muc_print_status')!
+enum room_printstatus {
+  status_default,
+  status_none,
+  status_in_and_out,
+  status_all
+};
+
+extern char *strautowhois[];
+
+enum room_autowhois {
+  autowhois_default,
+  autowhois_off,
+  autowhois_on
+};
+
 struct role_affil {
   enum { type_role, type_affil } type;
   union {
@@ -170,6 +189,10 @@ void        buddy_setinsideroom(gpointer rosterdata, guint inside);
 guint       buddy_getinsideroom(gpointer rosterdata);
 void        buddy_settopic(gpointer rosterdata, const char *newtopic);
 const char *buddy_gettopic(gpointer rosterdata);
+void    buddy_setprintstatus(gpointer rosterdata, enum room_printstatus);
+enum room_printstatus buddy_getprintstatus(gpointer rosterdata);
+void    buddy_setautowhois(gpointer rosterdata, enum room_autowhois);
+enum room_autowhois buddy_getautowhois(gpointer rosterdata);
 void    buddy_settype(gpointer rosterdata, guint type);
 guint   buddy_gettype(gpointer rosterdata);
 guint   buddy_getsubscription(gpointer rosterdata);

@@ -1,6 +1,7 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|kick|ban|role|affil
+ /ROOM setopt print_status|auto_whois [value]
  /ROOM bookmark [add|del] [-autojoin|+autojoin]
 
 Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
@@ -37,6 +38,7 @@ Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
  Ändert die Rolle der jid (rolle kann "none", "visitor", "participant" oder "moderator" sein)
 /room affil jid zugeh [grund]
  Ändert die Zugehörigkeit der jid zum Raum. (zugh kann "none", "member", "admin" oder "owner" sein)
+/room setopt print_status|auto_whois [value]
 /room bookmark [add|del] [-autojoin|+autojoin]
  Zum Hinzufügen, Löschen und Ändern von Raum-Bookmarks.
  Wenn autojoin gesetzt ist, wird mcabber nach dem verbinden zum Server diesen MUC automatisch betreten.

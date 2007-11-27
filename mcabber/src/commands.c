@@ -236,6 +236,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROOM, "privmsg");
   compl_add_category_word(COMPL_ROOM, "remove");
   compl_add_category_word(COMPL_ROOM, "role");
+  compl_add_category_word(COMPL_ROOM, "setopt");
   compl_add_category_word(COMPL_ROOM, "topic");
   compl_add_category_word(COMPL_ROOM, "unban");
   compl_add_category_word(COMPL_ROOM, "unlock");
@@ -2426,6 +2427,74 @@ static void room_unlock(gpointer bud, char *arg)
   jb_room_unlock(buddy_getjid(bud));
 }
 
+static void room_setopt(gpointer bud, char *arg)
+{
+  char **paramlst;
+  char *param, *value;
+  enum { opt_none = 0, opt_printstatus, opt_autowhois } option = 0;
+
+  paramlst = split_arg(arg, 2, 1); // param, value
+  param = *paramlst;
+  value = *(paramlst+1);
+  if (!param) {
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a room option.");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if (!strcasecmp(param, "print_status"))
+    option = opt_printstatus;
+  else if (!strcasecmp(param, "auto_whois"))
+    option = opt_autowhois;
+  else {
+    scr_LogPrint(LPRINT_NORMAL, "Wrong option!");
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  // If no value is given, display the current value
+  if (!value) {
+    const char *strval;
+    if (option == opt_printstatus)
+      strval = strprintstatus[buddy_getprintstatus(bud)];
+    else
+      strval = strautowhois[buddy_getautowhois(bud)];
+    scr_LogPrint(LPRINT_NORMAL, "%s is set to: %s", param, strval);
+    free_arg_lst(paramlst);
+    return;
+  }
+
+  if (option == opt_printstatus) {
+    enum room_printstatus eval;
+    if (!strcasecmp(value, "none"))
+      eval = status_none;
+    else if (!strcasecmp(value, "in_and_out"))
+      eval = status_in_and_out;
+    else if (!strcasecmp(value, "all"))
+      eval = status_all;
+    else {
+      eval = status_default;
+      if (strcasecmp(value, "default") != 0)
+        scr_LogPrint(LPRINT_NORMAL, "Unrecognized value, assuming default...");
+    }
+    buddy_setprintstatus(bud, eval);
+  } else if (option == opt_autowhois) {
+    enum room_autowhois eval;
+    if (!strcasecmp(value, "on"))
+      eval = autowhois_on;
+    else if (!strcasecmp(value, "off"))
+      eval = autowhois_off;
+    else {
+      eval = autowhois_default;
+      if (strcasecmp(value, "default") != 0)
+        scr_LogPrint(LPRINT_NORMAL, "Unrecognized value, assuming default...");
+    }
+    buddy_setautowhois(bud, eval);
+  }
+
+  free_arg_lst(paramlst);
+}
+
 //  room_whois(..)
 // If interactive is TRUE, chatmode can be enabled.
 void room_whois(gpointer bud, char *arg, guint interactive)
@@ -2656,6 +2725,9 @@ static void do_room(char *arg)
   } else if (!strcasecmp(subcmd, "unlock"))  {
     if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_unlock(bud, arg);
+  } else if (!strcasecmp(subcmd, "setopt"))  {
+    if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
+      room_setopt(bud, arg);
   } else if (!strcasecmp(subcmd, "topic"))  {
     if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_topic(bud, arg);

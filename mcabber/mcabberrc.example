@@ -245,6 +245,12 @@ set cmdhistory_lines = 250
 # the roster when somebody joins a room.  Set it to 2 if you want a flag
 # for leaves too.
 #set muc_flag_joins = 0
+# Set 'muc_print_status' to see status changes in MUC rooms:
+# 1: (none)       do not display joining/leaving members
+# 2: (in_and_out) display joining/leaving members
+# 3: (all)        display joining/leaving members and member status changes
+# (default: in_and_out)
+#set muc_print_status = 2
 # Set 'muc_auto_whois' to 1 if you want to call /room whois each time
 # somebody joins a room. (default: 0)
 #set muc_auto_whois = 0

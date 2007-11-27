@@ -25,19 +25,32 @@
 #include "utils.h"
 
 
-char *strrole[] = { /* Should match enum in roster.h */
+char *strrole[] = {   /* Should match enum in roster.h */
   "none",
   "moderator",
   "participant",
   "visitor"
 };
 
-char *straffil[] = { /* Should match enum roster.h */
+char *straffil[] = {  /* Should match enum in roster.h */
   "none",
   "owner",
   "admin",
   "member",
   "outcast"
+};
+
+char *strprintstatus[] = {  /* Should match enum in roster.h */
+  "default",
+  "none",
+  "in_and_out",
+  "all"
+};
+
+char *strautowhois[] = {    /* Should match enum in roster.h */
+  "default",
+  "off",
+  "on",
 };
 
 /* Resource structure */
@@ -76,6 +89,8 @@ typedef struct {
   gchar *nickname;
   gchar *topic;
   guint inside_room;
+  guint print_status;
+  guint auto_whois;
 
   /* on_server is TRUE if the item is present on the server roster */
   guint on_server;
@@ -1024,6 +1039,30 @@ const char *buddy_gettopic(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->topic;
+}
+
+void buddy_setprintstatus(gpointer rosterdata, enum room_printstatus pstatus)
+{
+  roster *roster_usr = rosterdata;
+  roster_usr->print_status = pstatus;
+}
+
+enum room_printstatus buddy_getprintstatus(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->print_status;
+}
+
+void buddy_setautowhois(gpointer rosterdata, enum room_autowhois awhois)
+{
+  roster *roster_usr = rosterdata;
+  roster_usr->auto_whois = awhois;
+}
+
+enum room_autowhois buddy_getautowhois(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->auto_whois;
 }
 
 //  buddy_getgroupname()

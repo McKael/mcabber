@@ -1,6 +1,7 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|kick|ban|unban|role|affil
+ /ROOM setopt print_status|auto_whois [value]
  /ROOM bookmark [add|del] [+autojoin|-autojoin]
 
 Команда, відповідальна за дії при багатокористувацькій розмові.
@@ -37,6 +38,7 @@
  Змінити роль jid у комнаті ("none", "visitor", "participant", "moderator")
 /room affil jid ступінь [причина]
  Змінити ступінь довіри для jid ("none", "member", "admin", "owner").
+/room setopt print_status|auto_whois [value]
 /room bookmark [add|del] [+autojoin|-autojoin]
  Додати, потерти, або замінити закладку (якщо не вказано - додасть).
  Якщо встановити автовхід, mcabber буде заходити в цю кімнату після з'єднання з сервером.

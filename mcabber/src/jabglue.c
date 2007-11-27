@@ -2000,10 +2000,13 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   const char *ournick;
   enum imrole mbrole = role_none;
   enum imaffiliation mbaffil = affil_none;
+  enum room_printstatus printstatus;
+  enum room_autowhois autowhois;
   const char *mbjid = NULL, *mbnick = NULL;
   const char *actorjid = NULL, *reason = NULL;
   bool new_member = FALSE; // True if somebody else joins the room (not us)
-  unsigned int statuscode = 0;
+  guint statuscode = 0;
+  guint nickchange = 0;
   GSList *room_elt;
   int log_muc_conf;
   guint msgflags;
@@ -2084,6 +2087,14 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       statuscode = atoi(p);
   }
 
+  // Get the room's "print_status" settings
+  printstatus = buddy_getprintstatus(room_elt->data);
+  if (printstatus == status_default) {
+    printstatus = (guint) settings_opt_get_int("muc_print_status");
+    if (printstatus > 3)
+      printstatus = status_default;
+  }
+
   // Check for nickname change
   if (statuscode == 303 && mbnick) {
     mbuf = g_strdup_printf("%s is now known as %s", rname, mbnick);
@@ -2096,6 +2107,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     // Maybe it's _our_ nickname...
     if (ournick && !strcmp(rname, ournick))
       buddy_setnickname(room_elt->data, mbnick);
+    nickchange = TRUE;
   }
 
   // Check for departure/arrival
@@ -2169,11 +2181,14 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       }
     }
 
-    msgflags = HBB_PREFIX_INFO;
-    if (!we_left && settings_opt_get_int("muc_flag_joins") != 2)
-      msgflags |= HBB_PREFIX_NOFLAG;
-
-    scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
+    // Display the mbuf message if we're concerned
+    // or if the print_status isn't set to none.
+    if (we_left || printstatus != status_none) {
+      msgflags = HBB_PREFIX_INFO;
+      if (!we_left && settings_opt_get_int("muc_flag_joins") != 2)
+        msgflags |= HBB_PREFIX_NOFLAG;
+      scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
+    }
 
     if (log_muc_conf)
       hlog_write_message(roomjid, 0, -1, mbuf);
@@ -2210,15 +2225,19 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
         if (log_muc_conf)
           hlog_write_message(roomjid, 0, -1, mbuf);
         g_free(mbuf);
-        mbuf = g_strdup_printf("%s has joined", rname);
+        if (printstatus != status_none)
+          mbuf = g_strdup_printf("%s has joined", rname);
+        else
+          mbuf = NULL;
         new_member = TRUE;
       }
     } else {
+      mbuf = NULL;
       if (strcmp(ournick, rname)) {
-        mbuf = g_strdup_printf("%s has joined", rname);
+        if (printstatus != status_none)
+          mbuf = g_strdup_printf("%s has joined", rname);
         new_member = TRUE;
-      } else
-        mbuf = NULL;
+      }
     }
 
     if (mbuf) {
@@ -2230,20 +2249,36 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
         hlog_write_message(roomjid, 0, -1, mbuf);
       g_free(mbuf);
     }
+  } else {
+    // This is a simple member status change
+
+    if (printstatus == status_all && !nickchange) {
+      mbuf = g_strdup_printf("Member status has changed: %s [%c] %s", rname,
+                             imstatus2char[ust], ((ustmsg) ? ustmsg : ""));
+      scr_WriteIncomingMessage(roomjid, mbuf, usttime, HBB_PREFIX_INFO, 0);
+      g_free(mbuf);
+    }
   }
 
+  // Sanity check, shouldn't happen...
+  if (!rname)
+    return;
+
   // Update room member status
-  if (rname) {
-    roster_setstatus(roomjid, rname, bpprio, ust, ustmsg, usttime,
-                     mbrole, mbaffil, mbjid);
-    if (new_member && settings_opt_get_int("muc_auto_whois")) {
-      // FIXME: This will fail for some UTF-8 nicknames.
-      gchar *joiner_nick = from_utf8(rname);
-      room_whois(room_elt->data, joiner_nick, FALSE);
-      g_free(joiner_nick);
-    }
-  } else
-    scr_LogPrint(LPRINT_LOGNORM, "MUC DBG: no rname!"); /* DBG */
+  roster_setstatus(roomjid, rname, bpprio, ust, ustmsg, usttime,
+                   mbrole, mbaffil, mbjid);
+
+  autowhois = buddy_getautowhois(room_elt->data);
+  if (autowhois == autowhois_default)
+    autowhois = (settings_opt_get_int("muc_auto_whois") ?
+                 autowhois_on : autowhois_off);
+
+  if (new_member && autowhois == autowhois_on) {
+    // FIXME: This will fail for some UTF-8 nicknames.
+    gchar *joiner_nick = from_utf8(rname);
+    room_whois(room_elt->data, joiner_nick, FALSE);
+    g_free(joiner_nick);
+  }
 
   scr_DrawRoster();
 }

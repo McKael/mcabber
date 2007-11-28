@@ -48,6 +48,16 @@ char imstatus2char[imstatus_size+1] = {
     '_', 'o', 'f', 'd', 'n', 'a', 'i', '\0'
 };
 
+static char *imstatus_showmap[] = {
+  "",
+  "",
+  "chat",
+  "dnd",
+  "xa",
+  "away",
+  ""
+};
+
 static time_t LastPingTime;
 static unsigned int KeepaliveDelay;
 static enum imstatus mystatus = offline;
@@ -401,23 +411,11 @@ static xmlnode presnew(enum imstatus st, const char *recipient,
 
   switch(st) {
     case away:
-        xmlnode_insert_cdata(xmlnode_insert_tag(x, "show"), "away",
-                             (unsigned) -1);
-        break;
-
-    case dontdisturb:
-        xmlnode_insert_cdata(xmlnode_insert_tag(x, "show"), "dnd",
-                             (unsigned) -1);
-        break;
-
-    case freeforchat:
-        xmlnode_insert_cdata(xmlnode_insert_tag(x, "show"), "chat",
-                             (unsigned) -1);
-        break;
-
     case notavail:
-        xmlnode_insert_cdata(xmlnode_insert_tag(x, "show"), "xa",
-                             (unsigned) -1);
+    case dontdisturb:
+    case freeforchat:
+        xmlnode_insert_cdata(xmlnode_insert_tag(x, "show"),
+                             imstatus_showmap[st], (unsigned) -1);
         break;
 
     case invisible:
@@ -688,7 +686,7 @@ void jb_send_msg(const char *fjid, const char *text, int type,
    * "Until receiving a reply to the initial content message (or a standalone
    * notification) from the Contact, the User MUST NOT send subsequent chat
    * state notifications to the Contact."
-   * In our implementation support is initially "unknown", they it's "probed"
+   * In our implementation support is initially "unknown", then it's "probed"
    * and can become "ok".
    */
   if (jep85 && (jep85->support == CHATSTATES_SUPPORT_OK ||

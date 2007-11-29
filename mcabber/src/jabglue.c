@@ -2261,7 +2261,8 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     if (printstatus == status_all && !nickchange) {
       mbuf = g_strdup_printf("Member status has changed: %s [%c] %s", rname,
                              imstatus2char[ust], ((ustmsg) ? ustmsg : ""));
-      scr_WriteIncomingMessage(roomjid, mbuf, usttime, HBB_PREFIX_INFO, 0);
+      scr_WriteIncomingMessage(roomjid, mbuf, usttime,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
       g_free(mbuf);
     }
   }

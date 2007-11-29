@@ -1405,11 +1405,14 @@ GSList *jb_get_all_storage_bookmarks(void)
   return sl_bookmarks;
 }
 
-//  jb_set_storage_bookmark(roomid, name, nick, passwd, autojoin)
+//  jb_set_storage_bookmark(roomid, name, nick, passwd, autojoin,
+//                          printstatus, autowhois)
 // Update the private storage bookmarks: add a conference room.
 // If name is nil, we remove the bookmark.
 void jb_set_storage_bookmark(const char *roomid, const char *name,
-                             const char *nick, const char *passwd, int autojoin)
+                             const char *nick, const char *passwd,
+                             int autojoin, enum room_printstatus pstatus,
+                             enum room_autowhois awhois)
 {
   xmlnode x;
   bool changed = FALSE;
@@ -1456,6 +1459,11 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
       xmlnode_insert_cdata(xmlnode_insert_tag(x, "nick"), nick, -1);
     if (passwd)
       xmlnode_insert_cdata(xmlnode_insert_tag(x, "password"), passwd, -1);
+    if (pstatus)
+      xmlnode_insert_cdata(xmlnode_insert_tag(x, "print_status"),
+                           strprintstatus[pstatus], -1);
+    if (awhois)
+      xmlnode_put_attrib(x, "autowhois", (awhois == autowhois_on ? "1" : "0"));
     changed = TRUE;
     scr_LogPrint(LPRINT_LOGNORM, "Updating bookmarks...");
   }

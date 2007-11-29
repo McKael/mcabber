@@ -739,6 +739,7 @@ void request_vcard(const char *bjid)
 static void storage_bookmarks_parse_conference(xmlnode xmldata)
 {
   const char *fjid, *name, *autojoin;
+  const char *pstatus, *awhois;
   char *bjid;
   GSList *room_elt;
 
@@ -747,6 +748,8 @@ static void storage_bookmarks_parse_conference(xmlnode xmldata)
     return;
   name = xmlnode_get_attrib(xmldata, "name");
   autojoin = xmlnode_get_attrib(xmldata, "autojoin");
+  awhois = xmlnode_get_attrib(xmldata, "autowhois");
+  pstatus = xmlnode_get_tag_data(xmldata, "print_status");
 
   bjid = jidtodisp(fjid); // Bare jid
 
@@ -764,6 +767,25 @@ static void storage_bookmarks_parse_conference(xmlnode xmldata)
     if (name)
       buddy_setname(room_elt->data, name);
     */
+  }
+
+  // Set the print_status and auto_whois values
+  if (pstatus) {
+    enum room_printstatus i;
+    for (i = status_none; i <= status_all; i++)
+      if (!strcasecmp(pstatus, strprintstatus[i]))
+        break;
+    if (i <= status_all)
+      buddy_setprintstatus(room_elt->data, i);
+  }
+  if (awhois) {
+    enum room_autowhois i = autowhois_default;
+    if (!strcmp(awhois, "1"))
+      i = autowhois_on;
+    else if (!strcmp(awhois, "0"))
+      i = autowhois_off;
+    if (i != autowhois_default)
+      buddy_setautowhois(room_elt->data, i);
   }
 
   // Is autojoin set?

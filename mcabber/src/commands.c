@@ -2590,6 +2590,8 @@ static void room_bookmark(gpointer bud, char *arg)
 {
   const char *roomid;
   const char *name = NULL, *nick = NULL;
+  enum room_autowhois autowhois = 0;
+  enum room_printstatus printstatus = 0;
   enum { bm_add = 0, bm_del = 1 } action = 0;
   int autojoin = 0;
 
@@ -2617,9 +2619,12 @@ static void room_bookmark(gpointer bud, char *arg)
   if (action == bm_add) {
     name = buddy_getname(bud);
     nick = buddy_getnickname(bud);
+    printstatus = buddy_getprintstatus(bud);
+    autowhois   = buddy_getautowhois(bud);
   }
 
-  jb_set_storage_bookmark(roomid, name, nick, NULL, autojoin);
+  jb_set_storage_bookmark(roomid, name, nick, NULL, autojoin,
+                          printstatus, autowhois);
 }
 
 static void display_all_bookmarks(void)

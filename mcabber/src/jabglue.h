@@ -81,7 +81,8 @@ guint jb_is_bookmarked(const char *bjid);
 GSList *jb_get_all_storage_bookmarks(void);
 void jb_set_storage_bookmark(const char *roomid, const char *name,
                              const char *nick, const char *passwd,
-                             int autojoin);
+                             int autojoin, enum room_printstatus pstatus,
+                             enum room_autowhois awhois);
 struct annotation *jb_get_storage_rosternotes(const char *barejid, int silent);
 GSList *jb_get_all_storage_rosternotes(void);
 void jb_set_storage_rosternotes(const char *barejid, const char *note);

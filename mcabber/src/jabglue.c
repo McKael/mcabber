@@ -96,15 +96,16 @@ char *jidtodisp(const char *fjid)
 char *compose_jid(const char *username, const char *servername,
                   const char *resource)
 {
-  char *fjid = g_new(char, 3 +
-                     strlen(username) + strlen(servername) + strlen(resource));
-  strcpy(fjid, username);
+  char *fjid;
+
   if (!strchr(fjid, JID_DOMAIN_SEPARATOR)) {
-    strcat(fjid, JID_DOMAIN_SEPARATORSTR);
-    strcat(fjid, servername);
+    fjid = g_strdup_printf("%s%c%s%c%s", username,
+                           JID_DOMAIN_SEPARATOR, servername,
+                           JID_RESOURCE_SEPARATOR, resource);
+  } else {
+    fjid = g_strdup_printf("%s%c%s", username,
+                           JID_RESOURCE_SEPARATOR, resource);
   }
-  strcat(fjid, JID_RESOURCE_SEPARATORSTR);
-  strcat(fjid, resource);
   return fjid;
 }
 
@@ -2463,7 +2464,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   xmlnode x;
   char *body = NULL;
   char *enc = NULL;
-  char *tmp = NULL;
+  char *chatmsg = NULL;
   time_t timestamp = 0L;
 
   body = xmlnode_get_tag_data(xmldata, "body");
@@ -2499,12 +2500,11 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       // The topic is displayed in the chat status line, so refresh now.
       scr_UpdateChatStatus(TRUE);
     } else {                                      // Chat message
-      tmp = g_new(char, (body ? strlen(body) : 0) + strlen(p) + 4);
-      *tmp = '[';
-      strcpy(tmp+1, p);
-      strcat(tmp, "]\n");
-      if (body) strcat(tmp, body);
-      body = tmp;
+      if (body)
+        chatmsg = g_strdup_printf("[%s]\n%s", p, body);
+      else
+        chatmsg = g_strdup_printf("[%s]\n", p);
+      body = chatmsg;
     }
   }
 
@@ -2537,7 +2537,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
     if (x && !strcmp(xmlnode_get_name(x), "x"))
       got_muc_message(from, x);
   }
-  g_free(tmp);
+  g_free(chatmsg);
 }
 
 static void handle_state_events(char *from, xmlnode xmldata)

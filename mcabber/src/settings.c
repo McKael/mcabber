@@ -97,6 +97,7 @@ int cfg_read_file(char *filename, guint mainfile)
   if (!filename) {
     // Use default config file locations
     char *home;
+    GString *sfilename;
 
     if (!mainfile) {
       scr_LogPrint(LPRINT_LOGNORM, "No file name provided");
@@ -110,28 +111,28 @@ int cfg_read_file(char *filename, guint mainfile)
       err = -1;
       goto cfg_read_file_return;
     }
-    filename = g_new(char, strlen(home)+24);
-    sprintf(filename, "%s/.mcabber/mcabberrc", home);
-    if ((fp = fopen(filename, "r")) == NULL) {
+    sfilename = g_string_new("");
+    g_string_printf(sfilename, "%s/.mcabber/mcabberrc", home);
+    if ((fp = fopen(sfilename->str, "r")) == NULL) {
       // 2nd try...
-      sprintf(filename, "%s/.mcabberrc", home);
-      if ((fp = fopen(filename, "r")) == NULL) {
+      g_string_printf(sfilename, "%s/.mcabberrc", home);
+      if ((fp = fopen(sfilename->str, "r")) == NULL) {
         fprintf(stderr, "Cannot open config file!\n");
-        g_free(filename);
+        g_string_free(sfilename, TRUE);
         err = -1;
         goto cfg_read_file_return;
       }
     }
     // Check configuration file permissions
     // As it could contain sensitive data, we make it user-readable only.
-    checkset_perm(filename, TRUE);
-    scr_LogPrint(LPRINT_LOGNORM, "Reading %s", filename);
+    checkset_perm(sfilename->str, TRUE);
+    scr_LogPrint(LPRINT_LOGNORM, "Reading %s", sfilename->str);
     // Check mcabber dir.  Here we just warn, we don't change the modes.
-    sprintf(filename, "%s/.mcabber/", home);
-    checkset_perm(filename, FALSE);
-    g_free(filename);
-    filename = NULL;
+    g_string_printf(sfilename, "%s/.mcabber/", home);
+    checkset_perm(sfilename->str, FALSE);
+    g_string_free(sfilename, TRUE);
   } else {
+    // filename was specified
     if ((fp = fopen(filename, "r")) == NULL) {
       const char *msg = "Cannot open configuration file";
       if (mainfile)

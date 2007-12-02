@@ -273,6 +273,15 @@ set cmdhistory_lines = 250
 # isn't defined, the status message will stay unchanged.
 set message_autoaway = Auto-away (idle)
 
+# Escape timeout delay (ESCDELAY)
+# The ESCDELAY variable specifies the time, in milliseconds, for which
+# the ncurses interface will await a character sequence.
+# The default is 1000 (1 second).
+# If you want mcabber to react faster after hitting Escape, you can lower
+# this value by setting the ESCDELAY environment variable or setting the
+# 'escdelay' option.
+set escdelay = 50
+
 # Colors
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white
 # For text colors (i.e. not background and bg* colors) you can also use

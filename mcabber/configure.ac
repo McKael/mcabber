@@ -102,6 +102,20 @@ else
     AC_MSG_WARN([Your ncurses installation does not support unicode])
 fi
 
+AC_CACHE_CHECK([for ESCDELAY variable],
+               [mc_cv_ncurses_escdelay],
+               [AC_TRY_LINK([], [
+                            extern int ESCDELAY;
+                            ESCDELAY = 0;
+                            ],
+                            [mc_cv_ncurses_escdelay=yes],
+                            [mc_cv_ncurses_escdelay=no])
+               ])
+if test "$mc_cv_ncurses_escdelay" = yes; then
+    AC_DEFINE(HAVE_ESCDELAY, 1,
+              [Define if ncurses has ESCDELAY variable])
+fi
+
 # Check for glib
 AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),[g_list_append])
 

@@ -761,6 +761,14 @@ void scr_InitCurses(void)
   start_color();
   use_default_colors();
 
+  if (settings_opt_get("escdelay")) {
+#ifdef HAVE_ESCDELAY
+    ESCDELAY = (unsigned) settings_opt_get_int("escdelay");
+#else
+    scr_LogPrint(LPRINT_LOGNORM, "ERROR: no ESCDELAY support.");
+#endif
+  }
+
   ParseColors();
 
   getmaxyx(stdscr, maxY, maxX);

@@ -306,19 +306,13 @@ char *expandalias(const char *line)
   // Locate the end of the word
   for (p2 = p1 ; *p2 && (*p2 != ' ') ; p2++)
     ;
-  // Extract the word
+  // Extract the word and look for an alias in the list
   word = g_strndup(p1, p2-p1);
-
-  // Look for an alias in the list
   value = settings_get(SETTINGS_TYPE_ALIAS, (const char*)word);
-  if (value) {
-    // There is an alias to expand
-    newline = g_new(char, strlen(value)+strlen(p2)+2);
-    *newline = COMMAND_CHAR;
-    strcpy(newline+1, value);
-    strcat(newline, p2);
-  }
   g_free(word);
+
+  if (value)
+    newline = g_strdup_printf("%c%s%s", COMMAND_CHAR, value, p2);
 
   return newline;
 }

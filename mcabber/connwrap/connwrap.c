@@ -294,7 +294,7 @@ int cw_http_connect(int sockfd, const struct sockaddr *serv_addr, int addrlen) {
 	char *ip = inet_ntoa(sin->sin_addr), c;
 	struct timeval tv;
 
-	sprintf(buf, "%d", ntohs(sin->sin_port));
+	snprintf(buf, sizeof(buf), "%d", ntohs(sin->sin_port));
 	SOCKOUT("CONNECT ");
 	SOCKOUT(ip);
 	SOCKOUT(":");

@@ -1953,7 +1953,7 @@ static void statehandler(jconn conn, int state)
         online = TRUE;
         update_last_use();
         // We set AutoConnection to true after the 1st successful connection
-        AutoConnection = true;
+        AutoConnection = TRUE;
         break;
 
     case JCONN_STATE_CONNECTING:

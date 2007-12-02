@@ -243,10 +243,10 @@ static int FindColor(const char *name)
 
 static int get_user_color(const char *color)
 {
-  bool isbright = false;
+  bool isbright = FALSE;
   int cl;
   if (!strncmp(color, "bright", 6)) {
-    isbright = true;
+    isbright = TRUE;
     color += 6;
   }
   cl = color_to_color_fg(FindColorInternal(color));
@@ -304,22 +304,22 @@ void scr_MucColor(const char *muc, muccoltype type)
 void scr_MucNickColor(const char *nick, const char *color)
 {
   char *snick, *mnick;
-  bool need_update = false;
+  bool need_update = FALSE;
   snick = g_strdup_printf("<%s>", nick);
   mnick = g_strdup_printf("*%s ", nick);
   if (!strcmp(color, "-")) {//Remove the color
     if (nickcolors) {
       nickcolor *nc = g_hash_table_lookup(nickcolors, snick);
       if (nc) {//Have this nick already
-        nc->manual = false;
+        nc->manual = FALSE;
         nc = g_hash_table_lookup(nickcolors, mnick);
         assert(nc);//Must have both at the same time
-        nc->manual = false;
+        nc->manual = FALSE;
       }// Else -> no color saved, nothing to delete
     }
     g_free(snick);//They are not saved in the hash
     g_free(mnick);
-    need_update = true;
+    need_update = TRUE;
   } else if (!strcmp(color, "!")) {
     if (nickcolors) {
       g_free(g_hash_table_lookup(nickcolors, snick));
@@ -328,7 +328,7 @@ void scr_MucNickColor(const char *nick, const char *color)
     }
     g_free(snick);//They are not saved in the hash
     g_free(mnick);
-    need_update = true;
+    need_update = TRUE;
   } else {
     int cl = get_user_color(color);
     if (cl < 0) {
@@ -338,14 +338,14 @@ void scr_MucNickColor(const char *nick, const char *color)
     } else {
       nickcolor *nc = g_new(nickcolor, 1);
       ensure_string_htable(&nickcolors, NULL);
-      nc->manual = true;
+      nc->manual = TRUE;
       nc->color = cl;
       //Free the struct, if any there already
       g_free(g_hash_table_lookup(nickcolors, mnick));
       //Save the new ones
       g_hash_table_replace(nickcolors, mnick, nc);
       g_hash_table_replace(nickcolors, snick, nc);
-      need_update = true;
+      need_update = TRUE;
     }
   }
   if (need_update && chatmode &&
@@ -1084,7 +1084,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
           char *snick = g_strdup(line->text), *mnick = g_strdup(line->text);
           nickcolor *nc = g_new(nickcolor, 1);
           nc->color = nickcols[random() % nickcolcount];
-          nc->manual = false;
+          nc->manual = FALSE;
           *snick = '<';
           snick[strlen(snick)-1] = '>';
           *mnick = '*';
@@ -2090,7 +2090,7 @@ static void set_current_buddy(GList *newbuddy)
   // We're moving to another buddy.  We're thus inactive wrt current_buddy.
   set_chatstate(0);
   // We don't want the chatstate to be changed again right now.
-  lock_chatstate = true;
+  lock_chatstate = TRUE;
 
   prev_st = buddy_getstatus(BUDDATA(current_buddy), NULL);
   buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
@@ -3707,7 +3707,7 @@ void process_key(keycode kcode)
   int key = kcode.value;
   int display_char = FALSE;
 
-  lock_chatstate = false;
+  lock_chatstate = FALSE;
 
   switch (kcode.mcode) {
     case 0:

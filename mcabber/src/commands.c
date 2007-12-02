@@ -3427,7 +3427,7 @@ static void do_connect(char *arg)
 static void do_disconnect(char *arg)
 {
   jb_disconnect();
-  AutoConnection = false;
+  AutoConnection = FALSE;
 }
 
 static void do_help(char *arg)

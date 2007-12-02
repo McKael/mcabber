@@ -98,7 +98,7 @@ char *compose_jid(const char *username, const char *servername,
 {
   char *fjid;
 
-  if (!strchr(fjid, JID_DOMAIN_SEPARATOR)) {
+  if (!strchr(username, JID_DOMAIN_SEPARATOR)) {
     fjid = g_strdup_printf("%s%c%s%c%s", username,
                            JID_DOMAIN_SEPARATOR, servername,
                            JID_RESOURCE_SEPARATOR, resource);

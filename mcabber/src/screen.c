@@ -25,10 +25,16 @@
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
-#include <locale.h>
-#include <langinfo.h>
+
 #include <config.h>
+#include <locale.h>
 #include <assert.h>
+
+#ifdef HAVE_LOCALCHARSET_H
+# include <localcharset.h>
+#else
+# include <langinfo.h>
+#endif
 
 #ifdef HAVE_ASPELL_H
 # include <aspell.h>
@@ -734,7 +740,11 @@ static int is_speckey(int key)
 void scr_InitLocaleCharSet(void)
 {
   setlocale(LC_CTYPE, "");
+#ifdef HAVE_LOCALCHARSET_H
+  LocaleCharSet = locale_charset();
+#else
   LocaleCharSet = nl_langinfo(CODESET);
+#endif
   utf8_mode = (strcmp(LocaleCharSet, "UTF-8") == 0);
 }
 

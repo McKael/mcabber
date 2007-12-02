@@ -33,7 +33,8 @@ fi
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h \
                   stdlib.h string.h strings.h sys/socket.h sys/time.h \
-                  syslog.h termios.h unistd.h getopt.h wchar.h wctype.h])
+                  syslog.h termios.h unistd.h getopt.h wchar.h wctype.h \
+                  localcharset.h])
 AC_CHECK_HEADERS([getopt.h], , AC_MSG_ERROR([Missing header file]))
 AC_VAR_TIMEZONE_EXTERNALS
 
@@ -189,7 +190,7 @@ AC_DEFINE(BUILD_JABBER, 1, [build with jabber support])
 
 # Export $datadir to the source tree.
 if test x"${datadir}" != x""; then
-    AC_DEFINE_DIR(DATA_DIR, "$datadir", [Data files directory])
+    AC_DEFINE_DIR(DATA_DIR, "${datadir}", [Data files directory])
 fi
 
 AC_ARG_ENABLE(debug,

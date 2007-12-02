@@ -1996,6 +1996,113 @@ static time_t xml_get_timestamp(xmlnode xmldata)
   return 0;
 }
 
+//  muc_get_item_info(...)
+// Get room member's information from xmlndata.
+// The variables must be initialized before calling this function,
+// because they are not touched if the relevant information is missing.
+static void muc_get_item_info(const char *from, xmlnode xmldata,
+                              enum imrole *mbrole, enum imaffiliation *mbaffil,
+                              const char **mbjid, const char **mbnick,
+                              const char **actorjid, const char **reason)
+{
+  xmlnode y, z;
+  char *p;
+
+  y = xmlnode_get_tag(xmldata, "item");
+  if (!y)
+    return;
+
+  p = xmlnode_get_attrib(y, "affiliation");
+  if (p) {
+    if (!strcmp(p, "owner"))        *mbaffil = affil_owner;
+    else if (!strcmp(p, "admin"))   *mbaffil = affil_admin;
+    else if (!strcmp(p, "member"))  *mbaffil = affil_member;
+    else if (!strcmp(p, "outcast")) *mbaffil = affil_outcast;
+    else if (!strcmp(p, "none"))    *mbaffil = affil_none;
+    else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown affiliation \"%s\"",
+                      from, p);
+  }
+  p = xmlnode_get_attrib(y, "role");
+  if (p) {
+    if (!strcmp(p, "moderator"))        *mbrole = role_moderator;
+    else if (!strcmp(p, "participant")) *mbrole = role_participant;
+    else if (!strcmp(p, "visitor"))     *mbrole = role_visitor;
+    else if (!strcmp(p, "none"))        *mbrole = role_none;
+    else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown role \"%s\"",
+                      from, p);
+  }
+  *mbjid = xmlnode_get_attrib(y, "jid");
+  *mbnick = xmlnode_get_attrib(y, "nick");
+  // For kick/ban, there can be actor and reason tags
+  *reason = xmlnode_get_tag_data(y, "reason");
+  z = xmlnode_get_tag(y, "actor");
+  if (z)
+    *actorjid = xmlnode_get_attrib(z, "jid");
+}
+
+//  muc_handle_join(...)
+// Handle a join event in a MUC room.
+// This function will return the new_member value TRUE if somebody else joins
+// the room (and FALSE if _we_ are joining the room).
+static bool muc_handle_join(const GSList *room_elt, const char *rname,
+                            const char *roomjid, const char *ournick,
+                            enum room_printstatus printstatus,
+                            time_t usttime, int log_muc_conf)
+{
+  bool new_member = FALSE; // True if somebody else joins the room (not us)
+  gchar *mbuf;
+
+  if (!buddy_getinsideroom(room_elt->data)) {
+    // We weren't inside the room yet.  Now we are.
+    // However, this could be a presence packet from another room member
+
+    buddy_setinsideroom(room_elt->data, TRUE);
+    // Set the message flag unless we're already in the room buffer window
+    scr_setmsgflag_if_needed(roomjid, FALSE);
+    // Add a message to the tracelog file
+    mbuf = g_strdup_printf("You have joined %s as \"%s\"", roomjid, ournick);
+    scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
+    g_free(mbuf);
+    mbuf = g_strdup_printf("You have joined as \"%s\"", ournick);
+
+    // The 1st presence message could be for another room member
+    if (strcmp(ournick, rname)) {
+      // Display current mbuf and create a new message for the member
+      // Note: the usttime timestamp is related to the other member,
+      //       so we use 0 here.
+      scr_WriteIncomingMessage(roomjid, mbuf, 0,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
+      if (log_muc_conf)
+        hlog_write_message(roomjid, 0, -1, mbuf);
+      g_free(mbuf);
+      if (printstatus != status_none)
+        mbuf = g_strdup_printf("%s has joined", rname);
+      else
+        mbuf = NULL;
+      new_member = TRUE;
+    }
+  } else {
+    mbuf = NULL;
+    if (strcmp(ournick, rname)) {
+      if (printstatus != status_none)
+        mbuf = g_strdup_printf("%s has joined", rname);
+      new_member = TRUE;
+    }
+  }
+
+  if (mbuf) {
+    guint msgflags = HBB_PREFIX_INFO;
+    if (!settings_opt_get_int("muc_flag_joins"))
+      msgflags |= HBB_PREFIX_NOFLAG;
+    scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
+    if (log_muc_conf)
+      hlog_write_message(roomjid, 0, -1, mbuf);
+    g_free(mbuf);
+  }
+
+  return new_member;
+}
+
 static void handle_presence_muc(const char *from, xmlnode xmldata,
                                 const char *roomjid, const char *rname,
                                 enum imstatus ust, char *ustmsg,
@@ -2034,36 +2141,8 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
   }
 
   // Get room member's information
-  y = xmlnode_get_tag(xmldata, "item");
-  if (y) {
-    xmlnode z;
-    p = xmlnode_get_attrib(y, "affiliation");
-    if (p) {
-      if (!strcmp(p, "owner"))        mbaffil = affil_owner;
-      else if (!strcmp(p, "admin"))   mbaffil = affil_admin;
-      else if (!strcmp(p, "member"))  mbaffil = affil_member;
-      else if (!strcmp(p, "outcast")) mbaffil = affil_outcast;
-      else if (!strcmp(p, "none"))    mbaffil = affil_none;
-      else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown affiliation \"%s\"",
-                        from, p);
-    }
-    p = xmlnode_get_attrib(y, "role");
-    if (p) {
-      if (!strcmp(p, "moderator"))        mbrole = role_moderator;
-      else if (!strcmp(p, "participant")) mbrole = role_participant;
-      else if (!strcmp(p, "visitor"))     mbrole = role_visitor;
-      else if (!strcmp(p, "none"))        mbrole = role_none;
-      else scr_LogPrint(LPRINT_LOGNORM, "<%s>: Unknown role \"%s\"",
-                        from, p);
-    }
-    mbjid = xmlnode_get_attrib(y, "jid");
-    mbnick = xmlnode_get_attrib(y, "nick");
-    // For kick/ban, there can be actor and reason tags
-    reason = xmlnode_get_tag_data(y, "reason");
-    z = xmlnode_get_tag(y, "actor");
-    if (z)
-      actorjid = xmlnode_get_attrib(z, "jid");
-  }
+  muc_get_item_info(from, xmldata, &mbrole, &mbaffil, &mbjid, &mbnick,
+                    &actorjid, &reason);
 
   // Get our room nickname
   ournick = buddy_getnickname(room_elt->data);
@@ -2119,6 +2198,7 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
 
   // Check for departure/arrival
   if (!mbnick && ust == offline) {
+    // Somebody is leaving
     enum { leave=0, kick, ban } how = leave;
     bool we_left = FALSE;
 
@@ -2208,54 +2288,9 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
     g_free(mbuf);
   } else if (buddy_getstatus(room_elt->data, rname) == offline &&
              ust != offline) {
-
-    if (!buddy_getinsideroom(room_elt->data)) {
-      // We weren't inside the room yet.  Now we are.
-      // However, this could be a presence packet from another room member
-
-      buddy_setinsideroom(room_elt->data, TRUE);
-      // Set the message flag unless we're already in the room buffer window
-      scr_setmsgflag_if_needed(roomjid, FALSE);
-      // Add a message to the tracelog file
-      mbuf = g_strdup_printf("You have joined %s as \"%s\"", roomjid, ournick);
-      scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
-      g_free(mbuf);
-      mbuf = g_strdup_printf("You have joined as \"%s\"", ournick);
-
-      // The 1st presence message could be for another room member
-      if (strcmp(ournick, rname)) {
-        // Display current mbuf and create a new message for the member
-        // Note: the usttime timestamp is related to the other member,
-        //       so we use 0 here.
-        scr_WriteIncomingMessage(roomjid, mbuf, 0,
-                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
-        if (log_muc_conf)
-          hlog_write_message(roomjid, 0, -1, mbuf);
-        g_free(mbuf);
-        if (printstatus != status_none)
-          mbuf = g_strdup_printf("%s has joined", rname);
-        else
-          mbuf = NULL;
-        new_member = TRUE;
-      }
-    } else {
-      mbuf = NULL;
-      if (strcmp(ournick, rname)) {
-        if (printstatus != status_none)
-          mbuf = g_strdup_printf("%s has joined", rname);
-        new_member = TRUE;
-      }
-    }
-
-    if (mbuf) {
-      msgflags = HBB_PREFIX_INFO;
-      if (!settings_opt_get_int("muc_flag_joins"))
-        msgflags |= HBB_PREFIX_NOFLAG;
-      scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
-      if (log_muc_conf)
-        hlog_write_message(roomjid, 0, -1, mbuf);
-      g_free(mbuf);
-    }
+    // Somebody is joining
+    new_member = muc_handle_join(room_elt, rname, roomjid, ournick,
+                                 printstatus, usttime, log_muc_conf);
   } else {
     // This is a simple member status change
 

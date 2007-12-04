@@ -204,7 +204,7 @@ AC_DEFINE(BUILD_JABBER, 1, [build with jabber support])
 
 # Export $datadir to the source tree.
 if test x"${datadir}" != x""; then
-    AC_DEFINE_DIR(DATA_DIR, "${datadir}", [Data files directory])
+    AC_DEFINE_DIR(DATA_DIR, datadir, [Data files directory])
 fi
 
 AC_ARG_ENABLE(debug,

@@ -434,8 +434,7 @@ void roster_del_user(const char *jid)
   roster *roster_usr;
   GSList *node;
 
-  sl_user = roster_find(jid, jidsearch,
-                        ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
+  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return;
   roster_usr = (roster*)sl_user->data;
@@ -447,11 +446,12 @@ void roster_del_user(const char *jid)
   if (roster_usr->flags & ROSTER_FLAG_MSG)
     unread_jid_add(roster_usr->jid);
 
+  sl_group = roster_usr->list;
+
   // Let's free roster_usr memory (jid, name, status message...)
   free_roster_user_data(roster_usr);
 
   // That's a little complex, we need to dereference twice
-  sl_group = ((roster*)sl_user->data)->list;
   sl_group_listptr = &((roster*)(sl_group->data))->list;
   *sl_group_listptr = g_slist_delete_link(*sl_group_listptr, sl_user);
 

@@ -42,6 +42,7 @@ struct annotation {
   gchar *text;
 };
 
+char *jidtodisp(const char *fjid);
 char *compose_jid(const char *username, const char *servername,
                   const char *resource);
 jconn jb_connect(const char *fjid, const char *server, unsigned int port,

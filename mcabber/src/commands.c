@@ -2201,7 +2201,8 @@ static void room_role(gpointer bud, char *arg)
 static void room_ban(gpointer bud, char *arg)
 {
   char **paramlst;
-  gchar *fjid;
+  gchar *fjid, *bjid;
+  const gchar *banjid;
   gchar *jid_utf8, *reason_utf8;
   struct role_affil ra;
   const char *roomid = buddy_getjid(bud);
@@ -2219,12 +2220,35 @@ static void room_ban(gpointer bud, char *arg)
   ra.type = type_affil;
   ra.val.affil = affil_outcast;
 
-  jid_utf8 = to_utf8(fjid);
+  bjid = jidtodisp(fjid);
+  jid_utf8 = to_utf8(bjid);
+
+  // If the argument doesn't look like a jid, we'll try to find a matching
+  // nickname.
+  if (!strchr(bjid, JID_DOMAIN_SEPARATOR) || check_jid_syntax(bjid)) {
+    const gchar *tmp;
+    // We want the initial argument, so the fjid variable, because
+    // we don't want to strip a resource-like string from the nickname!
+    g_free(jid_utf8);
+    jid_utf8 = to_utf8(fjid);
+    tmp = buddy_getrjid(bud, jid_utf8);
+    if (!tmp) {
+      scr_LogPrint(LPRINT_NORMAL, "Wrong JID or nickname");
+      goto room_ban_return;
+    }
+    banjid = jidtodisp(tmp);
+  } else
+    banjid = jid_utf8;
+
+  scr_LogPrint(LPRINT_NORMAL, "Requesting a ban for %s", banjid);
+
   reason_utf8 = to_utf8(arg);
-  jb_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
-  g_free(jid_utf8);
+  jb_room_setattrib(roomid, banjid, NULL, ra, reason_utf8);
   g_free(reason_utf8);
 
+room_ban_return:
+  g_free(bjid);
+  g_free(jid_utf8);
   free_arg_lst(paramlst);
 }
 

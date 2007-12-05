@@ -56,7 +56,7 @@
 #define DEFAULT_ROSTER_WIDTH    24
 #define CHAT_WIN_HEIGHT (maxY-1-Log_Win_Height)
 
-char *LocaleCharSet = "C";
+const char *LocaleCharSet = "C";
 
 static unsigned short int Log_Win_Height;
 static unsigned short int Roster_Width;

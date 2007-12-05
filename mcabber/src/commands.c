@@ -2341,7 +2341,9 @@ static void room_nick(gpointer bud, char *arg)
     mc_strtolower(roomname_tmp);
     roomname = to_utf8(roomname_tmp);
     g_free(roomname_tmp);
+
     nick = to_utf8(arg);
+    strip_arg_special_chars(nick);
 
     jb_room_join(roomname, nick, NULL);
     g_free(roomname);

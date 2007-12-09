@@ -1574,7 +1574,7 @@ static void handle_iq_time202(jconn conn, char *from, const char *id,
   time_t now_t;
   struct tm *now;
   char const *sign;
-  int diff;
+  int diff = 0;
 
   time(&now_t);
 
@@ -1591,10 +1591,15 @@ static void handle_iq_time202(jconn conn, char *from, const char *id,
 
   now = localtime(&now_t);
 
-  if (now->tm_isdst < 0)
-    diff = 0;
-  else
+  if (now->tm_isdst >= 0) {
+#if defined HAVE_TM_GMTOFF
     diff = now->tm_gmtoff;
+#elif defined HAVE_TIMEZONE
+    tzset();
+    diff = -timezone;
+#endif
+  }
+
   if (diff < 0) {
     sign = "-";
     diff = -diff;

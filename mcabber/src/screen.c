@@ -3773,7 +3773,19 @@ void process_key(keycode kcode)
 
 display:
   if (display_char) {
-    if (kcode.utf8 ? iswprint(key) : (isprint(key) && !is_speckey(key))) {
+    guint printable;
+
+    if (kcode.utf8) {
+      printable = iswprint(key);
+    } else {
+#ifdef __CYGWIN__
+      printable = (isprint(key) || (key >= 161 && key <= 255))
+                  && !is_speckey(key);
+#else
+      printable = isprint(key) && !is_speckey(key);
+#endif
+    }
+    if (printable) {
       char tmpLine[INPUTLINE_LENGTH+1];
 
       // Check the line isn't too long

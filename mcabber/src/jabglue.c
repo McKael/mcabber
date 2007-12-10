@@ -2207,6 +2207,10 @@ static void handle_presence_muc(const char *from, xmlnode xmldata,
       printstatus = status_default;
   }
 
+  // A new room has been created; accept MUC default config
+  if (statuscode == 201)
+    jb_room_unlock(roomjid);
+
   // Check for nickname change
   if (statuscode == 303 && mbnick) {
     mbuf = g_strdup_printf("%s is now known as %s", rname, mbnick);

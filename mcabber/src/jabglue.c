@@ -1364,12 +1364,10 @@ guint jb_is_bookmarked(const char *bjid)
   // Walk through the storage bookmark tags
   x = xmlnode_get_firstchild(bookmarks);
   for ( ; x; x = xmlnode_get_nextsibling(x)) {
-    const char *fjid;
-    const char *p;
-    p = xmlnode_get_name(x);
+    const char *p = xmlnode_get_name(x);
     // If the node is a conference item, check the jid.
     if (p && !strcmp(p, "conference")) {
-      fjid = xmlnode_get_attrib(x, "jid");
+      const char *fjid = xmlnode_get_attrib(x, "jid");
       if (fjid && !strcasecmp(bjid, fjid))
         return TRUE;
     }
@@ -1389,12 +1387,10 @@ const char *jb_get_bookmark_nick(const char *bjid)
   // Walk through the storage bookmark tags
   x = xmlnode_get_firstchild(bookmarks);
   for ( ; x; x = xmlnode_get_nextsibling(x)) {
-    const char *fjid;
-    const char *p;
-    p = xmlnode_get_name(x);
+    const char *p = xmlnode_get_name(x);
     // If the node is a conference item, check the jid.
     if (p && !strcmp(p, "conference")) {
-      fjid = xmlnode_get_attrib(x, "jid");
+      const char *fjid = xmlnode_get_attrib(x, "jid");
       if (fjid && !strcasecmp(bjid, fjid))
         return xmlnode_get_tag_data(x, "nick");
     }
@@ -1418,12 +1414,10 @@ GSList *jb_get_all_storage_bookmarks(void)
   // Walk through the storage bookmark tags
   x = xmlnode_get_firstchild(bookmarks);
   for ( ; x; x = xmlnode_get_nextsibling(x)) {
-    const char *fjid;
-    const char *p;
-    p = xmlnode_get_name(x);
+    const char *p = xmlnode_get_name(x);
     // If the node is a conference item, let's add the note to our list.
     if (p && !strcmp(p, "conference")) {
-      fjid = xmlnode_get_attrib(x, "jid");
+      const char *fjid = xmlnode_get_attrib(x, "jid");
       if (!fjid)
         continue;
       sl_bookmarks = g_slist_append(sl_bookmarks, (char*)fjid);
@@ -1457,12 +1451,10 @@ void jb_set_storage_bookmark(const char *roomid, const char *name,
   // Walk through the storage tags
   x = xmlnode_get_firstchild(bookmarks);
   for ( ; x; x = xmlnode_get_nextsibling(x)) {
-    const char *fjid;
-    const char *p;
-    p = xmlnode_get_name(x);
+    const char *p = xmlnode_get_name(x);
     // If the current node is a conference item, see if we have to replace it.
     if (p && !strcmp(p, "conference")) {
-      fjid = xmlnode_get_attrib(x, "jid");
+      const char *fjid = xmlnode_get_attrib(x, "jid");
       if (!fjid)
         continue;
       if (!strcmp(fjid, roomid)) {
@@ -1610,12 +1602,10 @@ void jb_set_storage_rosternotes(const char *barejid, const char *note)
   // Walk through the storage tags
   x = xmlnode_get_firstchild(rosternotes);
   for ( ; x; x = xmlnode_get_nextsibling(x)) {
-    const char *fjid;
-    const char *p;
-    p = xmlnode_get_name(x);
+    const char *p = xmlnode_get_name(x);
     // If the current node is a conference item, see if we have to replace it.
     if (p && !strcmp(p, "note")) {
-      fjid = xmlnode_get_attrib(x, "jid");
+      const char *fjid = xmlnode_get_attrib(x, "jid");
       if (!fjid)
         continue;
       if (!strcmp(fjid, barejid)) {

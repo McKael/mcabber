@@ -52,7 +52,7 @@ void    settings_otr_setpolicy(const char *bjid, guint value);
 
 guint get_max_history_blocks(void);
 
-char *default_muc_nickname(void);
+char *default_muc_nickname(const char *roomid);
 
 const gchar *isbound(int key);
 

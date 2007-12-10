@@ -2069,7 +2069,7 @@ static void room_join(gpointer bud, char *arg)
   // If no nickname is provided with the /join command,
   // we try to get a default nickname.
   if (!nick || !*nick)
-    nick = default_muc_nickname();
+    nick = default_muc_nickname(roomname);
   else
     nick = to_utf8(nick);
   // If we still have no nickname, give up

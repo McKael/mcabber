@@ -388,9 +388,13 @@ void settings_foreach(guint type, void (*pfunc)(char *k, char *v, void *param),
 //  default_muc_nickname()
 // Return the user's default nickname
 // The caller should free the string after use
-char *default_muc_nickname(void)
+char *default_muc_nickname(const char *roomid)
 {
   char *nick;
+
+  nick = (char*)jb_get_bookmark_nick(roomid);
+  if (nick)
+    return g_strdup(nick);
 
   // We try the "nickname" option, then the username part of the jid.
   nick = (char*)settings_opt_get("nickname");

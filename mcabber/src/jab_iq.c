@@ -797,7 +797,7 @@ static void storage_bookmarks_parse_conference(xmlnode xmldata)
     nick = xmlnode_get_tag_data(xmldata, "nick");
     passwd = xmlnode_get_tag_data(xmldata, "password");
     if (!nick || !*nick)
-      nick = tmpnick = default_muc_nickname();
+      nick = tmpnick = default_muc_nickname(NULL);
     // Let's join now
     scr_LogPrint(LPRINT_LOGNORM, "Auto-join bookmark <%s>", bjid);
     jb_room_join(bjid, nick, passwd);

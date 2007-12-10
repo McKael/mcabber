@@ -1352,7 +1352,7 @@ void jb_room_invite(const char *room, const char *fjid, const char *reason)
   jb_reset_keepalive();
 }
 
-//  jb_is_bookmarked()
+//  jb_is_bookmarked(roomjid)
 // Return TRUE if there's a bookmark for the given jid.
 guint jb_is_bookmarked(const char *bjid)
 {
@@ -1376,6 +1376,32 @@ guint jb_is_bookmarked(const char *bjid)
   }
   return FALSE;
 }
+
+//  jb_get_bookmark_nick(roomjid)
+// Return the room nickname if it is present in a bookmark.
+const char *jb_get_bookmark_nick(const char *bjid)
+{
+  xmlnode x;
+
+  if (!bookmarks || !bjid)
+    return NULL;
+
+  // Walk through the storage bookmark tags
+  x = xmlnode_get_firstchild(bookmarks);
+  for ( ; x; x = xmlnode_get_nextsibling(x)) {
+    const char *fjid;
+    const char *p;
+    p = xmlnode_get_name(x);
+    // If the node is a conference item, check the jid.
+    if (p && !strcmp(p, "conference")) {
+      fjid = xmlnode_get_attrib(x, "jid");
+      if (fjid && !strcasecmp(bjid, fjid))
+        return xmlnode_get_tag_data(x, "nick");
+    }
+  }
+  return NULL;
+}
+
 
 //  jb_get_all_storage_bookmarks()
 // Return a GSList with all storage bookmarks.
@@ -2790,7 +2816,7 @@ static int evscallback_invitation(eviqs *evp, guint evcontext)
   // evcontext: 0, 1 == reject, accept
 
   if (evcontext & ~EVS_CONTEXT_USER) {
-    char *nickname = default_muc_nickname();
+    char *nickname = default_muc_nickname(invitation->to);
     jb_room_join(invitation->to, nickname, invitation->passwd);
     g_free(nickname);
   } else {

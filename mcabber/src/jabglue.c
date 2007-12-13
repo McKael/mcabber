@@ -254,25 +254,22 @@ void jb_main()
   time(&now);
 
   if (KeepaliveDelay) {
-    if (now >= LastPingTime + (time_t)KeepaliveDelay) {
+    if (now >= LastPingTime + (time_t)KeepaliveDelay)
       tv.tv_sec = 0;
-    } else {
+    else
       tv.tv_sec = LastPingTime + (time_t)KeepaliveDelay - now;
-    }
   }
 
   // Check auto-away timeout
   tmout = scr_GetAutoAwayTimeout(now);
-  if (tv.tv_sec > tmout) {
+  if (tv.tv_sec > tmout)
     tv.tv_sec = tmout;
-  }
 
 #if defined JEP0022 || defined JEP0085
   // Check composing timeout
   tmout = scr_GetChatStatesTimeout(now);
-  if (tv.tv_sec > tmout) {
+  if (tv.tv_sec > tmout)
     tv.tv_sec = tmout;
-  }
 #endif
 
   if (!tv.tv_sec)
@@ -553,7 +550,7 @@ static char *new_msgid(void)
   return g_strdup_printf("%u%d", msg_idn, (int)(now%10L));
 }
 
-//  jb_send_msg(jid, text, type, subject, msgid, *encrypted)
+//  jb_send_msg(jid, text, type, subject, msgid, *encrypted, type_overwrite)
 // When encrypted is not NULL, the function set *encrypted to 1 if the
 // message has been PGP-encrypted.  If encryption enforcement is set and
 // encryption fails, *encrypted is set to -1.
@@ -1740,7 +1737,7 @@ static void check_signature(const char *barejid, const char *rname,
 }
 
 static void gotmessage(char *type, const char *from, const char *body,
-                       const char *enc, time_t timestamp,
+                       const char *enc, const char *subject, time_t timestamp,
                        xmlnode xmldata_signed)
 {
   char *bjid;
@@ -1816,8 +1813,17 @@ static void gotmessage(char *type, const char *from, const char *body,
       (roster_getsubscription(bjid) & sub_from) ||
       (type && strcmp(type, "chat")) ||
       ((s = settings_opt_get("server")) != NULL && !strcasecmp(bjid, s))) {
+    gchar *fullbody = NULL;
+    if (subject) {
+      if (body)
+        fullbody = g_strdup_printf("[%s]\n%s", subject, body);
+      else
+        fullbody = g_strdup_printf("[%s]\n", subject);
+      body = fullbody;
+    }
     hk_message_in(bjid, rname, timestamp, body, type,
                   ((decrypted_pgp || otr_msg) ? TRUE : FALSE));
+    g_free(fullbody);
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", bjid);
   }
@@ -2519,14 +2525,20 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   xmlnode x;
   char *body = NULL;
   char *enc = NULL;
-  char *chatmsg = NULL;
+  char *subject = NULL;
   time_t timestamp = 0L;
 
   body = xmlnode_get_tag_data(xmldata, "body");
 
+  x = xml_get_xmlns(xmldata, NS_ENCRYPTED);
+  if (x && (p = xmlnode_get_data(x)) != NULL)
+    enc = p;
+
   p = xmlnode_get_tag_data(xmldata, "subject");
   if (p != NULL) {
-    if (type && !strcmp(type, TMSG_GROUPCHAT)) {  // Room topic
+    if (!type || strcmp(type, TMSG_GROUPCHAT)) {  // Chat message
+      subject = p;
+    } else {                                      // Room topic
       GSList *roombuddy;
       gchar *mbuf;
       gchar *subj = p;
@@ -2554,19 +2566,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       g_free(mbuf);
       // The topic is displayed in the chat status line, so refresh now.
       scr_UpdateChatStatus(TRUE);
-    } else {                                      // Chat message
-      if (body)
-        chatmsg = g_strdup_printf("[%s]\n%s", p, body);
-      else
-        chatmsg = g_strdup_printf("[%s]\n", p);
-      body = chatmsg;
     }
-  }
-
-  // Not used yet...
-  x = xml_get_xmlns(xmldata, NS_ENCRYPTED);
-  if (x && (p = xmlnode_get_data(x)) != NULL) {
-    enc = p;
   }
 
   // Timestamp?
@@ -2583,8 +2583,8 @@ static void handle_packet_message(jconn conn, char *type, char *from,
   } else {
     handle_state_events(from, xmldata);
   }
-  if (from && body)
-    gotmessage(type, from, body, enc, timestamp,
+  if (from && (body || subject))
+    gotmessage(type, from, body, enc, subject, timestamp,
                xml_get_xmlns(xmldata, NS_SIGNED));
 
   if (from) {
@@ -2592,7 +2592,6 @@ static void handle_packet_message(jconn conn, char *type, char *from,
     if (x && !strcmp(xmlnode_get_name(x), "x"))
       got_muc_message(from, x);
   }
-  g_free(chatmsg);
 }
 
 static void handle_state_events(char *from, xmlnode xmldata)

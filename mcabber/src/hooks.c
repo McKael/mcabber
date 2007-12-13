@@ -37,7 +37,7 @@ static char *extcmd;
 
 static const char *COMMAND_ME = "/me ";
 
-inline void hk_message_in(const char *bjid, const char *resname,
+void hk_message_in(const char *bjid, const char *resname,
                           time_t timestamp, const char *msg, const char *type,
                           guint encrypted)
 {
@@ -225,7 +225,7 @@ inline void hk_message_in(const char *bjid, const char *resname,
 //  hk_message_out()
 // nick should be set for private messages in a chat room, and null for
 // normal messages.
-inline void hk_message_out(const char *bjid, const char *nick,
+void hk_message_out(const char *bjid, const char *nick,
                            time_t timestamp, const char *msg, guint encrypted)
 {
   char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
@@ -263,7 +263,7 @@ inline void hk_message_out(const char *bjid, const char *nick,
   g_free(mmsg);
 }
 
-inline void hk_statuschange(const char *bjid, const char *resname, gchar prio,
+void hk_statuschange(const char *bjid, const char *resname, gchar prio,
                             time_t timestamp, enum imstatus status,
                             const char *status_msg)
 {
@@ -323,7 +323,7 @@ inline void hk_statuschange(const char *bjid, const char *resname, gchar prio,
   hk_ext_cmd(bjid, 'S', imstatus2char[status], NULL);
 }
 
-inline void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
+void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
                               enum imstatus new_status, const char *msg)
 {
   scr_LogPrint(LPRINT_LOGNORM, "Your status has been set: [%c>%c] %s",

@@ -1,6 +1,13 @@
 mcabber (0.9.6-dev)
 
- * 
+ * Improve Cygwin support
+ * Fix compilation on OpenBSD
+ * [UI] New option 'escdelay'
+ * [MUC] New command /room setopt
+ * [MUC] More room settings are stored in the server private storage
+ * [MUC] The command /room ban can be used with a nickname
+ * [MUC] New rooms are automatically unlocked (suggested by M. Weiser)
+ * A few misc. bugfixes
 
  -- Mikael, ?
 

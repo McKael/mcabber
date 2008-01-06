@@ -2,19 +2,13 @@
 BUGS:
 
 * SSL certificate verification does not work with gnutls
-* Renaming a MUC room should update the bookmark, not add a roster entry
 
 
 TODO:
 
 * Improve the completion system
-* Connect hook
-* Macros
 * Use new Entity Time specs (XEP-0202) if possible in
  /request time.
-* New option to display only username in the roster when the name hasn't been
-  set.
-* Remember group state (folded/unfolded) (using private storage for example)
 * Enable /roster search for offline (hidden) buddies (hidden groups, etc.)
 * Show number of online contacts in folded groups
 * Publish personal information
@@ -42,12 +36,3 @@ TODO:
   - /server register|unregister
   - /search <jid>|name
     (server search)
-  - Per room settings?
-    /room setopt [+|-]autowhois ?
-    /room setopt [+|-]'flag_joins' ?
-  - A command (display?) to display only a few states in the roster
-    . /roster display of      Display avail/ffc people
-    . /roster display -       Display nobody (but incoming messages)
-    . /roster display ofdna   == hide_offline
-    . /roster display ofdna_  == default behaviour
-    (Or roster mask)

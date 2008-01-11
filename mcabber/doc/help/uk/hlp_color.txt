@@ -1,6 +1,6 @@
 
  /COLOR roster (статус маска (колір|-)|clear)
- /COLOR mucnick nick (color|-|!)
+ /COLOR mucnick прізвисько (колір|-|!)
  /COLOR muc (jid|.|*) [on|preset|off|-]
 
 Керує кольорами контактів у списку.

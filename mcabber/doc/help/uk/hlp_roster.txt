@@ -45,6 +45,7 @@
 /roster item_unlock [jid]
  Відміняє дію item_lock.
 /roster item_toggle_lock [jid]
+ Перемикає "закріпленість" об'єкта.
 /roster hide
  Сховати список.
 /roster show

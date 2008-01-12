@@ -46,6 +46,7 @@ Ecco i parametri disponibili.
 /roster item_unlock [jid]
  Cancella gli effetti di item_lock
 /roster item_toggle_lock [jid]
+ Inverte lo stato del lock per il contatto corrente o per il contatto specificato da jid
 /roster hide
  Nasconde il roster (chat a finestra piena)
 /roster show

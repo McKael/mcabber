@@ -1,7 +1,7 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|kick|ban|unban|role|affil
- /ROOM setopt print_status|auto_whois [value]
+ /ROOM setopt print_status|auto_whois [valore]
  /ROOM bookmark [add|del] [-autojoin|+autojoin]
 
 Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
@@ -40,6 +40,10 @@ Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
 /room affil jid affil [motivo]
  Cambia l'affiliazione di jid (l'affiliazione può essere "none", "member", "admin", "owner")
 /room setopt print_status|auto_whois [value]
+ Cambia le impostazioni della stanza corrente.
+ Per l'opzione print_status i valori possibili sono "default", "none", "in_and_out", "all".
+ Per auto_whois, i valori possibili sono "default", "off", "on".
+ Quando il valore è impostato a "default", vengono usate le opzioni muc_print_status / muc_auto_whois.
 /room bookmark [add|del] [-autojoin|+autojoin]
  Aggiunge, rimuove o aggiorna un bookmark (di default aggiunge).
  Se è impostato l'autojoin, mcabber entrerà automaticamente nella stanza quando si connette al server.

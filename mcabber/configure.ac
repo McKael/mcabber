@@ -69,6 +69,8 @@ MC_TM_GMTOFF
 
 # Checks for libraries.
 
+AC_CHECK_LIB(charset, locale_charset)
+
 AC_CHECK_FUNC(initscr,,
 [
     cf_ncurses="ncurses"

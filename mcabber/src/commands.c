@@ -442,9 +442,13 @@ int process_line(const char *line)
       return 0;
     }
     if (current_buddy) {
-      // Enter chat mode
-      scr_set_chatmode(TRUE);
-      scr_ShowBuddyWindow();
+      if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_GROUP)
+	do_group("toggle");
+      else {
+        // Enter chat mode
+        scr_set_chatmode(TRUE);
+        scr_ShowBuddyWindow();
+      }
     }
     return 0;
   }
@@ -997,7 +1001,7 @@ static void do_group(char *arg)
   guint leave_buddywindow;
   char **paramlst;
   char *subcmd;
-  enum { group_unfold = 0, group_fold, group_toggle } group_state = 0;
+  enum { group_toggle = -1, group_unfold = 0, group_fold = 1 } group_state = 0;
 
   if (!*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
@@ -1051,13 +1055,7 @@ static void do_group(char *arg)
   if (group_state != group_unfold && leave_buddywindow)
     scr_RosterPrevGroup();
 
-  if (group_state == group_unfold)
-    buddy_setflags(group, ROSTER_FLAG_HIDE, FALSE);
-  else if (group_state == group_fold)
-    buddy_setflags(group, ROSTER_FLAG_HIDE, TRUE);
-  else if (group_state == group_toggle)
-    buddy_setflags(group, ROSTER_FLAG_HIDE,
-                   !(buddy_getflags(group) & ROSTER_FLAG_HIDE));
+  buddy_hide_group(group, group_state);
 
   buddylist_build();
   update_roster = TRUE;

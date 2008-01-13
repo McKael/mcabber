@@ -1,4 +1,4 @@
-mcabber (0.9.6-dev)
+mcabber (0.9.6)
 
  * Improve Cygwin support
  * Fix compilation on OpenBSD
@@ -9,7 +9,7 @@ mcabber (0.9.6-dev)
  * [MUC] New rooms are automatically unlocked (suggested by M. Weiser)
  * A few misc. bugfixes
 
- -- Mikael, ?
+ -- Mikael, 2008-01-13
 
 mcabber (0.9.5)
 

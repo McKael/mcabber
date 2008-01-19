@@ -1,7 +1,7 @@
 /*
  * screen.c     -- UI stuff
  *
- * Copyright (C) 2005-2007 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2008 Mikael Berthe <mikael@lilotux.net>
  * Parts of this file come from the Cabber project <cabber@ajmacias.com>
  *
  * This program is free software; you can redistribute it and/or modify

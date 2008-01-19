@@ -1,7 +1,7 @@
 /*
  * utils.c      -- Various utility functions
  *
- * Copyright (C) 2005-2007 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2008 Mikael Berthe <mikael@lilotux.net>
  * ut_* functions are derived from Cabber debug/log code.
  * from_iso8601() comes from the Pidgin (libpurple) project.
  *

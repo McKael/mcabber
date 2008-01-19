@@ -794,7 +794,7 @@ void buddylist_set_hide_offline_buddies(int hide)
   }
 }
 
-inline int buddylist_isset_filter(void)
+int buddylist_isset_filter(void)
 {
   return (display_filter != DFILTER_ALL);
 }

@@ -8,10 +8,10 @@
 void hlog_enable(guint enable, const char *root_dir, guint loadfile);
 char *hlog_get_log_jid(const char *bjid);
 void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width);
-inline void hlog_write_message(const char *bjid, time_t timestamp, int sent,
-        const char *msg);
-inline void hlog_write_status(const char *bjid, time_t timestamp,
-        enum imstatus status, const char *status_msg);
+void hlog_write_message(const char *bjid, time_t timestamp, int sent,
+                        const char *msg);
+void hlog_write_status(const char *bjid, time_t timestamp,
+                       enum imstatus status, const char *status_msg);
 
 #endif /* __HISTOLOG_H__ */
 

@@ -26,11 +26,11 @@ const char *ut_get_tmpdir(void);
 int    to_iso8601(char *dststr, time_t timestamp);
 time_t from_iso8601(const char *timestamp, int utc);
 
-inline void safe_usleep(unsigned int usec); /* Only for delays < 1s */
+void safe_usleep(unsigned int usec); /* Only for delays < 1s */
 
 int check_jid_syntax(const char *fjid);
 
-inline void mc_strtolower(char *str);
+void mc_strtolower(char *str);
 
 void strip_arg_special_chars(char *s);
 char **split_arg(const char *arg, unsigned int n, int dontstriplast);

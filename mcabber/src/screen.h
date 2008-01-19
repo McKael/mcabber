@@ -119,17 +119,17 @@ void scr_WriteOutgoingMessage(const char *jidto,   const char *text,
                               guint prefix);
 void scr_ShowBuddyWindow(void);
 int  scr_BuddyBufferExists(const char *jid);
-inline void scr_UpdateBuddyWindow(void);
-inline void scr_set_chatmode(int enable);
-inline int  scr_get_chatmode(void);
-inline void scr_set_multimode(int enable, char *subject);
-inline int  scr_get_multimode(void);
+void scr_UpdateBuddyWindow(void);
+void scr_set_chatmode(int enable);
+int  scr_get_chatmode(void);
+void scr_set_multimode(int enable, char *subject);
+int  scr_get_multimode(void);
 void scr_setmsgflag_if_needed(const char *jid, int special);
 void scr_append_multiline(const char *line);
-inline const char *scr_get_multiline(void);
-inline const char *scr_get_multimode_subj(void);
+const char *scr_get_multiline(void);
+const char *scr_get_multimode_subj(void);
 
-inline void scr_Beep(void);
+void scr_Beep(void);
 
 bool Autoaway;
 

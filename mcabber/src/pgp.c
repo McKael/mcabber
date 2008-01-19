@@ -454,14 +454,14 @@ int gpg_test_passphrase(void)
   return -1;
 }
 
-inline int gpg_enabled(void)
+int gpg_enabled(void)
 {
   return gpg.enabled;
 }
 
 #else  /* not HAVE_GPGME */
 
-inline int gpg_enabled(void)
+int gpg_enabled(void)
 {
   return 0;
 }

@@ -109,7 +109,7 @@ char *compose_jid(const char *username, const char *servername,
   return fjid;
 }
 
-inline unsigned char jb_getonline(void)
+unsigned char jb_getonline(void)
 {
   return online;
 }

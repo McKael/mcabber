@@ -22,7 +22,7 @@ int   gpg_test_passphrase(void);
 
 #endif /* HAVE_GPGME */
 
-inline int gpg_enabled(void);
+int gpg_enabled(void);
 
 #endif /* __PGP_H__ */
 

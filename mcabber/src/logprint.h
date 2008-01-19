@@ -12,7 +12,7 @@
 
 void scr_LogPrint(unsigned int flag, const char *fmt, ...);
 
-inline void scr_DoUpdate(void);
+void scr_DoUpdate(void);
 
 #endif /* __LOGPRINT_H__ */
 

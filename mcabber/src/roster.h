@@ -177,7 +177,7 @@ void    roster_unsubscribed(const char *jid);
 void    buddylist_build(void);
 void    buddy_hide_group(gpointer rosterdata, int hide);
 void    buddylist_set_hide_offline_buddies(int hide);
-inline int buddylist_isset_filter(void);
+int     buddylist_isset_filter(void);
 void    buddylist_set_filter(guchar);
 guchar  buddylist_get_filter(void);
 const char *buddy_getjid(gpointer rosterdata);

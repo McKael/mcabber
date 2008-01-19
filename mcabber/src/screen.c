@@ -145,6 +145,9 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
                        unsigned int prefix_flags, int force_show,
                        unsigned mucnicklen);
 
+inline void scr_UpdateBuddyWindow(void);
+inline void scr_set_chatmode(int enable);
+
 #ifdef HAVE_ASPELL_H
 #define ASPELLBADCHAR 5
 AspellConfig *spell_config;
@@ -162,7 +165,7 @@ static GSList *rostercolrules = NULL;
 static GHashTable *muccolors = NULL, *nickcolors = NULL;
 
 typedef struct {
-  bool manual;//Manually set?
+  bool manual; // Manually set?
   int color;
 } nickcolor;
 
@@ -793,7 +796,7 @@ void scr_TerminateCurses(void)
   return;
 }
 
-inline void scr_Beep(void)
+void scr_Beep(void)
 {
   beep();
 }
@@ -2733,7 +2736,7 @@ void scr_setmsgflag_if_needed(const char *bjid, int special)
 // Public function to (un)set multimode...
 // Convention:
 //  0 = disabled / 1 = multimode / 2 = multimode verbatim (commands disabled)
-inline void scr_set_multimode(int enable, char *subject)
+void scr_set_multimode(int enable, char *subject)
 {
   g_free(multiline);
   multiline = NULL;
@@ -2749,7 +2752,7 @@ inline void scr_set_multimode(int enable, char *subject)
 
 //  scr_get_multiline()
 // Public function to get the current multi-line.
-inline const char *scr_get_multiline(void)
+const char *scr_get_multiline(void)
 {
   if (multimode && multiline)
     return multiline;
@@ -2758,7 +2761,7 @@ inline const char *scr_get_multiline(void)
 
 //  scr_get_multimode_subj()
 // Public function to get the multi-line subject, if any.
-inline const char *scr_get_multimode_subj(void)
+const char *scr_get_multimode_subj(void)
 {
   if (multimode)
     return multimode_subj;
@@ -3108,7 +3111,7 @@ void readline_do_completion(void)
 {
   int i, n;
 
-  if (scr_get_multimode() != 2) {
+  if (multimode != 2) {
     // Not in verbatim multi-line mode
     scr_handle_tab();
   } else {
@@ -3232,7 +3235,7 @@ void readline_forward_kill_iline(void)
 void readline_send_multiline(void)
 {
   // Validate current multi-line
-  if (scr_get_multimode())
+  if (multimode)
     process_command(mkcmdstr("msay send"), TRUE);
 }
 
@@ -3676,7 +3679,7 @@ void scr_Getch(keycode *kcode)
   return;
 }
 
-inline void scr_DoUpdate(void)
+void scr_DoUpdate(void)
 {
   doupdate();
 }

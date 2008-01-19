@@ -2526,6 +2526,7 @@ void cmd_room_whois(gpointer bud, char *arg, guint interactive)
   enum imrole role;
   enum imaffiliation affil;
   time_t rst_time;
+  guint msg_flag = HBB_PREFIX_INFO;
 
   paramlst = split_arg(arg, 1, 0); // nickname
   nick = *paramlst;
@@ -2542,7 +2543,8 @@ void cmd_room_whois(gpointer bud, char *arg, guint interactive)
     // Enter chat mode
     scr_set_chatmode(TRUE);
     scr_ShowBuddyWindow();
-  }
+  } else
+    msg_flag |= HBB_PREFIX_NOFLAG;
 
   bjid = buddy_getjid(bud);
   rstatus = buddy_getstatus(bud, nick);
@@ -2566,38 +2568,32 @@ void cmd_room_whois(gpointer bud, char *arg, guint interactive)
   buffer = g_new(char, 4096);
 
   snprintf(buffer, 4095, "Whois [%s]", nick);
-  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
+  scr_WriteIncomingMessage(bjid, buffer, 0, msg_flag, 0);
   snprintf(buffer, 4095, "Status   : [%c] %s", imstatus2char[rstatus],
            rst_msg);
-  scr_WriteIncomingMessage(bjid, buffer,
-                           0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+  scr_WriteIncomingMessage(bjid, buffer, 0, msg_flag | HBB_PREFIX_CONT, 0);
 
   if (rst_time) {
     char tbuf[128];
 
     strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
     snprintf(buffer, 127, "Timestamp: %s", tbuf);
-    scr_WriteIncomingMessage(bjid, buffer,
-                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+    scr_WriteIncomingMessage(bjid, buffer, 0, msg_flag | HBB_PREFIX_CONT, 0);
   }
 
   if (realjid) {
     snprintf(buffer, 4095, "JID      : <%s>", realjid);
-    scr_WriteIncomingMessage(bjid, buffer,
-                             0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+    scr_WriteIncomingMessage(bjid, buffer, 0, msg_flag | HBB_PREFIX_CONT, 0);
   }
 
   snprintf(buffer, 4095, "Role     : %s", strrole[role]);
-  scr_WriteIncomingMessage(bjid, buffer,
-                           0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+  scr_WriteIncomingMessage(bjid, buffer, 0, msg_flag | HBB_PREFIX_CONT, 0);
   snprintf(buffer, 4095, "Affiliat.: %s", straffil[affil]);
-  scr_WriteIncomingMessage(bjid, buffer,
-                           0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+  scr_WriteIncomingMessage(bjid, buffer, 0, msg_flag | HBB_PREFIX_CONT, 0);
   snprintf(buffer, 4095, "Priority : %d", rprio);
-  scr_WriteIncomingMessage(bjid, buffer,
-                           0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
+  scr_WriteIncomingMessage(bjid, buffer, 0, msg_flag | HBB_PREFIX_CONT, 0);
 
-  scr_WriteIncomingMessage(bjid, "End of WHOIS", 0, HBB_PREFIX_INFO, 0);
+  scr_WriteIncomingMessage(bjid, "End of WHOIS", 0, msg_flag, 0);
 
   g_free(buffer);
   g_free(nick);

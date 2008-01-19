@@ -783,11 +783,11 @@ void do_color(char *arg)
   free_arg_lst(paramlst);
 }
 
-//  setstatus(recipient, arg)
+//  cmd_setstatus(recipient, arg)
 // Set your Jabber status.
 // - if recipient is not NULL, the status is sent to this contact only
 // - arg must be "status message" (message is optional)
-void setstatus(const char *recipient, const char *arg)
+void cmd_setstatus(const char *recipient, const char *arg)
 {
   char **paramlst;
   char *status;
@@ -846,7 +846,7 @@ static void do_status(char *arg)
     return;
   }
   arg = to_utf8(arg);
-  setstatus(NULL, arg);
+  cmd_setstatus(NULL, arg);
   g_free(arg);
 }
 
@@ -900,7 +900,7 @@ static void do_status_to(char *arg)
     msg = to_utf8(msg);
     cmdline = g_strdup_printf("%s %s", st, msg);
     scr_LogPrint(LPRINT_LOGNORM, "Sending to <%s> /status %s", fjid, cmdline);
-    setstatus(fjid, cmdline);
+    cmd_setstatus(fjid, cmdline);
     g_free(msg);
     g_free(cmdline);
     g_free(jid_utf8);
@@ -2302,7 +2302,7 @@ static void room_kick(gpointer bud, char *arg)
   free_arg_lst(paramlst);
 }
 
-void room_leave(gpointer bud, char *arg)
+void cmd_room_leave(gpointer bud, char *arg)
 {
   gchar *roomid, *desc;
   const char *nickname;
@@ -2513,9 +2513,9 @@ static void room_setopt(gpointer bud, char *arg)
   free_arg_lst(paramlst);
 }
 
-//  room_whois(..)
+//  cmd_room_whois(..)
 // If interactive is TRUE, chatmode can be enabled.
-void room_whois(gpointer bud, char *arg, guint interactive)
+void cmd_room_whois(gpointer bud, char *arg, guint interactive)
 {
   char **paramlst;
   gchar *nick, *buffer;
@@ -2729,7 +2729,7 @@ static void do_room(char *arg)
       room_kick(bud, arg);
   } else if (!strcasecmp(subcmd, "leave"))  {
     if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
-      room_leave(bud, arg);
+      cmd_room_leave(bud, arg);
   } else if (!strcasecmp(subcmd, "names"))  {
     if ((arg = check_room_subcommand(arg, FALSE, bud)) != NULL)
       room_names(bud, arg);
@@ -2756,7 +2756,7 @@ static void do_room(char *arg)
       room_topic(bud, arg);
   } else if (!strcasecmp(subcmd, "whois"))  {
     if ((arg = check_room_subcommand(arg, TRUE, bud)) != NULL)
-      room_whois(bud, arg, TRUE);
+      cmd_room_whois(bud, arg, TRUE);
   } else if (!strcasecmp(subcmd, "bookmark"))  {
     if (!arg && !buddy_getjid(BUDDATA(current_buddy)) &&
         buddy_gettype(BUDDATA(current_buddy)) == ROSTER_TYPE_SPECIAL)

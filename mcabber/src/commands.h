@@ -21,9 +21,9 @@ extern char *mcabber_version(void);
 extern void mcabber_connect(void);
 extern void mcabber_set_terminate_ui(void);
 
-void room_whois(gpointer bud, char *nick_locale, guint interactive);
-void room_leave(gpointer bud, char *arg);
-void setstatus(const char *recipient, const char *arg);
+void cmd_room_whois(gpointer bud, char *nick_locale, guint interactive);
+void cmd_room_leave(gpointer bud, char *arg);
+void cmd_setstatus(const char *recipient, const char *arg);
 
 #endif /* __COMMANDS_H__ */
 

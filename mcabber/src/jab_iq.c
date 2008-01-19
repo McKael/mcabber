@@ -1194,7 +1194,7 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
       if (s->name) {
         char *status = g_strdup_printf("%s %s", s->status,
                                        message ? message : "");
-        setstatus(NULL, status);
+        cmd_setstatus(NULL, status);
         g_free(status);
         xmlnode_put_attrib(command, "status", "completed");
         xmlnode_put_attrib(iq, "type", "result");
@@ -1292,7 +1292,7 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from,
         if (to_leave) {
           GList* b = buddy_search_jid(to_leave);
           if (b)
-            room_leave(b->data, "Asked by remote command");
+            cmd_room_leave(b->data, "Asked by remote command");
         }
       }
       xmlnode_put_attrib(iq, "type", "result");

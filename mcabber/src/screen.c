@@ -246,6 +246,11 @@ static int FindColor(const char *name)
   if (result != -2)
     return result;
 
+  // Directly support 256-color values
+  result = atoi(name);
+  if (result > 0 && result < COLORS)
+    return result;
+
   scr_LogPrint(LPRINT_LOGNORM, "ERROR: Wrong color: %s", name);
   return -1;
 }

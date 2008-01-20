@@ -286,9 +286,11 @@ set escdelay = 50
 # Colors are: black, red, green, yellow, blue, magenta, cyan, white
 # For text colors (i.e. not background and bg* colors) you can also use
 # the "bright" prefix to get a bright/bold color.  Example: brightblue
-# You can use the "default" color, too (i.e. for transparent background)
+# You can use the "default" color, too (i.e. for transparent background).
+# If your terminal supports 256 colors, you can use the color number
+# directly (16-255).
 #
-# You can have a look at the contrib/themes/ directory to see some sample
+# Have a look at the contrib/themes/ directory to see some sample
 # color settings.
 #
 # background: background color of the chat window and the log window

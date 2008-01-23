@@ -1816,9 +1816,21 @@ static void do_move(char *arg)
 
   group_utf8 = to_utf8(newgroupname);
   if (strcmp(oldgroupname, group_utf8)) {
+    guint msgflag;
+
     jb_updatebuddy(bjid, name, *group_utf8 ? group_utf8 : NULL);
     scr_RosterUp();
+
+    // If the buddy has a pending message flag,
+    // we remove it temporarily in order to reset the global group
+    // flag.  We set it back once the buddy is in the new group,
+    // which will update the new group's flag.
+    msgflag = buddy_getflags(bud) & ROSTER_FLAG_MSG;
+    if (msgflag)
+      roster_msg_setflag(bjid, FALSE, FALSE);
     buddy_setgroup(bud, group_utf8);
+    if (msgflag)
+      roster_msg_setflag(bjid, FALSE, TRUE);
   }
 
   g_free(group_utf8);

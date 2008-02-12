@@ -428,7 +428,11 @@ static xmlnode presnew(enum imstatus st, const char *recipient,
         break;
   }
 
-  prio = settings_opt_get_int("priority");
+  if (st == away || st == notavail)
+    prio = settings_opt_get_int("priority_away");
+  else
+    prio = settings_opt_get_int("priority");
+
   if (prio) {
     char strprio[8];
     snprintf(strprio, 8, "%d", (int)prio);

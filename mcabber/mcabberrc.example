@@ -23,6 +23,7 @@ set server = your.jabber.server
 # If you don't know what a resource is, you can leave "mcabber" here.
 set resource = mcabber
 #set priority = 3
+#set priority_away = 0
 
 # SSL options:
 # Set ssl non-zero to use SSL (this also sets the default port to 5223).

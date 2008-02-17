@@ -112,7 +112,7 @@ static void otr_handle_smp_tlvs(OtrlTLV * tlvs, ConnContext * ctx);
 
 static char * otr_get_dir(void);
 
-void otr_init(const char *jid)
+void otr_init(const char *fjid)
 {
   char *root;
 
@@ -126,7 +126,7 @@ void otr_init(const char *jid)
   userstate = otrl_userstate_create ();
 
   root = otr_get_dir();
-  account = jidtodisp(jid);
+  account = jidtodisp(fjid);
   keyfile = g_strdup_printf("%s%s.key", root, account);
   fprfile = g_strdup_printf("%s%s.fpr", root, account);
   g_free(root);

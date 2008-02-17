@@ -167,6 +167,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_STATUS, "notavail");
   compl_add_category_word(COMPL_STATUS, "away");
   compl_add_category_word(COMPL_STATUS, "offline");
+  compl_add_category_word(COMPL_STATUS, "message");
 
   // Roster category
   compl_add_category_word(COMPL_ROSTER, "bottom");
@@ -816,6 +817,7 @@ void cmd_setstatus(const char *recipient, const char *arg)
   else if (!strcasecmp(status, IMSTATUS_DONOTDISTURB))  st = dontdisturb;
   else if (!strcasecmp(status, IMSTATUS_NOTAVAILABLE))  st = notavail;
   else if (!strcasecmp(status, IMSTATUS_FREE4CHAT))     st = freeforchat;
+  else if (!strcasecmp(status, "message"))              st = jb_getstatus();
   else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized status!");
     free_arg_lst(paramlst);

@@ -70,7 +70,8 @@ void mcabber_connect(void)
 {
   const char *username, *password, *resource, *servername;
   const char *proxy_host;
-  char *bjid;
+  char *dynresource = NULL;
+  char *fjid;
   int ssl;
   int sslverify = -1;
   const char *sslvopt = NULL, *cafile = NULL, *capath = NULL, *ciphers = NULL;
@@ -100,8 +101,6 @@ void mcabber_connect(void)
     scr_LogPrint(LPRINT_NORMAL, "Password has not been specified!");
     return;
   }
-  if (!resource)
-    resource = "mcabber";
 
   port    = (unsigned int) settings_opt_get_int("port");
 
@@ -139,11 +138,22 @@ void mcabber_connect(void)
   // We can't free the ca*_xp variables now, because they're not duplicated
   // in cw_set_ssl_options().
 
+  if (!resource) {
+    unsigned int tab[2];
+    srand(time(NULL));
+    tab[0] = (unsigned int) (0xffff * (rand() / (RAND_MAX + 1.0)));
+    tab[1] = (unsigned int) (0xffff * (rand() / (RAND_MAX + 1.0)));
+    dynresource = g_strdup_printf("%s.%04x%04x", PACKAGE_NAME,
+                                  tab[0], tab[1]);
+    resource = dynresource;
+  }
+
   /* Connect to server */
   scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",
                servername);
   if (port)
     scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " using port %d", port);
+  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " resource %s", resource);
 
   if (proxy_host) {
     int proxy_port = settings_opt_get_int("proxy_port");
@@ -160,12 +170,13 @@ void mcabber_connect(void)
     }
   }
 
-  bjid = compose_jid(username, servername, resource);
+  fjid = compose_jid(username, servername, resource);
 #if defined(HAVE_LIBOTR)
-  otr_init(bjid);
+  otr_init(fjid);
 #endif
-  jc = jb_connect(bjid, servername, port, ssl, password);
-  g_free(bjid);
+  jc = jb_connect(fjid, servername, port, ssl, password);
+  g_free(fjid);
+  g_free(dynresource);
 
   if (!jc)
     scr_LogPrint(LPRINT_LOGNORM, "Error connecting to (%s)", servername);

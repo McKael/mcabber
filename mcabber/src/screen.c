@@ -2661,7 +2661,6 @@ void scr_BufferDate(time_t t)
   update_panels();
 }
 
-#ifdef ENABLE_DEBUG
 //  buffer_list()
 // key: winId/jid
 // value: winbuf structure
@@ -2686,7 +2685,6 @@ void scr_BufferList(void)
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
   update_roster = TRUE;
 }
-#endif
 
 //  scr_set_chatmode()
 // Public function to (un)set chatmode...

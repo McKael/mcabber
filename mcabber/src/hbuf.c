@@ -412,7 +412,6 @@ GList *hbuf_jump_percent(GList *hbuf, int pc)
   return g_list_nth(hbuf, pc*hlen/100);
 }
 
-#ifdef ENABLE_DEBUG
 //  hbuf_get_blocks_number()
 // Returns the number of allocated hbuf_block's.
 guint hbuf_get_blocks_number(GList *hbuf)
@@ -427,6 +426,5 @@ guint hbuf_get_blocks_number(GList *hbuf)
   }
   return count;
 }
-#endif
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

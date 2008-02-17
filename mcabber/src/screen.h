@@ -167,10 +167,7 @@ bool scr_RosterColor(const char *status, const char *wildcard,
 void scr_RosterClearColor(void);
 void scr_MucColor(const char *muc, muccoltype type);
 void scr_MucNickColor(const char *nick, const char *color);
-
-#ifdef ENABLE_DEBUG
 void scr_BufferList(void);
-#endif
 
 void readline_transpose_chars(void);
 void readline_forward_kill_word(void);

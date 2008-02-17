@@ -208,6 +208,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_BUFFER, "scroll_lock");
   compl_add_category_word(COMPL_BUFFER, "scroll_unlock");
   compl_add_category_word(COMPL_BUFFER, "scroll_toggle");
+  compl_add_category_word(COMPL_BUFFER, "list");
 
   // Group category
   compl_add_category_word(COMPL_GROUP, "fold");
@@ -1481,10 +1482,8 @@ static void do_buffer(char *arg)
     buffer_date(arg);
   } else if (*subcmd == '%') {
     buffer_percent(subcmd+1, arg);
-#ifdef ENABLE_DEBUG
   } else if (!strcasecmp(subcmd, "list")) {
     scr_BufferList();
-#endif
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

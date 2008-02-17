@@ -5,6 +5,7 @@
 #include "jabglue.h"
 
 
+void hk_mainloop(void);
 void hk_message_in(const char *bjid, const char *resname,
                           time_t timestamp, const char *msg, const char *type,
                           guint encrypted);

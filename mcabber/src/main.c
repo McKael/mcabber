@@ -510,6 +510,7 @@ int main(int argc, char **argv)
         scr_DrawRoster();
 
       jb_main();
+      hk_mainloop();
     }
   }
 

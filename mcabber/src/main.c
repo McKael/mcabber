@@ -291,7 +291,7 @@ static void compile_options(void)
 #ifdef WITH_ASPELL
   puts("Compiled with Aspell support.");
 #endif
-#ifdef DEBUG_ENABLE
+#ifdef ENABLE_DEBUG
   puts("Compiled with debugging support.");
 #endif
 }

@@ -213,7 +213,7 @@ AC_ARG_ENABLE(debug,
     [AC_HELP_STRING(--enable-debug, Add development compilation options)],
     debug=$enableval, debug="")
 if test x"${debug}" = x"yes"; then
-    AC_DEFINE_UNQUOTED([DEBUG_ENABLE],[1],[Devel compilation options])
+    AC_DEFINE_UNQUOTED([ENABLE_DEBUG],[1],[Devel compilation options])
     if test "x$GCC" = "xyes"; then
         if test "$gccvernum" -ge "400"; then
             CFLAGS="$CFLAGS -Wextra"

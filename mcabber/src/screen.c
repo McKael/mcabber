@@ -2661,7 +2661,7 @@ void scr_BufferDate(time_t t)
   update_panels();
 }
 
-#ifdef DEBUG_ENABLE
+#ifdef ENABLE_DEBUG
 //  buffer_list()
 // key: winId/jid
 // value: winbuf structure

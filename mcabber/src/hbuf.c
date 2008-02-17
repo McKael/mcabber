@@ -412,7 +412,7 @@ GList *hbuf_jump_percent(GList *hbuf, int pc)
   return g_list_nth(hbuf, pc*hlen/100);
 }
 
-#ifdef DEBUG_ENABLE
+#ifdef ENABLE_DEBUG
 //  hbuf_get_blocks_number()
 // Returns the number of allocated hbuf_block's.
 guint hbuf_get_blocks_number(GList *hbuf)

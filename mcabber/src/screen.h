@@ -168,7 +168,7 @@ void scr_RosterClearColor(void);
 void scr_MucColor(const char *muc, muccoltype type);
 void scr_MucNickColor(const char *nick, const char *color);
 
-#ifdef DEBUG_ENABLE
+#ifdef ENABLE_DEBUG
 void scr_BufferList(void);
 #endif
 

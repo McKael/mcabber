@@ -43,6 +43,10 @@
 #include "pgp.h"
 #include "otr.h"
 
+#ifdef ENABLE_FIFO
+# include "fifo.h"
+#endif
+
 #ifdef ENABLE_HGCSET
 # include "hgcset.h"
 #endif
@@ -291,6 +295,9 @@ static void compile_options(void)
 #ifdef WITH_ASPELL
   puts("Compiled with Aspell support.");
 #endif
+#ifdef ENABLE_FIFO
+  puts("Compiled with FIFO support.");
+#endif
 #ifdef ENABLE_DEBUG
   puts("Compiled with debugging support.");
 #endif
@@ -487,6 +494,11 @@ int main(int argc, char **argv)
 
   chatstates_disabled = settings_opt_get_int("disable_chatstates");
 
+#ifdef ENABLE_FIFO
+  /* Initialize FIFO named pipe */
+  fifo_init(settings_opt_get("fifo_name"));
+#endif
+
   if (ret < 0) {
     scr_LogPrint(LPRINT_NORMAL, "No configuration file has been found.");
     scr_ShowBuddyWindow();
@@ -515,6 +527,9 @@ int main(int argc, char **argv)
   }
 
   scr_TerminateCurses();
+#ifdef ENABLE_FIFO
+  fifo_deinit();
+#endif
 #ifdef HAVE_LIBOTR
   otr_terminate();
 #endif

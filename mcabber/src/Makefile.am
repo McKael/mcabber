@@ -7,6 +7,10 @@ mcabber_SOURCES = main.c roster.c roster.h events.c events.h \
 		  histolog.c histolog.h utils.c utils.h pgp.c pgp.h \
 		  help.c help.h
 
+if FIFO
+mcabber_SOURCES += fifo.c fifo.h
+endif
+
 if OTR
 mcabber_SOURCES += otr.c otr.h
 endif

@@ -212,6 +212,11 @@ set cmdhistory_lines = 250
 # the server.
 #set hook-pre-disconnect = say_to foo@bar Goodbye!
 
+# FIFO
+# mcabber can create a FIFO named pipe and listen to this pipe for commands.
+# (The FIFO support has to be compiled in.)  Default: disabled.
+#set fifo_name = ~/.mcabber/mcabber.fifo
+
 # Traces logging
 # If you want advanced traces, please specify a file and a level here.
 # There are currently 2 traceloglog levels:

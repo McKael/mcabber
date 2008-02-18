@@ -35,6 +35,10 @@
 #include "pgp.h"
 #include "otr.h"
 
+#ifdef ENABLE_FIFO
+# include "fifo.h"
+#endif
+
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
 
@@ -231,6 +235,10 @@ void jb_main()
   long tmout;
   struct timeval tv;
   static time_t last_eviqs_check = 0L;
+  int maxfd;
+#ifdef ENABLE_FIFO
+  int fifofd;
+#endif
 
   if (!online) {
     safe_usleep(10000);
@@ -247,6 +255,15 @@ void jb_main()
   FD_ZERO(&fds);
   FD_SET(0, &fds);
   FD_SET(jc->fd, &fds);
+  maxfd = jc->fd;
+
+#ifdef ENABLE_FIFO
+  fifofd = fifo_get_fd();
+  if (fifofd > 0) {
+    FD_SET(fifofd, &fds);
+    maxfd = MAX(maxfd, fifofd);
+  }
+#endif
 
   tv.tv_sec = 60;
   tv.tv_usec = 0;
@@ -276,7 +293,7 @@ void jb_main()
     tv.tv_usec = 350000;
 
   scr_DoUpdate();
-  if (select(jc->fd + 1, &fds, NULL, NULL, &tv) > 0) {
+  if (select(maxfd + 1, &fds, NULL, NULL, &tv) > 0) {
     if (FD_ISSET(jc->fd, &fds))
       jab_poll(jc, 0);
   }

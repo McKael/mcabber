@@ -32,6 +32,7 @@
 #include "commands.h"
 #include "logprint.h"
 #include "utils.h"
+#include "settings.h"
 
 #include "hbuf.h"   // For HBB_BLOCKSIZE
 
@@ -143,6 +144,7 @@ void fifo_read(void)
 
   getbuf = fgets(buf, HBB_BLOCKSIZE, sfd);
   if (getbuf) {
+    guint logflag;
     char *eol = buf;
 
     // Strip trailing newlines
@@ -153,7 +155,11 @@ void fifo_read(void)
     while (eol > buf && *eol == '\n')
       *eol-- = 0;
 
-    scr_LogPrint(LPRINT_LOGNORM, "Executing FIFO command: %s", buf);
+    if (settings_opt_get_int("fifo_hide_commands"))
+      logflag = LPRINT_LOG;
+    else
+      logflag = LPRINT_LOGNORM;
+    scr_LogPrint(logflag, "Executing FIFO command: %s", buf);
     if (process_command(buf, TRUE) == 255)
       mcabber_set_terminate_ui();
   } else {

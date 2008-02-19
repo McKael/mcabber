@@ -801,6 +801,11 @@ void cmd_setstatus(const char *recipient, const char *arg)
     return;
   }
 
+  // It makes sense to reset autoaway before changing the status
+  // (esp. for FIFO or remote commands) or the behaviour could be
+  // unexpected...
+  scr_CheckAutoAway(TRUE);
+
   paramlst = split_arg(arg, 2, 1); // status, message
   status = *paramlst;
   msg = *(paramlst+1);

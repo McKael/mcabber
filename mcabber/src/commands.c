@@ -1074,7 +1074,7 @@ do_group_return:
 }
 
 static int send_message_to(const char *fjid, const char *msg, const char *subj,
-                           const char *type_overwrite)
+                           const char *type_overwrite, bool quiet)
 {
   char *bare_jid, *rp;
   char *hmsg;
@@ -1102,11 +1102,15 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
 
   // We must use the bare jid in hk_message_out()
   rp = strchr(fjid, JID_RESOURCE_SEPARATOR);
-  if (rp) bare_jid = g_strndup(fjid, rp - fjid);
-  else   bare_jid = (char*)fjid;
+  if (rp)
+    bare_jid = g_strndup(fjid, rp - fjid);
+  else
+    bare_jid = (char*)fjid;
 
-  // Jump to window, create one if needed
-  scr_RosterJumpJid(bare_jid);
+  if (!quiet) {
+    // Jump to window, create one if needed
+    scr_RosterJumpJid(bare_jid);
+  }
 
   // Check if we're sending a message to a conference room
   // If not, we must make sure rp is NULL, for hk_message_out()
@@ -1163,7 +1167,7 @@ static void send_message(const char *msg, const char *subj,
     return;
   }
 
-  send_message_to(bjid, msg, subj, type_overwrite);
+  send_message_to(bjid, msg, subj, type_overwrite, FALSE);
 }
 
 static const char *scan_mtype(char **arg)
@@ -1301,7 +1305,8 @@ static void do_msay(char *arg)
     arg = to_utf8(arg);
     msg_utf8 = to_utf8(scr_get_multiline());
     if (msg_utf8) {
-      err = send_message_to(arg, msg_utf8, scr_get_multimode_subj(), msg_type);
+      err = send_message_to(arg, msg_utf8, scr_get_multimode_subj(), msg_type,
+                            FALSE);
       g_free(msg_utf8);
     }
     g_free(arg);
@@ -1341,6 +1346,7 @@ static void do_say_to(char *arg)
   char **paramlst;
   char *fjid, *msg;
   const char *msg_type = NULL;
+  bool quiet = FALSE;
 
   if (!jb_getonline()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
@@ -1348,7 +1354,16 @@ static void do_say_to(char *arg)
   }
 
   msg_type = scan_mtype(&arg);
-  paramlst = split_arg(arg, 2, 1); // jid, message
+  paramlst = split_arg(arg, 2, 1); // jid, message (or option, jid, message)
+
+  // Check for an option parameter
+  if (*paramlst && !strcmp(*paramlst, "-q")) {
+    char **oldparamlst = paramlst;
+    paramlst = split_arg(*(oldparamlst+1), 2, 1); // jid, message
+    free_arg_lst(oldparamlst);
+    quiet = TRUE;
+  }
+
   fjid = *paramlst;
   msg = *(paramlst+1);
 
@@ -1361,7 +1376,7 @@ static void do_say_to(char *arg)
   fjid = to_utf8(fjid);
   msg = to_utf8(msg);
 
-  send_message_to(fjid, msg, NULL, msg_type);
+  send_message_to(fjid, msg, NULL, msg_type, quiet);
 
   g_free(fjid);
   g_free(msg);
@@ -2387,7 +2402,7 @@ static void room_privmsg(gpointer bud, char *arg)
   fjid = g_strdup_printf("%s/%s", buddy_getjid(bud), nick);
   fjid_utf8 = to_utf8(fjid);
   msg = to_utf8(arg);
-  send_message_to(fjid_utf8, msg, NULL, NULL);
+  send_message_to(fjid_utf8, msg, NULL, NULL, FALSE);
   g_free(fjid);
   g_free(fjid_utf8);
   g_free(msg);

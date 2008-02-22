@@ -434,7 +434,8 @@ void roster_del_user(const char *jid)
   roster *roster_usr;
   GSList *node;
 
-  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  sl_user = roster_find(jid, jidsearch,
+                        ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
   if (sl_user == NULL)
     return;
   roster_usr = (roster*)sl_user->data;

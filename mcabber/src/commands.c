@@ -1443,7 +1443,16 @@ static void do_say_to(char *arg)
   fjid = *paramlst;
   msg = *(paramlst+1);
 
-  if (!strcmp(fjid, ".") || check_jid_syntax(fjid)) {
+  if (!strcmp(fjid, ".")) {
+    // Send the message to the current buddy
+    if (current_buddy)
+      fjid = (char*)buddy_getjid(BUDDATA(current_buddy));
+    if (!fjid) {
+      scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
+      free_arg_lst(paramlst);
+      return;
+    }
+  } else if (check_jid_syntax(fjid)) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify a valid Jabber ID.");
     free_arg_lst(paramlst);
     return;

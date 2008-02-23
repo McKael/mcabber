@@ -20,6 +20,9 @@
  */
 
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "commands.h"
 #include "help.h"
@@ -1341,10 +1344,65 @@ do_msay_return:
   free_arg_lst(paramlst);
 }
 
+//  load_message_from_file(filename)
+// Read the whole content of a file.
+// The data are converted to UTF8, they should be freed by the caller after
+// use.
+char *load_message_from_file(const char *filename)
+{
+  struct stat buf;
+  FILE *fd;
+  char *msgbuf, *msgbuf_utf8;
+  char *eol;
+
+  fd = fopen(filename, "r");
+
+  if (!fd || fstat(fileno(fd), &buf)) {
+    scr_LogPrint(LPRINT_LOGNORM, "Cannot open message file (%s)", filename);
+    return NULL;
+  }
+  if (!buf.st_size || buf.st_size >= HBB_BLOCKSIZE) {
+    if (!buf.st_size)
+      scr_LogPrint(LPRINT_LOGNORM, "Message file is empty (%s)", filename);
+    else
+      scr_LogPrint(LPRINT_LOGNORM, "Message file is too big (%s)", filename);
+    fclose(fd);
+    return NULL;
+  }
+
+  msgbuf = g_new0(char, HBB_BLOCKSIZE);
+  fread(msgbuf, HBB_BLOCKSIZE-1, 1, fd);
+  fclose(fd);
+
+  // Strip trailing newlines
+  for (eol = msgbuf ; *eol ; eol++)
+    ;
+  if (eol > msgbuf)
+    eol--;
+  while (eol > msgbuf && *eol == '\n')
+    *eol-- = 0;
+
+  // It could be empty, once the trailing newlines are gone
+  if (eol == msgbuf && *eol == '\n') {
+    scr_LogPrint(LPRINT_LOGNORM, "Message file is empty (%s)", filename);
+    g_free(msgbuf);
+    return NULL;
+  }
+
+  msgbuf_utf8 = to_utf8(msgbuf);
+
+  if (!msgbuf_utf8 && msgbuf)
+    scr_LogPrint(LPRINT_LOGNORM, "Message file charset conversion error (%s)",
+                 filename);
+  g_free(msgbuf);
+  return msgbuf_utf8;
+}
+
 static void do_say_to(char *arg)
 {
   char **paramlst;
   char *fjid, *msg;
+  char *file = NULL;
   const char *msg_type = NULL;
   bool quiet = FALSE;
 
@@ -1356,25 +1414,50 @@ static void do_say_to(char *arg)
   msg_type = scan_mtype(&arg);
   paramlst = split_arg(arg, 2, 1); // jid, message (or option, jid, message)
 
-  // Check for an option parameter
-  if (*paramlst && !strcmp(*paramlst, "-q")) {
-    char **oldparamlst = paramlst;
-    paramlst = split_arg(*(oldparamlst+1), 2, 1); // jid, message
-    free_arg_lst(oldparamlst);
-    quiet = TRUE;
-  }
-
-  fjid = *paramlst;
-  msg = *(paramlst+1);
-
-  if (!fjid || !strcmp(fjid, ".")) {
+  if (!*paramlst) {  // No parameter?
     scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
     free_arg_lst(paramlst);
     return;
   }
 
+  // Check for an option parameter
+  while (TRUE) {
+    if (!strcmp(*paramlst, "-q")) {
+      char **oldparamlst = paramlst;
+      paramlst = split_arg(*(oldparamlst+1), 2, 1); // jid, message
+      free_arg_lst(oldparamlst);
+      quiet = TRUE;
+    } else if (!strcmp(*paramlst, "-f")) {
+      char **oldparamlst = paramlst;
+      paramlst = split_arg(*(oldparamlst+1), 2, 1); // filename, jid
+      free_arg_lst(oldparamlst);
+      file = g_strdup(*paramlst);
+      // One more parameter shift...
+      oldparamlst = paramlst;
+      paramlst = split_arg(*(oldparamlst+1), 2, 1); // jid, nothing
+      free_arg_lst(oldparamlst);
+    } else
+      break;
+  }
+
+  fjid = *paramlst;
+  msg = *(paramlst+1);
+
+  if (!strcmp(fjid, ".") || check_jid_syntax(fjid)) {
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a valid Jabber ID.");
+    free_arg_lst(paramlst);
+    return;
+  }
+
   fjid = to_utf8(fjid);
-  msg = to_utf8(msg);
+  if (!file) {
+    msg = to_utf8(msg);
+  } else {
+    if (msg)
+      scr_LogPrint(LPRINT_NORMAL, "say_to: extra parameter ignored.");
+    msg = load_message_from_file(file);
+    g_free(file);
+  }
 
   send_message_to(fjid, msg, NULL, msg_type, quiet);
 

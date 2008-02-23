@@ -1350,8 +1350,8 @@ do_msay_return:
 // use.
 char *load_message_from_file(const char *filename)
 {
-  struct stat buf;
   FILE *fd;
+  struct stat buf;
   char *msgbuf, *msgbuf_utf8;
   char *eol;
 
@@ -1462,9 +1462,12 @@ static void do_say_to(char *arg)
   if (!file) {
     msg = to_utf8(msg);
   } else {
+    char *filename_xp;
     if (msg)
       scr_LogPrint(LPRINT_NORMAL, "say_to: extra parameter ignored.");
-    msg = load_message_from_file(file);
+    filename_xp = expand_filename(file);
+    msg = load_message_from_file(filename_xp);
+    g_free(filename_xp);
     g_free(file);
   }
 

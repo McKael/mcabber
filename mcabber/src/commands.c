@@ -2526,8 +2526,6 @@ static void room_remove(gpointer bud, char *arg)
 
 static void room_topic(gpointer bud, char *arg)
 {
-  gchar *msg;
-
   if (!buddy_getinsideroom(bud)) {
     scr_LogPrint(LPRINT_NORMAL, "You are not in this room.");
     return;
@@ -2545,10 +2543,8 @@ static void room_topic(gpointer bud, char *arg)
 
   arg = to_utf8(arg);
   // Set the topic
-  msg = g_strdup_printf("%s has set the topic to: %s", mkcmdstr("me"), arg);
-  jb_send_msg(buddy_getjid(bud), msg, ROSTER_TYPE_ROOM, arg, NULL, NULL, NULL);
+  jb_send_msg(buddy_getjid(bud), NULL, ROSTER_TYPE_ROOM, arg, NULL, NULL, NULL);
   g_free(arg);
-  g_free(msg);
 }
 
 static void room_destroy(gpointer bud, char *arg)

@@ -601,7 +601,11 @@ void jb_send_msg(const char *fjid, const char *text, int type,
   if (encrypted)
     *encrypted = 0;
 
-  if (!online) return;
+  if (!online)
+    return;
+
+  if (!text && type == ROSTER_TYPE_USER)
+    return;
 
   if (type_overwrite)
     strtype = type_overwrite;

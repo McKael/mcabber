@@ -157,6 +157,7 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
   char *filename;
   guchar type, info;
   char *data, *tail;
+  guint data_size;
   char *xtext;
   time_t timestamp;
   guint prefix_flags;
@@ -175,7 +176,8 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
       (settings_opt_get_int("load_muc_logs") != 1))
     return;
 
-  data = g_new(char, HBB_BLOCKSIZE+32);
+  data_size = HBB_BLOCKSIZE+32;
+  data = g_new(char, data_size);
   if (!data) {
     scr_LogPrint(LPRINT_LOGNORM, "Not enough memory to read history file");
     return;
@@ -214,12 +216,38 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
   /* See write_histo_line() for line format... */
   while (!feof(fp)) {
     guint dataoffset = 25;
+    guint noeol;
 
-    if (fgets(data, HBB_BLOCKSIZE+27, fp) == NULL)
+    if (fgets(data, data_size-1, fp) == NULL)
       break;
     ln++;
 
-    for (tail = data; *tail; tail++) ;
+    while (1) {
+      for (tail = data; *tail; tail++) ;
+      noeol = (*(tail-1) != '\n');
+      if (!noeol)
+        break;
+      /* TODO: duplicated code... could do better... */
+      if (tail == data + data_size-2) {
+        // The buffer is too small to contain the whole line.
+        // Let's allocate some more space.
+        if (!max_num_of_blocks ||
+            data_size/HBB_BLOCKSIZE < 5U*max_num_of_blocks) {
+          guint toffset = tail - data;
+          // Allocate one more block.
+          data_size = HBB_BLOCKSIZE * (1 + data_size/HBB_BLOCKSIZE);
+          data = g_renew(char, data, data_size);
+          // Update the tail pointer, as the data may have been moved.
+          tail = data + toffset;
+          if (fgets(tail, data_size-1 - (tail-data), fp) == NULL)
+            break;
+        } else {
+          scr_LogPrint(LPRINT_LOGNORM, "Line too long in history file!");
+          ln--;
+          break;
+        }
+      }
+    }
 
     type = data[0];
     info = data[1];
@@ -252,20 +280,34 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
       continue;
     }
 
-    // XXX This will fail when a message is too big
     while (len--) {
       ln++;
-      if (fgets(tail, HBB_BLOCKSIZE+27 - (tail-data), fp) == NULL)
+      if (fgets(tail, data_size-1 - (tail-data), fp) == NULL)
         break;
 
       while (*tail) tail++;
-    }
-    // Small check for too long messages
-    if (tail >= HBB_BLOCKSIZE+dataoffset+1 + data) {
-      // Maybe we will have a parse error on next, because this
-      // message is big (maybe too big).
-      scr_LogPrint(LPRINT_LOGNORM, "A message could be too big "
-                   "in history file...");
+      noeol = (*(tail-1) != '\n');
+      if (tail == data + data_size-2 && (len || noeol)) {
+        // The buffer is too small to contain the whole message.
+        // Let's allocate some more space.
+        if (!max_num_of_blocks ||
+            data_size/HBB_BLOCKSIZE < 5U*max_num_of_blocks) {
+          guint toffset = tail - data;
+          // If the line hasn't been read completely and we reallocate the
+          // buffer, we want to read one more time.
+          if (noeol)
+            len++;
+          // Allocate one more block.
+          data_size = HBB_BLOCKSIZE * (1 + data_size/HBB_BLOCKSIZE);
+          data = g_renew(char, data, data_size);
+          // Update the tail pointer, as the data may have been moved.
+          tail = data + toffset;
+        } else {
+          // There will probably be a parse error on next read, because
+          // this message hasn't been read entirely.
+          scr_LogPrint(LPRINT_LOGNORM, "Message too big in history file!");
+        }
+      }
     }
     // Remove last CR (we keep it if the line is empty, too)
     if ((tail > data+dataoffset+1) && (*(tail-1) == '\n'))

@@ -12,6 +12,8 @@ void hlog_write_message(const char *bjid, time_t timestamp, int sent,
                         const char *msg);
 void hlog_write_status(const char *bjid, time_t timestamp,
                        enum imstatus status, const char *status_msg);
+void hlog_save_state(void);
+void hlog_load_state(void);
 
 #endif /* __HISTOLOG_H__ */
 

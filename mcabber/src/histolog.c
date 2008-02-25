@@ -26,14 +26,16 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #include "histolog.h"
 #include "hbuf.h"
 #include "jabglue.h"
 #include "utils.h"
-#include "logprint.h"
+#include "screen.h"
 #include "settings.h"
 #include "utils.h"
+#include "roster.h"
 
 static guint UseFileLogging;
 static guint FileLoadLogs;
@@ -391,6 +393,11 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
   }
 }
 
+guint hlog_is_enabled(void)
+{
+  return UseFileLogging;
+}
+
 inline void hlog_write_message(const char *bjid, time_t timestamp, int sent,
         const char *msg)
 {
@@ -414,6 +421,117 @@ inline void hlog_write_status(const char *bjid, time_t timestamp,
   // XXX Check status value?
   write_histo_line(bjid, timestamp, 'S', toupper(imstatus2char[status]),
           status_msg);
+}
+
+
+//  hlog_save_state()
+// If enabled, save the current state of the roster
+// (i.e. pending messages) to a temporary file.
+void hlog_save_state(void)
+{
+  gpointer unread_ptr, first_unread;
+  const char *bjid;
+  char *statefile_xp;
+  FILE *fp;
+  const char *statefile = settings_opt_get("statefile");
+
+  if (!statefile || !UseFileLogging)
+    return;
+
+  statefile_xp = expand_filename(statefile);
+  fp = fopen(statefile_xp, "w");
+  if (!fp) {
+    scr_LogPrint(LPRINT_NORMAL, "Cannot open state file [%s]",
+                 strerror(errno));
+    goto hlog_save_state_return;
+  }
+
+  if (!jb_getonline()) {
+    // We're not connected.  Let's use the unread_jids hash.
+    GList *unread_jid = unread_jid_get_list();
+    unread_ptr = unread_jid;
+    for ( ; unread_jid ; unread_jid = g_list_next(unread_jid))
+      fprintf(fp, "%s\n", (char*)unread_jid->data);
+    g_list_free(unread_ptr);
+    goto hlog_save_state_return;
+  }
+
+  if (!current_buddy) // Safety check -- shouldn't happen.
+    goto hlog_save_state_return;
+
+  // We're connected.  Let's use unread_msg().
+  unread_ptr = first_unread = unread_msg(NULL);
+  if (!first_unread)
+    goto hlog_save_state_return;
+
+  do {
+    guint type = buddy_gettype(unread_ptr);
+    if (type & (ROSTER_TYPE_USER|ROSTER_TYPE_AGENT)) {
+      bjid = buddy_getjid(unread_ptr);
+      if (bjid)
+        fprintf(fp, "%s\n", bjid);
+    }
+    unread_ptr = unread_msg(unread_ptr);
+  } while (unread_ptr && unread_ptr != first_unread);
+
+hlog_save_state_return:
+  if (fp) {
+    long filelen = ftell(fp);
+    fclose(fp);
+    if (!filelen)
+      unlink(statefile_xp);
+  }
+  g_free(statefile_xp);
+}
+
+//  hlog_load_state()
+// If enabled, load the current state of the roster
+// (i.e. pending messages) from a temporary file.
+// This function adds the JIDs to the unread_jids hash table,
+// so it should only be called at startup.
+void hlog_load_state(void)
+{
+  char bjid[1024];
+  char *statefile_xp;
+  FILE *fp;
+  const char *statefile = settings_opt_get("statefile");
+
+  if (!statefile || !UseFileLogging)
+    return;
+
+  statefile_xp = expand_filename(statefile);
+  fp = fopen(statefile_xp, "r");
+  if (fp) {
+    char *eol;
+    while (!feof(fp)) {
+      if (fgets(bjid, sizeof bjid, fp) == NULL)
+        break;
+      // Let's remove the trailing newline.
+      // Also remove whitespace, if the file as been (badly) manually modified.
+      for (eol = bjid; *eol; eol++) ;
+      for (eol--; eol >= bjid && (*eol == '\n' || *eol == ' '); *eol-- = 0) ;
+      // Safety checks...
+      if (!bjid[0])
+        continue;
+      if (check_jid_syntax(bjid)) {
+        scr_LogPrint(LPRINT_LOGNORM,
+                     "ERROR: Invalid JID in state file.  Corrupted file?");
+        break;
+      }
+      // Display a warning if there are pending messages but the user
+      // won't see them because load_log isn't set.
+      if (!FileLoadLogs) {
+        scr_LogPrint(LPRINT_LOGNORM, "WARNING: unread message from <%s>.",
+                     bjid);
+        scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+      }
+      // Add the JID to unread_jids.  It will be used when the contact is
+      // added to the roster.
+      unread_jid_add(bjid);
+    }
+    fclose(fp);
+  }
+  g_free(statefile_xp);
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

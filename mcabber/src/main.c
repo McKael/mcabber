@@ -499,6 +499,9 @@ int main(int argc, char **argv)
   fifo_init(settings_opt_get("fifo_name"));
 #endif
 
+  /* Load previous roster state */
+  hlog_load_state();
+
   if (ret < 0) {
     scr_LogPrint(LPRINT_NORMAL, "No configuration file has been found.");
     scr_ShowBuddyWindow();
@@ -539,10 +542,11 @@ int main(int argc, char **argv)
 #endif
 #ifdef HAVE_ASPELL_H
   /* Deinitialize aspell */
-  if (settings_opt_get_int("aspell_enable")) {
+  if (settings_opt_get_int("aspell_enable"))
     spellcheck_deinit();
-  }
 #endif
+  /* Save pending message state */
+  hlog_save_state();
 
   printf("\n\nThanks for using mcabber!\n");
 

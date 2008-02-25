@@ -24,6 +24,7 @@
 #include "roster.h"
 #include "utils.h"
 
+extern void hlog_save_state(void);
 
 char *strrole[] = {   /* Should match enum in roster.h */
   "none",
@@ -118,8 +119,7 @@ GList *alternate_buddy;
 
 static roster roster_special;
 
-void unread_jid_add(const char *jid);
-int  unread_jid_del(const char *jid);
+static int  unread_jid_del(const char *jid);
 
 #define DFILTER_ALL     63
 #define DFILTER_ONLINE  62
@@ -590,6 +590,7 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
   GSList *sl_user;
   roster *roster_usr, *roster_grp;
   int new_roster_item = FALSE;
+  guint unread_list_modified = FALSE;
 
   if (special) {
     //sl_user = roster_find(jid, namesearch, ROSTER_TYPE_SPECIAL);
@@ -622,6 +623,8 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
   roster_usr = (roster*)sl_user->data;
   roster_grp = (roster*)roster_usr->list->data;
   if (value) {
+    if (!(roster_usr->flags & ROSTER_FLAG_MSG))
+      unread_list_modified = TRUE;
     // Message flag is TRUE.  This is easy, we just have to set both flags
     // to TRUE...
     roster_usr->flags |= ROSTER_FLAG_MSG;
@@ -632,6 +635,8 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
   } else {
     // Message flag is FALSE.
     guint msg = FALSE;
+    if (roster_usr->flags & ROSTER_FLAG_MSG)
+      unread_list_modified = TRUE;
     roster_usr->flags &= ~ROSTER_FLAG_MSG;
     if (unread_list) {
       GSList *node = g_slist_find(unread_list, roster_usr);
@@ -660,6 +665,9 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
 
   if (buddylist && (new_roster_item || !g_list_find(buddylist, roster_usr)))
     buddylist_build();
+
+  if (unread_list_modified)
+    hlog_save_state();
 }
 
 const char *roster_getname(const char *jid)
@@ -1541,11 +1549,22 @@ void unread_jid_add(const char *jid)
 
 //  unread_jid_del(jid)
 // Return TRUE if jid is found in the table (and remove it), FALSE if not
-int unread_jid_del(const char *jid)
+static int unread_jid_del(const char *jid)
 {
   if (!unread_jids)
     return FALSE;
   return g_hash_table_remove(unread_jids, jid);
+}
+
+//  unread_jid_get_list()
+// Return the JID list.
+// The content of the list should not be modified or freed.
+// The caller should call g_list_free() after use.
+GList *unread_jid_get_list(void)
+{
+  if (!unread_jids)
+    return NULL;
+  return g_hash_table_get_keys(unread_jids);
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

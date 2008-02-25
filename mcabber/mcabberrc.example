@@ -146,7 +146,12 @@ set cmdhistory_lines = 250
 # Default = 0 (disabled -- everything is loaded)
 # Note: this option is only used when reading history files, not later.
 #set max_history_age = 0
-#
+
+# mcabber can store the list of unread messages in a state file,
+# so that the message flags are set back at next startup.
+# Note that 'logging' must be enabled for this feature to work.
+#set statefile = ~/.mcabber/mcabber.state
+
 # You can specify a maximum number of data blocks per buffer (1 block contains
 # about 8kB).  The default is 0 (unlimited).  If set, this value must be > 2.
 #set max_history_blocks = 8

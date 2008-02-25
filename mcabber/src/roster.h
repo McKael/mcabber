@@ -232,6 +232,9 @@ void    foreach_group_member(gpointer groupdata,
                              void *param);
 gpointer unread_msg(gpointer rosterdata);
 
+void   unread_jid_add(const char *jid);
+GList *unread_jid_get_list(void);
+
 GSList *compl_list(guint type);
 
 #endif /* __ROSTER_H__ */

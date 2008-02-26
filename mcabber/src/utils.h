@@ -26,8 +26,6 @@ const char *ut_get_tmpdir(void);
 int    to_iso8601(char *dststr, time_t timestamp);
 time_t from_iso8601(const char *timestamp, int utc);
 
-void safe_usleep(unsigned int usec); /* Only for delays < 1s */
-
 int check_jid_syntax(const char *fjid);
 
 void mc_strtolower(char *str);

@@ -235,27 +235,17 @@ void jb_main()
   long tmout;
   struct timeval tv;
   static time_t last_eviqs_check = 0L;
-  int maxfd;
+  int maxfd = 0;
 #ifdef ENABLE_FIFO
   int fifofd;
 #endif
 
-  if (!online) {
-    safe_usleep(10000);
-    check_connection();
-    return;
-  }
-
-  if (jc && jc->state == JCONN_STATE_CONNECTING) {
-    safe_usleep(75000);
-    jab_start(jc);
-    return;
-  }
-
   FD_ZERO(&fds);
   FD_SET(0, &fds);
-  FD_SET(jc->fd, &fds);
-  maxfd = jc->fd;
+  if (jc && jc->fd > 0) {
+    FD_SET(jc->fd, &fds);
+    maxfd = jc->fd;
+  }
 
 #ifdef ENABLE_FIFO
   fifofd = fifo_get_fd();
@@ -267,6 +257,25 @@ void jb_main()
 
   tv.tv_sec = 60;
   tv.tv_usec = 0;
+
+  if (!online || (jc && jc->state == JCONN_STATE_CONNECTING)) {
+    if (online) {
+      // We're connecting and we need to reduce the timeout.
+      tv.tv_sec = 0;
+      tv.tv_usec = 250000;
+    } else {
+      tv.tv_sec = 30;
+      // Let's first update the screen, we could sleep for a long time...
+      scr_DoUpdate();
+    }
+    // If we're not connected, sleep for a while...
+    select(maxfd + 1, &fds, NULL, NULL, &tv);
+    if (!online)
+      check_connection();
+    else
+      jab_start(jc);
+    return;
+  }
 
   time(&now);
 

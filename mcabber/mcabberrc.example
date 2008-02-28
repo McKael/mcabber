@@ -20,8 +20,8 @@ set username = yourusername
 #set password = yourpassword
 set server = your.jabber.server
 #set port = 5222
-# If you don't know what a resource is, you can leave "mcabber" here.
-set resource = mcabber
+# If you don't know what a resource is, do not set it.
+#set resource = mcabber
 #set priority = 3
 #set priority_away = 0
 

@@ -1356,6 +1356,7 @@ char *load_message_from_file(const char *filename)
   char *msgbuf, *msgbuf_utf8;
   char *p;
   char *next_utf8_char;
+  size_t len;
 
   fd = fopen(filename, "r");
 
@@ -1373,14 +1374,13 @@ char *load_message_from_file(const char *filename)
   }
 
   msgbuf = g_new0(char, HBB_BLOCKSIZE);
-  fread(msgbuf, HBB_BLOCKSIZE-1, 1, fd);
+  len = fread(msgbuf, 1, HBB_BLOCKSIZE-1, fd);
   fclose(fd);
 
   next_utf8_char = msgbuf;
 
-  // Strip trailing newlines
+  // Check there is no binary data.  It must be a *message* file!
   for (p = msgbuf ; *p ; p++) {
-    // Check there is no binary data.  It must be a *message* file!
     if (utf8_mode) {
       if (p == next_utf8_char) {
         if (!iswprint(get_char(p)) && *p != '\n')
@@ -1394,7 +1394,7 @@ char *load_message_from_file(const char *filename)
     }
   }
 
-  if (*p) { // We're not at the End Of Line...
+  if (*p || (size_t)(p-msgbuf) != len) { // We're not at the End Of Line...
     scr_LogPrint(LPRINT_LOGNORM, "Message file contains "
                  "invalid characters (%s)", filename);
     g_free(msgbuf);
@@ -1402,6 +1402,7 @@ char *load_message_from_file(const char *filename)
   }
 
   // p is now at the EOL
+  // Let's strip trailing newlines
   if (p > msgbuf)
     p--;
   while (p > msgbuf && *p == '\n')

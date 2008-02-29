@@ -36,6 +36,7 @@
 #include "settings.h"
 #include "events.h"
 #include "otr.h"
+#include "utf8.h"
 
 #define IMSTATUS_AWAY           "away"
 #define IMSTATUS_ONLINE         "online"
@@ -1353,7 +1354,8 @@ char *load_message_from_file(const char *filename)
   FILE *fd;
   struct stat buf;
   char *msgbuf, *msgbuf_utf8;
-  char *eol;
+  char *p;
+  char *next_utf8_char;
 
   fd = fopen(filename, "r");
 
@@ -1374,16 +1376,39 @@ char *load_message_from_file(const char *filename)
   fread(msgbuf, HBB_BLOCKSIZE-1, 1, fd);
   fclose(fd);
 
+  next_utf8_char = msgbuf;
+
   // Strip trailing newlines
-  for (eol = msgbuf ; *eol ; eol++)
-    ;
-  if (eol > msgbuf)
-    eol--;
-  while (eol > msgbuf && *eol == '\n')
-    *eol-- = 0;
+  for (p = msgbuf ; *p ; p++) {
+    // Check there is no binary data.  It must be a *message* file!
+    if (utf8_mode) {
+      if (p == next_utf8_char) {
+        if (!iswprint(get_char(p)) && *p != '\n')
+          break;
+        next_utf8_char = next_char(p);
+      }
+    } else {
+      unsigned char sc = *p;
+      if (!iswprint(sc) && sc != '\n')
+        break;
+    }
+  }
+
+  if (*p) { // We're not at the End Of Line...
+    scr_LogPrint(LPRINT_LOGNORM, "Message file contains "
+                 "invalid characters (%s)", filename);
+    g_free(msgbuf);
+    return NULL;
+  }
+
+  // p is now at the EOL
+  if (p > msgbuf)
+    p--;
+  while (p > msgbuf && *p == '\n')
+    *p-- = 0;
 
   // It could be empty, once the trailing newlines are gone
-  if (eol == msgbuf && *eol == '\n') {
+  if (p == msgbuf && *p == '\n') {
     scr_LogPrint(LPRINT_LOGNORM, "Message file is empty (%s)", filename);
     g_free(msgbuf);
     return NULL;

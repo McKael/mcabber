@@ -23,6 +23,7 @@
 
 #include "roster.h"
 #include "utils.h"
+#include "hooks.h"
 
 extern void hlog_save_state(void);
 
@@ -666,8 +667,12 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
   if (buddylist && (new_roster_item || !g_list_find(buddylist, roster_usr)))
     buddylist_build();
 
-  if (unread_list_modified)
+  if (unread_list_modified) {
     hlog_save_state();
+    guint unread_count = g_slist_length(unread_list);
+    /* Call external command */
+    hk_ext_cmd("", 'U', (guchar)MIN(255, unread_count), NULL);
+  }
 }
 
 const char *roster_getname(const char *jid)

@@ -43,5 +43,7 @@ if [ $event = "MSG" ]; then
 elif [ $event = "STATUS" ]; then
   # Buddy $arg2 status is $arg1 (_, O, I, F, D, N, A)
   echo > /dev/null
+elif [ $event = "UNREAD" ]; then
+  # $arg1 is the number of unread buffers
+  echo > /dev/null
 fi
-

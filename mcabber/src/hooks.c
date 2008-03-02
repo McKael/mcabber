@@ -405,29 +405,35 @@ void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data)
   char *arg_data = NULL;
   char status_str[2];
   char *datafname = NULL;
+  char unread_str[16];
 
   if (!extcmd) return;
 
   // Prepare arg_* (external command parameters)
   switch (type) {
-    case 'M':
+    case 'M': /* Normal message */
         arg_type = "MSG";
         if (info == 'R')
           arg_info = "IN";
         else if (info == 'S')
           arg_info = "OUT";
         break;
-    case 'G':
+    case 'G': /* Groupchat message */
         arg_type = "MSG";
         arg_info = "MUC";
         break;
-    case 'S':
+    case 'S': /* Status change */
         arg_type = "STATUS";
         if (strchr(imstatus2char, tolower(info))) {
           status_str[0] = toupper(info);
           status_str[1] = 0;
           arg_info = status_str;
         }
+        break;
+    case 'U': /* Unread buffer count */
+        arg_type = "UNREAD";
+        g_snprintf(unread_str, sizeof unread_str, "%d", info);
+        arg_info = unread_str;  /* number of remaining unread bjids */
         break;
     default:
         return;

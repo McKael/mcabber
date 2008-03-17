@@ -128,7 +128,7 @@ void mcabber_connect(void)
     cafile = capath = ciphers = NULL;
   }
 #elif defined HAVE_GNUTLS
-  if (sslverify != 0) {
+  if (ssl && sslverify != 0) {
     scr_LogPrint(LPRINT_LOGNORM, "** Error: SSL certificate checking "
                  "is not supported yet with GnuTLS.");
     scr_LogPrint(LPRINT_LOGNORM,

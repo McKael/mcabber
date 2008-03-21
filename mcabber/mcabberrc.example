@@ -25,6 +25,10 @@ set server = your.jabber.server
 #set priority = 3
 #set priority_away = 0
 
+# Set 'ignore_self_presence' to 1 if you do not want to see your own
+# presence in your roster (default: 0).
+set ignore_self_presence = 1
+
 # SSL options:
 # Set ssl non-zero to use SSL (this also sets the default port to 5223).
 # * Please note that certificate verification is NOT yet supported if

@@ -2400,6 +2400,13 @@ static void handle_packet_presence(jconn conn, char *type, char *from,
   rname = strchr(from, JID_RESOURCE_SEPARATOR);
   if (rname) rname++;
 
+  if (settings_opt_get_int("ignore_self_presence")) {
+    const char *self_fjid = jid_full(jc->user);
+    if (self_fjid && !strcasecmp(self_fjid, from)) {
+      return; // Ignoring self presence
+    }
+  }
+
   r = jidtodisp(from);
 
   // Check for MUC presence packet

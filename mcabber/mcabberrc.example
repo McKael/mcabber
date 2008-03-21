@@ -204,6 +204,10 @@ set cmdhistory_lines = 250
 #set event_log_files = 0
 #set event_log_dir = ~/.mcabber/event_files
 
+# If you set 'eventcmd_use_nickname' to 1, mcabber will pass the nickname
+# (if it is defined) to the event script instead of the JID (default: 0).
+#set eventcmd_use_nickname = 0
+
 # External command status check
 # You can request mcabber to inspect exit status value after each
 # events_command.  If this option is set, mcabber will beep if the

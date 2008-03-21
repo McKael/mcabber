@@ -73,6 +73,7 @@ void hk_message_in(const char *bjid, const char *resname,
   char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
   GSList *roster_usr;
   unsigned mucnicklen = 0;
+  const char *name = NULL;
 
   if (encrypted)
     message_flags |= HBB_PREFIX_PGPCRYPT;
@@ -206,17 +207,19 @@ void hk_message_in(const char *bjid, const char *resname,
     }
   }
 
+  if (settings_opt_get_int("eventcmd_use_nickname"))
+    name = roster_getname(bjid);
+
   // External command
   // - We do not call hk_ext_cmd() for history lines in MUC
   // - We do call hk_ext_cmd() for private messages in a room
   // - We do call hk_ext_cmd() for messages to the current window
   if (!active_window && ((is_groupchat && !timestamp) || !is_groupchat))
-    hk_ext_cmd(bjid, (is_groupchat ? 'G' : 'M'), 'R', wmsg);
+    hk_ext_cmd(name ? name : bjid, (is_groupchat ? 'G' : 'M'), 'R', wmsg);
 
   // Display the sender in the log window
   if ((!is_groupchat) && !(message_flags & HBB_PREFIX_ERR) &&
       settings_opt_get_int("log_display_sender")) {
-    const char *name = roster_getname(bjid);
     if (!name) name = "";
     scr_LogPrint(LPRINT_NORMAL, "Message received from %s <%s/%s>",
                  name, bjid, (resname ? resname : ""));
@@ -295,11 +298,14 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
   char *bn = NULL;
   char *logsmsg;
   const char *rn = (resname ? resname : "");
+  const char *name = NULL;
+
+  if (settings_opt_get_int("eventcmd_use_nickname"))
+    name = roster_getname(bjid);
 
   st_in_buf = settings_opt_get_int("show_status_in_buffer");
   buddy_format = settings_opt_get_int("buddy_format");
   if (buddy_format) {
-    const char *name = roster_getname(bjid);
     if (name && strcmp(name, bjid)) {
       if (buddy_format == 1)
         bn = g_strdup_printf("%s <%s/%s>", name, bjid, rn);
@@ -342,7 +348,7 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
   scr_DrawRoster();
   hlog_write_status(bjid, timestamp, status, status_msg);
   // External command
-  hk_ext_cmd(bjid, 'S', imstatus2char[status], NULL);
+  hk_ext_cmd(name ? name : bjid, 'S', imstatus2char[status], NULL);
 }
 
 void hk_mystatuschange(time_t timestamp, enum imstatus old_status,

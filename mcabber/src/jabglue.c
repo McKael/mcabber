@@ -34,10 +34,7 @@
 #include "commands.h"
 #include "pgp.h"
 #include "otr.h"
-
-#ifdef ENABLE_FIFO
-# include "fifo.h"
-#endif
+#include "fifo.h"
 
 #define JABBERPORT      5222
 #define JABBERSSLPORT   5223
@@ -236,9 +233,7 @@ void jb_main()
   struct timeval tv;
   static time_t last_eviqs_check = 0L;
   int maxfd = 0;
-#ifdef ENABLE_FIFO
   int fifofd;
-#endif
 
   FD_ZERO(&fds);
   FD_SET(0, &fds);
@@ -247,13 +242,11 @@ void jb_main()
     maxfd = jc->fd;
   }
 
-#ifdef ENABLE_FIFO
   fifofd = fifo_get_fd();
   if (fifofd > 0) {
     FD_SET(fifofd, &fds);
     maxfd = MAX(maxfd, fifofd);
   }
-#endif
 
   tv.tv_sec = 60;
   tv.tv_usec = 0;

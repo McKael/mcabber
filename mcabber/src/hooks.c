@@ -32,10 +32,7 @@
 #include "utils.h"
 #include "utf8.h"
 #include "commands.h"
-
-#ifdef ENABLE_FIFO
-# include "fifo.h"
-#endif
+#include "fifo.h"
 
 static char *extcmd;
 
@@ -54,9 +51,7 @@ void hk_mainloop(void)
     last = now;
   }
   */
-#ifdef ENABLE_FIFO
   fifo_read();
-#endif
 }
 
 void hk_message_in(const char *bjid, const char *resname,

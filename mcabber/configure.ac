@@ -227,14 +227,6 @@ else
     CFLAGS="-O2 $CFLAGS"
 fi
 
-AC_ARG_ENABLE(fifo,
-    [AC_HELP_STRING(--enable-fifo, Enable FIFO named pipe)],
-    fifo=$enableval, fifo="")
-AM_CONDITIONAL([FIFO], [test x$fifo = xyes])
-if test x"${fifo}" = x"yes"; then
-    AC_DEFINE_UNQUOTED([ENABLE_FIFO],[1],[Named pipe support])
-fi
-
 AC_ARG_ENABLE(hgcset,
     [AC_HELP_STRING(--disable-hgcset, Do not use Mercurial changeset value)],
     hgcset=$enableval, hgcset="yes")

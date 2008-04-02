@@ -404,8 +404,6 @@ set escdelay = 50
 # Set 'log_display_presence' to 1 to enable.
 #set log_display_presence = 0
 #
-#set show_status_in_buffer = 1
-#
 # Display the status changes in the chat buffers (default: 0, never)
 # Values:  0: never  1: only connect/disconnect  2: all
 #set show_status_in_buffer = 1

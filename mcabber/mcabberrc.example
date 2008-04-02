@@ -12,7 +12,7 @@
 # If port is not given, default Jabber port will be used.
 #
 # Warning to GTalk users! please see the FAQ:
-# <http://www.probsd.net/mcabber/index.php/Main_Page#FAQ>
+# <http://www.probsd.net/mcabber/index.php/Frequently_Asked_Questions>
 
 set username = yourusername
 # Note: if the password contains leading or trailing spaces, you must

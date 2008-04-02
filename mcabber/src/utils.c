@@ -393,20 +393,16 @@ void strip_arg_special_chars(char *s)
         instring = !instring;
         strcpy(p, p+1);
         p--;
-      } else {
+      } else
         escape = FALSE;
-      }
     } else if (*p == '\\') {
       if (!escape) {
-        if (*(p+1) == '"') {
-          strcpy(p, p+1);
-          p--;
-        }
-        escape = TRUE;
-      } else {
-        escape = FALSE;
+        strcpy(p, p+1);
+        p--;
       }
-    }
+      escape = !escape;
+    } else
+      escape = FALSE;
   }
 }
 

@@ -288,10 +288,9 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
                             time_t timestamp, enum imstatus status,
                             const char *status_msg)
 {
-  int buddy_format;
   int st_in_buf;
   enum imstatus oldstat;
-  char *bn = NULL;
+  char *bn;
   char *logsmsg;
   const char *rn = (resname ? resname : "");
   const char *ename = NULL;
@@ -299,32 +298,36 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
   if (settings_opt_get_int("eventcmd_use_nickname"))
     ename = roster_getname(bjid);
 
-  st_in_buf = settings_opt_get_int("show_status_in_buffer");
-  buddy_format = settings_opt_get_int("buddy_format");
-  if (buddy_format) {
-    const char *name = roster_getname(bjid);
-    if (name && strcmp(name, bjid)) {
-      if (buddy_format == 1)
-        bn = g_strdup_printf("%s <%s/%s>", name, bjid, rn);
-      else if (buddy_format == 2)
-        bn = g_strdup_printf("%s/%s", name, rn);
-      else if (buddy_format == 3)
-        bn = g_strdup_printf("%s", name);
-    }
-  }
-
-  if (!bn) {
-    bn = g_strdup_printf("<%s/%s>", bjid, rn);
-  }
-
-  logsmsg = g_strdup(status_msg ? status_msg : "");
-  replace_nl_with_dots(logsmsg);
-
   oldstat = roster_getstatus(bjid, resname);
-  scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] %s %s",
-               imstatus2char[oldstat], imstatus2char[status], bn, logsmsg);
-  g_free(logsmsg);
-  g_free(bn);
+
+  st_in_buf = settings_opt_get_int("show_status_in_buffer");
+
+  if (settings_opt_get_int("log_display_presence")) {
+    int buddy_format = settings_opt_get_int("buddy_format");
+    bn = NULL;
+    if (buddy_format) {
+      const char *name = roster_getname(bjid);
+      if (name && strcmp(name, bjid)) {
+        if (buddy_format == 1)
+          bn = g_strdup_printf("%s <%s/%s>", name, bjid, rn);
+        else if (buddy_format == 2)
+          bn = g_strdup_printf("%s/%s", name, rn);
+        else if (buddy_format == 3)
+          bn = g_strdup_printf("%s", name);
+      }
+    }
+
+    if (!bn)
+      bn = g_strdup_printf("<%s/%s>", bjid, rn);
+
+    logsmsg = g_strdup(status_msg ? status_msg : "");
+    replace_nl_with_dots(logsmsg);
+
+    scr_LogPrint(LPRINT_LOGNORM, "Buddy status has changed: [%c>%c] %s %s",
+                 imstatus2char[oldstat], imstatus2char[status], bn, logsmsg);
+    g_free(logsmsg);
+    g_free(bn);
+  }
 
   if (st_in_buf == 2 ||
       (st_in_buf == 1 && (status == offline || oldstat == offline))) {

@@ -67,6 +67,16 @@ AC_CHECK_DECLS([strptime],,,
 # Check for tm_gmtoff
 MC_TM_GMTOFF
 
+# Check if we must provide a SIGWINCH handler
+AC_ARG_ENABLE(sigwinch,
+        [  --enable-sigwinch       compile with SIGWINCH handler],
+        [with_sigwinch=$enableval],
+        [with_sigwinch=$with_ext_funcs])
+AC_MSG_RESULT($with_sigwinch)
+if test "$with_sigwinch" = yes; then
+    AC_DEFINE(USE_SIGWINCH, [], [Provide own SIGWINCH handler])
+fi
+
 # Checks for libraries.
 
 AC_CHECK_LIB(charset, locale_charset)

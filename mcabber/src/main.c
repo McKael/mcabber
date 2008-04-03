@@ -222,6 +222,10 @@ void sig_handler(int signum)
     mcabber_terminate("Killed by SIGTERM");
   } else if (signum == SIGINT) {
     mcabber_terminate("Killed by SIGINT");
+#ifdef USE_SIGWINCH
+  } else if (signum == SIGWINCH) {
+    ungetch(KEY_RESIZE);
+#endif
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Caught signal: %d", signum);
   }
@@ -376,6 +380,9 @@ int main(int argc, char **argv)
   signal(SIGTERM, sig_handler);
   signal(SIGINT,  sig_handler);
   signal(SIGCHLD, sig_handler);
+#ifdef USE_SIGWINCH
+  signal(SIGWINCH, sig_handler);
+#endif
   signal(SIGPIPE, SIG_IGN);
 
   /* Parse command line options */

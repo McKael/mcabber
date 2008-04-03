@@ -29,6 +29,11 @@
 #include <config.h>
 #include <locale.h>
 #include <assert.h>
+#ifdef USE_SIGWINCH
+# include <sys/ioctl.h>
+# include <termios.h>
+# include <unistd.h>
+#endif
 
 #ifdef HAVE_LOCALCHARSET_H
 # include <localcharset.h>
@@ -3771,7 +3776,17 @@ void process_key(keycode kcode)
         scr_handle_CtrlC();
         break;
     case KEY_RESIZE:
+#ifdef USE_SIGWINCH
+        {
+            struct winsize size;
+            if (ioctl(STDIN_FILENO, TIOCGWINSZ, &size) != -1)
+              resizeterm(size.ws_row, size.ws_col);
+        }
         scr_Resize();
+        process_command(mkcmdstr("screen_refresh"), TRUE);
+#else
+        scr_Resize();
+#endif
         break;
     default:
         display_char = TRUE;

@@ -20,6 +20,11 @@ If you want SSL support, you will need openssl lib & dev packages as well.
 If you want PGP support, install libgpgme (with dev package),
 version >= 1.0.0.
 
+You may want to have a look at the wiki:
+ <http://wiki.mcabber.com/>
+and if you're using the development version (from the repository):
+ <http://wiki.mcabber.com/index.php/Building_mcabber_from_Mercurial>
+
 Please have a look at the README file before launching mcabber.
 
 Please send me a message (mcabber AT lilotux DOT net) if you have

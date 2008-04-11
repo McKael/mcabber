@@ -7,7 +7,7 @@
 #include "events.h"
 
 /* XEP-0115 (Entity Capabilities) node */
-#define MCABBER_CAPS_NODE   "http://mcabber.lilotux.net/caps"
+#define MCABBER_CAPS_NODE   "http://mcabber.com/caps"
 
 #define JABBER_AGENT_GROUP  "Jabber Agents"
 

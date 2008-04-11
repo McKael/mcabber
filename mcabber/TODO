@@ -2,6 +2,7 @@
 BUGS:
 
 * SSL certificate verification does not work with gnutls
+* Unicode JIDs are not supported
 
 
 TODO:
@@ -14,6 +15,7 @@ TODO:
 * Publish personal information
 * MUC: advanced settings for room creation
 * MUC: display roles of room members
+* MUC: ignore patterns
 * "Offline roster" (when disconnected)
 * Maybe cache iq:version and show version in /info, if available
 * Sort roster by status
@@ -24,6 +26,13 @@ TODO:
 * Use DNS _xmpp-client._tcp service
 * Mouse support?
 * Human-readable key binding config?
+* Possibility to hide log window(?)
+* Copy highlighted messages to the [status] window (or another one)
+* Improve /info, esp. in MUC rooms
+* Update the terminal's title
+  (Can this be done from an event script?)
+* Message filters
+* Data Forms
 
 * File transfer? :)
 
@@ -36,3 +45,4 @@ TODO:
   - /server register|unregister
   - /search <jid>|name
     (server search)
+  - /buffer save file

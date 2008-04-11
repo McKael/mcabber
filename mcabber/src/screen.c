@@ -1466,7 +1466,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
   ver = mcabber_version();
   message = g_strdup_printf("MCabber version %s.\n", ver);
   mvwprintw(chatWnd, 0, 0, message);
-  mvwprintw(chatWnd, 1, 0, "http://www.lilotux.net/~mikael/mcabber/");
+  mvwprintw(chatWnd, 1, 0, "http://mcabber.com/");
   g_free(ver);
   g_free(message);
 

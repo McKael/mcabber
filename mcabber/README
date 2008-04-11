@@ -29,7 +29,7 @@ This is an overview of mcabber Jabber features:
   XEP-0092 - Software Version
   XEP-0115 - Entity Capabilities support
   XEP-0145 - Annotations
-  XEP-0146 - Remote Controlling Clients
+  XEP-0146 - Remote Controlling Clients (partial)
   XEP-0199 - XMPP Ping
   XEP-0202 - Entity Time
   XEP-0203 - Delayed Delivery
@@ -38,7 +38,7 @@ This software is under development, please give me some feedback (and some
 patches if you can!).  Or just tell me you're using it... ;-)
 
 There is a Mercurial repository on mcabber's website
- <http://www.lilotux.net/~mikael/mcabber/>
+ <http://mcabber.com/>
 and a Jabber conference room: <jid:mcabber@conf.lilotux.net>.
 
-  Mikael <mcabber@lilotux.net>
+  Mikael <mikael@lilotux.net>

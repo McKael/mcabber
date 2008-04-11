@@ -1477,7 +1477,11 @@ void scr_DrawMainWindow(unsigned int fullinit)
   if (fullinit) {
     // Enable keypad (+ special keys)
     keypad(inputWnd, TRUE);
+#ifdef __MirBSD__
+    wtimeout(inputWnd, 50 /* ms */);
+#else
     nodelay(inputWnd, TRUE);
+#endif
 
     // Create panels
     rosterPanel = new_panel(rosterWnd);

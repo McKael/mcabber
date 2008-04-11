@@ -40,11 +40,11 @@ dnl
 dnl Get the cflags and libraries for libotr
 dnl
 AC_ARG_WITH(libotr-prefix,
-[  --with-libotr-prefix=PFX  Prefix where libotr is installed(optional)],
+[  --with-libotr-prefix=PFX  prefix where libotr is installed (optional)],
 [libotr_prefix="$withval"], [libotr_prefix=""])
 
 AC_ARG_WITH(libotr-inc-prefix,
-[  --with-libotr-inc-prefix=PFX  Prefix where libotr includes are (optional)],
+[  --with-libotr-inc-prefix=PFX  prefix where libotr includes are (optional)],
 [libotr_inc_prefix="$withval"], [libotr_inc_prefix=""])
 
 dnl Add any special include directories

@@ -132,7 +132,7 @@ fi
 AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),[g_list_append])
 
 # Check for gpgme
-AC_ARG_ENABLE(gpgme, AC_HELP_STRING([--disable-gpgme], [Disable GPGME support]),
+AC_ARG_ENABLE(gpgme, AC_HELP_STRING([--disable-gpgme], [disable GPGME support]),
     [ if test x"$enableval" = x"no"; then
         enable_gpgme=no
       fi
@@ -144,7 +144,7 @@ if test x"${enable_gpgme}" != x"no"; then
 fi
 
 # Check for otr
-AC_ARG_ENABLE(otr, [  --enable-otr            Enable OTR (Off-the-Record) messaging support],
+AC_ARG_ENABLE(otr, [  --enable-otr            enable OTR (Off-the-Record) messaging support],
               enable_otr=$enableval, otr="")
 if test "x$enable_otr" = "xyes"; then
   # Look for libgcrypt and libotr
@@ -195,7 +195,7 @@ if test "$with_ssl" != "no"; then
 fi
 
 # Check for Aspell stuff
-AC_ARG_ENABLE(aspell, [  --enable-aspell         Enable aspell support],
+AC_ARG_ENABLE(aspell, [  --enable-aspell         enable aspell support],
               enable_aspell=$enableval, aspell="")
 if test "x$enable_aspell" = "xyes"; then
     AC_CHECK_HEADERS(aspell.h, [ have_aspell_includes=yes ])
@@ -220,7 +220,7 @@ if test x"${datadir}" != x""; then
 fi
 
 AC_ARG_ENABLE(debug,
-    [AC_HELP_STRING(--enable-debug, Add development compilation options)],
+    [AC_HELP_STRING(--enable-debug, add development compilation options)],
     debug=$enableval, debug="")
 if test x"${debug}" = x"yes"; then
     AC_DEFINE_UNQUOTED([ENABLE_DEBUG],[1],[Devel compilation options])
@@ -238,7 +238,7 @@ else
 fi
 
 AC_ARG_ENABLE(hgcset,
-    [AC_HELP_STRING(--disable-hgcset, Do not use Mercurial changeset value)],
+    [AC_HELP_STRING(--disable-hgcset, do not use Mercurial changeset value)],
     hgcset=$enableval, hgcset="yes")
 AM_CONDITIONAL(HGCSET, [test x$hgcset = xyes])
 if test "${hgcset}" = "yes"; then

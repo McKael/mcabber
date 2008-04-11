@@ -139,7 +139,7 @@ int checkset_perm(const char *name, unsigned int setmode)
   return 0;
 #endif
 
-  fd = lstat(name, &buf);
+  fd = stat(name, &buf);
   if (fd == -1) return -1;
 
   if (buf.st_uid != geteuid()) {

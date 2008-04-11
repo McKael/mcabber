@@ -203,7 +203,7 @@ int to_iso8601(char *dststr, time_t timestamp)
   tm_time = gmtime(&timestamp);
 
   ret = snprintf(dststr, 19, "%.4d%02d%02dT%02d:%02d:%02dZ",
-        1900+tm_time->tm_year, tm_time->tm_mon+1, tm_time->tm_mday,
+        (int)(1900+tm_time->tm_year), tm_time->tm_mon+1, tm_time->tm_mday,
         tm_time->tm_hour, tm_time->tm_min, tm_time->tm_sec);
 
   return ((ret == -1) ? -1 : 0);
@@ -222,6 +222,7 @@ time_t from_iso8601(const char *timestamp, int utc)
   char *c;
   int tzoff = 0;
   int hms_succ = 0;
+  int tmpyear;
 
   time(&retval);
   localtime_r(&retval, &t);
@@ -233,7 +234,8 @@ time_t from_iso8601(const char *timestamp, int utc)
   c = buf;
 
   /* 4 digit year */
-  if (!sscanf(c, "%04d", &t.tm_year)) return 0;
+  if (!sscanf(c, "%04d", &tmpyear)) return 0;
+  t.tm_year = tmpyear;
   c+=4;
   if (*c == '-')
     c++;

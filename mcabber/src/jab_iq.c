@@ -1111,7 +1111,7 @@ static char *generate_session_id(char *prefix)
   char *result;
   static int counter = 0;
   counter++;
-  // TODO better use timezone ?
+  // TODO better use timestamp?
   result = g_strdup_printf("%s-%i", prefix, counter);
   return result;
 }

@@ -135,7 +135,7 @@ int checkset_perm(const char *name, unsigned int setmode)
   struct stat buf;
 
 #ifdef __CYGWIN__
-  // Permission checking isn't efficent on Cygwin
+  // Permission checking isn't efficient on Cygwin
   return 0;
 #endif
 

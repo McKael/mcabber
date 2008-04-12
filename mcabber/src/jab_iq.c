@@ -1069,11 +1069,17 @@ static void handle_iq_commands_list(jconn conn, char *from, const char *id,
   xmlnode myquery;
   jid requester_jid;
   const struct adhoc_command *command;
+  const char *node;
   bool from_self;
+
   x = jutil_iqnew(JPACKET__RESULT, NS_DISCO_ITEMS);
   xmlnode_put_attrib(x, "id", id);
   xmlnode_put_attrib(x, "to", xmlnode_get_attrib(xmldata, "from"));
   myquery = xmlnode_get_tag(x, "query");
+
+  node = xmlnode_get_attrib(xmlnode_get_tag(xmldata, "query"), "node");
+  if (node)
+    xmlnode_put_attrib(myquery, "node", node);
 
   requester_jid = jid_new(conn->p, xmlnode_get_attrib(xmldata, "from"));
   from_self = !jid_cmpx(conn->user, requester_jid, JID_USER | JID_SERVER);
@@ -1341,7 +1347,7 @@ static void handle_iq_disco_items(jconn conn, char *from, const char *id,
                                   xmlnode xmldata)
 {
   xmlnode x;
-  char *node;
+  const char *node;
   x = xmlnode_get_tag(xmldata, "query");
   node = xmlnode_get_attrib(x, "node");
   if (node) {

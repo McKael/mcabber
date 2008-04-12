@@ -828,8 +828,15 @@ void cmd_setstatus(const char *recipient, const char *arg)
   else if (!strcasecmp(status, IMSTATUS_DONOTDISTURB))  st = dontdisturb;
   else if (!strcasecmp(status, IMSTATUS_NOTAVAILABLE))  st = notavail;
   else if (!strcasecmp(status, IMSTATUS_FREE4CHAT))     st = freeforchat;
-  else if (!strcasecmp(status, "message"))              st = jb_getstatus();
-  else {
+  else if (!strcasecmp(status, "message")) {
+    if (!msg || !*msg) {
+      // We want a message.  If there's none, we give up.
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
+      free_arg_lst(paramlst);
+      return;
+    }
+    st = jb_getstatus();  // Preserve current status
+  } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized status!");
     free_arg_lst(paramlst);
     return;

@@ -1,5 +1,6 @@
 
  /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [opis]
+ /STATUS_TO jid message opis
 
 Wysyła aktualny status do wybranej osoby.
 Jeśli jako jid podasz ".", aktualnie wybrana osoba zobaczy wybrany status.

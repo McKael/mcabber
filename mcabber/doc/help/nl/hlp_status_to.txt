@@ -1,5 +1,6 @@
 
  /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [StatusBericht]
+ /STATUS_TO jid message StatusBericht
 
 Verstuur de aangegeven status naar het gespecificeerde Jabber account.
 Indien de gespecificeerde jid "." is, wordt de actieve buddy gebruikt.

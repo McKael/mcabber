@@ -1,5 +1,6 @@
 
  /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
+ /STATUS_TO jid message StatusMessage
 
 Envoie l'état demandé à "jid".
 Si le jid fourni est ".", le contact sélectionné est utilisé.

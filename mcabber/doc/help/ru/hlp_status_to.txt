@@ -1,5 +1,6 @@
 
  /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
+ /STATUS_TO jid message StatusMessage
 
 Отправляет запрос на определение статуса определенного пользователя.
 Если "jid" указан как "." используется текущий пользователь.

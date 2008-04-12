@@ -1383,13 +1383,13 @@ char *load_message_from_file(const char *filename)
   for (p = msgbuf ; *p ; p++) {
     if (utf8_mode) {
       if (p == next_utf8_char) {
-        if (!iswprint(get_char(p)) && *p != '\n')
+        if (!iswprint(get_char(p)) && *p != '\n' && *p != '\t')
           break;
         next_utf8_char = next_char(p);
       }
     } else {
       unsigned char sc = *p;
-      if (!iswprint(sc) && sc != '\n')
+      if (!iswprint(sc) && sc != '\n' && sc != '\t')
         break;
     }
   }

@@ -1,5 +1,5 @@
 
- /SAY_TO [-n|-h|--] jid text
+ /SAY_TO [-n|-h|--] [-q] [-f file] jid text
 
 Sendet die Nachricht "text" zu der jid.
 Denk daran, dass dieser Befehl die Nachricht an alle Ressourcen der jid gleichzeitig schicken wird. Wenn du unterschiedliche Nachrichten an diese schicken willst, musst du die Ressource mit angeben.

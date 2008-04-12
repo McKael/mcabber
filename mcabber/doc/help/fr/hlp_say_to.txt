@@ -1,5 +1,7 @@
 
- /SAY_TO jid texte
+ /SAY_TO [-n|-h|--] [-q] [-f fichier] jid texte
 
 Envoie le message "texte" à l'utilisateur "jid".
 Remarquez que cette commande ne définit pas la ressource par défaut d'un contact, par conséquent si vous désirez envoyer plusieurs messages à une ressource précise il faudra utiliser "/say_to" à chaque fois.
+Lorsque "-q" est utilisé, le message sera envoyé en arrière plan et la fenêtre active sera conservée.
+Un fichier texte peut être fourni avec l'option "-f" (auquel cas il est inutile de préciser le paramètre texte).

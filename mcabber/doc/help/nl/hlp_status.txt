@@ -1,5 +1,6 @@
 
  /STATUS [online|avail|invisible|free|dnd|notavail|away [-|StatusBericht]]
+ /STATUS message -|StatusBericht
 
 Tonen of instellen van de huidige status.
 Indien geen status wordt gespecificeerd, wordt de huidige status getoond.

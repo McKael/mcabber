@@ -1,5 +1,5 @@
 
- /BUFFER [clear|close|close_all|purge]
+ /BUFFER [clear|close|close_all|purge|list]
  /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
@@ -13,6 +13,7 @@
  Потерти всі буфери з пам'яті і позакривати вікна діалогу.
 /buffer purge [jid]
  Очистити вікно діалогу а також потерти його вміст з пам'яті.
+/buffer list
 /buffer top
  Перейти до початку буферу.
 /buffer bottom

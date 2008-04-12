@@ -1,5 +1,5 @@
 
- /SAY_TO [-h|-h|--] jid tekst
+ /SAY_TO [-h|-h|--] [-q] [-f file] jid tekst
 
 Wysyła wiadomość "tekst" do podanej osoby "jid".
 Polecenie nie ustawia domyślnego zasobu dla kontaktu, więc jeżeli chcesz wysłać kilka wiadomości do konkretnego zasobu, musisz użyć "/say_to" dla każdej z wiadomości.

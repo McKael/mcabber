@@ -1,8 +1,10 @@
 
  /STATUS [online|avail|invisible|free|dnd|notavail|away [-|StatusMessage]]
+ /STATUS message -|StatusMessage
 
 Show or set the current status.
 If no status is specified, display the current status.
 If a status message is specified, it will overrride the message* variables (these variables can be set in the configuration file).
 If no relevant message* variable is set and no status message provided, the current status message is kept.
 If StatusMessage is "-", the current status message is cleared.
+With the "/status message" command, mcabber will update the message while preserving the status.

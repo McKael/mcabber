@@ -1,5 +1,5 @@
 
- /BUFFER [clear|close|close_all|purge]
+ /BUFFER [clear|close|close_all|purge|list]
  /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
@@ -13,6 +13,7 @@ Comandi per la manipolazione del buffer del contatto. Per esempio, è possibile c
  Svuota tutti i contenuti presenti in tutti i buffer e chiude le finestre di chat
 /buffer purge [jid]
  Pulisce la finestra di chat del contatto corrente - o del contatto identificato da jid - e svuota tutti i contenuti del buffer
+/buffer list
 /buffer top
  Salta all'inizio del buffer di chat del contatto corrente
 /buffer bottom

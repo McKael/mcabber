@@ -1,5 +1,6 @@
 
  /STATUS [online|avail|invisible|free|dnd|notavail|away [-|StatusMessage]]
+ /STATUS message -|StatusMessage
 
 Отображает или устанавливает текущий статус.
 Если статус не задан - отображается текущий статус.

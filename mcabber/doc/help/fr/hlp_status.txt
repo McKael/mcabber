@@ -1,8 +1,10 @@
 
  /STATUS [online|avail|invisible|free|dnd|notavail|away [-|StatusMessage]]
+ /STATUS message -|StatusMessage
 
 Affiche ou définit l'état actuel.
 Si aucun état n'est précisé, affiche l'état courant.
 Si un message d'état est spécifié, il outrepassera les variables message* (définies dans le fichier de configuration).
 Si aucune variable message* adéquate n'est définie et aucun message d'état n'est fourni, le message d'état actuel est conservé.
 Si "StatusMessage" est "-", le message d'état actuel est effacé.
+Avec la commande "/status message", le message d'état est changé tout en préservant l'état actuel.

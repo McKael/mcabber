@@ -1,5 +1,5 @@
 
- /BUFFER [clear|close|close_all|purge]
+ /BUFFER [clear|close|close_all|purge|list]
  /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
@@ -15,6 +15,7 @@
  Очищает текущее окно чата и очищает все содержимое буфера (истории переписки)
 /buffer bottom
  Перемещает к концу буфера (истории переписки) с текущим пользователем
+/buffer list
 /buffer top
  Перемещает к началу буфера (истории переписки) с текущим пользователем
 /buffer up [n]

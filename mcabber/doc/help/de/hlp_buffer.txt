@@ -1,5 +1,5 @@
 
- /BUFFER [clear|close|close_all|purge]
+ /BUFFER [clear|close|close_all|purge|list]
  /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
@@ -13,6 +13,7 @@ Befehl um den Puffer für den momentan ausgewählten Buddy zu verändern. Man ka
  Leert alle Chatpuffer und schließt alle Chatfenster
 /buffer purge [jid]
  Leere das Chatfenster und lösche den Inhalt des Chatpuffers
+/buffer list
 /buffer top
  Springe zum Anfang des momentanen Chat Puffers
 /buffer bottom

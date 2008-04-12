@@ -1,5 +1,6 @@
 
  /STATUS [online|avail|invisible|free|dnd|notavail|away [-|StatusMessage]]
+ /STATUS message -|StatusMessage
 
 Zeigt den aktuellen Status an, bzw. setzt ihn.
 Wenn kein Status angegeben wurde, wird der aktuelle Status angezeigt.

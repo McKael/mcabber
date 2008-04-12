@@ -1,5 +1,5 @@
 
- /BUFFER [clear|close|close_all|purge]
+ /BUFFER [clear|close|close_all|purge|list]
  /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
@@ -13,6 +13,7 @@ Manipuleer de chat buffer van de actieve buddy.  Je kunt bijvoorbeeld de buffer 
  Wis de volledige inhoud van alle chat buffers en sluit alle chat vensters
 /buffer purge [jid]
  Wis het chat venster van de actieve buddy en verwijder de volledige inhoud van de chat buffer
+/buffer list
 /buffer top
  Spring naar het begin van de chat buffer van de actieve buddy
 /buffer bottom

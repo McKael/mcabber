@@ -1,5 +1,5 @@
 
- /BUFFER [clear|close|close_all|purge]
+ /BUFFER [clear|close|close_all|purge|list]
  /BUFFER [top|bottom|date|%|search_backward|search_forward]
  /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
 
@@ -13,6 +13,7 @@ Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. pr
  Czyści wszystkie bufory rozmów i zamyka okna z rozmowami
 /buffer purge
  Czyści okno rozmowy i usuwa całą zawartość bufora rozmowy
+/buffer list
 /buffer top
  Skacze na sam początek bufora rozmowy
 /buffer bottom

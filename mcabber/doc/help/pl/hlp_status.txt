@@ -7,3 +7,4 @@ Jeśli nie jest podany opis - zostaje wyświetlony aktualny status.
 Jeśli podany jest status wraz z opisem, opis ten zastąpi zmienne message* (mogą one być ustawione w pliku konfiguracyjnym).
 Jeśli zmieniamy status, a nie ma zdefiniowanych zmiennych message*, lub opis nie jest podany - aktualny opis jest zachowywany.
 Jeżeli "opis" jest równy "-", aktualny opis jest czyszczony.
+Użycie polecenia "/status message" spowoduje, że mcabber uaktualni opis zachowując bieżący status.

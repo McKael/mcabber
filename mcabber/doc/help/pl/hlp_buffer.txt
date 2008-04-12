@@ -14,6 +14,7 @@ Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. pr
 /buffer purge
  Czyści okno rozmowy i usuwa całą zawartość bufora rozmowy
 /buffer list
+ Wyświetla liste wszystkich istniejących buforów, podając ich długość (linie/bloki)
 /buffer top
  Skacze na sam początek bufora rozmowy
 /buffer bottom

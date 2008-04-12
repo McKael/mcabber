@@ -1,6 +1,8 @@
 
- /SAY_TO [-n|-h|--] [-q] [-f file] jid text
+ /SAY_TO [-n|-h] [-q] [-f file] jid text
 
 Sendet die Nachricht "text" zu der jid.
 Denk daran, dass dieser Befehl die Nachricht an alle Ressourcen der jid gleichzeitig schicken wird. Wenn du unterschiedliche Nachrichten an diese schicken willst, musst du die Ressource mit angeben.
-Mit den Schaltern -n und -h kann man den Typ der Nachricht setzen(normal und headline). Wenn man mal eine Nachricht mit -n oder -h am Anfang verschicken will, kann man auch "--" als Flag benutzen, damit mcabber die Nachricht mit dem Nachrichtentyp "chat" verschickt.
+Mit den Schaltern -n und -h kann man den Typ der Nachricht setzen(normal und headline).
+Um eine Nachricht im Hintergrund zu versenden, kann man den Schalter -q benutzen.
+Mit -f kann man eine Textdatei angeben, aus der die Nachricht ausgelesen wird.

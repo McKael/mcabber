@@ -14,6 +14,7 @@ Befehl um den Puffer für den momentan ausgewählten Buddy zu verändern. Man ka
 /buffer purge [jid]
  Leere das Chatfenster und lösche den Inhalt des Chatpuffers
 /buffer list
+ Zeigt eine Liste der existierende Puffer und deren Länge(Zeilen/Blöcke) an.
 /buffer top
  Springe zum Anfang des momentanen Chat Puffers
 /buffer bottom

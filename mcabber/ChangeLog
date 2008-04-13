@@ -1,7 +1,26 @@
 mcabber (0.9.7-dev)
 
- * Fix compilation on systems which need -lcharset
  * Pressing enter when a group is selected will toggle the fold status
+ * New option 'ignore_self_presence'
+ * New option 'log_display_presence'
+ * New option 'eventcmd_use_nickname'
+ * New option 'statefile' to keep track of unread messages across restarts
+ * New option to customize the away/notavail priority (Michael Gehring)
+ * New external "UNREAD" event
+ * Add FIFO named command pipe
+ * New switches for /say_to: -q, -f
+ * New command /status message (to only change the status description string)
+ * Let /del remove a MUC entry from the roster
+ * Allow more than the 16 default colors (mjs)
+ * Randomize the default resource
+ * Improve OTR support
+ * Improve Remote Controlling Clients (XEP-0146)
+ * Improve reading of history files
+ * Fix compilation on systems which need -lcharset
+ * Add optional SIGWINCH handler (Markus Hennecke)
+   (improves resize events on OpenBSD)
+ * Fixes from MirBSD (Thorsten Glaser)
+ * Some more fixes and improvements (see detailed changelog)
 
  -- Mikael, ?
 

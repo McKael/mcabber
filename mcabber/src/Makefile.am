@@ -8,7 +8,7 @@ mcabber_SOURCES = main.c roster.c roster.h events.c events.h \
 		  fifo.c fifo.h help.c help.h
 
 if OTR
-mcabber_SOURCES += otr.c otr.h
+mcabber_SOURCES += otr.c otr.h nohtml.c nohtml.h
 endif
 
 LDADD = $(GLIB_LIBS) $(GPGME_LIBS) $(LIBOTR_LIBS) \

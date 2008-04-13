@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <glib.h>
 
 #ifdef HAVE_LIBOTR
 
@@ -31,6 +32,7 @@
 #include "utils.h"
 #include "screen.h"
 #include "settings.h"
+#include "nohtml.h"
 
 
 static OtrlUserState userstate = NULL;
@@ -379,7 +381,7 @@ int otr_receive(char **otr_data, const char * buddy, int * free_msg)
 
   if (!ignore_message && newmessage) {
     *free_msg = 1;
-    *otr_data = g_strdup(newmessage);
+    *otr_data = html_strip(newmessage);
     otrl_message_free(newmessage);
     if (ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED)
       return 1;
@@ -391,10 +393,15 @@ int otr_send(char **msg, const char *buddy)
 {
   gcry_error_t err;
   char *newmessage = NULL;
+  char *htmlmsg;
   ConnContext * ctx = otr_get_context(buddy);
 
+  htmlmsg = html_escape(*msg);
+
   err = otrl_message_sending(userstate, &ops, NULL, account, "jabber", buddy,
-    *msg, NULL, &newmessage, NULL, NULL);
+                             htmlmsg, NULL, &newmessage, NULL, NULL);
+
+  g_free(htmlmsg);
 
   if (err)
     *msg = NULL; /*something went wrong, don't send the plain-message! */
@@ -655,7 +662,9 @@ static int cb_display_otr_message(void *opdata, const char *accountname,
                                   const char *protocol, const char *username,
                                   const char *msg)
 {
-  scr_WriteIncomingMessage(username, msg, 0, HBB_PREFIX_INFO, 0);
+  char *strippedmsg = html_strip(msg);
+  scr_WriteIncomingMessage(username, strippedmsg, 0, HBB_PREFIX_INFO, 0);
+  g_free(strippedmsg);
   return 0;
 }
 

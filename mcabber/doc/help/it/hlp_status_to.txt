@@ -2,7 +2,7 @@
  /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [Messaggio di stato]
  /STATUS_TO jid message StatusMessage
 
-Mando lo stato richiesto all'utente jabber specificato.
+Manda lo stato richiesto all'utente jabber specificato.
 Se il jid specificato è ".", viene usato il contatto corrente.
 Nota: questo stato verrà sovrascritto dal comando "/status" successivo. Lo stato verrà sovrascritto anche se utilizzi la funzionalità di auto-away.
 Nota: il jid può includere una risorsa (es: user@server/risorsa).

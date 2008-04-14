@@ -14,6 +14,7 @@ Comandi per la manipolazione del buffer del contatto. Per esempio, è possibile c
 /buffer purge [jid]
  Pulisce la finestra di chat del contatto corrente - o del contatto identificato da jid - e svuota tutti i contenuti del buffer
 /buffer list
+ Mostra la lista dei buffer esistenti, inclusa la loro lunghezza (linee/blocchi)
 /buffer top
  Salta all'inizio del buffer di chat del contatto corrente
 /buffer bottom

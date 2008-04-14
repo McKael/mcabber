@@ -3,3 +3,6 @@
 
 Verstuur het "tekst" bericht naar de gespecificeerde jid.
 Let op dat dit commando geen standaard resource instelt voor een contact. Als je meerdere berichten aan een specifieke resource wilt versturen moet "/say_to" voor ieder bericht worden gebruikt.
+De "-n" vlag schakelt het bericht naar type "normaal", "-h" naar  "koptekst" ('headline').  "--" kan gebruikt worden om chatberichten te versturen die beginnen met -n of -h.
+Wanneer "-q" wordt gebruikt, zal het bericht in de achtergrond worden verstuurd, en zal het huidige actieve venster niet veranderen.
+Een tekstbestand kan worden aangegeven met de "-f" vlag (in dat geval is het natuurlijk niet nodig om een tekst-argument na de 'jid' mee te geven).

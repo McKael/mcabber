@@ -14,6 +14,7 @@ Manipuleer de chat buffer van de actieve buddy.  Je kunt bijvoorbeeld de buffer 
 /buffer purge [jid]
  Wis het chat venster van de actieve buddy en verwijder de volledige inhoud van de chat buffer
 /buffer list
+ Toon de lijst van bestaande buffers, met hun lengte (regels/blokken)
 /buffer top
  Spring naar het begin van de chat buffer van de actieve buddy
 /buffer bottom

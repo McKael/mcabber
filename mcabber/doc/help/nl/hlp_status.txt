@@ -7,3 +7,4 @@ Indien geen status wordt gespecificeerd, wordt de huidige status getoond.
 Indien een statusbericht wordt gespecificeerd, zal dat voorrang hebben op de message* variablelen (deze variabelen kunnen worden ingesteld in het configuratiebestand).
 Indien geen relevante message* variabelen ingesteld zijn en er geen statusbericht wordt meegegeven, blijft het huidige statusbericht behouden.
 Indien het StatusBericht "-" is, wordt het huidige statusbericht gewist.
+Met het "/status message" commando, zal mcabber het statusbericht aanpassen terwijl de status onveranderd blijft.

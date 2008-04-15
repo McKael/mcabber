@@ -916,9 +916,9 @@ void buddy_hide_group(gpointer rosterdata, int hide)
 
 const char *buddy_getjid(gpointer rosterdata)
 {
+  roster *roster_usr = rosterdata;
   if (!rosterdata)
     return NULL;
-  roster *roster_usr = rosterdata;
   return roster_usr->jid;
 }
 

@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.9.7-dev, January 2008
+v0.9.7, April 2008
 
 NAME
 ----
@@ -437,7 +437,7 @@ http://www.lilotux.net/~mikael/mcabber/[Main web site]
 
 COPYING
 -------
-Copyright \(C) 2005, 2006, 2007 Mikael Berthe. +
+Copyright \(C) 2005, 2006, 2007, 2008 Mikael Berthe. +
 Some portions are Copyright \(C) 2002-2004 mailto:cabber@ajmacias.com[].
 
 Free use of this software is granted under the terms of the GNU General Public

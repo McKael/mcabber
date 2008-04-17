@@ -1,4 +1,4 @@
-mcabber (0.9.7-dev)
+mcabber (0.9.7)
 
  * Pressing enter when a group is selected will toggle the fold status
  * New option 'ignore_self_presence'
@@ -22,7 +22,7 @@ mcabber (0.9.7-dev)
  * Fixes from MirBSD (Thorsten Glaser)
  * Some more fixes and improvements (see detailed changelog)
 
- -- Mikael, ?
+ -- Mikael, 2008-04-17
 
 mcabber (0.9.6)
 

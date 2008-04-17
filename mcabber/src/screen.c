@@ -302,9 +302,9 @@ void scr_MucColor(const char *muc, muccoltype type)
     g_free(muclow);
   } else {//Add or overwrite
     if (strcmp(muc, "*")) {
-      ensure_string_htable(&muccolors, g_free);
       muccoltype *value = g_new(muccoltype, 1);
       *value = type;
+      ensure_string_htable(&muccolors, g_free);
       g_hash_table_replace(muccolors, muclow, value);
     } else {
       glob_muccol = type;
@@ -1095,25 +1095,32 @@ static void scr_UpdateWindow(winbuf *win_entry)
 
       // The MUC nick - overwrite with proper color
       if (line->mucnicklen) {
+        char *mucjid;
+        char tmp;
+        nickcolor *actual = NULL;
+        muccoltype type, *typetmp;
+
         // Store the char after the nick
-        char tmp = line->text[line->mucnicklen];
-        muccoltype type = glob_muccol, *typetmp;
+        tmp = line->text[line->mucnicklen];
+        type = glob_muccol;
         // Terminate the string after the nick
         line->text[line->mucnicklen] = '\0';
-        char *mucjid = g_utf8_strdown(CURRENT_JID, -1);
+        mucjid = g_utf8_strdown(CURRENT_JID, -1);
         if (muccolors) {
           typetmp = g_hash_table_lookup(muccolors, mucjid);
           if (typetmp)
             type = *typetmp;
         }
         g_free(mucjid);
-        nickcolor *actual = NULL;
         // Need to generate some random color?
         if ((type == MC_ALL) && (!nickcolors ||
             !g_hash_table_lookup(nickcolors, line->text))) {
+          char *snick, *mnick;
+          nickcolor *nc;
+          snick = g_strdup(line->text);
+          mnick = g_strdup(line->text);
+          nc = g_new(nickcolor, 1);
           ensure_string_htable(&nickcolors, NULL);
-          char *snick = g_strdup(line->text), *mnick = g_strdup(line->text);
-          nickcolor *nc = g_new(nickcolor, 1);
           nc->color = nickcols[random() % nickcolcount];
           nc->manual = FALSE;
           *snick = '<';

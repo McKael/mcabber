@@ -668,8 +668,8 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
     buddylist_build();
 
   if (unread_list_modified) {
-    hlog_save_state();
     guint unread_count = g_slist_length(unread_list);
+    hlog_save_state();
     /* Call external command */
     hk_ext_cmd("", 'U', (guchar)MIN(255, unread_count), NULL);
   }

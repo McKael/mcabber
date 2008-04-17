@@ -1100,15 +1100,17 @@ static void handle_iq_commands_list(jconn conn, char *from, const char *id,
 
 static void xmlnode_insert_dataform_result_message(xmlnode node, char *message)
 {
-  xmlnode x = xmlnode_insert_tag(node, "x");
+  xmlnode x, field, value;
+
+  x = xmlnode_insert_tag(node, "x");
   xmlnode_put_attrib(x, "type", "result");
   xmlnode_put_attrib(x, "xmlns", "jabber:x:data");
 
-  xmlnode field = xmlnode_insert_tag(x, "field");
+  field = xmlnode_insert_tag(x, "field");
   xmlnode_put_attrib(field, "type", "text-single");
   xmlnode_put_attrib(field, "var", "message");
 
-  xmlnode value = xmlnode_insert_tag(field, "value");
+  value = xmlnode_insert_tag(field, "value");
   xmlnode_insert_cdata(value, message, -1);
 }
 
@@ -1140,6 +1142,8 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
   xmlnode_put_attrib(command, "xmlns", NS_COMMANDS);
 
   if (!sessionid) {
+    xmlnode value;
+
     sessionid = generate_session_id("set-status");
     xmlnode_put_attrib(command, "sessionid", sessionid);
     g_free(sessionid);
@@ -1161,7 +1165,7 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
     xmlnode_put_attrib(y, "type", "hidden");
     xmlnode_put_attrib(y, "var", "FORM_TYPE");
 
-    xmlnode value = xmlnode_insert_tag(y, "value");
+    value = xmlnode_insert_tag(y, "value");
     xmlnode_insert_cdata(value, "http://jabber.org/protocol/rc", -1);
 
     y = xmlnode_insert_tag(x, "field");
@@ -1217,7 +1221,7 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
 
 static void _callback_foreach_buddy_groupchat(gpointer rosterdata, void *param)
 {
-  xmlnode value;
+  xmlnode value, option;
   xmlnode *field;
   const char *room_jid, *nickname;
   char *desc;
@@ -1228,7 +1232,7 @@ static void _callback_foreach_buddy_groupchat(gpointer rosterdata, void *param)
   if (!nickname) return;
   field = param;
 
-  xmlnode option = xmlnode_insert_tag(*field, "option");
+  option = xmlnode_insert_tag(*field, "option");
   value = xmlnode_insert_tag(option, "value");
   xmlnode_insert_cdata(value, room_jid, -1);
   desc = g_strdup_printf("%s on %s", nickname, room_jid);
@@ -1253,6 +1257,8 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from,
   xmlnode_put_attrib(command, "xmlns", NS_COMMANDS);
 
   if (!sessionid) {
+    xmlnode title, instructions, field, value;
+
     sessionid = generate_session_id("leave-groupchats");
     xmlnode_put_attrib(command, "sessionid", sessionid);
     g_free(sessionid);
@@ -1262,18 +1268,18 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from,
     xmlnode_put_attrib(x, "type", "form");
     xmlnode_put_attrib(x, "xmlns", "jabber:x:data");
 
-    xmlnode title = xmlnode_insert_tag(x, "title");
+    title = xmlnode_insert_tag(x, "title");
     xmlnode_insert_cdata(title, "Leave groupchat(s)", -1);
 
-    xmlnode instructions = xmlnode_insert_tag(x, "instructions");
+    instructions = xmlnode_insert_tag(x, "instructions");
     xmlnode_insert_cdata(instructions, "What groupchats do you want to leave?",
                          -1);
 
-    xmlnode field = xmlnode_insert_tag(x, "field");
+    field = xmlnode_insert_tag(x, "field");
     xmlnode_put_attrib(field, "type", "hidden");
     xmlnode_put_attrib(field, "var", "FORM_TYPE");
 
-    xmlnode value = xmlnode_insert_tag(field, "value");
+    value = xmlnode_insert_tag(field, "value");
     xmlnode_insert_cdata(value, "http://jabber.org/protocol/rc", -1);
 
     field = xmlnode_insert_tag(x, "field");
@@ -1288,9 +1294,10 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from,
   {
     xmlnode form = xmlnode_get_tag(x, "x?xmlns=jabber:x:data");
     if (form) {
+      xmlnode x, gc;
+
       xmlnode_put_attrib(command, "status", "completed");
-      xmlnode gc = xmlnode_get_tag(form, "field?var=groupchats");
-      xmlnode x;
+      gc = xmlnode_get_tag(form, "field?var=groupchats");
 
       for (x = xmlnode_get_firstchild(gc) ; x ; x = xmlnode_get_nextsibling(x))
       {

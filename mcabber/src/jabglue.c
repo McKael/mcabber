@@ -903,7 +903,7 @@ void jb_send_chatstate(gpointer buddy, guint chatstate)
   const char *bjid;
 #ifdef JEP0085
   GSList *resources, *p_res, *p_next;
-  struct jep0085 *jep85 = NULL;;
+  struct jep0085 *jep85 = NULL;
 #endif
 #ifdef JEP0022
   struct jep0022 *jep22;

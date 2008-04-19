@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.9.7, April 2008
+v0.9.8-dev, April 2008
 
 NAME
 ----

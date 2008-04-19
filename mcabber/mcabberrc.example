@@ -344,20 +344,20 @@ set escdelay = 50
 #set color_rosterselmsg = red
 #set color_rosternewmsg = red
 
-#You can color roster items by their status and JID. For example, to have all
-#roster items white, just all contacts from jabber.org that are away, not
-#available or do not disturb yellow, you do this:
+# You can color roster items by their status and JID. For example, to have
+# all roster items white, just all contacts from jabber.org that are away,
+# not available or do not disturb yellow, you do this:
 #
 #color roster * * white
 #color roster adn *@jabber.org yellow
 
-#You can let mcabber color nicks in MUC.
-#These colors will by used automatically:
+# You can let mcabber color nicks in MUC.
+# These colors will by used automatically:
 #set nick_colors = red green blue
-#This turns coloring of all mucs on
+# This turns coloring of all mucs on:
 #color muc * on
 #
-#If you want someone's nick to be the same all the time:
+# If you want someone's nick to be the same all the time:
 #color mucnick my_friend yellow
 
 # Style
@@ -394,7 +394,7 @@ set escdelay = 50
 # - 2: None
 #set time_prefix = 0
 #
-# When a contacts sends "/me ", mcabber displays "*user ", where user
+# When a contact sends "/me ", mcabber displays "*user ", where user
 # is the local part of the contact's jid.
 # If you want mcabber to display the complete bare jid (user@server.com),
 # set "buddy_me_fulljid" to 1 (default: 0)

@@ -20,6 +20,7 @@ void spellcheck_deinit(void);
 //static void spellcheck(char*, char*);
 #endif
 
+#include "hbuf.h"
 #include "logprint.h"
 
 #define INPUTLINE_LENGTH  1024
@@ -128,6 +129,8 @@ void scr_setmsgflag_if_needed(const char *jid, int special);
 void scr_append_multiline(const char *line);
 const char *scr_get_multiline(void);
 const char *scr_get_multimode_subj(void);
+
+void scr_line_prefix(hbb_line *line, char *prefix, guint preflen);
 
 void scr_Beep(void);
 

@@ -990,15 +990,60 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
   return tmp;
 }
 
+//  scr_line_prefix(line, pref, preflen)
+// Use data from the hbb_line structure and write the prefix
+// to pref (not exceeding preflen, trailing null byte included).
+void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
+{
+  char date[64];
+
+  if (line->timestamp &&
+      !(line->flags & (HBB_PREFIX_SPECIAL|HBB_PREFIX_CONT))) {
+    strftime(date, 30, gettprefix(), localtime(&line->timestamp));
+  } else
+    strcpy(date, "           ");
+
+  if (!(line->flags & HBB_PREFIX_CONT)) {
+    if (line->flags & HBB_PREFIX_INFO) {
+      char dir = '*';
+      if (line->flags & HBB_PREFIX_IN)
+        dir = '<';
+      else if (line->flags & HBB_PREFIX_OUT)
+        dir = '>';
+      g_snprintf(pref, preflen, "%s*%c* ", date, dir);
+    } else if (line->flags & HBB_PREFIX_ERR) {
+      char dir = '#';
+      if (line->flags & HBB_PREFIX_IN)
+        dir = '<';
+      else if (line->flags & HBB_PREFIX_OUT)
+        dir = '>';
+      g_snprintf(pref, preflen, "%s#%c# ", date, dir);
+    } else if (line->flags & HBB_PREFIX_IN) {
+      char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '=';
+      g_snprintf(pref, preflen, "%s<%c= ", date, cryptflag);
+    } else if (line->flags & HBB_PREFIX_OUT) {
+      char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '-';
+      g_snprintf(pref, preflen, "%s-%c> ", date, cryptflag);
+    } else if (line->flags & HBB_PREFIX_SPECIAL) {
+      strftime(date, 30, getspectprefix(), localtime(&line->timestamp));
+      g_snprintf(pref, preflen, "%s   ", date);
+    } else {
+      g_snprintf(pref, preflen, "%s    ", date);
+    }
+  } else {
+    g_snprintf(pref, preflen, "                ");
+  }
+}
+
 //  scr_UpdateWindow()
 // (Re-)Display the given chat window.
 static void scr_UpdateWindow(winbuf *win_entry)
 {
   int n;
   int width, prefixwidth;
+  char pref[96];
   hbb_line **lines, *line;
   GList *hbuf_head;
-  char date[64];
   int color;
 
   width = getmaxx(win_entry->win);
@@ -1054,41 +1099,9 @@ static void scr_UpdateWindow(winbuf *win_entry)
       if (color != COLOR_GENERAL)
         wattrset(win_entry->win, get_color(color));
 
-      if (line->timestamp &&
-          !(line->flags & (HBB_PREFIX_SPECIAL|HBB_PREFIX_CONT))) {
-        strftime(date, 30, gettprefix(), localtime(&line->timestamp));
-      } else
-        strcpy(date, "           ");
-      if (!(line->flags & HBB_PREFIX_CONT)) {
-        if (line->flags & HBB_PREFIX_INFO) {
-          char dir = '*';
-          if (line->flags & HBB_PREFIX_IN)
-            dir = '<';
-          else if (line->flags & HBB_PREFIX_OUT)
-            dir = '>';
-          wprintw(win_entry->win, "%s*%c* ", date, dir);
-        } else if (line->flags & HBB_PREFIX_ERR) {
-          char dir = '#';
-          if (line->flags & HBB_PREFIX_IN)
-            dir = '<';
-          else if (line->flags & HBB_PREFIX_OUT)
-            dir = '>';
-          wprintw(win_entry->win, "%s#%c# ", date, dir);
-        } else if (line->flags & HBB_PREFIX_IN) {
-          char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '=';
-          wprintw(win_entry->win, "%s<%c= ", date, cryptflag);
-        } else if (line->flags & HBB_PREFIX_OUT) {
-          char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '-';
-          wprintw(win_entry->win, "%s-%c> ", date, cryptflag);
-        } else if (line->flags & HBB_PREFIX_SPECIAL) {
-          strftime(date, 30, getspectprefix(), localtime(&line->timestamp));
-          wprintw(win_entry->win, "%s   ", date);
-        } else {
-          wprintw(win_entry->win, "%s    ", date);
-        }
-      } else {
-        wprintw(win_entry->win, "                " );
-      }
+      // Generate the prefix area and display it
+      scr_line_prefix(line, pref, sizeof pref);
+      wprintw(win_entry->win, pref);
 
       // Make sure we are at the right position
       wmove(win_entry->win, n, prefixwidth-1);
@@ -1151,6 +1164,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
       // Return the color back
       if (color != COLOR_GENERAL)
         wattrset(win_entry->win, get_color(COLOR_GENERAL));
+
       g_free(line->text);
       g_free(line);
     } else {

@@ -1034,7 +1034,7 @@ void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
       else if (line->flags & HBB_PREFIX_OTRCRYPT)
         cryptflag = 'O';
       else
-        cryptflag = '=';
+        cryptflag = '-';
       g_snprintf(pref, preflen, "%s-%c> ", date, cryptflag);
     } else if (line->flags & HBB_PREFIX_SPECIAL) {
       strftime(date, 30, getspectprefix(), localtime(&line->timestamp));

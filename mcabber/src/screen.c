@@ -831,19 +831,19 @@ static int timepreflengths[] = {
   6
 };
 
-static const char *gettprefix()
+static const char *gettprefix(void)
 {
   guint n = settings_opt_get_int("time_prefix");
   return timeprefixes[(n < 3 ? n : 0)];
 }
 
-static const char *getspectprefix()
+static const char *getspectprefix(void)
 {
   guint n = settings_opt_get_int("time_prefix");
   return spectimeprefixes[(n < 3 ? n : 0)];
 }
 
-static unsigned getprefixwidth()
+guint getprefixwidth(void)
 {
   guint n = settings_opt_get_int("time_prefix");
   return timepreflengths[(n < 3 ? n : 0)];
@@ -1052,7 +1052,8 @@ void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
 static void scr_UpdateWindow(winbuf *win_entry)
 {
   int n;
-  int width, prefixwidth;
+  int width;
+  guint prefixwidth;
   char pref[96];
   hbb_line **lines, *line;
   GList *hbuf_head;
@@ -1060,6 +1061,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
 
   width = getmaxx(win_entry->win);
   prefixwidth = getprefixwidth();
+  prefixwidth = MIN(prefixwidth, sizeof pref);
 
   // Should the window be empty?
   if (win_entry->bd->cleared) {
@@ -1112,7 +1114,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
         wattrset(win_entry->win, get_color(color));
 
       // Generate the prefix area and display it
-      scr_line_prefix(line, pref, sizeof pref);
+      scr_line_prefix(line, pref, prefixwidth);
       wprintw(win_entry->win, pref);
 
       // Make sure we are at the right position

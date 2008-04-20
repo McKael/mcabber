@@ -424,6 +424,7 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename)
   hbuf_block *blk;
   hbb_line line;
   guint last_persist_prefixflags;
+  guint prefixwidth;
   char pref[96];
   FILE *fp;
   struct stat statbuf;
@@ -437,6 +438,9 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename)
     scr_LogPrint(LPRINT_NORMAL, "Unable to open the file.");
     return;
   }
+
+  prefixwidth = getprefixwidth();
+  prefixwidth = MIN(prefixwidth, sizeof pref);
 
   for (hbuf = g_list_first(hbuf); hbuf; hbuf = g_list_next(hbuf)) {
     int maxlen;
@@ -462,7 +466,7 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename)
       line.mucnicklen = 0; // The nick is in the first one
     }
 
-    scr_line_prefix(&line, pref, sizeof pref);
+    scr_line_prefix(&line, pref, prefixwidth);
     fprintf(fp, "%s%s\n", pref, line.text);
   }
 

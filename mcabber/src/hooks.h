@@ -4,6 +4,9 @@
 #include <time.h>
 #include "jabglue.h"
 
+// These two defines are used by hk_message_{in,out} arguments
+#define ENCRYPTED_PGP   1
+#define ENCRYPTED_OTR   2
 
 void hk_mainloop(void);
 void hk_message_in(const char *bjid, const char *resname,

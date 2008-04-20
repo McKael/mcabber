@@ -26,7 +26,8 @@
 #define HBB_PREFIX_NONE       (1U<<9)
 #define HBB_PREFIX_SPECIAL    (1U<<10)
 #define HBB_PREFIX_PGPCRYPT   (1U<<11)
-#define HBB_PREFIX_CONT       (1U<<12)
+#define HBB_PREFIX_OTRCRYPT   (1U<<12)
+#define HBB_PREFIX_CONT       (1U<<13)
 
 typedef struct {
   time_t timestamp;

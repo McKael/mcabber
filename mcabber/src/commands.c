@@ -1140,8 +1140,7 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
 
   // Network part
   jb_send_msg(fjid, msg, (isroom ? ROSTER_TYPE_ROOM : ROSTER_TYPE_USER),
-              subj, NULL, &crypted,
-              type_overwrite);
+              subj, NULL, &crypted, type_overwrite);
 
   if (crypted == -1) {
     scr_LogPrint(LPRINT_LOGNORM, "Encryption error.  Message was not sent.");

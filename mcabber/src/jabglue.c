@@ -641,9 +641,8 @@ void jb_send_msg(const char *fjid, const char *text, int type,
         return;
       }
     }
-    if (otr_msg && encrypted) {
-      *encrypted = 1;
-    }
+    if (otr_msg && encrypted)
+      *encrypted = ENCRYPTED_OTR;
   }
 #endif
 
@@ -693,7 +692,7 @@ void jb_send_msg(const char *fjid, const char *text, int type,
     xmlnode_put_attrib(y, "xmlns", NS_ENCRYPTED);
     xmlnode_insert_cdata(y, enc, (unsigned) -1);
     if (encrypted)
-      *encrypted = 1;
+      *encrypted = ENCRYPTED_PGP;
     g_free(enc);
   }
 
@@ -1841,6 +1840,15 @@ static void gotmessage(char *type, const char *from, const char *body,
       (type && strcmp(type, "chat")) ||
       ((s = settings_opt_get("server")) != NULL && !strcasecmp(bjid, s))) {
     gchar *fullbody = NULL;
+    guint encrypted;
+
+    if (decrypted_pgp)
+      encrypted = ENCRYPTED_PGP;
+    else if (otr_msg)
+      encrypted = ENCRYPTED_OTR;
+    else
+      encrypted = 0;
+
     if (subject) {
       if (body)
         fullbody = g_strdup_printf("[%s]\n%s", subject, body);
@@ -1848,8 +1856,7 @@ static void gotmessage(char *type, const char *from, const char *body,
         fullbody = g_strdup_printf("[%s]\n", subject);
       body = fullbody;
     }
-    hk_message_in(bjid, rname, timestamp, body, type,
-                  ((decrypted_pgp || otr_msg) ? TRUE : FALSE));
+    hk_message_in(bjid, rname, timestamp, body, type, encrypted);
     g_free(fullbody);
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", bjid);

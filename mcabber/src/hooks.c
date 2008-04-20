@@ -70,8 +70,10 @@ void hk_message_in(const char *bjid, const char *resname,
   unsigned mucnicklen = 0;
   const char *ename = NULL;
 
-  if (encrypted)
+  if (encrypted == ENCRYPTED_PGP)
     message_flags |= HBB_PREFIX_PGPCRYPT;
+  else if (encrypted == ENCRYPTED_OTR)
+    message_flags |= HBB_PREFIX_OTRCRYPT;
 
   if (type && !strcmp(type, "groupchat")) {
     rtype = ROSTER_TYPE_ROOM;
@@ -250,6 +252,7 @@ void hk_message_out(const char *bjid, const char *nick,
                            time_t timestamp, const char *msg, guint encrypted)
 {
   char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
+  guint cryptflag = 0;
 
   if (nick) {
     wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
@@ -271,7 +274,11 @@ void hk_message_out(const char *bjid, const char *nick,
   // Note: the hlog_write should not be called first, because in some
   // cases scr_WriteOutgoingMessage() will load the history and we'd
   // have the message twice...
-  scr_WriteOutgoingMessage(bjid, wmsg, (encrypted ? HBB_PREFIX_PGPCRYPT : 0));
+  if (encrypted == ENCRYPTED_PGP)
+    cryptflag = HBB_PREFIX_PGPCRYPT;
+  else if (encrypted == ENCRYPTED_OTR)
+    cryptflag = HBB_PREFIX_OTRCRYPT;
+  scr_WriteOutgoingMessage(bjid, wmsg, cryptflag);
 
   // We don't log private messages
   if (!nick)

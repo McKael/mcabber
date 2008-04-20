@@ -1019,10 +1019,22 @@ void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
         dir = '>';
       g_snprintf(pref, preflen, "%s#%c# ", date, dir);
     } else if (line->flags & HBB_PREFIX_IN) {
-      char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '=';
+      char cryptflag;
+      if (line->flags & HBB_PREFIX_PGPCRYPT)
+        cryptflag = '~';
+      else if (line->flags & HBB_PREFIX_OTRCRYPT)
+        cryptflag = 'O';
+      else
+        cryptflag = '=';
       g_snprintf(pref, preflen, "%s<%c= ", date, cryptflag);
     } else if (line->flags & HBB_PREFIX_OUT) {
-      char cryptflag = line->flags & HBB_PREFIX_PGPCRYPT ? '~' : '-';
+      char cryptflag;
+      if (line->flags & HBB_PREFIX_PGPCRYPT)
+        cryptflag = '~';
+      else if (line->flags & HBB_PREFIX_OTRCRYPT)
+        cryptflag = 'O';
+      else
+        cryptflag = '=';
       g_snprintf(pref, preflen, "%s-%c> ", date, cryptflag);
     } else if (line->flags & HBB_PREFIX_SPECIAL) {
       strftime(date, 30, getspectprefix(), localtime(&line->timestamp));
@@ -1990,7 +2002,7 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
 {
   if (!(prefix &
         ~HBB_PREFIX_NOFLAG & ~HBB_PREFIX_HLIGHT & ~HBB_PREFIX_HLIGHT_OUT &
-        ~HBB_PREFIX_PGPCRYPT))
+        ~HBB_PREFIX_PGPCRYPT & ~HBB_PREFIX_OTRCRYPT))
     prefix |= HBB_PREFIX_IN;
 
   scr_WriteMessage(jidfrom, text, timestamp, prefix, mucnicklen);

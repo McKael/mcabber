@@ -48,6 +48,8 @@ GList *hbuf_search(GList *hbuf, int direction, const char *string);
 GList *hbuf_jump_date(GList *hbuf, time_t t);
 GList *hbuf_jump_percent(GList *hbuf, int pc);
 
+void hbuf_dump_to_file(GList *hbuf, const char *filename);
+
 guint hbuf_get_blocks_number(GList *p_hbuf);
 
 #endif /* __HBUF_H__ */

@@ -2703,6 +2703,25 @@ void scr_BufferDate(time_t t)
   update_panels();
 }
 
+void scr_BufferDump(const char *file)
+{
+  char *extfname;
+
+  if (!currentWindow) {
+    scr_LogPrint(LPRINT_NORMAL, "No current buffer!");
+    return;
+  }
+
+  if (!file || !*file) {
+    scr_LogPrint(LPRINT_NORMAL, "Missing parameter (file name)!");
+    return;
+  }
+
+  extfname = expand_filename(file);
+  hbuf_dump_to_file(currentWindow->bd->hbuf, extfname);
+  g_free(extfname);
+}
+
 //  buffer_list()
 // key: winId/jid
 // value: winbuf structure

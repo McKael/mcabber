@@ -162,6 +162,7 @@ void scr_BufferPurgeAll(int);
 void scr_BufferSearch(int direction, const char *text);
 void scr_BufferPercent(int pc);
 void scr_BufferDate(time_t t);
+void scr_BufferDump(const char *file);
 void scr_RosterUnreadMessage(int);
 void scr_RosterJumpAlternate(void);
 void scr_BufferScrollUpDown(int updown, unsigned int nblines);

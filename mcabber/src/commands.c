@@ -213,6 +213,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_BUFFER, "scroll_unlock");
   compl_add_category_word(COMPL_BUFFER, "scroll_toggle");
   compl_add_category_word(COMPL_BUFFER, "list");
+  compl_add_category_word(COMPL_BUFFER, "save");
 
   // Group category
   compl_add_category_word(COMPL_GROUP, "fold");
@@ -1630,6 +1631,8 @@ static void do_buffer(char *arg)
     buffer_date(arg);
   } else if (*subcmd == '%') {
     buffer_percent(subcmd+1, arg);
+  } else if (!strcasecmp(subcmd, "save")) {
+    scr_BufferDump(arg);
   } else if (!strcasecmp(subcmd, "list")) {
     scr_BufferList();
   } else {

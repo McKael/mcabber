@@ -20,10 +20,14 @@
  */
 
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "hbuf.h"
 #include "utils.h"
 #include "utf8.h"
+#include "screen.h"
 
 
 /* This is a private structure type */
@@ -329,6 +333,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
   for (i = 0 ; i < n ; i++) {
     if (hbuf) {
       int maxlen;
+
       blk = (hbuf_block*)(hbuf->data);
       maxlen = blk->ptr_end - blk->ptr;
       *array_elt = (hbb_line*)g_new(hbb_line, 1);
@@ -344,9 +349,9 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
         (*array_elt)->flags |= last_persist_prefixflags &
                                (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT |
                                 HBB_PREFIX_INFO | HBB_PREFIX_IN);
-        //Continuation of a message - omit the prefix
+        // Continuation of a message - omit the prefix
         (*array_elt)->flags |= HBB_PREFIX_CONT;
-        (*array_elt)->mucnicklen = 0;//The nick is in the first one
+        (*array_elt)->mucnicklen = 0; // The nick is in the first one
       }
 
       hbuf = g_list_next(hbuf);
@@ -410,6 +415,59 @@ GList *hbuf_jump_percent(GList *hbuf, int pc)
   hlen = g_list_length(hbuf);
 
   return g_list_nth(hbuf, pc*hlen/100);
+}
+
+//  hbuf_dump_to_file(hbuf, filename)
+// Save the buffer to a file.
+void hbuf_dump_to_file(GList *hbuf, const char *filename)
+{
+  hbuf_block *blk;
+  hbb_line line;
+  guint last_persist_prefixflags;
+  char pref[96];
+  FILE *fp;
+  struct stat statbuf;
+
+  if (!stat(filename, &statbuf)) {
+    scr_LogPrint(LPRINT_NORMAL, "The file already exists.");
+    return;
+  }
+  fp = fopen(filename, "w");
+  if (!fp) {
+    scr_LogPrint(LPRINT_NORMAL, "Unable to open the file.");
+    return;
+  }
+
+  for (hbuf = g_list_first(hbuf); hbuf; hbuf = g_list_next(hbuf)) {
+    int maxlen;
+
+    blk = (hbuf_block*)(hbuf->data);
+    maxlen = blk->ptr_end - blk->ptr;
+
+    memset(&line, 0, sizeof(line));
+    line.timestamp  = blk->prefix.timestamp;
+    line.flags      = blk->prefix.flags;
+    line.mucnicklen = blk->prefix.mucnicklen;
+    line.text       = g_strndup(blk->ptr, maxlen);
+
+    if ((blk->flags & HBB_FLAG_PERSISTENT) && blk->prefix.flags) {
+      last_persist_prefixflags = blk->prefix.flags;
+    } else {
+      // Propagate highlighting flags
+      line.flags |= last_persist_prefixflags &
+                    (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT |
+                     HBB_PREFIX_INFO | HBB_PREFIX_IN);
+      // Continuation of a message - omit the prefix
+      line.flags |= HBB_PREFIX_CONT;
+      line.mucnicklen = 0; // The nick is in the first one
+    }
+
+    scr_line_prefix(&line, pref, sizeof pref);
+    fprintf(fp, "%s%s\n", pref, line.text);
+  }
+
+  fclose(fp);
+  return;
 }
 
 //  hbuf_get_blocks_number()

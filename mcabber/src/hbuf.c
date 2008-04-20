@@ -439,7 +439,7 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename)
     return;
   }
 
-  prefixwidth = getprefixwidth();
+  prefixwidth = scr_getprefixwidth();
   prefixwidth = MIN(prefixwidth, sizeof pref);
 
   for (hbuf = g_list_first(hbuf); hbuf; hbuf = g_list_next(hbuf)) {

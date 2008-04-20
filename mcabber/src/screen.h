@@ -130,7 +130,8 @@ void scr_append_multiline(const char *line);
 const char *scr_get_multiline(void);
 const char *scr_get_multimode_subj(void);
 
-void scr_line_prefix(hbb_line *line, char *prefix, guint preflen);
+guint scr_getprefixwidth(void);
+void  scr_line_prefix(hbb_line *line, char *prefix, guint preflen);
 
 void scr_Beep(void);
 

@@ -843,7 +843,7 @@ static const char *getspectprefix(void)
   return spectimeprefixes[(n < 3 ? n : 0)];
 }
 
-guint getprefixwidth(void)
+guint scr_getprefixwidth(void)
 {
   guint n = settings_opt_get_int("time_prefix");
   return timepreflengths[(n < 3 ? n : 0)];
@@ -978,7 +978,7 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
     } else {  // Load buddy history from file (if enabled)
       tmp->bd = g_new0(buffdata, 1);
       hlog_read_history(title, &tmp->bd->hbuf,
-                        maxX - Roster_Width - getprefixwidth());
+                        maxX - Roster_Width - scr_getprefixwidth());
     }
 
     id = g_strdup(title);
@@ -1060,7 +1060,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
   int color;
 
   width = getmaxx(win_entry->win);
-  prefixwidth = getprefixwidth();
+  prefixwidth = scr_getprefixwidth();
   prefixwidth = MIN(prefixwidth, sizeof pref);
 
   // Should the window be empty?
@@ -1327,7 +1327,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     g_free(nicktmp);
   }
   hbuf_add_line(&win_entry->bd->hbuf, text_locale, timestamp, prefix_flags,
-                maxX - Roster_Width - getprefixwidth(), num_history_blocks,
+                maxX - Roster_Width - scr_getprefixwidth(), num_history_blocks,
                 mucnicklen);
   g_free(text_locale);
 
@@ -1533,7 +1533,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
 
     // Init prev_chatwidth; this variable will be used to prevent us
     // from rewrapping buffers when the width doesn't change.
-    prev_chatwidth = maxX - Roster_Width - getprefixwidth();
+    prev_chatwidth = maxX - Roster_Width - scr_getprefixwidth();
     // Wrap existing status buffer lines
     hbuf_rebuild(&statushbuf, prev_chatwidth);
 
@@ -1587,7 +1587,7 @@ static void resize_win_buffer(gpointer key, gpointer value, gpointer data)
   // Redo line wrapping
   wbp->bd->top = hbuf_previous_persistent(wbp->bd->top);
 
-  new_chatwidth = maxX - Roster_Width - getprefixwidth();
+  new_chatwidth = maxX - Roster_Width - scr_getprefixwidth();
   if (new_chatwidth != prev_chatwidth)
     hbuf_rebuild(&wbp->bd->hbuf, new_chatwidth);
 }
@@ -1624,7 +1624,7 @@ void scr_Resize(void)
     resize_win_buffer(NULL, statusWindow, &dim);
 
   // Update prev_chatwidth, now that all buffers have been resized
-  prev_chatwidth = maxX - Roster_Width - getprefixwidth();
+  prev_chatwidth = maxX - Roster_Width - scr_getprefixwidth();
 
   // Refresh current buddy window
   if (chatmode)

@@ -56,6 +56,7 @@
 #include "utils.h"
 
 #define get_color(col)  (COLOR_PAIR(col)|COLOR_ATTRIB[col])
+#define compose_color(col)  (COLOR_PAIR(col->color_pair)|col->color_attrib)
 
 #define DEFAULT_LOG_WIN_HEIGHT (5+2)
 #define DEFAULT_ROSTER_WIDTH    24
@@ -160,8 +161,13 @@ AspellSpeller *spell_checker;
 #endif
 
 typedef struct {
+	int color_pair;
+	int color_attrib;
+} ccolor;
+
+typedef struct {
   char *status, *wildcard;
-  int color;
+  ccolor * color;
   GPatternSpec *compiled;
 } rostercolor;
 
@@ -171,58 +177,19 @@ static GHashTable *muccolors = NULL, *nickcolors = NULL;
 
 typedef struct {
   bool manual; // Manually set?
-  int color;
+  ccolor * color;
 } nickcolor;
 
-static int nickcolcount = 0, *nickcols = NULL;
+static int nickcolcount = 0;
+static ccolor ** nickcols = NULL;
 static muccoltype glob_muccol = MC_OFF;
 
 /* Functions */
 
-static int color_conv_table[] = {
-  COLOR_BLACK,
-  COLOR_RED,
-  COLOR_GREEN,
-  COLOR_YELLOW,
-  COLOR_BLUE,
-  COLOR_MAGENTA,
-  COLOR_CYAN,
-  COLOR_WHITE
-};
-
-static int color_conv_table_fg[] = {
-  COLOR_BLACK_FG,
-  COLOR_RED_FG,
-  COLOR_GREEN_FG,
-  COLOR_YELLOW_FG,
-  COLOR_BLUE_FG,
-  COLOR_MAGENTA_FG,
-  COLOR_CYAN_FG,
-  COLOR_WHITE_FG
-};
-
-static int color_to_color_fg(int color)
+static int FindColor(const char *name)
 {
-  unsigned i = 0;
-  for ( ; i < sizeof color_conv_table / sizeof *color_conv_table; i++)
-    if (color == color_conv_table[i])
-      return color_conv_table_fg[i];
-  return -1;
-}
+  int result;
 
-static int color_fg_to_color(int color)
-{
-  unsigned i = 0;
-  if (color >= COLOR_BLACK_BOLD_FG)
-    color -= COLOR_BLACK_BOLD_FG - COLOR_BLACK_FG;
-  for ( ; i < sizeof color_conv_table_fg / sizeof *color_conv_table_fg; i++)
-    if (color == color_conv_table_fg[i])
-      return color_conv_table[i];
-  return -1;
-}
-
-static int FindColorInternal(const char *name)
-{
   if (!strcmp(name, "default"))
     return -1;
   if (!strcmp(name, "black"))
@@ -242,15 +209,6 @@ static int FindColorInternal(const char *name)
   if (!strcmp(name, "white"))
     return COLOR_WHITE;
 
-  return -2;
-}
-
-static int FindColor(const char *name)
-{
-  int result = FindColorInternal(name);
-  if (result != -2)
-    return result;
-
   // Directly support 256-color values
   result = atoi(name);
   if (result > 0 && result < COLORS)
@@ -260,20 +218,22 @@ static int FindColor(const char *name)
   return -1;
 }
 
-static int get_user_color(const char *color)
+static ccolor * get_user_color(const char *color)
 {
   bool isbright = FALSE;
   int cl;
+  ccolor * ccol;
   if (!strncmp(color, "bright", 6)) {
     isbright = TRUE;
     color += 6;
   }
-  cl = color_to_color_fg(FindColorInternal(color));
+  cl = FindColor(color);
   if (cl < 0)
-    return cl;
-  if (isbright)
-    cl += COLOR_BLACK_BOLD_FG - COLOR_BLACK_FG;
-  return cl;
+    return NULL;
+  ccol = g_new0(ccolor, 1);
+  ccol->color_attrib = isbright ? A_BOLD : A_NORMAL;
+  ccol->color_pair = cl + COLOR_max; //user colors come after the internal ones
+  return ccol;
 }
 
 static void ensure_string_htable(GHashTable **table,
@@ -349,8 +309,8 @@ void scr_MucNickColor(const char *nick, const char *color)
     g_free(mnick);
     need_update = TRUE;
   } else {
-    int cl = get_user_color(color);
-    if (cl < 0) {
+    ccolor * cl = get_user_color(color);
+    if (!cl) {
       scr_LogPrint(LPRINT_NORMAL, "No such color name");
       g_free(snick);
       g_free(mnick);
@@ -376,6 +336,7 @@ static void free_rostercolrule(rostercolor *col)
 {
   g_free(col->status);
   g_free(col->wildcard);
+  g_free(col->color);
   g_pattern_spec_free(col->compiled);
   g_free(col);
 }
@@ -420,13 +381,14 @@ bool scr_RosterColor(const char *status, const char *wildcard,
       return FALSE;
     }
   } else {
-    int cl = get_user_color(color);
-    if (cl < 0 ) {
+    ccolor * cl = get_user_color(color);
+    if (!cl) {
       scr_LogPrint(LPRINT_NORMAL, "No such color name");
       return FALSE;
     }
     if (found) {
       rostercolor *rc = found->data;
+			g_free(rc->color);
       rc->color = cl;
     } else {
       rostercolor *rc = g_new(rostercolor, 1);
@@ -533,11 +495,9 @@ static void ParseColors(void)
           break;
     }
   }
-  for (i = COLOR_BLACK_FG; i < COLOR_max; i++) {
-    init_pair(i, color_fg_to_color(i), FindColor(background));
-    if (i >= COLOR_BLACK_BOLD_FG)
-      COLOR_ATTRIB[i] = A_BOLD;
-  }
+  for (i = COLOR_max; i < (COLOR_max + COLORS); i++)
+    init_pair(i, i-COLOR_max, FindColor(background));
+
   if (!nickcols) {
     char *ncolors = g_strdup(settings_opt_get("nick_colors"));
     if (ncolors) {
@@ -552,12 +512,12 @@ static void ParseColors(void)
           ncolors++;
         } else {
           char *end = ncolors;
-          int cl;
+          ccolor * cl;
           while (*end && (*end != ' ') && (*end != '\t'))
             end++;
           *end = '\0';
           cl = get_user_color(ncolors);
-          if (cl < 0) {
+          if (!cl) {
             scr_LogPrint(LPRINT_NORMAL, "Unknown color %s", ncolors);
           } else {
             nickcols = g_realloc(nickcols, (++nickcolcount) * sizeof *nickcols);
@@ -570,8 +530,10 @@ static void ParseColors(void)
     }
     if (!nickcols) {//Fallback to have something
       nickcolcount = 1;
-      nickcols = g_new(int, 1);
-      *nickcols = COLOR_GENERAL;
+			nickcols = g_new(ccolor*, 1);
+			*nickcols = g_new(ccolor, 1);
+      (*nickcols)->color_pair = COLOR_GENERAL;
+      (*nickcols)->color_attrib = A_NORMAL;
     }
   }
 }
@@ -1163,7 +1125,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
         if (actual && ((type == MC_ALL) || (actual->manual))
             && (line->flags & HBB_PREFIX_IN) &&
            (!(line->flags & HBB_PREFIX_HLIGHT_OUT)))
-          wattrset(win_entry->win, get_color(actual->color));
+          wattrset(win_entry->win, compose_color(actual->color));
         wprintw(win_entry->win, "%s", line->text);
         // Return the char
         line->text[line->mucnicklen] = tmp;
@@ -1901,7 +1863,7 @@ void scr_DrawRoster(void)
             rostercolor *rc = head->data;
             if (g_pattern_match_string(rc->compiled, jid) &&
                 (!strcmp("*", rc->status) || strchr(rc->status, status))) {
-              color = get_color(rc->color);
+              color = compose_color(rc->color);
               break;
             }
           }

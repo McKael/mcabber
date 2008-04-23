@@ -46,25 +46,6 @@ enum colors {
   COLOR_ROSTERNMSG,
   COLOR_INFO,
   COLOR_MSGIN,
-  //Foreground color on usual backgroud
-  //curses do not allow telling color only ->
-  //needs colorpairs
-  COLOR_BLACK_FG,
-  COLOR_RED_FG,
-  COLOR_GREEN_FG,
-  COLOR_YELLOW_FG,
-  COLOR_BLUE_FG,
-  COLOR_MAGENTA_FG,
-  COLOR_CYAN_FG,
-  COLOR_WHITE_FG,
-  COLOR_BLACK_BOLD_FG,
-  COLOR_RED_BOLD_FG,
-  COLOR_GREEN_BOLD_FG,
-  COLOR_YELLOW_BOLD_FG,
-  COLOR_BLUE_BOLD_FG,
-  COLOR_MAGENTA_BOLD_FG,
-  COLOR_CYAN_BOLD_FG,
-  COLOR_WHITE_BOLD_FG,
   COLOR_max
 };
 

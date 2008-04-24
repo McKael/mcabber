@@ -228,7 +228,7 @@ set cmdhistory_lines = 250
 
 # FIFO
 # mcabber can create a FIFO named pipe and listen to this pipe for commands.
-# (The FIFO support has to be compiled in.)  Default: disabled.
+# Default: disabled.
 # Set fifo_hide_commands to 1 if you don't want to see the FIFO commands
 # in the log window (they will still be written to the tracelog file).
 #set fifo_name = ~/.mcabber/mcabber.fifo

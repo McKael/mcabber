@@ -1147,6 +1147,7 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
     sessionid = generate_session_id("set-status");
     xmlnode_put_attrib(command, "sessionid", sessionid);
     g_free(sessionid);
+    sessionid = NULL;
     xmlnode_put_attrib(command, "status", "executing");
 
     x = xmlnode_insert_tag(command, "x");
@@ -1190,9 +1191,9 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
     xmlnode_put_attrib(y, "type", "text-multi");
     xmlnode_put_attrib(y, "var", "status-message");
     xmlnode_put_attrib(y, "label", "Message");
-  }
-  else // (if sessionid)
-  {
+  } else if (!strcmp(action, "cancel")) {
+    xmlnode_put_attrib(command, "status", "canceled");
+  } else  { // (if sessionid and not canceled)
     y = xmlnode_get_tag(x, "x?xmlns=jabber:x:data");
     if (y) {
       char *value, *message;
@@ -1206,7 +1207,6 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
                                        message ? message : "");
         cmd_setstatus(NULL, status);
         g_free(status);
-        xmlnode_put_attrib(command, "sessionid", sessionid);
         xmlnode_put_attrib(command, "status", "completed");
         xmlnode_put_attrib(iq, "type", "result");
         xmlnode_insert_dataform_result_message(command,
@@ -1214,6 +1214,8 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
       }
     }
   }
+  if (sessionid)
+    xmlnode_put_attrib(command, "sessionid", sessionid);
   xmlnode_put_attrib(iq, "to", xmlnode_get_attrib(xmldata, "from"));
   xmlnode_put_attrib(iq, "id", id);
   jab_send(jc, iq);
@@ -1263,6 +1265,7 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from,
     sessionid = generate_session_id("leave-groupchats");
     xmlnode_put_attrib(command, "sessionid", sessionid);
     g_free(sessionid);
+    sessionid = NULL;
     xmlnode_put_attrib(command, "status", "executing");
 
     x = xmlnode_insert_tag(command, "x");
@@ -1290,9 +1293,9 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from,
     xmlnode_insert_tag(field, "required");
 
     foreach_buddy(ROSTER_TYPE_ROOM, &_callback_foreach_buddy_groupchat, &field);
-  }
-  else // (if sessionid)
-  {
+  } else if (!strcmp(action, "cancel")) {
+    xmlnode_put_attrib(command, "status", "canceled");
+  } else  { // (if sessionid and not canceled)
     xmlnode form = xmlnode_get_tag(x, "x?xmlns=jabber:x:data");
     if (form) {
       xmlnode x, gc;
@@ -1306,7 +1309,7 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from,
         if (to_leave) {
           GList* b = buddy_search_jid(to_leave);
           if (b)
-            cmd_room_leave(b->data, "Asked by remote command");
+            cmd_room_leave(b->data, "Requested by remote command");
         }
       }
       xmlnode_put_attrib(iq, "type", "result");
@@ -1314,6 +1317,8 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from,
                                              "Groupchats have been left");
     }
   }
+  if (sessionid)
+    xmlnode_put_attrib(command, "sessionid", sessionid);
   xmlnode_put_attrib(iq, "to", xmlnode_get_attrib(xmldata, "from"));
   xmlnode_put_attrib(iq, "id", id);
   jab_send(jc, iq);
@@ -1710,6 +1715,7 @@ static void handle_iq_set(jconn conn, char *from, xmlnode xmldata)
     ns = xmlnode_get_attrib(x, "xmlns");
     if (ns && !strcmp(ns, NS_COMMANDS)) {
       handle_iq_commands(conn, from, id, xmldata);
+      return;
     } else {
       iq_not_implemented = TRUE;
     }

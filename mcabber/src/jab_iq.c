@@ -1206,6 +1206,7 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
                                        message ? message : "");
         cmd_setstatus(NULL, status);
         g_free(status);
+        xmlnode_put_attrib(command, "sessionid", sessionid);
         xmlnode_put_attrib(command, "status", "completed");
         xmlnode_put_attrib(iq, "type", "result");
         xmlnode_insert_dataform_result_message(command,

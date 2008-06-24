@@ -197,8 +197,14 @@ static char * otr_get_dir(void)
 static ConnContext * otr_get_context(const char *buddy)
 {
   int null = 0;
-  return otrl_context_find(userstate, buddy, account, "jabber", 1, &null,
-                           NULL, NULL);
+  ConnContext * ctx;
+  char * lowcasebuddy = g_strdup(buddy);
+
+  mc_strtolower(lowcasebuddy);
+  ctx = otrl_context_find(userstate, lowcasebuddy, account, "jabber", 1, &null,
+                          NULL, NULL);
+  g_free(lowcasebuddy);
+  return ctx;
 }
 
 static void otr_message_disconnect(ConnContext *ctx)

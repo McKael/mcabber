@@ -37,6 +37,7 @@ set ignore_self_presence = 1
 # Set ssl_verify to 0 to disable certificate verification, or non-zero
 # to set desired maximum CA verification depth. Use -1 to specify an
 # unlimited depth.
+# NOTE: You probably need to set ssl_capath for SSL cert verification to work!
 # Set ssl_cafile to a path to a CA certificate file (may contain multiple
 # CA certificates).
 # Set ssl_capath to a directory containing CA certificates (use c_rehash

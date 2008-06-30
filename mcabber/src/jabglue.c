@@ -567,9 +567,13 @@ static char *new_msgid(void)
   static guint msg_idn;
   time_t now;
   time(&now);
+#if HAVE_ARC4RANDOM
+  msg_idn += 1U + (unsigned int) (9.0 * (arc4random() / 4294967296.0));
+#else
   if (!msg_idn)
     srand(now);
   msg_idn += 1U + (unsigned int) (9.0 * (rand() / (RAND_MAX + 1.0)));
+#endif
   return g_strdup_printf("%u%d", msg_idn, (int)(now%10L));
 }
 

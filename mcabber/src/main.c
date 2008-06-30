@@ -140,12 +140,16 @@ void mcabber_connect(void)
   // in cw_set_ssl_options().
 
   if (!resource) {
+#if HAVE_ARC4RANDOM
+    dynresource = g_strdup_printf("%s.%08x", PACKAGE_NAME, arc4random());
+#else
     unsigned int tab[2];
     srand(time(NULL));
     tab[0] = (unsigned int) (0xffff * (rand() / (RAND_MAX + 1.0)));
     tab[1] = (unsigned int) (0xffff * (rand() / (RAND_MAX + 1.0)));
     dynresource = g_strdup_printf("%s.%04x%04x", PACKAGE_NAME,
                                   tab[0], tab[1]);
+#endif
     resource = dynresource;
   }
 

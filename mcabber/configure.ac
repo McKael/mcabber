@@ -55,8 +55,8 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([alarm bzero gethostbyname gethostname inet_ntoa isascii \
-                memmove memset modf select setlocale socket strcasecmp \
+AC_CHECK_FUNCS([alarm arc4random bzero gethostbyname gethostname inet_ntoa \
+                isascii memmove memset modf select setlocale socket strcasecmp \
                 strchr strdup strncasecmp strrchr strstr strcasestr vsnprintf])
 
 

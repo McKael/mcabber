@@ -1480,8 +1480,10 @@ static void handle_iq_last(jconn conn, char *from, const char *id,
   xmlnode myquery;
   char *seconds;
 
-  scr_LogPrint(LPRINT_LOGNORM, "Received an IQ last time request from <%s>",
-               from);
+  if (!settings_opt_get_int("iq_hide_requests")) {
+    scr_LogPrint(LPRINT_LOGNORM, "Received an IQ last time request from <%s>",
+                 from);
+  }
 
   x = jutil_iqnew(JPACKET__RESULT, NS_LAST);
   xmlnode_put_attrib(x, "id", id);
@@ -1511,8 +1513,10 @@ static void handle_iq_version(jconn conn, char *from, const char *id,
   char *os = NULL;
   char *ver = mcabber_version();
 
-  scr_LogPrint(LPRINT_LOGNORM, "Received an IQ version request from <%s>",
-               from);
+  if (!settings_opt_get_int("iq_hide_requests")) {
+    scr_LogPrint(LPRINT_LOGNORM, "Received an IQ version request from <%s>",
+                 from);
+  }
 
   if (!settings_opt_get_int("iq_version_hide_os")) {
     struct utsname osinfo;
@@ -1550,7 +1554,9 @@ static void handle_iq_time(jconn conn, char *from, const char *id,
 
   time(&now_t);
 
-  scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>", from);
+  if (!settings_opt_get_int("iq_hide_requests")) {
+    scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>", from);
+  }
 
   buf = g_new0(char, 512);
 
@@ -1597,7 +1603,9 @@ static void handle_iq_time202(jconn conn, char *from, const char *id,
 
   time(&now_t);
 
-  scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>", from);
+  if (!settings_opt_get_int("iq_hide_requests")) {
+    scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>", from);
+  }
 
   buf = g_new0(char, 512);
 

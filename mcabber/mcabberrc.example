@@ -172,6 +172,10 @@ set cmdhistory_lines = 250
 # (Default is 0 for both options)
 #set iq_last_disable = 0
 #set iq_last_disable_when_notavail = 1
+#
+# Set iq_hide_requests to 1 if you don't want received IQ requests to be
+# displayed in the status window (default: 0).
+#set iq_hide_requests = 1
 
 # Beep
 # Set beep_on_message to 1 if you want mcabber to beep when receiving

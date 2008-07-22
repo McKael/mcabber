@@ -33,9 +33,8 @@ fi
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h \
                   stdlib.h string.h strings.h sys/socket.h sys/time.h \
-                  syslog.h termios.h unistd.h getopt.h wchar.h wctype.h \
-                  localcharset.h])
-AC_CHECK_HEADERS([getopt.h], , AC_MSG_ERROR([Missing header file]))
+                  syslog.h termios.h wchar.h wctype.h localcharset.h])
+AC_CHECK_HEADERS([unistd.h], , AC_MSG_ERROR([Missing header file]))
 AC_VAR_TIMEZONE_EXTERNALS
 
 # Checks for typedefs, structures, and compiler characteristics.

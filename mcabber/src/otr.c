@@ -118,6 +118,9 @@ void otr_init(const char *fjid)
 {
   char *root;
 
+  if (userstate) //already initialised
+    return;
+
   otr_is_enabled = !!settings_opt_get_int("otr");
 
   if (!otr_is_enabled)

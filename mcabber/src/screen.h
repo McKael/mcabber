@@ -168,7 +168,7 @@ int  readline_accept_line(int down_history);
 void readline_cancel_completion(void);
 void readline_do_completion(void);
 void readline_refresh_screen(void);
-void readline_disable_chat_mode(void);
+void readline_disable_chat_mode(guint show_roster);
 void readline_hist_beginning_search_bwd(void);
 void readline_hist_beginning_search_fwd(void);
 void readline_hist_prev(void);

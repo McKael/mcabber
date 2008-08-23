@@ -3568,7 +3568,14 @@ static void do_screen_refresh(char *arg)
 
 static void do_chat_disable(char *arg)
 {
-  readline_disable_chat_mode();
+  guint show_roster;
+
+  if (arg && !strcasecmp(arg, "--show-roster"))
+    show_roster = 1;
+  else
+    show_roster = 0;
+
+  readline_disable_chat_mode(show_roster);
 }
 
 static void do_source(char *arg)

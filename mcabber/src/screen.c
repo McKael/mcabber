@@ -665,7 +665,7 @@ void scr_init_bindings(void)
   settings_set(SETTINGS_TYPE_BINDING, "517", "iline fword");
   settings_set(SETTINGS_TYPE_BINDING, "518", "iline fword");
   settings_set(SETTINGS_TYPE_BINDING, "12", "screen_refresh");    // Ctrl-l
-  settings_set(SETTINGS_TYPE_BINDING, "27", "chat_disable");      // Esc
+  settings_set(SETTINGS_TYPE_BINDING, "27", "chat_disable --show-roster");// Esc
   settings_set(SETTINGS_TYPE_BINDING, "M27", "chat_disable");     // Esc-Esc
   settings_set(SETTINGS_TYPE_BINDING, "4", "iline send_multiline"); // Ctrl-d
   settings_set(SETTINGS_TYPE_BINDING, "M117", "iline word_upcase"); // Meta-u
@@ -3173,14 +3173,15 @@ void readline_refresh_screen(void)
   redrawwin(stdscr);
 }
 
-void readline_disable_chat_mode(void)
+void readline_disable_chat_mode(guint show_roster)
 {
   scr_CheckAutoAway(TRUE);
   currentWindow = NULL;
   chatmode = FALSE;
   if (current_buddy)
     buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-  scr_RosterVisibility(1);
+  if (show_roster)
+    scr_RosterVisibility(1);
   scr_UpdateChatStatus(FALSE);
   top_panel(chatPanel);
   top_panel(inputPanel);

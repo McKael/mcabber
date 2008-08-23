@@ -1599,6 +1599,7 @@ void scr_Resize(void)
 void scr_UpdateChatStatus(int forceupdate)
 {
   unsigned short btype, isgrp, ismuc, isspe;
+  const char *btypetext = "Unknown";
   const char *fullname;
   const char *msg = NULL;
   char status;
@@ -1624,9 +1625,21 @@ void scr_UpdateChatStatus(int forceupdate)
   fullname = buddy_getname(BUDDATA(current_buddy));
   btype = buddy_gettype(BUDDATA(current_buddy));
 
-  isgrp = btype & ROSTER_TYPE_GROUP;
-  ismuc = btype & ROSTER_TYPE_ROOM;
-  isspe = btype  & ROSTER_TYPE_SPECIAL;
+  isgrp = ismuc = isspe = 0;
+  if (btype & ROSTER_TYPE_USER) {
+    btypetext = "Buddy";
+  } else if (btype & ROSTER_TYPE_GROUP) {
+    btypetext = "Group";
+    isgrp = 1;
+  } else if (btype & ROSTER_TYPE_AGENT) {
+    btypetext = "Agent";
+  } else if (btype & ROSTER_TYPE_ROOM) {
+    btypetext = "Room";
+    ismuc = 1;
+  } else if (btype & ROSTER_TYPE_SPECIAL) {
+    btypetext = "Special buffer";
+    isspe = 1;
+  }
 
   if (chatmode && !isgrp) {
     winbuf *win_entry;
@@ -1637,10 +1650,7 @@ void scr_UpdateChatStatus(int forceupdate)
 
   if (isgrp || isspe) {
     buf_locale = from_utf8(fullname);
-    if (isgrp)
-      mvwprintw(chatstatusWnd, 0, 5, "Group: %s", buf_locale);
-    else
-      mvwprintw(chatstatusWnd, 0, 5, "Special buffer: %s", buf_locale);
+    mvwprintw(chatstatusWnd, 0, 5, "%s: %s", btypetext, buf_locale);
     g_free(buf_locale);
     if (forceupdate) {
       update_panels();
@@ -1662,8 +1672,8 @@ void scr_UpdateChatStatus(int forceupdate)
       status = imstatus2char[budstate];
   }
 
-  // No status message for groups & MUC rooms
-  if (!isgrp && !ismuc) {
+  // No status message for MUC rooms
+  if (!ismuc) {
     GSList *resources, *p_res;
     resources = buddy_getresources(BUDDATA(current_buddy));
     msg = buddy_getstatusmsg(BUDDATA(current_buddy),
@@ -1672,13 +1682,14 @@ void scr_UpdateChatStatus(int forceupdate)
     for (p_res = resources ; p_res ; p_res = g_slist_next(p_res))
       g_free(p_res->data);
     g_slist_free(resources);
-  } else if (ismuc) {
+  } else {
     msg = buddy_gettopic(BUDDATA(current_buddy));
   }
-  if (!msg)
-    msg = "";
 
-  buf = g_strdup_printf("[%c] Buddy: %s -- %s", status, fullname, msg);
+  if (msg)
+    buf = g_strdup_printf("[%c] %s: %s -- %s", status, btypetext, fullname, msg);
+  else
+    buf = g_strdup_printf("[%c] %s: %s", status, btypetext, fullname);
   replace_nl_with_dots(buf);
   buf_locale = from_utf8(buf);
   mvwprintw(chatstatusWnd, 0, 1, "%s", buf_locale);

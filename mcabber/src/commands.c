@@ -1033,7 +1033,7 @@ static void do_group(char *arg)
   if (!current_buddy)
     return;
 
-  paramlst = split_arg(arg, 2, 1); // subcmd, [arg]
+  paramlst = split_arg(arg, 2, 0); // subcmd, [arg]
   subcmd = *paramlst;
   arg = *(paramlst+1);
 

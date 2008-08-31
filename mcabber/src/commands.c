@@ -1041,7 +1041,9 @@ static void do_group(char *arg)
 
   if (arg && *arg) {
     GSList *roster_elt;
-    roster_elt = roster_find(arg, namesearch, ROSTER_TYPE_GROUP);
+    char *group_utf8 = to_utf8(arg);
+    roster_elt = roster_find(group_utf8, namesearch, ROSTER_TYPE_GROUP);
+    g_free(group_utf8);
     if (roster_elt)
       group = buddy_getgroup(roster_elt->data);
   } else {

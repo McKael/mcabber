@@ -299,15 +299,6 @@ void scr_MucNickColor(const char *nick, const char *color)
     g_free(snick);//They are not saved in the hash
     g_free(mnick);
     need_update = TRUE;
-  } else if (!strcmp(color, "!")) {
-    if (nickcolors) {
-      g_free(g_hash_table_lookup(nickcolors, snick));
-      g_hash_table_remove(nickcolors, snick);
-      g_hash_table_remove(nickcolors, mnick);
-    }
-    g_free(snick);//They are not saved in the hash
-    g_free(mnick);
-    need_update = TRUE;
   } else {
     ccolor * cl = get_user_color(color);
     if (!cl) {

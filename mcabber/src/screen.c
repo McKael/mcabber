@@ -1954,11 +1954,6 @@ void scr_RosterVisibility(int status)
     roster_hidden = !roster_hidden;
 
   if (roster_hidden != old_roster_status) {
-    if (roster_hidden) {
-      // Enter chat mode
-      scr_set_chatmode(TRUE);
-      scr_ShowBuddyWindow();
-    }
     // Recalculate windows size and redraw
     scr_Resize();
     redrawwin(stdscr);

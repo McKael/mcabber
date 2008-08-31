@@ -1726,6 +1726,13 @@ void scr_UpdateChatStatus(int forceupdate)
   }
 }
 
+void increment_if_buddy_not_filtered(gpointer rosterdata, void *param)
+{
+  int *p = param;
+  if (buddylist_is_status_filtered(buddy_getstatus(rosterdata, NULL)))
+    *p=*p+1;
+}
+
 //  scr_DrawRoster()
 // Display the buddylist (not really the roster) on the screen
 void scr_DrawRoster(void)
@@ -1889,12 +1896,15 @@ void scr_DrawRoster(void)
       name[0] = 0;
 
     if (isgrp) {
-      char *sep;
-      if (ishid)
-        sep = "+++";
+      if (ishid){
+        int group_count = 0;
+        foreach_group_member(BUDDATA(buddy), increment_if_buddy_not_filtered,
+                             &group_count);
+        snprintf(rline, 4*Roster_Width, " %c+++ %s (%i)", pending, name,
+               group_count);
+      }
       else
-        sep = "---";
-      snprintf(rline, 4*Roster_Width, " %c%s %s", pending, sep, name);
+        snprintf(rline, 4*Roster_Width, " %c--- %s", pending, name);
     } else if (isspe) {
       snprintf(rline, 4*Roster_Width, " %c%s", pending, name);
     } else {

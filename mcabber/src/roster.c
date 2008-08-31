@@ -813,6 +813,11 @@ int buddylist_isset_filter(void)
   return (display_filter != DFILTER_ALL);
 }
 
+int buddylist_is_status_filtered(enum imstatus status)
+{
+  return display_filter & (1 << status);
+}
+
 void buddylist_set_filter(guchar filter)
 {
   display_filter = filter;
@@ -869,7 +874,8 @@ void buddylist_build(void)
       // - group isn't hidden (shrunk)
       // - this is the current_buddy
       if (roster_usrelt == roster_current_buddy ||
-          display_filter & 1<<buddy_getstatus((gpointer)roster_usrelt, NULL) ||
+          buddylist_is_status_filtered(buddy_getstatus((gpointer)roster_usrelt,
+                                                       NULL)) ||
           (buddy_getflags((gpointer)roster_usrelt) &
                (ROSTER_FLAG_LOCK | ROSTER_FLAG_USRLOCK | ROSTER_FLAG_MSG))) {
         // This user should be added.  Maybe the group hasn't been added yet?

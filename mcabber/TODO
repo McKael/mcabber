@@ -11,7 +11,6 @@ TODO:
 * Use new Entity Time specs (XEP-0202) if possible in
  /request time.
 * Enable /roster search for offline (hidden) buddies (hidden groups, etc.)
-* Show number of online contacts in folded groups
 * Publish personal information
 * MUC: advanced settings for room creation
 * MUC: display roles of room members

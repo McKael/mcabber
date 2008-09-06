@@ -1607,9 +1607,6 @@ void scr_UpdateChatStatus(int forceupdate)
   // Clear the line
   werase(chatstatusWnd);
 
-  if (chatmode)
-    wprintw(chatstatusWnd, "~");
-
   if (!current_buddy) {
     if (forceupdate) {
       update_panels();
@@ -1634,6 +1631,16 @@ void scr_UpdateChatStatus(int forceupdate)
   } else if (btype & ROSTER_TYPE_SPECIAL) {
     btypetext = "Special buffer";
     isspe = 1;
+  }
+
+  if (chatmode) {
+    wprintw(chatstatusWnd, "~");
+  } else {
+    unsigned short bflags = buddy_getflags(BUDDATA(current_buddy));
+    if (bflags & ROSTER_FLAG_MSG) {
+      // There is an unread message from the current buddy
+      wprintw(chatstatusWnd, "#");
+    }
   }
 
   if (chatmode && !isgrp) {

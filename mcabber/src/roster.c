@@ -67,6 +67,7 @@ typedef struct {
   enum imaffiliation affil;
   gchar *realjid;       /* for chatrooms, if buddy's real jid is known */
   guint events;
+  char *caps;
 #ifdef JEP0022
   struct jep0022 jep22;
 #endif
@@ -150,6 +151,7 @@ static inline void free_resource_data(res *p_res)
 #ifdef HAVE_GPGME
   g_free(p_res->pgpdata.sign_keyid);
 #endif
+  g_free(p_res->caps);
   g_free(p_res);
 }
 
@@ -1194,6 +1196,26 @@ void buddy_resource_setevents(gpointer rosterdata, const char *resname,
   res *p_res = get_resource(roster_usr, resname);
   if (p_res)
     p_res->events = events;
+}
+
+char *buddy_resource_getcaps(gpointer rosterdata, const char *resname)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->caps;
+  return NULL;
+}
+
+void buddy_resource_setcaps(gpointer rosterdata, const char *resname,
+                            const char *caps)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = get_resource(roster_usr, resname);
+  if (p_res) {
+    g_free(p_res->caps);
+    p_res->caps = g_strdup(caps);
+  }
 }
 
 struct jep0022 *buddy_resource_jep22(gpointer rosterdata, const char *resname)

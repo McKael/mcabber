@@ -17,8 +17,7 @@ void lm_message_node_insert_childnode(LmMessageNode * node,
 void lm_message_node_deep_ref(LmMessageNode * node);
 
 /* XEP-0115 (Entity Capabilities) node */
-#define MCABBER_CAPS_NODE "http://mcabber.com/caps"
-const char *entity_version(void);
+const char *entity_version(enum imstatus status);
 
 #endif
 

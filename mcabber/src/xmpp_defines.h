@@ -1,6 +1,8 @@
 #ifndef __XMPP_DEFINES_H__
 #define __XMPP_DEFINES_H__ 1
 
+#define MCABBER_CAPS_NODE "http://mcabber.com/caps"
+
 #define NS_CLIENT    "jabber:client"
 #define NS_SERVER    "jabber:server"
 #define NS_DIALBACK  "jabber:server:dialback"

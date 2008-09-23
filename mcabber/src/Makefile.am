@@ -5,7 +5,7 @@ mcabber_SOURCES = main.c roster.c roster.h events.c events.h \
 		  settings.c settings.h hooks.c hooks.h utf8.c utf8.h \
 		  histolog.c histolog.h utils.c utils.h pgp.c pgp.h \
 		  fifo.c fifo.h help.c help.h \
-		  xmpp.c xmpp.h xmpp_helper.h
+		  xmpp.c xmpp.h xmpp_helper.h caps.c caps.h
 
 if OTR
 mcabber_SOURCES += otr.c otr.h nohtml.c nohtml.h

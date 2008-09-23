@@ -25,6 +25,7 @@
 #include <string.h>
 #include <sys/utsname.h>
 
+#include "caps.h"
 #include "commands.h"
 #include "events.h"
 #include "histolog.h"
@@ -1253,6 +1254,34 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
+static LmHandlerResult cb_caps(LmMessageHandler *h, LmConnection *c,
+                               LmMessage *m, gpointer user_data)
+{
+  char *ver = user_data;
+
+  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
+    display_server_error(lm_message_node_get_child(m->node, "error"));
+  } else if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_RESULT) {
+    LmMessageNode *info;
+    LmMessageNode *query = lm_message_node_get_child(m->node, "query");
+
+    caps_add(ver);
+    info = lm_message_node_get_child(query, "identity");
+    if (info)
+      caps_set_identity(ver, lm_message_node_get_attribute(info, "category"),
+                        lm_message_node_get_attribute(info, "name"),
+                        lm_message_node_get_attribute(info, "type"));
+    info = lm_message_node_get_child(query, "feature");
+    while (info) {
+      if (!g_strcmp0(info->name, "feature"))
+        caps_add_feature(ver, lm_message_node_get_attribute(info, "var"));
+      info = info->next;
+    }
+  }
+  g_free(ver);
+  return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+}
+
 static LmHandlerResult handle_presence(LmMessageHandler *handler,
                                        LmConnection *connection,
                                        LmMessage *m, gpointer user_data)
@@ -1262,7 +1291,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   enum imstatus ust;
   char bpprio;
   time_t timestamp = 0L;
-  LmMessageNode *muc_packet;
+  LmMessageNode *muc_packet, *caps;
 
   //Check for MUC presence packet
   muc_packet = lm_message_node_find_xmlns
@@ -1343,6 +1372,39 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
       ustmsg = ""; // Some clients omit the <status/> element :-(
     check_signature(r, rname, lm_message_node_find_xmlns(m->node, NS_SIGNED),
                     ustmsg);
+  }
+
+  //XEP-0115 Entity Capabilities
+  caps = lm_message_node_find_xmlns(m->node, NS_CAPS);
+  if (caps) {
+    const char *ver = lm_message_node_get_attribute(caps, "ver");
+    GSList *sl_buddy = NULL;
+    if (rname)
+      sl_buddy = roster_find(r, jidsearch, ROSTER_TYPE_USER);
+    //only cache the caps if the user is on the roster
+    if (sl_buddy && buddy_getonserverflag(sl_buddy->data)) {
+      buddy_resource_setcaps(sl_buddy->data, rname, ver);
+
+      if (!caps_has_hash(ver)) {
+        char *node;
+        LmMessageHandler *handler;
+        LmMessage *iq = lm_message_new_with_sub_type(from, LM_MESSAGE_TYPE_IQ,
+                                                     LM_MESSAGE_SUB_TYPE_GET);
+        node = g_strdup_printf("%s#%s",
+                               lm_message_node_get_attribute(caps, "node"),
+                               ver);
+        lm_message_node_set_attributes
+                (lm_message_node_add_child(iq->node, "query", NULL),
+                 "xmlns", NS_DISCO_INFO,
+                 "node", node,
+                 NULL);
+        g_free(node);
+        handler = lm_message_handler_new(cb_caps, g_strdup(ver), NULL);
+        lm_connection_send_with_reply(connection, iq, handler, NULL);
+        lm_message_unref(iq);
+        lm_message_handler_unref(handler);
+      }
+    }
   }
 
   g_free(r);
@@ -1693,34 +1755,16 @@ void xmpp_connect(void)
 
 //  insert_entity_capabilities(presence_stanza)
 // Entity Capabilities (XEP-0115)
-static void insert_entity_capabilities(LmMessageNode * x)
+static void insert_entity_capabilities(LmMessageNode *x, enum imstatus status)
 {
   LmMessageNode *y;
-  const char *ver = entity_version();
-  char *exts, *exts2;
-
-  exts = NULL;
+  const char *ver = entity_version(status);
 
   y = lm_message_node_add_child(x, "c", NULL);
   lm_message_node_set_attribute(y, "xmlns", NS_CAPS);
+  lm_message_node_set_attribute(y, "hash", "sha-1");
   lm_message_node_set_attribute(y, "node", MCABBER_CAPS_NODE);
   lm_message_node_set_attribute(y, "ver", ver);
-#ifdef JEP0085
-  if (!chatstates_disabled) {
-    exts2 = g_strjoin(" ", "csn", exts, NULL);
-    g_free(exts);
-    exts = exts2;
-  }
-#endif
-  if (!settings_opt_get_int("iq_last_disable")) {
-    exts2 = g_strjoin(" ", "iql", exts, NULL);
-    g_free(exts);
-    exts = exts2;
-  }
-  if (exts) {
-    lm_message_node_set_attribute(y, "ext", exts);
-    g_free(exts);
-  }
 }
 
 void xmpp_disconnect(void)
@@ -1765,7 +1809,7 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
   if (lm_connection_is_authenticated(lconnection)) {
     const char *s_msg = (st != invisible ? msg : NULL);
     m = lm_message_new_presence(st, recipient, s_msg);
-    insert_entity_capabilities(m->node); // Entity Capabilities (XEP-0115)
+    insert_entity_capabilities(m->node, st); // Entity Capabilities (XEP-0115)
 #ifdef HAVE_GPGME
     if (!do_not_sign && gpg_enabled()) {
       char *signature;

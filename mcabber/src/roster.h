@@ -212,6 +212,9 @@ void    buddy_resource_setname(gpointer rosterdata, const char *resname,
 void    buddy_resource_setevents(gpointer rosterdata, const char *resname,
                                  guint event);
 guint   buddy_resource_getevents(gpointer rosterdata, const char *resname);
+void    buddy_resource_setcaps(gpointer rosterdata, const char *resname,
+                               const char *caps);
+char   *buddy_resource_getcaps(gpointer rosterdata, const char *resname);
 struct jep0022 *buddy_resource_jep22(gpointer rosterdata, const char *resname);
 struct jep0085 *buddy_resource_jep85(gpointer rosterdata, const char *resname);
 struct pgp_data *buddy_resource_pgp(gpointer rosterdata, const char *resname);

@@ -125,25 +125,43 @@ static LmMessage *lm_message_new_iq_from_query(LmMessage *m,
   return new;
 }
 
-//  entity_version()
+//  entity_version(enum imstatus status)
 // Return a static version string for Entity Capabilities.
 // It should be specific to the client version, please change the id
 // if you alter mcabber's disco support (or add something to the version
 // number) so that it doesn't conflict with the official client.
-const char *entity_version(void)
+const char *entity_version(enum imstatus status)
 {
-  static char *ver;
-  const char *PVERSION = PACKAGE_VERSION; // "+xxx";
+  static char *ver, *ver_notavail;
 
-  if (ver)
+  if (ver && (status != notavail))
     return ver;
+  if (ver_notavail)
+    return ver_notavail;
 
-#ifdef HGCSET
-  ver = g_strdup_printf("%s-%s", PVERSION, HGCSET);
-#else
-  ver = g_strdup(PVERSION);
-#endif
+  caps_add("");
+  caps_set_identity("", "client", PACKAGE_STRING, "pc");
+  caps_add_feature("", NS_DISCO_INFO);
+  caps_add_feature("", NS_MUC);
+  // advertise ChatStates only if they aren't disabled
+  if (!settings_opt_get_int("disable_chatstates"))
+   caps_add_feature("", NS_CHATSTATES);
+  caps_add_feature("", NS_TIME);
+  caps_add_feature("", NS_XMPP_TIME);
+  caps_add_feature("", NS_VERSION);
+  caps_add_feature("", NS_PING);
+  caps_add_feature("", NS_COMMANDS);
+  if (!settings_opt_get_int("iq_last_disable") &&
+      (!settings_opt_get_int("iq_last_disable_when_notavail") ||
+       status != notavail))
+   caps_add_feature("", NS_LAST);
 
+  if (status == notavail) {
+    ver_notavail = caps_generate();
+    return ver_notavail;
+  }
+
+  ver = caps_generate();
   return ver;
 }
 

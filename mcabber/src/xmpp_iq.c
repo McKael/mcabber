@@ -461,82 +461,47 @@ static LmHandlerResult handle_iq_disco_items(LmMessageHandler *h,
 }
 
 
-//  disco_info_set_ext(ansquery, ext)
-// Add features attributes to ansquery for extension ext.
-static void disco_info_set_ext(LmMessageNode *ansquery, const char *ext)
+void _disco_add_feature_helper(gpointer data, gpointer user_data)
 {
-  char *nodename = g_strdup_printf("%s#%s", MCABBER_CAPS_NODE, ext);
-  lm_message_node_set_attribute(ansquery, "node", nodename);
-  g_free(nodename);
-  if (!strcasecmp(ext, "csn")) {
-    // I guess it's ok to send this even if it's not compiled in.
-    lm_message_node_set_attribute(lm_message_node_add_child(ansquery,
-                                                            "feature", NULL),
-                                  "var", NS_CHATSTATES);
-  }
-  if (!strcasecmp(ext, "iql")) {
-    // I guess it's ok to send this even if it's not compiled in.
-    lm_message_node_set_attribute(lm_message_node_add_child(ansquery,
-                                                            "feature", NULL),
-                                  "var", NS_LAST);
-  }
+  LmMessageNode *node = user_data;
+  lm_message_node_set_attribute
+          (lm_message_node_add_child(node, "feature", NULL), "var", data);
 }
 
-//  disco_info_set_default(ansquery, entitycaps)
-// Add features attributes to ansquery.  If entitycaps is TRUE, assume
-// that we're answering an Entity Caps request (if not, the request was
-// a basic discovery query).
+//  disco_info_set_caps(ansquery, entitycaps)
+// Add features attributes to ansquery.  entitycaps should either be a
+// valid capabilities hash or NULL. If it is NULL, the node attribute won't
+// be added to the query child and Entity Capabilities will be announced
+// as a feature.
 // Please change the entity version string if you modify mcabber disco
 // source code, so that it doesn't conflict with the upstream client.
-static void disco_info_set_default(LmMessageNode *ansquery, guint entitycaps)
+static void disco_info_set_caps(LmMessageNode *ansquery,
+                                const char *entitycaps)
 {
-  LmMessageNode *y;
-  char *eversion;
+  if (entitycaps) {
+    char *eversion;
+    eversion = g_strdup_printf("%s#%s", MCABBER_CAPS_NODE, entitycaps);
+    lm_message_node_set_attribute(ansquery, "node", eversion);
+    g_free(eversion);
+  }
 
-  eversion = g_strdup_printf("%s#%s", MCABBER_CAPS_NODE, entity_version());
-  lm_message_node_set_attribute(ansquery, "node", eversion);
-  g_free(eversion);
+  lm_message_node_set_attributes
+          (lm_message_node_add_child(ansquery, "identity", NULL),
+           "category", "client",
+           "name", PACKAGE_STRING,
+           "type", "pc",
+           NULL);
 
-  y = lm_message_node_add_child(ansquery, "identity", NULL);
-
-  lm_message_node_set_attributes(y,
-                                 "category", "client",
-                                 "type", "pc",
-                                 "name", PACKAGE_NAME,
-                                 NULL);
-
-  lm_message_node_set_attribute
-          (lm_message_node_add_child(ansquery, "feature", NULL),
-           "var", NS_DISCO_INFO);
-  lm_message_node_set_attribute
-          (lm_message_node_add_child(ansquery, "feature", NULL),
-           "var", NS_MUC);
-#ifdef JEP0085
-  // Advertise ChatStates only if we're not using Entity Capabilities
-  if (!entitycaps)
+  if (entitycaps)
+    caps_foreach_feature(entitycaps, _disco_add_feature_helper, ansquery);
+  else {
+    caps_foreach_feature(entity_version(xmpp_getstatus()),
+                         _disco_add_feature_helper,
+                         ansquery);
     lm_message_node_set_attribute
             (lm_message_node_add_child(ansquery, "feature", NULL),
-             "var", NS_CHATSTATES);
-#endif
-  lm_message_node_set_attribute
-          (lm_message_node_add_child(ansquery, "feature", NULL),
-           "var", NS_TIME);
-  lm_message_node_set_attribute
-          (lm_message_node_add_child(ansquery, "feature", NULL),
-           "var", NS_XMPP_TIME);
-  lm_message_node_set_attribute
-          (lm_message_node_add_child(ansquery, "feature", NULL),
-           "var", NS_VERSION);
-  lm_message_node_set_attribute
-          (lm_message_node_add_child(ansquery, "feature", NULL),
-           "var", NS_PING);
-  lm_message_node_set_attribute
-          (lm_message_node_add_child(ansquery, "feature", NULL),
-           "var", NS_COMMANDS);
-  if (!entitycaps)
-    lm_message_node_set_attribute
-            (lm_message_node_add_child(ansquery, "feature", NULL),
-             "var", NS_LAST);
+             "var", NS_CAPS);
+  }
 }
 
 static LmHandlerResult handle_iq_disco_info(LmMessageHandler *h,
@@ -546,23 +511,21 @@ static LmHandlerResult handle_iq_disco_info(LmMessageHandler *h,
   LmMessage *r;
   LmMessageNode *query, *tmp;
   const char *node = NULL;
+  const char *param = NULL;
 
   r = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
   query = lm_message_node_add_child(r->node, "query", NULL);
   lm_message_node_set_attribute(query, "xmlns", NS_DISCO_INFO);
   tmp = lm_message_node_find_child(m->node, "query");
-  if (tmp)
+  if (tmp) {
     node = lm_message_node_get_attribute(tmp, "node");
-  if (node && startswith(node, MCABBER_CAPS_NODE "#", FALSE)) {
-    const char *param = node+strlen(MCABBER_CAPS_NODE)+1;
-    if (!strcmp(param, entity_version()))
-      disco_info_set_default(query, TRUE);  // client#version
-    else
-      disco_info_set_ext(query, param);     // client#extension
-  } else {
-    // Basic discovery request
-    disco_info_set_default(query, FALSE);
+    param = node+strlen(MCABBER_CAPS_NODE)+1;
   }
+  if (node && startswith(node, MCABBER_CAPS_NODE "#", FALSE))
+    disco_info_set_caps(query, param);  // client#version
+  else
+    // Basic discovery request
+    disco_info_set_caps(query, NULL);
 
   lm_connection_send(c, r, NULL);
   lm_message_unref(r);

@@ -31,6 +31,7 @@
 #include <glib.h>
 #include <config.h>
 
+#include "caps.h"
 #include "screen.h"
 #include "settings.h"
 #include "roster.h"
@@ -318,6 +319,7 @@ int main(int argc, char **argv)
   roster_init();
   settings_init();
   scr_init_bindings();
+  caps_init();
   /* Initialize charset */
   scr_InitLocaleCharSet();
 
@@ -429,6 +431,7 @@ int main(int argc, char **argv)
 #endif
   /* Save pending message state */
   hlog_save_state();
+  caps_free();
 
   printf("\n\nThanks for using mcabber!\n");
 

@@ -49,7 +49,7 @@ void xmpp_delbuddy(const char *bjid);
 
 void xmpp_send_msg(const char *fjid, const char *text, int type,
                    const char *subject, gboolean otrinject, gint *encrypted,
-                   LmMessageSubType type_overwrite);
+                   LmMessageSubType type_overwrite, gpointer *xep184);
 
 void xmpp_send_s10n(const char *bjid, LmMessageSubType type);
 

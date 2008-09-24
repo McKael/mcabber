@@ -645,7 +645,7 @@ static void cb_inject_message(void *opdata, const char *accountname,
 {
   if (roster_gettype(recipient) == ROSTER_TYPE_USER)
     xmpp_send_msg(recipient, message, ROSTER_TYPE_USER, "", TRUE, NULL,
-                  LM_MESSAGE_SUB_TYPE_NOT_SET);
+                  LM_MESSAGE_SUB_TYPE_NOT_SET, NULL);
 }
 
 /* Display a notification message for a particular

@@ -251,7 +251,8 @@ void hk_message_in(const char *bjid, const char *resname,
 // nick should be set for private messages in a chat room, and null for
 // normal messages.
 void hk_message_out(const char *bjid, const char *nick,
-                           time_t timestamp, const char *msg, guint encrypted)
+                    time_t timestamp, const char *msg,
+                    guint encrypted, gpointer xep184)
 {
   char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
   guint cryptflag = 0;
@@ -280,7 +281,7 @@ void hk_message_out(const char *bjid, const char *nick,
     cryptflag = HBB_PREFIX_PGPCRYPT;
   else if (encrypted == ENCRYPTED_OTR)
     cryptflag = HBB_PREFIX_OTRCRYPT;
-  scr_WriteOutgoingMessage(bjid, wmsg, cryptflag);
+  scr_WriteOutgoingMessage(bjid, wmsg, cryptflag, xep184);
 
   // We don't log private messages
   if (!nick)

@@ -159,7 +159,7 @@ static void add_keyseq(char *seqstr, guint mkeycode, gint value);
 
 void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
                        unsigned int prefix_flags, int force_show,
-                       unsigned mucnicklen);
+                       unsigned mucnicklen, gpointer xep184);
 
 void scr_WriteMessage(const char *bjid, const char *text,
                       time_t timestamp, guint prefix_flags,
@@ -909,12 +909,12 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
       wprintw(logWnd, "\n%s", buffer_locale);
       update_panels();
       scr_WriteInWindow(NULL, buf_specialwindow, timestamp,
-                        HBB_PREFIX_SPECIAL, FALSE, 0);
+                        HBB_PREFIX_SPECIAL, FALSE, 0, NULL);
     } else {
       printf("%s\n", buffer_locale);
       // ncurses are not initialized yet, so we call directly hbuf routine
       hbuf_add_line(&statushbuf, buf_specialwindow, timestamp,
-        HBB_PREFIX_SPECIAL, 0, 0, 0);
+        HBB_PREFIX_SPECIAL, 0, 0, 0, NULL);
     }
 
     g_free(convbuf1);
@@ -1038,14 +1038,18 @@ void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
         cryptflag = '=';
       g_snprintf(pref, preflen, "%s<%c= ", date, cryptflag);
     } else if (line->flags & HBB_PREFIX_OUT) {
-      char cryptflag;
+      char cryptflag, receiptflag;
       if (line->flags & HBB_PREFIX_PGPCRYPT)
         cryptflag = '~';
       else if (line->flags & HBB_PREFIX_OTRCRYPT)
         cryptflag = 'O';
       else
         cryptflag = '-';
-      g_snprintf(pref, preflen, "%s-%c> ", date, cryptflag);
+      if (line->flags & HBB_PREFIX_RECEIPT)
+        receiptflag = 'r';
+      else
+        receiptflag = '-';
+      g_snprintf(pref, preflen, "%s%c%c> ", date, receiptflag, cryptflag);
     } else if (line->flags & HBB_PREFIX_SPECIAL) {
       strftime(date, 30, getspectprefix(), localtime(&line->timestamp));
       g_snprintf(pref, preflen, "%s   ", date);
@@ -1295,7 +1299,7 @@ inline void scr_UpdateBuddyWindow(void)
 // If this window doesn't exist, it is created.
 void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
                        unsigned int prefix_flags, int force_show,
-                       unsigned mucnicklen)
+                       unsigned mucnicklen, gpointer xep184)
 {
   winbuf *win_entry;
   char *text_locale;
@@ -1342,7 +1346,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   }
   hbuf_add_line(&win_entry->bd->hbuf, text_locale, timestamp, prefix_flags,
                 maxX - Roster_Width - scr_getprefixwidth(), num_history_blocks,
-                mucnicklen);
+                mucnicklen, xep184);
   g_free(text_locale);
 
   if (win_entry->bd->cleared) {
@@ -2053,7 +2057,7 @@ static inline void scr_LogUrls(const gchar *string)
 
 void scr_WriteMessage(const char *bjid, const char *text,
                       time_t timestamp, guint prefix_flags,
-                      unsigned mucnicklen)
+                      unsigned mucnicklen, gpointer xep184)
 {
   char *xtext;
 
@@ -2061,7 +2065,8 @@ void scr_WriteMessage(const char *bjid, const char *text,
 
   xtext = ut_expand_tabs(text); // Expand tabs and filter out some chars
 
-  scr_WriteInWindow(bjid, xtext, timestamp, prefix_flags, FALSE, mucnicklen);
+  scr_WriteInWindow(bjid, xtext, timestamp, prefix_flags, FALSE, mucnicklen,
+                    xep184);
 
   if (xtext != (char*)text)
     g_free(xtext);
@@ -2080,21 +2085,32 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
   if (url_regex)
     scr_LogUrls(text);
 #endif
-  scr_WriteMessage(jidfrom, text, timestamp, prefix, mucnicklen);
+  scr_WriteMessage(jidfrom, text, timestamp, prefix, mucnicklen, NULL);
 }
 
-void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix)
+void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix,
+                              gpointer xep184)
 {
   GSList *roster_elt;
   roster_elt = roster_find(jidto, jidsearch,
                            ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
 
   scr_WriteMessage(jidto, text,
-                   0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT, 0);
+                   0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT, 0, xep184);
 
   // Show jidto's buffer unless the buddy is not in the buddylist
   if (roster_elt && g_list_position(buddylist, roster_elt->data) != -1)
     scr_ShowWindow(jidto, FALSE);
+}
+
+void scr_RemoveReceiptFlag(const char *bjid, gpointer xep184)
+{
+  winbuf *win_entry = scr_SearchWindow(bjid, FALSE);
+  if (win_entry) {
+    hbuf_remove_receipt(win_entry->bd->hbuf, xep184);
+    if (chatmode && (buddy_search_jid(bjid) == current_buddy))
+      scr_UpdateBuddyWindow();
+  }
 }
 
 static inline void set_autoaway(bool setaway)

@@ -14,7 +14,8 @@ void hk_message_in(const char *bjid, const char *resname,
                    time_t timestamp, const char *msg, LmMessageSubType type,
                    guint encrypted);
 void hk_message_out(const char *bjid, const char *nickname,
-                           time_t timestamp, const char *msg, guint encrypted);
+                    time_t timestamp, const char *msg,
+                    guint encrypted,  gpointer xep184);
 void hk_statuschange(const char *bjid, const char *resname, gchar prio,
                      time_t timestamp, enum imstatus status,
                      char const *status_msg);

@@ -28,6 +28,7 @@
 #define HBB_PREFIX_PGPCRYPT   (1U<<11)
 #define HBB_PREFIX_OTRCRYPT   (1U<<12)
 #define HBB_PREFIX_CONT       (1U<<13)
+#define HBB_PREFIX_RECEIPT    (1U<<14)
 
 typedef struct {
   time_t timestamp;
@@ -38,7 +39,7 @@ typedef struct {
 
 void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
         guint prefix_flags, guint width, guint maxhbufblocks,
-        unsigned mucnicklen);
+        unsigned mucnicklen, gpointer xep184);
 void hbuf_free(GList **p_hbuf);
 void hbuf_rebuild(GList **p_hbuf, unsigned int width);
 GList *hbuf_previous_persistent(GList *l_line);
@@ -47,6 +48,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n);
 GList *hbuf_search(GList *hbuf, int direction, const char *string);
 GList *hbuf_jump_date(GList *hbuf, time_t t);
 GList *hbuf_jump_percent(GList *hbuf, int pc);
+gboolean hbuf_remove_receipt(GList *hbuf, gpointer xep184);
 
 void hbuf_dump_to_file(GList *hbuf, const char *filename);
 

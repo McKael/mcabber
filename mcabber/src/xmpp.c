@@ -314,6 +314,15 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
   g_slist_free(resources);
 }
 
+static LmHandlerResult cb_xep184(LmMessageHandler *h, LmConnection *c,
+                                 LmMessage *m, gpointer user_data)
+{
+  char *from = jidtodisp(lm_message_get_from(m));
+  scr_RemoveReceiptFlag(from, h);
+  g_free(from);
+  return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+}
+
 //  xmpp_send_msg(jid, text, type, subject,
 //                otrinject, *encrypted, type_overwrite)
 // When encrypted is not NULL, the function set *encrypted to 1 if the
@@ -321,7 +330,7 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
 // encryption fails, *encrypted is set to -1.
 void xmpp_send_msg(const char *fjid, const char *text, int type,
                    const char *subject, gboolean otrinject, gint *encrypted,
-                   LmMessageSubType type_overwrite)
+                   LmMessageSubType type_overwrite, gpointer *xep184)
 {
   LmMessage *x;
   LmMessageSubType subtype;
@@ -433,6 +442,16 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
     g_free(enc);
   }
 
+  //XEP-0184: Message Receipts
+  if (sl_buddy && rname && xep184 &&
+      caps_has_feature(buddy_resource_getcaps(sl_buddy->data, rname),
+                       NS_RECEIPTS)) {
+    lm_message_node_set_attribute
+            (lm_message_node_add_child(x->node, "request", NULL),
+             "xmlns", NS_RECEIPTS);
+    *xep184 = lm_message_handler_new(cb_xep184, NULL, NULL);
+  }
+
 #if defined JEP0022 || defined JEP0085
   // If typing notifications are disabled, we can skip all this stuff...
   if (chatstates_disabled || type == ROSTER_TYPE_ROOM)
@@ -492,7 +511,11 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 xmpp_send_msg_no_chatstates:
   if (mystatus != invisible)
     update_last_use();
-  lm_connection_send(lconnection, x, NULL);
+  if (xep184 && *xep184) {
+    lm_connection_send_with_reply(lconnection, x, *xep184, NULL);
+    lm_message_handler_unref(*xep184);
+  } else
+    lm_connection_send(lconnection, x, NULL);
   lm_message_unref(x);
 }
 
@@ -1243,6 +1266,16 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   if (from && (body || subject))
     gotmessage(lm_message_get_sub_type(m), from, body, enc, subject, timestamp,
                lm_message_node_find_xmlns(m->node, NS_SIGNED));
+  //report received message if message receipt was requested
+  if (lm_message_node_get_child(m->node, "request")) {
+    LmMessage *rcvd = lm_message_new(from, LM_MESSAGE_TYPE_MESSAGE);
+    lm_message_node_set_attribute(rcvd->node, "id", lm_message_get_id(m));
+    lm_message_node_set_attribute
+            (lm_message_node_add_child(rcvd->node, "received", NULL),
+             "xmlns", NS_RECEIPTS);
+    lm_connection_send(connection, rcvd, NULL);
+    lm_message_unref(rcvd);
+  }
 
   if (from) {
     x = lm_message_node_find_xmlns(m->node,

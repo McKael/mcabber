@@ -44,6 +44,7 @@ typedef struct {
     time_t timestamp;
     unsigned mucnicklen;
     guint  flags;
+    gpointer xep184;
   } prefix;
 } hbuf_block;
 
@@ -123,7 +124,7 @@ static inline void do_wrap(GList **p_hbuf, GList *first_hbuf_elt,
 // Note 2: width does not include the ending \0.
 void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
         guint prefix_flags, guint width, guint maxhbufblocks,
-        unsigned mucnicklen)
+        unsigned mucnicklen, gpointer xep184)
 {
   GList *curr_elt;
   char *line;
@@ -132,6 +133,8 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
 
   if (!text) return;
 
+  prefix_flags |= (xep184 ? HBB_PREFIX_RECEIPT : 0);
+
   textlen = strlen(text);
   hbb_blocksize = MAX(textlen+1, HBB_BLOCKSIZE);
 
@@ -139,6 +142,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   hbuf_block_elt->prefix.timestamp  = timestamp;
   hbuf_block_elt->prefix.flags      = prefix_flags;
   hbuf_block_elt->prefix.mucnicklen = mucnicklen;
+  hbuf_block_elt->prefix.xep184     = xep184;
   if (!*p_hbuf) {
     hbuf_block_elt->ptr  = g_new(char, hbb_blocksize);
     if (!hbuf_block_elt->ptr) {
@@ -472,6 +476,26 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename)
 
   fclose(fp);
   return;
+}
+
+//  hbuf_remove_receipt(hbuf, xep184)
+// Remove the Receipt Flag for the message with the given xep184 id
+// Returns TRUE if it was found and removed, otherwise FALSE
+gboolean hbuf_remove_receipt(GList *hbuf, gpointer xep184)
+{
+  hbuf_block *blk;
+
+  hbuf = g_list_first(hbuf);
+
+  for ( ; hbuf; hbuf = g_list_next(hbuf)) {
+    blk = (hbuf_block*)(hbuf->data);
+    if (blk->prefix.xep184 == xep184) {
+      blk->prefix.xep184 = NULL;
+      blk->prefix.flags ^= HBB_PREFIX_RECEIPT;
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 //  hbuf_get_blocks_number()

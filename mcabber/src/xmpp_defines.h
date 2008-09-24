@@ -54,6 +54,7 @@
 #define NS_XMPP_DELAY "urn:xmpp:delay"
 #define NS_XMPP_TIME  "urn:xmpp:time"
 #define NS_PING       "urn:xmpp:ping"
+#define NS_RECEIPTS   "urn:xmpp:receipts"
 
 #define NS_JABBERD_STOREDPRESENCE "http://jabberd.org/ns/storedpresence"
 #define NS_JABBERD_HISTORY "http://jabberd.org/ns/history"

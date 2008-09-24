@@ -100,7 +100,8 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
                               time_t timestamp, guint prefix,
                               unsigned mucnicklen);
 void scr_WriteOutgoingMessage(const char *jidto,   const char *text,
-                              guint prefix);
+                              guint prefix, gpointer xep184);
+void scr_RemoveReceiptFlag(const char *jidto, gpointer xep184);
 void scr_ShowBuddyWindow(void);
 int  scr_BuddyBufferExists(const char *jid);
 void scr_UpdateBuddyWindow(void);

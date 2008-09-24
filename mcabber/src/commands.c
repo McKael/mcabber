@@ -1114,6 +1114,7 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
   gint crypted;
   gint retval = 0;
   int isroom;
+  gpointer xep184 = NULL;
 
   if (!lm_connection_is_authenticated(lconnection)) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
@@ -1162,7 +1163,7 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
 
   // Network part
   xmpp_send_msg(fjid, msg, (isroom ? ROSTER_TYPE_ROOM : ROSTER_TYPE_USER),
-                subj, FALSE, &crypted, type_overwrite);
+                subj, FALSE, &crypted, type_overwrite, &xep184);
 
   if (crypted == -1) {
     scr_LogPrint(LPRINT_LOGNORM, "Encryption error.  Message was not sent.");
@@ -1172,7 +1173,7 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
 
   // Hook
   if (!isroom)
-    hk_message_out(bare_jid, rp, 0, hmsg, crypted);
+    hk_message_out(bare_jid, rp, 0, hmsg, crypted, xep184);
 
 send_message_to_return:
   if (hmsg != msg) g_free(hmsg);
@@ -2630,7 +2631,7 @@ static void room_topic(gpointer bud, char *arg)
   arg = to_utf8(arg);
   // Set the topic
   xmpp_send_msg(buddy_getjid(bud), NULL, ROSTER_TYPE_ROOM, arg ? arg : "",
-                FALSE, NULL, LM_MESSAGE_SUB_TYPE_NOT_SET);
+                FALSE, NULL, LM_MESSAGE_SUB_TYPE_NOT_SET, NULL);
   g_free(arg);
 }
 

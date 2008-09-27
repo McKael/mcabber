@@ -37,7 +37,7 @@ jid=$3
 [ "$jid" == "$me" ] && exit 0
 
 # If receiving a message, scan for links
-url=$(cat "$4" | awk 'BEGIN { RS="( |\n|\t)+"; FS="¬"; } /http:\/\// { print $1 }')
+url=$(cat "$4" | awk 'BEGIN { RS="( |\n|\t)+"; FS="¬"; } /(https?|ftp):\/\// { print $1 }')
 
 if [ -n "$url" ]; then
   date=$(/bin/date)

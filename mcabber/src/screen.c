@@ -1351,12 +1351,12 @@ void scr_UpdateMainStatus(int forceupdate)
 
   werase(mainstatusWnd);
   if (info) {
-    char *info_utf8 = from_utf8(info);
+    char *info_locale = from_utf8(info);
     mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s: %s",
               (unread_msg(NULL) ? '#' : ' '),
               imstatus2char[jb_getstatus()],
-              info_utf8, (sm ? sm : ""));
-    g_free(info_utf8);
+              info_locale, (sm ? sm : ""));
+    g_free(info_locale);
   } else
     mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s",
               (unread_msg(NULL) ? '#' : ' '),

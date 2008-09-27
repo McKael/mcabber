@@ -182,7 +182,7 @@ int cfg_read_file(char *filename, guint mainfile)
         startswith(line, "source ", FALSE) ||
         startswith(line, "color ", FALSE)  ||
         startswith(line, "otrpolicy", FALSE)) {
-      // Only accept the set, alias, bind, pgp and source commands
+      // Only accept a few "safe" commands
       if (!runtime &&
           !startswith(line, "set ", FALSE)    &&
           !startswith(line, "bind ", FALSE)   &&

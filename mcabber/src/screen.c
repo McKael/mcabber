@@ -802,8 +802,27 @@ guint scr_getprefixwidth(void)
   return timepreflengths[(n < 3 ? n : 0)];
 }
 
+//  scr_print_logwindow(string)
+// Display the string in the log window.
+// Note: The string must be in the user's locale!
+void scr_print_logwindow(const char *string)
+{
+  time_t timestamp;
+  char strtimestamp[64];
+
+  timestamp = time(NULL);
+  strftime(strtimestamp, 48, "[%H:%M:%S]", localtime(&timestamp));
+  if (Curses) {
+    wprintw(logWnd, "\n%s %s", strtimestamp, string);
+    update_panels();
+  } else {
+    printf("%s %s\n", strtimestamp, string);
+  }
+}
+
 //  scr_LogPrint(...)
-// Display a message in the log window.
+// Display a message in the log window and in the status buffer.
+// Add the message to the tracelog file if the log flag is set.
 // This function will convert from UTF-8 unless the LPRINT_NOTUTF8 flag is set.
 void scr_LogPrint(unsigned int flag, const char *fmt, ...)
 {

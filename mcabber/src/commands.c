@@ -85,6 +85,7 @@ static void do_source(char *arg);
 static void do_color(char *arg);
 static void do_otr(char *arg);
 static void do_otrpolicy(char *arg);
+static void do_echo(char *arg);
 
 static void do_say_internal(char *arg, int parse_flags);
 
@@ -125,9 +126,11 @@ void cmd_init(void)
           COMPL_BUFFER, 0, &do_buffer);
   cmd_add("chat_disable", "Disable chat mode", 0, 0, &do_chat_disable);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
+  cmd_add("color", "Set coloring options", COMPL_COLOR, 0, &do_color);
   cmd_add("connect", "Connect to the server", 0, 0, &do_connect);
   cmd_add("del", "Delete the current buddy", 0, 0, &do_del);
   cmd_add("disconnect", "Disconnect from server", 0, 0, &do_disconnect);
+  cmd_add("echo", "Display a string in the log window", 0, 0, &do_echo);
   cmd_add("event", "Process an event", COMPL_EVENTSID, COMPL_EVENTS, &do_event);
   cmd_add("group", "Change group display settings",
           COMPL_GROUP, COMPL_GROUPNAME, &do_group);
@@ -161,7 +164,6 @@ void cmd_init(void)
   cmd_add("status_to", "Show or set your status for one recipient",
           COMPL_JID, COMPL_STATUS, &do_status_to);
   cmd_add("version", "Show mcabber version", 0, 0, &do_version);
-  cmd_add("color", "Set coloring options", COMPL_COLOR, 0, &do_color);
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");
@@ -3618,5 +3620,12 @@ static void do_help(char *arg)
 {
   help_process(arg);
 }
+
+static void do_echo(char *arg)
+{
+  if (arg)
+    scr_print_logwindow(arg);
+}
+
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

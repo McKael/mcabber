@@ -10,6 +10,7 @@
 // For convenience...
 #define LPRINT_LOGNORM  (LPRINT_NORMAL|LPRINT_LOG)
 
+void scr_print_logwindow(const char *string);
 void scr_LogPrint(unsigned int flag, const char *fmt, ...);
 
 void scr_DoUpdate(void);

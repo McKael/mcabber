@@ -416,6 +416,9 @@ set escdelay = 50
 # Set "log_display_sender" to 1 to display the message sender's jid in the
 # log window (default: 0, no)
 #set log_display_sender = 0
+#
+# Set "info" to anything you'd like to see in your lower status line
+#set info = woot
 
 # Contacts PGP information
 # You can provide a PGP key to be used for a given Jabber user, or

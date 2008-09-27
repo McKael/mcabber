@@ -1328,11 +1328,18 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 void scr_UpdateMainStatus(int forceupdate)
 {
   char *sm = from_utf8(jb_getstatusmsg());
+  const char *info = settings_opt_get("info");
 
   werase(mainstatusWnd);
-  mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s",
-            (unread_msg(NULL) ? '#' : ' '),
-            imstatus2char[jb_getstatus()], (sm ? sm : ""));
+  if (info)
+    mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s: %s",
+              (unread_msg(NULL) ? '#' : ' '),
+              imstatus2char[jb_getstatus()],
+              info, (sm ? sm : ""));
+  else
+    mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s",
+              (unread_msg(NULL) ? '#' : ' '),
+              imstatus2char[jb_getstatus()], (sm ? sm : ""));
   if (forceupdate) {
     top_panel(inputPanel);
     update_panels();

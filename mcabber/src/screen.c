@@ -1331,12 +1331,14 @@ void scr_UpdateMainStatus(int forceupdate)
   const char *info = settings_opt_get("info");
 
   werase(mainstatusWnd);
-  if (info)
+  if (info) {
+    char *info_utf8 = from_utf8(info);
     mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s: %s",
               (unread_msg(NULL) ? '#' : ' '),
               imstatus2char[jb_getstatus()],
-              info, (sm ? sm : ""));
-  else
+              info_utf8, (sm ? sm : ""));
+    g_free(info_utf8);
+  } else
     mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s",
               (unread_msg(NULL) ? '#' : ' '),
               imstatus2char[jb_getstatus()], (sm ? sm : ""));

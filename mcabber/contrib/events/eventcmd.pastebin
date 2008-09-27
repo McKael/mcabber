@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+# event_command url handling script for mcabber
+# by
+#  * Alexander Clouter <alex@digriz.org.uk>
+#  * Jamie Lentin <jamie@lentin.co.uk>
+# 
+# For tinyurl'ing (sending tinyurl's of URL's sent to you
+# resent as a headline to yourself) you set your *own*
+# jabber id for 'me' and it's probably best leaving
+# 'tinyurltrigger' unless you know what you are doing.
+#
+# For pastebin support (dumping the URL as an HTML anchor
+# into a local file that could be exported by a webserver
+# or as a file a web-browser can open) tinker with the
+# pastebin lines.
+#
+# If you want to disable a one of the facilities, just
+# comment out the pair of variables you do not want.
+#
+#set -x
+
+## configuration
+# tinyurl'ifier
+me=jim@jabber.li
+tinyurltrigger=24
+# pastebin support
+pastebin_file=~/bitbucket/stuff/pastebin.html
+pastebin_line_count=10
+
+# Don't do 'owt unless recieving a message
+[ x$1 != xMSG ] && exit 0
+[ x$2 != xIN ] && exit 0
+
+jid=$3
+# do nothing if it's from self
+[ "$jid" == "$me" ] && exit 0
+
+# If receiving a message, scan for links
+url=$(cat "$4" | awk 'BEGIN { RS="( |\n|\t)+"; FS="¬"; } /http:\/\// { print $1 }')
+
+if [ -n "$url" ]; then
+  date=$(/bin/date)
+
+  if [ -n "$me" -a ${#url} -ge $tinyurltrigger ]; then
+    tinyurl=`wget -q -O - http://tinyurl.com/api-create.php?url="$url"`
+
+    echo "say_to -q -h $me <= $jid $url" > ~/.mcabber/mcabber.fifo
+    echo "say_to -q -h $me $tinyurl" > ~/.mcabber/mcabber.fifo
+  fi
+  if [ -n "$pastebin_file" ]; then
+    if [ ! -f "$pastebin_file" ]; then
+      touch "$pastebin_file"
+    fi
+
+    sed -i -e :a -e '$q;N;11,$D;ba' "$pastebin_file"
+    printf '%s (%s): <a href="%s">%s</a><br/>\n' "$date" "$jid" "$url" "$url" >> $pastebin_file
+  fi
+fi
+
+[ -n "$4" ] && rm "$4"
+
+exit 0

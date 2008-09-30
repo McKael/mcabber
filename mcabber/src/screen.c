@@ -144,7 +144,9 @@ typedef struct {
   gint  value;
 } keyseq;
 
+#ifdef HAVE_GLIB_REGEX
 static GRegex *url_regex;
+#endif
 
 GSList *keyseqlist;
 static void add_keyseq(char *seqstr, guint mkeycode, gint value);
@@ -747,9 +749,15 @@ void scr_InitCurses(void)
   inputLine[0] = 0;
   ptr_inputline = inputLine;
 
-  if (settings_opt_get("url_regex"))
+  if (settings_opt_get("url_regex")) {
+#ifdef HAVE_GLIB_REGEX
     url_regex = g_regex_new(settings_opt_get("url_regex"),
                             G_REGEX_OPTIMIZE, 0, NULL);
+#else
+    scr_LogPrint(LPRINT_LOGNORM, "ERROR: Your glib version is too old, "
+                 "cannot use url_regex.");
+#endif // HAVE_GLIB_REGEX
+  }
 
   Curses = TRUE;
   return;
@@ -761,8 +769,10 @@ void scr_TerminateCurses(void)
   clear();
   refresh();
   endwin();
+#ifdef HAVE_GLIB_REGEX
   if (url_regex)
     g_regex_unref(url_regex);
+#endif
   Curses = FALSE;
   return;
 }
@@ -1998,7 +2008,8 @@ void scr_RosterVisibility(int status)
   }
 }
 
-inline void scr_LogUrls(const gchar *string)
+#ifdef HAVE_GLIB_REGEX
+static inline void scr_LogUrls(const gchar *string)
 {
   GMatchInfo *match_info;
   GError *error = NULL;
@@ -2012,6 +2023,7 @@ inline void scr_LogUrls(const gchar *string)
   }
   g_match_info_free(match_info);
 }
+#endif
 
 inline void scr_WriteMessage(const char *bjid, const char *text,
                              time_t timestamp, guint prefix_flags,
@@ -2038,8 +2050,10 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
         ~HBB_PREFIX_PGPCRYPT & ~HBB_PREFIX_OTRCRYPT))
     prefix |= HBB_PREFIX_IN;
 
+#ifdef HAVE_GLIB_REGEX
   if (url_regex)
     scr_LogUrls(text);
+#endif
   scr_WriteMessage(jidfrom, text, timestamp, prefix, mucnicklen);
 }
 

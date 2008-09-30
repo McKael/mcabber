@@ -130,6 +130,12 @@ fi
 # Check for glib
 AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),[g_list_append])
 
+# Check for regex support in glib
+AM_PATH_GLIB_2_0(2.14.0,
+                 AC_DEFINE(HAVE_GLIB_REGEX, 1,
+                           [Define if your glib2 version has regex support]), ,
+                 [g_regex_new])
+
 # Check for gpgme
 AC_ARG_ENABLE(gpgme, AC_HELP_STRING([--disable-gpgme], [disable GPGME support]),
     [ if test x"$enableval" = x"no"; then

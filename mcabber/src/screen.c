@@ -144,6 +144,8 @@ typedef struct {
   gint  value;
 } keyseq;
 
+static GRegex *url_regex;
+
 GSList *keyseqlist;
 static void add_keyseq(char *seqstr, guint mkeycode, gint value);
 
@@ -745,6 +747,10 @@ void scr_InitCurses(void)
   inputLine[0] = 0;
   ptr_inputline = inputLine;
 
+  if (settings_opt_get("url_regex"))
+    url_regex = g_regex_new(settings_opt_get("url_regex"),
+                            G_REGEX_OPTIMIZE, 0, NULL);
+
   Curses = TRUE;
   return;
 }
@@ -755,6 +761,8 @@ void scr_TerminateCurses(void)
   clear();
   refresh();
   endwin();
+  if (url_regex)
+    g_regex_unref(url_regex);
   Curses = FALSE;
   return;
 }
@@ -1990,6 +1998,21 @@ void scr_RosterVisibility(int status)
   }
 }
 
+inline void scr_LogUrls(const gchar *string)
+{
+  GMatchInfo *match_info;
+  GError *error = NULL;
+
+  g_regex_match_full(url_regex, string, -1, 0, 0, &match_info, &error);
+  while (g_match_info_matches(match_info)) {
+    gchar *url = g_match_info_fetch(match_info, 0);
+    scr_print_logwindow(url);
+    g_free(url);
+    g_match_info_next(match_info, &error);
+  }
+  g_match_info_free(match_info);
+}
+
 inline void scr_WriteMessage(const char *bjid, const char *text,
                              time_t timestamp, guint prefix_flags,
                              unsigned mucnicklen)
@@ -2015,6 +2038,8 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
         ~HBB_PREFIX_PGPCRYPT & ~HBB_PREFIX_OTRCRYPT))
     prefix |= HBB_PREFIX_IN;
 
+  if (url_regex)
+    scr_LogUrls(text);
   scr_WriteMessage(jidfrom, text, timestamp, prefix, mucnicklen);
 }
 

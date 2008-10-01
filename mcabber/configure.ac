@@ -128,12 +128,11 @@ if test "$mc_cv_ncurses_escdelay" = yes; then
 fi
 
 # Check for glib
-AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),[g_list_append])
-
-# Check for regex support in glib
 AM_PATH_GLIB_2_0(2.14.0,
-                 AC_DEFINE(HAVE_GLIB_REGEX, 1,
-                           [Define if your glib2 version has regex support]), ,
+                 [AC_DEFINE(HAVE_GLIB_REGEX, 1,
+                            [Define if GLib has regex support])],
+                 [AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),
+                                  [g_list_append])],
                  [g_regex_new])
 
 # Check for gpgme

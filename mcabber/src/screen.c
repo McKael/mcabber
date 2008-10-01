@@ -1722,13 +1722,16 @@ void scr_UpdateChatStatus(int forceupdate)
 
   // No status message for MUC rooms
   if (!ismuc) {
-    GSList *resources, *p_res;
+    GSList *resources, *p_res, *p_next_res;
     resources = buddy_getresources(BUDDATA(current_buddy));
-    msg = buddy_getstatusmsg(BUDDATA(current_buddy),
-                             resources ? resources->data : "");
-    // Free the resources list data
-    for (p_res = resources ; p_res ; p_res = g_slist_next(p_res))
+
+    for (p_res = resources ; p_res ; p_res = p_next_res) {
+      p_next_res = g_slist_next(p_res);
+      // Store the status message of the latest resource (highest priority)
+      if (!p_next_res)
+        msg = buddy_getstatusmsg(BUDDATA(current_buddy), p_res->data);
       g_free(p_res->data);
+    }
     g_slist_free(resources);
   } else {
     msg = buddy_gettopic(BUDDATA(current_buddy));

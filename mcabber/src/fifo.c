@@ -146,6 +146,7 @@ void fifo_read(void)
   if (getbuf) {
     guint logflag;
     char *eol = buf;
+    guint fifo_ignore = settings_opt_get_int("fifo_ignore");
 
     // Strip trailing newlines
     for ( ; *eol ; eol++)
@@ -159,9 +160,12 @@ void fifo_read(void)
       logflag = LPRINT_LOG;
     else
       logflag = LPRINT_LOGNORM;
-    scr_LogPrint(logflag, "Executing FIFO command: %s", buf);
-    if (process_command(buf, TRUE) == 255)
-      mcabber_set_terminate_ui();
+    scr_LogPrint(logflag, "%s FIFO command: %s",
+                 (fifo_ignore ? "Ignoring" : "Executing"), buf);
+    if (!fifo_ignore) {
+      if (process_command(buf, TRUE) == 255)
+        mcabber_set_terminate_ui();
+    }
   } else {
     if (feof(sfd))
       fifo_init(NULL);  // Reopen the FIFO on EOF

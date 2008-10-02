@@ -1928,8 +1928,11 @@ static void do_rename(char *arg)
     scr_RosterUp();
   } else {
     // Rename a single buddy
-    buddy_setname(bud, name_utf8);
-    jb_updatebuddy(bjid, name_utf8, group);
+    guint del_name = 0;
+    if (!*newname || !strcmp(arg, "-"))
+      del_name = TRUE;
+    buddy_setname(bud, (del_name ? (char*)bjid : name_utf8));
+    jb_updatebuddy(bjid, (del_name ? NULL : name_utf8), group);
   }
 
   g_free(name_utf8);

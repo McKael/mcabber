@@ -2810,6 +2810,7 @@ static void display_all_bookmarks(void)
 {
   GSList *bm, *bmp;
   GString *sbuf;
+  struct bookmark *bm_elt;
 
   bm = jb_get_all_storage_bookmarks();
 
@@ -2822,7 +2823,17 @@ static void display_all_bookmarks(void)
                            0, HBB_PREFIX_INFO, 0);
 
   for (bmp = bm; bmp; bmp = g_slist_next(bmp)) {
-    g_string_printf(sbuf, "<%s>", (char*)bmp->data);
+    bm_elt = bmp->data;
+    g_string_printf(sbuf, "%c <%s>",
+                    (bm_elt->autojoin ? '*' : ' '), bm_elt->roomjid);
+    if (bm_elt->nick)
+      g_string_append_printf(sbuf, " (%s)", bm_elt->nick);
+    if (bm_elt->name)
+      g_string_append_printf(sbuf, " %s", bm_elt->name);
+    g_free(bm_elt->roomjid);
+    g_free(bm_elt->name);
+    g_free(bm_elt->nick);
+    g_free(bm_elt);
     scr_WriteIncomingMessage(NULL, sbuf->str,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
   }

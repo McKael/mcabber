@@ -1428,7 +1428,7 @@ const char *jb_get_bookmark_nick(const char *bjid)
 
 //  jb_get_all_storage_bookmarks()
 // Return a GSList with all storage bookmarks.
-// The caller should g_free the list (not the MUC jids).
+// The caller should g_free the list and its contents.
 GSList *jb_get_all_storage_bookmarks(void)
 {
   xmlnode x;
@@ -1444,10 +1444,23 @@ GSList *jb_get_all_storage_bookmarks(void)
     const char *p = xmlnode_get_name(x);
     // If the node is a conference item, let's add the note to our list.
     if (p && !strcmp(p, "conference")) {
+      struct bookmark *bm_elt;
+      const char *autojoin, *name, *nick;
       const char *fjid = xmlnode_get_attrib(x, "jid");
       if (!fjid)
         continue;
-      sl_bookmarks = g_slist_append(sl_bookmarks, (char*)fjid);
+      bm_elt = g_new0(struct bookmark, 1);
+      bm_elt->roomjid = g_strdup(fjid);
+      autojoin = xmlnode_get_attrib(x, "autojoin");
+      nick = xmlnode_get_attrib(x, "nick");
+      name = xmlnode_get_attrib(x, "name");
+      if (autojoin && !strcmp(autojoin, "1"))
+        bm_elt->autojoin = 1;
+      if (nick)
+        bm_elt->nick = g_strdup(nick);
+      if (name)
+        bm_elt->name = g_strdup(name);
+      sl_bookmarks = g_slist_append(sl_bookmarks, bm_elt);
     }
   }
   return sl_bookmarks;

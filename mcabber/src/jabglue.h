@@ -42,6 +42,15 @@ struct annotation {
   gchar *text;
 };
 
+struct bookmark {
+  gchar *roomjid;
+  gchar *name;
+  gchar *nick;
+  guint autojoin;
+  /* enum room_printstatus pstatus; */
+  /* enum room_autowhois awhois; */
+};
+
 char *jidtodisp(const char *fjid);
 char *compose_jid(const char *username, const char *servername,
                   const char *resource);

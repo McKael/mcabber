@@ -120,7 +120,8 @@ void ut_WriteLog(unsigned int flag, const char *data)
       scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot open tracelog file");
       return;
     }
-    fputs(data, fp);
+    if (fputs(data, fp) == EOF)
+      scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot write to tracelog file");
     fclose(fp);
   }
 }

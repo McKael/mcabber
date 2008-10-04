@@ -1,4 +1,4 @@
 
- /ECHO message
+ /ECHO повідомлення
 
-Display "message" in the log window.
+Друкує "повідомлення" у вікно повідомлень.

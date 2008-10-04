@@ -1,6 +1,6 @@
 
  /SAY [-n|-h|--] testo
 
-Manda il messaggio "testo" al contatto correntemente selezionato. Può essere utile se vuoi inviare un messaggio che comincia, per esempio, con uno slash (/).
+Manda il messaggio "testo" al contatto correntemente selezionato. PuÃ² essere utile se vuoi inviare un messaggio che comincia, per esempio, con uno slash (/).
 
-L'opzione "-n" trasforma il messaggio in "normale", "-h" in "headline". "--" può essere utilizzato per inviare messaggi che comincino con -n o -h.
+L'opzione "-n" trasforma il messaggio in "normale", "-h" in "headline". "--" puÃ² essere utilizzato per inviare messaggi che comincino con -n o -h.

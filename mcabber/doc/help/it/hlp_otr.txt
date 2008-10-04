@@ -5,7 +5,7 @@
  /OTR smpq|smpr [jid] secret
  /OTR smpa [jid]
 
-Si può usare '.' per indicare il contatto correntemente selezionato.
+Si puÃ² usare '.' per indicare il contatto correntemente selezionato.
 
 /otr key
  Stampa nel buffer di stato la fingerprint della propria chiave privata
@@ -17,7 +17,7 @@ Si può usare '.' per indicare il contatto correntemente selezionato.
  Mostra lo stato dell'OTR per il contatto specificato, o quello correntemente selzionato
 /otr fingerprint [jid [fpr]]
  Mostra la fingerprint attiva per il canale OTR.
- Se la fingerprint viene fornita al posto di "fpr", allora la fingerprint viene considerata affidabile. Se si sostituisce "fpr" con quelche stringa casuale, la fingerprint perderà il proprio stato di affidabile.
+ Se la fingerprint viene fornita al posto di "fpr", allora la fingerprint viene considerata affidabile. Se si sostituisce "fpr" con quelche stringa casuale, la fingerprint perderÃ  il proprio stato di affidabile.
 /otr smpq [jid] secret
  Attiva il Socialist Millionaires Protocl con il secret ed il jid specificato
 /otr smpr [jid] secret

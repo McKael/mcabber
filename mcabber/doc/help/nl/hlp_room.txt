@@ -15,7 +15,7 @@ Het 'room' commando verzorgt de Multi-User Chat (MUC) room acties.
 /room nick nieuwenick
  Verander je nickname in de huidige chatroom
 /room privmsg nick bericht
- Verstuur privé bericht "bericht" aan "nick"
+ Verstuur privÃ© bericht "bericht" aan "nick"
 /room remove
  Verwijdert de huidige chatroom van het roster (je moet deze chatroom tevoren hebben verlaten)
 /room topic nieuwonderwerp

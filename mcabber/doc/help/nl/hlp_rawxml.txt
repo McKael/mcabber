@@ -5,6 +5,6 @@ Verstuur "string" (raw XML formaat) naar de Jabber server.
 De aangegeven string wordt op geen enkele wijze gecontroleerd.
 
 PAS OP!
-Gebruik dit alleen indien je weet wat je doet, je kunt hiermee de verbinding abrupt beëindigen.
+Gebruik dit alleen indien je weet wat je doet, je kunt hiermee de verbinding abrupt beÃ«indigen.
 
 Voorbeeld: "/rawxml send <presence><show>away</show></presence>"

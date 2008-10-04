@@ -1,4 +1,4 @@
 
  /CLEAR
 
-Questo comando è di fatto un alias per "/buffer clear". Svuota la finestra di chat del contatto corrente.
+Questo comando Ã¨ di fatto un alias per "/buffer clear". Svuota la finestra di chat del contatto corrente.

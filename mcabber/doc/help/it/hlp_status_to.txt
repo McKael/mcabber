@@ -3,6 +3,6 @@
  /STATUS_TO jid message StatusMessage
 
 Manda lo stato richiesto all'utente jabber specificato.
-Se il jid specificato Ë ".", viene usato il contatto corrente.
-Nota: questo stato verr‡ sovrascritto dal comando "/status" successivo. Lo stato verr‡ sovrascritto anche se utilizzi la funzionalit‡ di auto-away.
-Nota: il jid puÚ includere una risorsa (es: user@server/risorsa).
+Se il jid specificato √® ".", viene usato il contatto corrente.
+Nota: questo stato verr√† sovrascritto dal comando "/status" successivo. Lo stato verr√† sovrascritto anche se utilizzi la funzionalit√† di auto-away.
+Nota: il jid pu√≤ includere una risorsa (es: user@server/risorsa).

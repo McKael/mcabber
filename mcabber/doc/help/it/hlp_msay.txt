@@ -2,22 +2,22 @@
  /MSAY begin|verbatim|send|send_to|toggle|abort
 
 Invia un messaggio multilinea. Per scrivere un singolo messaggio di diverse linee, deve essere usato il modo 'multi-line'.
-In modo multi-line, ogni linea (eccetto i comandi) inserita viene aggiunta al messaggio. Una volta che il messaggio Ë finito, puÚ essere spedito al contatto corrente con il comando "/msay send".
+In modo multi-line, ogni linea (eccetto i comandi) inserita viene aggiunta al messaggio. Una volta che il messaggio √® finito, pu√≤ essere spedito al contatto corrente con il comando "/msay send".
 Il sottocomando 'begin' abilita il modo multi-linea. Notate che consente di specificare un oggetto per il messaggio.
-Il modo multi-linea 'verbatim' disabilita i comandi, in modo da consentire l'inserimento di linee che cominciano con uno slash. Solo il comando "msay" (con i parametre 'send' o 'abort') puÚ essere usato per uscire dalla modalit‡ multi-linea.
-Il sottocomando 'toggle' puÚ essere associato ad un tasto per utilizzare il modo multi-linea velocemente (per esempio, "bind M13 = msay toggle" per attivare/disattivare ;a modalit‡ con la combinazione Meta-Enter).
+Il modo multi-linea 'verbatim' disabilita i comandi, in modo da consentire l'inserimento di linee che cominciano con uno slash. Solo il comando "msay" (con i parametre 'send' o 'abort') pu√≤ essere usato per uscire dalla modalit√† multi-linea.
+Il sottocomando 'toggle' pu√≤ essere associato ad un tasto per utilizzare il modo multi-linea velocemente (per esempio, "bind M13 = msay toggle" per attivare/disattivare ;a modalit√† con la combinazione Meta-Enter).
 
 /msay begin [oggetto]
- Entra in modalit‡ multi-linea
+ Entra in modalit√† multi-linea
 /msay verbatim
- Entra in modalit‡ multi-linea verbatim
+ Entra in modalit√† multi-linea verbatim
 /msay send [-n|-h]
  Invia il messaggio multi-linea al contatto correntemente selezionato
 /msay send_to [-n|-h] jid
  Invia il messaggio multi-linea a "jid"
 /msay toggle
- Entra ed esce dalla modalit‡ multi-linea
+ Entra ed esce dalla modalit√† multi-linea
 /msay abort
- Abbandona la modalit‡ multi-linea senza spedire il messaggio
+ Abbandona la modalit√† multi-linea senza spedire il messaggio
 
 Le opzioni -n o -h modificano il messaggio in "normal" o "headline" rispettivamente.

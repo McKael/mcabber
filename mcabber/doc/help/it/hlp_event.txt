@@ -3,13 +3,13 @@
  /EVENT list
 
 Istruisce mcabber su cosa fare per gli eventi in attesa.
-Se il primo parametro Ë '*', il comando verr‡ eseguito su tutti gli eventi in attesa.
+Se il primo parametro √® '*', il comando verr√† eseguito su tutti gli eventi in attesa.
 
 /event #N|* accept
- L'evento numero #N/All verr‡ accettato
+ L'evento numero #N/All verr√† accettato
 /event #N|* ignore
- L'evento numero #N/All verr‡ ignorato
+ L'evento numero #N/All verr√† ignorato
 /event #N|* reject
- L'evento numero #N/All verr‡ rifiutato
+ L'evento numero #N/All verr√† rifiutato
 /event list
  Elenca tutti gli eventi in attesa

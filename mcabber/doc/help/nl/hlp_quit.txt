@@ -1,4 +1,4 @@
 
  /QUIT
 
-Dit commando sluit alle verbindingen af en beëindigt mcabber.
+Dit commando sluit alle verbindingen af en beÃ«indigt mcabber.

@@ -1,4 +1,4 @@
 
  /CHAT_DISABLE [--show-roster]
 
-Disabilita la modalit‡ chat
+Disabilita la modalit√† chat

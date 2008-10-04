@@ -10,7 +10,7 @@ Nota che la cifratura PGP non viene utilizzate se non viene rilevato alcun suppo
 /pgp enable [jid]
  Abilita la cifratura PGP per jid (o per il contatto correntemente selezionato)
 /pgp [+|-]force [jid]
- Forza l'uso della cifratura PGP, anche per i messaggi offline, e suppone che il destinatario abbia il supporto per PGP. Se non messaggio non può essere cifrato (perchè manca la chiave o l'id della chiave), il messaggio non viene spedito. Questa opzione viene ignorata se il supporto per PGP è disabilitato
+ Forza l'uso della cifratura PGP, anche per i messaggi offline, e suppone che il destinatario abbia il supporto per PGP. Se non messaggio non puÃ² essere cifrato (perchÃ¨ manca la chiave o l'id della chiave), il messaggio non viene spedito. Questa opzione viene ignorata se il supporto per PGP Ã¨ disabilitato
 /pgp info [jid]
  Mostra le impostazioni PGP per il contatto
 /pgp setkey [jid [chiave]]

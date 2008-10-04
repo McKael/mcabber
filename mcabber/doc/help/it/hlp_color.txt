@@ -8,12 +8,12 @@ Il comando 'color' consente di impostare dinamicamente i colori dello schermo.
 /color roster clear
  Rimuove tutte le regole relative ai colori dal roster. Tutti gli elementi del roster verranno visualizzati con i colori di default.
 /color roster status wildcard colore
- Imposta una regola colore (o la sostituisce nel caso esista gi‡). Lo stato Ë una stringa che contiene tutti gli stati che gli elementi del roster devono assumere per soddisfare la regola, oppure * se vanno bene tutti gli stati. Wildcard viene applicata a JID; colore e` il colore desiderato.
- Se colore Ë -, la regola viene rimossa.
- Se pi˘ di una regola Ë soddisfatta, viene utilizzato il colore dell'ultima regola creata (non sovrascritta).
+ Imposta una regola colore (o la sostituisce nel caso esista gi√†). Lo stato √® una stringa che contiene tutti gli stati che gli elementi del roster devono assumere per soddisfare la regola, oppure * se vanno bene tutti gli stati. Wildcard viene applicata a JID; colore e` il colore desiderato.
+ Se colore √® -, la regola viene rimossa.
+ Se pi√π di una regola √® soddisfatta, viene utilizzato il colore dell'ultima regola creata (non sovrascritta).
 /color mucnick nick (colore|-|!)
- Colora il nick con il colore scelto. Se una MUC utilizza nick colorati, verranno usati questi ultimi. Se colore Ë -, il colore viene selezionato automaticamente, il che significa che non verr‡ utilizzata nel modo 'preset', ma rimarr‡ inalterato in modalit‡ 'on'. Se il colore Ë !, verr‡ selezionato un colore casuale.
+ Colora il nick con il colore scelto. Se una MUC utilizza nick colorati, verranno usati questi ultimi. Se colore √® -, il colore viene selezionato automaticamente, il che significa che non verr√† utilizzata nel modo 'preset', ma rimarr√† inalterato in modalit√† 'on'. Se il colore √® !, verr√† selezionato un colore casuale.
 /color muc (jid|.|*) [on|preset|off|-]
- Imposta una modalit‡ di colorazione dei nick. Se un jid (ovvero il jid correntemente selezionato) viene specificato, la modalit‡ si applicher‡ alla MUC prescelta. Se viene utilizzato *, la modalit‡ si applicher‡ a tutte le MUC, escluse quelle impostate tramite il proprio jid.
- Il modo 'on' colora tutti i nick, 'preset' solamente quelli impostati manualmente con il comando /color mucnick e off non ne colora nessuno. Il default Ë 'on'. Il modo '-' rimuove la modalit‡ per il JID specificato, il che significa che verranno utilizzati i colori impostati globalmente. I colori impostati globalmente non possono essere rimossi.
- Il default della colorazione globale Ë 'off'.
+ Imposta una modalit√† di colorazione dei nick. Se un jid (ovvero il jid correntemente selezionato) viene specificato, la modalit√† si applicher√† alla MUC prescelta. Se viene utilizzato *, la modalit√† si applicher√† a tutte le MUC, escluse quelle impostate tramite il proprio jid.
+ Il modo 'on' colora tutti i nick, 'preset' solamente quelli impostati manualmente con il comando /color mucnick e off non ne colora nessuno. Il default √® 'on'. Il modo '-' rimuove la modalit√† per il JID specificato, il che significa che verranno utilizzati i colori impostati globalmente. I colori impostati globalmente non possono essere rimossi.
+ Il default della colorazione globale √® 'off'.

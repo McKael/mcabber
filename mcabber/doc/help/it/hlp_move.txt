@@ -2,4 +2,4 @@
  /MOVE [gruppo]
 
 Muove il contatto corrente nel gruppo richiesto. Se non viene specificato alcun gruppo, il contatto viene spostato nel gruppo si default. Se il gruppo "gruppo" non esiste, viene creato.
-Trucco: se la modalit‡ chat Ë abilitata, puoi usare "/roster alternate" per spostarti sul contatto appena mosso.
+Trucco: se la modalit√† chat √® abilitata, puoi usare "/roster alternate" per spostarti sul contatto appena mosso.

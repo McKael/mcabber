@@ -7,7 +7,7 @@
 Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
 
 /room join [stanza [nick [pass]]]
- Entra nella "stanza", utilizzando "nick" come nickname. Se non viene specificato un nickname (o se la stringa Ë vuota), viene utilizzato il valore dell'opzione "nickname" (vedi il file di configurazione di esempio). Se l'elemento correntemente selezionato viene riconosciuto da mcabber come una stanza, si puÚ utilizzare "." al posto dell'id completo. Si puÚ inserire una password per entrare nelle stanza protette. Se il nickname contiene spazi, usate gli apici.
+ Entra nella "stanza", utilizzando "nick" come nickname. Se non viene specificato un nickname (o se la stringa √® vuota), viene utilizzato il valore dell'opzione "nickname" (vedi il file di configurazione di esempio). Se l'elemento correntemente selezionato viene riconosciuto da mcabber come una stanza, si pu√≤ utilizzare "." al posto dell'id completo. Si pu√≤ inserire una password per entrare nelle stanza protette. Se il nickname contiene spazi, usate gli apici.
 
 /room leave [message]
  Abbandona la stanza corrente
@@ -36,15 +36,15 @@ Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
 /room kick nick [motivo]
  Caccia "nick" dalla stanza corrente
 /room role jid role [motivo]
- Cambia il ruolo di jid (il ruolo puÚ essere "none", "visitor", "participant", "moderator")
+ Cambia il ruolo di jid (il ruolo pu√≤ essere "none", "visitor", "participant", "moderator")
 /room affil jid affil [motivo]
- Cambia l'affiliazione di jid (l'affiliazione puÚ essere "none", "member", "admin", "owner")
+ Cambia l'affiliazione di jid (l'affiliazione pu√≤ essere "none", "member", "admin", "owner")
 /room setopt print_status|auto_whois [value]
  Cambia le impostazioni della stanza corrente.
  Per l'opzione print_status i valori possibili sono "default", "none", "in_and_out", "all".
  Per auto_whois, i valori possibili sono "default", "off", "on".
- Quando il valore Ë impostato a "default", vengono usate le opzioni muc_print_status / muc_auto_whois.
+ Quando il valore √® impostato a "default", vengono usate le opzioni muc_print_status / muc_auto_whois.
 /room bookmark [add|del] [-autojoin|+autojoin]
  Aggiunge, rimuove o aggiorna un bookmark (di default aggiunge).
- Se Ë impostato l'autojoin, mcabber entrer‡ automaticamente nella stanza quando si connette al server.
+ Se √® impostato l'autojoin, mcabber entrer√† automaticamente nella stanza quando si connette al server.
  Per visualizzare l'elenco dei bookmark, utilizzare /room bookmark nel buffer di stato.

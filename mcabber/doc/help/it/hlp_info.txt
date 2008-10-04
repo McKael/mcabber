@@ -2,4 +2,4 @@
  /INFO
 
 Visualizza le informazione per l'entry selezionata (utente, agente, gruppo...).
-Per gli utenti vengono visualizzati lo stato, la priorit‡ ed il messaggio di stato (se disponibile).
+Per gli utenti vengono visualizzati lo stato, la priorit√† ed il messaggio di stato (se disponibile).

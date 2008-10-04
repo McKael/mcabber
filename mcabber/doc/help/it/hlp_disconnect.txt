@@ -2,4 +2,4 @@
  /DISCONNECT
 
 Termina la connessione con il serve Jabber.
-Nota: il roster è disponibile soltanto quando la connessione è attiva, quindi la lista dei contatti è vuota quando si è disconnessi.
+Nota: il roster Ã¨ disponibile soltanto quando la connessione Ã¨ attiva, quindi la lista dei contatti Ã¨ vuota quando si Ã¨ disconnessi.

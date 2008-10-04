@@ -23,7 +23,7 @@ Ecco i parametri disponibili.
 /roster group_next
  Salta al gruppo successivo
 /roster alternate
- Salta al conatto alternativo. Il contatto alternatico Ë l'ultimo contatto con cui hai parlato in modalit‡ chat. Questo comando Ë quindi utlie dopo comandi quali "/roster unread_next" (Ctrl-q).
+ Salta al conatto alternativo. Il contatto alternatico √® l'ultimo contatto con cui hai parlato in modalit√† chat. Questo comando √® quindi utlie dopo comandi quali "/roster unread_next" (Ctrl-q).
 /roster unread_first
  Salta al primo messaggio non letto
 /roster unread_next
@@ -34,7 +34,7 @@ Ecco i parametri disponibili.
  Mostra o aggiorna il filtro per il roster.
  La maschera consiste di una lettera corrispondente allo stato che vuoi visualizzare ([o]nline, [f]ree_for_chat, [d]o_not_disturb, [n]ot_available, [a]way, [_]offline).
  Per esempio, "ofdna" mostra solo i contatti connessi.
- "*" puÚ essere usato come scorciatoio per visualizzare tutti i contatti.
+ "*" pu√≤ essere usato come scorciatoio per visualizzare tutti i contatti.
 /roster hide_offline
  Nasconde i contatti offline (come /roster display ofdna)
 /roster show_offline

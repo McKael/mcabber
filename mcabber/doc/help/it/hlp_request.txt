@@ -4,7 +4,7 @@
 Invia una query "IQ" al contatto corrente, od all'utente jabber specificato. Se la risorsa non viene specificata con il jid, mcabber invia un richiesta per tutte le risorse conosciute per l'utente.
 
 /request last
- Richiede l'informazione "last" (solitamente il tempo di inattivit‡)
+ Richiede l'informazione "last" (solitamente il tempo di inattivit√†)
 /request time
  Richiede l'ora al contatto
 /request vcard

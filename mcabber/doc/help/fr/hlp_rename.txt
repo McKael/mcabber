@@ -1,4 +1,4 @@
 
  /RENAME nom
 
-Renomme le contact/groupe sélectionné avec le "nom" spécifié.
+Renomme le contact/groupe sélectionné avec le "nom" spécifié. Si le nom est «-», le nom est supprimé du roster (et mcabber affichera le JID ou le nom d'utilisateur).

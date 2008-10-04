@@ -1,4 +1,4 @@
 
  /RENAME name
 
-Rename the current buddy or group to the given "name".  If "name" is -, the name is removed from the roster (and mcabber will display the jid or username).
+Rename the current buddy or group to the given "name".  If "name" is -, the name is removed from the roster (and mcabber will display the JID or username).

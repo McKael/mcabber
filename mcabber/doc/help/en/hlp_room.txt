@@ -20,7 +20,7 @@ The 'room' command handles Multi-User Chat room actions.
  Remove the current room from the roster (you must have left this room before)
 /room topic -|newtopic
  Set topic for current room
- The topic is cleared if newtopic is "-".
+ (The topic is cleared if newtopic is "-")
 /room unlock
  Unlock current room (if you are the owner)
 /room destroy [reason]

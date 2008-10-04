@@ -39,3 +39,4 @@ Cette commande permet de gérer les tampons de discussions avec les différents 
 /buffer scroll_toggle
  Bascule (inverse) le verrouillage de ce tampon
 /buffer save filename
+ Enregistre le contenu du tampon courant dans le fichier filename

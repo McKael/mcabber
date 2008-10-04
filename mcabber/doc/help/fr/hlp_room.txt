@@ -19,7 +19,8 @@ Cette commande permet de gérer les salons de discussions MUC (Multi-User Chat).
 /room remove
  Supprime le salon sélectionné du roster (il faut avoir quitté ce salon d'abord)
 /room topic nouveau_sujet
- Met un sujet au salon de discussion
+ Change le sujet du salon de discussion
+ (Si nouveau_sujet est «-», le sujet est effacé)
 /room unlock
  Déverrouille le salon sélectionné (si vous en êtes le propriétaire)
 /room destroy [raison]

@@ -2,3 +2,4 @@
  /CHAT_DISABLE [--show-roster]
 
 Cette commande permet de désactiver le mode « discussion ».
+Avec l'option --show-roster, le mode plein écran est désactivé.

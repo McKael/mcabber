@@ -1,6 +1,6 @@
 
  /COLOR roster (status wildcard (color|-)|clear)
- /COLOR mucnick nick (color|-|!)
+ /COLOR mucnick nick (color|-)
  /COLOR muc (jid|.|*) [on|preset|off|-]
 
 Polecenie 'color' pozwala zarządzać kolorami ekranu w sposób dynamiczny.
@@ -15,8 +15,8 @@ Polecenie 'color' pozwala zarządzać kolorami ekranu w sposób dynamiczny.
  'color' to kolor, którego chcemy użyć.
  Jeśli 'color' ustawimy na wartość -, reguła jest usuwana.
  Jeśli więcej niż jedna reguła pasuje, wybierany jest kolor z ostatnio stworzonej (nie nadpisanej) reguły.
-/color mucnick nick (color|-|!)
- Ustawia kolor dla danego nicka. Jeżeli MUC jest w trybie kolorowania nicków(patrz niżej) ten kolor zostanie użyty. Ustawienie 'color' na wartość - oznacza automatyczne kolorowanie, co oznacza, że kolor nie będzie użyty w trybie kolorowania 'preset' ale pozostanie taki sam w trybie kolorowania 'on'. Jeżeli kolor zostanie ustawiony na '!' nowy kolor zostanie wybrany losowo i oznaczony automatycznie.
+/color mucnick nick (color|-)
+ Ustawia kolor dla danego nicka. Jeżeli MUC jest w trybie kolorowania nicków(patrz niżej) ten kolor zostanie użyty. Ustawienie 'color' na wartość - oznacza automatyczne kolorowanie, co oznacza, że kolor nie będzie użyty w trybie kolorowania 'preset' ale pozostanie taki sam w trybie kolorowania 'on'.
 /color muc (jid|.|*) [on|preset|off|-]
  Ustawia tryb kolorowania MUCa. Jeżeli zostanie podany 'jid' ('.' oznacza aktualnie wybrany) - tryb zostanie ustawiony dla konkretnego MUCa. Jeżeli zostanie użyta wartość '*' tryb zostanie ustawiony dla wszystkich MUCów, wyłączając te ustawione przez 'jid'.
  Tryb 'on' koloruje wszystkie nicki. Tryb 'preset' tylko te ręcznie ustawione przez polecenie /color mucnick, 'off' natomiast wyłącza kolorowanie. Tryb 'on' ustawiany jest domyślnie(jeżeli nie zostanie podany żaden z powyższych). Tryb '-' usuwa ustawienia trybu dla danego 'jid', co oznacza, że użyty zostanie dla niego tryb globalny. Trybu globalnego nie można usunąć.

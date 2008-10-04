@@ -1,6 +1,6 @@
 
  /COLOR roster (status joker (kleur|-)|clear)
- /COLOR mucnick nick (kleur|-|!)
+ /COLOR mucnick nick (kleur|-)
  /COLOR muc (jid|.|*) [on|preset|off|-]
 
 Met het 'color' commando kunnen dynamisch de kleur eigenschappen van het scherm worden aangepast.
@@ -11,8 +11,8 @@ Met het 'color' commando kunnen dynamisch de kleur eigenschappen van het scherm 
  Stel een kleur in (of overschrijf een bestaande definitie). 'Status' is een tekst die alle mogelijke statusen beschrijft waarin een roster element zich mag bevinden om bij de definitie te passen, of '*' indien elke status OK is. 'Joker' is een patroon (zoals ook gebruikt wordt voor het passen op bestandsnamen) dat op de JID toegepast zal worden. 'Kleur' is de gewenste kleur.
  Indien de waarde voor kleur '-' is, wordt de kleur-definitie verwijderd.
  Wanneer meer dan een definitie van toepassing is, wordt de kleur gebruikt van de laatst aangemaakte (niet overschreven) definitie.
-/color mucnick nick (kleur|-|!)
- Markeert de nick met de aangegeven kleur. ALs een MUC gekleurde nicks heeft, wordt deze kleur gebruikt. Indien de waarde voor kleur '-' is, wordt de kleur beschouwd als 'automatisch'. Dat betekent dat hij niet wordt gebruikt in 'preset' (voorkeur) kleurmode, en onveranderd blijft in 'on' (aan) kleurmode. Indien de waarde voor kleur '!' is, wordt een willekeurige nieuwe kleur gekozen die dan als 'automatisch' wordt gemarkeerd.
+/color mucnick nick (kleur|-)
+ Markeert de nick met de aangegeven kleur. ALs een MUC gekleurde nicks heeft, wordt deze kleur gebruikt. Indien de waarde voor kleur '-' is, wordt de kleur beschouwd als 'automatisch'. Dat betekent dat hij niet wordt gebruikt in 'preset' (voorkeur) kleurmode, en onveranderd blijft in 'on' (aan) kleurmode.
 /color muc (jid|.|*) [on|preset|off|-]
  Stel de kleurmode van een MUC in. Indien een JID ('.' staat voor de geselecteerde JID) wordt vermeld zal de kleur-definitie voor deze specifieke MUC gelden. Als '*' wordt gebruikt, geldt de kleur-definitie voor alle MUCs behalve degene die zelf een specifieke instelling hebben.
  Mode 'on' (aan) kleurt alle nicks, 'preset' (voorkeur) alleen de nicks voor wie de kleur handmatig is ingesteld via het /color mucnick commando; en 'off' (uit) kleurt geen enkele nick. Indien niet expliciet aangegeven, is de standaard instelling 'on' (aan). Mode '-' verwijdert de mode van de aangegeven JID, wat betekent dat de globale instelling van toepassing zal zijn. De globale mode kan niet worden verwijderd.

@@ -2620,10 +2620,8 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       // Display inside the room window
       if (r == s) {
         // No specific resource (this is certainly history)
-        if (subj)
+        if (subj && *subj)
           mbuf = g_strdup_printf("The topic has been set to: %s", subj);
-        else
-          mbuf = g_strdup_printf("The topic has been cleared");
       } else {
         if (subj)
           mbuf = g_strdup_printf("%s has set the topic to: %s", r, subj);

@@ -70,6 +70,7 @@ void mcabber_connect(void)
 {
   const char *username, *password, *resource, *servername;
   const char *proxy_host;
+  const char *resource_prefix = PACKAGE_NAME;
   char *dynresource = NULL;
   char *fjid;
   int ssl;
@@ -138,16 +139,18 @@ void mcabber_connect(void)
   // We can't free the ca*_xp variables now, because they're not duplicated
   // in cw_set_ssl_options().
 
-  if (!resource) {
+  if (!resource)
+    resource = resource_prefix;
+
+  if (!settings_opt_get("disable_random_resource")) {
 #if HAVE_ARC4RANDOM
-    dynresource = g_strdup_printf("%s.%08x", PACKAGE_NAME, arc4random());
+    dynresource = g_strdup_printf("%s.%08x", resource, arc4random());
 #else
     unsigned int tab[2];
     srand(time(NULL));
     tab[0] = (unsigned int) (0xffff * (rand() / (RAND_MAX + 1.0)));
     tab[1] = (unsigned int) (0xffff * (rand() / (RAND_MAX + 1.0)));
-    dynresource = g_strdup_printf("%s.%04x%04x", PACKAGE_NAME,
-                                  tab[0], tab[1]);
+    dynresource = g_strdup_printf("%s.%04x%04x", resource, tab[0], tab[1]);
 #endif
     resource = dynresource;
   }

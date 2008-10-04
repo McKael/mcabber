@@ -20,8 +20,13 @@ set username = yourusername
 #set password = yourpassword
 set server = your.jabber.server
 #set port = 5222
+#
 # If you don't know what a resource is, do not set it.
+# Set disable_random_resource to 1 if you don't want mcabber to add a random
+# suffix to the resource name.
 #set resource = mcabber
+#set disable_random_resource = 0
+#
 #set priority = 3
 #set priority_away = 0
 
@@ -292,7 +297,7 @@ set cmdhistory_lines = 250
 #set muc_disable_nick_hl = 0
 
 # Status messages
-# The "message" value will override all others, take care!
+# The 'message' value will override all others, take care!
 #set message = Unique message status
 #set message_avail     = I'm available
 #set message_free      = I'm free for chat
@@ -370,7 +375,7 @@ set escdelay = 50
 #color mucnick my_friend yellow
 
 # Style
-# Note: the "log_win_height" and "roster_width" values below can be set
+# Note: the 'log_win_height' and 'roster_width' values below can be set
 # in real time when mcabber is running.  Refresh the screen (Ctrl-l) to
 # use the new values.
 #
@@ -379,7 +384,7 @@ set escdelay = 50
 # Buddylist window width (minimum 2, default 24)
 #set roster_width=24
 #
-# The options "log_win_on_top" and "roster_win_on_right" can change the
+# The options 'log_win_on_top' and 'roster_win_on_right' can change the
 # position of the log window (top/bottom) and the position of the roster
 # (left/right).
 #set log_win_on_top = 0
@@ -406,7 +411,7 @@ set escdelay = 50
 # When a contact sends "/me ", mcabber displays "*user ", where user
 # is the local part of the contact's jid.
 # If you want mcabber to display the complete bare jid (user@server.com),
-# set "buddy_me_fulljid" to 1 (default: 0)
+# set 'buddy_me_fulljid' to 1 (default: 0)
 #set buddy_me_fulljid = 1
 #
 # Display the status changes in the log window (default: 0, never)
@@ -417,14 +422,15 @@ set escdelay = 50
 # Values:  0: never  1: only connect/disconnect  2: all
 #set show_status_in_buffer = 1
 #
-# Set "log_display_sender" to 1 to display the message sender's jid in the
+# Set 'log_display_sender' to 1 to display the message sender's jid in the
 # log window (default: 0, no)
 #set log_display_sender = 0
 #
-# Set "info" to anything you'd like to see in your lower status line
+# Set 'info' to anything you'd like to see in your lower status line.
 #set info = woot
-# Set url_regex to a regular expression matching urls. If it matches an url
-# in an incoming messages, it'll print it to the log window.
+#
+# Set 'url_regex' to a regular expression matching urls. If it matches an
+# url in an incoming messages, it'll print it to the log window.
 #set url_regex = "(((https?|ftps?|nntp)://)|www[.][-a-z0-9.]+|(mailto:|news:))(%[0-9A-F]{2}|[-_.!~*';/?:@&=+$,#[:alnum:]])+"
 
 # Contacts PGP information

@@ -1,6 +1,25 @@
 mcabber (0.9.8-dev)
 
- * 
+ * [UI] A new message flag (O) shows when OTR is used
+ * [UI] For folded groups, the number of unfiltered contacts is
+   displayed (franky)
+ * MCabber adds a random resource suffix by default
+   There is a new option 'disable_random_resource' to disable it.
+ * New command: /buffer save (save the contents of a buffer to a file)
+ * New command: /echo (display a message in the log window)
+ * New option 'fifo_ignore' (Suggested by T. Glaser)
+ * New option 'info' to display arbitrary strings in the status bar (franky)
+ * New option 'iq_hide_requests'
+ * New option 'url_regex' to extract URLs and display them in the log
+   window (franky)
+ * New pastebin/tiny-er event script (Alexander Clouter/Jamie Lentin)
+ * /roster hide/toggle doesn't automatically enable chat mode anymore
+ * '#' is displayed on the buddy status line when the current contact has
+   unread messages (M. Vuets)
+ * /room bookmark shows more information (autojoin, nick...)
+ * [MUC] Nickname colors now depend on nicknames (M. Vuets)
+ * [MUC] The topic can be cleared
+ * [OTR] Fix JID case issue (franky)
 
  -- Mikael, ?
 

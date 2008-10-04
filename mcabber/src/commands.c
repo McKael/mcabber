@@ -2584,9 +2584,14 @@ static void room_topic(gpointer bud, char *arg)
     return;
   }
 
+  // If arg is "-", let's clear the topic
+  if (!strcmp(arg, "-"))
+    arg = NULL;
+
   arg = to_utf8(arg);
   // Set the topic
-  jb_send_msg(buddy_getjid(bud), NULL, ROSTER_TYPE_ROOM, arg, NULL, NULL, NULL);
+  jb_send_msg(buddy_getjid(bud), NULL, ROSTER_TYPE_ROOM, arg ? arg : "",
+              NULL, NULL, NULL);
   g_free(arg);
 }
 

@@ -2594,13 +2594,20 @@ static void handle_packet_message(jconn conn, char *type, char *from,
     enc = p;
 
   p = xmlnode_get_tag_data(xmldata, "subject");
-  if (p != NULL) {
+
+  if (xmlnode_get_tag(xmldata, "subject")) {
     if (!type || strcmp(type, TMSG_GROUPCHAT)) {  // Chat message
       subject = p;
     } else {                                      // Room topic
       GSList *roombuddy;
       gchar *mbuf;
       gchar *subj = p;
+
+      // In a groupchat message, the subject can be NULL when
+      // the topic is cleared!
+      if (!p)
+        p = "";
+
       // Get the room (s) and the nickname (r)
       s = g_strdup(from);
       r = strchr(s, JID_RESOURCE_SEPARATOR);
@@ -2613,9 +2620,15 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       // Display inside the room window
       if (r == s) {
         // No specific resource (this is certainly history)
-        mbuf = g_strdup_printf("The topic has been set to: %s", subj);
+        if (subj)
+          mbuf = g_strdup_printf("The topic has been set to: %s", subj);
+        else
+          mbuf = g_strdup_printf("The topic has been cleared");
       } else {
-        mbuf = g_strdup_printf("%s has set the topic to: %s", r, subj);
+        if (subj)
+          mbuf = g_strdup_printf("%s has set the topic to: %s", r, subj);
+        else
+          mbuf = g_strdup_printf("%s has cleared the topic", r);
       }
       scr_WriteIncomingMessage(s, mbuf, 0,
                                HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);

@@ -1,7 +1,8 @@
 
- /BUFFER [clear|close|close_all|purge|list]
- /BUFFER [top|bottom|date|%|search_backward|search_forward]
- /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
+ /BUFFER clear|close|close_all|purge|list
+ /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER scroll_lock|scroll_unlock|scroll_toggle
+ /BUFFER save filename
 
 Команда для управления буфером (от переводчика: историей переписки) с пользователеми jabber. То есть, Вы можете искать текст прямо в буфере (истории переписки), очищать окно чата и т.д.
 
@@ -16,7 +17,7 @@
 /buffer bottom
  Перемещает к концу буфера (истории переписки) с текущим пользователем
 /buffer list
- Выводит список всех буферов вместе с количеством содержащихся в них строк/блоков. 
+ Выводит список всех буферов вместе с количеством содержащихся в них строк/блоков.
 /buffer top
  Перемещает к началу буфера (истории переписки) с текущим пользователем
 /buffer up [n]
@@ -37,3 +38,4 @@
  Разблокирует скроллинг (прокрутку) буфера (истории переписки)
 /buffer scroll_toggle
  Показывает настоящее значение скроллинга (прокрутки) (заблокировано/разблокировано)
+/buffer save filename

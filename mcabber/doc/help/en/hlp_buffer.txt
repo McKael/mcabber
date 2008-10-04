@@ -1,7 +1,8 @@
 
- /BUFFER [clear|close|close_all|purge|list]
- /BUFFER [top|bottom|date|%|search_backward|search_forward]
- /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
+ /BUFFER clear|close|close_all|purge|list
+ /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER scroll_lock|scroll_unlock|scroll_toggle
+ /BUFFER save filename
 
 Buddy's buffer manipulation command.  Eg. you can search through buffer for "text", clear chat window etc.
 
@@ -37,3 +38,5 @@ Buddy's buffer manipulation command.  Eg. you can search through buffer for "tex
  Unlock buffer scrolling
 /buffer scroll_toggle
  Toggle buffer scrolling (lock/unlock)
+/buffer save filename
+ Save the contents of the current buffer to the file "filename"

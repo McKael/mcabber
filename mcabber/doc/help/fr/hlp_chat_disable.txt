@@ -1,4 +1,4 @@
 
- /CHAT_DISABLE
+ /CHAT_DISABLE [--show-roster]
 
 Cette commande permet de désactiver le mode « discussion ».

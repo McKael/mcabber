@@ -1,7 +1,8 @@
 
- /BUFFER [clear|close|close_all|purge|list]
- /BUFFER [top|bottom|date|%|search_backward|search_forward]
- /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
+ /BUFFER clear|close|close_all|purge|list
+ /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER scroll_lock|scroll_unlock|scroll_toggle
+ /BUFFER save filename
 
 Befehl um den Puffer für den momentan ausgewählten Buddy zu verändern. Man kann zum Beispiel suchen, das Chatfenster leeren, usw...
 
@@ -37,3 +38,4 @@ Befehl um den Puffer für den momentan ausgewählten Buddy zu verändern. Man ka
  Scrollen des Puffers erlauben
 /buffer scroll_toggle
  Scrollen des Puffers ein-/ausschalten
+/buffer save filename

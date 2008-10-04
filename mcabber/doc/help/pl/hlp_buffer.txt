@@ -1,7 +1,8 @@
 
- /BUFFER [clear|close|close_all|purge|list]
- /BUFFER [top|bottom|date|%|search_backward|search_forward]
- /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
+ /BUFFER clear|close|close_all|purge|list
+ /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER scroll_lock|scroll_unlock|scroll_toggle
+ /BUFFER save filename
 
 Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. przeszukać bufor rozmowy w poszukiwaniu podanego wyrazu, możemy wyczyścić zawartość bufora itp.
 
@@ -37,3 +38,4 @@ Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. pr
  Odblokowuje możliwość przesuwania tekstu w buforze
 /buffer scroll_toggle
  Zmienia stan (blokowanie/odblokowanie) przesuwania w buforze
+/buffer save filename

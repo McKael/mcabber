@@ -1,7 +1,8 @@
 
- /BUFFER [clear|close|close_all|purge|list]
- /BUFFER [top|bottom|date|%|search_backward|search_forward]
- /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
+ /BUFFER clear|close|close_all|purge|list
+ /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER scroll_lock|scroll_unlock|scroll_toggle
+ /BUFFER save filename
 
 Comandi per la manipolazione del buffer del contatto. Per esempio, è possibile cercare nel buffer la parola "text", pulire la finestra della chat etc.
 
@@ -37,3 +38,4 @@ Comandi per la manipolazione del buffer del contatto. Per esempio, è possibile c
  Sblocca lo scorrimento del buffer
 /buffer scroll_toggle
  Cambia la modalità di scorrimento del buffer (bloccato/sbloccato)
+/buffer save filename

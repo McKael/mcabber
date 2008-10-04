@@ -1,4 +1,5 @@
 
- /CHAT_DISABLE
+ /CHAT_DISABLE [--show-roster]
 
 Disable chat mode.
+With --show-roster, the fullscreen mode will be disabled.

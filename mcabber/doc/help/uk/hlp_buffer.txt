@@ -1,7 +1,8 @@
 
- /BUFFER [clear|close|close_all|purge|list]
- /BUFFER [top|bottom|date|%|search_backward|search_forward]
- /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
+ /BUFFER clear|close|close_all|purge|list
+ /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER scroll_lock|scroll_unlock|scroll_toggle
+ /BUFFER save filename
 
 Різноманітні операції з буфером розмови. Наприклад, ви можете шукати деякий текст в буфері, очистити вікно розмови, ітп.
 
@@ -37,3 +38,4 @@
  Зняти заборону переміщення буферу.
 /buffer scroll_toggle
  Переключити стан буферу (дозволене/не дозволене переміщення).
+/buffer save filename

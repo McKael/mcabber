@@ -1,7 +1,8 @@
 
- /BUFFER [clear|close|close_all|purge|list]
- /BUFFER [top|bottom|date|%|search_backward|search_forward]
- /BUFFER [scroll_lock|scroll_unlock|scroll_toggle]
+ /BUFFER clear|close|close_all|purge|list
+ /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER scroll_lock|scroll_unlock|scroll_toggle
+ /BUFFER save filename
 
 Cette commande permet de gérer les tampons de discussions avec les différents contacts. Par exemple vous pouvez rechercher un texte, effacer la fenêtre de discussion, etc.
 
@@ -37,3 +38,4 @@ Cette commande permet de gérer les tampons de discussions avec les différents 
  Déverrouille le défilement de ce tampon
 /buffer scroll_toggle
  Bascule (inverse) le verrouillage de ce tampon
+/buffer save filename

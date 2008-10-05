@@ -193,6 +193,7 @@ void mcabber_connect(void)
 
 static void mcabber_terminate(const char *msg)
 {
+  fifo_deinit();
   jb_disconnect();
   scr_TerminateCurses();
 

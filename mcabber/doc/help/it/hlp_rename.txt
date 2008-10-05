@@ -1,4 +1,4 @@
 
  /RENAME nome
 
-Rinomina il contatto od il gruppo correnti usando "nome".
+Rinomina il contatto od il gruppo correnti usando "nome". Se si specifica - come "nome", il nome viene rimosso dal roster, ed al suo posto verranno visulizzati il JID o lo username.

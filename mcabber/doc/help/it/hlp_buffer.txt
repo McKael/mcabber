@@ -38,4 +38,5 @@ Comandi per la manipolazione del buffer del contatto. Per esempio, è possibile 
  Sblocca lo scorrimento del buffer
 /buffer scroll_toggle
  Cambia la modalità di scorrimento del buffer (bloccato/sbloccato)
-/buffer save filename
+/buffer save file
+ Salva il contenuto del buffer corrente in <file>

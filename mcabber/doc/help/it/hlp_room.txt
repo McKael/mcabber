@@ -20,7 +20,7 @@ Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
 /room remove
  Rimuove la stanza corrente dal roster (devi prima lasciare la stanza)
 /room topic argomento
- Imposta l'argomento della stanza corrente
+ Imposta l'argomento della stanza corrente. Se si specifica come "argomento" -, l'argomento viene cancellato.
 /room unlock
  Sblocca la stanza corrente (se ne sei il proprietario)
 /room destroy [reason]

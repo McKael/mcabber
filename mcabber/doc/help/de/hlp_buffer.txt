@@ -39,3 +39,4 @@ Befehl um den Puffer für den momentan ausgewählten Buddy zu verändern. Man ka
 /buffer scroll_toggle
  Scrollen des Puffers ein-/ausschalten
 /buffer save filename
+ Speichert den Inhalt des aktuellen Puffers in der Datei "filename"

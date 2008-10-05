@@ -18,8 +18,9 @@ Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
  Schickt die private Nachricht "msg" an "nick"
 /room remove
  Löscht diesen Raum vom Roster, sofern du ihn davor verlassen hast
-/room topic newtopic
+/room topic -|newtopic
  Setzt das Thema auf "newtopic"
+ (mit "-" wird das Thema gelöscht)
 /room unlock
  Entfernt das Passwort bei einem geschütztem Raum(wenn du der Besitzer bist)
 /room destroy [reason]

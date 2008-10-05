@@ -1,4 +1,4 @@
 
  /ECHO message
 
-Display "message" in the log window.
+Gibt "message" in dem Logfenster aus.

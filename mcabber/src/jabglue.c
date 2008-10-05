@@ -2600,7 +2600,7 @@ static void handle_packet_message(jconn conn, char *type, char *from,
       subject = p;
     } else {                                      // Room topic
       GSList *roombuddy;
-      gchar *mbuf;
+      gchar *mbuf = NULL;
       gchar *subj = p;
 
       // In a groupchat message, the subject can be NULL when
@@ -2628,12 +2628,14 @@ static void handle_packet_message(jconn conn, char *type, char *from,
         else
           mbuf = g_strdup_printf("%s has cleared the topic", r);
       }
-      scr_WriteIncomingMessage(s, mbuf, 0,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
-      if (settings_opt_get_int("log_muc_conf"))
-        hlog_write_message(s, 0, -1, mbuf);
+      if (mbuf) {
+        scr_WriteIncomingMessage(s, mbuf, 0,
+                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
+        if (settings_opt_get_int("log_muc_conf"))
+          hlog_write_message(s, 0, -1, mbuf);
+        g_free(mbuf);
+      }
       g_free(s);
-      g_free(mbuf);
       // The topic is displayed in the chat status line, so refresh now.
       scr_UpdateChatStatus(TRUE);
     }

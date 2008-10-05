@@ -423,7 +423,7 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename)
 {
   hbuf_block *blk;
   hbb_line line;
-  guint last_persist_prefixflags;
+  guint last_persist_prefixflags = 0;
   guint prefixwidth;
   char pref[96];
   FILE *fp;

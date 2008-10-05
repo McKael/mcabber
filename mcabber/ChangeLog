@@ -1,4 +1,4 @@
-mcabber (0.9.8-dev)
+mcabber (0.9.8)
 
  * [UI] A new message flag (O) shows when OTR is used
  * [UI] For folded groups, the number of unfiltered contacts is
@@ -20,8 +20,9 @@ mcabber (0.9.8-dev)
  * [MUC] Nickname colors now depend on nicknames (M. Vuets)
  * [MUC] The topic can be cleared
  * [OTR] Fix JID case issue (franky)
+ * More bugfixes and improvements (see detailed changelog)
 
- -- Mikael, ?
+ -- Mikael, 2008-10-05
 
 mcabber (0.9.7)
 

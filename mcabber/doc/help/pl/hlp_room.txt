@@ -18,8 +18,9 @@ Polecenie 'room' służy do obsługi wieloużytkownikowych chat-room'ów.
  Wysyła prywatną wiadomość [wiadomość] do osoby "nick"
 /room remove
  Usuwa aktualny pokój z listy kontaktów (musisz najpierw opuścić pokój)
-/room topic
- Ustawia temat w aktualnym pokoju
+/room topic -|newtopic
+ Ustawia temat dla aktualnego pokoju
+ (Użycie "-" spowoduje wyczyszczenie tematu)
 /room unlock
  Odblokowuje aktualny pokój (jeśli jesteś jego właścicielem)
 /room destroy [powód]

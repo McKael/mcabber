@@ -1,4 +1,4 @@
 
- /ECHO message
+ /ECHO wiadomość
 
-Display "message" in the log window.
+Wypisuje "wiadomość" oknie logowania.

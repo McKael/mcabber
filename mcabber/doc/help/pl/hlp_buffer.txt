@@ -39,3 +39,4 @@ Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. pr
 /buffer scroll_toggle
  Zmienia stan (blokowanie/odblokowanie) przesuwania w buforze
 /buffer save filename
+ Zapisuje zawartość aktualnego bufora do pliku o nazwie "filename"

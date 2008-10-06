@@ -2,3 +2,4 @@
  /CHAT_DISABLE [--show-roster]
 
 Wyłączenie trybu rozmowy.
+Użycie --show-roster wyłącza tryb pełnoekranowy.

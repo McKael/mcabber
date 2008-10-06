@@ -1,4 +1,4 @@
 
  /RENAME nazwa
 
-Zmienia nazwę aktualnej osoby lub grupy na "nazwa".
+Zmienia nazwę aktualnej osoby lub grupy na "nazwa". Jeżeli jako argument polecenia zostanie podany "-" wcześniejsza nazwa zostanie usunięta z listy kontaktów (mcabber będzie wyświetlał JID lub nazwę użytkownika). 

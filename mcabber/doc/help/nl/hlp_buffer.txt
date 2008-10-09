@@ -2,7 +2,7 @@
  /BUFFER clear|close|close_all|purge|list
  /BUFFER top|bottom|date|%|search_backward|search_forward
  /BUFFER scroll_lock|scroll_unlock|scroll_toggle
- /BUFFER save filename
+ /BUFFER save bestandsnaam
 
 Manipuleer de chat buffer van de actieve buddy.  Je kunt bijvoorbeeld de buffer doorzoeken op "tekst", het chat venster wissen etc.
 
@@ -38,4 +38,5 @@ Manipuleer de chat buffer van de actieve buddy.  Je kunt bijvoorbeeld de buffer 
  Scrollen van de buffer toegestaan
 /buffer scroll_toggle
  Omschakelen van het scrollen van de buffer (toestaan/blokkeren)
-/buffer save filename
+/buffer save bestandsnaam
+ Sla de chat buffer op in bestand met naam 'bestandsnaam'

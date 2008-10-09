@@ -1,4 +1,4 @@
 
  /RENAME naam
 
-Hernoem de actieve buddy of groep in de aangegeven "naam".
+Hernoem de actieve buddy of groep in de aangegeven "naam". Indien '-' wordt gebruikt als 'naam', wordt die uit het roster verwijderd (en mcabber zal vervolgens de JID of gebruikersnaam tonen).

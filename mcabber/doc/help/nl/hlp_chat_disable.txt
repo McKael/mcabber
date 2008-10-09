@@ -2,3 +2,4 @@
  /CHAT_DISABLE [--show-roster]
 
 Chat mode uitzetten.
+Met --show-roster wordt de volledige-scherm modus uitgezet.

@@ -18,8 +18,9 @@ Het 'room' commando verzorgt de Multi-User Chat (MUC) room acties.
  Verstuur privé bericht "bericht" aan "nick"
 /room remove
  Verwijdert de huidige chatroom van het roster (je moet deze chatroom tevoren hebben verlaten)
-/room topic nieuwonderwerp
+/room topic -|nieuwonderwerp
  Stel een nieuw onderwerp in voor de huidige chatroom
+ (Het onderwerp wordt gewist indien '-' wordt gebruikt voor "nieuwonderwerp")
 /room unlock
  Ontsluit de huidige chatroom (indien je de eigenaar bent)
 /room destroy [reden]

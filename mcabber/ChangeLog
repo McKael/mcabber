@@ -1,8 +1,10 @@
-mcabber (0.9.9-dev)
+mcabber (0.9.9)
 
- * 
+ * Fix uninitialized pointer (reported by T. Glaser)
+ * New Czech translation
+ * Update PL and NL help files
 
- -- Mikael, ?
+ -- Mikael, 2008-10-09
 
 mcabber (0.9.8)
 

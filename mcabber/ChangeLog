@@ -1,3 +1,9 @@
+mcabber (0.9.10-dev)
+
+ * 
+
+ -- Mikael, ?
+
 mcabber (0.9.9)
 
  * Fix uninitialized pointer (reported by T. Glaser)

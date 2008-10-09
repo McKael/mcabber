@@ -1,6 +1,7 @@
 mcabber (0.9.9)
 
  * Fix uninitialized pointer (reported by T. Glaser)
+ * Clean up FIFO on SIGTERM (T. Glaser)
  * New Czech translation
  * Update PL and NL help files
 

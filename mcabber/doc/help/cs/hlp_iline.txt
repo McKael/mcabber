@@ -1,0 +1,63 @@
+
+ /ILINE fchar|bchar|char_fdel|char_bdel|char_swap
+ /ILINE fword|bword|word_bdel|word_fdel
+ /ILINE word_upcase|word_downcase|word_capit
+ /ILINE hist_beginning_search_bwd|hist_beginning_search_fwd
+ /ILINE hist_prev|hist_next
+ /ILINE iline_start|iline_end|iline_fdel|iline_bdel
+ /ILINE iline_accept|iline_accept_down_hist
+ /ILINE compl_do|compl_cancel
+ /ILINE send_multiline
+
+Zpracovává příkazy týkající se vstupního příkazového řádku.
+
+/iline fchar
+ Posune se na následující znak.
+/iline bchar
+ Posune se na předchozí znak.
+/iline char_fdel
+ Smaže znak pod kurzorem.
+/iline char_bdel
+ Smaže předchozí znak.
+/iline char_swap
+ Přehodí znaky.
+/iline fword
+ Posune kurzor na konec aktuálního nebo dalšího slova.
+/iline bword
+ Posune kurzor zpět na začátek aktuálního nebo předchozího slova.
+/iline word_bdel
+ Smaže slovo od pozice kurzoru po jeho začátek.
+/iline word_fdel
+ Smaže slovo od pozice kurzoru po jeho konec.
+/iline word_upcase
+ Převede slovo od pozice kurzoru po jeho konec na velká písmena.
+/iline word_downcase
+ Převede slovo od pozice kurzoru po jeho konec na malá písmena.
+/iline word_capit
+ Nastaví znak na pozici kurzoru na velké písmeno a další písmena do konce slova na malá.
+/iline hist_beginning_search_bwd
+ Vyhledá zpětně v historii příkazů řádek začínající aktuálním řádkem až po pozici kurzoru (ponechá kurzor na původní pozici).
+/iline hist_beginning_search_fwd
+ Vyhledá dopředně v historii příkazů řádek začínající aktuálním řádkem až po pozici kurzoru (ponechá kurzor na původní pozici).
+/iline hist_prev
+ Posune se na předchozí řádek v historii příkazů.
+/iline hist_next
+ Posune se na následující řádek v historii příkazů.
+/iline iline_start
+ Přejde na začátek příkazového řádku.
+/iline iline_end
+ Přejde na konec příkazového řádku.
+/iline iline_fdel
+ Smaže vše od pozice kurzoru do konce řádku.
+/iline iline_bdel
+ Smaže vše od začátku řádku do pozice kurzoru.
+/iline iline_accept
+ Akceptuje řádek.
+/iline iline_accept_down_hist
+ Akceptuje řádek a vloží následující řádek z historie příkazů na vstupní řádek.
+/iline compl_do
+ Doplní aktuální slovo na příkazovém řádku.
+/iline compl_cancel
+ Zruší doplňování.
+/iline send_multiline
+ Pošle/ukončí víceřádkovou zprávu.

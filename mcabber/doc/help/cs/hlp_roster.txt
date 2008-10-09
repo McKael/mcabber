@@ -1,0 +1,58 @@
+
+ /ROSTER bottom|top|up|down|group_prev|group_next
+ /ROSTER alternate|unread_first|unread_next
+ /ROSTER search co
+ /ROSTER display|hide_offline|show_offline|toggle_offline
+ /ROSTER item_lock|item_unlock|item_toggle_lock
+ /ROSTER hide|show|toggle
+ /ROSTER note [-|text]
+
+Slouží k manipulaci se seznamem kontaktů (rosterem).
+
+/roster bottom
+ Přesune se na spodek seznamu kontaktů.
+/roster top
+ Přesune se na vršek seznamu kontaktů.
+/roster up
+ Posune se nahoru v seznamu kontaktů.
+/roster down
+ Posune se dolů v seznamu kontaktů.
+/roster group_prev
+ Přesune se na předchozí skupinu.
+/roster group_next
+ Přesune se na následující skupinu.
+/roster alternate
+ Přesune se na alternující kontakt. Alternující kontakt je ten naposledy opuštěný při režimu rozhovoru. Příkaz je vhodné použít po příkazu "/roster unread_next" (Ctrl+q).
+/roster unread_first
+ Přesune se na první kontakt s nepřečtenou zprávou.
+/roster unread_next
+ Přesune se na následující kontakt s nepřečtenou zprávou.
+/roster search co
+ Vyhledá kontakt se jménem nebo jid obsahující řetězec 'co' (pouze v zobrazovaném seznamu kontaktů).
+/roster display [maska]
+ Zobrazí nebo nastaví filtr pro seznam kontaktů.
+ 'maska' by měla obsahovat písmena stavů, které se mají zobrazovat. Možnosti jsou [o]nline, [f]ree_for_chat (volně k dispozici), [d]o_not_disturb (nevyrušovat), [n]ot_available (nepřítomen), [a]way (na chvíli pryč) a [_]offline (vypnuto nebo neviditelný).
+ Například 'ofdna' zobrazí pouze připojené kontakty.
+ Znak '*' může být použit pro zobrazení všech kontaktů.
+/roster hide_offline
+ Skryje uživatele ve stavu offline (to samé jako "/roster display ofdna").
+/roster show_offline
+ Zobrazí i uživatele ve stavu offline (to samé jako "/roster display ofdna_").
+/roster toggle_offline
+ Přepíná zobrazení uživatelů ve stavu offline (skrývá/zobrazuje).
+/roster item_lock [jid]
+ Zamkne položku v seznamu kontaktů, že zůstává zobrazena bez ohledu na stav.
+/roster item_unlock [jid]
+ Zruší zámek u položky v seznamu kontaktů.
+/roster item_toggle_lock [jid]
+ Přepíná zámek u položky v seznamu kontaktů (zamyká/odemyká).
+/roster hide
+ Skryje seznam kontaktů (zobrazí okno rozhovoru na plnou šířku).
+/roster show
+ Zobrazí seznam kontaktů.
+/roster toggle
+ Přepíná zobrazení seznamu kontaktů (skrývá/zobrazuje).
+/roster note [-|text]
+ Nastaví, aktualizuje nebo vymaže poznámku.
+ Není-li zadán 'text', zobrazí se aktuální poznámka k položce. Při spuštění ve stavovém okně se zobrazí všechny poznámky.
+ Je-li místo textu znak '-', poznámka se vymaže.

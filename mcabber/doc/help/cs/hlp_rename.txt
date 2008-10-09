@@ -1,0 +1,4 @@
+
+ /RENAME jméno
+
+Přejmenuje aktuálního uživatele nebo skupinu na 'jméno'. Je-li 'jméno' znak '-', dané jméno se odstraní ze seznamu kontaktů (rosteru) a zobrazí se 'jid'.

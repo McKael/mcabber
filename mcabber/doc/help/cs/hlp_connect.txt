@@ -1,0 +1,4 @@
+
+ /CONNECT
+
+Naváže spojení s Jabber serverem.

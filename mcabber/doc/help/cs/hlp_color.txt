@@ -1,0 +1,19 @@
+
+ /COLOR roster (zkrácené_stavy maska (barva|-)|clear)
+ /COLOR mucnick přezdívka (barva|-)
+ /COLOR muc (jid|.|*) [on|preset|off|-]
+
+Umožní dynamicky nastavovat barvy v programu.
+
+/color roster clear
+ Odstraní všechna pravidla pro nastavení barev v seznamu kontaktů (rosteru). Všechny položky budou mít výchozí barvu.
+/color roster zkrácené_stavy maska barva
+ Nastaví pravidlo pro barvu (nebo ho přepíše, pokud již existuje). 'zkrácené_stavy' je řetězec obsahující všechny požadované stavy, které má pravidlo zpracovávat (např. 'ofdna'), nebo znak '*' pro libovolný stav položky seznamu kontaktů. 'maska' je maska obsahující divoké znaky aplikovaná na 'jid' (např. 'mikael*') a 'barva' je požadovaná barva (např. 'red').
+ Je-li místo barvy znak '-', pravidlo se odstraní.
+ Vyhovuje-li více než jedno pravidlo, použije se barva z posledního vytvořeného (nikoliv přepsaného) pravidla.
+/color mucnick přezdívka (barva|-)
+ Označí účastníka konference se jménem 'přezdívka' pro obarvování barvou 'barva'. Pokud místnost používá obarvování, tato barva bude použita. Je-li jako barva použit znak '-', bude barva vybrána automaticky, nikoliv však v režimu 'preset' (viz dále), ale zůstane stále stejná v režimu 'on'.
+/color muc (jid|.|*) [on|preset|off|-]
+ Nastaví režim obarvování účastníků v konferenční místnosti (MUC). Je-li uvedeno 'jid' (nebo znak '.' znamenající aktuálně vybranou položku), režim se bude týkat jen dané místnosti. Při použití znaku '*' se bude nastavení aplikovat pro všechny místnosti mimo těch, které byly nastaveny pomocí jejich 'jid'.
+ Režim 'on' obarvuje všechny přezdívky účastníků, 'preset' jen ty ručně nastavené příkazem "/color mucnick" a 'off' obarvováví vypne. Není-li režim uveden, je výchozím režim 'on'. Režim '-' odstraní obarvování daného 'jid', takže se použije globální nastavení. Globální nastavení nelze odstranit.
+ Výchozí globální nastavení obarvování je 'off'.

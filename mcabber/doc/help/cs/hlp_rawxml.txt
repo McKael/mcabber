@@ -1,0 +1,10 @@
+
+ /RAWXML send řetězec
+
+Pošle 'řetězec' (v holém XML formátu) Jabber serveru.
+Neprovádí žádné kontroly řetězce.
+
+POZOR!
+Používejte tuto funkci, jen když víte, co děláte, jinak můžete způsobit přerušení spojení.
+
+Příklad: "/rawxml send <presence><show>away</show></presence>"

@@ -1,0 +1,5 @@
+
+ /HELP [příkaz|+téma]
+
+Zobrazí nápovědu k příkazu nebo tématu.
+Příklad: "/help buffer"

@@ -1,0 +1,15 @@
+
+ /ALIAS [název [= příkazová_řádka]]
+
+Umožní přidávat zkrácené zástupce (aliasy) pro zjednodušení zadávání složitejších příkazů.
+
+/alias
+ Zobrazí přehled aktuálně definovaných aliasů.
+/alias název
+ Vypíše hodnotu aliasu s názvem 'název'.
+/alias název=
+ Vymaže alias s názvem 'název'.
+/alias název = příkazová_řádka
+ Nastaví alias s názvem 'název' na hodnotu 'příkazová_řádka'.
+
+Příklad: "/alias away = status away"

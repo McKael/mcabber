@@ -1,0 +1,5 @@
+
+ /CHAT_DISABLE [--show-roster]
+
+Přepne se z módu rozhovoru.
+S parametrem '--show-roster' zruší i celoobrazovkový mód a zobrazí seznam kontaktů (roster).

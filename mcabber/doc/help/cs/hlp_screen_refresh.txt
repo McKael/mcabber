@@ -1,0 +1,5 @@
+
+ /SCREEN_REFRESH
+
+Překreslí obrazovku programu (Ctrl+l).
+Tip: Příkaz je vhodné použít po příkazech měnících vzhled obrazovky jako jsou "/set roster_width" nebo "/set log_win_height" apod.

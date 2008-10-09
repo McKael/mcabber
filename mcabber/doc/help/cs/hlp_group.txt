@@ -1,0 +1,11 @@
+
+ /GROUP fold|unfold|toggle [skupina]
+
+Změní aktuální pohled na skupinu kontaktů.
+
+/group fold [skupina]
+ Sbalí aktuální resp. uvedenou skupinu v seznamu kontaktů (rosteru).
+/group unfold [skupina]
+ Rozbalí aktuální resp. uvedenou skupinu v seznamu kontaktů (rosteru).
+/group toggle [skupina]
+ Přepne pohled (sbaleno/rozbaleno) u aktuální resp. uvedené skupiny v seznamu kontaktů (rosteru).

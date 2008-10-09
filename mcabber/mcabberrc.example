@@ -95,7 +95,7 @@ set ssl = 0
 # Language
 # Help files have been translated into a few languages.
 # You can set lang to one of the following values: en (default),
-# de, fr, it, nl, pl, ru, uk.
+# cs, de, fr, it, nl, pl, ru, uk.
 #set lang = en
 
 # Aspell

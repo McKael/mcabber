@@ -1,0 +1,4 @@
+
+ /SET volba [= hodnota]
+
+Zobrazí nebo nastaví hodnotu pro danou volbu. Volby odpovídají položkám v konfiguračním souboru.

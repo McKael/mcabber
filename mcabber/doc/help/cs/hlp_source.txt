@@ -1,0 +1,4 @@
+
+ /SOURCE soubor
+
+Načte kounfigurační soubor.

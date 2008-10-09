@@ -1,0 +1,5 @@
+
+ /INFO
+
+Zobrazí informace o vybrané položce (uživatel, agent, skupina...).
+U uživatelů se zobrazí zdroje (resources) s uvedením stavu, priority a stavové zprávy (pokud je) u každého z nich.

@@ -1,0 +1,4 @@
+
+ /DEL
+
+Smaže aktuální kontakt ze seznamu kontaktů (rosteru) a zruší povolení oznamování o stavu daného kontaktu (autorizaci) na obou stranách.

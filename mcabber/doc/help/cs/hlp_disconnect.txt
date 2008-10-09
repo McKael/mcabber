@@ -1,0 +1,5 @@
+
+ /DISCONNECT
+
+Ukončí spojení s Jabber serverem.
+Poznámka: Seznam kontaktů (roster) je přístupný pouze v době, kdy je spojení aktivní. Po odpojení od serveru je proto prázdný.

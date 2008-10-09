@@ -1,0 +1,8 @@
+
+ /SAY_TO [-n|-h] [-q] [-f soubor] jid text
+
+Pošle zprávu s obsahem 'text' kontaktu 'jid'.
+Příkaz nenastavuje výchozí zdroj (resource) pro kontakt, proto pro posílání více zpráv na určitý zdroj je nutno použít pokaždé "/say_to".
+Parametry '-n' a '-h' mění typ zprávy na normální (normal) nebo nadpis (headline). Parametr '--' se použije při odesílání zprávy začínající na "-n" nebo "-h".
+Parametr '-q' způsobí, že se zpráva odešle na pozadí a neprojeví se v aktivním okně.
+Při použití parametru '-f' následovaném jménem textového souboru se odešle zpráva obsahující text ze souboru (a v tom případě parametr 'text' za 'jid' nemá význam).

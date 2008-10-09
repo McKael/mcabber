@@ -1,0 +1,9 @@
+
+ /ADD [jid [přezdívka]]
+
+Přidá uživatele 'jid' do seznamu kontaktů (rosteru) do výchozí skupiny a pošle oznámení o přidání danému uživateli. Není-li zadána 'přezdívka', použije se 'jid' jako jméno kontaktu. Není-li zadáno ani 'jid' (nebo je-li zadán prázdný řetězec "") nebo je-li jako 'jid' znak '.', pracuje se s aktuálním kontaktem.
+
+/add [jid [přezdívka]]
+ Přidá do seznamu kontaktů uživatele 'jid' se jménem 'přezdívka'.
+
+Příklad: "/add pepa@jabber.server.cz Pepa"

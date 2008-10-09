@@ -1,0 +1,16 @@
+
+ /OTRPOLICY
+ /OTRPOLICY (default|jid) (plain|manual|opportunistic|always)
+
+Slouží pro řízení politik (zásad) OTR (Off-The-Record messaging, šifrovaná komunikace).
+Jako 'jid' je možno použít znak '.' pro aktuálně zvolený kontakt.
+
+/otrpolicy
+ Zorazí všechny OTR politiky ve stavovém okně.
+/otrpolicy (default|jid) (plain|manual|opportunistic|always)
+ Nastaví výchozí politiku nebo politiku pro daného uživatele 'jid'.
+
+ 'plain' by se neměla používat, neboť neumožuje přijímat a odesílat žádné OTR šifrované zprávy.
+ Při nastavení 'manual' musí jedna nebo druhá strana zahájit OTR šifrování ručně (tj. pomocí "/otr start").
+ Volba 'opportunistic' to udělá sama tím, že pošle speciální sekvenci bílých znaků na konci nezašifrovaných zpráv, takže druhá strana pozná, že má používat OTR. První zpráva jde vždy nezašifrovaná.
+ Při 'always' jdou všechny zprávy šifrovaně. Při pokusu o odeslání první nezašifrované zprávy se program pokusí vytvořit OTR kanál. Po obdržení informace o vytvoření kanálu je nutno zprávu znovu poslat. Při obdržení nezašifrované zprávy během nastavení politiky na 'always' je možno zprávu přečíst, ale není uložena do historie rozhovoru.

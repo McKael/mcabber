@@ -1,0 +1,14 @@
+
+ /AUTHORIZATION allow|cancel|request|request_unsubscribe [jid]
+
+Slouží k řízení oprávnění k zobrazování stavu. Umožní požádat o autorizaci ostatní kontakty a dovolí řídit, kdo bude autorizován.
+Není-li zadáno 'jid', použije se aktuálně zvolený uživatel.
+
+/authorization allow
+ Povolí kontaktu získávat informace o vašem stavu (autorizuje ho).
+/authorization cancel
+ Znemožní kontaktu získávat informace o vašem stavu (neautorizuje ho).
+/authorization request
+ Požádá o možnost zobrazování stavu daného kontaktu (požádá o autorizaci).
+/authorization request_unsubscribe
+ Požádá o zrušení možnosti zobrazování stavu daného kontaktu (odvolá požadavek na autorizaci).

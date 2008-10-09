@@ -1,0 +1,4 @@
+
+ /QUIT
+
+Zavře všechna spojení a ukončí program.

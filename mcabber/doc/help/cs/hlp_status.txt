@@ -1,0 +1,11 @@
+
+ /STATUS [online|avail|invisible|free|dnd|notavail|away [-|stavová_zpráva]]
+ /STATUS message -|stavová_zpráva
+
+Zobrazí nebo nastaví aktuální stav.
+Stav může nabývat hodnot 'online' (přítomen), 'avail' (k dispozici), 'invisible' (neviditelný), 'free' (svolný k rozhovoru), 'dnd' (nevyrušovat), 'notavail' (nedostupný), 'away' (na chvíli pryč).
+Není-li stav zadán, zobrazí se aktuální stav..
+Je-li 'stavová_zpráva' zadána, přepíše výchozí proměnnou 'message*' z konfiguračního souboru.
+Není-li příslušná proměnná 'message*' nastavena a 'stavová_zpráva' nebyla zadána, stávající stavová zpráva se zachová.
+Je-li jako 'stavová_zpráva' znak '-', aktuální stavová zpráva se vymaže.
+Příkazem "/status message" se stavová zpráva zaktualizuje, ale stav zůstane nedotčen.

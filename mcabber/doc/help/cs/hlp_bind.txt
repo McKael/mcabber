@@ -1,0 +1,17 @@
+
+ /BIND [kód_klávesy [= příkazový_řádek]]
+
+Sváže příkaz s klávesou s kódem 'kód_klávesy'. Pro zjištění, které klávesy nejsou zatím použity, stačí stisknout zkoumanou klávesu a podívat se do stavového okna. Například "Unknown key=265" znamená, že je možno svázat nějaký příkaz s klávesou #265.
+
+/bind
+ Zobrazí přehled aktuálních vazeb.
+/bind kód_klávesy
+ Vypíše příkazový řádek svázaný s danou klávesou.
+/bind kód_klávesy=
+ Odstraní vazbu klávesy s kódem 'kód_klávesy'.
+/bind kód_klávesy = příkazový_řádek
+ Sváže 'příkazový_řádek' s klávesou s kódem 'kód_klávesy'.
+
+Příklad: "/bind 265 = status away" (265 je kód pro klávesu F1).
+Poznámka: Kódy kláves se mohou lišit v závislosti na konfiguraci ncurses.
+Tip: Místo příkazů je možno použít i aliasy.

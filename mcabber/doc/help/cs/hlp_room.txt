@@ -1,0 +1,49 @@
+
+ /ROOM join|leave|names|nick|remove|topic|unlock|destroy
+ /ROOM privmsg|invite|whois|kick|ban|unban|role|affil
+ /ROOM setopt print_status|auto_whois [hodnota]
+ /ROOM bookmark [add|del] [-autojoin|+autojoin]
+
+Slouží pro správu konferenčních místností MUC (Multi-User Chat).
+
+/room join [místnost [přezdívka [heslo]]]
+ Vstoupí do místnosti se zvolenou přezdívkou. Není-li přezdívka zadána (nebo je-li zadán prázdný řetězec ""), použije se volba 'nickname' z konfiguračního souboru. Je-li aktuálně zvolená položka rozpoznána jako místnost, může být použita místo jména místnosti zkrácená volba '.'. Pro vstup do chráněných místností může být zadáno heslo. Obsahuje-li přezdívka mezery, je nutno použít uvozovky.
+/room leave [zpráva]
+ Opustí aktuální místnost se zprávou na odchod.
+/room names [--detail|--short|--quiet]
+ Zobrazí seznam uživatelů v aktuální místnosti (podrobně/zkráceně/stručně).
+/room nick nová_přezdívka
+ Změní vlastní přezdívku v aktuální místnosti na jinou.
+/room privmsg jméno zpráva
+ Pošle soukromou zprávu uživateli 'jméno'.
+/room remove
+ Odstraní aktuální místnost ze seznamu kontaktů (rosteru). Místnost je nutné předtím opustit.
+/room topic -|nový_předmět
+ Nastaví nový předmět pro aktuální místnost. Je-li zadán znak '-', předmět se vymaže.
+/room unlock
+ Odemkne aktuální místnost (může provést pouze vlastník).
+/room destroy [důvod]
+ Zničí aktuální místnost s možností udání důvodu (opatrně!).
+/room whois jméno
+ Zobrazí MUC informace o uživateli 'jméno'.
+/room ban jid [důvod]
+ Zakáže přístup uživateli 'jid' do aktuální místnosti s možností udání důvodu.
+/room unban jid
+ Zruší blokování přístupu do aktuální místnosti uživateli 'jid'.
+/room invite jid [důvod]
+ Pozve uživatele 'jid' do aktuální místnosti s možností udání důvodu.
+/room kick jméno [důvod]
+ Vyhodí (vykopne) uživatele 'jméno' z aktuální místnosti s možností udání důvodu.
+/room role jid role [důvod]
+ Změní roli uživateli 'jid'. Role může být 'none' (žádná), 'visitor' (návštěvník), 'participant' (účastník) nebo 'moderator' (moderátor).
+/room affil jid vztah [důvod]
+ Změní uživateli 'jid' vztah k místnosti. Vztah může být 'none' (žádný), 'member' (člen), 'admin' (správce) nebo 'owner' (vlastník).
+/room setopt print_status|auto_whois [hodnota]
+ Změní nastavení pro aktuální místnost.
+ Parametr 'print_status' definující, jaké změny stavů v místnosti se vypisují, má možnosti 'default' (výchozí), 'none' (žádné), 'in_and_out' (vstupy a výstupy z místnosti) nebo 'all' (všechny včetně změn stavů uživatelů).
+ Parametr 'auto_whois' definující, zda se při vstupu uživatele provede příkaz "/room whois" pro zobrazení informací o uživateli, má možnosti 'default' (výchozí), 'off' (vypnuto) nebo 'on' (zapnuto).
+ Pokud je hodnota 'default' (výchozí), použije se nastavení 'muc_print_status'/'muc_auto_whois' z konfiguračního souboru.
+/room bookmark [add|del] [-autojoin|+autojoin]
+ Přidá ('add'), odstraní ('del') nebo zaktualizuje záložku. Výchozí je akce 'add'.
+ Je-li nastaven parametr 'autojoin', dojde k automatickému vstupu do místnosti po připojení k serveru.
+ K zobrazení přehledu záložek slouží příkaz "/room bookmark" spuštěný ve stavovém okně.

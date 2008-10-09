@@ -1,0 +1,5 @@
+
+ /MOVE [skupina]
+
+Přesune aktuální kontakt do požadované skupiny. Není-li skupina zadána, přesune se kontakt do výchozí skupiny. Pokud skupina neexistuje, automaticky se založí.
+Tip: V módu rozhovoru lze použít "/roster alternate" pro skok na přesunutý kontakt.

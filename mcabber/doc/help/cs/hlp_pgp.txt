@@ -1,0 +1,19 @@
+
+ /PGP disable|enable|force|info [jid]
+ /PGP setkey [jid [klíč]]
+
+Slouží k nastavení šifrování pomocí PGP (Pretty Good Privacy).
+PGP šifrování se nepoužije, není-li detekována podpora PGP na druhé straně, i když je příkazem povoleno. Šifrování je možno vynutit parametrem 'force'.
+Jako 'jid' je možno použít znak '.' pro aktuálně zvolený kontakt.
+
+/pgp enable [jid]
+ Povolí PGP šifrování pro kontakt 'jid' resp. pro aktuálně zvolený kontakt.
+/pgp disable [jid]
+ Zakáže PGP šifrování pro kontakt 'jid' resp. pro aktuálně zvolený kontakt.
+/pgp [+|-]force [jid]
+ Vynutí PGP šifrování i pro zprávy offline a vždy předpokládá, že příjemce podporuje PGP. Pokud nemůže být zpráva zašifrována (chybějící klíč nebo id klíče), zpráva se vůbec neodešle. Tato volba je ignorována, je-li podpora PGP vypnuta.
+/pgp info [jid]
+ Zobrazí aktuální nastavení PGP pro kontakt 'jid' resp. pro aktuálně zvolený kontakt.
+/pgp setkey [jid [klíč]]
+ Nastaví PGP klíč pro šifrování zpráv s kontaktem 'jid'.
+ Není-li klíč zadán, aktuální klíč se vymaže.

@@ -1,0 +1,5 @@
+
+ /SAY [-n|-h|--] text
+
+Pošle zprávu s obsahem 'text' aktuálně vybranému kontaktu. Slouží například pro posílání zprávy začínající na lomítko.
+Parametry '-n' a '-h' mění typ zprávy na normální (normal) nebo nadpis (headline). Parametr '--' se použije při odesílání zprávy začínající na "-n" nebo "-h".

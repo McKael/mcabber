@@ -1,0 +1,27 @@
+
+ /OTR key
+ /OTR start|stop|info [jid]
+ /OTR fingerprint [jid [fpr]]
+ /OTR smpq|smpr [jid] tajemství
+ /OTR smpa [jid]
+
+Slouží pro řízení OTR (Off-The-Record messaging, šifrovaná komunikace).
+Jako 'jid' je možno použít znak '.' pro aktuálně zvolený kontakt.
+
+/otr key
+ Zobrazí otisk (fingerprint) vašeho soukromého klíče ve stavovém okně.
+/otr start [jid]
+ Otevře OTR kanál pro zadaný kontakt 'jid' resp. pro aktuálně zvolený kontakt.
+/otr stop [jid]
+ Zavře OTR kanál pro zadaný kontakt 'jid' resp. pro aktuálně zvolený kontakt.
+/otr info [jid]
+ Zobrazí aktuální stav OTR pro zadaný kontakt 'jid' resp. pro aktuálně zvolený kontakt.
+/otr fingerprint [jid [fpr]]
+ Zobrazí aktivní otisk OTR kanálu.
+ Je-li zadán otisk místo 'fpr', otisk se stane důvěryhodným. Je-li místo 'fpr' jiný nepravý řetězec, otisk ztratí důvěryhodnost.
+/otr smpq [jid] tajemství
+ Zahájí Socialist Millionaires Protocol s heslem 'tajemství' a zvoleným uživatelem 'jid'.
+/otr smpr [jid] tajemství
+ Odpoví na zahájení uživateli 'jid' heslem 'tajemství'.
+/otr smpa [jid]
+ Ukončí běžící Socialist Millionaires Protocol s uživatelem 'jid'.

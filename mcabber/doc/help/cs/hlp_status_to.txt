@@ -1,0 +1,8 @@
+
+ /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [stavová_zpráva]
+ /STATUS_TO jid message stavová_zpráva
+
+Pošle požadovaný stav kontaktu 'jid'. Podrobnosti viz nápověda k příkazu "/status".
+Je-li jako 'jid' znak '.', použije se aktuálně zvolený kontakt.
+Poznámka: Tento stav se přepíše nejbližším následujícím příkazem "/status" i automatickou změnou stavu při nečinnosti (auto-away).
+Tip: 'jid' může obsahovat i zdroj (resource) (tj. jméno@server/zdroj).

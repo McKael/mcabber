@@ -1,0 +1,42 @@
+
+ /BUFFER clear|close|close_all|purge|list
+ /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER scroll_lock|scroll_unlock|scroll_toggle
+ /BUFFER save jméno_souboru
+
+Slouží k manipulaci se záznamem historie rozhovoru. Např. k vyhledávání textu, vymazání obsahu atd.
+
+/buffer clear
+ Vymaže obsah okna rozhovoru.
+/buffer close [jid]
+ Smaže celý záznam historie a zavře okno rozhovoru.
+/buffer close_all
+ Smaže záznamy historie všech rozhovorů a zavře všechna okna.
+/buffer purge [jid]
+ Vymaže obsah okna rozhovoru i celý záznam historie.
+/buffer list
+ Zobrazí přehled záznamů rozhovorů s jejich délkou (řádky/bloky).
+/buffer top
+ Přesune se na začátek záznamu rozhovoru.
+/buffer bottom
+ Přesune se na konec záznamu rozhovoru.
+/buffer up [n]
+ Přesune se o [n] řádků nahoru (výchozí: polovina obrazovky).
+/buffer down [n]
+ Přesune se o [n] řádků dolů (výchozí: polovina obrazovky).
+/buffer date [datum]
+ Přesune se na první řádek po datu [datum] (formát: "RRRR-mm-dd").
+/buffer % n
+ Přesune se na procentuální pozici n%.
+/buffer search_backward text
+ Vyhledá text [text] v záznamu rozhovoru (zpětně).
+/buffer search_forward text
+ Vyhledá text [text] v záznamu rozhovoru (dopředně).
+/buffer scroll_lock
+ Zamezí posouvání záznamu.
+/buffer scroll_unlock
+ Povolí posouvání záznamu.
+/buffer scroll_toggle
+ Přepíná mezi zapnutím a vypnutím posouvání záznamu.
+/buffer save jméno_souboru
+ Uloží obsah záznamu historie rozhovoru do souboru s názvem 'jméno_souboru'.

@@ -1,0 +1,15 @@
+
+ /EVENT #N|* accept|ignore|reject
+ /EVENT list
+
+Rozhodne co dělat s nevyřízenou událostí (např. žádostí o autorizaci).
+Je-li první parametr znak '*', zpracuje příkaz všechny události ve frontě.
+
+/event #N|* accept
+ Přijme událost číslo #N resp. všechny události.
+/event #N|* ignore
+ Ignoruje událost číslo #N resp. všechny události.
+/event #N|* reject
+ Zamítne událost číslo #N resp. všechny události.
+/event list
+ Zobrazí přehled nevyřízených událostí.

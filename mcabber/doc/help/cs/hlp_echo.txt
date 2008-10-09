@@ -1,0 +1,4 @@
+
+ /ECHO zpráva
+
+Zobrazí text 'zpráva' v stavovém okně.

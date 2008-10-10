@@ -69,6 +69,8 @@ static void handle_iq_command_leave_groupchats(jconn conn, char *from,
 
 typedef void (*adhoc_command_callback)(jconn, char*, const char*, xmlnode);
 
+inline double seconds_since_last_use(void);
+
 struct adhoc_command {
   char *name;
   char *description;
@@ -1468,7 +1470,7 @@ static void handle_iq_disco_info(jconn conn, char *from, const char *id,
   xmlnode_free(x);
 }
 
-inline double seconds_since_last_use(void)
+double seconds_since_last_use(void)
 {
   return difftime(time(NULL), iqlast);
 }

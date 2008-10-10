@@ -155,6 +155,9 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
                        unsigned int prefix_flags, int force_show,
                        unsigned mucnicklen);
 
+inline void scr_WriteMessage(const char *bjid, const char *text,
+                             time_t timestamp, guint prefix_flags,
+                             unsigned mucnicklen);
 inline void scr_UpdateBuddyWindow(void);
 inline void scr_set_chatmode(int enable);
 
@@ -2028,9 +2031,9 @@ static inline void scr_LogUrls(const gchar *string)
 }
 #endif
 
-inline void scr_WriteMessage(const char *bjid, const char *text,
-                             time_t timestamp, guint prefix_flags,
-                             unsigned mucnicklen)
+void scr_WriteMessage(const char *bjid, const char *text,
+                      time_t timestamp, guint prefix_flags,
+                      unsigned mucnicklen)
 {
   char *xtext;
 
@@ -2153,7 +2156,7 @@ static inline void set_chatstate(int state)
 }
 
 #if defined JEP0022 || defined JEP0085
-inline long int scr_GetChatStatesTimeout(time_t now)
+long int scr_GetChatStatesTimeout(time_t now)
 {
   // Check if we're currently composing...
   if (chatstate != 1 || !chatstate_timestamp)
@@ -2932,7 +2935,7 @@ void scr_append_multiline(const char *line)
 
 //  scr_cmdhisto_addline()
 // Add a line to the inputLine history
-inline void scr_cmdhisto_addline(char *line)
+static inline void scr_cmdhisto_addline(char *line)
 {
   int max_histo_lines;
 

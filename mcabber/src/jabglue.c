@@ -72,6 +72,8 @@ static void handle_state_events(char* from, xmlnode xmldata);
 
 static int evscallback_invitation(eviqs *evp, guint evcontext);
 
+inline void update_last_use(void);
+
 
 static void logger(jconn j, int io, const char *buf)
 {
@@ -354,7 +356,7 @@ inline const char *jb_getstatusmsg()
   return mystatusmsg;
 }
 
-inline void update_last_use(void)
+void update_last_use(void)
 {
   iqlast = time(NULL);
 }

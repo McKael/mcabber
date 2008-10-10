@@ -61,6 +61,8 @@ int pool__total = 0;		/**< how many memory blocks are allocated */
 int pool__ltotal = 0;
 xht pool__disturbed = NULL;
 
+inline void *_retried__malloc(size_t size);
+
 /**
  * create a new memory allocation and increment the pool__total counter
  *
@@ -101,7 +103,7 @@ void _pool__free(void *block)
  * @param size how many bytes of memory we allocate
  * @return pointer to the allocated memory
  */
-inline void *_retried__malloc(size_t size) {
+void *_retried__malloc(size_t size) {
     void *allocated_memory;
     int malloc_tries = 0;
 

@@ -1,6 +1,6 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
- /ROOM privmsg|invite|whois|kick|ban|unban|unban|role|affil
+ /ROOM privmsg|invite|whois|kick|ban|unban|role|affil
  /ROOM setopt print_status|auto_whois [valore]
  /ROOM bookmark [add|del] [-autojoin|+autojoin]
 

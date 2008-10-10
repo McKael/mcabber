@@ -454,6 +454,10 @@ set escdelay = 50
 # You can specify the OTR directory with the otr_dir option
 # (default = ~/.mcabber/otr/).
 #set otr_dir = "~/.mcabber/otr/"
+#
+# You can set OTR policies from the configuration file (use /help otrpolicy
+# for the details).
+#otrpolicy default manual
 
 # Aliases
 alias me = say /me

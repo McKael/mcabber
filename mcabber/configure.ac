@@ -258,6 +258,7 @@ AC_CONFIG_FILES([connwrap/Makefile
                  libjabber/Makefile
                  src/Makefile
                  doc/Makefile
+                 doc/guide/Makefile
                  doc/help/Makefile
                  Makefile])
 AC_OUTPUT

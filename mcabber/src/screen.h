@@ -70,7 +70,8 @@ typedef struct {
     MKEY_CTRL_INS,
     MKEY_CTRL_DEL,
     MKEY_CTRL_SHIFT_HOME,
-    MKEY_CTRL_SHIFT_END
+    MKEY_CTRL_SHIFT_END,
+    MKEY_MOUSE
   } mcode;
 } keycode;
 

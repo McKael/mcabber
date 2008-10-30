@@ -733,6 +733,9 @@ void scr_InitCurses(void)
   intrflush(stdscr, FALSE);
   start_color();
   use_default_colors();
+#ifdef NCURSES_MOUSE_VERSION
+  mousemask(ALL_MOUSE_EVENTS, NULL);
+#endif
 
   if (settings_opt_get("escdelay")) {
 #ifdef HAVE_ESCDELAY
@@ -3737,8 +3740,19 @@ void scr_Getch(keycode *kcode)
   kcode->value = wgetch(inputWnd);
   if (utf8_mode) {
     bool ismeta = (kcode->value == 27);
+#ifdef NCURSES_MOUSE_VERSION
+    bool ismouse = (kcode->value == KEY_MOUSE);
 
+    if (ismouse) {
+      MEVENT mouse;
+      getmouse(&mouse);
+      kcode->value = mouse.bstate;
+      kcode->mcode = MKEY_MOUSE;
+      return;
+    } else if (ismeta)
+#else
     if (ismeta)
+#endif
       ks[0] = wgetch(inputWnd);
     else
       ks[0] = kcode->value;
@@ -3818,6 +3832,8 @@ static int bindcommand(keycode kcode)
     g_snprintf(asciikey, 15, "%s", asciicode);
   else if (kcode.mcode == MKEY_META)
     g_snprintf(asciikey, 15, "M%s", asciicode);
+  else if (kcode.mcode == MKEY_MOUSE)
+    g_snprintf(asciikey, 15, "p%s", asciicode);
   else
     g_snprintf(asciikey, 15, "MK%d", kcode.mcode);
 

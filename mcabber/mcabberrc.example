@@ -468,6 +468,9 @@ alias notavail = status notavail
 #alias names = room names
 #alias topic = room topic
 
+# Set use_mouse to 1 to map mouse buttons like keycodes.
+#set use_mouse = 1
+
 # Key bindings
 # Ctlr-q (17) bound to /roster unread_next
 bind 17 = roster unread_next

@@ -734,7 +734,8 @@ void scr_InitCurses(void)
   start_color();
   use_default_colors();
 #ifdef NCURSES_MOUSE_VERSION
-  mousemask(ALL_MOUSE_EVENTS, NULL);
+  if (settings_opt_get_int("use_mouse"))
+    mousemask(ALL_MOUSE_EVENTS, NULL);
 #endif
 
   if (settings_opt_get("escdelay")) {

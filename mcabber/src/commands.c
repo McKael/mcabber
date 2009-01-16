@@ -1459,7 +1459,7 @@ static void do_say_to(char *arg)
   }
 
   // Check for an option parameter
-  while (TRUE) {
+  while (*paramlst) {
     if (!strcmp(*paramlst, "-q")) {
       char **oldparamlst = paramlst;
       paramlst = split_arg(*(oldparamlst+1), 2, 1); // jid, message
@@ -1469,6 +1469,10 @@ static void do_say_to(char *arg)
       char **oldparamlst = paramlst;
       paramlst = split_arg(*(oldparamlst+1), 2, 1); // filename, jid
       free_arg_lst(oldparamlst);
+      if (!*paramlst) {
+        scr_LogPrint(LPRINT_NORMAL, "Wrong usage.");
+        return;
+      }
       file = g_strdup(*paramlst);
       // One more parameter shift...
       oldparamlst = paramlst;
@@ -1476,6 +1480,11 @@ static void do_say_to(char *arg)
       free_arg_lst(oldparamlst);
     } else
       break;
+  }
+
+  if (!*paramlst) {
+    scr_LogPrint(LPRINT_NORMAL, "Wrong usage.");
+    return;
   }
 
   fjid = *paramlst;

@@ -1190,7 +1190,7 @@ static void handle_iq_command_set_status(jconn conn, char *from, const char *id,
     // I do not think this is useful, user should not have to care of the
     // priority like gossip and gajim do (misc)
     y = xmlnode_insert_tag(x, "field");
-    xmlnode_put_attrib(y, "type", "text-multi");
+    xmlnode_put_attrib(y, "type", "text-single");
     xmlnode_put_attrib(y, "var", "status-message");
     xmlnode_put_attrib(y, "label", "Message");
   } else if (action && !strcmp(action, "cancel")) {

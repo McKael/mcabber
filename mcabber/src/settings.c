@@ -472,7 +472,7 @@ void settings_pgp_setforce(const char *bjid, guint value)
   } else {
     pgpdata->pgp_force = value;
   }
-  if (!pgpdata->pgp_keyid)
+  if (value && pgpdata && !pgpdata->pgp_keyid)
     scr_LogPrint(LPRINT_NORMAL, "Warning: the Key Id is not set!");
 #endif
 }

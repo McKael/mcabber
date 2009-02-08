@@ -3583,6 +3583,7 @@ static inline void print_checked_line(void)
 {
   char *wprint_char_fmt = "%c";
   int point;
+  int nrchar = maxX;
   char *ptrCur = inputLine + inputline_offset;
 
 #ifdef UNICODE
@@ -3593,7 +3594,7 @@ static inline void print_checked_line(void)
 
   wmove(inputWnd, 0, 0); // problem with backspace
 
-  while (*ptrCur) {
+  while (*ptrCur && nrchar-- > 0) {
     point = ptrCur - inputLine;
     if (maskLine[point])
       wattrset(inputWnd, A_UNDERLINE);

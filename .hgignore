@@ -23,6 +23,8 @@ mcabber/stamp-h1
 config.h*
 config.{log,cache,guess,status}
 
+mcabber/doc/guide/guide.{aux,bbl,blg,log,out,pdf,toc}
+
 *.sw?
 cscope.out
 tags

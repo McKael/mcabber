@@ -128,7 +128,7 @@ const char *complete()
     char *wc;
     c->len_compl = 0;
     for (wc = r; *wc; wc = next_char(wc))
-      c->len_compl += get_char_width(wc);
+      c->len_compl++;
   }
   return r;
 }

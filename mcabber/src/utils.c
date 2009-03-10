@@ -495,7 +495,7 @@ void replace_nl_with_dots(char *bufstr)
 // string after use.
 char *ut_expand_tabs(const char *text)
 {
-  char *xtext;
+  char *xtext, *linestart;
   char *p, *q;
   guint n = 0, bc = 0;
 
@@ -512,12 +512,14 @@ char *ut_expand_tabs(const char *text)
 
   xtext = g_new(char, strlen(text) + 1 + 8*n);
   p = (char*)text;
-  q = xtext;
+  q = linestart = xtext;
   do {
     if (*p == '\t') {
-      do { *q++ = ' '; } while ((q-xtext)%8);
+      do { *q++ = ' '; } while ((q-linestart)%8);
     } else if (*p != '\x0d') {
       *q++ = *p;
+      if (*p =='\n')
+        linestart = q;
     }
   } while (*p++);
 

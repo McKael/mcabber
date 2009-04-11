@@ -264,11 +264,13 @@ void jb_main()
       scr_DoUpdate();
     }
     // If we're not connected, sleep for a while...
-    select(maxfd + 1, &fds, NULL, NULL, &tv);
-    if (!online)
+    if (!online) {
+      select(1, &fds, NULL, NULL, &tv);
       check_connection();
-    else
+    } else {
+      select(maxfd + 1, &fds, NULL, NULL, &tv);
       jab_start(jc);
+    }
     return;
   }
 

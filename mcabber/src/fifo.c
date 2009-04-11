@@ -39,6 +39,7 @@
 static FILE *sfd;
 static char *fifo_name;
 
+static const char *FIFO_ENV_NAME = "MCABBER_FIFO";
 
 //  fifo_init(fifo_path)
 // Create and open the FIFO file.
@@ -93,6 +94,8 @@ fifo_init_open:
   if (!fd)
     return -1;
 
+  setenv(FIFO_ENV_NAME, fifo_name, 1);
+
   sfd = fdopen(fd, "r");
   if (fifo_path)
     scr_LogPrint(LPRINT_LOGNORM, "FIFO initialized (%s)", fifo_name);
@@ -103,6 +106,7 @@ fifo_init_open:
 // Close the current FIFO pipe and delete it.
 void fifo_deinit(void)
 {
+  unsetenv(FIFO_ENV_NAME);
   if (sfd) {
     fclose(sfd);
     sfd = NULL;

@@ -17,6 +17,17 @@
 
 #ifdef HAVE_WCTYPE_H
 # include <wctype.h>
+
+/* The following bit is a hack for Solaris 8&9 systems that don't have
+ * iswblank().
+ * For now i made sure it comes after wctype.h so it doesn't create
+ * problems (wctype.h has calls to iswblank() before wctype() is declared).
+ * (Sebastian Kayser)
+ */
+# ifndef HAVE_ISWBLANK
+#  define iswblank(wc) iswctype(wc, wctype("blank"))
+# endif
+
 #else
 # define iswblank(c) (c == ' ')
 # define iswalnum(c) isalnum(c)

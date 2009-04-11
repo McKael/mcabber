@@ -56,7 +56,8 @@ AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm arc4random bzero gethostbyname gethostname inet_ntoa \
                 isascii memmove memset modf select setlocale socket strcasecmp \
-                strchr strdup strncasecmp strrchr strstr strcasestr vsnprintf])
+                strchr strdup strncasecmp strrchr strstr strcasestr vsnprintf \
+                iswblank])
 
 
 AC_CHECK_DECLS([strptime],,,
@@ -73,7 +74,7 @@ AC_ARG_ENABLE(sigwinch,
         [with_sigwinch=$with_ext_funcs])
 AC_MSG_RESULT($with_sigwinch)
 if test "$with_sigwinch" = yes; then
-    AC_DEFINE(USE_SIGWINCH, [], [Provide own SIGWINCH handler])
+    AC_DEFINE([USE_SIGWINCH], [], [Provide own SIGWINCH handler])
 fi
 
 # Checks for libraries.
@@ -123,13 +124,13 @@ AC_CACHE_CHECK([for ESCDELAY variable],
                             [mc_cv_ncurses_escdelay=no])
                ])
 if test "$mc_cv_ncurses_escdelay" = yes; then
-    AC_DEFINE(HAVE_ESCDELAY, 1,
+    AC_DEFINE([HAVE_ESCDELAY], 1,
               [Define if ncurses has ESCDELAY variable])
 fi
 
 # Check for glib
 AM_PATH_GLIB_2_0(2.14.0,
-                 [AC_DEFINE(HAVE_GLIB_REGEX, 1,
+                 [AC_DEFINE([HAVE_GLIB_REGEX], 1,
                             [Define if GLib has regex support])],
                  [AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),
                                   [g_list_append])],
@@ -143,7 +144,7 @@ AC_ARG_ENABLE(gpgme, AC_HELP_STRING([--disable-gpgme], [disable GPGME support]),
     ])
 
 if test x"${enable_gpgme}" != x"no"; then
-    AM_PATH_GPGME(1.0.0, AC_DEFINE(HAVE_GPGME, 1,
+    AM_PATH_GPGME(1.0.0, AC_DEFINE([HAVE_GPGME], 1,
         [Define if you use GPGME to support OpenPGP]))
 fi
 
@@ -206,7 +207,7 @@ if test "x$enable_aspell" = "xyes"; then
     if test "x$have_aspell_includes" = "xyes"; then
         AC_CHECK_LIB(aspell, new_aspell_config, [ have_aspell_libs=yes ])
         if test "x$have_aspell_libs" = "xyes"; then
-            AC_DEFINE(WITH_ASPELL, 1, [define if you want aspell support])
+            AC_DEFINE([WITH_ASPELL], 1, [define if you want aspell support])
             LIBS="$LIBS -laspell"
         else
             enable_aspell=no
@@ -216,7 +217,7 @@ if test "x$enable_aspell" = "xyes"; then
     fi
 fi
 
-AC_DEFINE(BUILD_JABBER, 1, [build with jabber support])
+AC_DEFINE([BUILD_JABBER], 1, [build with jabber support])
 
 # Export $datadir to the source tree.
 if test x"${datadir}" != x""; then
@@ -246,7 +247,7 @@ AC_ARG_ENABLE(hgcset,
     hgcset=$enableval, hgcset="yes")
 AM_CONDITIONAL(HGCSET, [test x$hgcset = xyes])
 if test "${hgcset}" = "yes"; then
-    AC_DEFINE(ENABLE_HGCSET, 1, [Use Mercurial changeset])
+    AC_DEFINE([ENABLE_HGCSET], 1, [Use Mercurial changeset])
 fi
 
 AM_CONDITIONAL([OTR], [test x$libotr_found = xyes])

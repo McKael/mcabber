@@ -130,8 +130,7 @@ int chatstates_disabled;
 // For commands...
 void scr_RosterTop(void);
 void scr_RosterBottom(void);
-void scr_RosterUp(void);
-void scr_RosterDown(void);
+void scr_RosterUpDown(int updown, unsigned int n);
 void scr_RosterPrevGroup(void);
 void scr_RosterNextGroup(void);
 void scr_RosterSearch(char *);

@@ -2253,20 +2253,20 @@ void scr_RosterBottom(void)
     scr_ShowBuddyWindow();
 }
 
-//  scr_RosterUp()
-// Go to the previous buddy in the buddylist
-void scr_RosterUp(void)
+//  scr_RosterUpDown(updown, n)
+// Go to the nth next buddy in the buddylist
+// (up if updown == -1, down if updown == 1)
+void scr_RosterUpDown(int updown, unsigned int n)
 {
-  set_current_buddy(g_list_previous(current_buddy));
-  if (chatmode)
-    scr_ShowBuddyWindow();
-}
+  unsigned int i;
 
-//  scr_RosterDown()
-// Go to the next buddy in the buddylist
-void scr_RosterDown(void)
-{
-  set_current_buddy(g_list_next(current_buddy));
+  if (updown < 0) {
+    for (i = 0; i < n; i++)
+      set_current_buddy(g_list_previous(current_buddy));
+  } else {
+    for (i = 0; i < n; i++)
+      set_current_buddy(g_list_next(current_buddy));
+  }
   if (chatmode)
     scr_ShowBuddyWindow();
 }

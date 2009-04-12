@@ -633,6 +633,21 @@ static void roster_note(char *arg)
   }
 }
 
+//  roster_updown(updown, nitems)
+// updown: -1=up, +1=down
+inline static void roster_updown(int updown, char *nitems)
+{
+  int nbitems;
+
+  if (!nitems || !*nitems)
+    nbitems = 1;
+  else
+    nbitems = strtol(nitems, NULL, 10);
+
+  if (nbitems > 0)
+    scr_RosterUpDown(updown, nbitems);
+}
+
 /* Commands callback functions */
 /* All these do_*() functions will be called with a "arg" parameter */
 /* (with arg not null)                                              */
@@ -701,9 +716,9 @@ static void do_roster(char *arg)
     scr_RosterSearch(arg);
     update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "up")) {
-    scr_RosterUp();
+    roster_updown(-1, arg);
   } else if (!strcasecmp(subcmd, "down")) {
-    scr_RosterDown();
+    roster_updown(1, arg);
   } else if (!strcasecmp(subcmd, "group_prev")) {
     scr_RosterPrevGroup();
   } else if (!strcasecmp(subcmd, "group_next")) {
@@ -1534,7 +1549,7 @@ inline static void buffer_updown(int updown, char *nlines)
   if (!nlines || !*nlines)
     nblines = 0;
   else
-    nblines = atoi(nlines);
+    nblines = strtol(nlines, NULL, 10);
 
   if (nblines >= 0)
     scr_BufferScrollUpDown(updown, nblines);
@@ -1934,7 +1949,7 @@ static void do_rename(char *arg)
     foreach_group_member(bud, &move_group_member, name_utf8);
     // Let's jump to the previous buddy, because this group name should
     // disappear when we receive the server answer.
-    scr_RosterUp();
+    scr_RosterUpDown(-1, 1);
   } else {
     // Rename a single buddy
     guint del_name = 0;
@@ -1988,7 +2003,7 @@ static void do_move(char *arg)
     guint msgflag;
 
     jb_updatebuddy(bjid, name, *group_utf8 ? group_utf8 : NULL);
-    scr_RosterUp();
+    scr_RosterUpDown(-1, 1);
 
     // If the buddy has a pending message flag,
     // we remove it temporarily in order to reset the global group

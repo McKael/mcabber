@@ -34,6 +34,7 @@
 #include "settings.h"
 #include "nohtml.h"
 
+#define OTR_PROTOCOL_NAME "jabber"
 
 static OtrlUserState userstate = NULL;
 static char * account = NULL;
@@ -128,7 +129,7 @@ void otr_init(const char *fjid)
 
   OTRL_INIT;
 
-  userstate = otrl_userstate_create ();
+  userstate = otrl_userstate_create();
 
   root = otr_get_dir();
   account = jidtodisp(fjid);
@@ -138,7 +139,7 @@ void otr_init(const char *fjid)
 
   if (otrl_privkey_read(userstate, keyfile)){
     scr_LogPrint(LPRINT_LOGNORM, "Could not read OTR key from %s", keyfile);
-    cb_create_privkey(NULL, account, "jabber");
+    cb_create_privkey(NULL, account, OTR_PROTOCOL_NAME);
   }
   if (otrl_privkey_read_fingerprints(userstate, fprfile, NULL, NULL)){
     scr_LogPrint(LPRINT_LOGNORM, "Could not read OTR fingerprints from %s",
@@ -204,8 +205,8 @@ static ConnContext * otr_get_context(const char *buddy)
   char * lowcasebuddy = g_strdup(buddy);
 
   mc_strtolower(lowcasebuddy);
-  ctx = otrl_context_find(userstate, lowcasebuddy, account, "jabber", 1, &null,
-                          NULL, NULL);
+  ctx = otrl_context_find(userstate, lowcasebuddy, account, OTR_PROTOCOL_NAME,
+                          1, &null, NULL, NULL);
   g_free(lowcasebuddy);
   return ctx;
 }
@@ -365,18 +366,20 @@ int otr_receive(char **otr_data, const char * buddy, int * free_msg)
   OtrlTLV *tlv = NULL;
   ConnContext * ctx;
 
-  *free_msg = 0;
-  ignore_message = otrl_message_receiving(userstate, &ops, NULL, account,
-    "jabber", buddy, *otr_data, &newmessage, &tlvs, NULL, NULL);
-
   ctx = otr_get_context(buddy);
+  *free_msg = 0;
+  ignore_message = otrl_message_receiving(userstate, &ops, NULL,
+                                          ctx->accountname, ctx->protocol,
+                                          ctx->username, *otr_data,
+                                          &newmessage, &tlvs,NULL, NULL);
+
 
   tlv = otrl_tlv_find(tlvs, OTRL_TLV_DISCONNECTED);
   if (tlv) {
     /* Notify the user that the other side disconnected. */
     if (ctx) {
       cb_gone_insecure(NULL, ctx);
-      otr_disconnect(buddy);
+      otr_disconnect(ctx->username);
     }
   }
 
@@ -407,8 +410,9 @@ int otr_send(char **msg, const char *buddy)
 
   htmlmsg = html_escape(*msg);
 
-  err = otrl_message_sending(userstate, &ops, NULL, account, "jabber", buddy,
-                             htmlmsg, NULL, &newmessage, NULL, NULL);
+  err = otrl_message_sending(userstate, &ops, NULL, ctx->accountname,
+                             ctx->protocol, ctx->username, htmlmsg, NULL,
+                             &newmessage, NULL, NULL);
 
   g_free(htmlmsg);
 
@@ -430,7 +434,7 @@ void otr_print_info(const char * buddy)
 {
   const char *state, *auth, *policy;
   ConnContext * ctx = otr_get_context(buddy);
-  OtrlPolicy p = cb_policy (ctx->app_data, ctx);
+  OtrlPolicy p = cb_policy(ctx->app_data, ctx);
 
   if (!userstate || !ctx)
     return;

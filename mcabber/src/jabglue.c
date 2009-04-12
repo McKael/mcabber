@@ -1811,7 +1811,6 @@ static void gotmessage(char *type, const char *from, const char *body,
 #ifdef HAVE_LIBOTR
   if (otr_enabled()) {
     decrypted_otr = (char*)body;
-    mc_strtolower(bjid);
     otr_msg = otr_receive(&decrypted_otr, bjid, &free_msg);
     if (!decrypted_otr) {
       goto gotmessage_return;

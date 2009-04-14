@@ -408,13 +408,17 @@ int otr_send(char **msg, const char *buddy)
   char *htmlmsg;
   ConnContext * ctx = otr_get_context(buddy);
 
-  htmlmsg = html_escape(*msg);
-
-  err = otrl_message_sending(userstate, &ops, NULL, ctx->accountname,
-                             ctx->protocol, ctx->username, htmlmsg, NULL,
-                             &newmessage, NULL, NULL);
-
-  g_free(htmlmsg);
+  if (ctx->msgstate == OTRL_MSGSTATE_PLAINTEXT)
+    err = otrl_message_sending(userstate, &ops, NULL, ctx->accountname,
+                               ctx->protocol, ctx->username, *msg, NULL,
+                               &newmessage, NULL, NULL);
+  else {
+    htmlmsg = html_escape(*msg);
+    err = otrl_message_sending(userstate, &ops, NULL, ctx->accountname,
+                               ctx->protocol, ctx->username, htmlmsg, NULL,
+                               &newmessage, NULL, NULL);
+    g_free(htmlmsg);
+  }
 
   if (err)
     *msg = NULL; /*something went wrong, don't send the plain-message! */

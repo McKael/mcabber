@@ -599,18 +599,23 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
     //roster_usr = (roster*)sl_user->data;
     roster_usr = &roster_special;
     if (value) {
+      if (!(roster_usr->flags & ROSTER_FLAG_MSG))
+        unread_list_modified = TRUE;
       roster_usr->flags |= ROSTER_FLAG_MSG;
       // Append the roster_usr to unread_list, but avoid duplicates
       if (!g_slist_find(unread_list, roster_usr))
         unread_list = g_slist_append(unread_list, roster_usr);
     } else {
+      if (roster_usr->flags & ROSTER_FLAG_MSG)
+        unread_list_modified = TRUE;
       roster_usr->flags &= ~ROSTER_FLAG_MSG;
       if (unread_list) {
         GSList *node = g_slist_find(unread_list, roster_usr);
-        if (node) unread_list = g_slist_delete_link(unread_list, node);
+        if (node)
+          unread_list = g_slist_delete_link(unread_list, node);
       }
     }
-    return;
+    goto roster_msg_setflag_return;
   }
 
   sl_user = roster_find(jid, jidsearch,
@@ -641,7 +646,8 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
     roster_usr->flags &= ~ROSTER_FLAG_MSG;
     if (unread_list) {
       GSList *node = g_slist_find(unread_list, roster_usr);
-      if (node) unread_list = g_slist_delete_link(unread_list, node);
+      if (node)
+        unread_list = g_slist_delete_link(unread_list, node);
     }
     // For the group value we need to watch all buddies in this group;
     // if one is flagged, then the group will be flagged.
@@ -667,6 +673,7 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
   if (buddylist && (new_roster_item || !g_list_find(buddylist, roster_usr)))
     buddylist_build();
 
+roster_msg_setflag_return:
   if (unread_list_modified) {
     guint unread_count = g_slist_length(unread_list);
     hlog_save_state();

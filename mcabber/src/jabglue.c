@@ -2686,6 +2686,10 @@ static void handle_state_events(char *from, xmlnode xmldata)
   } which_jep = JEP_none;
 
   rname = strchr(from, JID_RESOURCE_SEPARATOR);
+  if (rname)
+    ++rname;
+  else
+    rname = from + strlen(from);
   bjid  = jidtodisp(from);
   sl_buddy = roster_find(bjid, jidsearch, ROSTER_TYPE_USER);
   g_free(bjid);
@@ -2693,7 +2697,7 @@ static void handle_state_events(char *from, xmlnode xmldata)
   /* XXX Actually that's wrong, since it filters out server "offline"
      messages (for JEP-0022).  This JEP is (almost) deprecated so
      we don't really care. */
-  if (!sl_buddy || !rname++) {
+  if (!sl_buddy) {
     return;
   }
 

@@ -2,7 +2,7 @@
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|whois|kick|ban|unban|role|affil
  /ROOM setopt print_status|auto_whois [value]
- /ROOM bookmark [add|del] [-autojoin|+autojoin]
+ /ROOM bookmark [add|del] [-autojoin|+autojoin] [-|nick]
 
 Команда 'room' работает с конференциями (Multi-User Chat room).
 
@@ -44,7 +44,7 @@
  Для опции "print_status" доступны следующие значения "default", "none", "in_and_out", "all".
  Для опции "auto_whois" возможные значения "default", "off", "on".
  Когда опция выставлена в "default" используются параметры "muc_print_status" / "muc_auto_whois".
-/room bookmark [add|del] [-autojoin|+autojoin]
+/room bookmark [add|del] [-autojoin|+autojoin] [-|nick]
  Добавить, удалить или обновить закладку (по умолчанию: add - добавить)
  Если включена опция autojoin, mcabber автоматически подключается к конференции после соединения с Jabber-сервером.
  Чтобы просмотреть список закладок, используйте команду /room bookmark в буфере статуса.

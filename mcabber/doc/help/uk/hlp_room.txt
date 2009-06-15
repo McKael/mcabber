@@ -2,7 +2,7 @@
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|whois|kick|ban|unban|role|affil
  /ROOM setopt print_status|auto_whois [значення]
- /ROOM bookmark [add|del] [+autojoin|-autojoin]
+ /ROOM bookmark [add|del] [+autojoin|-autojoin] [-|nick]
 
 Команда, відповідальна за дії при багатокористувацькій розмові.
 
@@ -44,7 +44,7 @@
  print_status керує відображенням змін у статусі присутніх ("default", "none", "in_and_out", "all").
  auto_whois визначає, чи запитувати автоматично інформацію про новоприбульців до кімнати ("default", "off", "on").
  Коли встановлено "default", мають силу глобальні опції muc_print_status / muc_auto_whois.
-/room bookmark [add|del] [+autojoin|-autojoin]
+/room bookmark [add|del] [+autojoin|-autojoin] [-|nick]
  Додати, потерти, або замінити закладку (якщо не вказано - додасть).
  Якщо встановити автовхід, mcabber буде заходити в цю кімнату після з'єднання з сервером.
  Переглянути наявні закладки можна за допомогою /room bookmark у буфері стану.

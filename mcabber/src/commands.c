@@ -2817,17 +2817,19 @@ static void room_bookmark(gpointer bud, char *arg)
 {
   const char *roomid;
   const char *name = NULL, *nick = NULL;
+  char *tmpnick = NULL;
   enum room_autowhois autowhois = 0;
   enum room_printstatus printstatus = 0;
   enum { bm_add = 0, bm_del = 1 } action = 0;
   int autojoin = 0;
+  int nick_set = 0;
 
   if (arg && *arg) {
-    // /room bookmark [add|del] [[+|-]autojoin]
+    // /room bookmark [add|del] [[+|-]autojoin] [-|nick]
     char **paramlst;
     char **pp;
 
-    paramlst = split_arg(arg, 2, 0); // At most 2 parameters
+    paramlst = split_arg(arg, 3, 0); // At most 3 parameters
     for (pp = paramlst; *pp; pp++) {
       if (!strcasecmp(*pp, "add"))
         action = bm_add;
@@ -2837,6 +2839,12 @@ static void room_bookmark(gpointer bud, char *arg)
         autojoin = 0;
       else if (!strcasecmp(*pp, "+autojoin") || !strcasecmp(*pp, "autojoin"))
         autojoin = 1;
+      else if (!strcmp(*pp, "-"))
+        nick_set = 1;
+      else {
+        nick_set = 1;
+        nick = tmpnick = to_utf8 (*pp);
+      }
     }
     free_arg_lst(paramlst);
   }
@@ -2845,13 +2853,15 @@ static void room_bookmark(gpointer bud, char *arg)
 
   if (action == bm_add) {
     name = buddy_getname(bud);
-    nick = buddy_getnickname(bud);
+    if (!nick_set)
+      nick = buddy_getnickname(bud);
     printstatus = buddy_getprintstatus(bud);
     autowhois   = buddy_getautowhois(bud);
   }
 
   xmpp_set_storage_bookmark(roomid, name, nick, NULL, autojoin,
                             printstatus, autowhois);
+  g_free (tmpnick);
 }
 
 static void display_all_bookmarks(void)

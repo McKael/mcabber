@@ -10,7 +10,7 @@ Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
  Betrete den Raum "room" mit dem Nickname "nick". Wenn kein Nickname angegeben wurde, wird die "nickname" Option aus der Konfigurationsdatei benutzt. Das optionale Passwort kann für geschützte Chaträume angegeben werden. Verwende Anführungszeichen, wenn dein Nickname Leerzeichen enthält!
 /room leave [message]
  Verlässt den aktuellen Chatraum
-/room names [--detail|--short|--quiet]
+/room names [--detail|--short|--quiet|--compact]
  Zeigt die Teilnehmer des aktuellen Chatraumes an
 /room nick newnick
  Setzt deinen Nickname auf "newnick"

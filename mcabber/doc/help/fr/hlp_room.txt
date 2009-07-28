@@ -10,7 +10,7 @@ Cette commande permet de gérer les salons de discussions MUC (Multi-User Chat).
  Joint le salon "room", en utilisant le pseudonyme "pseudo". Si le pseudo n'est pas spécifié (ou si c'est une chaîne vide), la valeur de l'option "nickname" est utilisée (cf. exemple de fichier de configuration). Si l'élément de la liste de contacts actuellement sélectionné est considéré comme un salon par mcabber, le raccourci "." peut être utilisé au lieu de l'identifiant complet du salon. Un mot de passe optionnel "pass" peut être fourni. Si votre pseudonyme contient des espaces, utilisez des guillemets.
 /room leave [message]
  Quitte le salon sélectionné
-/room names [--detail|--short|--quiet]
+/room names [--detail|--short|--quiet|--compact]
  Affiche les membres du salon
 /room nick nouveau_pseudo
  Change votre pseudonyme dans le salon

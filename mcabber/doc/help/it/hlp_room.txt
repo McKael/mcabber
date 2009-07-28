@@ -11,7 +11,7 @@ Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
 
 /room leave [message]
  Abbandona la stanza corrente
-/room names [--detail|--short|--quiet]
+/room names [--detail|--short|--quiet|--compact]
  Elenca i membri della stanza
 /room nick newnick
  Cambia il tuo nickname nella stanza corrente

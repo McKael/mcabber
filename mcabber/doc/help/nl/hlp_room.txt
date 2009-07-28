@@ -10,7 +10,7 @@ Het 'room' commando verzorgt de Multi-User Chat (MUC) room acties.
  Betreed chatroom "ruimte", met "nick" als je nickname.  Indien geen nickname wordt aangegeven (of als dat een lege string is: ""), wordt de waarde voor de "nickname" configuratie-optie gebruikt (zie het voorbeeld configuratie bestand).  Indien de actieve selectie door mcabber correct als een chatroom wordt herkend, kan de verkorte schrijfwijze "." worden gebruikt in plaats van de volledige naam van de chatroom.  Een wachtwoord kan worden meegegeven voor beschermde chatrooms.  Plaats aanhalingstekens om je nickname indien die spaties bevat.
 /room leave [bericht]
  Verlaat de huidige chatroom, met eventueel achterlaten van "bericht"
-/room names [--detail|--short|--quiet]
+/room names [--detail|--short|--quiet|--compact]
  Toon de leden van de huidige chatroom
 /room nick nieuwenick
  Verander je nickname in de huidige chatroom

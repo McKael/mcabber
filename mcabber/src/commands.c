@@ -1861,17 +1861,13 @@ static void room_names(gpointer bud, char *arg)
     } else if (style == style_compact) {
         enum imrole role = buddy_getrole(bud, p_res->data);
         enum imaffiliation affil = buddy_getaffil(bud, p_res->data);
+        bool showaffil = (affil != affil_none);
 
-        snprintf(buffer, 4095, "[%c] %s (", imstatus2char[rstatus],
-                 (char*)p_res->data);
-	
-        if (affil != affil_none) {
-          strcat(buffer, straffil[affil]);
-          strcat(buffer, "/");
-        }
-        strcat(buffer, strrole[role]);
-        strcat(buffer, ")");
-
+        snprintf(buffer, 4095, "[%c] %s (%s%s%s)",
+                 imstatus2char[rstatus], (char*)p_res->data,
+                 showaffil ? straffil[affil] : "\0",
+                 showaffil ? "/" : "\0",
+                 strrole[role]);
         scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
       } else {
       // (Style "normal", "detail" or "quiet")

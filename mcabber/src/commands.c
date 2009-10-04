@@ -1817,7 +1817,8 @@ static void room_names(gpointer bud, char *arg)
   const char *bjid;
   char *buffer;
   GSList *resources, *p_res;
-  enum { style_normal = 0, style_detail, style_short, style_quiet } style = 0;
+  enum { style_normal = 0, style_detail, style_short,
+         style_quiet, style_compact } style = 0;
 
   if (*arg) {
     if (!strcasecmp(arg, "--short"))
@@ -1826,6 +1827,8 @@ static void room_names(gpointer bud, char *arg)
       style = style_quiet;
     else if (!strcasecmp(arg, "--detail"))
       style = style_detail;
+    else if (!strcasecmp(arg, "--compact"))
+      style = style_compact;
     else {
       scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
       return;
@@ -1855,7 +1858,18 @@ static void room_names(gpointer bud, char *arg)
                (char*)p_res->data,
                rst_msg ? " -- " : "", rst_msg ? rst_msg : "");
       scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
-    } else {
+    } else if (style == style_compact) {
+        enum imrole role = buddy_getrole(bud, p_res->data);
+        enum imaffiliation affil = buddy_getaffil(bud, p_res->data);
+        bool showaffil = (affil != affil_none);
+
+        snprintf(buffer, 4095, "[%c] %s (%s%s%s)",
+                 imstatus2char[rstatus], (char*)p_res->data,
+                 showaffil ? straffil[affil] : "\0",
+                 showaffil ? "/" : "\0",
+                 strrole[role]);
+        scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
+      } else {
       // (Style "normal", "detail" or "quiet")
       snprintf(buffer, 4095, "[%c] %s", imstatus2char[rstatus],
                (char*)p_res->data);

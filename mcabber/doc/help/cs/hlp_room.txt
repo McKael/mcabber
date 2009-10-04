@@ -10,7 +10,7 @@ Slouží pro správu konferenčních místností MUC (Multi-User Chat).
  Vstoupí do místnosti se zvolenou přezdívkou. Není-li přezdívka zadána (nebo je-li zadán prázdný řetězec ""), použije se volba 'nickname' z konfiguračního souboru. Je-li aktuálně zvolená položka rozpoznána jako místnost, může být použita místo jména místnosti zkrácená volba '.'. Pro vstup do chráněných místností může být zadáno heslo. Obsahuje-li přezdívka mezery, je nutno použít uvozovky.
 /room leave [zpráva]
  Opustí aktuální místnost se zprávou na odchod.
-/room names [--detail|--short|--quiet]
+/room names [--detail|--short|--quiet|--compact]
  Zobrazí seznam uživatelů v aktuální místnosti (podrobně/zkráceně/stručně).
 /room nick nová_přezdívka
  Změní vlastní přezdívku v aktuální místnosti na jinou.

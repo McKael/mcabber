@@ -538,7 +538,7 @@ void otr_smp_respond(const char * buddy, const char * secret)
   if (ctx) {
     if (!ctx->smstate->secret) {
       scr_LogPrint(LPRINT_LOGNORM,
-                   "Don't call smpr before you haven't received an SMP "
+                   "Don't call smpr until you have received an SMP "
                    "Initiation!");
       return;
     }

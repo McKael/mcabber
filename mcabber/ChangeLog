@@ -1,6 +1,13 @@
 mcabber (0.9.10-dev)
 
- * 
+ * Include Franky's mcabber user guide
+ * Add option "use_mouse" (franky)
+ * Reduce the CPU usage when the server is unreachable
+ * Export the FIFO pipe name as an environment variable (Lukas Kuklinek)
+ * Add support for spellchecking with Enchant (caolan)
+ * Add --compact parameter to /room names (shizeeg)
+ * Add count parameter to roster up/down command (knyar)
+ * Misc. fixes and improvements
 
  -- Mikael, ?
 

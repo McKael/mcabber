@@ -29,6 +29,8 @@ if test "x$GCC" = "xyes"; then
     fi
 fi
 
+AC_SYS_LARGEFILE
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h \

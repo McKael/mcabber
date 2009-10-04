@@ -193,11 +193,14 @@ if test "$with_ssl" != "no"; then
     else
         AC_MSG_RESULT([not found or disabled])
 
-        AM_PATH_LIBGNUTLS_EXTRA(0.0.1, [
+        PKG_PROG_PKG_CONFIG
+        PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 1.0.0],
+                          have_gnutls=yes, have_gnutls=no)
+        if test "$have_gnutls" = "yes"; then
+            AC_DEFINE([HAVE_GNUTLS], 1, [GNU TLS])
             CXXFLAGS="$CXXFLAGS $LIBGNUTLS_CFLAGS"
-            LIBS="$LIBS $LIBGNUTLS_LIBS -lgnutls-extra -lgnutls-openssl"
-            AC_DEFINE([HAVE_GNUTLS], [], [GNU TLS])
-        ])
+            LIBS="$LIBS $LIBGNUTLS_LIBS"
+        fi
     fi
 fi
 

@@ -472,9 +472,9 @@ alias notavail = status notavail
 #set use_mouse = 1
 
 # Key bindings
-# Ctlr-q (17) bound to /roster unread_next
+# Ctrl-q (17) bound to /roster unread_next
 bind 17 = roster unread_next
-# Ctlr-x (24) bound to /roster alternate
+# Ctrl-x (24) bound to /roster alternate
 bind 24 = roster alternate
 # F5 (269) bound to /roster toggle_offline  (centericq-like, IIRC)
 bind 269 = roster toggle_offline

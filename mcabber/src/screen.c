@@ -41,7 +41,11 @@
 # include <langinfo.h>
 #endif
 
-#ifdef HAVE_ASPELL_H
+#ifdef WITH_ENCHANT
+# include <enchant.h>
+#endif
+
+#ifdef WITH_ASPELL
 # include <aspell.h>
 #endif
 
@@ -73,7 +77,7 @@ static void scr_end_current_completion(void);
 static void scr_insert_text(const char*);
 static void scr_handle_tab(void);
 
-#ifdef HAVE_ASPELL_H
+#if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
 static void spellcheck(char *, char *);
 #endif
 
@@ -120,7 +124,7 @@ static bool roster_win_on_right;
 static time_t LastActivity;
 
 static char       inputLine[INPUTLINE_LENGTH+1];
-#ifdef HAVE_ASPELL_H
+#if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
 static char       maskLine[INPUTLINE_LENGTH+1];
 #endif
 static char      *ptr_inputline;
@@ -161,8 +165,14 @@ inline void scr_WriteMessage(const char *bjid, const char *text,
 inline void scr_UpdateBuddyWindow(void);
 inline void scr_set_chatmode(int enable);
 
-#ifdef HAVE_ASPELL_H
-#define ASPELLBADCHAR 5
+#define SPELLBADCHAR 5
+
+#ifdef WITH_ENCHANT
+EnchantBroker *spell_broker;
+EnchantDict *spell_checker;
+#endif
+
+#ifdef WITH_ASPELL
 AspellConfig *spell_config;
 AspellSpeller *spell_checker;
 #endif
@@ -3580,7 +3590,7 @@ static inline void check_offset(int direction)
   inputline_offset = c - inputLine;
 }
 
-#ifdef HAVE_ASPELL_H
+#if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
 // prints inputLine with underlined words when misspelled
 static inline void print_checked_line(void)
 {
@@ -3610,8 +3620,8 @@ static inline void print_checked_line(void)
 
 static inline void refresh_inputline(void)
 {
-#ifdef HAVE_ASPELL_H
-  if (settings_opt_get_int("aspell_enable")) {
+#if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
+  if (settings_opt_get_int("spell_enable")) {
     memset(maskLine, 0, INPUTLINE_LENGTH+1);
     spellcheck(inputLine, maskLine);
   }
@@ -3977,18 +3987,32 @@ display:
   return;
 }
 
-#ifdef HAVE_ASPELL_H
-// Aspell initialization
+#if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
+// initialization
 void spellcheck_init(void)
 {
-  int aspell_enable           = settings_opt_get_int("aspell_enable");
-  const char *aspell_lang     = settings_opt_get("aspell_lang");
-  const char *aspell_encoding = settings_opt_get("aspell_encoding");
+  int spell_enable            = settings_opt_get_int("spell_enable");
+  const char *spell_lang     = settings_opt_get("spell_lang");
+#ifdef WITH_ASPELL
+  const char *spell_encoding = settings_opt_get("spell_encoding");
   AspellCanHaveError *possible_err;
+#endif
 
-  if (!aspell_enable)
+  if (!spell_enable)
     return;
 
+#ifdef WITH_ENCHANT
+  if (spell_checker) {
+     enchant_broker_free_dict(spell_broker, spell_checker);
+     enchant_broker_free(spell_broker);
+     spell_checker = NULL;
+     spell_broker = NULL;
+  }
+
+  spell_broker = enchant_broker_init();
+  spell_checker = enchant_broker_request_dict(spell_broker, spell_lang);
+#endif
+#ifdef WITH_ASPELL
   if (spell_checker) {
     delete_aspell_speller(spell_checker);
     delete_aspell_config(spell_config);
@@ -3997,8 +4021,8 @@ void spellcheck_init(void)
   }
 
   spell_config = new_aspell_config();
-  aspell_config_replace(spell_config, "encoding", aspell_encoding);
-  aspell_config_replace(spell_config, "lang", aspell_lang);
+  aspell_config_replace(spell_config, "encoding", spell_encoding);
+  aspell_config_replace(spell_config, "lang", spell_lang);
   possible_err = new_aspell_speller(spell_config);
 
   if (aspell_error_number(possible_err) != 0) {
@@ -4008,23 +4032,37 @@ void spellcheck_init(void)
   } else {
     spell_checker = to_aspell_speller(possible_err);
   }
+#endif
 }
 
-// Deinitialization of Aspell spellchecker
+// Deinitialization of spellchecker
 void spellcheck_deinit(void)
 {
   if (spell_checker) {
+#ifdef WITH_ENCHANT
+    enchant_broker_free_dict(spell_broker, spell_checker);
+#endif
+#ifdef WITH_ASPELL
     delete_aspell_speller(spell_checker);
+#endif
     spell_checker = NULL;
   }
 
+#ifdef WITH_ENCHANT
+  if (spell_broker) {
+    enchant_broker_free(spell_broker);
+    spell_broker = NULL;
+  }
+#endif
+#ifdef WITH_ASPELL
   if (spell_config) {
     delete_aspell_config(spell_config);
     spell_config = NULL;
   }
+#endif
 }
 
-#define aspell_isalpha(c) (utf8_mode ? iswalpha(get_char(c)) : isalpha(*c))
+#define spell_isalpha(c) (utf8_mode ? iswalpha(get_char(c)) : isalpha(*c))
 
 // Spell checking function
 static void spellcheck(char *line, char *checked)
@@ -4038,7 +4076,7 @@ static void spellcheck(char *line, char *checked)
 
   while (*line) {
 
-    if (!aspell_isalpha(line)) {
+    if (!spell_isalpha(line)) {
       line = next_char(line);
       continue;
     }
@@ -4063,12 +4101,18 @@ static void spellcheck(char *line, char *checked)
 
     start = line;
 
-    while (aspell_isalpha(line))
+    while (spell_isalpha(line))
       line = next_char(line);
 
     if (spell_checker &&
-        aspell_speller_check(spell_checker, start, line - start) == 0)
-      memset(&checked[start - line_start], ASPELLBADCHAR, line - start);
+#ifdef WITH_ENCHANT
+        enchant_dict_check(spell_checker, start, line - start) != 0
+#endif
+#ifdef WITH_ASPELL
+        aspell_speller_check(spell_checker, start, line - start) == 0
+#endif
+    )
+      memset(&checked[start - line_start], SPELLBADCHAR, line - start);
   }
 }
 #endif

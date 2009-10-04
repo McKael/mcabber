@@ -14,7 +14,7 @@
 # include <panel.h>
 #endif
 
-#ifdef WITH_ASPELL
+#if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
 void spellcheck_init(void);
 void spellcheck_deinit(void);
 //static void spellcheck(char*, char*);

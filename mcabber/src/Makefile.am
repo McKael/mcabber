@@ -11,10 +11,10 @@ if OTR
 mcabber_SOURCES += otr.c otr.h nohtml.c nohtml.h
 endif
 
-LDADD = $(GLIB_LIBS) $(GPGME_LIBS) $(LIBOTR_LIBS) \
+LDADD = $(GLIB_LIBS) $(GPGME_LIBS) $(LIBOTR_LIBS) $(ENCHANT_LIBS) \
 	../libjabber/liblibjabber.a ../connwrap/libconnwrap.a
 
-AM_CPPFLAGS = $(GLIB_CFLAGS) $(GPGME_CFLAGS) $(LIBOTR_CFLAGS)
+AM_CPPFLAGS = $(GLIB_CFLAGS) $(GPGME_CFLAGS) $(LIBOTR_CFLAGS) $(ENCHANT_CFLAGS)
 
 CLEANFILES = hgcset.h
 

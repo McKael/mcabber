@@ -300,6 +300,9 @@ static void compile_options(void)
 #ifdef HAVE_LIBOTR
   puts("Compiled with OTR support.");
 #endif
+#ifdef WITH_ENCHANT
+  puts("Compiled with Enchant support.");
+#endif
 #ifdef WITH_ASPELL
   puts("Compiled with Aspell support.");
 #endif
@@ -470,9 +473,9 @@ int main(int argc, char **argv)
   if (optval || optval2)
     hlog_enable(optval, settings_opt_get("logging_dir"), optval2);
 
-#ifdef HAVE_ASPELL_H
-  /* Initialize aspell */
-  if (settings_opt_get_int("aspell_enable")) {
+#if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
+  /* Initialize spelling */
+  if (settings_opt_get_int("spell_enable")) {
     spellcheck_init();
   }
 #endif
@@ -544,9 +547,9 @@ int main(int argc, char **argv)
 #ifdef HAVE_GPGME
   gpg_terminate();
 #endif
-#ifdef HAVE_ASPELL_H
-  /* Deinitialize aspell */
-  if (settings_opt_get_int("aspell_enable"))
+#if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
+  /* Deinitialize spelling */
+  if (settings_opt_get_int("spell_enable"))
     spellcheck_deinit();
 #endif
   /* Save pending message state */

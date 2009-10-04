@@ -204,10 +204,19 @@ if test "$with_ssl" != "no"; then
     fi
 fi
 
+# Check for Enchant stuff
+AC_ARG_ENABLE(enchant, [  --enable-enchant       enable enchant support],
+              enable_enchant=$enableval, enchant="")
 # Check for Aspell stuff
 AC_ARG_ENABLE(aspell, [  --enable-aspell         enable aspell support],
               enable_aspell=$enableval, aspell="")
-if test "x$enable_aspell" = "xyes"; then
+
+if test "x$enable_enchant" = "xyes"; then
+ PKG_CHECK_MODULES(ENCHANT, [enchant],
+   AC_DEFINE(WITH_ENCHANT, 1, [define if you want enchant support])
+ )
+else
+ if test "x$enable_aspell" = "xyes"; then
     AC_CHECK_HEADERS(aspell.h, [ have_aspell_includes=yes ])
     if test "x$have_aspell_includes" = "xyes"; then
         AC_CHECK_LIB(aspell, new_aspell_config, [ have_aspell_libs=yes ])
@@ -220,6 +229,7 @@ if test "x$enable_aspell" = "xyes"; then
     else
         enable_aspell=no
     fi
+ fi
 fi
 
 AC_DEFINE([BUILD_JABBER], 1, [build with jabber support])

@@ -1,4 +1,10 @@
-mcabber (0.9.10-dev)
+mcabber (0.9.11-dev)
+
+ * 
+
+ -- Mikael, ?
+
+mcabber (0.9.10)
 
  * Include Franky's mcabber user guide
  * Add option "use_mouse" (franky)

@@ -1144,6 +1144,8 @@ void jb_request(const char *fjid, enum iqreq_type reqtype)
   void (*request_fn)(const char *);
   const char *strreqtype;
 
+  if (!online) return;
+
   if (reqtype == iqreq_version) {
     request_fn = &request_version;
     strreqtype = "version";

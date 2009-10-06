@@ -3114,6 +3114,12 @@ static void do_request(char *arg)
     return;
   }
 
+  if (!jb_getonline()) {
+    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
+    free_arg_lst(paramlst);
+    return;
+  }
+
   // Allow special jid "" or "." (current buddy)
   if (fjid && (!*fjid || !strcmp(fjid, ".")))
     fjid = NULL;

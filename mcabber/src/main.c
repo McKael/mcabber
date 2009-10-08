@@ -333,7 +333,7 @@ static void main_init_pgp(void)
     retries = 2;
 
   if (!pk) {
-    scr_LogPrint(LPRINT_LOGNORM, "WARNING: unkown PGP private key");
+    scr_LogPrint(LPRINT_LOGNORM, "WARNING: unknown PGP private key");
     pgp_invalid = TRUE;
   } else if (!(pp || pgp_agent)) {
     // Request PGP passphrase

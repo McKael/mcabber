@@ -1,6 +1,8 @@
 mcabber (0.10.0-dev)
 
  * Switch to the Loudmouth library (franky)
+ * MCabber can now do DNS SRV lookups so the variable
+   'username' has been replaced with 'jid' in the configuration file
  * Add support for modules in mcabber (Myhailo Danylenko)
  * Message Receipts (XEP-0184) support (franky)
  * Update of Entity Capabilities support (franky)

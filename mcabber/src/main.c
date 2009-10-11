@@ -340,15 +340,15 @@ int main(int argc, char **argv)
 
   /* If no password is stored, we ask for it before entering
      ncurses mode -- unless the username is unknown. */
-  if (settings_opt_get("username") && !settings_opt_get("password")) {
+  if (settings_opt_get("jid") && !settings_opt_get("password")) {
     const char *p;
     char *pwd;
     p = settings_opt_get("server");
     if (p)
       printf("Server: %s\n", p);
-    p = settings_opt_get("username");
+    p = settings_opt_get("jid");
     if (p)
-      printf("Username: %s\n", p);
+      printf("User JID: %s\n", p);
 
     pwd = ask_password("Jabber password");
     settings_set(SETTINGS_TYPE_OPTION, "password", pwd);

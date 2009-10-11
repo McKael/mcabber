@@ -1,6 +1,8 @@
 mcabber (0.10.0)
 
  * MCabber now uses the Loudmouth library (version 1.4.3 or greater).
+ * The JID should be provided in the configuration file, the variable
+   'username' has been replaced with 'jid'.
 
  -- Mikael, ?
 

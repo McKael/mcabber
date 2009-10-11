@@ -4,29 +4,27 @@
 # - Leading and trailing spaces are ignored.
 # - Empty lines and lines beginning with a '#' are ignored.
 
-# The jid will be the following: username@server
-# If your jid's domain name is different from the server name,
-# you can specify your complete jid as username.
-#
-# If password is not given, it will be interactively asked for.
-# If port is not given, default Jabber port will be used.
-#
-# Warning to GTalk users! please see the FAQ:
-# <http://wiki.mcabber.com/index.php/Frequently_Asked_Questions>
+# Please provide your Jabber (XMPP) identifier:
+set jid = yourusername@domain
 
-set username = yourusername
+# If password is not given, it will be interactively asked for.
 # Note: if the password contains leading or trailing spaces, you must
 # enclose it with quotes: set password = " example password "
 #set password = yourpassword
-set server = your.jabber.server
+
+# You can provide a server name if you want mcabber to connect
+# to a specific server.
+#set server = your.jabber.server
+
+# If port is not given, mcabber will try to find it out.
 #set port = 5222
-#
+
 # If you don't know what a resource is, do not set it.
 # Set disable_random_resource to 1 if you don't want mcabber to add a random
 # suffix to the resource name.
 #set resource = mcabber
 #set disable_random_resource = 0
-#
+
 #set priority = 3
 #set priority_away = 0
 
@@ -47,7 +45,7 @@ set tls = 1
 # 1. gnutls-cli -p 5223 $your_server
 # 2. openssl s_client -connect $your_server:5223 | \
 #    openssl x509 -fingerprint -md5 -noout
-set ssl_fingerprint = 97:5C:00:3F:1D:77:45:25:E2:C5:70:EC:83:C8:87:EE
+#set ssl_fingerprint = 97:5C:00:3F:1D:77:45:25:E2:C5:70:EC:83:C8:87:EE
 # Set ssl_ignore_checks to 1 to disable all certificate checks except the
 # fingerprint check.
 #set ssl_ignore_checks = 0
@@ -72,7 +70,7 @@ set ssl_fingerprint = 97:5C:00:3F:1D:77:45:25:E2:C5:70:EC:83:C8:87:EE
 # Conference nickname
 # This nickname is used when joining a room, when no nick is explicitly
 # specified by the user.  Note that when the nickname option is not set,
-# the username variable can be used.
+# the jid variable can be used.
 #set nickname = Abitbol
 
 # Proxy
@@ -388,15 +386,15 @@ set escdelay = 50
 #set roster_win_on_right = 0
 #
 # By default, the displayed name of a contact in the roster window will
-# be the jid if no name has been specified.  You can use the following
+# be the JID if no name has been specified.  You can use the following
 # option if you only want to see the username part.
 #set roster_hide_domain = 0
 #
 # Buddy name format (in status window):
 # - 0: (default) "<jid/resource>"
-# - 1: "name <jid/resource>" (name is omitted if same as the jid)
-# - 2: "name/resource" (if the name is the same as the jid, use <jid/res>)
-# - 3: "name" (if the name is the same as the jid, use <jid/res>)
+# - 1: "name <jid/resource>" (name is omitted if same as the JID)
+# - 2: "name/resource" (if the name is the same as the JID, use <jid/res>)
+# - 3: "name" (if the name is the same as the JID, use <jid/res>)
 #set buddy_format = 2
 #
 # Time format:
@@ -406,8 +404,8 @@ set escdelay = 50
 #set time_prefix = 0
 #
 # When a contact sends "/me ", mcabber displays "*user ", where user
-# is the local part of the contact's jid.
-# If you want mcabber to display the complete bare jid (user@server.com),
+# is the local part of the contact's JID.
+# If you want mcabber to display the complete bare JID (user@server.com),
 # set 'buddy_me_fulljid' to 1 (default: 0)
 #set buddy_me_fulljid = 1
 #
@@ -419,7 +417,7 @@ set escdelay = 50
 # Values:  0: never  1: only connect/disconnect  2: all
 #set show_status_in_buffer = 1
 #
-# Set 'log_display_sender' to 1 to display the message sender's jid in the
+# Set 'log_display_sender' to 1 to display the message sender's JID in the
 # log window (default: 0, no)
 #set log_display_sender = 0
 #

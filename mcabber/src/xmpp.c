@@ -852,19 +852,19 @@ static void _try_to_reconnect(void)
 static void connection_open_cb(LmConnection *connection, gboolean success,
                                gpointer user_data)
 {
-  const char *username, *password, *resource, *servername;
+  const char *userjid, *password, *resource, *servername;
   GError *error;
 
   if (success) {
     servername = settings_opt_get("server");
-    username   = settings_opt_get("username");
+    userjid    = settings_opt_get("jid");
     password   = settings_opt_get("password");
     resource   = strchr(lm_connection_get_jid(connection),
                         JID_RESOURCE_SEPARATOR);
     if (resource)
       resource++;
 
-    if (!lm_connection_authenticate(lconnection, username, password, resource,
+    if (!lm_connection_authenticate(lconnection, userjid, password, resource,
                                     connection_auth_cb, NULL, FALSE, &error)) {
       scr_LogPrint(LPRINT_LOGNORM, "Failed to authenticate: %s\n",
                    error->message);
@@ -1562,7 +1562,7 @@ static void lm_debug_handler (const gchar    *log_domain,
 
 void xmpp_connect(void)
 {
-  const char *username, *password, *resource, *servername, *ssl_fpr;
+  const char *userjid, *password, *resource, *servername, *ssl_fpr;
   char *dynresource = NULL;
   char fpr[16];
   const char *proxy_host;
@@ -1579,23 +1579,18 @@ void xmpp_connect(void)
     xmpp_disconnect();
 
   servername = settings_opt_get("server");
-  username   = settings_opt_get("username");
+  userjid    = settings_opt_get("jid");
   password   = settings_opt_get("password");
   resource   = settings_opt_get("resource");
   proxy_host = settings_opt_get("proxy_host");
   ssl_fpr    = settings_opt_get("ssl_fingerprint");
 
-  if (!servername) {
-    scr_LogPrint(LPRINT_LOGNORM, "Server name has not been specified!");
-    return;
-  }
-
-  if (!username) {
-    scr_LogPrint(LPRINT_LOGNORM, "User name has not been specified!");
+  if (!userjid) {
+    scr_LogPrint(LPRINT_LOGNORM, "Your JID has not been specified!");
     return;
   }
   if (!password) {
-    scr_LogPrint(LPRINT_LOGNORM, "Password has not been specified!");
+    scr_LogPrint(LPRINT_LOGNORM, "Your password has not been specified!");
     return;
   }
 
@@ -1684,8 +1679,10 @@ void xmpp_connect(void)
     }
   }
 
-  fjid = compose_jid(username, servername, resource);
+  fjid = compose_jid(userjid, servername, resource);
   lm_connection_set_jid(lconnection, fjid);
+  if (servername)
+    lm_connection_set_server(lconnection, servername);
 #if defined(HAVE_LIBOTR)
   otr_init(fjid);
 #endif

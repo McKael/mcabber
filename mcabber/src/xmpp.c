@@ -1634,8 +1634,9 @@ void xmpp_connect(void)
   lm_message_handler_unref(handler);
 
   /* Connect to server */
-  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",
-               servername);
+  if (servername)
+    scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",
+                 servername);
   if (!resource)
     resource = resource_prefix;
 

@@ -77,4 +77,7 @@ const char *xmpp_get_bookmark_nick(const char *bjid);
 void xmpp_request(const char *fjid, enum iqreq_type reqtype);
 void request_vcard(const char *bjid);
 void xmpp_request_storage(const gchar *storage);
+
 #endif /* __XMPP_H__ */
+
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

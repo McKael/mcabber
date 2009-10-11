@@ -75,3 +75,5 @@
 #define XMPP_ERROR_DISCONNECTED          510
 
 #endif
+
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

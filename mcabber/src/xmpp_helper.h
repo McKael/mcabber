@@ -21,3 +21,5 @@ void lm_message_node_deep_ref(LmMessageNode * node);
 const char *entity_version(void);
 
 #endif
+
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

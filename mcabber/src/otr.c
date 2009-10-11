@@ -1,7 +1,7 @@
 /*
  * otr.c        -- Off-The-Record Messaging for mcabber
  *
- * Copyright (C) 2007 Frank Zschockelt <mcabber_otr@freakysoft.de>
+ * Copyright (C) 2007-2009 Frank Zschockelt <mcabber_otr@freakysoft.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -773,4 +773,5 @@ int otr_enabled(void)
 }
 
 #endif /* HAVE_LIBOTR */
+
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

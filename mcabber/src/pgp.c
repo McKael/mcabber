@@ -1,7 +1,7 @@
 /*
  * pgp.c        -- PGP utility functions
  *
- * Copyright (C) 2006-2008 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2006-2009 Mikael Berthe <mikael@lilotux.net>
  * Some parts inspired by centericq (impgp.cc)
  *
  * This program is free software; you can redistribute it and/or modify

@@ -1,7 +1,7 @@
 /*
  * nohtml.c     -- (X)HTML helper functions
  *
- * Copyright (C) 2008 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2008,2009 Mikael Berthe <mikael@lilotux.net>
  * Some portions come from the jabberd project, see below.
  *
  * This program is free software; you can redistribute it and/or modify

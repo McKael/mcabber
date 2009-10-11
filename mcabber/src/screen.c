@@ -1,7 +1,7 @@
 /*
  * screen.c     -- UI stuff
  *
- * Copyright (C) 2005-2008 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
  * Parts of this file come from the Cabber project <cabber@ajmacias.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -164,6 +164,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 void scr_WriteMessage(const char *bjid, const char *text,
                       time_t timestamp, guint prefix_flags,
                       unsigned mucnicklen, gpointer xep184);
+
 inline void scr_UpdateBuddyWindow(void);
 inline void scr_set_chatmode(int enable);
 

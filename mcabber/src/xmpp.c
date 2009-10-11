@@ -1,8 +1,8 @@
 /*
- * xmpp.c    -- Jabber protocol handling
+ * xmpp.c       -- Jabber protocol handling
  *
- * Copyright (C) 2008 Frank Zschockelt <mcabber@freakysoft.de>
- * Copyright (C) 2005-2008 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2008-2009 Frank Zschockelt <mcabber@freakysoft.de>
+ * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
  * Parts come from the centericq project:
  * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
  *
@@ -2152,3 +2152,5 @@ void xmpp_set_storage_rosternotes(const char *barejid, const char *note)
     scr_LogPrint(LPRINT_LOGNORM,
                  "Warning: you're not connected to the server.");
 }
+
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

@@ -1,4 +1,27 @@
-/* See xmpp.c file for copyright and license details. */
+/*
+ * xmpp_iq.c    -- Jabber protocol IQ-related stuff
+ *
+ * Copyright (C) 2008-2009 Frank Zschockelt <mcabber@freakysoft.de>
+ * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
+ * Parts come from the centericq project:
+ * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
+ * Some small parts come from the Pidgin project <http://pidgin.im/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ */
 
 static LmHandlerResult handle_iq_command_set_status(LmMessageHandler *h,
                                                     LmConnection *c,
@@ -818,3 +841,5 @@ static LmHandlerResult handle_iq_time202(LmMessageHandler *h, LmConnection *c,
   g_free(buf);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
+
+/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

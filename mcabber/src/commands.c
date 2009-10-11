@@ -1,7 +1,7 @@
 /*
  * commands.c   -- user commands handling
  *
- * Copyright (C) 2005-2008 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -3683,6 +3683,5 @@ static void do_echo(char *arg)
   if (arg)
     scr_print_logwindow(arg);
 }
-
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

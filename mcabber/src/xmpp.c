@@ -1532,29 +1532,33 @@ static void lm_debug_handler (const gchar    *log_domain,
                               const gchar    *message,
                               gpointer        user_data)
 {
-  if (settings_opt_get_int("tracelog_level") != 2)
-    return;
-  if (message) {
+  if (message && *message) {
     char *msg;
+    int mcabber_loglevel = settings_opt_get_int("tracelog_level");
+
+    if (mcabber_loglevel < 2)
+      return;
+
     if (message[0] == '\n')
       msg = g_strdup(&message[1]);
     else
       msg = g_strdup(message);
-    if (msg[strlen(msg)-1] == '\n') msg[strlen(msg)-1] = '\0';
+
+    if (msg[strlen(msg)-1] == '\n')
+      msg[strlen(msg)-1] = '\0';
 
     if (log_level & LM_LOG_LEVEL_VERBOSE) {
       scr_LogPrint(LPRINT_DEBUG, "LM-VERBOSE: %s", msg);
     }
-    if ((LmLogLevelFlags)log_level & LM_LOG_LEVEL_NET) {
-      scr_LogPrint(LPRINT_DEBUG, "LM-NET: %s", msg);
-    }
-    else if (log_level & LM_LOG_LEVEL_PARSER) {
-      scr_LogPrint(LPRINT_DEBUG, "LM-PARSER: %s", msg);
-    }
-    else if (log_level & LM_LOG_LEVEL_SASL) {
+    if (log_level & LM_LOG_LEVEL_NET) {
+      if (mcabber_loglevel > 2)
+        scr_LogPrint(LPRINT_DEBUG, "LM-NET: %s", msg);
+    } else if (log_level & LM_LOG_LEVEL_PARSER) {
+      if (mcabber_loglevel > 3)
+        scr_LogPrint(LPRINT_DEBUG, "LM-PARSER: %s", msg);
+    } else if (log_level & LM_LOG_LEVEL_SASL) {
       scr_LogPrint(LPRINT_DEBUG, "LM-SASL: %s", msg);
-    }
-    else if (log_level & LM_LOG_LEVEL_SSL) {
+    } else if (log_level & LM_LOG_LEVEL_SSL) {
       scr_LogPrint(LPRINT_DEBUG, "LM-SSL: %s", msg);
     }
     g_free(msg);

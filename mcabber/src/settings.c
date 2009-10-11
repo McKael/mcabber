@@ -409,12 +409,7 @@ char *default_muc_nickname(const char *roomid)
   if (nick)
     return g_strdup(nick);
 
-  nick = g_strdup(settings_opt_get("username"));
-  if (nick) {
-    char *p = strchr(nick, JID_DOMAIN_SEPARATOR);
-    if (p > nick)
-      *p = 0;
-  }
+  nick = jid_get_username(settings_opt_get("jid"));
   return nick;
 }
 

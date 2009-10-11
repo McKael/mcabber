@@ -852,24 +852,25 @@ static void _try_to_reconnect(void)
 static void connection_open_cb(LmConnection *connection, gboolean success,
                                gpointer user_data)
 {
-  const char *userjid, *password, *resource, *servername;
+  const char *username, *password, *resource, *servername;
   GError *error;
 
   if (success) {
     servername = settings_opt_get("server");
-    userjid    = settings_opt_get("jid");
+    username   = jid_get_username(settings_opt_get("jid"));
     password   = settings_opt_get("password");
     resource   = strchr(lm_connection_get_jid(connection),
                         JID_RESOURCE_SEPARATOR);
     if (resource)
       resource++;
 
-    if (!lm_connection_authenticate(lconnection, userjid, password, resource,
+    if (!lm_connection_authenticate(lconnection, username, password, resource,
                                     connection_auth_cb, NULL, FALSE, &error)) {
       scr_LogPrint(LPRINT_LOGNORM, "Failed to authenticate: %s\n",
                    error->message);
       _try_to_reconnect();
     }
+    g_free(username);
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "There was an error while connecting.");
     _try_to_reconnect();

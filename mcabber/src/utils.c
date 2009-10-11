@@ -63,6 +63,18 @@ char *jidtodisp(const char *fjid)
   return alias;
 }
 
+char *jid_get_username(const char *fjid)
+{
+  char *ptr;
+  char *username;
+
+  username = g_strdup(fjid);
+  if ((ptr = strchr(username, JID_DOMAIN_SEPARATOR)) != NULL) {
+    *ptr = 0;
+  }
+  return username;
+}
+
 char *compose_jid(const char *username, const char *servername,
                   const char *resource)
 {

@@ -15,6 +15,7 @@ extern const char *LocaleCharSet;
 #define JID_DOMAIN_SEPARATORSTR     "@"
 
 char *jidtodisp(const char *fjid);
+char *jid_get_username(const char *fjid);
 char *compose_jid(const char *username, const char *servername,
                   const char *resource);
 gboolean jid_equal(const char *jid1, const char *jid2);

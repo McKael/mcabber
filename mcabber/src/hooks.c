@@ -340,10 +340,11 @@ void hk_message_out(const char *bjid, const char *nick,
   } else {
     wmsg = (char*)msg;
     if (!strncmp(msg, COMMAND_ME, strlen(COMMAND_ME))) {
-      const char *myid = settings_opt_get("username");
-      if (myid)
-        wmsg = mmsg = g_strdup_printf("*%s %s", settings_opt_get("username"),
-                                      msg+4);
+      char *myid = jid_get_username(settings_opt_get("jid"));
+      if (myid) {
+        wmsg = mmsg = g_strdup_printf("*%s %s", myid, msg+4);
+        g_free(myid);
+      }
     }
   }
 

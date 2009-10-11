@@ -83,6 +83,7 @@ static struct IqHandlers
   {NS_DISCO_INFO, &handle_iq_disco_info},
   {NS_DISCO_ITEMS,&handle_iq_disco_items},
   {NS_COMMANDS,   &handle_iq_commands},
+  {NS_VCARD,      &handle_iq_vcard},
   {NULL, NULL}
 };
 

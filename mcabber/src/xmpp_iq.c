@@ -818,4 +818,11 @@ LmHandlerResult handle_iq_time202(LmMessageHandler *h, LmConnection *c,
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
+LmHandlerResult handle_iq_vcard(LmMessageHandler *h, LmConnection *c,
+                                LmMessage *m, gpointer ud)
+{
+  send_iq_error(c, m, XMPP_ERROR_SERVICE_UNAVAILABLE);
+  return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+}
+
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

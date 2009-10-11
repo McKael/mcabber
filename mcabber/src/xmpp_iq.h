@@ -22,6 +22,8 @@ LmHandlerResult handle_iq_time(LmMessageHandler *h, LmConnection *c,
                                LmMessage *m, gpointer ud);
 LmHandlerResult handle_iq_time202(LmMessageHandler *h, LmConnection *c,
                                   LmMessage *m, gpointer ud);
+LmHandlerResult handle_iq_vcard(LmMessageHandler *h, LmConnection *c,
+                                LmMessage *m, gpointer ud);
 
 void send_iq_error(LmConnection *c, LmMessage *m, guint error);
 

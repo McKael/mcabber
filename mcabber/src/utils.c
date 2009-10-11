@@ -199,7 +199,7 @@ void ut_WriteLog(unsigned int flag, const char *data)
 {
   if (!DebugEnabled || !FName) return;
 
-  if (((DebugEnabled == 2) && (flag & (LPRINT_LOG|LPRINT_DEBUG))) ||
+  if (((DebugEnabled >= 2) && (flag & (LPRINT_LOG|LPRINT_DEBUG))) ||
       ((DebugEnabled == 1) && (flag & LPRINT_LOG))) {
     FILE *fp = fopen(FName, "a+");
     if (!fp) {

@@ -148,7 +148,7 @@ AM_PATH_GLIB_2_0(2.14.0,
                  [g_regex_new "$gmodule_module"])
 
 # Check for loudmouth
-PKG_CHECK_MODULES(LOUDMOUTH, loudmouth-1.0 >= 1.4.3)
+PKG_CHECK_MODULES(LOUDMOUTH, loudmouth-1.0 >= 1.4.2)
 AC_SUBST(LOUDMOUTH_CFLAGS)
 AC_SUBST(LOUDMOUTH_LIBS)
 

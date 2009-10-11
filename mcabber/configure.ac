@@ -138,9 +138,8 @@ AM_PATH_GLIB_2_0(2.14.0,
                                   [g_list_append])],
                  [g_regex_new])
 
-dnl AC_CHECK_LIB([loudmouth1],[lm_session_is_open],,AC_MSG_ERROR([ERROR! loudmouth1 not found...]))
-LOUDMOUTH_CFLAGS=`pkg-config --cflags loudmouth-1.0`
-LOUDMOUTH_LIBS=`pkg-config --libs loudmouth-1.0`
+# Check for loudmouth
+PKG_CHECK_MODULES(LOUDMOUTH, loudmouth-1.0 >= 1.4.3)
 AC_SUBST(LOUDMOUTH_CFLAGS)
 AC_SUBST(LOUDMOUTH_LIBS)
 

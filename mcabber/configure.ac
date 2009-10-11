@@ -138,6 +138,12 @@ AM_PATH_GLIB_2_0(2.14.0,
                                   [g_list_append])],
                  [g_regex_new])
 
+dnl AC_CHECK_LIB([loudmouth1],[lm_session_is_open],,AC_MSG_ERROR([ERROR! loudmouth1 not found...]))
+LOUDMOUTH_CFLAGS=`pkg-config --cflags loudmouth-1.0`
+LOUDMOUTH_LIBS=`pkg-config --libs loudmouth-1.0`
+AC_SUBST(LOUDMOUTH_CFLAGS)
+AC_SUBST(LOUDMOUTH_LIBS)
+
 # Check for gpgme
 AC_ARG_ENABLE(gpgme, AC_HELP_STRING([--disable-gpgme], [disable GPGME support]),
     [ if test x"$enableval" = x"no"; then
@@ -160,48 +166,6 @@ if test "x$enable_otr" = "xyes"; then
                          AC_MSG_ERROR(libotr 3.1.0 or newer is required.))
       ], AC_MSG_ERROR(libgcrypt 1.2.2 or newer is required.)
   )
-fi
-
-AC_ARG_WITH(ssl, [  --with-ssl              enable SSL secured connections using either OpenSSL
-                          or GnuTLS],
-        [with_ssl=$withval])
-
-if test "$with_ssl" != "no"; then
-    AC_ARG_WITH(openssl,
-        [  --with-openssl=[DIR]      enable SSL secured connections using the OpenSSL
-                          library in DIR (optional)],
-        [with_openssl=$withval])
-
-    if test -z "$with_openssl"; then
-        for ac_dir in /usr/local /usr; do
-            if test -f "$ac_dir/include/openssl/ssl.h"; then
-                with_openssl=$ac_dir
-                break;
-            fi
-        done
-    fi
-
-    AC_MSG_CHECKING(for OpenSSL)
-
-    if test -n "$with_openssl" -a "$with_openssl" != "no"; then
-        if test "$with_openssl" = "yes"; then with_openssl="/usr"; fi
-        CFLAGS="$CFLAGS -I${with_openssl}"
-        AC_DEFINE([HAVE_OPENSSL], [], [OpenSSL])
-        AC_MSG_RESULT([found in $with_openssl])
-        AC_CHECK_LIB(crypto, main)
-        AC_CHECK_LIB(ssl, main)
-    else
-        AC_MSG_RESULT([not found or disabled])
-
-        PKG_PROG_PKG_CONFIG
-        PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 1.0.0],
-                          have_gnutls=yes, have_gnutls=no)
-        if test "$have_gnutls" = "yes"; then
-            AC_DEFINE([HAVE_GNUTLS], 1, [GNU TLS])
-            CXXFLAGS="$CXXFLAGS $LIBGNUTLS_CFLAGS"
-            LIBS="$LIBS $LIBGNUTLS_LIBS"
-        fi
-    fi
 fi
 
 # Check for Enchant stuff
@@ -270,9 +234,7 @@ AM_CONDITIONAL([OTR], [test x$libotr_found = xyes])
 # We need _GNU_SOURCE for strptime() and strcasestr()
 CFLAGS="$CFLAGS -D_GNU_SOURCE"
 
-AC_CONFIG_FILES([connwrap/Makefile
-                 libjabber/Makefile
-                 src/Makefile
+AC_CONFIG_FILES([src/Makefile
                  doc/Makefile
                  doc/guide/Makefile
                  doc/help/Makefile

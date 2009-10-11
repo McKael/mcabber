@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <glib.h>
 
-#include "jabglue.h"
+#include "roster.h"
 
 #ifndef isblank
 # define isblank(c)  ((c) == 0x20 || (c) == 0x09)

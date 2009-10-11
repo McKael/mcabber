@@ -14,6 +14,14 @@ extern const char *LocaleCharSet;
 #define JID_DOMAIN_SEPARATOR        '@'
 #define JID_DOMAIN_SEPARATORSTR     "@"
 
+char *jidtodisp(const char *fjid);
+char *compose_jid(const char *username, const char *servername,
+                  const char *resource);
+gboolean jid_equal(const char *jid1, const char *jid2);
+
+void fingerprint_to_hex(const unsigned char *fpr, char hex[49]);
+gboolean hex_to_fingerprint(const char * hex, char fpr[16]);
+
 void ut_InitDebug(int level, const char *file);
 void ut_WriteLog(unsigned int flag, const char *data);
 

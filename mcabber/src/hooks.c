@@ -19,9 +19,11 @@
  * USA
  */
 
+#include <loudmouth/loudmouth.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 #include "hooks.h"
 #include "screen.h"
@@ -55,8 +57,8 @@ void hk_mainloop(void)
 }
 
 void hk_message_in(const char *bjid, const char *resname,
-                          time_t timestamp, const char *msg, const char *type,
-                          guint encrypted)
+                   time_t timestamp, const char *msg, LmMessageSubType type,
+                   guint encrypted)
 {
   int new_guy = FALSE;
   int is_groupchat = FALSE; // groupchat message
@@ -75,7 +77,7 @@ void hk_message_in(const char *bjid, const char *resname,
   else if (encrypted == ENCRYPTED_OTR)
     message_flags |= HBB_PREFIX_OTRCRYPT;
 
-  if (type && !strcmp(type, "groupchat")) {
+  if (type == LM_MESSAGE_SUB_TYPE_GROUPCHAT) {
     rtype = ROSTER_TYPE_ROOM;
     is_groupchat = TRUE;
     log_muc_conf = settings_opt_get_int("log_muc_conf");
@@ -172,7 +174,7 @@ void hk_message_in(const char *bjid, const char *resname,
     }
   }
 
-  if (type && !strcmp(type, "error")) {
+  if (type  == LM_MESSAGE_SUB_TYPE_ERROR) {
     message_flags = HBB_PREFIX_ERR | HBB_PREFIX_IN;
     scr_LogPrint(LPRINT_LOGNORM, "Error message received from <%s>", bjid);
   }
@@ -292,8 +294,8 @@ void hk_message_out(const char *bjid, const char *nick,
 }
 
 void hk_statuschange(const char *bjid, const char *resname, gchar prio,
-                            time_t timestamp, enum imstatus status,
-                            const char *status_msg)
+                     time_t timestamp, enum imstatus status,
+                     const char *status_msg)
 {
   int st_in_buf;
   enum imstatus oldstat;
@@ -477,8 +479,15 @@ void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data)
       scr_LogPrint(LPRINT_LOGNORM,
                    "Unable to create temp file for external command.");
     } else {
-      write(fd, data_locale, strlen(data_locale));
-      write(fd, "\n", 1);
+      size_t data_locale_len = strlen(data_locale);
+      ssize_t a = write(fd, data_locale, data_locale_len);
+      ssize_t b = write(fd, "\n", 1);
+      if (a != data_locale_len || b != 1) {
+        g_free(datafname);
+        datafname = NULL;
+        scr_LogPrint(LPRINT_LOGNORM,
+                     "Unable to write to temp file for external command.");
+      }
       close(fd);
       arg_data = datafname;
     }

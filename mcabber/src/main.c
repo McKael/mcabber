@@ -31,7 +31,6 @@
 #include <glib.h>
 #include <config.h>
 
-#include "jabglue.h"
 #include "screen.h"
 #include "settings.h"
 #include "roster.h"
@@ -42,6 +41,7 @@
 #include "pgp.h"
 #include "otr.h"
 #include "fifo.h"
+#include "xmpp.h"
 
 #ifdef ENABLE_HGCSET
 # include "hgcset.h"
@@ -52,6 +52,7 @@
 #endif
 
 static unsigned int terminate_ui;
+GMainLoop *main_loop = NULL;
 
 static struct termios *backup_termios;
 
@@ -66,135 +67,10 @@ char *mcabber_version(void)
   return ver;
 }
 
-void mcabber_connect(void)
-{
-  const char *username, *password, *resource, *servername;
-  const char *proxy_host;
-  const char *resource_prefix = PACKAGE_NAME;
-  char *dynresource = NULL;
-  char *fjid;
-  int ssl;
-  int sslverify = -1;
-  const char *sslvopt = NULL, *cafile = NULL, *capath = NULL, *ciphers = NULL;
-  static char *cafile_xp, *capath_xp;
-  unsigned int port;
-
-  servername = settings_opt_get("server");
-  username   = settings_opt_get("username");
-  password   = settings_opt_get("password");
-  resource   = settings_opt_get("resource");
-  proxy_host = settings_opt_get("proxy_host");
-
-  // Free the ca*_xp strings if they've already been set.
-  g_free(cafile_xp);
-  g_free(capath_xp);
-  cafile_xp = capath_xp = NULL;
-
-  if (!servername) {
-    scr_LogPrint(LPRINT_NORMAL, "Server name has not been specified!");
-    return;
-  }
-  if (!username) {
-    scr_LogPrint(LPRINT_NORMAL, "User name has not been specified!");
-    return;
-  }
-  if (!password) {
-    scr_LogPrint(LPRINT_NORMAL, "Password has not been specified!");
-    return;
-  }
-
-  port    = (unsigned int) settings_opt_get_int("port");
-
-  ssl     = settings_opt_get_int("ssl");
-  sslvopt = settings_opt_get("ssl_verify");
-  if (sslvopt)
-    sslverify = settings_opt_get_int("ssl_verify");
-  cafile  = settings_opt_get("ssl_cafile");
-  capath  = settings_opt_get("ssl_capath");
-  ciphers = settings_opt_get("ssl_ciphers");
-
-#if !defined(HAVE_OPENSSL) && !defined(HAVE_GNUTLS)
-  if (ssl) {
-    scr_LogPrint(LPRINT_LOGNORM, "** Error: SSL is NOT available, "
-                 "do not set the option 'ssl'.");
-    return;
-  } else if (sslvopt || cafile || capath || ciphers) {
-    scr_LogPrint(LPRINT_LOGNORM, "** Warning: SSL is NOT available, "
-                 "ignoring ssl-related settings");
-    ssl = sslverify = 0;
-    cafile = capath = ciphers = NULL;
-  }
-#elif defined HAVE_GNUTLS
-  if (ssl && sslverify != 0) {
-    scr_LogPrint(LPRINT_LOGNORM, "** Error: SSL certificate checking "
-                 "is not supported yet with GnuTLS.");
-    scr_LogPrint(LPRINT_LOGNORM,
-                 " * Please set 'ssl_verify' to 0 explicitly!");
-    return;
-  }
-#endif
-  cafile_xp = expand_filename(cafile);
-  capath_xp = expand_filename(capath);
-  cw_set_ssl_options(sslverify, cafile_xp, capath_xp, ciphers, servername);
-  // We can't free the ca*_xp variables now, because they're not duplicated
-  // in cw_set_ssl_options().
-
-  if (!resource)
-    resource = resource_prefix;
-
-  if (!settings_opt_get("disable_random_resource")) {
-#if HAVE_ARC4RANDOM
-    dynresource = g_strdup_printf("%s.%08x", resource, arc4random());
-#else
-    unsigned int tab[2];
-    srand(time(NULL));
-    tab[0] = (unsigned int) (0xffff * (rand() / (RAND_MAX + 1.0)));
-    tab[1] = (unsigned int) (0xffff * (rand() / (RAND_MAX + 1.0)));
-    dynresource = g_strdup_printf("%s.%04x%04x", resource, tab[0], tab[1]);
-#endif
-    resource = dynresource;
-  }
-
-  /* Connect to server */
-  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",
-               servername);
-  if (port)
-    scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " using port %d", port);
-  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " resource %s", resource);
-
-  if (proxy_host) {
-    int proxy_port = settings_opt_get_int("proxy_port");
-    if (proxy_port <= 0 || proxy_port > 65535) {
-      scr_LogPrint(LPRINT_LOGNORM, "Invalid proxy port: %d", proxy_port);
-    } else {
-      const char *proxy_user, *proxy_pass;
-      proxy_user = settings_opt_get("proxy_user");
-      proxy_pass = settings_opt_get("proxy_pass");
-      // Proxy initialization
-      cw_setproxy(proxy_host, proxy_port, proxy_user, proxy_pass);
-      scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " using proxy %s:%d",
-                   proxy_host, proxy_port);
-    }
-  }
-
-  fjid = compose_jid(username, servername, resource);
-#if defined(HAVE_LIBOTR)
-  otr_init(fjid);
-#endif
-  jc = jb_connect(fjid, servername, port, ssl, password);
-  g_free(fjid);
-  g_free(dynresource);
-
-  if (!jc)
-    scr_LogPrint(LPRINT_LOGNORM, "Error connecting to (%s)", servername);
-
-  jb_reset_keepalive();
-}
-
 static void mcabber_terminate(const char *msg)
 {
   fifo_deinit();
-  jb_disconnect();
+  xmpp_disconnect();
   scr_TerminateCurses();
 
   // Restore term settings, if needed.
@@ -259,7 +135,7 @@ static char *ask_password(const char *what)
 
   /* Read the password. */
   printf("Please enter %s: ", what);
-  fgets(password, passsize, stdin);
+  if (fgets(password, passsize, stdin) == NULL) return NULL;
 
   /* Restore terminal. */
   tcsetattr(fileno(stdin), TCSAFLUSH, &orig);
@@ -288,11 +164,6 @@ static void compile_options(void)
   puts("Installation data directory: " DATA_DIR "\n");
 #ifdef HAVE_UNICODE
   puts("Compiled with unicode support.");
-#endif
-#ifdef HAVE_OPENSSL
-  puts("Compiled with OpenSSL support.");
-#elif defined HAVE_GNUTLS
-  puts("Compiled with GnuTLS support.");
 #endif
 #ifdef HAVE_GPGME
   puts("Compiled with GPG support.");
@@ -376,14 +247,36 @@ void mcabber_set_terminate_ui(void)
   terminate_ui = TRUE;
 }
 
+gboolean mcabber_loop()
+{
+  keycode kcode;
+
+  if (terminate_ui) {
+    g_main_loop_quit(main_loop);
+    return FALSE;
+  }
+  scr_DoUpdate();
+  scr_Getch(&kcode);
+
+  if (kcode.value != ERR) {
+    process_key(kcode);
+  } else {
+    scr_CheckAutoAway(FALSE);
+
+    if (update_roster)
+      scr_DrawRoster();
+
+    hk_mainloop();
+  }
+  return TRUE;
+}
+
 int main(int argc, char **argv)
 {
   char *configFile = NULL;
   const char *optstring;
   int optval, optval2;
-  unsigned int ping;
   int ret;
-  keycode kcode;
 
   credits();
 
@@ -484,12 +377,6 @@ int main(int argc, char **argv)
   if (optstring)
     hk_ext_cmd_init(optstring);
 
-  ping = 40;
-  if (settings_opt_get("pinginterval"))
-    ping = (unsigned int) settings_opt_get_int("pinginterval");
-  jb_set_keepalive_delay(ping);
-  scr_LogPrint(LPRINT_DEBUG, "Ping interval established: %d secs", ping);
-
   if (settings_opt_get_int("hide_offline_buddies") > 0) { // XXX Deprecated
     scr_RosterDisplay("ofdna");
     scr_LogPrint(LPRINT_LOGNORM,
@@ -511,39 +398,27 @@ int main(int argc, char **argv)
   /* Load previous roster state */
   hlog_load_state();
 
+  main_loop = g_main_loop_new(NULL, TRUE);
+
   if (ret < 0) {
     scr_LogPrint(LPRINT_NORMAL, "No configuration file has been found.");
     scr_ShowBuddyWindow();
   } else {
     /* Connection */
-    mcabber_connect();
+    xmpp_connect();
   }
 
   scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
 
-  while (!terminate_ui) {
-    scr_DoUpdate();
-    scr_Getch(&kcode);
-
-    if (kcode.value != ERR) {
-      process_key(kcode);
-    } else {
-      scr_CheckAutoAway(FALSE);
-
-      if (update_roster)
-        scr_DrawRoster();
-
-      jb_main();
-      hk_mainloop();
-    }
-  }
+  g_timeout_add(10, mcabber_loop, NULL);
+  g_main_loop_run(main_loop);
 
   scr_TerminateCurses();
   fifo_deinit();
 #ifdef HAVE_LIBOTR
   otr_terminate();
 #endif
-  jb_disconnect();
+  xmpp_disconnect();
 #ifdef HAVE_GPGME
   gpg_terminate();
 #endif

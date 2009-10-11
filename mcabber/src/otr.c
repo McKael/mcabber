@@ -24,22 +24,22 @@
 
 #ifdef HAVE_LIBOTR
 
-#include "otr.h"
-#include "logprint.h"
 #include "hbuf.h"
-#include "jab_priv.h"
+#include "logprint.h"
+#include "nohtml.h"
+#include "otr.h"
 #include "roster.h"
-#include "utils.h"
 #include "screen.h"
 #include "settings.h"
-#include "nohtml.h"
+#include "utils.h"
+#include "xmpp.h"
 
 #define OTR_PROTOCOL_NAME "jabber"
 
 static OtrlUserState userstate = NULL;
-static char * account = NULL;
-static char * keyfile = NULL;
-static char * fprfile = NULL;
+static char *account = NULL;
+static char *keyfile = NULL;
+static char *fprfile = NULL;
 
 static int otr_is_enabled = FALSE;
 
@@ -109,11 +109,11 @@ static OtrlMessageAppOps ops =
 };
 
 static void otr_message_disconnect(ConnContext *ctx);
-static ConnContext * otr_get_context(const char *buddy);
-static void otr_startstop(const char * buddy, int start);
-static void otr_handle_smp_tlvs(OtrlTLV * tlvs, ConnContext * ctx);
+static ConnContext *otr_get_context(const char *buddy);
+static void otr_startstop(const char *buddy, int start);
+static void otr_handle_smp_tlvs(OtrlTLV *tlvs, ConnContext *ctx);
 
-static char * otr_get_dir(void);
+static char *otr_get_dir(void);
 
 void otr_init(const char *fjid)
 {
@@ -149,7 +149,7 @@ void otr_init(const char *fjid)
 
 void otr_terminate(void)
 {
-  ConnContext * ctx;
+  ConnContext *ctx;
 
   if (!otr_is_enabled)
     return;
@@ -167,7 +167,7 @@ void otr_terminate(void)
    * This is reported to be a bug in libgcrypt :-/
    * Mikael
    */
-#if defined(HAVE_GNUTLS) && !defined(HAVE_OPENSSL)
+#if defined(HAVE_GNUTLS) && !defined(HAVE_OPENSSL) //TODO: broken now
   if (!settings_opt_get_int("ssl"))
 #endif
   otrl_userstate_free(userstate);
@@ -177,7 +177,7 @@ void otr_terminate(void)
   keyfile = NULL;
 }
 
-static char * otr_get_dir(void)
+static char *otr_get_dir(void)
 {
   const char *configured_dir = settings_opt_get("otr_dir");
 
@@ -198,11 +198,11 @@ static char * otr_get_dir(void)
   }
 }
 
-static ConnContext * otr_get_context(const char *buddy)
+static ConnContext *otr_get_context(const char *buddy)
 {
   int null = 0;
-  ConnContext * ctx;
-  char * lowcasebuddy = g_strdup(buddy);
+  ConnContext *ctx;
+  char *lowcasebuddy = g_strdup(buddy);
 
   mc_strtolower(lowcasebuddy);
   ctx = otrl_context_find(userstate, lowcasebuddy, account, OTR_PROTOCOL_NAME,
@@ -219,9 +219,9 @@ static void otr_message_disconnect(ConnContext *ctx)
                           ctx->protocol, ctx->username);
 }
 
-static void otr_startstop(const char * buddy, int start)
+static void otr_startstop(const char *buddy, int start)
 {
-  char * msg = NULL;
+  char *msg = NULL;
   ConnContext *ctx = otr_get_context(buddy);
 
   if (!userstate || !ctx)
@@ -251,12 +251,12 @@ void otr_establish(const char *buddy)
   otr_startstop(buddy, 1);
 }
 
-void otr_disconnect(const char * buddy)
+void otr_disconnect(const char *buddy)
 {
   otr_startstop(buddy, 0);
 }
 
-void otr_fingerprint(const char * buddy, const char * trust)
+void otr_fingerprint(const char *buddy, const char *trust)
 {
   char fpr[45], *tr;
   ConnContext *ctx = otr_get_context(buddy);
@@ -283,7 +283,7 @@ void otr_fingerprint(const char * buddy, const char * trust)
   cb_write_fingerprints(NULL);
 }
 
-static void otr_handle_smp_tlvs(OtrlTLV * tlvs, ConnContext * ctx)
+static void otr_handle_smp_tlvs(OtrlTLV *tlvs, ConnContext *ctx)
 {
   OtrlTLV *tlv = NULL;
   char *sbuf = NULL;
@@ -358,13 +358,13 @@ static void otr_handle_smp_tlvs(OtrlTLV * tlvs, ConnContext * ctx)
  * returns whether a otr_message was received
  * sets *otr_data to NULL, when it was an internal otr message
  */
-int otr_receive(char **otr_data, const char * buddy, int * free_msg)
+int otr_receive(char **otr_data, const char *buddy, int *free_msg)
 {
   int ignore_message;
   char *newmessage = NULL;
   OtrlTLV *tlvs = NULL;
   OtrlTLV *tlv = NULL;
-  ConnContext * ctx;
+  ConnContext *ctx;
 
   ctx = otr_get_context(buddy);
   *free_msg = 0;
@@ -406,7 +406,7 @@ int otr_send(char **msg, const char *buddy)
   gcry_error_t err;
   char *newmessage = NULL;
   char *htmlmsg;
-  ConnContext * ctx = otr_get_context(buddy);
+  ConnContext *ctx = otr_get_context(buddy);
 
   if (ctx->msgstate == OTRL_MSGSTATE_PLAINTEXT)
     err = otrl_message_sending(userstate, &ops, NULL, ctx->accountname,
@@ -434,10 +434,10 @@ int otr_send(char **msg, const char *buddy)
 }
 
 /* Prints OTR connection state */
-void otr_print_info(const char * buddy)
+void otr_print_info(const char *buddy)
 {
   const char *state, *auth, *policy;
-  ConnContext * ctx = otr_get_context(buddy);
+  ConnContext *ctx = otr_get_context(buddy);
   OtrlPolicy p = cb_policy(ctx->app_data, ctx);
 
   if (!userstate || !ctx)
@@ -491,9 +491,9 @@ void otr_print_info(const char * buddy)
                ctx->username, state, auth, policy);
 }
 
-static ConnContext * otr_context_encrypted(const char * buddy)
+static ConnContext *otr_context_encrypted(const char *buddy)
 {
-  ConnContext * ctx = otr_get_context(buddy);
+  ConnContext *ctx = otr_get_context(buddy);
 
   if (!userstate || !ctx  || ctx->msgstate != OTRL_MSGSTATE_ENCRYPTED){
     scr_LogPrint(LPRINT_LOGNORM,
@@ -505,9 +505,9 @@ static ConnContext * otr_context_encrypted(const char * buddy)
   return ctx;
 }
 
-void otr_smp_query(const char * buddy, const char * secret)
+void otr_smp_query(const char *buddy, const char *secret)
 {
-  ConnContext * ctx = otr_context_encrypted(buddy);
+  ConnContext *ctx = otr_context_encrypted(buddy);
 
   if (!secret) {
     scr_LogPrint(LPRINT_LOGNORM,
@@ -525,9 +525,9 @@ void otr_smp_query(const char * buddy, const char * secret)
   }
 }
 
-void otr_smp_respond(const char * buddy, const char * secret)
+void otr_smp_respond(const char *buddy, const char *secret)
 {
-  ConnContext * ctx = otr_context_encrypted(buddy);
+  ConnContext *ctx = otr_context_encrypted(buddy);
 
   if (!secret) {
     scr_LogPrint(LPRINT_LOGNORM,
@@ -551,9 +551,9 @@ void otr_smp_respond(const char * buddy, const char * secret)
   }
 }
 
-void otr_smp_abort(const char * buddy)
+void otr_smp_abort(const char *buddy)
 {
-  ConnContext * ctx = otr_context_encrypted(buddy);
+  ConnContext *ctx = otr_context_encrypted(buddy);
 
   if (ctx) {
     otrl_message_abort_smp(userstate, &ops, NULL, ctx);
@@ -565,7 +565,7 @@ void otr_smp_abort(const char * buddy)
 
 void otr_key(void)
 {
-  OtrlPrivKey * key;
+  OtrlPrivKey *key;
   char readable[45] = "";
 
   if(!userstate)
@@ -606,7 +606,7 @@ static void cb_create_privkey(void *opdata, const char *accountname,
                               const char *protocol)
 {
   gcry_error_t e;
-  char * root;
+  char *root;
 
   scr_LogPrint(LPRINT_LOGNORM,
                "Generating new OTR key for %s. This may take a while...",
@@ -643,10 +643,9 @@ static void cb_inject_message(void *opdata, const char *accountname,
                               const char *protocol, const char *recipient,
                               const char *message)
 {
-  char * id = g_strdup("otrinject");
   if (roster_gettype(recipient) == ROSTER_TYPE_USER)
-    jb_send_msg(recipient, message, ROSTER_TYPE_USER, "", id, NULL, NULL);
-  g_free(id);
+    xmpp_send_msg(recipient, message, ROSTER_TYPE_USER, "", TRUE, NULL,
+                  LM_MESSAGE_SUB_TYPE_NOT_SET);
 }
 
 /* Display a notification message for a particular
@@ -656,7 +655,7 @@ static void cb_notify(void *opdata, OtrlNotifyLevel level,
                       const char *username, const char *title,
                       const char *primary, const char *secondary)
 {
-  char * type;
+  char *type;
   char *sbuf = NULL;
   switch (level) {
     case OTRL_NOTIFY_ERROR:   type = "error";   break;

@@ -22,6 +22,7 @@ void spellcheck_deinit(void);
 
 #include "hbuf.h"
 #include "logprint.h"
+#include "roster.h"
 
 #define INPUTLINE_LENGTH  1024
 
@@ -119,11 +120,10 @@ void scr_Beep(void);
 
 bool Autoaway;
 
-long int scr_GetAutoAwayTimeout(time_t now);
 void scr_CheckAutoAway(int activity);
 
 #if defined JEP0022 || defined JEP0085
-long int scr_GetChatStatesTimeout(time_t now);
+gboolean scr_ChatStatesTimeout();
 #endif
 int chatstates_disabled;
 

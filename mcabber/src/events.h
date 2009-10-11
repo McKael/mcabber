@@ -1,7 +1,7 @@
 #ifndef __EVENTS_H__
 #define __EVENTS_H__ 1
 
-#include "jabglue.h"
+#include "xmpp.h"
 
 
 #define EVS_DEFAULT_TIMEOUT 90
@@ -24,7 +24,6 @@ typedef struct {
   guint8 type;
   gpointer data;
   int (*callback)();
-  xmlnode xmldata;
   char *desc;
 } eviqs;
 
@@ -35,12 +34,12 @@ typedef struct {
   char* reason;
 } event_muc_invitation;
 
-eviqs  *evs_new(guint8 type, time_t timeout);
-int     evs_del(const char *evid);
-int     evs_callback(const char *evid, guint evcontext);
-void    evs_check_timeout(time_t now_t);
-void    evs_display_list(void);
-GSList *evs_geteventslist(int forcompl);
+eviqs   *evs_new(guint8 type, time_t timeout);
+int      evs_del(const char *evid);
+int      evs_callback(const char *evid, guint evcontext);
+gboolean evs_check_timeout();
+void     evs_display_list(void);
+GSList  *evs_geteventslist(int forcompl);
 
 #endif /* __EVENTS_H__ */
 

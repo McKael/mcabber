@@ -34,26 +34,23 @@ set server = your.jabber.server
 # presence in your roster (default: 0).
 set ignore_self_presence = 1
 
-# SSL options:
-# Set ssl non-zero to use SSL (this also sets the default port to 5223).
-# * Please note that certificate verification is NOT yet supported if
-#   mcabber is compiled with GnuTLS (only works with OpenSSL).
-#   You can use mcabber -V to check.
-# Set ssl_verify to 0 to disable certificate verification, or non-zero
-# to set desired maximum CA verification depth. Use -1 to specify an
-# unlimited depth.
-# NOTE: You probably need to set ssl_capath for SSL cert verification to work!
-# Set ssl_cafile to a path to a CA certificate file (may contain multiple
-# CA certificates).
-# Set ssl_capath to a directory containing CA certificates (use c_rehash
-# to generate hash links).
-# Set ssl_ciphers to a list of desired SSL ciphers (run "openssl ciphers"
-# for candidate values).
+# SSL/TLS options:
+# TLS is now regarded as the default encryption for connecting to jabber.
+# You can require TLS by setting tls to 1. If your jabber server
+# still doesn't support TLS, you can use the old-style SSL by setting
+# ssl to 1. It's not possible to use old-style SSL and TLS together.
 set ssl = 0
-#set ssl_verify = -1
-#set ssl_cafile = /usr/share/ssl/certs/ca-bundle.crt
-#set ssl_capath =
-#set ssl_ciphers =
+set tls = 1
+# Moreover, it's possible to check whether the fingerprint of the
+# ssl certificate matches ssl_fingerprint.
+# You can get the fingerprint of your server either with gnutls or openssl:
+# 1. gnutls-cli -p 5223 $your_server
+# 2. openssl s_client -connect $your_server:5223 | \
+#    openssl x509 -fingerprint -md5 -noout
+set ssl_fingerprint = 97:5C:00:3F:1D:77:45:25:E2:C5:70:EC:83:C8:87:EE
+# Set ssl_ignore_checks to 1 to disable all certificate checks except the
+# fingerprint check.
+#set ssl_ignore_checks = 0
 
 # PGP support
 # Set pgp to 1 to enable OpenPGP.

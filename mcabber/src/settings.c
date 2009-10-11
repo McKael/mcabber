@@ -19,15 +19,16 @@
  * USA
  */
 
-#include <strings.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
+#include <string.h>
 
 #include "settings.h"
 #include "commands.h"
-#include "utils.h"
 #include "logprint.h"
 #include "otr.h"
+#include "utils.h"
+#include "xmpp.h"
 
 // Maximum line length
 // (probably best to use the same value as INPUTLINE_LENGTH)
@@ -392,7 +393,7 @@ char *default_muc_nickname(const char *roomid)
 {
   char *nick;
 
-  nick = (char*)jb_get_bookmark_nick(roomid);
+  nick = (char*)xmpp_get_bookmark_nick(roomid);
   if (nick)
     return g_strdup(nick);
 
@@ -537,7 +538,7 @@ const char *settings_pgp_getkeyid(const char *bjid)
 /* otr settings */
 
 #ifdef HAVE_LIBOTR
-static void remove_default_policies(char * k, char * policy, void * defaultp)
+static void remove_default_policies(char *k, char *policy, void *defaultp)
 {
   if (*(enum otr_policy *)policy == *(enum otr_policy *)defaultp) {
     g_free((enum otr_policy *) policy);
@@ -578,7 +579,7 @@ void settings_otr_setpolicy(const char *bjid, guint value)
 guint settings_otr_getpolicy(const char *bjid)
 {
 #ifdef HAVE_LIBOTR
-  enum otr_policy * otrdata;
+  enum otr_policy *otrdata;
   if (!bjid)
     return default_policy;
 

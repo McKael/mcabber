@@ -20,6 +20,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <glib.h>
 #include <sys/types.h>
 #include <sys/stat.h>

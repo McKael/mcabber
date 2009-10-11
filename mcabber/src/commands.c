@@ -20,13 +20,13 @@
  */
 
 #include <string.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 #include "commands.h"
 #include "help.h"
-#include "jabglue.h"
 #include "roster.h"
 #include "screen.h"
 #include "compl.h"
@@ -37,6 +37,7 @@
 #include "events.h"
 #include "otr.h"
 #include "utf8.h"
+#include "xmpp.h"
 
 #define IMSTATUS_AWAY           "away"
 #define IMSTATUS_ONLINE         "online"
@@ -575,7 +576,7 @@ static void display_and_free_note(struct annotation *note, const char *winId)
 static void display_all_annotations(void)
 {
   GSList *notes;
-  notes = jb_get_all_storage_rosternotes();
+  notes = xmpp_get_all_storage_rosternotes();
 
   if (!notes)
     return;
@@ -620,10 +621,10 @@ static void roster_note(char *arg)
       notetxt = NULL; // delete note
     else
       notetxt = msg;
-    jb_set_storage_rosternotes(bjid, notetxt);
+    xmpp_set_storage_rosternotes(bjid, notetxt);
     g_free(msg);
   } else {      // Display a note
-    struct annotation *note = jb_get_storage_rosternotes(bjid, FALSE);
+    struct annotation *note = xmpp_get_storage_rosternotes(bjid, FALSE);
     if (note) {
       display_and_free_note(note, bjid);
     } else {
@@ -819,7 +820,7 @@ void cmd_setstatus(const char *recipient, const char *arg)
   char *msg;
   enum imstatus st;
 
-  if (!jb_getonline()) {
+  if (!lm_connection_is_authenticated(lconnection)) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -854,7 +855,7 @@ void cmd_setstatus(const char *recipient, const char *arg)
       free_arg_lst(paramlst);
       return;
     }
-    st = jb_getstatus();  // Preserve current status
+    st = xmpp_getstatus();  // Preserve current status
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized status!");
     free_arg_lst(paramlst);
@@ -870,7 +871,7 @@ void cmd_setstatus(const char *recipient, const char *arg)
   if (recipient && !msg)
     msg = "";
 
-  jb_setstatus(st, recipient, msg, FALSE);
+  xmpp_setstatus(st, recipient, msg, FALSE);
 
   free_arg_lst(paramlst);
 }
@@ -878,9 +879,9 @@ void cmd_setstatus(const char *recipient, const char *arg)
 static void do_status(char *arg)
 {
   if (!*arg) {
-    const char *sm = jb_getstatusmsg();
+    const char *sm = xmpp_getstatusmsg();
     scr_LogPrint(LPRINT_NORMAL, "Your status is: [%c] %s",
-                 imstatus2char[jb_getstatus()],
+                 imstatus2char[xmpp_getstatus()],
                  (sm ? sm : ""));
     return;
   }
@@ -953,7 +954,7 @@ static void do_add(char *arg)
   char *id, *nick;
   char *jid_utf8 = NULL;
 
-  if (!jb_getonline()) {
+  if (!lm_connection_is_authenticated(lconnection)) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -992,7 +993,7 @@ static void do_add(char *arg)
 
   if (id) {
     // 2nd parameter = optional nickname
-    jb_addbuddy(id, nick, NULL);
+    xmpp_addbuddy(id, nick, NULL);
     scr_LogPrint(LPRINT_LOGNORM, "Sent presence notification request to <%s>.",
                  id);
   }
@@ -1030,7 +1031,7 @@ static void do_del(char *arg)
   scr_BufferPurge(1, NULL);
 
   scr_LogPrint(LPRINT_LOGNORM, "Removing <%s>...", bjid);
-  jb_delbuddy(bjid);
+  xmpp_delbuddy(bjid);
   scr_UpdateBuddyWindow();
 }
 
@@ -1106,7 +1107,7 @@ do_group_return:
 }
 
 static int send_message_to(const char *fjid, const char *msg, const char *subj,
-                           const char *type_overwrite, bool quiet)
+                           LmMessageSubType type_overwrite, bool quiet)
 {
   char *bare_jid, *rp;
   char *hmsg;
@@ -1114,7 +1115,7 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
   gint retval = 0;
   int isroom;
 
-  if (!jb_getonline()) {
+  if (!lm_connection_is_authenticated(lconnection)) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return 1;
   }
@@ -1160,8 +1161,8 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
     hmsg = (char*)msg;
 
   // Network part
-  jb_send_msg(fjid, msg, (isroom ? ROSTER_TYPE_ROOM : ROSTER_TYPE_USER),
-              subj, NULL, &crypted, type_overwrite);
+  xmpp_send_msg(fjid, msg, (isroom ? ROSTER_TYPE_ROOM : ROSTER_TYPE_USER),
+                subj, FALSE, &crypted, type_overwrite);
 
   if (crypted == -1) {
     scr_LogPrint(LPRINT_LOGNORM, "Encryption error.  Message was not sent.");
@@ -1183,7 +1184,7 @@ send_message_to_return:
 // Write the message in the buddy's window and send the message on
 // the network.
 static void send_message(const char *msg, const char *subj,
-                         const char *type_overwrite)
+                         LmMessageSubType type_overwrite)
 {
   const char *bjid;
 
@@ -1201,19 +1202,19 @@ static void send_message(const char *msg, const char *subj,
   send_message_to(bjid, msg, subj, type_overwrite, FALSE);
 }
 
-static const char *scan_mtype(char **arg)
+static LmMessageSubType scan_mtype(char **arg)
 {
   //Try splitting it
   char **parlist = split_arg(*arg, 2, 1);
-  const char *result = NULL;
+  LmMessageSubType result = LM_MESSAGE_SUB_TYPE_NOT_SET;
   //Is it any good parameter?
   if (parlist && *parlist) {
     if (!strcmp("-n", *parlist)) {
-      result = TMSG_NORMAL;
+      result = LM_MESSAGE_SUB_TYPE_NORMAL;
     } else if (!strcmp("-h", *parlist)) {
-      result = TMSG_HEADLINE;
+      result = LM_MESSAGE_SUB_TYPE_HEADLINE;
     }
-    if (result || (!strcmp("--", *parlist)))
+    if (result != LM_MESSAGE_SUB_TYPE_NOT_SET || (!strcmp("--", *parlist)))
       *arg += strlen(*arg) - (parlist[1] ? strlen(parlist[1]) : 0);
   }
   //Anything found? -> skip it
@@ -1224,7 +1225,7 @@ static const char *scan_mtype(char **arg)
 static void do_say_internal(char *arg, int parse_flags)
 {
   gpointer bud;
-  const char *msgtype = NULL;
+  LmMessageSubType msgtype = LM_MESSAGE_SUB_TYPE_NOT_SET;
 
   scr_set_chatmode(TRUE);
   scr_ShowBuddyWindow();
@@ -1330,7 +1331,7 @@ static void do_msay(char *arg)
   if (!strcasecmp(subcmd, "send_to")) {
     int err = FALSE;
     gchar *msg_utf8;
-    const char *msg_type = scan_mtype(&arg);
+    LmMessageSubType msg_type = scan_mtype(&arg);
     // Let's send to the specified JID.  We leave now if there
     // has been an error (so we don't leave multi-line mode).
     arg = to_utf8(arg);
@@ -1456,10 +1457,10 @@ static void do_say_to(char *arg)
   char **paramlst;
   char *fjid, *msg;
   char *file = NULL;
-  const char *msg_type = NULL;
+  LmMessageSubType msg_type = LM_MESSAGE_SUB_TYPE_NOT_SET;
   bool quiet = FALSE;
 
-  if (!jb_getonline()) {
+  if (!lm_connection_is_authenticated(lconnection)) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -1799,7 +1800,7 @@ static void do_info(char *arg)
   if (type == ROSTER_TYPE_USER ||
       type == ROSTER_TYPE_ROOM ||
       type == ROSTER_TYPE_AGENT) {
-    struct annotation *note = jb_get_storage_rosternotes(bjid, TRUE);
+    struct annotation *note = xmpp_get_storage_rosternotes(bjid, TRUE);
     if (note) {
       // We do not display the note, we just tell the user.
       g_free(note->text);
@@ -1908,7 +1909,7 @@ static void move_group_member(gpointer bud, void *groupnamedata)
   bjid = buddy_getjid(bud);
   name = buddy_getname(bud);
 
-  jb_updatebuddy(bjid, name, *groupname ? groupname : NULL);
+  xmpp_updatebuddy(bjid, name, *groupname ? groupname : NULL);
 }
 
 static void do_rename(char *arg)
@@ -1942,7 +1943,7 @@ static void do_rename(char *arg)
     scr_LogPrint(LPRINT_NORMAL,
                  "Note: this item will be added to your server roster.");
     // If this is a MUC room w/o bookmark, let's give a small hint...
-    if (!jb_is_bookmarked(bjid)) {
+    if (!xmpp_is_bookmarked(bjid)) {
       scr_LogPrint(LPRINT_NORMAL,
                    "You should add a room bookmark or it will not be "
                    "recognized as a MUC room next time you run mcabber.");
@@ -1970,7 +1971,7 @@ static void do_rename(char *arg)
     if (!*newname || !strcmp(arg, "-"))
       del_name = TRUE;
     buddy_setname(bud, (del_name ? (char*)bjid : name_utf8));
-    jb_updatebuddy(bjid, (del_name ? NULL : name_utf8), group);
+    xmpp_updatebuddy(bjid, (del_name ? NULL : name_utf8), group);
   }
 
   g_free(name_utf8);
@@ -2016,7 +2017,7 @@ static void do_move(char *arg)
   if (strcmp(oldgroupname, group_utf8)) {
     guint msgflag;
 
-    jb_updatebuddy(bjid, name, *group_utf8 ? group_utf8 : NULL);
+    xmpp_updatebuddy(bjid, name, *group_utf8 ? group_utf8 : NULL);
     scr_RosterUpDown(-1, 1);
 
     // If the buddy has a pending message flag,
@@ -2167,7 +2168,7 @@ static void do_rawxml(char *arg)
   char **paramlst;
   char *subcmd;
 
-  if (!jb_getonline()) {
+  if (!lm_connection_is_authenticated(lconnection)) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -2198,7 +2199,7 @@ static void do_rawxml(char *arg)
     buffer = to_utf8(arg);
     if (buffer) {
       scr_LogPrint(LPRINT_NORMAL, "Sending XML string");
-      jb_send_raw(buffer);
+      lm_connection_send_raw(lconnection, buffer, NULL);
       g_free(buffer);
     } else {
       scr_LogPrint(LPRINT_NORMAL, "Conversion error in XML string.");
@@ -2290,7 +2291,7 @@ static void room_join(gpointer bud, char *arg)
 
   pass_utf8 = to_utf8(pass);
 
-  jb_room_join(roomname, nick, pass_utf8);
+  xmpp_room_join(roomname, nick, pass_utf8);
 
   scr_LogPrint(LPRINT_LOGNORM, "Sent a join request to <%s>...", roomname);
 
@@ -2324,7 +2325,7 @@ static void room_invite(gpointer bud, char *arg)
 
   roomname = buddy_getjid(bud);
   reason_utf8 = to_utf8(arg);
-  jb_room_invite(roomname, fjid, reason_utf8);
+  xmpp_room_invite(roomname, fjid, reason_utf8);
   scr_LogPrint(LPRINT_LOGNORM, "Invitation sent to <%s>.", fjid);
   g_free(reason_utf8);
   free_arg_lst(paramlst);
@@ -2358,7 +2359,7 @@ static void room_affil(gpointer bud, char *arg)
     gchar *jid_utf8, *reason_utf8;
     jid_utf8 = to_utf8(fjid);
     reason_utf8 = to_utf8(arg);
-    jb_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
+    xmpp_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
     g_free(jid_utf8);
     g_free(reason_utf8);
   } else
@@ -2395,7 +2396,7 @@ static void room_role(gpointer bud, char *arg)
     gchar *jid_utf8, *reason_utf8;
     jid_utf8 = to_utf8(fjid);
     reason_utf8 = to_utf8(arg);
-    jb_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
+    xmpp_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
     g_free(jid_utf8);
     g_free(reason_utf8);
   } else
@@ -2451,7 +2452,7 @@ static void room_ban(gpointer bud, char *arg)
   scr_LogPrint(LPRINT_NORMAL, "Requesting a ban for %s", banjid);
 
   reason_utf8 = to_utf8(arg);
-  jb_room_setattrib(roomid, banjid, NULL, ra, reason_utf8);
+  xmpp_room_setattrib(roomid, banjid, NULL, ra, reason_utf8);
   g_free(reason_utf8);
 
 room_ban_return:
@@ -2477,7 +2478,7 @@ static void room_unban(gpointer bud, char *arg)
   ra.val.affil = affil_none;
 
   jid_utf8 = to_utf8(fjid);
-  jb_room_setattrib(roomid, jid_utf8, NULL, ra, NULL);
+  xmpp_room_setattrib(roomid, jid_utf8, NULL, ra, NULL);
   g_free(jid_utf8);
 }
 
@@ -2505,7 +2506,7 @@ static void room_kick(gpointer bud, char *arg)
 
   nick_utf8 = to_utf8(nick);
   reason_utf8 = to_utf8(arg);
-  jb_room_setattrib(roomid, NULL, nick_utf8, ra, reason_utf8);
+  xmpp_room_setattrib(roomid, NULL, nick_utf8, ra, reason_utf8);
   g_free(nick_utf8);
   g_free(reason_utf8);
 
@@ -2525,7 +2526,7 @@ void cmd_room_leave(gpointer bud, char *arg)
 
   roomid = g_strdup_printf("%s/%s", buddy_getjid(bud), nickname);
   desc = to_utf8(arg);
-  jb_setstatus(offline, roomid, desc, TRUE);
+  xmpp_setstatus(offline, roomid, desc, TRUE);
   g_free(desc);
   g_free(roomid);
 }
@@ -2553,7 +2554,7 @@ static void room_nick(gpointer bud, char *arg)
     nick = to_utf8(arg);
     strip_arg_special_chars(nick);
 
-    jb_room_join(roomname, nick, NULL);
+    xmpp_room_join(roomname, nick, NULL);
     g_free(roomname);
     g_free(nick);
   }
@@ -2578,7 +2579,7 @@ static void room_privmsg(gpointer bud, char *arg)
   fjid = g_strdup_printf("%s/%s", buddy_getjid(bud), nick);
   fjid_utf8 = to_utf8(fjid);
   msg = to_utf8(arg);
-  send_message_to(fjid_utf8, msg, NULL, NULL, FALSE);
+  send_message_to(fjid_utf8, msg, NULL, LM_MESSAGE_SUB_TYPE_NOT_SET, FALSE);
   g_free(fjid);
   g_free(fjid_utf8);
   g_free(msg);
@@ -2628,8 +2629,8 @@ static void room_topic(gpointer bud, char *arg)
 
   arg = to_utf8(arg);
   // Set the topic
-  jb_send_msg(buddy_getjid(bud), NULL, ROSTER_TYPE_ROOM, arg ? arg : "",
-              NULL, NULL, NULL);
+  xmpp_send_msg(buddy_getjid(bud), NULL, ROSTER_TYPE_ROOM, arg ? arg : "",
+                FALSE, NULL, LM_MESSAGE_SUB_TYPE_NOT_SET);
   g_free(arg);
 }
 
@@ -2642,7 +2643,7 @@ static void room_destroy(gpointer bud, char *arg)
   else
     msg = NULL;
 
-  jb_room_destroy(buddy_getjid(bud), NULL, msg);
+  xmpp_room_destroy(buddy_getjid(bud), NULL, msg);
   g_free(msg);
 }
 
@@ -2653,7 +2654,7 @@ static void room_unlock(gpointer bud, char *arg)
     return;
   }
 
-  jb_room_unlock(buddy_getjid(bud));
+  xmpp_room_unlock(buddy_getjid(bud));
 }
 
 static void room_setopt(gpointer bud, char *arg)
@@ -2848,8 +2849,8 @@ static void room_bookmark(gpointer bud, char *arg)
     autowhois   = buddy_getautowhois(bud);
   }
 
-  jb_set_storage_bookmark(roomid, name, nick, NULL, autojoin,
-                          printstatus, autowhois);
+  xmpp_set_storage_bookmark(roomid, name, nick, NULL, autojoin,
+                            printstatus, autowhois);
 }
 
 static void display_all_bookmarks(void)
@@ -2858,7 +2859,7 @@ static void display_all_bookmarks(void)
   GString *sbuf;
   struct bookmark *bm_elt;
 
-  bm = jb_get_all_storage_bookmarks();
+  bm = xmpp_get_all_storage_bookmarks();
 
   if (!bm)
     return;
@@ -2897,7 +2898,7 @@ static void do_room(char *arg)
   char *subcmd;
   gpointer bud;
 
-  if (!jb_getonline()) {
+  if (!lm_connection_is_authenticated(lconnection)) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -2994,7 +2995,7 @@ static void do_authorization(char *arg)
   char *subcmd;
   char *jid_utf8;
 
-  if (!jb_getonline()) {
+  if (!lm_connection_is_authenticated(lconnection)) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -3042,21 +3043,21 @@ static void do_authorization(char *arg)
   }
 
   if (!strcasecmp(subcmd, "allow"))  {
-    jb_subscr_send_auth(jid_utf8);
+    xmpp_send_s10n(jid_utf8, LM_MESSAGE_SUB_TYPE_SUBSCRIBED);
     scr_LogPrint(LPRINT_LOGNORM,
                  "<%s> is now allowed to receive your presence updates.",
                  jid_utf8);
   } else if (!strcasecmp(subcmd, "cancel"))  {
-    jb_subscr_cancel_auth(jid_utf8);
+    xmpp_send_s10n(jid_utf8, LM_MESSAGE_SUB_TYPE_UNSUBSCRIBED);
     scr_LogPrint(LPRINT_LOGNORM,
                  "<%s> will no longer receive your presence updates.",
                  jid_utf8);
   } else if (!strcasecmp(subcmd, "request"))  {
-    jb_subscr_request_auth(jid_utf8);
+    xmpp_send_s10n(jid_utf8, LM_MESSAGE_SUB_TYPE_SUBSCRIBE);
     scr_LogPrint(LPRINT_LOGNORM,
                  "Sent presence notification request to <%s>.", jid_utf8);
   } else if (!strcasecmp(subcmd, "request_unsubscribe"))  {
-    jb_subscr_request_cancel(jid_utf8);
+    xmpp_send_s10n(jid_utf8, LM_MESSAGE_SUB_TYPE_UNSUBSCRIBE);
     scr_LogPrint(LPRINT_LOGNORM,
                  "Sent presence notification unsubscription request to <%s>.",
                  jid_utf8);
@@ -3099,12 +3100,6 @@ static void do_request(char *arg)
       numtype = iqreq_last;
     else if (!strcasecmp(type, "vcard"))
       numtype = iqreq_vcard;
-    else if (!strcasecmp(type, "show_list")) {
-      // Undocumented command, for debugging purposes only
-      jb_iqs_display_list();
-      free_arg_lst(paramlst);
-      return;
-    }
   }
 
   if (!type || !numtype) {
@@ -3114,7 +3109,7 @@ static void do_request(char *arg)
     return;
   }
 
-  if (!jb_getonline()) {
+  if (!lm_connection_is_authenticated(lconnection)) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     free_arg_lst(paramlst);
     return;
@@ -3151,7 +3146,7 @@ static void do_request(char *arg)
       case iqreq_time:
       case iqreq_last:
       case iqreq_vcard:
-          jb_request(fjid, numtype);
+          xmpp_request(fjid, numtype);
           break;
       default:
           break;
@@ -3462,7 +3457,7 @@ static void do_otr(char *arg)
 }
 
 #ifdef HAVE_LIBOTR
-static char * string_for_otrpolicy(enum otr_policy p)
+static char *string_for_otrpolicy(enum otr_policy p)
 {
   switch (p) {
     case plain:         return "plain";
@@ -3473,7 +3468,7 @@ static char * string_for_otrpolicy(enum otr_policy p)
   }
 }
 
-static void dump_otrpolicy(char * k, char * v, void * nothing)
+static void dump_otrpolicy(char *k, char *v, void *nothing)
 {
   scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8, "otrpolicy for %s: %s", k,
                string_for_otrpolicy(*(enum otr_policy*)v));
@@ -3670,13 +3665,12 @@ static void do_source(char *arg)
 
 static void do_connect(char *arg)
 {
-  mcabber_connect();
+  xmpp_connect();
 }
 
 static void do_disconnect(char *arg)
 {
-  jb_disconnect();
-  AutoConnection = FALSE;
+  xmpp_disconnect();
 }
 
 static void do_help(char *arg)

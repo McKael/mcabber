@@ -19,23 +19,24 @@
  * USA
  */
 
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
 #include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "histolog.h"
 #include "hbuf.h"
-#include "jabglue.h"
 #include "utils.h"
 #include "screen.h"
 #include "settings.h"
 #include "utils.h"
 #include "roster.h"
+#include "xmpp.h"
 
 static guint UseFileLogging;
 static guint FileLoadLogs;
@@ -76,7 +77,7 @@ char *hlog_get_log_jid(const char *bjid)
     if (S_ISLNK(bufstat.st_mode)) {
       g_free(log_jid);
       log_jid = g_new0(char, bufstat.st_size+1);
-      readlink(path, log_jid, bufstat.st_size);
+      if (readlink(path, log_jid, bufstat.st_size) < 0) return NULL;
       g_free(path);
       path = user_histo_file(log_jid);
     } else
@@ -444,7 +445,7 @@ void hlog_save_state(void)
     goto hlog_save_state_return;
   }
 
-  if (!jb_getonline()) {
+  if (!lm_connection_is_authenticated(lconnection)) {
     // We're not connected.  Let's use the unread_jids hash.
     GList *unread_jid = unread_jid_get_list();
     unread_ptr = unread_jid;

@@ -3,7 +3,7 @@
 
 #include <glib.h>
 
-#include "jabglue.h"
+#include "xmpp.h"
 
 void hlog_enable(guint enable, const char *root_dir, guint loadfile);
 char *hlog_get_log_jid(const char *bjid);

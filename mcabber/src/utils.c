@@ -26,6 +26,8 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include <glib/gprintf.h>
+
 /* For Cygwin (thanks go to Yitzchak Scott-Thoennes) */
 #ifdef __CYGWIN__
 #  define timezonevar
@@ -45,6 +47,55 @@
 static int DebugEnabled;
 static char *FName;
 
+//  jidtodisp(jid)
+// Strips the resource part from the jid
+// The caller should g_free the result after use.
+char *jidtodisp(const char *fjid)
+{
+  char *ptr;
+  char *alias;
+
+  alias = g_strdup(fjid);
+
+  if ((ptr = strchr(alias, JID_RESOURCE_SEPARATOR)) != NULL) {
+    *ptr = 0;
+  }
+  return alias;
+}
+
+char *compose_jid(const char *username, const char *servername,
+                  const char *resource)
+{
+  char *fjid;
+
+  if (!strchr(username, JID_DOMAIN_SEPARATOR)) {
+    fjid = g_strdup_printf("%s%c%s%c%s", username,
+                           JID_DOMAIN_SEPARATOR, servername,
+                           JID_RESOURCE_SEPARATOR, resource);
+  } else {
+    fjid = g_strdup_printf("%s%c%s", username,
+                           JID_RESOURCE_SEPARATOR, resource);
+  }
+  return fjid;
+}
+
+gboolean jid_equal(const char *jid1, const char *jid2)
+{
+  char *a,*b;
+  int ret;
+  if (!jid1 && !jid2)
+    return TRUE;
+  if (!jid1 || !jid2)
+    return FALSE;
+
+  a = jidtodisp(jid1);
+  b = jidtodisp(jid2);
+  ret = strcasecmp(a, b);
+  g_free(a);
+  g_free(b);
+  return (ret == 0) ? TRUE : FALSE;
+}
+
 //  expand_filename(filename)
 // Expand "~/" with the $HOME env. variable in a file name.
 // The caller must free the string after use.
@@ -58,6 +109,29 @@ char *expand_filename(const char *fname)
       return g_strdup_printf("%s%s", homedir, fname+1);
   }
   return g_strdup(fname);
+}
+
+void fingerprint_to_hex(const unsigned char *fpr, char hex[49])
+{
+  int i;
+  char *p;
+
+  for (p = hex, i = 0; i < 15; i++, p+=3)
+    g_sprintf(p, "%02X:", fpr[i]);
+  g_sprintf(p, "%02X", fpr[i]);
+  hex[48] = '\0';
+}
+
+gboolean hex_to_fingerprint(const char *hex, char fpr[16])
+{
+  int i;
+  char *p;
+
+  if (strlen(hex) != 47)
+    return FALSE;
+  for (i = 0, p = (char*)hex; *p && *(p+1); i++, p += 3)
+    fpr[i] = (char) g_ascii_strtoull (p, NULL, 16);
+  return TRUE;
 }
 
 void ut_InitDebug(int level, const char *filename)

@@ -1,2 +1,2 @@
-SUBDIRS = connwrap libjabber src doc
+SUBDIRS = src doc
 ACLOCAL_AMFLAGS = -I macros

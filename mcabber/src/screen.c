@@ -58,6 +58,7 @@
 #include "histolog.h"
 #include "settings.h"
 #include "utils.h"
+#include "xmpp.h"
 
 #define get_color(col)  (COLOR_PAIR(col)|COLOR_ATTRIB[col])
 #define compose_color(col)  (COLOR_PAIR(col->color_pair)|col->color_attrib)
@@ -138,6 +139,7 @@ static char   cmdhisto_backup[INPUTLINE_LENGTH+1];
 static int    chatstate; /* (0=active, 1=composing, 2=paused) */
 static bool   lock_chatstate;
 static time_t chatstate_timestamp;
+static guint  chatstate_timeout_id = 0;
 int chatstates_disabled;
 
 #define MAX_KEYSEQ_LENGTH 8
@@ -159,9 +161,9 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
                        unsigned int prefix_flags, int force_show,
                        unsigned mucnicklen);
 
-inline void scr_WriteMessage(const char *bjid, const char *text,
-                             time_t timestamp, guint prefix_flags,
-                             unsigned mucnicklen);
+void scr_WriteMessage(const char *bjid, const char *text,
+                      time_t timestamp, guint prefix_flags,
+                      unsigned mucnicklen, gpointer xep184);
 inline void scr_UpdateBuddyWindow(void);
 inline void scr_set_chatmode(int enable);
 
@@ -184,7 +186,7 @@ typedef struct {
 
 typedef struct {
   char *status, *wildcard;
-  ccolor * color;
+  ccolor *color;
   GPatternSpec *compiled;
 } rostercolor;
 
@@ -194,7 +196,7 @@ static GHashTable *muccolors = NULL, *nickcolors = NULL;
 
 typedef struct {
   bool manual; // Manually set?
-  ccolor * color;
+  ccolor *color;
 } nickcolor;
 
 static int nickcolcount = 0;
@@ -235,11 +237,11 @@ static int FindColor(const char *name)
   return -1;
 }
 
-static ccolor * get_user_color(const char *color)
+static ccolor *get_user_color(const char *color)
 {
   bool isbright = FALSE;
   int cl;
-  ccolor * ccol;
+  ccolor *ccol;
   if (!strncmp(color, "bright", 6)) {
     isbright = TRUE;
     color += 6;
@@ -317,7 +319,7 @@ void scr_MucNickColor(const char *nick, const char *color)
     g_free(mnick);
     need_update = TRUE;
   } else {
-    ccolor * cl = get_user_color(color);
+    ccolor *cl = get_user_color(color);
     if (!cl) {
       scr_LogPrint(LPRINT_NORMAL, "No such color name");
       g_free(snick);
@@ -389,7 +391,7 @@ bool scr_RosterColor(const char *status, const char *wildcard,
       return FALSE;
     }
   } else {
-    ccolor * cl = get_user_color(color);
+    ccolor *cl = get_user_color(color);
     if (!cl) {
       scr_LogPrint(LPRINT_NORMAL, "No such color name");
       return FALSE;
@@ -520,7 +522,7 @@ static void ParseColors(void)
           ncolors++;
         } else {
           char *end = ncolors;
-          ccolor * cl;
+          ccolor *cl;
           while (*end && (*end != ' ') && (*end != '\t'))
             end++;
           *end = '\0';
@@ -1381,7 +1383,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 // Redraw the main (bottom) status line.
 void scr_UpdateMainStatus(int forceupdate)
 {
-  char *sm = from_utf8(jb_getstatusmsg());
+  char *sm = from_utf8(xmpp_getstatusmsg());
   const char *info = settings_opt_get("info");
 
   werase(mainstatusWnd);
@@ -1389,13 +1391,13 @@ void scr_UpdateMainStatus(int forceupdate)
     char *info_locale = from_utf8(info);
     mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s: %s",
               (unread_msg(NULL) ? '#' : ' '),
-              imstatus2char[jb_getstatus()],
+              imstatus2char[xmpp_getstatus()],
               info_locale, (sm ? sm : ""));
     g_free(info_locale);
   } else
     mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s",
               (unread_msg(NULL) ? '#' : ' '),
-              imstatus2char[jb_getstatus()], (sm ? sm : ""));
+              imstatus2char[xmpp_getstatus()], (sm ? sm : ""));
   if (forceupdate) {
     top_panel(inputPanel);
     update_panels();
@@ -1730,7 +1732,7 @@ void scr_UpdateChatStatus(int forceupdate)
       status = 'C';
     else
       status = 'x';
-  } else if (jb_getstatus() != offline) {
+  } else if (xmpp_getstatus() != offline) {
     enum imstatus budstate;
     budstate = buddy_getstatus(BUDDATA(current_buddy), NULL);
     if (budstate < imstatus_size)
@@ -1813,7 +1815,7 @@ void scr_DrawRoster(void)
   int rOffset;
   int cursor_backup;
   char status, pending;
-  enum imstatus currentstatus = jb_getstatus();
+  enum imstatus currentstatus = xmpp_getstatus();
   int x_pos;
 
   // We can reset update_roster
@@ -1964,7 +1966,7 @@ void scr_DrawRoster(void)
       name[0] = 0;
 
     if (isgrp) {
-      if (ishid){
+      if (ishid) {
         int group_count = 0;
         foreach_group_member(BUDDATA(buddy), increment_if_buddy_not_filtered,
                              &group_count);
@@ -2102,21 +2104,21 @@ static inline void set_autoaway(bool setaway)
 
   if (setaway) {
     const char *msg, *prevmsg;
-    oldstatus = jb_getstatus();
+    oldstatus = xmpp_getstatus();
     if (oldmsg) {
       g_free(oldmsg);
       oldmsg = NULL;
     }
-    prevmsg = jb_getstatusmsg();
+    prevmsg = xmpp_getstatusmsg();
     msg = settings_opt_get("message_autoaway");
     if (!msg)
       msg = prevmsg;
     if (prevmsg)
       oldmsg = g_strdup(prevmsg);
-    jb_setstatus(away, NULL, msg, FALSE);
+    xmpp_setstatus(away, NULL, msg, FALSE);
   } else {
     // Back
-    jb_setstatus(oldstatus, NULL, (oldmsg ? oldmsg : ""), FALSE);
+    xmpp_setstatus(oldstatus, NULL, (oldmsg ? oldmsg : ""), FALSE);
     if (oldmsg) {
       g_free(oldmsg);
       oldmsg = NULL;
@@ -2124,28 +2126,9 @@ static inline void set_autoaway(bool setaway)
   }
 }
 
-long int scr_GetAutoAwayTimeout(time_t now)
-{
-  enum imstatus cur_st;
-  unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
-
-  if (Autoaway || !autoaway_timeout)
-    return 86400;
-
-  cur_st = jb_getstatus();
-  // Auto-away is disabled for the following states
-  if ((cur_st != available) && (cur_st != freeforchat))
-    return 86400;
-
-  if (now >= LastActivity + (time_t)autoaway_timeout)
-    return 0;
-  else
-    return LastActivity + (time_t)autoaway_timeout - now;
-}
-
 //  set_chatstate(state)
 // Set the current chat state (0=active, 1=composing, 2=paused)
-// If the chat state has changed, call jb_send_chatstate()
+// If the chat state has changed, call xmpp_send_chatstate()
 static inline void set_chatstate(int state)
 {
 #if defined JEP0022 || defined JEP0085
@@ -2158,13 +2141,18 @@ static inline void set_chatstate(int state)
     if (current_buddy &&
         buddy_gettype(BUDDATA(current_buddy)) == ROSTER_TYPE_USER) {
       guint jep_state;
-      if (chatstate == 1)
+      if (chatstate == 1) {
+        if (chatstate_timeout_id == 0)
+          chatstate_timeout_id = g_timeout_add_seconds(1,
+                                                       scr_ChatStatesTimeout,
+                                                       NULL);
         jep_state = ROSTER_EVENT_COMPOSING;
+      }
       else if (chatstate == 2)
         jep_state = ROSTER_EVENT_PAUSED;
       else
         jep_state = ROSTER_EVENT_ACTIVE;
-      jb_send_chatstate(BUDDATA(current_buddy), jep_state);
+      xmpp_send_chatstate(BUDDATA(current_buddy), jep_state);
     }
     if (!chatstate)
       chatstate_timestamp = 0;
@@ -2173,20 +2161,24 @@ static inline void set_chatstate(int state)
 }
 
 #if defined JEP0022 || defined JEP0085
-long int scr_GetChatStatesTimeout(time_t now)
+gboolean scr_ChatStatesTimeout(void)
 {
+  time_t now;
+  time(&now);
   // Check if we're currently composing...
-  if (chatstate != 1 || !chatstate_timestamp)
-    return 86400;
+  if (chatstate != 1 || !chatstate_timestamp) {
+    chatstate_timeout_id = 0;
+    return FALSE;
+  }
 
   // If the timeout is reached, let's change the state right now.
   if (now >= chatstate_timestamp + COMPOSING_TIMEOUT) {
     chatstate_timestamp = now;
     set_chatstate(2);
-    return 86400;
+    chatstate_timeout_id = 0;
+    return FALSE;
   }
-
- return chatstate_timestamp + COMPOSING_TIMEOUT - now;
+  return TRUE;
 }
 #endif
 
@@ -2200,7 +2192,7 @@ void scr_CheckAutoAway(int activity)
   if (!autoaway_timeout) return;
   if (!LastActivity || activity) time(&LastActivity);
 
-  cur_st = jb_getstatus();
+  cur_st = xmpp_getstatus();
   // Auto-away is disabled for the following states
   if ((cur_st != available) && (cur_st != freeforchat))
     return;

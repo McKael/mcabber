@@ -20,6 +20,7 @@
  */
 
 #include <glib.h>
+#include <string.h>
 #include "events.h"
 #include "logprint.h"
 
@@ -54,6 +55,8 @@ eviqs *evs_new(guint8 type, time_t timeout)
   new_evs->type = type;
   new_evs->id = stridn;
 
+  if(!g_slist_length(evs_list))
+    g_timeout_add_seconds(20, evs_check_timeout, NULL);
   evs_list = g_slist_append(evs_list, new_evs);
   return new_evs;
 }
@@ -72,7 +75,6 @@ int evs_del(const char *evid)
   }
   if (p) {
     g_free(i->id);
-    if (i->xmldata) xmlnode_free(i->xmldata);
     g_free(i->data);
     g_free(i->desc);
     g_free(i);
@@ -116,12 +118,16 @@ int evs_callback(const char *evid, guint evcontext)
   return 0;
 }
 
-void evs_check_timeout(time_t now_t)
+gboolean evs_check_timeout()
 {
+  time_t now_t;
   GSList *p;
   eviqs *i;
 
+  time(&now_t);
   p = evs_list;
+  if (!p)
+    return FALSE;
   while (p) {
     i = p->data;
     // We must get next IQ eviqs element now because the current one
@@ -133,6 +139,7 @@ void evs_check_timeout(time_t now_t)
       evs_callback(i->id, EVS_CONTEXT_TIMEOUT);
     }
   }
+  return TRUE;
 }
 
 void evs_display_list(void)

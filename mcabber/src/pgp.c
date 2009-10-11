@@ -150,6 +150,9 @@ static char *strip_header_footer(const char *data)
   return g_strndup(p, q-p);
 }
 
+// GCC ignores casts to void, thus we need to hack around that
+static inline void ignore(void*x) {}
+
 //  passphrase_cb()
 // GPGME passphrase callback function.
 static gpgme_error_t passphrase_cb(void *hook, const char *uid_hint,
@@ -159,7 +162,8 @@ static gpgme_error_t passphrase_cb(void *hook, const char *uid_hint,
 
   // Abort if we do not have the password.
   if (!gpg.passphrase) {
-    write(fd, "\n", 1);
+    ignore((void*)write(fd, "\n", 1)); // We have an error anyway, thus it does
+                                       // not matter if we fail again.
     return gpg_error(GPG_ERR_CANCELED);
   }
 

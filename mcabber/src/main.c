@@ -169,6 +169,9 @@ static void compile_options(void)
 #ifdef HAVE_GPGME
   puts("Compiled with GPG support.");
 #endif
+#ifdef MODULES_ENABLE
+  puts ("Compiled with modules support");
+#endif
 #ifdef HAVE_LIBOTR
   puts("Compiled with OTR support.");
 #endif
@@ -416,6 +419,9 @@ int main(int argc, char **argv)
   g_main_loop_run(main_loop);
 
   scr_TerminateCurses();
+#ifdef MODULES_ENABLE
+  cmd_deinit();
+#endif
   fifo_deinit();
 #ifdef HAVE_LIBOTR
   otr_terminate();

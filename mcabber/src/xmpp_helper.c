@@ -30,6 +30,7 @@
 #include "utils.h"
 #include "caps.h"
 #include "logprint.h"
+#include "config.h"
 
 time_t iqlast; // last message/status change time
 
@@ -73,6 +74,37 @@ struct xmpp_error xmpp_errors[] = {
   {0, NULL, NULL, NULL, NULL}
 };
 
+
+#ifdef MODULES_ENABLE
+static GSList *xmpp_additional_features = NULL;
+static char *ver, *ver_notavail;
+
+void xmpp_add_feature (const char *xmlns)
+{
+  if (xmlns) {
+    ver = NULL;
+    ver_notavail = NULL;
+    xmpp_additional_features = g_slist_append(xmpp_additional_features,
+                                              g_strdup (xmlns));
+  }
+}
+
+void xmpp_del_feature (const char *xmlns)
+{
+  GSList *feature = xmpp_additional_features;
+  while (feature) {
+    if (!strcmp(feature->data, xmlns)) {
+      ver = NULL;
+      ver_notavail = NULL;
+      g_free (feature->data);
+      xmpp_additional_features = g_slist_delete_link(xmpp_additional_features,
+                                                     feature);
+      return;
+    }
+    feature = g_slist_next (feature);
+  }
+}
+#endif
 
 const gchar* lm_message_node_get_child_value(LmMessageNode *node,
                                              const gchar *child)
@@ -180,7 +212,9 @@ LmMessage *lm_message_new_iq_from_query(LmMessage *m,
 // number) so that it doesn't conflict with the official client.
 const char *entity_version(enum imstatus status)
 {
+#ifndef MODULES_ENABLE
   static char *ver, *ver_notavail;
+#endif
 
   if (ver && (status != notavail))
     return ver;
@@ -204,6 +238,15 @@ const char *entity_version(enum imstatus status)
       (!settings_opt_get_int("iq_last_disable_when_notavail") ||
        status != notavail))
    caps_add_feature("", NS_LAST);
+#ifdef MODULES_ENABLE
+  {
+    GSList *el = xmpp_additional_features;
+    while (el) {
+      caps_add_feature("", el->data);
+      el = g_slist_next (el);
+    }
+  }
+#endif
 
   if (status == notavail) {
     ver_notavail = caps_generate();

@@ -93,11 +93,47 @@ static void do_say_internal(char *arg, int parse_flags);
 // Global variable for the commands list
 static GSList *Commands;
 
+#ifdef MODULES_ENABLE
+#include <gmodule.h>
+
+static void do_load(char *arg);
+static void do_unload(char *arg);
+
+typedef struct {
+  char *name;
+  GModule *module;
+} loaded_module_t;
+
+GSList *loaded_modules = NULL;
+
+static gint cmd_del_comparator (cmd *a, const char *name)
+{
+  return strcmp(a->name, name);
+}
+
+gpointer cmd_del(const char *name)
+{
+  GSList *command = g_slist_find_custom (Commands, name, (GCompareFunc) cmd_del_comparator);
+  if (command) {
+    cmd *cmnd = command->data;
+    gpointer userdata = cmnd->userdata;
+    Commands = g_slist_delete_link(Commands, command);
+    compl_del_category_word(COMPL_CMD, cmnd->name);
+    g_free(cmnd);
+    return userdata;
+  }
+  return NULL;
+}
 
 //  cmd_add()
 // Adds a command to the commands list and to the CMD completion list
+void cmd_add(const char *name, const char *help, guint flags_row1,
+             guint flags_row2, void (*f)(char*), gpointer userdata)
+#define cmd_add(A, B, C, D, E) cmd_add (A, B, C, D, E, NULL);
+#else
 static void cmd_add(const char *name, const char *help,
         guint flags_row1, guint flags_row2, void (*f)(char*))
+#endif
 {
   cmd *n_cmd = g_new0(cmd, 1);
   strncpy(n_cmd->name, name, 32-1);
@@ -105,6 +141,9 @@ static void cmd_add(const char *name, const char *help,
   n_cmd->completion_flags[0] = flags_row1;
   n_cmd->completion_flags[1] = flags_row2;
   n_cmd->func = f;
+#ifdef MODULES_ENABLE
+  n_cmd->userdata = userdata;
+#endif
   Commands = g_slist_append(Commands, n_cmd);
   // Add to completion CMD category
   compl_add_category_word(COMPL_CMD, name);
@@ -165,6 +204,10 @@ void cmd_init(void)
   cmd_add("status_to", "Show or set your status for one recipient",
           COMPL_JID, COMPL_STATUS, &do_status_to);
   cmd_add("version", "Show mcabber version", 0, 0, &do_version);
+#ifdef MODULES_ENABLE
+  cmd_add("load", "Load module", 0, 0, &do_load);
+  cmd_add("unload", "Unload module", 0, 0, &do_unload);
+#endif
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");
@@ -298,6 +341,23 @@ void cmd_init(void)
   compl_add_category_word(COMPL_COLOR, "muc");
   compl_add_category_word(COMPL_COLOR, "mucnick");
 }
+
+#ifdef MODULES_ENABLE
+void cmd_deinit ()
+{
+  GSList *el = loaded_modules;
+  while (el) {
+    loaded_module_t *module = el->data;
+    if (!g_module_close ((GModule *) module->module))
+      scr_LogPrint (LPRINT_LOGNORM, "* Module unloading failed: %s",
+                    g_module_error ());
+    g_free (module->name);
+    g_free (module);
+    el = g_slist_next (el);
+  }
+  g_slist_free (loaded_modules);
+}
+#endif
 
 //  expandalias(line)
 // If there is one, expand the alias in line and returns a new allocated line
@@ -435,7 +495,14 @@ int process_command(const char *line, guint iscmd)
     p++;
   // Call command-specific function
   retval_for_cmds = 0;
+#ifdef MODULES_ENABLE
+  if (curcmd->userdata)
+    (*(void (*)(char *p, gpointer u))curcmd->func)(p, curcmd->userdata);
+  else
+    (*curcmd->func)(p);
+#else
   (*curcmd->func)(p);
+#endif
   g_free(xpline);
   return retval_for_cmds;
 }
@@ -2902,6 +2969,57 @@ static void display_all_bookmarks(void)
   g_slist_free(bm);
 }
 
+#ifdef MODULES_ENABLE
+static void do_load(char *arg)
+{
+  if (!arg || !*arg) {
+    scr_LogPrint (LPRINT_LOGNORM, "Missing modulename.");
+    return;
+  }
+  char *mdir = expand_filename (settings_opt_get ("modules_dir"));
+  char *path = g_module_build_path (mdir, arg);
+  GModule *mod = g_module_open (path, G_MODULE_BIND_LAZY);
+  if (!mod)
+    scr_LogPrint (LPRINT_LOGNORM, "Module %s loading failed: %s",
+                  path, g_module_error ());
+  else {
+    loaded_module_t *module = g_new (loaded_module_t, 1);
+    module->name = g_strdup (arg);
+    module->module = mod;
+    loaded_modules = g_slist_prepend (loaded_modules, module);
+    scr_LogPrint (LPRINT_LOGNORM, "Loaded module %s", arg);
+  }
+  g_free (path);
+  if (mdir)
+    g_free (mdir);
+}
+
+static int module_list_comparator (loaded_module_t *module, const char *name)
+{
+  return g_strcmp0 (module->name, name);
+}
+
+static void do_unload(char *arg)
+{
+  if (!arg || !*arg) {
+    scr_LogPrint (LPRINT_LOGNORM, "Missing modulename.");
+    return;
+  }
+  GSList *module = g_slist_find_custom (loaded_modules, arg, (GCompareFunc) module_list_comparator);
+  if (module) {
+    loaded_module_t *mod = module->data;
+    if (!g_module_close ((GModule *) mod->module))
+      scr_LogPrint (LPRINT_LOGNORM, "Module unloading failed: %s",
+                    g_module_error ());
+    else {
+      g_free (mod->name);
+      g_free (mod);
+      loaded_modules = g_slist_delete_link (loaded_modules, module);
+    }
+  } else
+    scr_LogPrint (LPRINT_LOGNORM, "Module %s not loaded.", arg);
+}
+#endif
 
 static void do_room(char *arg)
 {

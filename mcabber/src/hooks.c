@@ -36,6 +36,43 @@
 #include "commands.h"
 #include "fifo.h"
 
+#ifdef MODULES_ENABLE
+#include <glib.h>
+
+typedef struct {
+  hk_handler_t handler;
+  gpointer     userdata;
+} hook_list_data_t;
+
+static GSList *hk_handler_queue = NULL;
+
+void hk_add_handler (hk_handler_t handler, gpointer userdata)
+{
+  hook_list_data_t *h = g_new (hook_list_data_t, 1);
+  h->handler  = handler;
+  h->userdata = userdata;
+  hk_handler_queue = g_slist_append (hk_handler_queue, h);
+}
+
+static gint hk_queue_search_cb (hook_list_data_t *a, hook_list_data_t *b)
+{
+  if (a->handler == b->handler && a->userdata == b->userdata)
+    return 0;
+  else
+    return 1;
+}
+
+void hk_del_handler (hk_handler_t handler, gpointer userdata)
+{
+  hook_list_data_t h = { handler, userdata };
+  GSList *el = g_slist_find_custom (hk_handler_queue, &h, (GCompareFunc) hk_queue_search_cb);
+  if (el) {
+    g_free (el->data);
+    hk_handler_queue = g_slist_delete_link (hk_handler_queue, el);
+  }
+}
+#endif
+
 static char *extcmd;
 
 static const char *COMMAND_ME = "/me ";
@@ -209,6 +246,42 @@ void hk_message_in(const char *bjid, const char *resname,
   if (settings_opt_get_int("eventcmd_use_nickname"))
     ename = roster_getname(bjid);
 
+#ifdef MODULES_ENABLE
+  {
+    GSList *h = hk_handler_queue;
+    if (h) {
+#if 0
+      hk_arg_t *args = g_new (hk_arg_t, 5);
+      args[0].name = "hook";
+      args[0].value = "hook-message-in";
+      args[1].name = "jid";
+      args[1].value = bjid;
+      args[2].name = "message";
+      args[2].value = wmsg;
+      args[3].name = "groupchat";
+      args[3].value = is_groupchat ? "true" : "false";
+      args[4].name = NULL;
+      args[4].value = NULL;
+#else
+      // We can use a const array for keys/static values, so modules
+      // can do fast known to them args check by just comparing pointers...
+      hk_arg_t args[] = {
+        { "hook", "hook-message-in" },
+        { "jid", bjid },
+        { "message", wmsg },
+        { "groupchat", is_groupchat ? "true" : "false" },
+        { NULL, NULL },
+      };
+#endif
+      while (h) {
+        hook_list_data_t *data = h->data;
+        (data->handler) (args, data->userdata);
+        h = g_slist_next (h);
+      }
+    }
+  }
+#endif
+
   // External command
   // - We do not call hk_ext_cmd() for history lines in MUC
   // - We do call hk_ext_cmd() for private messages in a room
@@ -287,6 +360,25 @@ void hk_message_out(const char *bjid, const char *nick,
   if (!nick)
     hlog_write_message(bjid, timestamp, 1, msg);
 
+#ifdef MODULES_ENABLE
+  {
+    GSList *h = hk_handler_queue;
+    if (h) {
+      hk_arg_t args[] = {
+        { "hook", "hook-message-out" },
+        { "jid", bjid },
+        { "message", wmsg },
+        { NULL, NULL },
+      };
+      while (h) {
+        hook_list_data_t *data = h->data;
+        (data->handler) (args, data->userdata);
+        h = g_slist_next (h);
+      }
+    }
+  }
+#endif
+
   // External command
   hk_ext_cmd(bjid, 'M', 'S', NULL);
 
@@ -357,6 +449,33 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
   buddylist_build();
   scr_DrawRoster();
   hlog_write_status(bjid, timestamp, status, status_msg);
+
+#ifdef MODULES_ENABLE
+  {
+    GSList *h = hk_handler_queue;
+    if (h) {
+      char os[2] = " \0";
+      char ns[2] = " \0";
+      hk_arg_t args[] = {
+        { "hook", "hook-status-change" },
+        { "jid", bjid },
+        { "resource", rn },
+        { "old_status", os },
+        { "new_status", ns },
+        { "message", status_msg ? status_msg : "" },
+        { NULL, NULL },
+      };
+      os[0] = imstatus2char[oldstat];
+      ns[0] = imstatus2char[status];
+      while (h) {
+        hook_list_data_t *data = h->data;
+        (data->handler) (args, data->userdata);
+        h = g_slist_next (h);
+      }
+    }
+  }
+#endif
+
   // External command
   hk_ext_cmd(ename ? ename : bjid, 'S', imstatus2char[status], NULL);
 }
@@ -367,6 +486,28 @@ void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
   scr_LogPrint(LPRINT_LOGNORM, "Your status has been set: [%c>%c] %s",
                imstatus2char[old_status], imstatus2char[new_status],
                (msg ? msg : ""));
+
+#ifdef MODULES_ENABLE
+  {
+    GSList *h = hk_handler_queue;
+    if (h) {
+      char ns[2] = " \0";
+      hk_arg_t args[] = {
+        { "hook", "hook-my-status-change" },
+        { "new_status", ns },
+        { "message", msg ? msg : "" },
+        { NULL, NULL },
+      };
+      ns[0] = imstatus2char[new_status];
+      while (h) {
+        hook_list_data_t *data = h->data;
+        (data->handler) (args, data->userdata);
+        h = g_slist_next (h);
+      }
+    }
+  }
+#endif
+
   //hlog_write_status(NULL, 0, status);
 }
 
@@ -389,6 +530,23 @@ void hook_execute_internal(const char *hookname)
   cmdline = from_utf8(hook_command);
   if (process_command(cmdline, TRUE) == 255)
     mcabber_set_terminate_ui();
+
+#ifdef MODULES_ENABLE
+  {
+    GSList *h = hk_handler_queue;
+    if (h) {
+      hk_arg_t args[] = {
+        { "hook", hookname },
+        { NULL, NULL },
+      };
+      while (h) {
+        hook_list_data_t *data = h->data;
+        (data->handler) (args, data->userdata);
+        h = g_slist_next (h);
+      }
+    }
+  }
+#endif
 
   g_free(cmdline);
   g_free(buf);

@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
 #include "settings.h"
 #include "commands.h"
 #include "logprint.h"
@@ -176,12 +177,15 @@ int cfg_read_file(char *filename, guint mainfile)
       continue;
 
     // We only allow assignments line, except for commands "pgp", "source",
-    // "color" and "otrpolicy", unless we're in runtime (i.e. not startup).
+    // "color", "load" and "otrpolicy", unless we're in runtime (i.e. not startup).
     if (runtime ||
         (strchr(line, '=') != NULL)        ||
         startswith(line, "pgp ", FALSE)    ||
         startswith(line, "source ", FALSE) ||
         startswith(line, "color ", FALSE)  ||
+#ifdef MODULES_ENABLE
+        startswith(line, "load ", FALSE)   ||
+#endif
         startswith(line, "otrpolicy", FALSE)) {
       // Only accept a few "safe" commands
       if (!runtime &&
@@ -191,6 +195,9 @@ int cfg_read_file(char *filename, guint mainfile)
           !startswith(line, "pgp ", FALSE)    &&
           !startswith(line, "source ", FALSE) &&
           !startswith(line, "color ", FALSE)  &&
+#ifdef MODULES_ENABLE
+          !startswith(line, "load ", FALSE)   &&
+#endif
           !startswith(line, "otrpolicy ", FALSE)) {
         scr_LogPrint(LPRINT_LOGNORM, "Error in configuration file (l. %d): "
                      "this command can't be used here", ln);

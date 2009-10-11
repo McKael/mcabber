@@ -3,6 +3,8 @@
 
 #include <glib.h>
 
+#include "config.h"
+
 #define COMPL_CMD         (1U<<0)
 #define COMPL_JID         (1U<<1)
 #define COMPL_URLJID      (1U<<2)   // Not implemented yet
@@ -24,6 +26,12 @@
 #define COMPL_COLOR       (1U<<18)
 #define COMPL_OTR         (1U<<19)
 #define COMPL_OTRPOLICY   (1U<<20)
+#ifdef MODULES_ENABLE
+#define COMPL_MAX_BUILTIN (1U<<20)
+
+guint compl_new_category (void);
+void  compl_del_category (guint id);
+#endif
 
 void    compl_add_category_word(guint, const char *command);
 void    compl_del_category_word(guint categ, const char *word);

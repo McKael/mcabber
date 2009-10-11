@@ -9,6 +9,21 @@
 #define ENCRYPTED_PGP   1
 #define ENCRYPTED_OTR   2
 
+#include "config.h"
+#ifdef MODULES_ENABLE
+#include <glib.h>
+
+typedef struct {
+  const char *name;
+  const char *value;
+} hk_arg_t;
+
+typedef void (*hk_handler_t) (hk_arg_t *args, gpointer userdata);
+
+void hk_add_handler (hk_handler_t handler, gpointer userdata);
+void hk_del_handler (hk_handler_t handler, gpointer userdata);
+#endif
+
 void hk_mainloop(void);
 void hk_message_in(const char *bjid, const char *resname,
                    time_t timestamp, const char *msg, LmMessageSubType type,

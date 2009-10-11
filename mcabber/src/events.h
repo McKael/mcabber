@@ -1,6 +1,7 @@
 #ifndef __EVENTS_H__
 #define __EVENTS_H__ 1
 
+#include "config.h" // MODULES_ENABLE
 
 #define EVS_DEFAULT_TIMEOUT 90
 #define EVS_MAX_TIMEOUT     432000
@@ -11,7 +12,10 @@
 
 typedef enum {
   EVS_TYPE_SUBSCRIPTION = 1,
-  EVS_TYPE_INVITATION = 2
+  EVS_TYPE_INVITATION = 2,
+#ifdef MODULES_ENABLE
+  EVS_TYPE_USER = 3,
+#endif
 } evs_type;
 
 /* Common structure for events (evs) and IQ requests (iqs) */

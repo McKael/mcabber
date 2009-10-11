@@ -6,6 +6,7 @@
 
 #include "xmpp.h"
 #include "xmpp_defines.h"
+#include "config.h"
 
 extern time_t iqlast;           /* last message/status change time */
 
@@ -22,6 +23,11 @@ struct xmpp_error {
   const char *type;
 };
 
+
+#ifdef MODULES_ENABLE
+void xmpp_add_feature (const char *xmlns);
+void xmpp_del_feature (const char *xmlns);
+#endif
 
 LmMessageNode *lm_message_node_new(const gchar *name, const gchar *xmlns);
 LmMessageNode *lm_message_node_find_xmlns(LmMessageNode *node,

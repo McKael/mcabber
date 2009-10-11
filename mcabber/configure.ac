@@ -130,13 +130,22 @@ if test "$mc_cv_ncurses_escdelay" = yes; then
               [Define if ncurses has ESCDELAY variable])
 fi
 
+AC_ARG_ENABLE(modules, [  --enable-modules         enable dynamic modules loading],
+              enable_modules=$enableval)
+if test "x$enable_modules" = "xyes"; then
+  AC_DEFINE(MODULES_ENABLE, 1, [Define if you want dynamic modules loading])
+  gmodule_module=gmodule
+else
+  gmodule_module=''
+fi
+
 # Check for glib
 AM_PATH_GLIB_2_0(2.14.0,
                  [AC_DEFINE([HAVE_GLIB_REGEX], 1,
                             [Define if GLib has regex support])],
                  [AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR([glib is required]),
-                                  [g_list_append])],
-                 [g_regex_new])
+                                  [g_list_append], ["$gmodule_module"])],
+                 [g_regex_new "$gmodule_module"])
 
 # Check for loudmouth
 PKG_CHECK_MODULES(LOUDMOUTH, loudmouth-1.0 >= 1.4.3)

@@ -1634,9 +1634,8 @@ void xmpp_connect(void)
   lm_message_handler_unref(handler);
 
   /* Connect to server */
-  if (servername)
-    scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",
-                 servername);
+  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",
+               servername ? servername : "...");
   if (!resource)
     resource = resource_prefix;
 
@@ -1710,7 +1709,6 @@ void xmpp_connect(void)
   if (!port)
     port = (ssl ? LM_CONNECTION_DEFAULT_PORT_SSL : LM_CONNECTION_DEFAULT_PORT);
   lm_connection_set_port(lconnection, port);
-  scr_LogPrint(LPRINT_LOGNORM, "Port: %i\n", port);
 
   if (ssl_fpr && (!hex_to_fingerprint(ssl_fpr, fpr))) {
     scr_LogPrint(LPRINT_LOGNORM, "** Plese set the fingerprint in the format "

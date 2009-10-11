@@ -852,11 +852,11 @@ static void _try_to_reconnect(void)
 static void connection_open_cb(LmConnection *connection, gboolean success,
                                gpointer user_data)
 {
-  const char *username, *password, *resource, *servername;
   GError *error;
 
   if (success) {
-    servername = settings_opt_get("server");
+    const char *password, *resource;
+    char *username;
     username   = jid_get_username(settings_opt_get("jid"));
     password   = settings_opt_get("password");
     resource   = strchr(lm_connection_get_jid(connection),

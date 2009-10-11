@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.9.11-dev, October 2009
+v0.10.0-dev, October 2009
 
 NAME
 ----
@@ -22,7 +22,7 @@ it cannot (un)register accounts yet.
 
 Here are some of the features of `mcabber`:
 
-- 'SSL support'.
+- 'SSL/TLS support'.
 - 'MUC support' (Multi-User Chat).
 - 'PGP support'
 - 'Chat States' support (typing notifications)

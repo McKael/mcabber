@@ -1,6 +1,9 @@
-mcabber (0.9.11-dev)
+mcabber (0.10.0-dev)
 
- * 
+ * Switch to the Loudmouth library (franky)
+ * Message Receipts (XEP-0184) support (franky)
+ * Update of Entity Capabilities support (franky)
+ * Allow changing the nickname in MUC bookmarks (Myhailo Danylenko)
 
  -- Mikael, ?
 

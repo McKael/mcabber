@@ -1,3 +1,16 @@
+mcabber (0.10.0)
+
+ * MCabber now uses the Loudmouth library (version 1.4.3 or greater).
+
+ -- Mikael, ?
+
+mcabber (0.9.10)
+
+ * The spell checking related options have changed, please
+   check your configuration file.
+
+ -- Mikael, 2009-10-11
+
 mcabber (0.9.5)
 
  * The option 'otr' must now be set in the configuration file in

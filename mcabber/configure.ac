@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([mcabber],[0.9.11-dev],[mcabber@lilotux.net])
+AC_INIT([mcabber],[0.10.0-dev],[mcabber@lilotux.net])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src])
 AM_CONFIG_HEADER(config.h)
@@ -176,7 +176,7 @@ AC_ARG_ENABLE(aspell, [  --enable-aspell         enable aspell support],
 
 if test "x$enable_enchant" = "xyes"; then
  PKG_CHECK_MODULES(ENCHANT, [enchant],
-   AC_DEFINE(WITH_ENCHANT, 1, [define if you want enchant support])
+   AC_DEFINE(WITH_ENCHANT, 1, [Define if you want enchant support])
  )
 else
  if test "x$enable_aspell" = "xyes"; then
@@ -184,7 +184,7 @@ else
     if test "x$have_aspell_includes" = "xyes"; then
         AC_CHECK_LIB(aspell, new_aspell_config, [ have_aspell_libs=yes ])
         if test "x$have_aspell_libs" = "xyes"; then
-            AC_DEFINE([WITH_ASPELL], 1, [define if you want aspell support])
+            AC_DEFINE([WITH_ASPELL], 1, [Define if you want aspell support])
             LIBS="$LIBS -laspell"
         else
             enable_aspell=no

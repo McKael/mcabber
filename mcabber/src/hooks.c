@@ -483,7 +483,7 @@ void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data)
       size_t data_locale_len = strlen(data_locale);
       ssize_t a = write(fd, data_locale, data_locale_len);
       ssize_t b = write(fd, "\n", 1);
-      if (a != data_locale_len || b != 1) {
+      if ((size_t)a != data_locale_len || b != 1) {
         g_free(datafname);
         datafname = NULL;
         scr_LogPrint(LPRINT_LOGNORM,

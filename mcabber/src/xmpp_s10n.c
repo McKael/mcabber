@@ -20,6 +20,12 @@
  * USA
  */
 
+#include "xmpp_helper.h"
+#include "events.h"
+#include "screen.h"
+#include "hbuf.h"
+#include "settings.h"
+
 //  xmpp_send_s10n(jid, subtype)
 // Send a s10n message with the passed subtype
 void xmpp_send_s10n(const char *bjid, LmMessageSubType type)
@@ -31,7 +37,7 @@ void xmpp_send_s10n(const char *bjid, LmMessageSubType type)
   lm_message_unref(x);
 }
 
-static int evscallback_subscription(eviqs *evp, guint evcontext)
+int evscallback_subscription(eviqs *evp, guint evcontext)
 {
   char *barejid;
   char *buf;

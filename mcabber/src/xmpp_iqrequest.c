@@ -20,6 +20,20 @@
  * USA
  */
 
+#include <string.h>
+#include <stdlib.h>
+
+#include "xmpp_helper.h"
+#include "xmpp_iq.h"
+#include "screen.h"
+#include "utils.h"
+#include "settings.h"
+#include "hooks.h"
+#include "hbuf.h"
+
+extern LmMessageNode *bookmarks;
+extern LmMessageNode *rosternotes;
+
 static LmHandlerResult cb_roster(LmMessageHandler *h, LmConnection *c,
                                  LmMessage *m, gpointer user_data);
 static LmHandlerResult cb_version(LmMessageHandler *h, LmConnection *c,

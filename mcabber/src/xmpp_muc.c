@@ -20,6 +20,23 @@
  * USA
  */
 
+#include <string.h>
+#include <stdlib.h>
+
+#include "xmpp_helper.h"
+#include "events.h"
+#include "hooks.h"
+#include "screen.h"
+#include "hbuf.h"
+#include "roster.h"
+#include "commands.h"
+#include "settings.h"
+#include "utils.h"
+#include "histolog.h"
+
+extern enum imstatus mystatus;
+extern gchar *mystatusmsg;
+
 static void decline_invitation(event_muc_invitation *invitation, char *reason)
 {
   // cut and paste from xmpp_room_invite
@@ -368,10 +385,10 @@ static bool muc_handle_join(const GSList *room_elt, const char *rname,
   return new_member;
 }
 
-static void handle_muc_presence(const char *from, LmMessageNode *xmldata,
-                                const char *roomjid, const char *rname,
-                                enum imstatus ust, const char *ustmsg,
-                                time_t usttime, char bpprio)
+void handle_muc_presence(const char *from, LmMessageNode *xmldata,
+                         const char *roomjid, const char *rname,
+                         enum imstatus ust, const char *ustmsg,
+                         time_t usttime, char bpprio)
 {
   LmMessageNode *y;
   const char *p;
@@ -597,7 +614,7 @@ static void handle_muc_presence(const char *from, LmMessageNode *xmldata,
   scr_DrawRoster();
 }
 
-static void roompresence(gpointer room, void *presencedata)
+void roompresence(gpointer room, void *presencedata)
 {
   const char *bjid;
   const char *nickname;
@@ -674,7 +691,7 @@ static void got_invite(const char* from, const char *to, const char* reason,
 
 
 // Specific MUC message handling (for example invitation processing)
-static void got_muc_message(const char *from, LmMessageNode *x)
+void got_muc_message(const char *from, LmMessageNode *x)
 {
   LmMessageNode *invite = lm_message_node_get_child(x, "invite");
   if (invite)

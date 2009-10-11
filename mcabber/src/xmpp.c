@@ -23,22 +23,22 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include <sys/utsname.h>
 
+#include "xmpp.h"
+#include "xmpp_helper.h"
+#include "xmpp_iq.h"
+#include "xmpp_iqrequest.h"
+#include "xmpp_muc.h"
+#include "xmpp_s10n.h"
 #include "caps.h"
-#include "commands.h"
 #include "events.h"
 #include "histolog.h"
 #include "hooks.h"
-#include "logprint.h"
 #include "otr.h"
 #include "roster.h"
 #include "screen.h"
 #include "settings.h"
 #include "utils.h"
-#include "xmpp.h"
-#include "xmpp_helper.h"
-#include "xmpp_defines.h"
 
 #define RECONNECTION_TIMEOUT    60L
 
@@ -48,15 +48,15 @@ static guint AutoConnection;
 inline void update_last_use(void);
 inline gboolean xmpp_reconnect();
 
-static enum imstatus mystatus = offline;
+enum imstatus mystatus = offline;
 static enum imstatus mywantedstatus = available;
-static gchar *mystatusmsg;
+gchar *mystatusmsg;
 
 char imstatus2char[imstatus_size+1] = {
     '_', 'o', 'f', 'd', 'n', 'a', 'i', '\0'
 };
 
-static char *imstatus_showmap[] = {
+char *imstatus_showmap[] = {
   "",
   "",
   "chat",
@@ -66,58 +66,8 @@ static char *imstatus_showmap[] = {
   ""
 };
 
-static LmMessageNode *bookmarks = NULL;
-static LmMessageNode *rosternotes = NULL;
-
-struct xmpp_error {
-  guint code;
-  const char *code_str;
-  const char *meaning;
-  const char *condition;
-  const char *type;
-} xmpp_errors[] = {
-  {XMPP_ERROR_REDIRECT,              "302",
-    "Redirect",              "redirect",                "modify"},
-  {XMPP_ERROR_BAD_REQUEST,           "400",
-    "Bad Request",           "bad-request",             "modify"},
-  {XMPP_ERROR_NOT_AUTHORIZED,        "401",
-    "Not Authorized",        "not-authorized",          "auth"},
-  {XMPP_ERROR_PAYMENT_REQUIRED,      "402",
-    "Payment Required",      "payment-required",        "auth"},
-  {XMPP_ERROR_FORBIDDEN,             "403",
-    "Forbidden",             "forbidden",               "auth"},
-  {XMPP_ERROR_NOT_FOUND,             "404",
-    "Not Found",             "item-not-found",          "cancel"},
-  {XMPP_ERROR_NOT_ALLOWED,           "405",
-    "Not Allowed",           "not-allowed",             "cancel"},
-  {XMPP_ERROR_NOT_ACCEPTABLE,        "406",
-    "Not Acceptable",        "not-acceptable",          "modify"},
-  {XMPP_ERROR_REGISTRATION_REQUIRED, "407",
-    "Registration required", "registration-required",   "auth"},
-  {XMPP_ERROR_REQUEST_TIMEOUT,       "408",
-    "Request Timeout",       "remote-server-timeout",   "wait"},
-  {XMPP_ERROR_CONFLICT,              "409",
-    "Conflict",               "conflict",               "cancel"},
-  {XMPP_ERROR_INTERNAL_SERVER_ERROR, "500",
-    "Internal Server Error", "internal-server-error",   "wait"},
-  {XMPP_ERROR_NOT_IMPLEMENTED,       "501",
-    "Not Implemented",       "feature-not-implemented", "cancel"},
-  {XMPP_ERROR_REMOTE_SERVER_ERROR,   "502",
-    "Remote Server Error",   "service-unavailable",     "wait"},
-  {XMPP_ERROR_SERVICE_UNAVAILABLE,   "503",
-    "Service Unavailable",   "service-unavailable",     "cancel"},
-  {XMPP_ERROR_REMOTE_SERVER_TIMEOUT, "504",
-    "Remote Server Timeout", "remote-server-timeout",   "wait"},
-  {XMPP_ERROR_DISCONNECTED,          "510",
-    "Disconnected",          "service-unavailable",     "cancel"},
-  {0, NULL, NULL, NULL, NULL}
-};
-
-#include "xmpp_helper.c"
-#include "xmpp_iq.c"
-#include "xmpp_iqrequest.c"
-#include "xmpp_muc.c"
-#include "xmpp_s10n.c"
+LmMessageNode *bookmarks = NULL;
+LmMessageNode *rosternotes = NULL;
 
 static struct IqHandlers
 {

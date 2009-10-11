@@ -22,9 +22,57 @@
  * USA
  */
 
+#include <string.h>
+#include <stdlib.h>
+
 #include "xmpp_helper.h"
+#include "settings.h"
+#include "utils.h"
+#include "caps.h"
+#include "logprint.h"
 
 time_t iqlast; // last message/status change time
+
+extern char *imstatus_showmap[];
+
+struct xmpp_error xmpp_errors[] = {
+  {XMPP_ERROR_REDIRECT,              "302",
+    "Redirect",              "redirect",                "modify"},
+  {XMPP_ERROR_BAD_REQUEST,           "400",
+    "Bad Request",           "bad-request",             "modify"},
+  {XMPP_ERROR_NOT_AUTHORIZED,        "401",
+    "Not Authorized",        "not-authorized",          "auth"},
+  {XMPP_ERROR_PAYMENT_REQUIRED,      "402",
+    "Payment Required",      "payment-required",        "auth"},
+  {XMPP_ERROR_FORBIDDEN,             "403",
+    "Forbidden",             "forbidden",               "auth"},
+  {XMPP_ERROR_NOT_FOUND,             "404",
+    "Not Found",             "item-not-found",          "cancel"},
+  {XMPP_ERROR_NOT_ALLOWED,           "405",
+    "Not Allowed",           "not-allowed",             "cancel"},
+  {XMPP_ERROR_NOT_ACCEPTABLE,        "406",
+    "Not Acceptable",        "not-acceptable",          "modify"},
+  {XMPP_ERROR_REGISTRATION_REQUIRED, "407",
+    "Registration required", "registration-required",   "auth"},
+  {XMPP_ERROR_REQUEST_TIMEOUT,       "408",
+    "Request Timeout",       "remote-server-timeout",   "wait"},
+  {XMPP_ERROR_CONFLICT,              "409",
+    "Conflict",               "conflict",               "cancel"},
+  {XMPP_ERROR_INTERNAL_SERVER_ERROR, "500",
+    "Internal Server Error", "internal-server-error",   "wait"},
+  {XMPP_ERROR_NOT_IMPLEMENTED,       "501",
+    "Not Implemented",       "feature-not-implemented", "cancel"},
+  {XMPP_ERROR_REMOTE_SERVER_ERROR,   "502",
+    "Remote Server Error",   "service-unavailable",     "wait"},
+  {XMPP_ERROR_SERVICE_UNAVAILABLE,   "503",
+    "Service Unavailable",   "service-unavailable",     "cancel"},
+  {XMPP_ERROR_REMOTE_SERVER_TIMEOUT, "504",
+    "Remote Server Timeout", "remote-server-timeout",   "wait"},
+  {XMPP_ERROR_DISCONNECTED,          "510",
+    "Disconnected",          "service-unavailable",     "cancel"},
+  {0, NULL, NULL, NULL, NULL}
+};
+
 
 const gchar* lm_message_node_get_child_value(LmMessageNode *node,
                                              const gchar *child)
@@ -110,8 +158,8 @@ const gchar* lm_message_get_id(LmMessage *m)
   return lm_message_node_get_attribute(m->node, "id");
 }
 
-static LmMessage *lm_message_new_iq_from_query(LmMessage *m,
-                                               LmMessageSubType type)
+LmMessage *lm_message_new_iq_from_query(LmMessage *m,
+                                        LmMessageSubType type)
 {
   LmMessage *new;
   const char *from = lm_message_node_get_attribute(m->node, "from");
@@ -166,8 +214,8 @@ const char *entity_version(enum imstatus status)
   return ver;
 }
 
-inline static LmMessageNode *lm_message_node_find_xmlns(LmMessageNode *node,
-                                                        const char *xmlns)
+LmMessageNode *lm_message_node_find_xmlns(LmMessageNode *node,
+                                          const char *xmlns)
 {
   LmMessageNode *x;
   const char *p;
@@ -179,7 +227,7 @@ inline static LmMessageNode *lm_message_node_find_xmlns(LmMessageNode *node,
   return x;
 }
 
-static time_t lm_message_node_get_timestamp(LmMessageNode *node)
+time_t lm_message_node_get_timestamp(LmMessageNode *node)
 {
   LmMessageNode *x;
   const char *p;
@@ -197,9 +245,9 @@ static time_t lm_message_node_get_timestamp(LmMessageNode *node)
 //  lm_message_new_presence(status, recipient, message)
 // Create an xmlnode with default presence attributes
 // Note: the caller must free the node after use
-static LmMessage *lm_message_new_presence(enum imstatus st,
-                                           const char *recipient,
-                                           const char *msg)
+LmMessage *lm_message_new_presence(enum imstatus st,
+                                   const char *recipient,
+                                   const char *msg)
 {
   unsigned int prio;
   LmMessage *x = lm_message_new(recipient, LM_MESSAGE_TYPE_PRESENCE);
@@ -243,7 +291,7 @@ static LmMessage *lm_message_new_presence(enum imstatus st,
 
 static const char *defaulterrormsg(guint code)
 {
-  int i = 0;
+  int i;
 
   for (i = 0; xmpp_errors[i].code; ++i) {
     if (xmpp_errors[i].code == code)

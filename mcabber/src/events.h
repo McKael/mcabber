@@ -1,8 +1,6 @@
 #ifndef __EVENTS_H__
 #define __EVENTS_H__ 1
 
-#include "xmpp.h"
-
 
 #define EVS_DEFAULT_TIMEOUT 90
 #define EVS_MAX_TIMEOUT     432000

@@ -4,8 +4,10 @@ mcabber_SOURCES = main.c roster.c roster.h events.c events.h \
 		  hbuf.c hbuf.h screen.c screen.h logprint.h \
 		  settings.c settings.h hooks.c hooks.h utf8.c utf8.h \
 		  histolog.c histolog.h utils.c utils.h pgp.c pgp.h \
-		  fifo.c fifo.h help.c help.h \
-		  xmpp.c xmpp.h xmpp_helper.h caps.c caps.h
+		  xmpp.c xmpp.h xmpp_helper.c xmpp_helper.h xmpp_defines.h \
+		  xmpp_iq.c xmpp_iq.h xmpp_iqrequest.c xmpp_iqrequest.h \
+		  xmpp_muc.c xmpp_muc.h xmpp_s10n.c xmpp_s10n.h \
+		  caps.c caps.h fifo.c fifo.h help.c help.h
 
 if OTR
 mcabber_SOURCES += otr.c otr.h nohtml.c nohtml.h

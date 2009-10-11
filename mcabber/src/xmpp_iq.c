@@ -23,6 +23,19 @@
  * USA
  */
 
+#include <string.h>
+#include <sys/utsname.h>
+
+#include "xmpp_helper.h"
+#include "commands.h"
+#include "screen.h"
+#include "utils.h"
+#include "logprint.h"
+#include "settings.h"
+#include "caps.h"
+
+extern struct xmpp_error xmpp_errors[];
+
 static LmHandlerResult handle_iq_command_set_status(LmMessageHandler *h,
                                                     LmConnection *c,
                                                     LmMessage *m,
@@ -104,7 +117,7 @@ static LmMessage *lm_message_new_iq_error(LmMessage *m, guint error)
   return r;
 }
 
-static void send_iq_error(LmConnection *c, LmMessage *m, guint error)
+void send_iq_error(LmConnection *c, LmMessage *m, guint error)
 {
   LmMessage *r;
   r = lm_message_new_iq_error(m, error);
@@ -392,9 +405,9 @@ static LmHandlerResult handle_iq_command_leave_groupchats(LmMessageHandler *h,
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
-static LmHandlerResult handle_iq_commands(LmMessageHandler *h,
-                                          LmConnection *c,
-                                          LmMessage *m, gpointer ud)
+LmHandlerResult handle_iq_commands(LmMessageHandler *h,
+                                   LmConnection *c,
+                                   LmMessage *m, gpointer ud)
 {
   const char *requester_jid = NULL;
   LmMessageNode *cmd;
@@ -439,9 +452,9 @@ static LmHandlerResult handle_iq_commands(LmMessageHandler *h,
 }
 
 
-static LmHandlerResult handle_iq_disco_items(LmMessageHandler *h,
-                                             LmConnection *c,
-                                             LmMessage *m, gpointer ud)
+LmHandlerResult handle_iq_disco_items(LmMessageHandler *h,
+                                      LmConnection *c,
+                                      LmMessage *m, gpointer ud)
 {
   LmMessageNode *query;
   const char *node;
@@ -504,9 +517,9 @@ static void disco_info_set_caps(LmMessageNode *ansquery,
   }
 }
 
-static LmHandlerResult handle_iq_disco_info(LmMessageHandler *h,
-                                            LmConnection *c,
-                                            LmMessage *m, gpointer ud)
+LmHandlerResult handle_iq_disco_info(LmMessageHandler *h,
+                                     LmConnection *c,
+                                     LmMessage *m, gpointer ud)
 {
   LmMessage *r;
   LmMessageNode *query, *tmp;
@@ -532,8 +545,8 @@ static LmHandlerResult handle_iq_disco_info(LmMessageHandler *h,
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
-static LmHandlerResult handle_iq_roster(LmMessageHandler *h, LmConnection *c,
-                                        LmMessage *m, gpointer ud)
+LmHandlerResult handle_iq_roster(LmMessageHandler *h, LmConnection *c,
+                                 LmMessage *m, gpointer ud)
 {
   LmMessageNode *y;
   const char *fjid, *name, *group, *sub, *ask;
@@ -615,8 +628,8 @@ static LmHandlerResult handle_iq_roster(LmMessageHandler *h, LmConnection *c,
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
-static LmHandlerResult handle_iq_ping(LmMessageHandler *h, LmConnection *c,
-                                       LmMessage *m, gpointer ud)
+LmHandlerResult handle_iq_ping(LmMessageHandler *h, LmConnection *c,
+                               LmMessage *m, gpointer ud)
 {
   LmMessage *r;
 
@@ -631,8 +644,8 @@ double seconds_since_last_use(void)
   return difftime(time(NULL), iqlast);
 }
 
-static LmHandlerResult handle_iq_last(LmMessageHandler *h, LmConnection *c,
-                                      LmMessage *m, gpointer ud)
+LmHandlerResult handle_iq_last(LmMessageHandler *h, LmConnection *c,
+                               LmMessage *m, gpointer ud)
 {
   LmMessage *r;
   LmMessageNode *query;
@@ -662,8 +675,8 @@ static LmHandlerResult handle_iq_last(LmMessageHandler *h, LmConnection *c,
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
-static LmHandlerResult handle_iq_version(LmMessageHandler *h, LmConnection *c,
-                                         LmMessage *m, gpointer ud)
+LmHandlerResult handle_iq_version(LmMessageHandler *h, LmConnection *c,
+                                  LmMessage *m, gpointer ud)
 {
   LmMessage *r;
   LmMessageNode *query;
@@ -699,8 +712,8 @@ static LmHandlerResult handle_iq_version(LmMessageHandler *h, LmConnection *c,
 }
 
 // This function borrows some code from the Pidgin project
-static LmHandlerResult handle_iq_time(LmMessageHandler *h, LmConnection *c,
-                                      LmMessage *m, gpointer ud)
+LmHandlerResult handle_iq_time(LmMessageHandler *h, LmConnection *c,
+                               LmMessage *m, gpointer ud)
 {
   LmMessage *r;
   LmMessageNode *query;
@@ -746,8 +759,8 @@ static LmHandlerResult handle_iq_time(LmMessageHandler *h, LmConnection *c,
 }
 
 // This function borrows some code from the Pidgin project
-static LmHandlerResult handle_iq_time202(LmMessageHandler *h, LmConnection *c,
-                                         LmMessage *m, gpointer ud)
+LmHandlerResult handle_iq_time202(LmMessageHandler *h, LmConnection *c,
+                                  LmMessage *m, gpointer ud)
 {
   LmMessage *r;
   LmMessageNode *query;

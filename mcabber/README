@@ -30,6 +30,7 @@ This is an overview of mcabber Jabber features:
   XEP-0115 - Entity Capabilities support
   XEP-0145 - Annotations
   XEP-0146 - Remote Controlling Clients (partial)
+  XEP-0184 - Message Receipts
   XEP-0199 - XMPP Ping
   XEP-0202 - Entity Time
   XEP-0203 - Delayed Delivery

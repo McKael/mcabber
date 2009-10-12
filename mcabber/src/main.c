@@ -262,16 +262,17 @@ gboolean mcabber_loop()
   scr_DoUpdate();
   scr_Getch(&kcode);
 
-  if (kcode.value != ERR) {
+  while (kcode.value != ERR) {
     process_key(kcode);
-  } else {
-    scr_CheckAutoAway(FALSE);
-
-    if (update_roster)
-      scr_DrawRoster();
-
-    hk_mainloop();
+    scr_DoUpdate();
+    scr_Getch(&kcode);
   }
+  scr_CheckAutoAway(FALSE);
+
+  if (update_roster)
+    scr_DrawRoster();
+
+  hk_mainloop();
   return TRUE;
 }
 

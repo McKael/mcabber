@@ -91,10 +91,12 @@ list of commands.
     const char *value; 
   } hk_arg_t; 
   
-  typedef void (*hk_handler_t) (hk_arg_t *args,
+  typedef void (*hk_handler_t) (guint32 hookid,
+                                hk_arg_t *args,
                                 gpointer userdata); 
    
   void hk_add_handler (hk_handler_t handler,
+                       guint32 flags,
                        gpointer userdata); 
   void hk_del_handler (hk_handler_t handler,
                        gpointer userdata); 
@@ -103,27 +105,31 @@ list of commands.
 These functions allow your module to react to events,
 such as incoming and outgoing messages, buddy status
 changes and sever connection establishment or breakup.
-In fact, you specify only one handler (well, you can
-specify as many, as you want, but they all will be
-called on any event, that will occur). Which event is
-occured can be determined from args, which is a list of
-hk_arg_t structures, terminated with structure, whose
-name field is set to NULL. Event type is specified in
-the structure with name set to "hook". Usually this is
-the first structure of the list, however it is not
-guaranted, that this will be so forever.
+Flags field specifies mask of events, upon which this
+handler should be called. Flags, that comprise this
+mask can be found in hooks.h. You can specify not yet
+used flags in mask, if you need to handle all events.
+Handler can determine, which event is occured by
+hookid argument and by a "hook" field in args, that
+may provide more precise information in some cases.
+Args argument is a list of hk_arg_t structures,
+terminated by structure, whose name field is set to
+NULL. Usually the "hook" field is in the first
+structure of the list, however it is not guaranted,
+that this will be so forever.
 
 Currently there are next events possible:
- - hook-message-in with parameters
+ - hook-message-in (HOOK_MESSAGE_IN) with parameters
    * jid - sender of the incoming message
    * message - message body, converted to locale
      charset
    * groupchat ("true" or "false")
- - hook-message-out with parameters
+ - hook-message-out (HOOK_MESSAGE_OUT) with parameters
    * jid - recipient of the outgoing message
    * message - message body, converted to locale
      charset
- - hook-status-change wih parameters
+ - hook-status-change (HOOK_STATUS_CHANGE) with
+   parameters
    * jid - buddy, whose status has changed
    * resource - resource, whose status has changed
    * old_status - old status of the buddy, one-char
@@ -134,18 +140,22 @@ Currently there are next events possible:
    * message - new status message. Old one should be
      still available to module as the current buddy's
      message.
- - hook-my-status-change with parameters
+ - hook-my-status-change (HOOK_MY_STATUS_CHANGE) with
+   parameters
    * new_status - user's new status, see
      hook-status-change. Old one should still be
      available as the current status of the user.
    * message - new status message
- - hook-post-connect with no parameters
- - hook-pre-disconnect with no parameters
+ - hook-post-connect (HOOK_INTERNAL) with no parameters
+ - hook-pre-disconnect (HOOK_INTERNAL) with no
+   parameters
 
+--------------------------------------------------------
   #include "xmpp_helper.h"
 
   void xmpp_add_feature (const char *xmlns);
   void xmpp_del_feature (const char *xmlns);
+--------------------------------------------------------
 
 These functions may be useful, if your module implements
 some additional functionality to mcabber, that should be
@@ -367,15 +377,12 @@ muc conference message, not just ones, directed to me.
 static guint beep_cid = 0;
 
 /* Event handler */
-void beep_hh (hk_arg_t *args, gpointer userdata)
+void beep_hh (guint32 hid, hk_arg_t *args, gpointer userdata)
 {
-	/* We are interested only in incoming
-	 * message events */
-	if (!strcmp (args[0].value, "hook-message-in"))
-		/* Check if beeping is enabled */
-		if (settings_opt_get_int ("beep_enable"))
-			/* *BEEP*! */
-			scr_Beep ();
+	/* Check if beeping is enabled */
+	if (settings_opt_get_int ("beep_enable"))
+		/* *BEEP*! */
+		scr_Beep ();
 }
 
 /* beep command handler */
@@ -417,8 +424,10 @@ const gchar* g_module_check_init (GModule *module)
 	}
 	/* Add command */
 	cmd_add ("beep", "", beep_cid, 0, do_beep, NULL);
-	/* Add handler */
-	hk_add_handler (beep_hh, NULL);
+	/* Add handler
+	 * We are only interested in incoming message events
+	 */
+	hk_add_handler (beep_hh, HOOK_MESSAGE_IN, NULL);
 	return NULL;
 }
 

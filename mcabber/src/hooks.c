@@ -41,15 +41,17 @@
 
 typedef struct {
   hk_handler_t handler;
+  guint32      flags;
   gpointer     userdata;
 } hook_list_data_t;
 
 static GSList *hk_handler_queue = NULL;
 
-void hk_add_handler (hk_handler_t handler, gpointer userdata)
+void hk_add_handler (hk_handler_t handler, guint32 flags, gpointer userdata)
 {
   hook_list_data_t *h = g_new (hook_list_data_t, 1);
   h->handler  = handler;
+  h->flags    = flags;
   h->userdata = userdata;
   hk_handler_queue = g_slist_append (hk_handler_queue, h);
 }
@@ -64,7 +66,7 @@ static gint hk_queue_search_cb (hook_list_data_t *a, hook_list_data_t *b)
 
 void hk_del_handler (hk_handler_t handler, gpointer userdata)
 {
-  hook_list_data_t h = { handler, userdata };
+  hook_list_data_t h = { handler, 0, userdata };
   GSList *el = g_slist_find_custom (hk_handler_queue, &h, (GCompareFunc) hk_queue_search_cb);
   if (el) {
     g_free (el->data);
@@ -275,7 +277,8 @@ void hk_message_in(const char *bjid, const char *resname,
 #endif
       while (h) {
         hook_list_data_t *data = h->data;
-        (data->handler) (args, data->userdata);
+        if (data->flags & HOOK_MESSAGE_IN)
+          (data->handler) (HOOK_MESSAGE_IN, args, data->userdata);
         h = g_slist_next (h);
       }
     }
@@ -373,7 +376,8 @@ void hk_message_out(const char *bjid, const char *nick,
       };
       while (h) {
         hook_list_data_t *data = h->data;
-        (data->handler) (args, data->userdata);
+        if (data->flags & HOOK_MESSAGE_OUT)
+          (data->handler) (HOOK_MESSAGE_OUT, args, data->userdata);
         h = g_slist_next (h);
       }
     }
@@ -470,7 +474,8 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
       ns[0] = imstatus2char[status];
       while (h) {
         hook_list_data_t *data = h->data;
-        (data->handler) (args, data->userdata);
+        if (data->flags & HOOK_STATUS_CHANGE)
+          (data->handler) (HOOK_STATUS_CHANGE, args, data->userdata);
         h = g_slist_next (h);
       }
     }
@@ -502,7 +507,8 @@ void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
       ns[0] = imstatus2char[new_status];
       while (h) {
         hook_list_data_t *data = h->data;
-        (data->handler) (args, data->userdata);
+        if (data->flags & HOOK_MY_STATUS_CHANGE)
+          (data->handler) (HOOK_MY_STATUS_CHANGE, args, data->userdata);
         h = g_slist_next (h);
       }
     }
@@ -542,7 +548,8 @@ void hook_execute_internal(const char *hookname)
       };
       while (h) {
         hook_list_data_t *data = h->data;
-        (data->handler) (args, data->userdata);
+        if (data->flags & HOOK_INTERNAL)
+          (data->handler) (HOOK_INTERNAL, args, data->userdata);
         h = g_slist_next (h);
       }
     }

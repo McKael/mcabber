@@ -13,14 +13,20 @@
 #ifdef MODULES_ENABLE
 #include <glib.h>
 
+#define HOOK_MESSAGE_IN       ( 0x00000001 )
+#define HOOK_MESSAGE_OUT      ( 0x00000002 )
+#define HOOK_STATUS_CHANGE    ( 0x00000004 )
+#define HOOK_MY_STATUS_CHANGE ( 0x00000008 )
+#define HOOK_INTERNAL         ( 0x00000010 )
+
 typedef struct {
   const char *name;
   const char *value;
 } hk_arg_t;
 
-typedef void (*hk_handler_t) (hk_arg_t *args, gpointer userdata);
+typedef void (*hk_handler_t) (guint32 flags, hk_arg_t *args, gpointer userdata);
 
-void hk_add_handler (hk_handler_t handler, gpointer userdata);
+void hk_add_handler (hk_handler_t handler, guint32 flags, gpointer userdata);
 void hk_del_handler (hk_handler_t handler, gpointer userdata);
 #endif
 

@@ -177,6 +177,11 @@ set cmdhistory_lines = 250
 # displayed in the status window (default: 0).
 #set iq_hide_requests = 1
 
+# Modules
+# If you compiled mcabber with modules support, you can specify here path
+# to directory, where your modules reside.
+#set modules_dir = /usr/lib/mcabber/
+
 # Beep
 # Set beep_on_message to 1 if you want mcabber to beep when receiving
 # a new message (except in chatrooms).  If you want a more sophisticated

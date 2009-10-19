@@ -14,7 +14,9 @@ Thus, in your module you can provide functions
   void         g_module_unload (GModule *module);
 --------------------------------------------------------
 
-to do something when module is loaded and unloaded.
+to do something when module is loaded and unloaded. On
+success g_module_check_init should return NULL, and
+error message otherwise.
 
 As module is loaded, you can use mcabber functions,
 declared in mcabber's header files (though you should
@@ -81,7 +83,7 @@ For that use functions compl_add_category_word and
 compl_del_category_word. You can obtain current contents
 of category by using gompl_get_category_list. If after
 execution dynlist is TRUE, you should free obtained
-list of commands.
+list of words (both, words and list).
 
 --------------------------------------------------------
   #include "hooks.h"
@@ -446,10 +448,6 @@ void g_module_unload (GModule *module)
 /* The End */
 --------------------------------------------------------
 
-As you can see, here we used the fact, that right now
-all the hooks provide "hook" argument as a first element
-in args, however this can change in future.
-
 Note, that to compile this we also need to add loudmouth-1.0
 to pkg-config command line and to add -I. to compilation
 mode gcc command line (specify include directory with our
@@ -499,7 +497,7 @@ install(TARGETS beep DESTINATION lib/mcabber)
 
 ==============
 
-As mcabber-lm uses glib mainloop, you can use glib's
+As mcabber now uses glib mainloop, you can use glib's
 event sources, for example, fifo reading can be easily
 modularized with GIOChannels.
 

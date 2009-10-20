@@ -2970,54 +2970,65 @@ static void display_all_bookmarks(void)
 }
 
 #ifdef MODULES_ENABLE
-static void do_load(char *arg)
+static gint module_list_comparator(gconstpointer arg1, gconstpointer arg2)
 {
-  if (!arg || !*arg) {
-    scr_LogPrint (LPRINT_LOGNORM, "Missing modulename.");
-    return;
-  }
-  char *mdir = expand_filename (settings_opt_get ("modules_dir"));
-  char *path = g_module_build_path (mdir, arg);
-  GModule *mod = g_module_open (path, G_MODULE_BIND_LAZY);
-  if (!mod)
-    scr_LogPrint (LPRINT_LOGNORM, "Module %s loading failed: %s",
-                  path, g_module_error ());
-  else {
-    loaded_module_t *module = g_new (loaded_module_t, 1);
-    module->name = g_strdup (arg);
-    module->module = mod;
-    loaded_modules = g_slist_prepend (loaded_modules, module);
-    scr_LogPrint (LPRINT_LOGNORM, "Loaded module %s", arg);
-  }
-  g_free (path);
-  if (mdir)
-    g_free (mdir);
+  const loaded_module_t *module = arg1;
+  const char *name = arg2;
+  return g_strcmp0(module->name, name);
 }
 
-static int module_list_comparator (loaded_module_t *module, const char *name)
+static void do_load(char *arg)
 {
-  return g_strcmp0 (module->name, name);
+  GModule *mod;
+  GSList *lmod;
+  char *mdir, *path;
+  if (!arg || !*arg) {
+    scr_LogPrint(LPRINT_LOGNORM, "Missing modulename.");
+    return;
+  }
+  lmod = g_slist_find_custom(loaded_modules, arg, module_list_comparator);
+  if (lmod) {
+    scr_LogPrint(LPRINT_LOGNORM, "Module %s is already loaded.", arg);
+    return;
+  }
+  mdir = expand_filename(settings_opt_get("modules_dir"));
+  path = g_module_build_path(mdir, arg);
+  mod  = g_module_open(path, G_MODULE_BIND_LAZY);
+  if (!mod)
+    scr_LogPrint(LPRINT_LOGNORM, "Module loading failed: %s",
+                 g_module_error());
+  else {
+    loaded_module_t *module = g_new(loaded_module_t, 1);
+    module->name   = g_strdup(arg);
+    module->module = mod;
+    loaded_modules = g_slist_prepend(loaded_modules, module);
+    scr_LogPrint(LPRINT_LOGNORM, "Loaded module %s.", arg);
+  }
+  g_free(path);
+  g_free(mdir);
 }
 
 static void do_unload(char *arg)
 {
+  GSList *module;
   if (!arg || !*arg) {
-    scr_LogPrint (LPRINT_LOGNORM, "Missing modulename.");
+    scr_LogPrint(LPRINT_LOGNORM, "Missing modulename.");
     return;
   }
-  GSList *module = g_slist_find_custom (loaded_modules, arg, (GCompareFunc) module_list_comparator);
+  module = g_slist_find_custom(loaded_modules, arg, module_list_comparator);
   if (module) {
     loaded_module_t *mod = module->data;
-    if (!g_module_close ((GModule *) mod->module))
-      scr_LogPrint (LPRINT_LOGNORM, "Module unloading failed: %s",
-                    g_module_error ());
+    if (!g_module_close(mod->module))
+      scr_LogPrint(LPRINT_LOGNORM, "Module unloading failed: %s",
+                   g_module_error());
     else {
-      g_free (mod->name);
-      g_free (mod);
-      loaded_modules = g_slist_delete_link (loaded_modules, module);
+      g_free(mod->name);
+      g_free(mod);
+      loaded_modules = g_slist_delete_link(loaded_modules, module);
+      scr_LogPrint(LPRINT_LOGNORM, "Unloaded module %s.", arg);
     }
   } else
-    scr_LogPrint (LPRINT_LOGNORM, "Module %s not loaded.", arg);
+    scr_LogPrint(LPRINT_LOGNORM, "Module %s not loaded.", arg);
 }
 #endif
 

@@ -243,7 +243,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "unread_next");
   compl_add_category_word(COMPL_ROSTER, "note");
 
-  // Roster category
+  // Buffer category
   compl_add_category_word(COMPL_BUFFER, "clear");
   compl_add_category_word(COMPL_BUFFER, "bottom");
   compl_add_category_word(COMPL_BUFFER, "top");

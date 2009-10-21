@@ -178,8 +178,8 @@ set cmdhistory_lines = 250
 #set iq_hide_requests = 1
 
 # Modules
-# If you compiled mcabber with modules support, you can specify here path
-# to directory, where your modules reside.
+# If mcabber is built with modules support, you can specify the path
+# to the directory where your modules reside.
 #set modules_dir = /usr/lib/mcabber/
 
 # Beep

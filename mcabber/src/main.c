@@ -170,7 +170,7 @@ static void compile_options(void)
   puts("Compiled with GPG support.");
 #endif
 #ifdef MODULES_ENABLE
-  puts ("Compiled with modules support");
+  puts ("Compiled with modules support.");
 #endif
 #ifdef HAVE_LIBOTR
   puts("Compiled with OTR support.");

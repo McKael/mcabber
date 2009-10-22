@@ -1,19 +1,13 @@
 
-BUGS:
-
-* SSL certificate verification does not work with gnutls
-* Unicode JIDs are not supported
-
-
 TODO:
 
+Please see the issue tracker for other features/bugs:
+http://bitbucket.org/McKael/mcabber-crew/issues/?status=new&status=open
+
 * Improve the completion system
-* Use new Entity Time specs (XEP-0202) if possible in
- /request time.
 * Enable /roster search for offline (hidden) buddies (hidden groups, etc.)
 * Publish personal information
 * MUC: advanced settings for room creation
-* MUC: display roles of room members
 * MUC: ignore patterns
 * "Offline roster" (when disconnected)
 * Maybe cache iq:version and show version in /info, if available
@@ -22,8 +16,6 @@ TODO:
 * XEP-0186: Invisible
 * "Ignore list" (privacy lists)
   See XEP-0191: Simple Communications Blocking
-* Use DNS _xmpp-client._tcp service
-* Mouse support?
 * Human-readable key binding config?
 * Possibility to hide log window(?)
 * Copy highlighted messages to the [status] window (or another one)
@@ -33,7 +25,7 @@ TODO:
 * Message filters
 * Data Forms
 
-* File transfer? :)
+* File transfer!!
 
 * Commands:
 
@@ -44,4 +36,3 @@ TODO:
   - /server register|unregister
   - /search <jid>|name
     (server search)
-  - /buffer save file

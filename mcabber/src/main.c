@@ -166,11 +166,11 @@ static void compile_options(void)
 #ifdef HAVE_UNICODE
   puts("Compiled with unicode support.");
 #endif
-#ifdef HAVE_GPGME
-  puts("Compiled with GPG support.");
-#endif
 #ifdef MODULES_ENABLE
   puts ("Compiled with modules support.");
+#endif
+#ifdef HAVE_GPGME
+  puts("Compiled with GPG support.");
 #endif
 #ifdef HAVE_LIBOTR
   puts("Compiled with OTR support.");

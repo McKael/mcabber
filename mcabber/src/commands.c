@@ -2011,7 +2011,7 @@ static void do_rename(char *arg)
     scr_LogPrint(LPRINT_NORMAL,
                  "Note: this item will be added to your server roster.");
     // If this is a MUC room w/o bookmark, let's give a small hint...
-    if (!xmpp_is_bookmarked(bjid)) {
+    if ((type & ROSTER_TYPE_ROOM) && !xmpp_is_bookmarked(bjid)) {
       scr_LogPrint(LPRINT_NORMAL,
                    "You should add a room bookmark or it will not be "
                    "recognized as a MUC room next time you run mcabber.");

@@ -2030,8 +2030,9 @@ void xmpp_set_storage_bookmark(const char *roomid, const char *name,
     if (pstatus)
       lm_message_node_add_child(x, "print_status", strprintstatus[pstatus]);
     if (awhois)
-      lm_message_node_add_child(x, "autowhois",
-                                (awhois == autowhois_on) ? "1" : "0");
+      lm_message_node_set_attributes(x, "autowhois",
+                                     (awhois == autowhois_on) ? "1" : "0",
+                                     NULL);
     changed = TRUE;
     scr_LogPrint(LPRINT_LOGNORM, "Updating bookmarks...");
   }

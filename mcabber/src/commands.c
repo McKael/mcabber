@@ -3185,7 +3185,7 @@ static void do_authorization(char *arg)
   if (!strcasecmp(subcmd, "allow"))  {
     xmpp_send_s10n(jid_utf8, LM_MESSAGE_SUB_TYPE_SUBSCRIBED);
     scr_LogPrint(LPRINT_LOGNORM,
-                 "<%s> is now allowed to receive your presence updates.",
+                 "Sent presence subscription approval to <%s>.",
                  jid_utf8);
   } else if (!strcasecmp(subcmd, "cancel"))  {
     xmpp_send_s10n(jid_utf8, LM_MESSAGE_SUB_TYPE_UNSUBSCRIBED);

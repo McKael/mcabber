@@ -1244,13 +1244,13 @@ static LmHandlerResult cb_caps(LmMessageHandler *h, LmConnection *c,
 {
   char *ver = user_data;
 
+  caps_add(ver);
   if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
     display_server_error(lm_message_node_get_child(m->node, "error"));
   } else if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_RESULT) {
     LmMessageNode *info;
     LmMessageNode *query = lm_message_node_get_child(m->node, "query");
 
-    caps_add(ver);
     info = lm_message_node_get_child(query, "identity");
     if (info)
       caps_set_identity(ver, lm_message_node_get_attribute(info, "category"),

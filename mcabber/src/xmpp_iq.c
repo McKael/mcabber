@@ -526,6 +526,9 @@ LmHandlerResult handle_iq_disco_info(LmMessageHandler *h,
   const char *node = NULL;
   const char *param = NULL;
 
+  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_RESULT)
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+
   r = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
   query = lm_message_node_add_child(r->node, "query", NULL);
   lm_message_node_set_attribute(query, "xmlns", NS_DISCO_INFO);

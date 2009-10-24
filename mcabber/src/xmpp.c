@@ -1509,6 +1509,7 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);
   } else {
+    g_free(r);
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   }
 

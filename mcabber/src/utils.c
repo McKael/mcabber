@@ -410,7 +410,7 @@ int check_jid_syntax(const char *fjid)
   const char *domain, *resource;
   int domlen;
 #ifdef HAVE_LIBIDN
-  char *idnpp, *ascidnp;
+  char *idnpp;
   int r;
 #endif
 
@@ -437,15 +437,6 @@ int check_jid_syntax(const char *fjid)
     r = stringprep(idnprep, 1023, 0, stringprep_xmpp_nodeprep);
     if (r != STRINGPREP_OK || !idnprep[0])
       return 1;
-
-    // check the string hasn't been modified, in which case we consider
-    // it's a failure (as fjid is read-only)
-    idnpp = idnprep;
-    str = fjid;
-    while (*idnpp) {
-      if (*idnpp++ != *str++)
-        return 1;
-    }
     /* the username looks okay */
 #else
     /* check for low and invalid ascii characters in the username */
@@ -496,20 +487,11 @@ int check_jid_syntax(const char *fjid)
   if (r != STRINGPREP_OK || !idnprep[0])
     return 1;
 
-  if (idna_to_ascii_8z(idnprep, &ascidnp, IDNA_USE_STD3_ASCII_RULES) !=
+  if (idna_to_ascii_8z(idnprep, &idnpp, IDNA_USE_STD3_ASCII_RULES) !=
       IDNA_SUCCESS)
     return 1;
   else
-    free(ascidnp);
-
-  // check the string hasn't been modified, in which case we consider
-  // it's a failure (as fjid is read-only)
-  idnpp = idnprep;
-  str = domain;
-  while (*idnpp) {
-    if (*idnpp++ != *str++)
-      return 1;
-  }
+    free(idnpp);
 #else
   /* make sure the hostname is valid characters */
   for (str = domain; *str != '\0' && *str != JID_RESOURCE_SEPARATOR; str++) {

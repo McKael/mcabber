@@ -152,6 +152,21 @@ PKG_CHECK_MODULES(LOUDMOUTH, loudmouth-1.0 >= 1.4.2)
 AC_SUBST(LOUDMOUTH_CFLAGS)
 AC_SUBST(LOUDMOUTH_LIBS)
 
+# Check for libidn
+AC_ARG_WITH(libidn, AC_HELP_STRING([--with-libidn=[DIR]],
+                                   [Support IDN (needs GNU Libidn)]),
+            libidn=$withval, libidn=yes)
+if test "$libidn" != "no" ; then
+  PKG_CHECK_MODULES(LIBIDN, libidn >= 0.0.0, [libidn=yes], [libidn=no])
+  if test "$libidn" != "yes" ; then
+    libidn=no
+    AC_MSG_WARN([Libidn not found])
+  else
+    libidn=yes
+    AC_DEFINE(HAVE_LIBIDN, 1, [Define to 1 if you want Libidn.])
+  fi
+fi
+
 # Check for gpgme
 AC_ARG_ENABLE(gpgme, AC_HELP_STRING([--disable-gpgme], [disable GPGME support]),
     [ if test x"$enableval" = x"no"; then

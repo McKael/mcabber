@@ -21,11 +21,20 @@
  * USA
  */
 
+#include <config.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 
+#ifdef HAVE_LIBIDN
+#include <idna.h>
+#include <stringprep.h>
+static char idnprep[1024];
+#endif
+
+#include <glib.h>
 #include <glib/gprintf.h>
 
 /* For Cygwin (thanks go to Yitzchak Scott-Thoennes) */
@@ -38,9 +47,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctype.h>
-#include <glib.h>
 
-#include <config.h>
 #include "utils.h"
 #include "logprint.h"
 
@@ -402,6 +409,10 @@ int check_jid_syntax(const char *fjid)
   const char *str;
   const char *domain, *resource;
   int domlen;
+#ifdef HAVE_LIBIDN
+  char *idnpp, *ascidnp;
+  int r;
+#endif
 
   if (!fjid) return 1;
 
@@ -416,6 +427,28 @@ int check_jid_syntax(const char *fjid)
       return 1;
     domain++;
 
+#ifdef HAVE_LIBIDN
+    idnpp = idnprep;
+    str = fjid;
+    while (*str != JID_DOMAIN_SEPARATOR)
+      *idnpp++ = *str++;
+    *idnpp = 0;
+
+    r = stringprep(idnprep, 1023, 0, stringprep_xmpp_nodeprep);
+    if (r != STRINGPREP_OK || !idnprep[0])
+      return 1;
+
+    // check the string hasn't been modified, in which case we consider
+    // it's a failure (as fjid is read-only)
+    idnpp = idnprep;
+    str = fjid;
+    while (*idnpp) {
+      if (*idnpp++ != *str++)
+        return 1;
+    }
+    scr_LogPrint(LPRINT_LOGNORM, "Stringprep'd node: [%s]", idnprep); // XXX
+    /* the username looks okay */
+#else
     /* check for low and invalid ascii characters in the username */
     for (str = fjid; *str != JID_DOMAIN_SEPARATOR; str++) {
       if (*str <= ' ' || *str == ':' || *str == JID_DOMAIN_SEPARATOR ||
@@ -425,6 +458,7 @@ int check_jid_syntax(const char *fjid)
       }
     }
     /* the username is okay as far as we can tell without LIBIDN */
+#endif
   }
 
   resource = strchr(domain, JID_RESOURCE_SEPARATOR);
@@ -436,6 +470,12 @@ int check_jid_syntax(const char *fjid)
     /* resources may not be longer than 1023 bytes */
     if ((*resource == '\0') || strlen(resource) > 1023)
       return 1;
+#ifdef HAVE_LIBIDN
+    strncpy(idnprep, resource, sizeof(idnprep));
+    r = stringprep(idnprep, 1023, 0, stringprep_xmpp_resourceprep);
+    if (r != STRINGPREP_OK || !idnprep[0])
+      return 1;
+#endif
   } else {
     domlen = strlen(domain);
   }
@@ -446,13 +486,40 @@ int check_jid_syntax(const char *fjid)
   /* and it must not be longer than 1023 bytes */
   if (domlen > 1023) return 1;
 
+#ifdef HAVE_LIBIDN
+  idnpp = idnprep;
+  str = domain;
+  while (*str != '\0' && *str != JID_RESOURCE_SEPARATOR)
+    *idnpp++ = *str++;
+  *idnpp = 0;
+
+  r = stringprep_nameprep(idnprep, 1023);
+  if (r != STRINGPREP_OK || !idnprep[0])
+    return 1;
+
+  if (idna_to_ascii_8z(idnprep, &ascidnp, IDNA_USE_STD3_ASCII_RULES) !=
+      IDNA_SUCCESS)
+    return 1;
+  else
+    free(ascidnp);
+
+  // check the string hasn't been modified, in which case we consider
+  // it's a failure (as fjid is read-only)
+  idnpp = idnprep;
+  str = domain;
+  while (*idnpp) {
+    if (*idnpp++ != *str++)
+      return 1;
+  }
+#else
   /* make sure the hostname is valid characters */
   for (str = domain; *str != '\0' && *str != JID_RESOURCE_SEPARATOR; str++) {
     if (!(isalnum(*str) || *str == '.' || *str == '-' || *str == '_'))
       return 1;
   }
+#endif
 
-  /* it's okay as far as we can tell without LIBIDN */
+  /* it's okay as far as we can tell */
   return 0;
 }
 

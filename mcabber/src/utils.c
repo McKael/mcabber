@@ -446,7 +446,6 @@ int check_jid_syntax(const char *fjid)
       if (*idnpp++ != *str++)
         return 1;
     }
-    scr_LogPrint(LPRINT_LOGNORM, "Stringprep'd node: [%s]", idnprep); // XXX
     /* the username looks okay */
 #else
     /* check for low and invalid ascii characters in the username */

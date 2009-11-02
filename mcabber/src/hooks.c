@@ -527,17 +527,6 @@ void hook_execute_internal(const char *hookname)
   char *buf;
   char *cmdline;
 
-  hook_command = settings_opt_get(hookname);
-  if (!hook_command)
-    return;
-
-  buf = g_strdup_printf("Running %s...", hookname);
-  scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
-
-  cmdline = from_utf8(hook_command);
-  if (process_command(cmdline, TRUE) == 255)
-    mcabber_set_terminate_ui();
-
 #ifdef MODULES_ENABLE
   {
     GSList *h = hk_handler_queue;
@@ -555,6 +544,17 @@ void hook_execute_internal(const char *hookname)
     }
   }
 #endif
+
+  hook_command = settings_opt_get(hookname);
+  if (!hook_command)
+    return;
+
+  buf = g_strdup_printf("Running %s...", hookname);
+  scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+
+  cmdline = from_utf8(hook_command);
+  if (process_command(cmdline, TRUE) == 255)
+    mcabber_set_terminate_ui();
 
   g_free(cmdline);
   g_free(buf);

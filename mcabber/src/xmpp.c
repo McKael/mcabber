@@ -1278,7 +1278,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   time_t timestamp = 0L;
   LmMessageNode *muc_packet, *caps;
 
-  //Check for MUC presence packet
+  // Check for MUC presence packet
   muc_packet = lm_message_node_find_xmlns
           (m->node, "http://jabber.org/protocol/muc#user");
 
@@ -1359,14 +1359,14 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
                     ustmsg);
   }
 
-  //XEP-0115 Entity Capabilities
+  // XEP-0115 Entity Capabilities
   caps = lm_message_node_find_xmlns(m->node, NS_CAPS);
-  if (caps) {
+  if (caps && ust != offline) {
     const char *ver = lm_message_node_get_attribute(caps, "ver");
     GSList *sl_buddy = NULL;
     if (rname)
       sl_buddy = roster_find(r, jidsearch, ROSTER_TYPE_USER);
-    //only cache the caps if the user is on the roster
+    // Only cache the caps if the user is on the roster
     if (sl_buddy && buddy_getonserverflag(sl_buddy->data)) {
       buddy_resource_setcaps(sl_buddy->data, rname, ver);
 

@@ -410,7 +410,7 @@ int main(int argc, char **argv)
 
   scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
 
-  g_timeout_add(10, mcabber_loop, NULL);
+  g_timeout_add(100, mcabber_loop, NULL);
   g_main_loop_run(main_loop);
 
   scr_TerminateCurses();

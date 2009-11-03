@@ -94,7 +94,7 @@ void caps_add_feature(char *hash, const char *feature)
   c = g_hash_table_lookup(caps_cache, hash);
   if (c) {
     char *f = g_strdup(feature);
-    g_hash_table_insert(c->features, f, f);
+    g_hash_table_replace(c->features, f, f);
   }
 }
 

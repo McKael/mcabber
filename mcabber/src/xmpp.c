@@ -1158,6 +1158,9 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   const char *enc = NULL;
   const char *subject = NULL;
   time_t timestamp = 0L;
+  LmMessageSubType mstype;
+
+  mstype = lm_message_get_sub_type(m);
 
   body = lm_message_node_get_child_value(m->node, "body");
 
@@ -1167,7 +1170,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
 
   p = lm_message_node_get_child_value(m->node, "subject");
   if (p != NULL) {
-    if (lm_message_get_sub_type(m) != LM_MESSAGE_SUB_TYPE_GROUPCHAT) {
+    if (mstype != LM_MESSAGE_SUB_TYPE_GROUPCHAT) {
       // Chat message
       subject = p;
     } else {                                      // Room topic
@@ -1204,7 +1207,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   // Timestamp?
   timestamp = lm_message_node_get_timestamp(m->node);
 
-  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
+  if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     x = lm_message_node_get_child(m->node, "error");
     display_server_error(x);
 #if defined JEP0022 || defined JEP0085
@@ -1216,7 +1219,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     handle_state_events(from, m->node);
   }
   if (from && (body || subject))
-    gotmessage(lm_message_get_sub_type(m), from, body, enc, subject, timestamp,
+    gotmessage(mstype, from, body, enc, subject, timestamp,
                lm_message_node_find_xmlns(m->node, NS_SIGNED));
   //report received message if message receipt was requested
   if (lm_message_node_get_child(m->node, "request")) {
@@ -1243,11 +1246,12 @@ static LmHandlerResult cb_caps(LmMessageHandler *h, LmConnection *c,
                                LmMessage *m, gpointer user_data)
 {
   char *ver = user_data;
+  LmMessageSubType mstype = lm_message_get_sub_type(m);
 
   caps_add(ver);
-  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
+  if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     display_server_error(lm_message_node_get_child(m->node, "error"));
-  } else if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_RESULT) {
+  } else if (mstype == LM_MESSAGE_SUB_TYPE_RESULT) {
     LmMessageNode *info;
     LmMessageNode *query = lm_message_node_get_child(m->node, "query");
 
@@ -1277,6 +1281,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   char bpprio;
   time_t timestamp = 0L;
   LmMessageNode *muc_packet, *caps;
+  LmMessageSubType mstype;
 
   // Check for MUC presence packet
   muc_packet = lm_message_node_find_xmlns
@@ -1295,8 +1300,9 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   }
 
   r = jidtodisp(from);
+  mstype = lm_message_get_sub_type(m);
 
-  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
+  if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     LmMessageNode *x;
     scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", r);
     x = lm_message_node_find_child(m->node, "error");
@@ -1331,7 +1337,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     else if (!strcmp(p, "chat")) ust = freeforchat;
   }
 
-  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_UNAVAILABLE)
+  if (mstype == LM_MESSAGE_SUB_TYPE_UNAVAILABLE)
     ust = offline;
 
   ustmsg = lm_message_node_get_child_value(m->node, "status");
@@ -1405,6 +1411,7 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
   guint dbgflg;
   const char *xmlns = NULL;
   LmMessageNode *x;
+  LmMessageSubType mstype = lm_message_get_sub_type(m);
 
   for (x = m->node->children; x; x=x->next) {
     xmlns = lm_message_node_get_attribute(x, "xmlns");
@@ -1415,16 +1422,16 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
     xmlns = NULL;
   }
 
-  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
+  if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     display_server_error(lm_message_node_get_child(m->node, "error"));
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
-  if ((lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_SET) ||
-      (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_GET))
+  if ((mstype == LM_MESSAGE_SUB_TYPE_SET) ||
+      (mstype == LM_MESSAGE_SUB_TYPE_GET))
     send_iq_error(connection, m, XMPP_ERROR_NOT_IMPLEMENTED);
 
-  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_RESULT)
+  if (mstype == LM_MESSAGE_SUB_TYPE_RESULT)
     dbgflg = LPRINT_DEBUG;
   else
     dbgflg = LPRINT_NORMAL|LPRINT_DEBUG;
@@ -1441,12 +1448,14 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
   char *buf;
   int newbuddy;
   const char *from = lm_message_get_from(m);
+  LmMessageSubType mstype;
 
   r = jidtodisp(from);
 
   newbuddy = !roster_find(r, jidsearch, 0);
+  mstype = lm_message_get_sub_type(m);
 
-  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_SUBSCRIBE) {
+  if (mstype == LM_MESSAGE_SUB_TYPE_SUBSCRIBE) {
     /* The sender wishes to subscribe to our presence */
     const char *msg;
     int isagent;
@@ -1483,7 +1492,7 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
     scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);
-  } else if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_UNSUBSCRIBE) {
+  } else if (mstype == LM_MESSAGE_SUB_TYPE_UNSUBSCRIBE) {
     /* The sender is unsubscribing from our presence */
     xmpp_send_s10n(from, LM_MESSAGE_SUB_TYPE_UNSUBSCRIBED);
     buf = g_strdup_printf("<%s> is unsubscribing from your "
@@ -1491,14 +1500,14 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
     scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);
-  } else if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_SUBSCRIBED) {
+  } else if (mstype == LM_MESSAGE_SUB_TYPE_SUBSCRIBED) {
     /* The sender has allowed us to receive their presence */
     buf = g_strdup_printf("<%s> has allowed you to receive their "
                           "presence updates", from);
     scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
     g_free(buf);
-  } else if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_UNSUBSCRIBED) {
+  } else if (mstype == LM_MESSAGE_SUB_TYPE_UNSUBSCRIBED) {
     /* The subscription request has been denied or a previously-granted
        subscription has been cancelled */
     roster_unsubscribed(from);

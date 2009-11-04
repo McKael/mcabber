@@ -1413,6 +1413,11 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
   LmMessageNode *x;
   LmMessageSubType mstype = lm_message_get_sub_type(m);
 
+  if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
+    display_server_error(lm_message_node_get_child(m->node, "error"));
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
   for (x = m->node->children; x; x=x->next) {
     xmlns = lm_message_node_get_attribute(x, "xmlns");
     if (xmlns)
@@ -1420,11 +1425,6 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
         if (!strcmp(iq_handlers[i].xmlns, xmlns))
           return iq_handlers[i].handler(NULL, connection, m, user_data);
     xmlns = NULL;
-  }
-
-  if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
-    display_server_error(lm_message_node_get_child(m->node, "error"));
-    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
   if ((mstype == LM_MESSAGE_SUB_TYPE_SET) ||

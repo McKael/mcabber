@@ -2338,9 +2338,8 @@ static void room_join(gpointer bud, char *arg)
     return;
   } else {
     // The room id has been specified.  Let's convert it and use it.
-    roomname_tmp = to_utf8(roomname);
-    mc_strtolower(roomname_tmp);
-    roomname = roomname_tmp;
+    mc_strtolower(roomname);
+    roomname = roomname_tmp = to_utf8(roomname);
   }
 
   // If no nickname is provided with the /join command,
@@ -2613,17 +2612,9 @@ static void room_nick(gpointer bud, char *arg)
     else
       scr_LogPrint(LPRINT_NORMAL, "You have no nickname in this room.");
   } else {
-    gchar *roomname, *roomname_tmp, *nick;
-    roomname_tmp = g_strdup(buddy_getjid(bud));
-    mc_strtolower(roomname_tmp);
-    roomname = to_utf8(roomname_tmp);
-    g_free(roomname_tmp);
-
-    nick = to_utf8(arg);
+    gchar *nick = to_utf8(arg);
     strip_arg_special_chars(nick);
-
-    xmpp_room_join(roomname, nick, NULL);
-    g_free(roomname);
+    xmpp_room_join(buddy_getjid(bud), nick, NULL);
     g_free(nick);
   }
 }
@@ -2631,7 +2622,7 @@ static void room_nick(gpointer bud, char *arg)
 static void room_privmsg(gpointer bud, char *arg)
 {
   char **paramlst;
-  gchar *fjid, *nick, *fjid_utf8, *msg;
+  gchar *fjid_utf8, *nick, *nick_utf8, *msg;
 
   paramlst = split_arg(arg, 2, 1); // nickname, message
   nick = *paramlst;
@@ -2644,11 +2635,11 @@ static void room_privmsg(gpointer bud, char *arg)
     return;
   }
 
-  fjid = g_strdup_printf("%s/%s", buddy_getjid(bud), nick);
-  fjid_utf8 = to_utf8(fjid);
+  nick_utf8 = to_utf8(nick);
+  fjid_utf8 = g_strdup_printf("%s/%s", buddy_getjid(bud), nick_utf8);
+  g_free (nick_utf8);
   msg = to_utf8(arg);
   send_message_to(fjid_utf8, msg, NULL, LM_MESSAGE_SUB_TYPE_NOT_SET, FALSE);
-  g_free(fjid);
   g_free(fjid_utf8);
   g_free(msg);
   free_arg_lst(paramlst);

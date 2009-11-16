@@ -106,21 +106,18 @@ typedef struct {
 
 GSList *loaded_modules = NULL;
 
-static gint cmd_del_comparator (cmd *a, const char *name)
-{
-  return strcmp(a->name, name);
-}
-
 gpointer cmd_del(const char *name)
 {
-  GSList *command = g_slist_find_custom (Commands, name, (GCompareFunc) cmd_del_comparator);
-  if (command) {
-    cmd *cmnd = command->data;
-    gpointer userdata = cmnd->userdata;
-    Commands = g_slist_delete_link(Commands, command);
-    compl_del_category_word(COMPL_CMD, cmnd->name);
-    g_free(cmnd);
-    return userdata;
+  GSList *sl_cmd;
+  for (sl_cmd = Commands; sl_cmd; sl_cmd = sl_cmd->next) {
+    cmd *command = (cmd *) sl_cmd->data;
+    if (!strcmp (command->name, name)) {
+      gpointer userdata = command->userdata;
+      Commands = g_slist_delete_link(Commands, sl_cmd);
+      compl_del_category_word(COMPL_CMD, command->name);
+      g_free(command);
+      return userdata;
+    }
   }
   return NULL;
 }
@@ -144,7 +141,7 @@ static void cmd_add(const char *name, const char *help,
 #ifdef MODULES_ENABLE
   n_cmd->userdata = userdata;
 #endif
-  Commands = g_slist_append(Commands, n_cmd);
+  Commands = g_slist_prepend(Commands, n_cmd);
   // Add to completion CMD category
   compl_add_category_word(COMPL_CMD, name);
 }

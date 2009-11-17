@@ -78,15 +78,27 @@ int help_process(char *string)
   // Look for help file
   lang = get_lang();
   helpfiles_dir = g_strdup_printf("%s/mcabber/help", DATA_DIR);
+  p = NULL;
+
   if (string && *string) {
     p = g_strdup(string);
     mc_strtolower(p);
     filename = g_strdup_printf("%s/%s/hlp_%s.txt", helpfiles_dir, lang, p);
-    g_free(p);
   } else
     filename = g_strdup_printf("%s/%s/hlp.txt", helpfiles_dir, lang);
 
   fp = fopen(filename, "r");
+
+  if (!(fp) && (g_strcmp0(lang, DEFAULT_LANG)) ) {
+    g_free(filename);
+    if (p)
+      filename = g_strdup_printf("%s/%s/hlp_%s.txt", helpfiles_dir, DEFAULT_LANG, p);
+    else
+      filename = g_strdup_printf("%s/%s/hlp.txt", helpfiles_dir, DEFAULT_LANG);
+
+    fp = fopen(filename, "r");
+  }
+  g_free(p);
   g_free(filename);
   g_free(helpfiles_dir);
 

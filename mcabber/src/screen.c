@@ -725,7 +725,7 @@ static int is_speckey(int key)
 
 void scr_InitLocaleCharSet(void)
 {
-  setlocale(LC_CTYPE, "");
+  setlocale(LC_ALL, "");
 #ifdef HAVE_LOCALCHARSET_H
   LocaleCharSet = locale_charset();
 #else

@@ -385,15 +385,15 @@ static LmHandlerResult handle_iq_command_leave_groupchats(LmMessageHandler *h,
                              lm_message_node_get_attribute(field, "var")))
         field = field->next;
 
-      for (x = field->children ; x ; x = x->next)
-      {
-        LmMessageNode *to_leave = lm_message_node_get_child(x, "value");
-        if (to_leave) {
-          GList* b = buddy_search_jid(lm_message_node_get_value(to_leave));
-          if (b)
-            cmd_room_leave(b->data, "Requested by remote command");
+      if (field)
+        for (x = field->children ; x ; x = x->next)
+        {
+          if (!strcmp (x->name, "value")) {
+            GList* b = buddy_search_jid(lm_message_node_get_value(x));
+            if (b)
+              cmd_room_leave(b->data, "Requested by remote command");
+          }
         }
-      }
       lm_message_node_add_dataform_result(command,
                                           "Groupchats have been left");
     }

@@ -776,6 +776,13 @@ static LmSSLResponse ssl_cb(LmSSL *ssl, LmSSLStatus status, gpointer ud)
 {
   scr_LogPrint(LPRINT_LOGNORM, "SSL status:%d", status);
 
+  // no need for message if user not requested ssl and
+  // set ignore_checks
+  if (settings_opt_get_int("ssl_ignore_checks") &&
+      !((settings_opt_get("ssl") || settings_opt_get("tls")) &&
+        (settings_opt_get_int("ssl") || settings_opt_get_int("tls"))))
+    return LM_SSL_RESPONSE_CONTINUE;
+
   switch (status) {
   case LM_SSL_STATUS_NO_CERT_FOUND:
     scr_LogPrint(LPRINT_LOGNORM, "No certificate found!");

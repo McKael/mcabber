@@ -3,8 +3,6 @@
 
 int  fifo_init(const char *fifo_path);
 void fifo_deinit(void);
-void fifo_read(void);
-int  fifo_get_fd(void);
 
 #endif /* __FIFO_H__ */
 

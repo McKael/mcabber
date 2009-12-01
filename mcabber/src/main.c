@@ -30,6 +30,7 @@
 #include <sys/wait.h>
 #include <glib.h>
 #include <config.h>
+#include <poll.h>
 
 #include "caps.h"
 #include "screen.h"
@@ -53,7 +54,9 @@
 #endif
 
 static unsigned int terminate_ui;
-GMainLoop *main_loop = NULL;
+GMainContext *main_context;
+
+static gboolean update_screen = TRUE;
 
 static struct termios *backup_termios;
 
@@ -70,7 +73,6 @@ char *mcabber_version(void)
 
 static void mcabber_terminate(const char *msg)
 {
-  fifo_deinit();
   xmpp_disconnect();
   scr_TerminateCurses();
 
@@ -251,12 +253,32 @@ void mcabber_set_terminate_ui(void)
   terminate_ui = TRUE;
 }
 
-gboolean mcabber_loop()
+typedef struct {
+  GSource source;
+  GPollFD pollfd;
+} mcabber_source_t;
+
+static gboolean mcabber_source_prepare(GSource *source, gint *timeout)
+{
+  *timeout = -1;
+  return FALSE;
+}
+
+static gboolean mcabber_source_check(GSource *source)
+{
+  mcabber_source_t *mc_source = (mcabber_source_t *) source;
+  gushort revents = mc_source->pollfd.revents;
+  if (revents)
+    return TRUE;
+  return FALSE;
+}
+
+static gboolean mcabber_source_dispatch(GSource *source, GSourceFunc callback,
+                                        gpointer udata)
 {
   keycode kcode;
 
   if (terminate_ui) {
-    g_main_loop_quit(main_loop);
     return FALSE;
   }
   scr_DoUpdate();
@@ -264,17 +286,23 @@ gboolean mcabber_loop()
 
   while (kcode.value != ERR) {
     process_key(kcode);
-    scr_DoUpdate();
+    update_screen = TRUE;
     scr_Getch(&kcode);
   }
   scr_CheckAutoAway(FALSE);
 
-  if (update_roster)
-    scr_DrawRoster();
-
   hk_mainloop();
   return TRUE;
 }
+
+static GSourceFuncs mcabber_source_funcs = {
+  mcabber_source_prepare,
+  mcabber_source_check,
+  mcabber_source_dispatch,
+  NULL,
+  NULL,
+  NULL
+};
 
 int main(int argc, char **argv)
 {
@@ -398,7 +426,7 @@ int main(int argc, char **argv)
   /* Load previous roster state */
   hlog_load_state();
 
-  main_loop = g_main_loop_new(NULL, TRUE);
+  main_context = g_main_context_default();
 
   if (ret < 0) {
     scr_LogPrint(LPRINT_NORMAL, "No configuration file has been found.");
@@ -408,10 +436,29 @@ int main(int argc, char **argv)
     xmpp_connect();
   }
 
-  scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
+  { // add keypress processing source
+    GSource *mc_source = g_source_new(&mcabber_source_funcs,
+                                      sizeof(mcabber_source_t));
+    GPollFD *mc_pollfd = &(((mcabber_source_t *)mc_source)->pollfd);
+    mc_pollfd->fd = STDIN_FILENO;
+    mc_pollfd->events = POLLIN|POLLERR|POLLPRI;
+    mc_pollfd->revents = 0;
+    g_source_add_poll(mc_source, mc_pollfd);
+    g_source_attach(mc_source, main_context);
 
-  g_timeout_add(100, mcabber_loop, NULL);
-  g_main_loop_run(main_loop);
+    scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
+
+    while(!terminate_ui) {
+      g_main_context_iteration(main_context, TRUE);
+      if (update_roster)
+        scr_DrawRoster();
+      if(update_screen)
+        scr_DoUpdate();
+    }
+
+    g_source_destroy(mc_source);
+    g_source_unref(mc_source);
+  }
 
   scr_TerminateCurses();
 #ifdef MODULES_ENABLE

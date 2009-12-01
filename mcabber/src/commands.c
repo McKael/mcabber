@@ -38,6 +38,7 @@
 #include "otr.h"
 #include "utf8.h"
 #include "xmpp.h"
+#include "main.h"
 
 #define IMSTATUS_AWAY           "away"
 #define IMSTATUS_ONLINE         "online"

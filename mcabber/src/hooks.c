@@ -34,7 +34,7 @@
 #include "utils.h"
 #include "utf8.h"
 #include "commands.h"
-#include "fifo.h"
+#include "main.h"
 
 #ifdef MODULES_ENABLE
 #include <glib.h>
@@ -92,7 +92,6 @@ void hk_mainloop(void)
     last = now;
   }
   */
-  fifo_read();
 }
 
 void hk_message_in(const char *bjid, const char *resname,

@@ -30,7 +30,6 @@ struct bookmark {
 
 extern LmConnection* lconnection;
 extern LmSSL* lssl;
-extern GMainLoop *main_loop;
 
 void xmpp_connect(void);
 void xmpp_disconnect(void);

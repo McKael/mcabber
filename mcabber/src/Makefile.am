@@ -1,5 +1,5 @@
 bin_PROGRAMS = mcabber
-mcabber_SOURCES = main.c roster.c roster.h events.c events.h \
+mcabber_SOURCES = main.c main.h roster.c roster.h events.c events.h \
 		  commands.c commands.h compl.c compl.h \
 		  hbuf.c hbuf.h screen.c screen.h logprint.h \
 		  settings.c settings.h hooks.c hooks.h utf8.c utf8.h \

@@ -39,6 +39,7 @@
 #include "screen.h"
 #include "settings.h"
 #include "utils.h"
+#include "main.h"
 
 #define RECONNECTION_TIMEOUT    60L
 
@@ -1615,8 +1616,7 @@ void xmpp_connect(void)
     return;
   }
 
-  lconnection = lm_connection_new_with_context
-          (NULL, g_main_loop_get_context(main_loop));
+  lconnection = lm_connection_new_with_context(NULL, main_context);
 
   g_log_set_handler("LM", LM_LOG_LEVEL_ALL, lm_debug_handler, NULL);
 

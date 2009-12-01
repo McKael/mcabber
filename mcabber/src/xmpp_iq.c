@@ -33,6 +33,7 @@
 #include "logprint.h"
 #include "settings.h"
 #include "caps.h"
+#include "main.h"
 
 extern struct xmpp_error xmpp_errors[];
 

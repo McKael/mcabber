@@ -73,6 +73,7 @@ char *mcabber_version(void)
 
 static void mcabber_terminate(const char *msg)
 {
+  fifo_deinit();
   xmpp_disconnect();
   scr_TerminateCurses();
 

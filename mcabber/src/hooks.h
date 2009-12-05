@@ -30,7 +30,6 @@ void hk_add_handler (hk_handler_t handler, guint32 flags, gpointer userdata);
 void hk_del_handler (hk_handler_t handler, gpointer userdata);
 #endif
 
-void hk_mainloop(void);
 void hk_message_in(const char *bjid, const char *resname,
                    time_t timestamp, const char *msg, LmMessageSubType type,
                    guint encrypted);

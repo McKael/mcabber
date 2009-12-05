@@ -290,7 +290,6 @@ static gboolean keyboard_activity(void)
   }
   scr_CheckAutoAway(FALSE);
 
-  hk_mainloop();
   return TRUE;
 }
 

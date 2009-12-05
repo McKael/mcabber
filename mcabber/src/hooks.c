@@ -79,21 +79,6 @@ static char *extcmd;
 
 static const char *COMMAND_ME = "/me ";
 
-void hk_mainloop(void)
-{
-  /*
-  static time_t last;
-  time_t now;
-
-  time(&now);
-
-  if (now > last + 1) {
-    // custom_hook();
-    last = now;
-  }
-  */
-}
-
 void hk_message_in(const char *bjid, const char *resname,
                    time_t timestamp, const char *msg, LmMessageSubType type,
                    guint encrypted)

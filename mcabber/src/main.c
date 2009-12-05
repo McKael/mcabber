@@ -273,8 +273,7 @@ static gboolean mcabber_source_check(GSource *source)
   return FALSE;
 }
 
-static gboolean mcabber_source_dispatch(GSource *source, GSourceFunc callback,
-                                        gpointer udata)
+static gboolean keyboard_activity(void)
 {
   keycode kcode;
 
@@ -293,6 +292,11 @@ static gboolean mcabber_source_dispatch(GSource *source, GSourceFunc callback,
 
   hk_mainloop();
   return TRUE;
+}
+
+static gboolean mcabber_source_dispatch(GSource *source, GSourceFunc callback,
+                                        gpointer udata) {
+  return keyboard_activity();
 }
 
 static GSourceFuncs mcabber_source_funcs = {
@@ -449,7 +453,8 @@ int main(int argc, char **argv)
     scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
 
     while(!terminate_ui) {
-      g_main_context_iteration(main_context, TRUE);
+      if (g_main_context_iteration(main_context, TRUE) == FALSE)
+        keyboard_activity();
       if (update_roster)
         scr_DrawRoster();
       if(update_screen)

@@ -3931,15 +3931,12 @@ void process_key(keycode kcode)
     case KEY_RESIZE:
 #ifdef USE_SIGWINCH
         {
-            struct winsize size;
-            if (ioctl(STDIN_FILENO, TIOCGWINSZ, &size) != -1)
-              resizeterm(size.ws_row, size.ws_col);
+          struct winsize size;
+          if (ioctl(STDIN_FILENO, TIOCGWINSZ, &size) != -1)
+            resizeterm(size.ws_row, size.ws_col);
         }
-        scr_Resize();
-        process_command(mkcmdstr("screen_refresh"), TRUE);
-#else
-        scr_Resize();
 #endif
+        scr_Resize();
         break;
     default:
         display_char = TRUE;

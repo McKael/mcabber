@@ -380,7 +380,7 @@ const gchar *settings_get_status_msg(enum imstatus status)
 }
 
 //  settings_foreach(type, pfunction, param)
-// Call pfunction(param, key, value) for each setting with requested type.
+// Call pfunction(key, value, param) for each setting with requested type.
 void settings_foreach(guint type, void (*pfunc)(char *k, char *v, void *param),
                       void *param)
 {

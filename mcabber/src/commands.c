@@ -2103,11 +2103,23 @@ static void do_move(char *arg)
   update_roster = TRUE;
 }
 
+static void print_option_cb(char *k, char *v, void *f)
+{
+  char *format = (char *)f;
+  scr_LogPrint (LPRINT_NORMAL, format, k, v);
+}
+
 static void do_set(char *arg)
 {
   guint assign;
   gchar *option, *value;
   gchar *option_utf8;
+
+  if (!*arg) {
+    // list all set options
+    settings_foreach(SETTINGS_TYPE_OPTION, print_option_cb, "%s = [%s]");
+    return;
+  }
 
   assign = parse_assigment(arg, &option, &value);
   if (!option) {

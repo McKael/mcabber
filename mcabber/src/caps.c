@@ -144,20 +144,22 @@ const char *caps_generate(void)
   gsize digest_size = 20;
   gchar *hash, *old_hash = NULL;
   caps *old_caps;
-  unsigned int i;
   caps *c = g_hash_table_lookup(caps_cache, "");
 
   g_hash_table_steal(caps_cache, "");
   sha1 = g_checksum_new(G_CHECKSUM_SHA1);
-  identity = g_strdup_printf("%s/%s/%s<", c->category, c->type, c->name);
+  identity = g_strdup_printf("%s/%s//%s<", c->category, c->type, c->name);
   g_checksum_update(sha1, (guchar*)identity, -1);
   g_free(identity);
 
-  features = g_list_copy(g_hash_table_get_values(c->features));
+  features = g_hash_table_get_values(c->features);
   features = g_list_sort(features, _strcmp_sort);
-  for (i=0; i < g_list_length(features); i++) {
-    g_checksum_update(sha1, g_list_nth_data(features, i), -1);
-    g_checksum_update(sha1, (guchar *)"<", -1);
+  {
+    GList *feature;
+    for (feature=features; feature; feature=feature->next) {
+      g_checksum_update(sha1, feature->data, -1);
+      g_checksum_update(sha1, (guchar *)"<", -1);
+    }
   }
   g_list_free(features);
 

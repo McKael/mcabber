@@ -854,7 +854,7 @@ static void _try_to_reconnect(void)
 static void connection_open_cb(LmConnection *connection, gboolean success,
                                gpointer user_data)
 {
-  GError *error;
+  GError *error = NULL;
 
   if (success) {
     const char *password, *resource;
@@ -870,6 +870,7 @@ static void connection_open_cb(LmConnection *connection, gboolean success,
                                     connection_auth_cb, NULL, FALSE, &error)) {
       scr_LogPrint(LPRINT_LOGNORM, "Failed to authenticate: %s\n",
                    error->message);
+      g_error_free (error);
       _try_to_reconnect();
     }
     g_free(username);
@@ -1750,6 +1751,7 @@ void xmpp_connect(void)
                           NULL, FALSE, &error)) {
     _try_to_reconnect();
     scr_LogPrint(LPRINT_LOGNORM, "Failed to open: %s\n", error->message);
+    g_error_free (error);
   }
 }
 

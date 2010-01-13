@@ -2043,14 +2043,13 @@ void scr_RosterVisibility(int status)
 static inline void scr_LogUrls(const gchar *string)
 {
   GMatchInfo *match_info;
-  GError *error = NULL;
 
-  g_regex_match_full(url_regex, string, -1, 0, 0, &match_info, &error);
+  g_regex_match_full(url_regex, string, -1, 0, 0, &match_info, NULL);
   while (g_match_info_matches(match_info)) {
     gchar *url = g_match_info_fetch(match_info, 0);
     scr_print_logwindow(url);
     g_free(url);
-    g_match_info_next(match_info, &error);
+    g_match_info_next(match_info, NULL);
   }
   g_match_info_free(match_info);
 }

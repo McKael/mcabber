@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <glob.h>
 
+#include "config.h"
 #include "commands.h"
 #include "help.h"
 #include "roster.h"
@@ -2995,7 +2996,7 @@ static void do_load(char *arg)
     return;
   }
   mdir = expand_filename(settings_opt_get("modules_dir"));
-  path = g_module_build_path(mdir, arg);
+  path = g_module_build_path(mdir ? mdir : PKGLIB_DIR, arg);
   mod  = g_module_open(path, G_MODULE_BIND_LAZY);
   if (!mod)
     scr_LogPrint(LPRINT_LOGNORM, "Module loading failed: %s",

@@ -227,6 +227,9 @@ if test x"${datadir}" != x""; then
     AC_DEFINE_DIR(DATA_DIR, datadir, [Data files directory])
 fi
 
+# Export $libexecdir to the source tree
+AC_DEFINE_DIR(PKGLIB_DIR, "${libdir}/${PACKAGE}", [Modules directory])
+
 AC_ARG_ENABLE(debug,
     [AC_HELP_STRING(--enable-debug, add development compilation options)],
     debug=$enableval, debug="")

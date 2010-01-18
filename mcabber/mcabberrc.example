@@ -89,9 +89,18 @@ set tls = 1
 
 # Language
 # Help files have been translated into a few languages.
-# You can set lang to one of the following values: en (default),
-# cs, de, fr, it, nl, pl, ru, uk.
+# You can set lang to a semicolon separated list of the following
+# values: en, cs, de, fr, it, nl, pl, ru, uk. If you omit this,
+# mcabber will try to autodetect it from your locale, with fallback
+# to en.
+# You also can specify a list of directories, where help is located,
+# for example, if your mcabber is installed with another prefix than
+# your modules.
+# This may be convenient to print help not into the status buffer, but into
+# currently opened buffer. For that set help_to_current option.
 #set lang = en
+#set help_dirs = "/usr/share/mcabber/help;~/share/mcabber/help"
+#set help_to_current = 0
 
 # Aspell
 # If your mcabber has been built with Aspell support, you can enable spell
@@ -179,7 +188,8 @@ set cmdhistory_lines = 250
 
 # Modules
 # If mcabber is built with modules support, you can specify the path
-# to the directory where your modules reside.
+# to the directory where your modules reside. Though, default compiled-in
+# value should be appropriate.
 #set modules_dir = /usr/lib/mcabber/
 
 # Beep

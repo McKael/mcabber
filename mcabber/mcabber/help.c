@@ -2,6 +2,7 @@
  * help.c       -- Help command
  *
  * Copyright (C) 2006-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyrigth (C) 2009      Myhailo Danylenko <isbear@ukrpost.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,117 +20,323 @@
  * USA
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+/*
+ * How it works
+ *
+ * Main calls help_init, that installs option guards. These guards do
+ * nothing, but set help_dirs_stalled flag. When user issues help command,
+ * it checks, if help_dirs_stalled flag is set, and if it is, it calls
+ * init_help_dirs before performing help search.
+ *
+ * Options:
+ *   lang       List of semicolon-separated language codes. If unset, will
+ *              be detected from locale, with fallback to english.
+ *   help_dirs  List of semicolon-seaparated directories, where search for
+ *              help (in language subdirectories) will be performed.
+ *              Defaults to DATA_DIR/mcabber/help.
+ *   help_to_current  Print help to current buddy's buffer.
+ *
+ * XXX:
+ *   Remove command list from hlp.txt and print detected list of all help
+ *   topics?
+ */
+
 #include <glib.h>
+#include <string.h>
+#include <locale.h>
+#include <sys/types.h>
+#include <dirent.h>
 
-#include "settings.h"
 #include "logprint.h"
-#include "utils.h"
 #include "screen.h"
+#include "hbuf.h"
+#include "settings.h"
+#include "utils.h"
 
-#define DEFAULT_LANG "en"
+static GSList   *help_dirs         = NULL;
+static gboolean  help_dirs_stalled = TRUE;
 
-//  get_lang()
-// Return the language code string (a 2-letters string).
-static const char *get_lang(void) {
-  static const char *lang_str = DEFAULT_LANG;
-#ifdef DATA_DIR
-  static char lang[3];
-  const char *opt_l;
-  opt_l = settings_opt_get("lang");
-  if (opt_l && strlen(opt_l) == 2 && isalpha(opt_l[0]) && isalpha(opt_l[1])) {
-    strncpy(lang, opt_l, sizeof(lang));
-    mc_strtolower(lang);
-    lang_str = lang;
-  }
-#endif /* DATA_DIR */
-  return lang_str;
+void free_help_dirs(void)
+{
+  GSList *hel;
+
+  for (hel = help_dirs; hel; hel = hel->next)
+    g_free(hel->data);
+
+  g_slist_free(help_dirs);
+
+  help_dirs = NULL;
 }
 
-//  help_process(string)
-// Display help about the "string" command.
-// If string is null, display general help.
-// Return 0 in case of success.
-int help_process(char *string)
+void dir_push_languages(const char *langs, const char *dir)
 {
-#ifndef DATA_DIR
-  scr_LogPrint(LPRINT_NORMAL, "Help isn't available.");
-  return -1;
+  const char *lstart = langs;
+  const char *lend;
+  char       *path   = expand_filename(dir);
+
+  for (lend = strchr(lstart, ';'); lend; lend = strchr(lstart, ';')) {
+    char *lang = g_strndup(lstart, lend - lstart);
+    char *dir  = g_strdup_printf("%s/%s", path, lang);
+
+    help_dirs = g_slist_append(help_dirs, dir);
+
+    g_free(lang);
+    lstart = lend + 1;
+  }
+
+  { // finishing element
+    char *dir = g_strdup_printf("%s/%s", path, lstart);
+
+    help_dirs = g_slist_append(help_dirs, dir);
+  }
+
+  g_free(path);
+}
+
+void init_help_dirs(void)
+{
+  const char *paths;
+  const char *langs;
+  char        lang[6];
+
+  if (help_dirs)
+    free_help_dirs();
+
+  // initialize variables
+  paths = settings_opt_get("help_dirs");
+  if (!paths || !*paths)
+#ifdef DATA_DIR
+    paths = DATA_DIR "/mcabber/help";
 #else
-  const char *lang;
-  FILE *fp;
-  char *helpfiles_dir, *filename;
-  char *data;
-  const int datasize = 4096;
-  int linecount = 0;
-  char *p;
+    paths = "/usr/local/share/mcabber/help;/usr/share/mcabber/help";
+#endif
 
-  // Check string is ok
-  for (p = string; p && *p; p++) {
-    if (!isalnum(*p) && *p != '_' && *p != '-') {
-      scr_LogPrint(LPRINT_NORMAL, "Cannot find help (invalid keyword).");
-      return 1;
+  langs = settings_opt_get("lang");
+
+  if (!langs || !*langs) {
+    char *locale = setlocale(LC_MESSAGES, NULL);
+
+    // XXX crude method to distinguish between xx_XX xx xx@xxx
+    // and C POSIX NULL etc.
+    if (locale && isalpha(locale[0]) && isalpha(locale[1])
+        && !isalpha(locale[2])) {
+      lang[0] = locale[0];
+      lang[1] = locale[1];
+
+      if (lang[0] == 'e' && lang[1] == 'n')
+        lang[2] = '\0';
+      else {
+        lang[2] = ';';
+        lang[3] = 'e';
+        lang[4] = 'n';
+        lang[5] = '\0';
+      }
+
+      langs = lang;
+    } else
+      langs = "en";
+  }
+
+  { // parse
+    const char *pstart = paths;
+    const char *pend;
+
+    for (pend = strchr(pstart, ';'); pend; pend = strchr(pstart, ';')) {
+      char *path = g_strndup(pstart, pend - pstart);
+
+      dir_push_languages(langs, path);
+
+      g_free(path);
+      pstart = pend + 1;
     }
+
+    // last element
+    dir_push_languages(langs, pstart);
   }
 
-  // Look for help file
-  lang = get_lang();
-  helpfiles_dir = g_strdup_printf("%s/mcabber/help", DATA_DIR);
-  p = NULL;
+  help_dirs_stalled = FALSE;
+}
 
-  if (string && *string) {
-    p = g_strdup(string);
-    mc_strtolower(p);
-    filename = g_strdup_printf("%s/%s/hlp_%s.txt", helpfiles_dir, lang, p);
-  } else
-    filename = g_strdup_printf("%s/%s/hlp.txt", helpfiles_dir, lang);
+static gboolean do_help_in_dir(const char *arg, const char *path, const char *jid)
+{
+  char       *fname;
+  GIOChannel *channel;
+  GString    *line;
+  int         lines   = 0;
 
-  fp = fopen(filename, "r");
+  if (arg && *arg)
+    fname = g_strdup_printf("%s/hlp_%s.txt", path, arg);
+  else
+    fname = g_strdup_printf("%s/hlp.txt", path);
+  
+  channel = g_io_channel_new_file(fname, "r", NULL);
 
-  if (!(fp) && (g_strcmp0(lang, DEFAULT_LANG)) ) {
-    g_free(filename);
-    if (p)
-      filename = g_strdup_printf("%s/%s/hlp_%s.txt", helpfiles_dir, DEFAULT_LANG, p);
+  if (!channel)
+    return FALSE;
+
+  line = g_string_new(NULL);
+
+  while (TRUE) {
+    gsize     endpos;
+    GIOStatus ret;
+    
+    ret = g_io_channel_read_line_string(channel, line, &endpos, NULL);
+    if (ret != G_IO_STATUS_NORMAL) // XXX G_IO_STATUS_AGAIN?
+      break;
+
+    line->str[endpos] = '\0';
+
+    if (jid)
+      scr_WriteIncomingMessage(jid, line->str, 0,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
     else
-      filename = g_strdup_printf("%s/%s/hlp.txt", helpfiles_dir, DEFAULT_LANG);
+      scr_LogPrint(LPRINT_NORMAL, "%s", line->str);
 
-    fp = fopen(filename, "r");
-  }
-  g_free(p);
-  g_free(filename);
-  g_free(helpfiles_dir);
-
-  if (!fp) {
-    scr_LogPrint(LPRINT_NORMAL, "No help found.");
-    return -1;
+    ++lines;
   }
 
-  data = g_new(char, datasize);
-  while (!feof(fp)) {
-    if (fgets(data, datasize, fp) == NULL) break;
-    // Strip trailing newline
-    for (p = data; *p; p++) ;
-    if (p > data)
-      p--;
-    if (*p == '\n' || *p == '\r')
-      *p = '\0';
-    // Displaty the help line
-    scr_LogPrint(LPRINT_NORMAL, "%s", data);
-    linecount++;
-  }
-  fclose(fp);
-  g_free(data);
+  g_string_free(line, TRUE);
 
-  if (linecount) {
+  if (!lines)
+    return FALSE;
+
+  if (!jid) {
     scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
     update_roster = TRUE;
   }
 
-  return 0;
-#endif /* DATA_DIR */
+  return TRUE;
 }
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+void help_process(char *arg)
+{
+  gchar      *string;
+  const char *jid    = NULL;
+  gboolean    done   = FALSE;
+
+  if (help_dirs_stalled)
+    init_help_dirs();
+
+  { // check input
+    char *c;
+
+    for (c = arg; *c; ++c)
+      if (!isalnum(*c) && *c != '-' && *c != '_') {
+        scr_LogPrint(LPRINT_NORMAL, "Wrong help expression, "
+                     "it can contain only alphbetic, numeric"
+                     " characters and symbols '-' and '_'.");
+        return;
+      }
+
+    string = g_strdup(arg);
+    mc_strtolower(string);
+  }
+
+  if (settings_opt_get_int("help_to_current") && CURRENT_JID)
+    jid = CURRENT_JID;
+  
+  { // search
+    GSList *hel;
+
+    for (hel = help_dirs; hel && !done; hel = hel->next) {
+      char *dir = (char *)hel->data;
+      done = do_help_in_dir(string, dir, jid);
+    }
+  }
+
+  if (!done && string && *string) { // match and print any similar topics
+    GSList *hel;
+    GSList *matches = NULL;
+
+    for (hel = help_dirs; hel; hel = hel->next) {
+      const char *path = (const char *)hel->data;
+      DIR        *dd   = opendir(path);
+
+      if (dd) {
+        struct dirent *file;
+
+        for (file = readdir(dd); file; file = readdir(dd)) {
+          const char *name = file->d_name;
+
+          if (name && name[0] == 'h' && name[1] == 'l' &&
+                      name[2] == 'p' && name[3] == '_') {
+            const char *nstart = name + 4;
+            const char *nend   = strrchr(nstart, '.');
+
+            if (nend) {
+              gsize len = nend - nstart;
+
+              if (g_strstr_len(nstart, len, string)) {
+                gchar *match = g_strndup(nstart, len);
+              
+                if (!g_slist_find_custom(matches, match,
+                                         (GCompareFunc)strcmp))
+                  matches = g_slist_append(matches, match);
+                else
+                  g_free(match);
+
+                done = TRUE;
+              }
+            }
+          }
+        }
+
+        closedir(dd);
+      }
+    }
+
+    if (done) {
+      GString *message = g_string_new("No exact match found. "
+                                      "Keywords, that contain this word:");
+      GSList  *wel;
+
+      for (wel = matches; wel; wel = wel->next) {
+        gchar *word = (gchar *)wel->data;
+
+        g_string_append_printf(message, " %s,", word);
+
+        g_free(wel->data);
+      }
+
+      message->str[message->len - 1] = '.';
+
+      g_slist_free(matches);
+
+      {
+        char *msg = g_string_free(message, FALSE);
+
+        if (jid)
+          scr_WriteIncomingMessage(jid, msg, 0,
+                                   HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
+        else
+          scr_LogPrint(LPRINT_NORMAL, "%s", msg);
+
+        g_free(msg);
+      }
+    }
+  }
+
+  if (!done) {
+    if (jid) // XXX
+      scr_WriteIncomingMessage(jid, "No help found.", 0,
+                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
+    else
+      scr_LogPrint(LPRINT_NORMAL, "No help found.");
+  }
+
+  g_free(string);
+}
+
+static gchar *help_guard(const gchar *key, const gchar *new_value)
+{
+  help_dirs_stalled = TRUE;
+  return g_strdup(new_value);
+}
+
+void help_init(void)
+{
+  settings_set_guard("lang", help_guard);
+  settings_set_guard("help_dirs", help_guard);
+}
+
+/* vim: set expandtab cindent cinoptions=>2\:2(0 sw=2 ts=2:  For Vim users... */

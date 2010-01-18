@@ -44,6 +44,7 @@
 #include "otr.h"
 #include "fifo.h"
 #include "xmpp.h"
+#include "help.h"
 
 #ifdef ENABLE_HGCSET
 # include "hgcset.h"
@@ -359,6 +360,7 @@ int main(int argc, char **argv)
   /* Initialize charset */
   scr_InitLocaleCharSet();
   ut_InitDebug();
+  help_init();
 
   /* Parsing config file... */
   ret = cfg_read_file(configFile, TRUE);

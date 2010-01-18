@@ -1,7 +1,10 @@
 #ifndef __MCABBER_HELP_H__
 #define __MCABBER_HELP_H__ 1
 
-int help_process(char *string);
+void free_help_dirs(void);
+void init_help_dirs(void);
+void help_process(char *string);
+void help_init(void);
 
 #endif /* __MCABBER_HELP_H__ */
 

@@ -6,7 +6,7 @@ AC_INIT([mcabber],[0.10.0-dev],[mcabber@lilotux.net])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([mcabber])
 AM_CONFIG_HEADER(mcabber/config.h)
-#AC_CONFIG_HEADER(include/config.h)
+AC_CONFIG_HEADER(include/config.h)
 
 #AC_PROG_LIBTOOL
 AC_PROG_RANLIB

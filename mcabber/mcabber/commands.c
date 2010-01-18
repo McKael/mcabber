@@ -24,6 +24,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <errno.h>
+#include <glob.h>
 
 #include "commands.h"
 #include "help.h"
@@ -3782,10 +3784,17 @@ static void do_chat_disable(char *arg)
   readline_disable_chat_mode(show_roster);
 }
 
+static int source_print_error(const char *path, int eerrno)
+{
+  scr_LogPrint(LPRINT_DEBUG, "Source: glob (%s) error: %s.", path, strerror(eerrno));
+  return 0;
+}
+
 static void do_source(char *arg)
 {
   static int recur_level;
   gchar *filename, *expfname;
+  glob_t flist;
   if (!*arg) {
     scr_LogPrint(LPRINT_NORMAL, "Missing filename.");
     return;
@@ -3797,10 +3806,35 @@ static void do_source(char *arg)
   filename = g_strdup(arg);
   strip_arg_special_chars(filename);
   expfname = expand_filename(filename);
-  recur_level++;
-  cfg_read_file(expfname, FALSE);
-  recur_level--;
   g_free(filename);
+  // match
+  flist.gl_offs = 0;
+  if (glob(expfname, 0, source_print_error, &flist)) {
+    scr_LogPrint(LPRINT_LOGNORM, "Source: error: %s.", strerror (errno));
+  } else {
+    int i;
+    // sort list
+    for (i = 1; i < flist.gl_pathc; ++i) {
+      int j;
+      for (j = i-1; j > 0; --j) {
+        char *a = flist.gl_pathv[j+1];
+        char *b = flist.gl_pathv[j];
+        if (strcmp(a, b) < 0) {
+          flist.gl_pathv[j]   = a;
+          flist.gl_pathv[j+1] = b;
+        } else
+          break;
+      }
+    }
+    // source files in list
+    for (i=0; i < flist.gl_pathc; ++i) {
+      recur_level++;
+      cfg_read_file(flist.gl_pathv[i], FALSE);
+      recur_level--;
+    }
+    // free
+    globfree(&flist);
+  }
   g_free(expfname);
 }
 

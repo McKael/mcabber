@@ -1,4 +1,4 @@
 
  /SOURCE fichier
 
-Cette commande permet de lire un fichier de configuration.
+Cette commande permet de lire un fichier de configuration. Il est possible d'utiliser un motif, auquel cas les fichiers sont lus dans l'ordre alphabétique.

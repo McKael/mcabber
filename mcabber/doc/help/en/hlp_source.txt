@@ -1,4 +1,4 @@
 
- /SOURCE file
+ /SOURCE pattern
 
-Read a configuration file.
+Read configuration files, that match glob pattern (sorted in alphabetical order).

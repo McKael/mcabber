@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([mcabber])
 AM_CONFIG_HEADER(mcabber/config.h)
 AC_CONFIG_HEADER(include/config.h)
 
-#AC_PROG_LIBTOOL
+AC_PROG_LIBTOOL
 AC_PROG_RANLIB
 
 # Checks for programs.
@@ -260,6 +260,8 @@ AM_CONDITIONAL([INSTALL_HEADERS], [test x$enable_modules = xyes])
 CFLAGS="$CFLAGS -D_GNU_SOURCE"
 
 AC_CONFIG_FILES([mcabber/Makefile
+                 modules/Makefile
+                 modules/beep/Makefile
                  doc/Makefile
                  doc/guide/Makefile
                  doc/help/Makefile

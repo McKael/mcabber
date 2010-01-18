@@ -39,6 +39,7 @@
 static GHashTable *option;
 static GHashTable *alias;
 static GHashTable *binding;
+static GHashTable *guards;
 
 #ifdef HAVE_GPGME     /* PGP settings */
 static GHashTable *pgpopt;
@@ -73,6 +74,7 @@ void settings_init(void)
   option  = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
   alias   = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
   binding = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
+  guards  = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, NULL);
 #ifdef HAVE_GPGME
   pgpopt = g_hash_table_new(&g_str_hash, &g_str_equal);
 #endif
@@ -300,19 +302,51 @@ guint parse_assigment(gchar *assignment, gchar **pkey, gchar **pval)
   return TRUE;
 }
 
+void settings_set_guard(const gchar *key, settings_guard_t guard)
+{
+  if (!guard)
+    g_hash_table_remove(guards, key);
+  else
+    g_hash_table_insert(guards, g_strdup(key), (gpointer)guard);
+}
+
+void settings_del_guard(const gchar *key)
+{
+  settings_set_guard(key, NULL);
+}
+
+void settings_opt_set_raw(const gchar *key, const gchar *value)
+{
+  if (!value)
+    g_hash_table_remove(option, key);
+  else
+    g_hash_table_insert(option, g_strdup(key), g_strdup(value));
+}
+
 void settings_set(guint type, const gchar *key, const gchar *value)
 {
   GHashTable *hash;
+  gchar *dup_value = NULL;
+  settings_guard_t guard = NULL;
+
+  if (type == SETTINGS_TYPE_OPTION) {
+    guard = (settings_guard_t)g_hash_table_lookup(guards, key);
+    if (guard)
+      dup_value = guard(key, value);
+  }
 
   hash = get_hash(type);
   if (!hash)
     return;
 
-  if (!value) {
+  if (!value && !dup_value)
     g_hash_table_remove(hash, key);
-  } else {
+  else if (!guard)
     g_hash_table_insert(hash, g_strdup(key), g_strdup(value));
-  }
+  else if (dup_value)
+    g_hash_table_insert(hash, g_strdup(key), dup_value);
+  else
+    g_hash_table_remove(option, key);
 }
 
 void settings_del(guint type, const gchar *key)

@@ -27,9 +27,14 @@
 
 #define mkcmdstr(cmd) COMMAND_CHARSTR cmd
 
+typedef gchar *(*settings_guard_t)(const gchar *key, const gchar *new_value);
+
 void    settings_init(void);
 int     cfg_read_file(char *filename, guint mainfile);
 guint   parse_assigment(gchar *assignment, gchar **pkey, gchar **pval);
+void    settings_set_guard(const gchar *key, settings_guard_t guard);
+void    settings_del_guard(const gchar *key);
+void    settings_opt_set_raw(const gchar *key, const gchar *value);
 void    settings_set(guint type, const gchar *key, const gchar *value);
 void    settings_del(guint type, const gchar *key);
 const gchar *settings_get(guint type, const gchar *key);

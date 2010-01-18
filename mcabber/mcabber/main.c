@@ -358,6 +358,7 @@ int main(int argc, char **argv)
   caps_init();
   /* Initialize charset */
   scr_InitLocaleCharSet();
+  ut_InitDebug();
 
   /* Parsing config file... */
   ret = cfg_read_file(configFile, TRUE);
@@ -366,10 +367,6 @@ int main(int argc, char **argv)
   /* Leave if there was an error in the config. file */
   if (ret == -2)
     exit(EXIT_FAILURE);
-
-  optstring = settings_opt_get("tracelog_file");
-  if (optstring)
-    ut_InitDebug(settings_opt_get_int("tracelog_level"), optstring);
 
   /* If no password is stored, we ask for it before entering
      ncurses mode -- unless the username is unknown. */

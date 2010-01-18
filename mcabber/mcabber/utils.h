@@ -23,7 +23,7 @@ gboolean jid_equal(const char *jid1, const char *jid2);
 void fingerprint_to_hex(const unsigned char *fpr, char hex[49]);
 gboolean hex_to_fingerprint(const char * hex, char fpr[16]);
 
-void ut_InitDebug(int level, const char *file);
+void ut_InitDebug(void);
 void ut_WriteLog(unsigned int flag, const char *data);
 
 char *expand_filename(const char *fname);

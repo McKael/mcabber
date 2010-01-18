@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <errno.h>
 
 #ifdef HAVE_LIBIDN
 #include <idna.h>
@@ -50,6 +51,7 @@ static char idnprep[1024];
 
 #include "utils.h"
 #include "logprint.h"
+#include "settings.h"
 
 static int DebugEnabled;
 static char *FName;
@@ -153,53 +155,77 @@ gboolean hex_to_fingerprint(const char *hex, char fpr[16])
   return TRUE;
 }
 
-void ut_InitDebug(int level, const char *filename)
+static gboolean tracelog_create(void)
 {
   FILE *fp;
   struct stat buf;
   int err;
 
-  if (level < 1) {
-    DebugEnabled = 0;
-    FName = NULL;
-    return;
-  }
-
-  if (filename)
-    FName = expand_filename(filename);
-  else {
-    FName = getenv("HOME");
-    if (!FName)
-      FName = g_strdup("/tmp/mcabberlog");
-    else {
-      FName = g_strdup_printf("%s/mcabberlog", FName);
-    }
-  }
-
-  DebugEnabled = level;
-
   fp = fopen(FName, "a");
   if (!fp) {
-    fprintf(stderr, "ERROR: Cannot open tracelog file\n");
-    return;
+    scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot open tracelog file: %s!",
+                 strerror(errno));
+    return FALSE;
   }
 
   err = fstat(fileno(fp), &buf);
   if (err || buf.st_uid != geteuid()) {
     fclose(fp);
-    DebugEnabled = 0;
-    FName = NULL;
-    if (err) {
-      fprintf(stderr, "ERROR: cannot stat the tracelog file!\n");
-    } else {
-      fprintf(stderr, "ERROR: tracelog file does not belong to you!\n");
-    }
-    return;
+    if (err)
+      scr_LogPrint(LPRINT_NORMAL, "ERROR: cannot stat the tracelog file: %s!",
+                   strerror(errno));
+    else
+      scr_LogPrint(LPRINT_NORMAL, "ERROR: tracelog file does not belong to you!");
+    return FALSE;
   }
   fchmod(fileno(fp), S_IRUSR|S_IWUSR);
 
-  fprintf(fp, "New trace log started.\n----------------------\n");
+  fputs("New trace log started.\n----------------------\n", fp);
   fclose(fp);
+
+  return TRUE;
+}
+
+static gchar *tracelog_level_guard(const gchar *key, const gchar *new_value)
+{
+  int new_level = 0;
+  if (new_value)
+    new_level = atoi(new_value);
+  if (DebugEnabled < 1 && new_level > 0 && FName && !tracelog_create())
+    DebugEnabled = 0;
+  else
+    DebugEnabled = new_level;
+  return g_strdup(new_value);
+}
+
+static gchar *tracelog_file_guard(const gchar *key, const gchar *new_value)
+{
+  gchar *new_fname = NULL;
+
+  if (new_value)
+    new_fname = expand_filename(new_value);
+
+  if (g_strcmp0(FName, new_fname)) {
+    g_free(FName);
+    FName = new_fname;
+    if (DebugEnabled > 0 && !tracelog_create()) {
+      g_free(FName);
+      FName = NULL;
+    }
+  } else
+    g_free(new_fname);
+
+  return g_strdup(new_value);
+}
+
+//  ut_InitDebug()
+// Installs otpion guards before initial config file parsing.
+void ut_InitDebug(void)
+{
+  DebugEnabled = 0;
+  FName        = NULL;
+  settings_set_guard("tracelog_level", tracelog_level_guard);
+  settings_set_guard("tracelog_file",  tracelog_file_guard);
 }
 
 void ut_WriteLog(unsigned int flag, const char *data)
@@ -210,11 +236,12 @@ void ut_WriteLog(unsigned int flag, const char *data)
       ((DebugEnabled == 1) && (flag & LPRINT_LOG))) {
     FILE *fp = fopen(FName, "a+");
     if (!fp) {
-      scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot open tracelog file");
+      scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot open tracelog file: %s.",
+                   strerror(errno));
       return;
     }
     if (fputs(data, fp) == EOF)
-      scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot write to tracelog file");
+      scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot write to tracelog file.");
     fclose(fp);
   }
 }

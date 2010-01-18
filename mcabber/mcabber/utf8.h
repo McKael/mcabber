@@ -1,7 +1,7 @@
-#ifndef __UTF8_H__
-#define __UTF8_H__ 1
+#ifndef __MCABBER_UTF8_H__
+#define __MCABBER_UTF8_H__ 1
 
-#include <config.h>
+#include <mcabber/config.h>
 
 #if defined HAVE_UNICODE && defined HAVE_WCHAR_H && defined HAVE_WCTYPE_H
 # define UNICODE
@@ -44,6 +44,6 @@ char *next_char(char *str);
 unsigned get_char(const char *str);
 char *put_char(char *str, unsigned c);
 
-#endif /* __UTF8_H__ */
+#endif /* __MCABBER_UTF8_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

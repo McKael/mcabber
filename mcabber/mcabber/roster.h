@@ -1,10 +1,11 @@
-#ifndef __ROSTER_H__
-#define __ROSTER_H__ 1
+#ifndef __MCABBER_ROSTER_H__
+#define __MCABBER_ROSTER_H__ 1
 
 #include <glib.h>
 #include <time.h>
 
-#include "pgp.h"
+#include <mcabber/pgp.h>
+#include <mcabber/config.h>
 
 #define SPECIAL_BUFFER_STATUS_ID  "[status]"
 
@@ -241,6 +242,6 @@ GList *unread_jid_get_list(void);
 
 GSList *compl_list(guint type);
 
-#endif /* __ROSTER_H__ */
+#endif /* __MCABBER_ROSTER_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

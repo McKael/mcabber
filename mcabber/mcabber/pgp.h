@@ -1,7 +1,7 @@
-#ifndef __PGP_H__
-#define __PGP_H__ 1
+#ifndef __MCABBER_PGP_H__
+#define __MCABBER_PGP_H__ 1
 
-#include <config.h>
+#include <mcabber/config.h>
 
 #ifdef HAVE_GPGME
 
@@ -24,6 +24,6 @@ int   gpg_test_passphrase(void);
 
 int gpg_enabled(void);
 
-#endif /* __PGP_H__ */
+#endif /* __MCABBER_PGP_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

@@ -1,5 +1,5 @@
-#ifndef __HBUF_H__
-#define __HBUF_H__ 1
+#ifndef __MCABBER_HBUF_H__
+#define __MCABBER_HBUF_H__ 1
 
 #include <time.h>
 #include <glib.h>
@@ -54,6 +54,6 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename);
 
 guint hbuf_get_blocks_number(GList *p_hbuf);
 
-#endif /* __HBUF_H__ */
+#endif /* __MCABBER_HBUF_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

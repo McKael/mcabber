@@ -4,7 +4,7 @@ $ make
 ... and if you want to install the software:
 $ make install
 (If you don't want to install it, the "mcabber" binary lies in
-the src/ directory after the build procedure)
+the mcabber/ directory after the build procedure)
 
 You will need the Loudmouth library, version >= 1.4.3 is recommended.
 

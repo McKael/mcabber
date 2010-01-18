@@ -1,9 +1,9 @@
-#ifndef __COMMANDS_H__
-#define __COMMANDS_H__ 1
+#ifndef __MCABBER_COMMANDS_H__
+#define __MCABBER_COMMANDS_H__ 1
 
 #include <glib.h>
 
-#include "config.h"
+#include <mcabber/config.h>
 
 // Command structure
 typedef struct {
@@ -31,6 +31,6 @@ void cmd_room_whois(gpointer bud, char *nick_locale, guint interactive);
 void cmd_room_leave(gpointer bud, char *arg);
 void cmd_setstatus(const char *recipient, const char *arg);
 
-#endif /* __COMMANDS_H__ */
+#endif /* __MCABBER_COMMANDS_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

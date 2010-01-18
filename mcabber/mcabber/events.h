@@ -1,7 +1,7 @@
-#ifndef __EVENTS_H__
-#define __EVENTS_H__ 1
+#ifndef __MCABBER_EVENTS_H__
+#define __MCABBER_EVENTS_H__ 1
 
-#include "config.h" // MODULES_ENABLE
+#include <mcabber/config.h>
 
 #define EVS_DEFAULT_TIMEOUT 90
 #define EVS_MAX_TIMEOUT     432000
@@ -43,6 +43,6 @@ gboolean evs_check_timeout();
 void     evs_display_list(void);
 GSList  *evs_geteventslist(int forcompl);
 
-#endif /* __EVENTS_H__ */
+#endif /* __MCABBER_EVENTS_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

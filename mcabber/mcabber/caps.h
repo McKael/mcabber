@@ -1,5 +1,5 @@
-#ifndef __CAPS_H__
-#define __CAPS_H__ 1
+#ifndef __MCABBER_CAPS_H__
+#define __MCABBER_CAPS_H__ 1
 
 #include <glib.h>
 
@@ -17,6 +17,6 @@ void  caps_foreach_feature(const char *hash, GFunc func, gpointer user_data);
 
 char *caps_generate(void);
 
-#endif /* __CAPS_H__ */
+#endif /* __MCABBER_CAPS_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

@@ -1,5 +1,5 @@
-#ifndef __XMPP_IQ_H__
-#define __XMPP_IQ_H__ 1
+#ifndef __MCABBER_XMPP_IQ_H__
+#define __MCABBER_XMPP_IQ_H__ 1
 
 LmHandlerResult handle_iq_commands(LmMessageHandler *h,
                                    LmConnection *c,
@@ -27,6 +27,6 @@ LmHandlerResult handle_iq_vcard(LmMessageHandler *h, LmConnection *c,
 
 void send_iq_error(LmConnection *c, LmMessage *m, guint error);
 
-#endif /* __XMPP_IQ_H__ */
+#endif /* __MCABBER_XMPP_IQ_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

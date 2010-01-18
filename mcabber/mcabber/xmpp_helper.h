@@ -1,12 +1,12 @@
-#ifndef __XMPPHELPER_H__
-#define __XMPPHELPER_H__ 1
+#ifndef __MCABBER_XMPPHELPER_H__
+#define __MCABBER_XMPPHELPER_H__ 1
 
 #include <time.h>
 #include <loudmouth/loudmouth.h>
 
-#include "xmpp.h"
-#include "xmpp_defines.h"
-#include "config.h"
+#include <mcabber/xmpp.h>
+#include <mcabber/xmpp_defines.h>
+#include <mcabber/config.h>
 
 extern time_t iqlast;           /* last message/status change time */
 

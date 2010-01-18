@@ -4,8 +4,9 @@
 AC_PREREQ(2.59)
 AC_INIT([mcabber],[0.10.0-dev],[mcabber@lilotux.net])
 AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([src])
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_SRCDIR([mcabber])
+AM_CONFIG_HEADER(mcabber/config.h)
+#AC_CONFIG_HEADER(include/config.h)
 
 #AC_PROG_LIBTOOL
 AC_PROG_RANLIB
@@ -253,11 +254,12 @@ if test "${hgcset}" = "yes"; then
 fi
 
 AM_CONDITIONAL([OTR], [test x$libotr_found = xyes])
+AM_CONDITIONAL([INSTALL_HEADERS], [test x$enable_modules = xyes])
 
 # We need _GNU_SOURCE for strptime() and strcasestr()
 CFLAGS="$CFLAGS -D_GNU_SOURCE"
 
-AC_CONFIG_FILES([src/Makefile
+AC_CONFIG_FILES([mcabber/Makefile
                  doc/Makefile
                  doc/guide/Makefile
                  doc/help/Makefile

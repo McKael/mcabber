@@ -1,0 +1,55 @@
+#ifndef __MCABBER_CONFIG_H__
+#define __MCABBER_CONFIG_H__ 1
+
+/* ... */
+#undef MODULES_ENABLE
+
+/* ... */
+#undef HAVE_LIBOTR
+
+/* ... */
+#undef HAVE_GPGME
+
+/* ... */
+#undef HAVE_NCURSESW_NCURSES_H
+
+/* ... */
+#undef HAVE_NCURSES_NCURSES_H
+
+/* ... */
+#undef WITH_ENCHANT
+
+/* ... */
+#undef WITH_ASPELL
+
+/* ... */
+#undef JEP0022
+
+/* ... */
+#undef JEP0085
+
+/* ... */
+#undef HAVE_UNICODE
+
+/* ... */
+#undef HAVE_WCHAR_H
+
+/* ... */
+#undef HAVE_WCTYPE_H
+
+/* ... */
+#undef HAVE_WCHAR_H
+
+/* ... */
+#undef HAVE_ISWBLANK
+
+/* ... */
+#undef HAVE_STRCASESTR
+
+/* ... */
+#undef DATA_DIR
+
+/* ... */
+#undef PKGLIB_DIR
+
+#endif

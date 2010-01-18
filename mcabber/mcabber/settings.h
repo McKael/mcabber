@@ -1,10 +1,11 @@
-#ifndef __SETTINGS_H__
-#define __SETTINGS_H__ 1
+#ifndef __MCABBER_SETTINGS_H__
+#define __MCABBER_SETTINGS_H__ 1
 
 #include <ctype.h>
 #include <glib.h>
 
-#include "roster.h"
+#include <mcabber/roster.h>
+#include <mcabber/config.h>
 
 #ifndef isblank
 # define isblank(c)  ((c) == 0x20 || (c) == 0x09)
@@ -56,6 +57,6 @@ char *default_muc_nickname(const char *roomid);
 
 const gchar *isbound(int key);
 
-#endif /* __SETTINGS_H__ */
+#endif /* __MCABBER_SETTINGS_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

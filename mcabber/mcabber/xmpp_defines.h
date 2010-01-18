@@ -1,5 +1,5 @@
-#ifndef __XMPP_DEFINES_H__
-#define __XMPP_DEFINES_H__ 1
+#ifndef __MCABBER_XMPP_DEFINES_H__
+#define __MCABBER_XMPP_DEFINES_H__ 1
 
 #define MCABBER_CAPS_NODE "http://mcabber.com/caps"
 

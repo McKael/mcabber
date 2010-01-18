@@ -1,7 +1,7 @@
-#ifndef __UTILS_H__
-#define __UTILS_H__ 1
+#ifndef __MCABBER_UTILS_H__
+#define __MCABBER_UTILS_H__ 1
 
-#include <config.h>
+#include <mcabber/config.h>
 
 extern const char *LocaleCharSet;
 
@@ -52,6 +52,6 @@ char *strcasestr(const char *haystack, const char *needle);
 
 int startswith(const char *str, const char *word, guint ignore_case);
 
-#endif // __UTILS_H__
+#endif // __MCABBER_UTILS_H__
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

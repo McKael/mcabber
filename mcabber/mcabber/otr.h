@@ -1,5 +1,7 @@
-#ifndef __OTR_H__
-#define __OTR_H__ 1
+#ifndef __MCABBER_OTR_H__
+#define __MCABBER_OTR_H__ 1
+
+#include <mcabber/config.h>
 
 #ifdef HAVE_LIBOTR
 
@@ -35,6 +37,6 @@ int  otr_send       (char **msg, const char *buddy);
 
 int  otr_enabled    (void);
 
-#endif /* __OTR_H__ */
+#endif /* __MCABBER_OTR_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

@@ -1,15 +1,15 @@
-#ifndef __HOOKS_H__
-#define __HOOKS_H__ 1
+#ifndef __MCABBER_HOOKS_H__
+#define __MCABBER_HOOKS_H__ 1
 
 #include <time.h>
 #include <loudmouth/loudmouth.h>
-#include "xmpp.h"
+#include <mcabber/xmpp.h>
 
 // These two defines are used by hk_message_{in,out} arguments
 #define ENCRYPTED_PGP   1
 #define ENCRYPTED_OTR   2
 
-#include "config.h"
+#include <mcabber/config.h>
 #ifdef MODULES_ENABLE
 #include <glib.h>
 
@@ -48,6 +48,6 @@ void hook_execute_internal(const char *hookname);
 void hk_ext_cmd_init(const char *command);
 void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data);
 
-#endif /* __HOOKS_H__ */
+#endif /* __MCABBER_HOOKS_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

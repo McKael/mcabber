@@ -1,7 +1,7 @@
 #! /bin/sh
 
 if [ ! -f logprint.h ]; then
-  echo "You are not in the src directory" >&2
+  echo "You are not in the mcabber directory" >&2
   exit 1
 fi
 

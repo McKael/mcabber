@@ -1,8 +1,8 @@
-#ifndef __XMPP_H__
-#define __XMPP_H__ 1
+#ifndef __MCABBER_XMPP_H__
+#define __MCABBER_XMPP_H__ 1
 
 #include <loudmouth/loudmouth.h>
-#include "roster.h"
+#include <mcabber/roster.h>
 
 enum iqreq_type {
   iqreq_none,
@@ -77,6 +77,6 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype);
 void request_vcard(const char *bjid);
 void xmpp_request_storage(const gchar *storage);
 
-#endif /* __XMPP_H__ */
+#endif /* __MCABBER_XMPP_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

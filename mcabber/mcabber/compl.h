@@ -1,9 +1,9 @@
-#ifndef __COMPL_H__
-#define __COMPL_H__ 1
+#ifndef __MCABBER_COMPL_H__
+#define __MCABBER_COMPL_H__ 1
 
 #include <glib.h>
 
-#include "config.h"
+#include <mcabber/config.h>
 
 #define COMPL_CMD         (1U<<0)
 #define COMPL_JID         (1U<<1)
@@ -42,6 +42,6 @@ void    done_completion(void);
 guint   cancel_completion(void);
 const char *complete(void);
 
-#endif /* __COMPL_H__ */
+#endif /* __MCABBER_COMPL_H__ */
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

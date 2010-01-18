@@ -1,7 +1,9 @@
-#ifndef __SCREEN_H__
-#define __SCREEN_H__ 1
+#ifndef __MCABBER_SCREEN_H__
+#define __MCABBER_SCREEN_H__ 1
 
 #include <glib.h>
+
+#include <mcabber/config.h>
 
 #if HAVE_NCURSESW_NCURSES_H
 # include <ncursesw/ncurses.h>
@@ -20,9 +22,9 @@ void spellcheck_deinit(void);
 //static void spellcheck(char*, char*);
 #endif
 
-#include "hbuf.h"
-#include "logprint.h"
-#include "roster.h"
+#include <mcabber/hbuf.h>
+#include <mcabber/logprint.h>
+#include <mcabber/roster.h>
 
 #define INPUTLINE_LENGTH  1024
 

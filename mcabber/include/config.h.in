@@ -52,4 +52,7 @@
 /* ... */
 #undef PKGLIB_DIR
 
+/* ... */
+#undef _FILE_OFFSET_BITS
+
 #endif

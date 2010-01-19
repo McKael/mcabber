@@ -113,7 +113,7 @@ void xmpp_room_join(const char *room, const char *nickname, const char *passwd)
   gchar *roomid;
   GSList *room_elt;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection) || !room)
+  if (!xmpp_is_online() || !room)
     return;
   if (!nickname)        return;
 
@@ -162,7 +162,7 @@ void xmpp_room_invite(const char *room, const char *fjid, const char *reason)
   LmMessage *msg;
   LmMessageNode *x, *y;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection) || !room || !fjid)
+  if (!xmpp_is_online() || !room || !fjid)
     return;
 
   msg = lm_message_new(room, LM_MESSAGE_TYPE_MESSAGE);
@@ -188,7 +188,7 @@ int xmpp_room_setattrib(const char *roomid, const char *fjid,
   LmMessage *iq;
   LmMessageNode *query, *x;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection) || !roomid)
+  if (!xmpp_is_online() || !roomid)
     return 1;
   if (!fjid && !nick) return 1;
 
@@ -238,7 +238,7 @@ void xmpp_room_unlock(const char *room)
   LmMessageNode *node;
   LmMessage *iq;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection) || !room)
+  if (!xmpp_is_online() || !room)
     return;
 
   iq = lm_message_new_with_sub_type(room, LM_MESSAGE_TYPE_IQ,
@@ -262,7 +262,7 @@ void xmpp_room_destroy(const char *room, const char *venue, const char *reason)
   LmMessage *iq;
   LmMessageNode *query, *x;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection) || !room)
+  if (!xmpp_is_online() || !room)
     return;
 
   iq = lm_message_new_with_sub_type(room, LM_MESSAGE_TYPE_IQ,

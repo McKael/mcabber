@@ -888,7 +888,7 @@ void cmd_setstatus(const char *recipient, const char *arg)
   char *msg;
   enum imstatus st;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection)) {
+  if (!xmpp_is_online()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -1022,7 +1022,7 @@ static void do_add(char *arg)
   char *id, *nick;
   char *jid_utf8 = NULL;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection)) {
+  if (!xmpp_is_online()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -1184,7 +1184,7 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
   int isroom;
   gpointer xep184 = NULL;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection)) {
+  if (!xmpp_is_online()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return 1;
   }
@@ -1529,7 +1529,7 @@ static void do_say_to(char *arg)
   LmMessageSubType msg_type = LM_MESSAGE_SUB_TYPE_NOT_SET;
   bool quiet = FALSE;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection)) {
+  if (!xmpp_is_online()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -2249,7 +2249,7 @@ static void do_rawxml(char *arg)
   char **paramlst;
   char *subcmd;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection)) {
+  if (!xmpp_is_online()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -3042,7 +3042,7 @@ static void do_room(char *arg)
   char *subcmd;
   gpointer bud;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection)) {
+  if (!xmpp_is_online()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -3139,7 +3139,7 @@ static void do_authorization(char *arg)
   char *subcmd;
   char *jid_utf8;
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection)) {
+  if (!xmpp_is_online()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     return;
   }
@@ -3253,7 +3253,7 @@ static void do_request(char *arg)
     return;
   }
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection)) {
+  if (!xmpp_is_online()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
     free_arg_lst(paramlst);
     return;

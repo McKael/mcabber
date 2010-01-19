@@ -445,7 +445,7 @@ void hlog_save_state(void)
     goto hlog_save_state_return;
   }
 
-  if (!lconnection || !lm_connection_is_authenticated(lconnection)) {
+  if (!xmpp_is_online()) {
     // We're not connected.  Let's use the unread_jids hash.
     GList *unread_jid = unread_jid_get_list();
     unread_ptr = unread_jid;

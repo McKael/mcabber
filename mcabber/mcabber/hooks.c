@@ -502,13 +502,9 @@ void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
   //hlog_write_status(NULL, 0, status);
 }
 
-
-/* Internal commands */
-
-void hook_execute_internal(const char *hookname)
+void hk_postconnect(void)
 {
   const char *hook_command;
-  char *buf;
   char *cmdline;
 
 #ifdef MODULES_ENABLE
@@ -516,34 +512,67 @@ void hook_execute_internal(const char *hookname)
     GSList *h = hk_handler_queue;
     if (h) {
       hk_arg_t args[] = {
-        { "hook", hookname },
+        { "hook", "hook-post-connect" },
         { NULL, NULL },
       };
       while (h) {
         hook_list_data_t *data = h->data;
-        if (data->flags & HOOK_INTERNAL)
-          (data->handler) (HOOK_INTERNAL, args, data->userdata);
+        if (data->flags & HOOK_POST_CONNECT)
+          (data->handler) (HOOK_POST_CONNECT, args, data->userdata);
         h = g_slist_next (h);
       }
     }
   }
 #endif
 
-  hook_command = settings_opt_get(hookname);
+  hook_command = settings_opt_get("hook-post-connect");
   if (!hook_command)
     return;
 
-  buf = g_strdup_printf("Running %s...", hookname);
-  scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
+  scr_LogPrint(LPRINT_LOGNORM, "Running hook-post-connect...");
 
   cmdline = from_utf8(hook_command);
   if (process_command(cmdline, TRUE) == 255)
     mcabber_set_terminate_ui();
 
   g_free(cmdline);
-  g_free(buf);
 }
 
+void hk_predisconnect(void)
+{
+  const char *hook_command;
+  char *cmdline;
+
+#ifdef MODULES_ENABLE
+  {
+    GSList *h = hk_handler_queue;
+    if (h) {
+      hk_arg_t args[] = {
+        { "hook", "hook-pre-disconnect" },
+        { NULL, NULL },
+      };
+      while (h) {
+        hook_list_data_t *data = h->data;
+        if (data->flags & HOOK_PRE_DISCONNECT)
+          (data->handler) (HOOK_PRE_DISCONNECT, args, data->userdata);
+        h = g_slist_next (h);
+      }
+    }
+  }
+#endif
+
+  hook_command = settings_opt_get("hook-pre-disconnect");
+  if (!hook_command)
+    return;
+
+  scr_LogPrint(LPRINT_LOGNORM, "Running hook-pre-disconnect...");
+
+  cmdline = from_utf8(hook_command);
+  if (process_command(cmdline, TRUE) == 255)
+    mcabber_set_terminate_ui();
+
+  g_free(cmdline);
+}
 
 /* External commands */
 

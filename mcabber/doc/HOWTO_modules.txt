@@ -148,8 +148,8 @@ Currently there are next events possible:
      hook-status-change. Old one should still be
      available as the current status of the user.
    * message - new status message
- - hook-post-connect (HOOK_INTERNAL) with no parameters
- - hook-pre-disconnect (HOOK_INTERNAL) with no
+ - hook-post-connect (HOOK_POST_CONNECT) with no parameters
+ - hook-pre-disconnect (HOOK_PRE_DICSONNECT) with no
    parameters
 
 --------------------------------------------------------

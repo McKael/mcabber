@@ -115,7 +115,7 @@ static LmHandlerResult cb_roster(LmMessageHandler *h, LmConnection *c,
     handle_iq_roster(NULL, c, m, user_data);
 
   // Post-login stuff
-  hook_execute_internal("hook-post-connect");
+  hk_postconnect();
 
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }

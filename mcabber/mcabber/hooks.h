@@ -17,7 +17,9 @@
 #define HOOK_MESSAGE_OUT      ( 0x00000002 )
 #define HOOK_STATUS_CHANGE    ( 0x00000004 )
 #define HOOK_MY_STATUS_CHANGE ( 0x00000008 )
-#define HOOK_INTERNAL         ( 0x00000010 )
+#define HOOK_POST_CONNECT     ( 0x00000010 )
+#define HOOK_PRE_DISCONNECT   ( 0x00000020 )
+#define HOOK_INTERNAL         ( HOOK_POST_CONNECT | HOOK_PRE_DISCONNECT )
 
 typedef struct {
   const char *name;
@@ -43,7 +45,8 @@ void hk_mystatuschange(time_t timestamp,
                               enum imstatus old_status,
                               enum imstatus new_status, const char *msg);
 
-void hook_execute_internal(const char *hookname);
+void hk_postconnect(void);
+void hk_predisconnect(void);
 
 void hk_ext_cmd_init(const char *command);
 void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data);

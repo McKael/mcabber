@@ -1777,7 +1777,7 @@ void xmpp_disconnect(void)
     return;
   if (lm_connection_is_authenticated(lconnection)) {
     // Launch pre-disconnect internal hook
-    hook_execute_internal("hook-pre-disconnect");
+    hk_predisconnect();
     // Announce it to  everyone else
     xmpp_setstatus(offline, NULL, "", FALSE);
   }

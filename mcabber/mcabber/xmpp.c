@@ -43,7 +43,7 @@
 
 #define RECONNECTION_TIMEOUT    60L
 
-LmConnection* lconnection;
+LmConnection* lconnection = NULL;
 static guint AutoConnection;
 
 inline void update_last_use(void);
@@ -100,7 +100,8 @@ void xmpp_addbuddy(const char *bjid, const char *name, const char *group)
   LmMessage *iq;
   char *cleanjid;
 
-  if (!lm_connection_is_authenticated(lconnection)) return;
+  if (!lconnection || !lm_connection_is_authenticated(lconnection))
+    return;
 
   cleanjid = jidtodisp(bjid); // Stripping resource, just in case...
 
@@ -138,7 +139,8 @@ void xmpp_updatebuddy(const char *bjid, const char *name, const char *group)
   LmMessageNode *x;
   char *cleanjid;
 
-  if (!lm_connection_is_authenticated(lconnection)) return;
+  if (!lconnection || !lm_connection_is_authenticated(lconnection))
+    return;
 
   // XXX We should check name's and group's correctness
 
@@ -168,7 +170,8 @@ void xmpp_delbuddy(const char *bjid)
   LmMessage *iq;
   char *cleanjid;
 
-  if (!lm_connection_is_authenticated(lconnection)) return;
+  if (!lconnection || !lm_connection_is_authenticated(lconnection))
+    return;
 
   cleanjid = jidtodisp(bjid); // Stripping resource, just in case...
 
@@ -303,7 +306,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   if (encrypted)
     *encrypted = 0;
 
-  if (!lm_connection_is_authenticated(lconnection))
+  if (!lconnection || !lm_connection_is_authenticated(lconnection))
     return;
 
   if (!text && type == ROSTER_TYPE_USER)
@@ -484,7 +487,8 @@ static void xmpp_send_jep85_chatstate(const char *bjid, const char *resname,
   char *rjid, *fjid = NULL;
   struct jep0085 *jep85 = NULL;
 
-  if (!lm_connection_is_authenticated(lconnection)) return;
+  if (!lconnection || !lm_connection_is_authenticated(lconnection))
+    return;
 
   sl_buddy = roster_find(bjid, jidsearch, ROSTER_TYPE_USER);
 
@@ -542,7 +546,8 @@ static void xmpp_send_jep22_event(const char *fjid, guint type)
   struct jep0022 *jep22 = NULL;
   guint jep22_state;
 
-  if (!lm_connection_is_authenticated(lconnection)) return;
+  if (!lconnection || !lm_connection_is_authenticated(lconnection))
+    return;
 
   rname = strchr(fjid, JID_RESOURCE_SEPARATOR);
   barejid = jidtodisp(fjid);
@@ -840,13 +845,14 @@ static void connection_auth_cb(LmConnection *connection, gboolean success,
 
 gboolean xmpp_reconnect()
 {
-  if (!lm_connection_is_authenticated(lconnection))
+  if (!lconnection)
     xmpp_connect();
   return FALSE;
 }
 
 static void _try_to_reconnect(void)
 {
+  xmpp_disconnect();
   if (AutoConnection)
     g_timeout_add_seconds(RECONNECTION_TIMEOUT, xmpp_reconnect, NULL);
 }
@@ -1595,8 +1601,7 @@ void xmpp_connect(void)
   LmMessageHandler *handler;
   GError *error = NULL;
 
-  if (lconnection && lm_connection_is_open(lconnection))
-    xmpp_disconnect();
+  xmpp_disconnect();
 
   servername = settings_opt_get("server");
   userjid    = settings_opt_get("jid");
@@ -1768,14 +1773,18 @@ static void insert_entity_capabilities(LmMessageNode *x, enum imstatus status)
 
 void xmpp_disconnect(void)
 {
-  if (!lconnection || !lm_connection_is_authenticated(lconnection))
+  if (!lconnection)
     return;
-
-  // Launch pre-disconnect internal hook
-  hook_execute_internal("hook-pre-disconnect");
-  // Announce it to  everyone else
-  xmpp_setstatus(offline, NULL, "", FALSE);
-  lm_connection_close(lconnection, NULL);
+  if (lm_connection_is_authenticated(lconnection)) {
+    // Launch pre-disconnect internal hook
+    hook_execute_internal("hook-pre-disconnect");
+    // Announce it to  everyone else
+    xmpp_setstatus(offline, NULL, "", FALSE);
+  }
+  if (lm_connection_is_open(lconnection))
+    lm_connection_close(lconnection, NULL);
+  lm_connection_unref(lconnection);
+  lconnection = NULL;
 }
 
 void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
@@ -1805,7 +1814,7 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
   // Only send the packet if we're online.
   // (But we want to update internal status even when disconnected,
   // in order to avoid some problems during network failures)
-  if (lm_connection_is_authenticated(lconnection)) {
+  if (lconnection && lm_connection_is_authenticated(lconnection)) {
     const char *s_msg = (st != invisible ? msg : NULL);
     m = lm_message_new_presence(st, recipient, s_msg);
     insert_entity_capabilities(m->node, st); // Entity Capabilities (XEP-0115)
@@ -1828,7 +1837,7 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
   // If we didn't change our _global_ status, we are done
   if (recipient) return;
 
-  if (lm_connection_is_authenticated(lconnection)) {
+  if (lconnection && lm_connection_is_authenticated(lconnection)) {
     // Send presence to chatrooms
     if (st != invisible) {
       struct T_presence room_presence;
@@ -2049,7 +2058,7 @@ void xmpp_set_storage_bookmark(const char *roomid, const char *name,
   if (!changed)
     return;
 
-  if (lm_connection_is_authenticated(lconnection))
+  if (lconnection && lm_connection_is_authenticated(lconnection))
     send_storage(bookmarks);
   else
     scr_LogPrint(LPRINT_LOGNORM,
@@ -2190,7 +2199,7 @@ void xmpp_set_storage_rosternotes(const char *barejid, const char *note)
   if (!changed)
     return;
 
-  if (lm_connection_is_authenticated(lconnection))
+  if (lconnection && lm_connection_is_authenticated(lconnection))
     send_storage(rosternotes);
   else
     scr_LogPrint(LPRINT_LOGNORM,

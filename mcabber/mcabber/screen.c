@@ -123,7 +123,7 @@ int utf8_mode = 0;
 static bool Curses;
 static bool log_win_on_top;
 static bool roster_win_on_right;
-static time_t LastActivity;
+static guint autoaway_source = 0;
 
 static char       inputLine[INPUTLINE_LENGTH+1];
 #if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
@@ -2197,27 +2197,44 @@ gboolean scr_ChatStatesTimeout(void)
 }
 #endif
 
-// Check if we should enter/leave automatic away status
+static gboolean scr_autoaway_timeout_callback(gpointer data)
+{
+  enum imstatus cur_st = xmpp_getstatus();
+  if (cur_st != available && cur_st != freeforchat)
+    // Some non-user-originated status changes, let's wait more.
+    // Maybe the proper fix for that will be set global variable
+    // "autoaway_delayed" and check that variable in postconnect
+    // hook (afaik, only source for such status changes are
+    // error disconnects).
+    return TRUE;
+  set_autoaway(TRUE);
+  // source will be destroyed after return
+  autoaway_source = 0;
+  return FALSE;
+}
+
+static void scr_ReinstallAutoAwayTimeout(void)
+{
+  unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
+  enum imstatus cur_st = xmpp_getstatus();
+  if (autoaway_source) {
+    g_source_remove(autoaway_source);
+    autoaway_source = 0;
+  }
+  if (autoaway_timeout && (cur_st == available || cur_st == freeforchat))
+    autoaway_source = g_timeout_add_seconds(autoaway_timeout,
+                                            scr_autoaway_timeout_callback,
+                                            NULL);
+}
+
+// Check if we should reset autoaway timeout source
 void scr_CheckAutoAway(int activity)
 {
-  enum imstatus cur_st;
-  unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
-
-  if (Autoaway && activity) set_autoaway(FALSE);
-  if (!autoaway_timeout) return;
-  if (!LastActivity || activity) time(&LastActivity);
-
-  cur_st = xmpp_getstatus();
-  // Auto-away is disabled for the following states
-  if ((cur_st != available) && (cur_st != freeforchat))
-    return;
-
-  if (!activity) {
-    time_t now;
-    time(&now);
-    if (!Autoaway && (now > LastActivity + (time_t)autoaway_timeout))
-      set_autoaway(TRUE);
-  }
+  if (Autoaway && activity) {
+    scr_ReinstallAutoAwayTimeout();
+    set_autoaway(FALSE);
+  } else if (activity || !autoaway_source)
+    scr_ReinstallAutoAwayTimeout();
 }
 
 //  set_current_buddy(newbuddy)

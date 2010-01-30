@@ -232,21 +232,20 @@ int xmpp_room_setattrib(const char *roomid, const char *fjid,
 // room syntax: "room@server"
 void xmpp_room_unlock(const char *room)
 {
-  LmMessageNode *y, *z;
+  LmMessageNode *node;
   LmMessage *iq;
 
   if (!lm_connection_is_authenticated(lconnection) || !room) return;
 
   iq = lm_message_new_with_sub_type(room, LM_MESSAGE_TYPE_IQ,
                                     LM_MESSAGE_SUB_TYPE_SET);
-  lm_message_node_set_attribute(iq->node, "xmlns",
+
+  node = lm_message_node_add_child(iq->node, "query", NULL);
+  lm_message_node_set_attribute(node, "xmlns",
                                 "http://jabber.org/protocol/muc#owner");
-
-
-  y = lm_message_node_add_child(iq->node, "query", NULL);
-  z = lm_message_node_add_child(y, "x", NULL);
-  lm_message_node_set_attribute(z, "xmlns", "jabber:x:data");
-  lm_message_node_set_attribute(z, "type", "submit");
+  node = lm_message_node_add_child(node, "x", NULL);
+  lm_message_node_set_attributes(node, "xmlns", "jabber:x:data",
+                                 "type", "submit", NULL);
 
   lm_connection_send(lconnection, iq, NULL);
   lm_message_unref(iq);

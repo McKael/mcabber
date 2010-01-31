@@ -2756,7 +2756,7 @@ void scr_BufferPercent(int pc)
   if (!win_entry) return;
 
   if (pc < 0 || pc > 100) {
-    scr_LogPrint(LPRINT_NORMAL, "Bad % value");
+    scr_LogPrint(LPRINT_NORMAL, "Bad %% value");
     return;
   }
 
@@ -2829,7 +2829,7 @@ static void buffer_list(gpointer key, gpointer value, gpointer data)
 
   head = g_list_first(win_entry->bd->hbuf);
 
-  scr_LogPrint(LPRINT_NORMAL, " %s  (%u/%u)", key,
+  scr_LogPrint(LPRINT_NORMAL, " %s  (%u/%u)", (const char *) key,
                g_list_length(head), hbuf_get_blocks_number(head));
 }
 

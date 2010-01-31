@@ -3345,7 +3345,8 @@ static void do_event(char *arg)
     for (p = evidlst; p; p = g_slist_next(p)) {
       if (evs_callback(p->data, action,
                        (const char*)(paramlst+2)) == -1) {
-        scr_LogPrint(LPRINT_NORMAL, "Event %s not found.", p->data);
+        scr_LogPrint(LPRINT_NORMAL, "Event %s not found.",
+                     (const char *)p->data);
       }
     }
     g_slist_free(evidlst);

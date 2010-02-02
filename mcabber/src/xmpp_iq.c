@@ -701,6 +701,7 @@ LmHandlerResult handle_iq_version(LmMessageHandler *h, LmConnection *c,
   r = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
 
   query = lm_message_node_add_child(r->node, "query", NULL);
+  lm_message_node_set_attribute(query, "xmlns", NS_VERSION);
 
   lm_message_node_add_child(query, "name", PACKAGE_NAME);
   lm_message_node_add_child(query, "version", ver);

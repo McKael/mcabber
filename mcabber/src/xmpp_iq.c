@@ -157,6 +157,7 @@ static LmHandlerResult handle_iq_commands_list(LmMessageHandler *h,
 
   iq = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
   query = lm_message_node_add_child(iq->node, "query", NULL);
+  lm_message_node_set_attribute(query, "xmlns", NS_COMMANDS);
   node = lm_message_node_get_attribute
           (lm_message_node_get_child(m->node, "query"),
            "node");
@@ -670,6 +671,7 @@ LmHandlerResult handle_iq_last(LmMessageHandler *h, LmConnection *c,
 
   r = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
   query = lm_message_node_add_child(r->node, "query", NULL);
+  lm_message_node_set_attribute(query, "xmlns", NS_LAST);
   seconds = g_strdup_printf("%.0f", seconds_since_last_use());
   lm_message_node_set_attribute(query, "seconds", seconds);
   g_free(seconds);
@@ -737,6 +739,7 @@ LmHandlerResult handle_iq_time(LmMessageHandler *h, LmConnection *c,
 
   r = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
   query = lm_message_node_add_child(r->node, "query", NULL);
+  lm_message_node_set_attribute(query, "xmlns", NS_TIME);
 
   now = gmtime(&now_t);
 

@@ -294,7 +294,7 @@ static LmHandlerResult handle_iq_command_set_status(LmMessageHandler *h,
 
 static void _callback_foreach_buddy_groupchat(gpointer rosterdata, void *param)
 {
-  LmMessageNode *field, *value, *option;
+  LmMessageNode *field, *option;
   const char *room_jid, *nickname;
   char *desc;
 
@@ -305,7 +305,7 @@ static void _callback_foreach_buddy_groupchat(gpointer rosterdata, void *param)
   field = param;
 
   option = lm_message_node_add_child(field, "option", NULL);
-  value = lm_message_node_add_child(option, "value", room_jid);
+  lm_message_node_add_child(option, "value", room_jid);
   desc = g_strdup_printf("%s on %s", nickname, room_jid);
   lm_message_node_set_attribute(option, "label", desc);
   g_free(desc);

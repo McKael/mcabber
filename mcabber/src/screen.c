@@ -1067,14 +1067,12 @@ void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
 static void scr_UpdateWindow(winbuf *win_entry)
 {
   int n;
-  int width;
   guint prefixwidth;
   char pref[96];
   hbb_line **lines, *line;
   GList *hbuf_head;
   int color;
 
-  width = getmaxx(win_entry->win);
   prefixwidth = scr_getprefixwidth();
   prefixwidth = MIN(prefixwidth, sizeof pref);
 

@@ -1099,8 +1099,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
     // Make sure this is a room (it can be a conversion user->room)
     room_elt = roster_find(bjid, jidsearch, 0);
     if (!room_elt) {
-      room_elt = roster_add_user(bjid, NULL, NULL, ROSTER_TYPE_ROOM,
-                                 sub_none, -1);
+      roster_add_user(bjid, NULL, NULL, ROSTER_TYPE_ROOM, sub_none, -1);
     } else {
       buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
     }
@@ -1460,10 +1459,8 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
   if (mstype == LM_MESSAGE_SUB_TYPE_SUBSCRIBE) {
     /* The sender wishes to subscribe to our presence */
     const char *msg;
-    int isagent;
     eviqs *evn;
 
-    isagent = (roster_gettype(r) & ROSTER_TYPE_AGENT) != 0;
     msg = lm_message_node_get_child_value(m->node, "status");
 
     buf = g_strdup_printf("<%s> wants to subscribe to your presence updates",

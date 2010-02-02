@@ -3813,7 +3813,7 @@ static void do_source(char *arg)
   if (glob(expfname, 0, source_print_error, &flist)) {
     scr_LogPrint(LPRINT_LOGNORM, "Source: error: %s.", strerror (errno));
   } else {
-    int i;
+    unsigned int i;
     // sort list
     for (i = 1; i < flist.gl_pathc; ++i) {
       int j;

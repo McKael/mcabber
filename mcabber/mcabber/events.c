@@ -2,6 +2,7 @@
  * events.c     -- Events fonctions
  *
  * Copyright (C) 2006-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyrigth (C) 2010      Myhailo Danylenko <isbear@ukrposte.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,157 +25,191 @@
 #include "events.h"
 #include "logprint.h"
 
+typedef struct {
+  char           *id;
+  char           *description;
+  time_t          timeout;
+  guint           source;
+  evs_callback_t  callback;
+  gpointer        data;
+  GDestroyNotify  notify;
+} evs_t;
+
 static GSList *evs_list; // Events list
 
-static eviqs *evs_find(const char *evid);
+static evs_t *evs_find(const char *evid);
+
+static gboolean evs_check_timeout (gpointer userdata)
+{
+  evs_t *event = userdata;
+  if (event->callback &&
+      !event->callback(EVS_CONTEXT_TIMEOUT, NULL, event->data)) {
+    evs_del(event->id);
+    return FALSE;
+  }
+  return TRUE; // XXX
+}
 
 //  evs_new(type, timeout)
-// Create an events structure.
-eviqs *evs_new(guint8 type, time_t timeout)
+// Create new event. If id is omitted, generates unique
+// numerical id (recommended). If timeout is specified, sets
+// up timeout source, that will call handler in timeout
+// context after specified number of seconds. If supplied id
+// already exists, returns NULL, calling destroy notifier, if
+// one is specified.
+const char *evs_new(const char *desc, const char *id, time_t timeout, evs_callback_t callback, gpointer udata, GDestroyNotify notify)
 {
   static guint evs_idn;
-  eviqs *new_evs;
-  time_t now_t;
+  evs_t *event;
   char *stridn;
 
-  if (!++evs_idn)
-    evs_idn = 1;
-  /* Check for wrapping, we shouldn't reuse ids */
-  stridn = g_strdup_printf("%d", evs_idn);
-  if (evs_find(stridn))  {
-    g_free(stridn);
-    // We could try another id but for now giving up should be fine...
+  if (!id) {
+    if (!++evs_idn)
+      evs_idn = 1;
+    /* Check for wrapping, we shouldn't reuse ids */
+    stridn = g_strdup_printf("%d", evs_idn);
+    if (evs_find(stridn))  {
+      g_free(stridn);
+      // We could try another id but for now giving up should be fine...
+      if (notify)
+        notify(udata);
+      return NULL;
+    }
+  } else if (!evs_find(id))
+    stridn = g_strdup(id);
+  else {
+    if (notify)
+      notify(udata);
     return NULL;
   }
 
-  new_evs = g_new0(eviqs, 1);
-  time(&now_t);
-  new_evs->ts_create = now_t;
+  event = g_new(evs_t, 1);
+
+  event->id          = stridn;
+  event->description = g_strdup(desc);
+  event->timeout     = timeout;
+  event->callback    = callback;
+  event->data        = udata;
+  event->notify      = notify;
+
   if (timeout)
-    new_evs->ts_expire = now_t + timeout;
-  new_evs->type = type;
-  new_evs->id = stridn;
+    g_timeout_add_seconds(timeout, evs_check_timeout, event);
 
-  if(!g_slist_length(evs_list))
-    g_timeout_add_seconds(20, evs_check_timeout, NULL);
-  evs_list = g_slist_append(evs_list, new_evs);
-  return new_evs;
+  evs_list = g_slist_append(evs_list, event);
+  return stridn;
 }
 
-int evs_del(const char *evid)
+static evs_t *evs_find(const char *evid)
 {
   GSList *p;
-  eviqs *i;
 
-  if (!evid) return 1;
-
-  for (p = evs_list; p; p = g_slist_next(p)) {
-    i = p->data;
-    if (!strcmp(evid, i->id))
-      break;
-  }
-  if (p) {
-    g_free(i->id);
-    g_free(i->data);
-    g_free(i->desc);
-    g_free(i);
-    evs_list = g_slist_remove(evs_list, p->data);
-    return 0; // Ok, deleted
-  }
-  return -1;  // Not found
-}
-
-static eviqs *evs_find(const char *evid)
-{
-  GSList *p;
-  eviqs *i;
-
-  if (!evid) return NULL;
+  if (!evid)
+    return NULL;
 
   for (p = evs_list; p; p = g_slist_next(p)) {
-    i = p->data;
+    evs_t *i = p->data;
     if (!strcmp(evid, i->id))
       return i;
   }
   return NULL;
 }
 
-//  evs_callback(evid, evcontext)
-// Callback processing for the specified event.
-// Return 0 in case of success, -1 if the evid hasn't been found.
-int evs_callback(const char *evid, guint evcontext)
+//  evs_del(evid)
+// Deletes event.
+// This will not call event handler, however this will
+// call destroy notify function.
+// Returns 0 in case of success, -1 if the evid hasn't been found.
+int evs_del(const char *evid)
 {
-  eviqs *i;
+  evs_t *event = evs_find(evid);
 
-  i = evs_find(evid);
-  if (!i) return -1;
+  if (!event)
+    return -1;
 
-  // IQ processing
-  // Note: If xml_result is NULL, this is a timeout
-  if (i->callback)
-    (void)(*i->callback)(i, evcontext);
+  if (event->notify)
+    event->notify(event->data);
+  if (event->source)
+    g_source_remove(event->source);
 
-  evs_del(evid);
+  evs_list = g_slist_remove(evs_list, event);
+  g_free(event->id);
+  g_free(event->description);
+  g_free(event);
+
+  return 0; // Ok, deleted
+}
+
+//  evs_callback(evid, evcontext, argument)
+// Callback processing for the specified event.
+// If event handler will return FALSE, event will be destroyed.
+// Return 0 in case of success, -1 if the evid hasn't been found.
+// evcontext and argument are transparently passed to event handler.
+int evs_callback(const char *evid, guint context, const char *arg)
+{
+  evs_t *event;
+
+  event = evs_find(evid);
+  if (!event)
+    return -1;
+
+  if (event->callback &&
+      !event->callback(context, arg, event->data))
+    evs_del(evid);
   return 0;
 }
 
-gboolean evs_check_timeout()
-{
-  time_t now_t;
-  GSList *p;
-  eviqs *i;
-
-  time(&now_t);
-  p = evs_list;
-  if (!p)
-    return FALSE;
-  while (p) {
-    i = p->data;
-    // We must get next IQ eviqs element now because the current one
-    // could be freed.
-    p = g_slist_next(p);
-
-    if ((!i->ts_expire && now_t > i->ts_create + EVS_MAX_TIMEOUT) ||
-        (i->ts_expire && now_t > i->ts_expire)) {
-      evs_callback(i->id, EVS_CONTEXT_TIMEOUT);
-    }
-  }
-  return TRUE;
-}
-
+//  evs_display_list()
+// Prints list of events to mcabber log window.
 void evs_display_list(void)
 {
   GSList *p;
-  eviqs *i;
 
   scr_LogPrint(LPRINT_LOGNORM, "Events list:");
   for (p = evs_list; p; p = g_slist_next(p)) {
-    i = p->data;
+    evs_t *i = p->data;
     scr_LogPrint(LPRINT_LOGNORM,
-                 "Id: %-3s %s", i->id, (i->desc ? i->desc : ""));
+                 "Id: %-3s %s", i->id,
+                 (i->description ? i->description : ""));
   }
   scr_LogPrint(LPRINT_LOGNORM, "End of events list.");
 }
 
-//  evs_geteventslist(bool comp)
-// Return a singly-linked-list of events ids, for the completion system.
-// If comp is true, the string "list" is added (it's a completion argument).
-// Note: the caller should free the list (and data) after use.
-GSList *evs_geteventslist(int compl)
+//  evs_geteventslist()
+// Return a singly-linked-list of events ids.
+// Data in list should not be modified and can disappear,
+// you must strdup them, if you want them to persist.
+// Note: the caller should free the list after use.
+GSList *evs_geteventslist(void)
 {
   GSList *evidlist = NULL, *p;
-  eviqs *i;
 
   for (p = evs_list; p; p = g_slist_next(p)) {
-    i = p->data;
-    evidlist = g_slist_append(evidlist, g_strdup(i->id));
+    evs_t *i = p->data;
+    evidlist = g_slist_append(evidlist, i->id);
   }
 
-  if (compl) {
-    // Last item is the "list" subcommand.
-    evidlist = g_slist_append(evidlist, g_strdup("list"));
-  }
   return evidlist;
+}
+
+//  evs_deinit()
+// Frees all events.
+void evs_deinit(void)
+{
+  GSList *eel;
+  for (eel = evs_list; eel; eel = eel->next) {
+    evs_t *event = eel->data;
+    if (event->notify)
+      event->notify(event->data);
+    if (event->source)
+      g_source_remove(event->source);
+  
+    evs_list = g_slist_remove(evs_list, event);
+    g_free(event->id);
+    g_free(event->description);
+    g_free(event);
+  }
+  g_slist_free(evs_list);
+  evs_list = NULL;
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */

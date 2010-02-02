@@ -45,6 +45,7 @@
 #include "fifo.h"
 #include "xmpp.h"
 #include "help.h"
+#include "events.h"
 
 #ifdef ENABLE_HGCSET
 # include "hgcset.h"
@@ -464,6 +465,7 @@ int main(int argc, char **argv)
     g_source_unref(mc_source);
   }
 
+  evs_deinit();
   scr_TerminateCurses();
 #ifdef MODULES_ENABLE
   cmd_deinit();

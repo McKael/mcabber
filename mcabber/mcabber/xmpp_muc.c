@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include "xmpp_helper.h"
+#include "xmpp_muc.h"
 #include "events.h"
 #include "hooks.h"
 #include "screen.h"
@@ -37,7 +38,7 @@
 extern enum imstatus mystatus;
 extern gchar *mystatusmsg;
 
-static void decline_invitation(event_muc_invitation *invitation, char *reason)
+static void decline_invitation(event_muc_invitation *invitation, const char *reason)
 {
   // cut and paste from xmpp_room_invite
   LmMessage *m;
@@ -62,47 +63,51 @@ static void decline_invitation(event_muc_invitation *invitation, char *reason)
   lm_message_unref(m);
 }
 
-static int evscallback_invitation(eviqs *evp, guint evcontext)
+void destroy_event_muc_invitation(event_muc_invitation *invitation)
 {
-  event_muc_invitation *invitation = evp->data;
-
-  // Sanity check
-  if (!invitation) {
-    // Shouldn't happen.
-    scr_LogPrint(LPRINT_LOGNORM, "Error in evs callback.");
-    return 0;
-  }
-
-  if (evcontext == EVS_CONTEXT_TIMEOUT) {
-    scr_LogPrint(LPRINT_LOGNORM, "Event %s timed out, cancelled.", evp->id);
-    goto evscallback_invitation_free;
-  }
-  if (evcontext == EVS_CONTEXT_CANCEL) {
-    scr_LogPrint(LPRINT_LOGNORM, "Event %s cancelled.", evp->id);
-    goto evscallback_invitation_free;
-  }
-  if (!(evcontext & EVS_CONTEXT_USER))
-    goto evscallback_invitation_free;
-  // Ok, let's work now.
-  // evcontext: 0, 1 == reject, accept
-
-  if (evcontext & ~EVS_CONTEXT_USER) {
-    char *nickname = default_muc_nickname(invitation->to);
-    xmpp_room_join(invitation->to, nickname, invitation->passwd);
-    g_free(nickname);
-  } else {
-    scr_LogPrint(LPRINT_LOGNORM, "Invitation to %s refused.", invitation->to);
-    decline_invitation(invitation, NULL);
-  }
-
-evscallback_invitation_free:
   g_free(invitation->to);
   g_free(invitation->from);
   g_free(invitation->passwd);
   g_free(invitation->reason);
   g_free(invitation);
-  evp->data = NULL;
-  return 0;
+}
+
+// invitation event handler
+// TODO: if event is accepted, check if other events to the same room exist and
+// destroy them? (need invitation registry list for that)
+static gboolean evscallback_invitation(guint evcontext, const char *arg, gpointer userdata)
+{
+  event_muc_invitation *invitation = userdata;
+
+  // Sanity check
+  if (G_UNLIKELY(!invitation)) {
+    // Shouldn't happen.
+    scr_LogPrint(LPRINT_LOGNORM, "Error in evs callback.");
+    return FALSE;
+  }
+
+  if (evcontext == EVS_CONTEXT_TIMEOUT) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invitation event %s timed out, cancelled.", invitation->to);
+    return FALSE;
+  }
+  if (evcontext == EVS_CONTEXT_CANCEL) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invitation event %s cancelled.", invitation->to);
+    return FALSE;
+  }
+  if (!(evcontext == EVS_CONTEXT_ACCEPT || evcontext == EVS_CONTEXT_REJECT))
+    return FALSE;
+
+  // Ok, let's work now
+  if (evcontext == EVS_CONTEXT_ACCEPT) {
+    char *nickname = default_muc_nickname(invitation->to);
+    xmpp_room_join(invitation->to, nickname, invitation->passwd);
+    g_free(nickname);
+  } else {
+    scr_LogPrint(LPRINT_LOGNORM, "Invitation to %s refused.", invitation->to);
+    decline_invitation(invitation, arg);
+  }
+
+  return FALSE;
 }
 
 // Join a MUC room
@@ -642,11 +647,11 @@ void roompresence(gpointer room, void *presencedata)
 // This function should be called when receiving an invitation from user
 // "from", to enter the room "to".  Optional reason and room password can
 // be provided.
+// TODO: check for duplicate invites (need an existing invitation registry
+// for that).
 static void got_invite(const char* from, const char *to, const char* reason,
                        const char* passwd)
 {
-  eviqs *evn;
-  event_muc_invitation *invitation;
   GString *sbuf;
   char *barejid;
   GSList *room_elt;
@@ -665,19 +670,24 @@ static void got_invite(const char* from, const char *to, const char* reason,
   scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO, 0);
   scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);
 
-  evn = evs_new(EVS_TYPE_INVITATION, EVS_MAX_TIMEOUT);
-  if (evn) {
-    evn->callback = &evscallback_invitation;
+  {
+    const char *id;
+    char *desc = g_strdup_printf("<%s> invites you to %s", from, to);
+    event_muc_invitation *invitation;
+    
     invitation = g_new(event_muc_invitation, 1);
     invitation->to = g_strdup(to);
     invitation->from = g_strdup(from);
     invitation->passwd = g_strdup(passwd);
     invitation->reason = g_strdup(reason);
-    evn->data = invitation;
-    evn->desc = g_strdup_printf("<%s> invites you to %s ", from, to);
-    g_string_printf(sbuf, "Please use /event %s accept|reject", evn->id);
-  } else {
-    g_string_printf(sbuf, "Unable to create a new event!");
+
+    id = evs_new(desc, NULL, 0, evscallback_invitation, invitation,
+                 (GDestroyNotify)destroy_event_muc_invitation);
+    g_free(desc);
+    if (id)
+      g_string_printf(sbuf, "Please use /event %s accept|reject", id);
+    else
+      g_string_printf(sbuf, "Unable to create a new event!");
   }
   scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO, 0);
   scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);

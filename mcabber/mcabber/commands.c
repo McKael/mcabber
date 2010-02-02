@@ -3305,9 +3305,8 @@ static void do_event(char *arg)
   char **paramlst;
   char *evid, *subcmd;
   int action = -1;
-  GSList *evidlst;
 
-  paramlst = split_arg(arg, 2, 0); // id, subcmd
+  paramlst = split_arg(arg, 3, 1); // id, subcmd, optional arg
   evid = *paramlst;
   subcmd = *(paramlst+1);
 
@@ -3317,41 +3316,37 @@ static void do_event(char *arg)
       evs_display_list();
     else
       scr_LogPrint(LPRINT_NORMAL,
-                   "Missing parameter.  Usage: /event num action");
+                   "Missing parameter.  Usage: /event num action "
+                   "[event-specific args]");
     free_arg_lst(paramlst);
     return;
   }
 
   if (!strcasecmp(subcmd, "reject"))
-    action = 0;
+    action = EVS_CONTEXT_REJECT;
   else if (!strcasecmp(subcmd, "accept"))
-    action = 1;
+    action = EVS_CONTEXT_ACCEPT;
   else if (!strcasecmp(subcmd, "ignore"))
-    action = 2;
+    action = EVS_CONTEXT_CANCEL;
 
   if (action == -1) {
     scr_LogPrint(LPRINT_NORMAL, "Wrong action parameter.");
-  } else if (action >= 0 && action <= 2) {
+  } else {
     GSList *p;
-
-    if (action == 2) {
-      action = EVS_CONTEXT_CANCEL;
-    } else {
-      action += EVS_CONTEXT_USER;
-    }
+    GSList *evidlst;
 
     if (!strcmp(evid, "*")) {
       // Use completion list
-      evidlst = evs_geteventslist(FALSE);
+      evidlst = evs_geteventslist();
     } else {
       // Let's create a slist with the provided event id
-      evidlst = g_slist_append(NULL, g_strdup(evid));
+      evidlst = g_slist_append(NULL, evid);
     }
     for (p = evidlst; p; p = g_slist_next(p)) {
-      if (evs_callback(p->data, action) == -1) {
+      if (evs_callback(p->data, action,
+                       (const char*)(paramlst+2)) == -1) {
         scr_LogPrint(LPRINT_NORMAL, "Event %s not found.", p->data);
       }
-      g_free(p->data);
     }
     g_slist_free(evidlst);
   }

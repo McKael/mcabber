@@ -276,7 +276,12 @@ GSList *compl_get_category_list(guint cat_flags, guint *dynlist)
     return buddy_getresources_locale(NULL);
   }
   if (cat_flags == COMPL_EVENTSID) {
-    return evs_geteventslist(TRUE);
+    GSList *compl = evs_geteventslist();
+    GSList *cel;
+    for (cel = compl; cel; cel = cel->next)
+      cel->data = g_strdup(cel->data);
+    compl = g_slist_append(compl, g_strdup("list"));
+    return compl;
   }
 
   *dynlist = FALSE;

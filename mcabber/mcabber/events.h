@@ -8,40 +8,18 @@
 
 #define EVS_CONTEXT_TIMEOUT 0U
 #define EVS_CONTEXT_CANCEL  1U
-#define EVS_CONTEXT_USER    2U
+#define EVS_CONTEXT_ACCEPT  2U
+#define EVS_CONTEXT_REJECT  3U
+/* There can be other user-defined contexts */
 
-typedef enum {
-  EVS_TYPE_SUBSCRIPTION = 1,
-  EVS_TYPE_INVITATION = 2,
-#ifdef MODULES_ENABLE
-  EVS_TYPE_USER = 3,
-#endif
-} evs_type;
+typedef gboolean (*evs_callback_t)(guint context, const char *arg, gpointer userdata);
 
-/* Common structure for events (evs) and IQ requests (iqs) */
-typedef struct {
-  char *id;
-  time_t ts_create;
-  time_t ts_expire;
-  guint8 type;
-  gpointer data;
-  int (*callback)();
-  char *desc;
-} eviqs;
-
-typedef struct {
-  char* to;
-  char* from;
-  char* passwd;
-  char* reason;
-} event_muc_invitation;
-
-eviqs   *evs_new(guint8 type, time_t timeout);
-int      evs_del(const char *evid);
-int      evs_callback(const char *evid, guint evcontext);
-gboolean evs_check_timeout();
-void     evs_display_list(void);
-GSList  *evs_geteventslist(int forcompl);
+const char *evs_new(const char *description, const char *id, time_t timeout, evs_callback_t callback, gpointer userdata, GDestroyNotify notify);
+int         evs_del(const char *evid);
+int         evs_callback(const char *evid, guint evcontext, const char *arg);
+void        evs_display_list(void);
+GSList     *evs_geteventslist(void);
+void        evs_deinit(void);
 
 #endif /* __MCABBER_EVENTS_H__ */
 

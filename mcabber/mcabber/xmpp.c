@@ -1473,7 +1473,6 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
   if (mstype == LM_MESSAGE_SUB_TYPE_SUBSCRIBE) {
     /* The sender wishes to subscribe to our presence */
     const char *msg;
-    eviqs *evn;
 
     msg = lm_message_node_get_child_value(m->node, "status");
 
@@ -1492,15 +1491,18 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
     }
 
     // Create a new event item
-    evn = evs_new(EVS_TYPE_SUBSCRIPTION, EVS_MAX_TIMEOUT);
-    if (evn) {
-      evn->callback = &evscallback_subscription;
-      evn->data = g_strdup(r);
-      evn->desc = g_strdup_printf("<%s> wants to subscribe to your "
-                                  "presence updates", r);
-      buf = g_strdup_printf("Please use /event %s accept|reject", evn->id);
-    } else {
-      buf = g_strdup_printf("Unable to create a new event!");
+    {
+      const char *id;
+      char *desc = g_strdup_printf("<%s> wants to subscribe to your "
+                                   "presence updates", r);
+
+      id = evs_new(desc, NULL, 0, evscallback_subscription, g_strdup(r),
+                   (GDestroyNotify)g_free);
+      g_free(desc);
+      if (id)
+        buf = g_strdup_printf("Please use /event %s accept|reject", id);
+      else
+        buf = g_strdup_printf("Unable to create a new event!");
     }
     scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
     scr_LogPrint(LPRINT_LOGNORM, "%s", buf);

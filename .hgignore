@@ -3,10 +3,12 @@ syntax: glob
 Makefile
 Makefile.in
 *.[oa]
+*.l[oa]
+.libs
 .deps
-mcabber/src/hgcset.h
-mcabber/src/mcabber
-mcabber/src/mcabber.exe
+mcabber/mcabber/hgcset.h
+mcabber/mcabber/mcabber
+mcabber/mcabber/mcabber.exe
 
 autom4te.cache
 mcabber/aclocal.m4
@@ -16,9 +18,12 @@ mcabber/connwrap/depcomp
 mcabber/depcomp
 mcabber/libtool
 mcabber/ltmain.sh
+mcabber/macros/lt*.m4
+mcabber/macros/libtool.m4
 mcabber/missing
 mcabber/mkinstalldirs
-mcabber/stamp-h1
+mcabber/mcabber/stamp-h1
+mcabber/include/stamp-h2
 
 config.h*
 config.{log,cache,guess,status}
@@ -29,4 +34,4 @@ mcabber/doc/guide/guide.{aux,bbl,blg,log,out,pdf,toc}
 cscope.out
 tags
 mcabber/ptodo
-
+mcabber/ppatches

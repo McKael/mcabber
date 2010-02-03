@@ -146,8 +146,6 @@ void xmpp_room_join(const char *room, const char *nickname, const char *passwd)
   }
 
   // Send the XML request
-  lm_message_new(roomid, LM_MESSAGE_TYPE_PRESENCE);
-
   x = lm_message_new_presence(mystatus, roomid, mystatusmsg);
   y = lm_message_node_add_child(x->node, "x", NULL);
   lm_message_node_set_attribute(y, "xmlns", "http://jabber.org/protocol/muc");

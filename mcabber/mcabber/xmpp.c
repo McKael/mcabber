@@ -1128,7 +1128,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
   // System messages (from our server) are allowed.
   if ((!settings_opt_get_int("block_unsubscribed") ||
        (roster_getsubscription(bjid) & sub_from) ||
-       (type == LM_MESSAGE_SUB_TYPE_CHAT)) ||
+       (type == LM_MESSAGE_SUB_TYPE_GROUPCHAT)) ||
       ((s = settings_opt_get("server")) != NULL && !strcasecmp(bjid, s))) {
     gchar *fullbody = NULL;
     guint encrypted;

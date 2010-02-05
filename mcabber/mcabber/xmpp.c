@@ -1059,7 +1059,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
                        time_t timestamp, LmMessageNode *node_signed)
 {
   char *bjid;
-  const char *rname, *s;
+  const char *rname;
   char *decrypted_pgp = NULL;
   char *decrypted_otr = NULL;
   int otr_msg = 0, free_msg = 0;
@@ -1126,10 +1126,20 @@ static void gotmessage(LmMessageSubType type, const char *from,
   // We don't call the message_in hook if 'block_unsubscribed' is true and
   // this is a regular message from an unsubscribed user.
   // System messages (from our server) are allowed.
-  if ((!settings_opt_get_int("block_unsubscribed") ||
-       (roster_getsubscription(bjid) & sub_from) ||
-       (type == LM_MESSAGE_SUB_TYPE_GROUPCHAT)) ||
-      ((s = settings_opt_get("server")) != NULL && !strcasecmp(bjid, s))) {
+  if (settings_opt_get_int("block_unsubscribed") &&
+      !(roster_getsubscription(bjid) & sub_from) &&
+      (type != LM_MESSAGE_SUB_TYPE_GROUPCHAT)) {
+    char *sbjid = jidtodisp(lm_connection_get_jid(lconnection));
+    const char *server = strchr(sbjid, JID_DOMAIN_SEPARATOR);
+    if (g_strcmp0(server, bjid)) {
+      scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", bjid);
+      g_free(sbjid);
+      goto gotmessage_return;
+    }
+    g_free(sbjid);
+  }
+
+  { // format and pass message for further processing
     gchar *fullbody = NULL;
     guint encrypted;
 
@@ -1149,8 +1159,6 @@ static void gotmessage(LmMessageSubType type, const char *from,
     }
     hk_message_in(bjid, rname, timestamp, body, type, encrypted);
     g_free(fullbody);
-  } else {
-    scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", bjid);
   }
 
 gotmessage_return:

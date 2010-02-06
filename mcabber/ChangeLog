@@ -4,9 +4,17 @@ mcabber (0.10.0-dev)
  * MCabber can now do DNS SRV lookups so the variable
    'username' has been replaced with 'jid' in the configuration file
  * Add support for modules in mcabber (Myhailo Danylenko)
+ * Sample "beep" module (Myhailo Danylenko)
+ * Allow commands shading (Myhailo Danylenko)
  * Message Receipts (XEP-0184) support (franky)
  * Update of Entity Capabilities support (franky)
  * Allow changing the nickname in MUC bookmarks (Myhailo Danylenko)
+ * Print list of options with "/set" (Myhailo Danylenko)
+ * Add libidn support
+ * Command "/source" now accepts a file pattern (Myhailo Danylenko)
+ * Tracelog level can now be changed at runtime (Myhailo Danylenko)
+ * Obsolete option 'hide_offline_buddies' has been removed
+ * Obsolete XEP-0022 (Message Events) is now disabled by default
 
  -- Mikael, ?
 

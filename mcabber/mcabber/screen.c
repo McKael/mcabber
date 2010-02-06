@@ -2265,8 +2265,6 @@ static void set_current_buddy(GList *newbuddy)
   if (chatmode)
     buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
   // We should rebuild the buddylist but not everytime
-  // Here we check if we were locking a buddy who is actually offline,
-  // and hide_offline_buddies is TRUE.  In which case we need to rebuild.
   if (!(buddylist_get_filter() & 1<<prev_st))
     buddylist_build();
   update_roster = TRUE;

@@ -14,10 +14,10 @@ Here are the available parameters:
  Jump to the bottom of the roster
 /roster top
  Jump to the top of the roster
-/roster up
- Move up in the roster
-/roster down
- Move down in the roster
+/roster up [n]
+ Move up [n lines] in the roster
+/roster down [n]
+ Move down [n lines] in the roster
 /roster group_prev
  Jump to the previous group in the roster
 /roster group_next

@@ -14,9 +14,9 @@ Ecco i parametri disponibili.
  Salta in fondo al roster
 /roster top
  Salta in cima al roster
-/roster up
+/roster up [n]
  Sposta verso l'alto
-/roster down
+/roster down [n]
  Sposta verso il basso
 /roster group_prev
  Salta al gruppo precedente

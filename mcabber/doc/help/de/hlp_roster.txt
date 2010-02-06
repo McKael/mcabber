@@ -14,7 +14,7 @@ Hier die möglichen Parameter:
  Springe zum Ende der Liste
 /roster top
  Springe an den Anfang von der Liste
-/roster up/down
+/roster up/down [n]
  Nach oben bzw. unten navigieren
 /roster group_prev
  Vorherige Gruppe auswählen

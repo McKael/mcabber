@@ -13,9 +13,9 @@ Slouží k manipulaci se seznamem kontaktů (rosterem).
  Přesune se na spodek seznamu kontaktů.
 /roster top
  Přesune se na vršek seznamu kontaktů.
-/roster up
+/roster up [n]
  Posune se nahoru v seznamu kontaktů.
-/roster down
+/roster down [n]
  Posune se dolů v seznamu kontaktů.
 /roster group_prev
  Přesune se na předchozí skupinu.

@@ -14,9 +14,9 @@ Dit zijn de beschikbare parameters:
  Spring naar het eind van het roster
 /roster top
  Spring naar het begin van het roster
-/roster up
+/roster up [n]
  Beweeg omhoog in het roster
-/roster down
+/roster down [n]
  Beweeg omlaag in het roster
 /roster group_prev
  Spring naar de voorgaande groep in het roster

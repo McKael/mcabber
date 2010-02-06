@@ -13,10 +13,10 @@ Cette commande permet de manipuler le roster (liste de contacts).
  Va à la fin de la liste de contact
 /roster top
  Va au début de la liste de contact
-/roster up
- Monte dans le roster
-/roster down
- Descend dans le roster
+/roster up [n]
+ Monte [de n lignes] dans le roster
+/roster down [n]
+ Descend [de n lignes] dans le roster
 /roster group_prev
  Va au groupe précédent in the roster
 /roster group_next

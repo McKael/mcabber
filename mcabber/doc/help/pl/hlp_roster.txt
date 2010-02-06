@@ -14,9 +14,9 @@ Dostępne parametry:
  Skacze na koniec listy kontaktów
 /roster top
  Skacze na początek listy kontaktów
-/roster up
+/roster up [n]
  Porusza się w górę w liście kontaktów
-/roster down
+/roster down [n]
  Porusza się w dół w liście kontaktów
 /roster group_prev
  Przejdź do poprzedniej grupy w rosterze

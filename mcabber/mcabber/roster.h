@@ -98,8 +98,8 @@ struct role_affil {
 #define ROSTER_FLAG_USRLOCK (1U<<3) // Node should not be removed from buddylist
 // ROSTER_FLAG_LOCAL   (1U<<4) // Buddy not on server's roster  (??)
 
-#define JEP0022
-#define JEP0085
+#define XEP0022
+#define XEP0085
 
 struct jep0022 {
   guint support;
@@ -130,13 +130,13 @@ struct pgp_data {
 
 /* Message event and chat state flags */
 #define ROSTER_EVENT_NONE      0U
-/* JEP-22 Message Events */
+/* XEP-22 Message Events */
 #define ROSTER_EVENT_OFFLINE   (1U<<0)
 #define ROSTER_EVENT_DELIVERED (1U<<1)
 #define ROSTER_EVENT_DISPLAYED (1U<<2)
-/* JEP-22 & JEP-85 */
+/* XEP-22 & XEP-85 */
 #define ROSTER_EVENT_COMPOSING (1U<<3)
-/* JEP-85 Chat State Notifications */
+/* XEP-85 Chat State Notifications */
 #define ROSTER_EVENT_ACTIVE    (1U<<4)
 #define ROSTER_EVENT_PAUSED    (1U<<5)
 #define ROSTER_EVENT_INACTIVE  (1U<<6)

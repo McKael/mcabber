@@ -2146,7 +2146,7 @@ static inline void set_autoaway(bool setaway)
 // If the chat state has changed, call xmpp_send_chatstate()
 static inline void set_chatstate(int state)
 {
-#if defined JEP0022 || defined JEP0085
+#if defined XEP0022 || defined XEP0085
   if (chatstates_disabled)
     return;
   if (!chatmode)
@@ -2175,7 +2175,7 @@ static inline void set_chatstate(int state)
 #endif
 }
 
-#if defined JEP0022 || defined JEP0085
+#if defined XEP0022 || defined XEP0085
 gboolean scr_ChatStatesTimeout(void)
 {
   time_t now;

@@ -125,7 +125,7 @@ bool Autoaway;
 
 void scr_CheckAutoAway(int activity);
 
-#if defined JEP0022 || defined JEP0085
+#if defined XEP0022 || defined XEP0085
 gboolean scr_ChatStatesTimeout();
 #endif
 int chatstates_disabled;

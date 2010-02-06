@@ -300,11 +300,11 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 #ifdef HAVE_LIBOTR
   int otr_msg = 0;
 #endif
-#if defined HAVE_GPGME || defined JEP0022 || defined JEP0085
+#if defined HAVE_GPGME || defined XEP0022 || defined XEP0085
   char *rname, *barejid;
   GSList *sl_buddy;
 #endif
-#if defined JEP0022 || defined JEP0085
+#if defined XEP0022 || defined XEP0085
   LmMessageNode *event;
   guint use_jep85 = 0;
   struct jep0085 *jep85 = NULL;
@@ -330,7 +330,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   }
 
 #if defined HAVE_GPGME || defined HAVE_LIBOTR || \
-    defined JEP0022 || defined JEP0085
+    defined XEP0022 || defined XEP0085
   rname = strchr(fjid, JID_RESOURCE_SEPARATOR);
   barejid = jidtodisp(fjid);
   sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
@@ -387,7 +387,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 #endif // HAVE_GPGME
 
   g_free(barejid);
-#endif // HAVE_GPGME || defined JEP0022 || defined JEP0085
+#endif // HAVE_GPGME || defined XEP0022 || defined XEP0085
 
   x = lm_message_new_with_sub_type(fjid, LM_MESSAGE_TYPE_MESSAGE, subtype);
   lm_message_node_add_child(x->node, "body",
@@ -415,7 +415,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
     *xep184 = lm_message_handler_new(cb_xep184, NULL, NULL);
   }
 
-#if defined JEP0022 || defined JEP0085
+#if defined XEP0022 || defined XEP0085
   // If typing notifications are disabled, we can skip all this stuff...
   if (chatstates_disabled || type == ROSTER_TYPE_ROOM)
     goto xmpp_send_msg_no_chatstates;
@@ -424,8 +424,8 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
     jep85 = buddy_resource_jep85(sl_buddy->data, rname);
 #endif
 
-#ifdef JEP0085
-  /* JEP-0085 5.1
+#ifdef XEP0085
+  /* XEP-0085 5.1
    * "Until receiving a reply to the initial content message (or a standalone
    * notification) from the Contact, the User MUST NOT send subsequent chat
    * state notifications to the Contact."
@@ -443,10 +443,10 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
     jep85->last_state_sent = ROSTER_EVENT_ACTIVE;
   }
 #endif
-#ifdef JEP0022
-  /* JEP-22
-   * If the Contact supports JEP-0085, we do not use JEP-0022.
-   * If not, we try to fall back to JEP-0022.
+#ifdef XEP0022
+  /* XEP-22
+   * If the Contact supports XEP-0085, we do not use XEP-0022.
+   * If not, we try to fall back to XEP-0022.
    */
   if (!use_jep85) {
     struct jep0022 *jep22 = NULL;
@@ -459,7 +459,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
     if (jep22)
       jep22->last_state_sent = ROSTER_EVENT_ACTIVE;
 
-    // An id is mandatory when using JEP-0022.
+    // An id is mandatory when using XEP-0022.
     if (text || subject) {
       const gchar *msgid = lm_message_get_id(x);
       // Let's update last_msgid_sent
@@ -482,9 +482,9 @@ xmpp_send_msg_no_chatstates:
   lm_message_unref(x);
 }
 
-#ifdef JEP0085
+#ifdef XEP0085
 //  xmpp_send_jep85_chatstate()
-// Send a JEP-85 chatstate.
+// Send a XEP-85 chatstate.
 static void xmpp_send_jep85_chatstate(const char *bjid, const char *resname,
                                       guint state)
 {
@@ -518,7 +518,7 @@ static void xmpp_send_jep85_chatstate(const char *bjid, const char *resname,
   else if (state == ROSTER_EVENT_PAUSED)
     chattag = "paused";
   else {
-    scr_LogPrint(LPRINT_LOGNORM, "Error: unsupported JEP-85 state (%d)", state);
+    scr_LogPrint(LPRINT_LOGNORM, "Error: unsupported XEP-85 state (%d)", state);
     return;
   }
 
@@ -541,9 +541,9 @@ static void xmpp_send_jep85_chatstate(const char *bjid, const char *resname,
 }
 #endif
 
-#ifdef JEP0022
+#ifdef XEP0022
 //  xmpp_send_jep22_event()
-// Send a JEP-22 message event (delivered, composing...).
+// Send a XEP-22 message event (delivered, composing...).
 static void xmpp_send_jep22_event(const char *fjid, guint type)
 {
   LmMessage *x;
@@ -575,7 +575,7 @@ static void xmpp_send_jep22_event(const char *fjid, guint type)
   msgid = jep22->last_msgid_rcvd;
 
   // For composing events (composing, active, inactive, paused...),
-  // JEP22 only has 2 states; we'll use composing and active.
+  // XEP22 only has 2 states; we'll use composing and active.
   if (type == ROSTER_EVENT_COMPOSING)
     jep22_state = ROSTER_EVENT_COMPOSING;
   else if (type == ROSTER_EVENT_ACTIVE ||
@@ -608,24 +608,24 @@ static void xmpp_send_jep22_event(const char *fjid, guint type)
 #endif
 
 //  xmpp_send_chatstate(buddy, state)
-// Send a chatstate or event (JEP-22/85) according to the buddy's capabilities.
+// Send a chatstate or event (XEP-22/85) according to the buddy's capabilities.
 // The message is sent to one of the resources with the highest priority.
-#if defined JEP0022 || defined JEP0085
+#if defined XEP0022 || defined XEP0085
 void xmpp_send_chatstate(gpointer buddy, guint chatstate)
 {
   const char *bjid;
-#ifdef JEP0085
+#ifdef XEP0085
   GSList *resources, *p_res, *p_next;
   struct jep0085 *jep85 = NULL;
 #endif
-#ifdef JEP0022
+#ifdef XEP0022
   struct jep0022 *jep22;
 #endif
 
   bjid = buddy_getjid(buddy);
   if (!bjid) return;
 
-#ifdef JEP0085
+#ifdef XEP0085
   /* Send the chatstate to the last resource (which should have the highest
      priority).
      If chatstate is "active", send an "active" state to all resources
@@ -646,11 +646,11 @@ void xmpp_send_chatstate(gpointer buddy, guint chatstate)
   }
   g_slist_free(resources);
   // If the last resource had chatstates support when can return now,
-  // we don't want to send a JEP22 event.
+  // we don't want to send a XEP22 event.
   if (jep85 && jep85->support == CHATSTATES_SUPPORT_OK)
     return;
 #endif
-#ifdef JEP0022
+#ifdef XEP0022
   jep22 = buddy_resource_jep22(buddy, NULL);
   if (jep22 && jep22->support == CHATSTATES_SUPPORT_OK) {
     xmpp_send_jep22_event(bjid, chatstate);
@@ -661,9 +661,9 @@ void xmpp_send_chatstate(gpointer buddy, guint chatstate)
 
 
 //  chatstates_reset_probed(fulljid)
-// If the JEP has been probed for this contact, set it back to unknown so
+// If the XEP has been probed for this contact, set it back to unknown so
 // that we probe it again.  The parameter must be a full jid (w/ resource).
-#if defined JEP0022 || defined JEP0085
+#if defined XEP0022 || defined XEP0085
 static void chatstates_reset_probed(const char *fulljid)
 {
   char *rname, *barejid;
@@ -940,7 +940,7 @@ static void connection_close_cb(LmConnection *connection,
 
 static void handle_state_events(const char *from, LmMessageNode *node)
 {
-#if defined JEP0022 || defined JEP0085
+#if defined XEP0022 || defined XEP0085
   LmMessageNode *state_ns = NULL;
   const char *body;
   char *rname, *bjid;
@@ -949,10 +949,10 @@ static void handle_state_events(const char *from, LmMessageNode *node)
   struct jep0022 *jep22 = NULL;
   struct jep0085 *jep85 = NULL;
   enum {
-    JEP_none,
-    JEP_85,
-    JEP_22
-  } which_jep = JEP_none;
+    XEP_none,
+    XEP_85,
+    XEP_22
+  } which_jep = XEP_none;
 
   rname = strchr(from, JID_RESOURCE_SEPARATOR);
   if (rname)
@@ -964,29 +964,29 @@ static void handle_state_events(const char *from, LmMessageNode *node)
   g_free(bjid);
 
   /* XXX Actually that's wrong, since it filters out server "offline"
-     messages (for JEP-0022).  This JEP is (almost) deprecated so
+     messages (for XEP-0022).  This XEP is (almost) deprecated so
      we don't really care. */
   if (!sl_buddy) {
     return;
   }
 
-  /* Let's see chich JEP the contact uses.  If possible, we'll use
-     JEP-85, if not we'll look for JEP-22 support. */
+  /* Let's see chich XEP the contact uses.  If possible, we'll use
+     XEP-85, if not we'll look for XEP-22 support. */
   events = buddy_resource_getevents(sl_buddy->data, rname);
 
   jep85 = buddy_resource_jep85(sl_buddy->data, rname);
   if (jep85) {
     state_ns = lm_message_node_find_xmlns(node, NS_CHATSTATES);
     if (state_ns)
-      which_jep = JEP_85;
+      which_jep = XEP_85;
   }
 
-  if (which_jep != JEP_85) { /* Fall back to JEP-0022 */
+  if (which_jep != XEP_85) { /* Fall back to XEP-0022 */
     jep22 = buddy_resource_jep22(sl_buddy->data, rname);
     if (jep22) {
       state_ns = lm_message_node_find_xmlns(node, NS_EVENT);
       if (state_ns)
-        which_jep = JEP_22;
+        which_jep = XEP_22;
     }
   }
 
@@ -996,7 +996,7 @@ static void handle_state_events(const char *from, LmMessageNode *node)
 
   body = lm_message_node_get_child_value(node, "body");
 
-  if (which_jep == JEP_85) { /* JEP-0085 */
+  if (which_jep == XEP_85) { /* XEP-0085 */
     jep85->support = CHATSTATES_SUPPORT_OK;
 
     if (!strcmp(state_ns->name, "composing")) {
@@ -1011,8 +1011,8 @@ static void handle_state_events(const char *from, LmMessageNode *node)
       jep85->last_state_rcvd = ROSTER_EVENT_GONE;
     }
     events = jep85->last_state_rcvd;
-  } else {              /* JEP-0022 */
-#ifdef JEP0022
+  } else {              /* XEP-0022 */
+#ifdef XEP0022
     const char *msgid;
     jep22->support = CHATSTATES_SUPPORT_OK;
     jep22->last_state_rcvd = ROSTER_EVENT_NONE;
@@ -1233,8 +1233,8 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     x = lm_message_node_get_child(m->node, "error");
     display_server_error(x);
-#if defined JEP0022 || defined JEP0085
-    // If the JEP85/22 support is probed, set it back to unknown so that
+#if defined XEP0022 || defined XEP0085
+    // If the XEP85/22 support is probed, set it back to unknown so that
     // we probe it again.
     chatstates_reset_probed(from);
 #endif

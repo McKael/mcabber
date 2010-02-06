@@ -936,6 +936,7 @@ static void connection_close_cb(LmConnection *connection,
   scr_UpdateBuddyWindow();
 
   scr_LogPrint(LPRINT_NORMAL, "Disconnected, reason:%d->'%s'\n", reason, str);
+  xmpp_setstatus(offline, NULL, mystatusmsg, TRUE);
 }
 
 static void handle_state_events(const char *from, LmMessageNode *node)
@@ -1809,6 +1810,7 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
                   int do_not_sign)
 {
   LmMessage *m;
+  gboolean isonline;
 
   if (msg) {
     // The status message has been specified.  We'll use it, unless it is
@@ -1829,10 +1831,12 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
     }
   }
 
+  isonline = xmpp_is_online();
+
   // Only send the packet if we're online.
   // (But we want to update internal status even when disconnected,
   // in order to avoid some problems during network failures)
-  if (xmpp_is_online()) {
+  if (isonline) {
     const char *s_msg = (st != invisible ? msg : NULL);
     m = lm_message_new_presence(st, recipient, s_msg);
     insert_entity_capabilities(m->node, st); // Entity Capabilities (XEP-0115)
@@ -1855,7 +1859,7 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
   // If we didn't change our _global_ status, we are done
   if (recipient) return;
 
-  if (xmpp_is_online()) {
+  if (isonline) {
     // Send presence to chatrooms
     if (st != invisible) {
       struct T_presence room_presence;
@@ -1863,7 +1867,9 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
       room_presence.msg = msg;
       foreach_buddy(ROSTER_TYPE_ROOM, &roompresence, &room_presence);
     }
+  }
 
+  if (isonline || !st) {
     // We'll have to update the roster if we switch to/from offline because
     // we don't know the presences of buddies when offline...
     if (mystatus == offline || st == offline)

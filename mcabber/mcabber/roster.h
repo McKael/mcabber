@@ -98,7 +98,7 @@ struct role_affil {
 #define ROSTER_FLAG_USRLOCK (1U<<3) // Node should not be removed from buddylist
 // ROSTER_FLAG_LOCAL   (1U<<4) // Buddy not on server's roster  (??)
 
-#define XEP0022
+// #define XEP0022 (Officially obsoleted by XMPP Council)
 #define XEP0085
 
 struct jep0022 {

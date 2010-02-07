@@ -137,7 +137,7 @@ static LmHandlerResult cb_version(LmMessageHandler *h, LmConnection *c,
   // Display IQ result sender...
   bjid = lm_message_get_from(m);
   if (!bjid)
-    bjid = lm_connection_get_jid(lconnection);
+    bjid = lm_connection_get_jid(lconnection); // No from means our JID...
   if (!bjid) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
@@ -194,7 +194,7 @@ static LmHandlerResult cb_time(LmMessageHandler *h, LmConnection *c,
   // Display IQ result sender...
   bjid = lm_message_get_from(m);
   if (!bjid)
-    bjid = lm_connection_get_jid(lconnection);
+    bjid = lm_connection_get_jid(lconnection); // No from means our JID...
   if (!bjid) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
@@ -250,7 +250,7 @@ static LmHandlerResult cb_last(LmMessageHandler *h, LmConnection *c,
   // Display IQ result sender...
   bjid = lm_message_get_from(m);
   if (!bjid)
-    bjid = lm_connection_get_jid(lconnection);
+    bjid = lm_connection_get_jid(lconnection); // No from means our JID...
   if (!bjid) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
@@ -418,7 +418,7 @@ static LmHandlerResult cb_vcard(LmMessageHandler *h, LmConnection *c,
   // Display IQ result sender...
   bjid = lm_message_get_from(m);
   if (!bjid)
-    bjid = lm_connection_get_jid(lconnection);
+    bjid = lm_connection_get_jid(lconnection); // No from means our JID...
   if (!bjid) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;

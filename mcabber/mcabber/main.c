@@ -173,6 +173,9 @@ static void compile_options(void)
 #endif
 #ifdef MODULES_ENABLE
   puts ("Compiled with modules support.");
+# ifdef PKGLIB_DIR
+  puts ("Modules directory: " PKGLIB_DIR);
+# endif
 #endif
 #ifdef HAVE_GPGME
   puts("Compiled with GPG support.");

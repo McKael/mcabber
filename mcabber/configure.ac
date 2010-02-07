@@ -262,11 +262,21 @@ AM_CONDITIONAL([INSTALL_HEADERS], [test x$enable_modules = xyes])
 # We need _GNU_SOURCE for strptime() and strcasestr()
 CFLAGS="$CFLAGS -D_GNU_SOURCE"
 
+EXTRA_REQUIRES=""
+if test "$enable_enchant" = "yes"; then
+    EXTRA_REQUIRES="$EXTRA_REQUIRES enchant"
+fi
+if test "$enable_gpgme" != "no"; then
+    EXTRA_REQUIRES="$EXTRA_REQUIRES gpgme"
+fi
+AC_SUBST([EXTRA_REQUIRES])
+
 AC_CONFIG_FILES([mcabber/Makefile
                  modules/Makefile
                  modules/beep/Makefile
                  doc/Makefile
                  doc/guide/Makefile
                  doc/help/Makefile
+                 mcabber.pc
                  Makefile])
 AC_OUTPUT

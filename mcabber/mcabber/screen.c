@@ -2589,6 +2589,7 @@ void scr_BufferPurge(int closebuf, const char *jid)
     p_closebuf = g_new(guint, 1);
     *p_closebuf = closebuf;
     buffer_purge((gpointer)cjid, win_entry, p_closebuf);
+    roster_msg_setflag(cjid, FALSE, FALSE);
     g_free(p_closebuf);
     if (closebuf && !hold_chatmode) {
       scr_set_chatmode(FALSE);
@@ -2600,10 +2601,13 @@ void scr_BufferPurge(int closebuf, const char *jid)
     hbuf_free(&win_entry->bd->hbuf);
     // Currently it can only be the status buffer
     statushbuf = NULL;
+    roster_msg_setflag(SPECIAL_BUFFER_STATUS_ID, TRUE, FALSE);
 
     win_entry->bd->cleared = FALSE;
     win_entry->bd->top = NULL;
   }
+
+  update_roster = TRUE;
 
   // Refresh the window
   scr_UpdateBuddyWindow();

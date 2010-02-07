@@ -3,8 +3,6 @@
  *
  * Copyright (C) 2008-2009 Frank Zschockelt <mcabber@freakysoft.de>
  * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
- * Some parts initially came from the centericq project:
- * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

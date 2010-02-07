@@ -135,12 +135,13 @@ static LmHandlerResult cb_version(LmMessageHandler *h, LmConnection *c,
   }
 
   // Display IQ result sender...
-  p = lm_message_get_from(m);
-  if (!p) {
+  bjid = lm_message_get_from(m);
+  if (!bjid)
+    bjid = lm_connection_get_jid(lconnection);
+  if (!bjid) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
-    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
-  bjid = p;
 
   buf = g_strdup_printf("Received IQ:version result from <%s>", bjid);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
@@ -191,12 +192,13 @@ static LmHandlerResult cb_time(LmMessageHandler *h, LmConnection *c,
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   }
   // Display IQ result sender...
-  p = lm_message_get_from(m);
-  if (!p) {
-    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result (no sender name).");
-    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
+  bjid = lm_message_get_from(m);
+  if (!bjid)
+    bjid = lm_connection_get_jid(lconnection);
+  if (!bjid) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
-  bjid = p;
 
   buf = g_strdup_printf("Received IQ:time result from <%s>", bjid);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
@@ -246,12 +248,13 @@ static LmHandlerResult cb_last(LmMessageHandler *h, LmConnection *c,
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   }
   // Display IQ result sender...
-  p = lm_message_get_from(m);
-  if (!p) {
-    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:last result (no sender name).");
-    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
+  bjid = lm_message_get_from(m);
+  if (!bjid)
+    bjid = lm_connection_get_jid(lconnection);
+  if (!bjid) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
-  bjid = p;
 
   buf = g_strdup_printf("Received IQ:last result from <%s>", bjid);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
@@ -409,16 +412,17 @@ static LmHandlerResult cb_vcard(LmMessageHandler *h, LmConnection *c,
                                LmMessage *m, gpointer user_data)
 {
   LmMessageNode *ansqry;
-  const char *p, *bjid;
+  const char *bjid;
   char *buf, *tmp;
 
   // Display IQ result sender...
-  p = lm_message_get_from(m);
-  if (!p) {
-    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:vCard result (no sender name).");
-    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
+  bjid = lm_message_get_from(m);
+  if (!bjid)
+    bjid = lm_connection_get_jid(lconnection);
+  if (!bjid) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
-  bjid = p;
 
   buf = g_strdup_printf("Received IQ:vCard result from <%s>", bjid);
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);

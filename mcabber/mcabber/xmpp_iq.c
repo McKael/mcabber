@@ -144,6 +144,17 @@ static void lm_message_node_add_dataform_result(LmMessageNode *node,
   lm_message_node_add_child(field, "value", message);
 }
 
+// Dummy handler to ignore IQ response
+LmHandlerResult handle_iq_dummy(LmMessageHandler *h, LmConnection *c,
+                                 LmMessage *m, gpointer ud)
+{
+  LmMessageSubType mstype = lm_message_get_sub_type(m);
+  if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
+    display_server_error(lm_message_node_get_child(m->node, "error"));
+  }
+  return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+}
+
 static LmHandlerResult handle_iq_commands_list(LmMessageHandler *h,
                                                LmConnection *c,
                                                LmMessage *m, gpointer ud)
@@ -560,11 +571,9 @@ LmHandlerResult handle_iq_roster(LmMessageHandler *h, LmConnection *c,
   int need_refresh = FALSE;
   guint roster_type;
 
-  for (y = lm_message_node_find_child(lm_message_node_find_xmlns
-                                      (m->node, NS_ROSTER),
-                                      "item");
-       y;
-       y = y->next) {
+  y = lm_message_node_find_child(lm_message_node_find_xmlns(m->node, NS_ROSTER),
+                                 "item");
+  for ( ; y; y = y->next) {
     char *name_tmp = NULL;
 
     fjid = lm_message_node_get_attribute(y, "jid");

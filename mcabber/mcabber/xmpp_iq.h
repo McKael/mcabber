@@ -1,6 +1,9 @@
 #ifndef __MCABBER_XMPP_IQ_H__
 #define __MCABBER_XMPP_IQ_H__ 1
 
+LmHandlerResult handle_iq_dummy(LmMessageHandler *h,
+                                LmConnection *c,
+                                LmMessage *m, gpointer ud);
 LmHandlerResult handle_iq_commands(LmMessageHandler *h,
                                    LmConnection *c,
                                    LmMessage *m, gpointer ud);

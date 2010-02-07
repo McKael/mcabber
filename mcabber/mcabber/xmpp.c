@@ -106,6 +106,7 @@ void xmpp_addbuddy(const char *bjid, const char *name, const char *group)
 {
   LmMessageNode *query, *y;
   LmMessage *iq;
+  LmMessageHandler *handler;
   char *cleanjid;
 
   if (!xmpp_is_online())
@@ -129,7 +130,9 @@ void xmpp_addbuddy(const char *bjid, const char *name, const char *group)
   if (group)
     lm_message_node_add_child(y, "group", group);
 
-  lm_connection_send(lconnection, iq, NULL);
+  handler = lm_message_handler_new(handle_iq_dummy, NULL, FALSE);
+  lm_connection_send_with_reply(lconnection, iq, handler, NULL);
+  lm_message_handler_unref(handler);
   lm_message_unref(iq);
 
   xmpp_send_s10n(cleanjid, LM_MESSAGE_SUB_TYPE_SUBSCRIBE);
@@ -144,6 +147,7 @@ void xmpp_addbuddy(const char *bjid, const char *name, const char *group)
 void xmpp_updatebuddy(const char *bjid, const char *name, const char *group)
 {
   LmMessage *iq;
+  LmMessageHandler *handler;
   LmMessageNode *x;
   char *cleanjid;
 
@@ -167,7 +171,9 @@ void xmpp_updatebuddy(const char *bjid, const char *name, const char *group)
   if (group)
     lm_message_node_add_child(x, "group", group);
 
-  lm_connection_send(lconnection, iq, NULL);
+  handler = lm_message_handler_new(handle_iq_dummy, NULL, FALSE);
+  lm_connection_send_with_reply(lconnection, iq, handler, NULL);
+  lm_message_handler_unref(handler);
   lm_message_unref(iq);
   g_free(cleanjid);
 }
@@ -176,6 +182,7 @@ void xmpp_delbuddy(const char *bjid)
 {
   LmMessageNode *y, *z;
   LmMessage *iq;
+  LmMessageHandler *handler;
   char *cleanjid;
 
   if (!xmpp_is_online())
@@ -211,7 +218,9 @@ void xmpp_delbuddy(const char *bjid)
                                  "jid", cleanjid,
                                  "subscription", "remove",
                                  NULL);
-  lm_connection_send(lconnection, iq, NULL);
+  handler = lm_message_handler_new(handle_iq_dummy, NULL, FALSE);
+  lm_connection_send_with_reply(lconnection, iq, handler, NULL);
+  lm_message_handler_unref(handler);
   lm_message_unref(iq);
 
   roster_del_user(cleanjid);

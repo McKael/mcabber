@@ -76,12 +76,14 @@ enum vcard_attr {
 };
 
 static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
-                               LmMessage *message, gpointer udata)
+                               LmMessage *m, gpointer user_data)
 {
-  struct timeval *timestamp = (struct timeval *) udata;
+  struct timeval *timestamp = (struct timeval *)user_data;
   struct timeval now;
   time_t         dsec;
   suseconds_t    dusec;
+  const gchar    *fjid;
+  gchar          *bjid;
 
   gettimeofday(&now, NULL);
   dsec = now.tv_sec - timestamp->tv_sec;
@@ -91,27 +93,33 @@ static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
   } else
     dusec = now.tv_usec - timestamp->tv_usec;
 
-  switch (lm_message_get_sub_type(message)) {
+  // Check IQ result sender
+  fjid = lm_message_get_from(m);
+  if (!fjid)
+    fjid = lm_connection_get_jid(lconnection); // No from means our JID...
+  if (!fjid) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
+  bjid  = jidtodisp(fjid);
+
+  switch (lm_message_get_sub_type(m)) {
     case LM_MESSAGE_SUB_TYPE_RESULT:
         { // print to buddy's buffer
-          LmMessageNode *node = lm_message_get_node(message);
-          gchar *jid  = jidtodisp(lm_message_node_get_attribute(node, "from"));
           gchar *mesg = g_strdup_printf("Pong: %d second%s %d ms.",
                                         (int)dsec,
                                         dsec > 1 ? "s" : "",
                                         (int)(dusec/1000L));
 
-          scr_WriteIncomingMessage(jid, mesg, 0, HBB_PREFIX_INFO, 0);
-
+          scr_WriteIncomingMessage(bjid, mesg, 0, HBB_PREFIX_INFO, 0);
           g_free(mesg);
-          g_free(jid);
         }
         break;
 
     case LM_MESSAGE_SUB_TYPE_ERROR:
         {
-          LmMessageNode *node   = lm_message_get_node(message);
-          const gchar   *from   = lm_message_node_get_attribute(node, "from");
+          LmMessageNode *node   = lm_message_get_node(m);
           const gchar   *type;
           const gchar   *reason;
 
@@ -123,26 +131,25 @@ static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
             reason = "undefined";
 
           { // print to buddy's buffer
-            gchar *jid  = jidtodisp(from);
             gchar *mesg = g_strdup_printf("Ping to %s failed: %s - %s (response time %d second%s %d microseconds)",
-                                          from, type, reason,
+                                          fjid, type, reason,
                                           (int)dsec,
                                           dsec > 1 ? "s" : "",
                                           (int)(dusec/1000L));
 
-            scr_WriteIncomingMessage(jid, mesg, 0, HBB_PREFIX_INFO, 0);
-
+            scr_WriteIncomingMessage(bjid, mesg, 0, HBB_PREFIX_INFO, 0);
             g_free(mesg);
-            g_free(jid);
           }
         }
         break;
 
     default:
+        g_free(bjid);
         return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
         break;
   }
 
+  g_free(bjid);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 

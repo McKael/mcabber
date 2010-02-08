@@ -22,6 +22,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "xmpp_helper.h"
 #include "xmpp_iq.h"
@@ -42,6 +43,8 @@ static LmHandlerResult cb_time(LmMessageHandler *h, LmConnection *c,
                                LmMessage *m, gpointer user_data);
 static LmHandlerResult cb_last(LmMessageHandler *h, LmConnection *c,
                                LmMessage *m, gpointer user_data);
+static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
+                               LmMessage *m, gpointer user_data);
 static LmHandlerResult cb_vcard(LmMessageHandler *h, LmConnection *c,
                                LmMessage *m, gpointer user_data);
 
@@ -55,6 +58,7 @@ static struct IqRequestHandlers
   {NS_VERSION,"query", &cb_version},
   {NS_TIME,   "query", &cb_time},
   {NS_LAST,   "query", &cb_last},
+  {NS_PING,   "ping",  &cb_ping},
   {NS_VCARD,  "vCard", &cb_vcard},
   {NULL, NULL, NULL}
 };
@@ -71,12 +75,86 @@ enum vcard_attr {
   vcard_pref    = 1<<7,
 };
 
-// xmlns has to be a namespace from iq_request_handlers[].xmlns
+static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
+                               LmMessage *message, gpointer udata)
+{
+  struct timeval *timestamp = (struct timeval *) udata;
+  struct timeval now;
+  time_t         dsec;
+  suseconds_t    dusec;
+
+  gettimeofday(&now, NULL);
+  dsec = now.tv_sec - timestamp->tv_sec;
+  if (now.tv_usec < timestamp->tv_usec) {
+    dusec = now.tv_usec + 1000000 - timestamp->tv_usec;
+    --dsec;
+  } else
+    dusec = now.tv_usec - timestamp->tv_usec;
+
+  switch (lm_message_get_sub_type(message)) {
+    case LM_MESSAGE_SUB_TYPE_RESULT:
+        { // print to buddy's buffer
+          LmMessageNode *node = lm_message_get_node(message);
+          gchar *jid  = jidtodisp(lm_message_node_get_attribute(node, "from"));
+          gchar *mesg = g_strdup_printf("Pong: %d second%s %d ms.",
+                                        (int)dsec,
+                                        dsec > 1 ? "s" : "",
+                                        (int)(dusec/1000L));
+
+          scr_WriteIncomingMessage(jid, mesg, 0, HBB_PREFIX_INFO, 0);
+
+          g_free(mesg);
+          g_free(jid);
+        }
+        break;
+
+    case LM_MESSAGE_SUB_TYPE_ERROR:
+        {
+          LmMessageNode *node   = lm_message_get_node(message);
+          const gchar   *from   = lm_message_node_get_attribute(node, "from");
+          const gchar   *type;
+          const gchar   *reason;
+
+          node = lm_message_node_get_child(node, "error");
+          type = lm_message_node_get_attribute(node, "type");
+          if (node->children)
+            reason = node->children->name;
+          else
+            reason = "undefined";
+
+          { // print to buddy's buffer
+            gchar *jid  = jidtodisp(from);
+            gchar *mesg = g_strdup_printf("Ping to %s failed: %s - %s (response time %d second%s %d microseconds)",
+                                          from, type, reason,
+                                          (int)dsec,
+                                          dsec > 1 ? "s" : "",
+                                          (int)(dusec/1000L));
+
+            scr_WriteIncomingMessage(jid, mesg, 0, HBB_PREFIX_INFO, 0);
+
+            g_free(mesg);
+            g_free(jid);
+          }
+        }
+        break;
+
+    default:
+        return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
+        break;
+  }
+
+  return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+}
+
+// Warning!! xmlns has to be a namespace from iq_request_handlers[].xmlns
 void xmpp_iq_request(const char *fulljid, const char *xmlns)
 {
   LmMessage *iq;
   LmMessageNode *query;
   LmMessageHandler *handler;
+  gpointer data = NULL;
+  GDestroyNotify notifier = NULL;
+  GError *error = NULL;
   int i;
 
   iq = lm_message_new_with_sub_type(fulljid, LM_MESSAGE_TYPE_IQ,
@@ -87,11 +165,25 @@ void xmpp_iq_request(const char *fulljid, const char *xmlns)
                                     iq_request_handlers[i].querytag,
                                     NULL);
   lm_message_node_set_attribute(query, "xmlns", xmlns);
+
+  if (!g_strcmp0(xmlns, NS_PING)) {     // Create handler for ping queries
+    struct timeval *now = g_new(struct timeval, 1);
+    gettimeofday(now, NULL);
+    data = (gpointer)now;
+    notifier = g_free;
+  }
+
   handler = lm_message_handler_new(iq_request_handlers[i].handler,
-                                   NULL, FALSE);
-  lm_connection_send_with_reply(lconnection, iq, handler, NULL);
+                                   data, notifier);
+
+  lm_connection_send_with_reply(lconnection, iq, handler, &error);
   lm_message_handler_unref(handler);
   lm_message_unref(iq);
+
+  if (error) {
+    scr_LogPrint(LPRINT_LOGNORM, "Error sending IQ request: %s.", error->message);
+    g_error_free(error);
+  }
 }
 
 //  This callback is reached when mcabber receives the first roster update

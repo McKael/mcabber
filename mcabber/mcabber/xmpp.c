@@ -245,10 +245,12 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
   } else if (reqtype == iqreq_last) {
     xmlns = NS_LAST;
     strreqtype = "last";
+  } else if (reqtype == iqreq_ping) {
+    xmlns = NS_PING;
+    strreqtype = "last";
   } else if (reqtype == iqreq_vcard) {
     xmlns = NS_VCARD;
     strreqtype = "vCard";
-    // Special case
   } else
     return;
 

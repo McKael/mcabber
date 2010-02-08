@@ -9,7 +9,8 @@ enum iqreq_type {
   iqreq_version,
   iqreq_time,
   iqreq_last,
-  iqreq_vcard
+  iqreq_vcard,
+  iqreq_ping
 };
 
 struct annotation {

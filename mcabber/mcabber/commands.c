@@ -305,6 +305,7 @@ void cmd_init(void)
 
   // Request (query) category
   compl_add_category_word(COMPL_REQUEST, "last");
+  compl_add_category_word(COMPL_REQUEST, "ping");
   compl_add_category_word(COMPL_REQUEST, "time");
   compl_add_category_word(COMPL_REQUEST, "vcard");
   compl_add_category_word(COMPL_REQUEST, "version");
@@ -3242,6 +3243,8 @@ static void do_request(char *arg)
       numtype = iqreq_time;
     else if (!strcasecmp(type, "last"))
       numtype = iqreq_last;
+    else if (!strcasecmp(type, "ping"))
+      numtype = iqreq_ping;
     else if (!strcasecmp(type, "vcard"))
       numtype = iqreq_vcard;
   }
@@ -3290,6 +3293,7 @@ static void do_request(char *arg)
       case iqreq_time:
       case iqreq_last:
       case iqreq_vcard:
+      case iqreq_ping:
           xmpp_request(fjid, numtype);
           break;
       default:

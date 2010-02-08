@@ -346,9 +346,8 @@ static const char *defaulterrormsg(guint code)
 // x: error tag xmlnode pointer
 void display_server_error(LmMessageNode *x)
 {
-  const char *desc = NULL, *p=NULL, *s;
+  const char *desc = NULL, *errname=NULL, *s;
   char *sdesc, *tmp;
-  int code = 0;
 
   if (!x) return;
 
@@ -359,15 +358,14 @@ void display_server_error(LmMessageNode *x)
    *          qualified by the 'urn:ietf:params:xml:ns:xmpp-stanzas' namespace.
    */
   if (x->children)
-    p = x->children->name;
-  if (p)
-    scr_LogPrint(LPRINT_LOGNORM, "Received error packet [%s]", p);
+    errname = x->children->name;
+  scr_LogPrint(LPRINT_LOGNORM, "Received error packet [%s]",
+               (errname ? errname : ""));
 
   // For backward compatibility
-  if ((s = lm_message_node_get_attribute(x, "code")) != NULL) {
-    code = atoi(s);
+  if (!errname && ((s = lm_message_node_get_attribute(x, "code")) != NULL)) {
     // Default message
-    desc = defaulterrormsg(code);
+    desc = defaulterrormsg(atoi(s));
   }
 
   // Error tag data is better, if available
@@ -380,7 +378,7 @@ void display_server_error(LmMessageNode *x)
   if (s && *s) desc = s;
 
   // If we still have no description, let's give up
-  if (!desc)
+  if (!desc || !*desc)
     return;
 
   // Strip trailing newlines
@@ -391,7 +389,8 @@ void display_server_error(LmMessageNode *x)
   while (tmp >= sdesc && (*tmp == '\n' || *tmp == '\r'))
     *tmp-- = '\0';
 
-  scr_LogPrint(LPRINT_LOGNORM, "Error code from server: %d %s", code, sdesc);
+  if (*sdesc)
+    scr_LogPrint(LPRINT_LOGNORM, "Error message from server: %s", sdesc);
   g_free(sdesc);
 }
 

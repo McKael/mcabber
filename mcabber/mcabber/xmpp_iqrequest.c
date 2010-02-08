@@ -83,7 +83,7 @@ static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
   time_t         dsec;
   suseconds_t    dusec;
   const gchar    *fjid;
-  gchar          *bjid;
+  gchar          *bjid, *mesg = NULL;
 
   gettimeofday(&now, NULL);
   dsec = now.tv_sec - timestamp->tv_sec;
@@ -106,41 +106,17 @@ static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
 
   switch (lm_message_get_sub_type(m)) {
     case LM_MESSAGE_SUB_TYPE_RESULT:
-        { // print to buddy's buffer
-          gchar *mesg = g_strdup_printf("Pong: %d second%s %d ms.",
-                                        (int)dsec,
-                                        dsec > 1 ? "s" : "",
-                                        (int)(dusec/1000L));
-
-          scr_WriteIncomingMessage(bjid, mesg, 0, HBB_PREFIX_INFO, 0);
-          g_free(mesg);
-        }
+        mesg = g_strdup_printf("Pong from <%s>: %d second%s %d ms.", fjid,
+                               (int)dsec, dsec > 1 ? "s" : "",
+                               (int)(dusec/1000L));
         break;
 
     case LM_MESSAGE_SUB_TYPE_ERROR:
-        {
-          LmMessageNode *node   = lm_message_get_node(m);
-          const gchar   *type;
-          const gchar   *reason;
-
-          node = lm_message_node_get_child(node, "error");
-          type = lm_message_node_get_attribute(node, "type");
-          if (node->children)
-            reason = node->children->name;
-          else
-            reason = "undefined";
-
-          { // print to buddy's buffer
-            gchar *mesg = g_strdup_printf("Ping to %s failed: %s - %s (response time %d second%s %d microseconds)",
-                                          fjid, type, reason,
-                                          (int)dsec,
-                                          dsec > 1 ? "s" : "",
-                                          (int)(dusec/1000L));
-
-            scr_WriteIncomingMessage(bjid, mesg, 0, HBB_PREFIX_INFO, 0);
-            g_free(mesg);
-          }
-        }
+        display_server_error(lm_message_node_get_child(m->node, "error"));
+        mesg = g_strdup_printf("Ping to <%s> failed.  "
+                               "Response time: %d second%s %d ms.",
+                               fjid, (int)dsec, dsec > 1 ? "s" : "",
+                               (int)(dusec/1000L));
         break;
 
     default:
@@ -149,6 +125,9 @@ static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
         break;
   }
 
+  if (mesg)
+    scr_WriteIncomingMessage(bjid, mesg, 0, HBB_PREFIX_INFO, 0);
+  g_free(mesg);
   g_free(bjid);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }

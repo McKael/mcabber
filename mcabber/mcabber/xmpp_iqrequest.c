@@ -125,21 +125,28 @@ static LmHandlerResult cb_version(LmMessageHandler *h, LmConnection *c,
 {
   LmMessageNode *ansqry;
   const char *p, *bjid;
-  char *tmp;
-  char *buf;
+  char *buf, *tmp;
 
-  ansqry = lm_message_node_get_child(m->node, "query");
-  if (!ansqry) {
-    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result!");
-    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
-  }
-
-  // Display IQ result sender...
+  // Check IQ result sender
   bjid = lm_message_get_from(m);
   if (!bjid)
     bjid = lm_connection_get_jid(lconnection); // No from means our JID...
   if (!bjid) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
+  // Check for error message
+  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
+    scr_LogPrint(LPRINT_LOGNORM, "Received error IQ message (%s)", bjid);
+    display_server_error(lm_message_node_get_child(m->node, "error"));
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
+  // Check message contents
+  ansqry = lm_message_node_get_child(m->node, "query");
+  if (!ansqry) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result from <%s>!", bjid);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
@@ -183,20 +190,28 @@ static LmHandlerResult cb_time(LmMessageHandler *h, LmConnection *c,
 {
   LmMessageNode *ansqry;
   const char *p, *bjid;
-  char *tmp;
-  char *buf;
+  char *buf, *tmp;
 
-  ansqry = lm_message_node_get_child(m->node, "query");
-  if (!ansqry) {
-    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result!");
-    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
-  }
-  // Display IQ result sender...
+  // Check IQ result sender
   bjid = lm_message_get_from(m);
   if (!bjid)
     bjid = lm_connection_get_jid(lconnection); // No from means our JID...
   if (!bjid) {
-    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result (no sender name).");
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
+  // Check for error message
+  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
+    scr_LogPrint(LPRINT_LOGNORM, "Received error IQ message (%s)", bjid);
+    display_server_error(lm_message_node_get_child(m->node, "error"));
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
+  // Check message contents
+  ansqry = lm_message_node_get_child(m->node, "query");
+  if (!ansqry) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result from <%s>!", bjid);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
@@ -242,17 +257,26 @@ static LmHandlerResult cb_last(LmMessageHandler *h, LmConnection *c,
   const char *p, *bjid;
   char *buf, *tmp;
 
-  ansqry = lm_message_node_get_child(m->node, "query");
-  if (!ansqry) {
-    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:last result!");
-    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
-  }
-  // Display IQ result sender...
+  // Check IQ result sender
   bjid = lm_message_get_from(m);
   if (!bjid)
     bjid = lm_connection_get_jid(lconnection); // No from means our JID...
   if (!bjid) {
-    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:last result (no sender name).");
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
+  // Check for error message
+  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
+    scr_LogPrint(LPRINT_LOGNORM, "Received error IQ message (%s)", bjid);
+    display_server_error(lm_message_node_get_child(m->node, "error"));
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
+  // Check message contents
+  ansqry = lm_message_node_get_child(m->node, "query");
+  if (!ansqry) {
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result from <%s>!", bjid);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
@@ -415,12 +439,19 @@ static LmHandlerResult cb_vcard(LmMessageHandler *h, LmConnection *c,
   const char *bjid;
   char *buf, *tmp;
 
-  // Display IQ result sender...
+  // Check IQ result sender
   bjid = lm_message_get_from(m);
   if (!bjid)
     bjid = lm_connection_get_jid(lconnection); // No from means our JID...
   if (!bjid) {
-    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:version result (no sender name).");
+    scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:vCard result (no sender name).");
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
+  // Check for error message
+  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
+    scr_LogPrint(LPRINT_LOGNORM, "Received error IQ message (%s)", bjid);
+    display_server_error(lm_message_node_get_child(m->node, "error"));
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 

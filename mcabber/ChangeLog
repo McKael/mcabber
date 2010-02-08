@@ -3,6 +3,7 @@ mcabber (0.10.0-dev)
  * Switch to the Loudmouth library (franky)
  * MCabber can now do DNS SRV lookups so the variable
    'username' has been replaced with 'jid' in the configuration file
+ * Use locale to determine the online help language (Myhailo Danylenko)
  * Add support for modules in mcabber (Myhailo Danylenko)
  * Sample "beep" module (Myhailo Danylenko)
  * Allow commands shading (Myhailo Danylenko)

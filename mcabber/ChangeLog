@@ -10,6 +10,7 @@ mcabber (0.10.0-dev)
  * Update of Entity Capabilities support (franky)
  * Allow changing the nickname in MUC bookmarks (Myhailo Danylenko)
  * Print list of options with "/set" (Myhailo Danylenko)
+ * New command /request ping (Myhailo, Mikael)
  * Add libidn support
  * Command "/source" now accepts a file pattern (Myhailo Danylenko)
  * Tracelog level can now be changed at runtime (Myhailo Danylenko)

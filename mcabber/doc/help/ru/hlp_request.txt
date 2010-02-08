@@ -1,10 +1,11 @@
 
- /REQUEST last|time|vcard|version [jid]
+ /REQUEST last|ping|time|vcard|version [jid]
 
 Отправляет "IQ" запрос текущему или указанному пользователю jabber. Если подобная функция не поддерживается указанным "jid", mcabber пошлет запрос всем известным интерфейсам для данного пользователя.
 
 /request last
  Запрашивает последнюю информацию (обычно: свободное время)
+/request ping
 /request time
  Запрашивает время пользователя
 /request vcard

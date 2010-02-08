@@ -1,10 +1,11 @@
 
- /REQUEST last|time|vcard|version [jid]
+ /REQUEST last|ping|time|vcard|version [jid]
 
 Надсилає запит "IQ" до jid або до поточного контакту. Якщо ресурс не вказаний, то запит буде надісланий до всіх відомих ресурсів.
 
 /request last [jid]
  Запитати "останню інформацію" в контакту (зазвичай, це час неактивності).
+/request ping
 /request time [jid]
  Запитати котра година в контакту.
 /request vcard [jid]

@@ -5,6 +5,8 @@ Envoie une requête Jabber "IQ" au jid spécifié, ou au contact sélectionné. 
 
 /request last
  Envoie une demande de type "last" (c-à-d. en général la durée d'inactivité)
+/request ping
+ Envoie une requête de Ping XMPP. Notez qu'il faut utiliser un "Full JID" car un ping envoyé à un bare JID (sans ressource) sera traité par le serveur.
 /request time
  Demande l'heure du contact
 /request vcard

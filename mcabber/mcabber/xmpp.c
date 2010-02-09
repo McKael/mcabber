@@ -247,7 +247,7 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
     strreqtype = "last";
   } else if (reqtype == iqreq_ping) {
     xmlns = NS_PING;
-    strreqtype = "last";
+    strreqtype = "ping";
   } else if (reqtype == iqreq_vcard) {
     xmlns = NS_VCARD;
     strreqtype = "vCard";

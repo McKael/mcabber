@@ -1978,7 +1978,7 @@ void scr_DrawRoster(void)
                  group_count);
         /* Do not display the item count if there isn't enough space */
         if (g_utf8_strlen(rline, 4*Roster_Width) >= Roster_Width)
-          snprintf(rline, 4*Roster_Width, " %c--- %s", pending, name);
+          snprintf(rline, 4*Roster_Width, " %c+++ %s", pending, name);
       }
       else
         snprintf(rline, 4*Roster_Width, " %c--- %s", pending, name);

@@ -65,7 +65,7 @@ set tls = 1
 # If you don't like the default number of passphrase retries (2), you
 # can change it here.  If this number is < 0, mcabber will keep asking
 # until the passphrase is good.
-#pgp_passphrase_retries = 2
+#set pgp_passphrase_retries = 2
 
 # Conference nickname
 # This nickname is used when joining a room, when no nick is explicitly

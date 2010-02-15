@@ -5,7 +5,7 @@ includedir=@includedir@
 
 Name: MCabber
 Description: Modular XMPP client
-Requires: glib-2.0 gmodule-2.0 @EXTRA_REQUIRES@
+Requires: glib-2.0 gmodule-2.0 loudmouth-1.0
 Version: @VERSION@
 Libs: 
-Cflags: -I${includedir} @LIBOTR_CFLAGS@
+Cflags: -I${includedir} @LIBOTR_CFLAGS@ @GPGME_CFLAGS@

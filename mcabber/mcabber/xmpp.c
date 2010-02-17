@@ -1890,7 +1890,8 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
     if (mystatus == offline || st == offline)
       update_roster = TRUE;
 
-    hk_mystatuschange(0, mystatus, st, (st != invisible ? msg : ""));
+    if (isonline || mystatus || st)
+      hk_mystatuschange(0, mystatus, st, (st != invisible ? msg : ""));
     mystatus = st;
   }
 

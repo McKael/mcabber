@@ -893,7 +893,7 @@ static void connection_open_cb(LmConnection *connection, gboolean success,
 
     if (!lm_connection_authenticate(lconnection, username, password, resource,
                                     connection_auth_cb, NULL, FALSE, &error)) {
-      scr_LogPrint(LPRINT_LOGNORM, "Failed to authenticate: %s\n",
+      scr_LogPrint(LPRINT_LOGNORM, "Failed to authenticate: %s",
                    error->message);
       g_error_free (error);
       _try_to_reconnect();
@@ -1786,7 +1786,7 @@ void xmpp_connect(void)
   if (!lm_connection_open(lconnection, connection_open_cb,
                           NULL, FALSE, &error)) {
     _try_to_reconnect();
-    scr_LogPrint(LPRINT_LOGNORM, "Failed to open: %s\n", error->message);
+    scr_LogPrint(LPRINT_LOGNORM, "Failed to open: %s", error->message);
     g_error_free (error);
   }
 }

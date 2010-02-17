@@ -946,7 +946,11 @@ static void connection_close_cb(LmConnection *connection,
   update_roster = TRUE;
   scr_UpdateBuddyWindow();
 
-  scr_LogPrint(LPRINT_NORMAL, "Disconnected, reason:%d->'%s'\n", reason, str);
+  if (!reason)
+    scr_LogPrint(LPRINT_LOGNORM, "Disconnected.");
+  else
+    scr_LogPrint(LPRINT_NORMAL, "Disconnected, reason: %d->'%s'", reason, str);
+
   xmpp_setstatus(offline, NULL, mystatusmsg, TRUE);
 }
 

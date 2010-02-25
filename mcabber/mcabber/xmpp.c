@@ -254,8 +254,9 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
   } else
     return;
 
-  if (strchr(fjid, JID_RESOURCE_SEPARATOR)) {
+  if (strchr(fjid, JID_RESOURCE_SEPARATOR) || reqtype == iqreq_vcard) {
     // This is a full JID
+    // Or a vCard request, resource should have been stripped before
     xmpp_iq_request(fjid, xmlns);
     scr_LogPrint(LPRINT_NORMAL, "Sent %s request to <%s>", strreqtype, fjid);
     return;

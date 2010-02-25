@@ -3227,7 +3227,7 @@ static void do_version(char *arg)
 static void do_request(char *arg)
 {
   char **paramlst;
-  char *fjid, *type;
+  char *fjid, *type, *tmp;
   enum iqreq_type numtype = iqreq_none;
   char *jid_utf8 = NULL;
 
@@ -3289,10 +3289,13 @@ static void do_request(char *arg)
 
   if (fjid) {
     switch (numtype) {
+      case iqreq_vcard:
+          // vCards requests are done to bare jid
+          tmp = strchr(fjid, JID_RESOURCE_SEPARATOR);
+          if (tmp) *tmp = '\0';
       case iqreq_version:
       case iqreq_time:
       case iqreq_last:
-      case iqreq_vcard:
       case iqreq_ping:
           xmpp_request(fjid, numtype);
           break;

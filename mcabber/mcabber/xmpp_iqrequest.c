@@ -433,9 +433,10 @@ static void handle_vcard_node(const char *barejid, LmMessageNode *vcardnode)
     enum vcard_attr vcard_attrib = 0;
 
     p = x->name;
-    data = lm_message_node_get_value(x);
-    if (!p || !data)
+    if (!p)
       continue;
+
+    data = lm_message_node_get_value(x);
 
     if (!strcmp(p, "FN"))
       display_vcard_item(barejid, "Name", vcard_attrib, data);

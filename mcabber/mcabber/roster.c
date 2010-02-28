@@ -758,6 +758,23 @@ const char *roster_getstatusmsg(const char *jid, const char *resname)
   return roster_usr->offline_status_message;
 }
 
+char roster_getprio(const char *jid, const char *resname)
+{
+  GSList *sl_user;
+  roster *roster_usr;
+  res *p_res;
+
+  sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+  if (sl_user == NULL)
+    return offline; // Not in the roster, anyway...
+
+  roster_usr = (roster*)sl_user->data;
+  p_res = get_resource(roster_usr, resname);
+  if (p_res)
+    return p_res->prio;
+  return 0;
+}
+
 guint roster_gettype(const char *jid)
 {
   GSList *sl_user;

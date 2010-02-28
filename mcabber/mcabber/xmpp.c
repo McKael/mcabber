@@ -851,17 +851,20 @@ static void connection_auth_cb(LmConnection *connection, gboolean success,
                                gpointer user_data)
 {
   if (success) {
-    LmMessage *m;
 
-    m = lm_message_new_with_sub_type(NULL, LM_MESSAGE_TYPE_PRESENCE,
-                                     LM_MESSAGE_SUB_TYPE_AVAILABLE);
-    lm_connection_send(connection, m, NULL);
-
-    lm_message_unref(m);
-    xmpp_setprevstatus();
     xmpp_iq_request(NULL, NS_ROSTER);
     xmpp_request_storage("storage:bookmarks");
     xmpp_request_storage("storage:rosternotes");
+
+    /* XXX Not needed before xmpp_setprevstatus()
+    LmMessage *m;
+    m = lm_message_new_with_sub_type(NULL, LM_MESSAGE_TYPE_PRESENCE,
+                                     LM_MESSAGE_SUB_TYPE_AVAILABLE);
+    lm_connection_send(connection, m, NULL);
+    lm_message_unref(m);
+    */
+
+    xmpp_setprevstatus();
 
     AutoConnection = TRUE;
   } else
@@ -1320,7 +1323,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
                                        LmConnection *connection,
                                        LmMessage *m, gpointer user_data)
 {
-  char *r;
+  char *bjid;
   const char *from, *rname, *p=NULL, *ustmsg=NULL;
   enum imstatus ust;
   char bpprio;
@@ -1344,12 +1347,12 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     }
   }
 
-  r = jidtodisp(from);
+  bjid = jidtodisp(from);
   mstype = lm_message_get_sub_type(m);
 
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     LmMessageNode *x;
-    scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", r);
+    scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", bjid);
     x = lm_message_node_find_child(m->node, "error");
     display_server_error(x);
     // Let's check it isn't a nickname conflict.
@@ -1358,13 +1361,13 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
       if (atoi(p) == 409) {
         // 409 = conflict (nickname is in use or registered by another user)
         // If we are not inside this room, we should reset the nickname
-        GSList *room_elt = roster_find(r, jidsearch, 0);
+        GSList *room_elt = roster_find(bjid, jidsearch, 0);
         if (room_elt && !buddy_getinsideroom(room_elt->data))
           buddy_setnickname(room_elt->data, NULL);
       }
     }
 
-    g_free(r);
+    g_free(bjid);
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   }
 
@@ -1392,24 +1395,24 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
 
   if (muc_packet) {
     // This is a MUC presence message
-    handle_muc_presence(from, muc_packet, r, rname,
+    handle_muc_presence(from, muc_packet, bjid, rname,
                         ust, ustmsg, timestamp, bpprio);
   } else {
     // Not a MUC message, so this is a regular buddy...
     // Call hk_statuschange() if status has changed or if the
     // status message is different
     const char *msg;
-    msg = roster_getstatusmsg(r, rname);
-    if ((ust != roster_getstatus(r, rname)) ||
+    msg = roster_getstatusmsg(bjid, rname);
+    if ((ust != roster_getstatus(bjid, rname)) ||
         (!ustmsg && msg && msg[0]) ||
         (ustmsg && (!msg || strcmp(ustmsg, msg))) ||
-        (bpprio != roster_getprio(r, rname)))
-      hk_statuschange(r, rname, bpprio, timestamp, ust, ustmsg);
+        (bpprio != roster_getprio(bjid, rname)))
+      hk_statuschange(bjid, rname, bpprio, timestamp, ust, ustmsg);
     // Presence signature processing
     if (!ustmsg)
       ustmsg = ""; // Some clients omit the <status/> element :-(
-    check_signature(r, rname, lm_message_node_find_xmlns(m->node, NS_SIGNED),
-                    ustmsg);
+    check_signature(bjid, rname,
+                    lm_message_node_find_xmlns(m->node, NS_SIGNED), ustmsg);
   }
 
   // XEP-0115 Entity Capabilities
@@ -1418,7 +1421,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     const char *ver = lm_message_node_get_attribute(caps, "ver");
     GSList *sl_buddy = NULL;
     if (rname)
-      sl_buddy = roster_find(r, jidsearch, ROSTER_TYPE_USER);
+      sl_buddy = roster_find(bjid, jidsearch, ROSTER_TYPE_USER);
     // Only cache the caps if the user is on the roster
     if (sl_buddy && buddy_getonserverflag(sl_buddy->data)) {
       buddy_resource_setcaps(sl_buddy->data, rname, ver);
@@ -1445,7 +1448,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     }
   }
 
-  g_free(r);
+  g_free(bjid);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 

@@ -131,7 +131,7 @@ if test "$mc_cv_ncurses_escdelay" = yes; then
               [Define if ncurses has ESCDELAY variable])
 fi
 
-AC_ARG_ENABLE(modules, [  --enable-modules         enable dynamic modules loading],
+AC_ARG_ENABLE(modules, [  --enable-modules        enable dynamic modules loading],
               enable_modules=$enableval)
 if test "x$enable_modules" = "xyes"; then
   AC_DEFINE(MODULES_ENABLE, 1, [Define if you want dynamic modules loading])
@@ -193,7 +193,7 @@ if test "x$enable_otr" = "xyes"; then
 fi
 
 # Check for Enchant stuff
-AC_ARG_ENABLE(enchant, [  --enable-enchant       enable enchant support],
+AC_ARG_ENABLE(enchant, [  --enable-enchant        enable enchant support],
               enable_enchant=$enableval, enchant="")
 # Check for Aspell stuff
 AC_ARG_ENABLE(aspell, [  --enable-aspell         enable aspell support],

@@ -189,6 +189,7 @@ int cfg_read_file(char *filename, guint mainfile)
 #ifdef MODULES_ENABLE
         startswith(line, "load ", FALSE)   ||
 #endif
+        startswith(line, "status ", FALSE) ||
         startswith(line, "otrpolicy", FALSE)) {
       // Only accept a few "safe" commands
       if (!runtime &&
@@ -197,6 +198,7 @@ int cfg_read_file(char *filename, guint mainfile)
           !startswith(line, "alias ", FALSE)  &&
           !startswith(line, "pgp ", FALSE)    &&
           !startswith(line, "source ", FALSE) &&
+          !startswith(line, "status ", FALSE) &&
           !startswith(line, "color ", FALSE)  &&
 #ifdef MODULES_ENABLE
           !startswith(line, "load ", FALSE)   &&

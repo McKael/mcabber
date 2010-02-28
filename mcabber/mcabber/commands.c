@@ -888,10 +888,9 @@ void cmd_setstatus(const char *recipient, const char *arg)
   char *msg;
   enum imstatus st;
 
-  if (!xmpp_is_online()) {
-    scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
-    return;
-  }
+  if (!xmpp_is_online())
+    scr_LogPrint(LPRINT_NORMAL, "You are currently not connected...");
+  // We do not return now, so that the status is memorized and used later...
 
   // It makes sense to reset autoaway before changing the status
   // (esp. for FIFO or remote commands) or the behaviour could be

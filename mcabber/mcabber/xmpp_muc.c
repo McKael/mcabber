@@ -672,7 +672,7 @@ static void got_invite(const char* from, const char *to, const char* reason,
     const char *id;
     char *desc = g_strdup_printf("<%s> invites you to %s", from, to);
     event_muc_invitation *invitation;
-    
+
     invitation = g_new(event_muc_invitation, 1);
     invitation->to = g_strdup(to);
     invitation->from = g_strdup(from);

@@ -235,6 +235,7 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
   GSList *resources, *p_res;
   GSList *roster_elt;
   const char *strreqtype, *xmlns;
+  gboolean vcard2user;
 
   if (reqtype == iqreq_version) {
     xmlns = NS_VERSION;
@@ -254,9 +255,13 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
   } else
     return;
 
-  if (strchr(fjid, JID_RESOURCE_SEPARATOR) || reqtype == iqreq_vcard) {
-    // This is a full JID
-    // Or a vCard request, resource should have been stripped before
+  // Is it a vCard request to a regular user?
+  // (vCard requests are sent to bare JIDs, except in MUC rooms...)
+  vcard2user = (reqtype == iqreq_vcard &&
+                !roster_find(fjid, jidsearch, ROSTER_TYPE_ROOM));
+
+  if (strchr(fjid, JID_RESOURCE_SEPARATOR) || vcard2user) {
+    // This is a full JID or a vCard request to a contact
     xmpp_iq_request(fjid, xmlns);
     scr_LogPrint(LPRINT_NORMAL, "Sent %s request to <%s>", strreqtype, fjid);
     return;

@@ -3227,7 +3227,7 @@ static void do_version(char *arg)
 static void do_request(char *arg)
 {
   char **paramlst;
-  char *fjid, *type, *tmp;
+  char *fjid, *type;
   enum iqreq_type numtype = iqreq_none;
   char *jid_utf8 = NULL;
 
@@ -3290,9 +3290,15 @@ static void do_request(char *arg)
   if (fjid) {
     switch (numtype) {
       case iqreq_vcard:
-          // vCards requests are done to bare jid
-          tmp = strchr(fjid, JID_RESOURCE_SEPARATOR);
-          if (tmp) *tmp = '\0';
+          { // vCards requests are sent to the bare jid, except in MUC rooms
+            gchar *tmp = strchr(fjid, JID_RESOURCE_SEPARATOR);
+            if (tmp) {
+              gchar *bjid = jidtodisp(fjid);
+              if (!roster_find(bjid, jidsearch, ROSTER_TYPE_ROOM))
+                *tmp = '\0';
+              g_free(bjid);
+            }
+          }
       case iqreq_version:
       case iqreq_time:
       case iqreq_last:

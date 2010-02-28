@@ -9,6 +9,7 @@ Makefile.in
 mcabber/mcabber/hgcset.h
 mcabber/mcabber/mcabber
 mcabber/mcabber/mcabber.exe
+mcabber/mcabber.pc
 
 autom4te.cache
 mcabber/aclocal.m4

@@ -423,7 +423,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   }
 
   // XEP-0184: Message Receipts
-  if (sl_buddy && rname && xep184 &&
+  if (sl_buddy && xep184 &&
       caps_has_feature(buddy_resource_getcaps(sl_buddy->data, rname),
                        NS_RECEIPTS)) {
     lm_message_node_set_attribute

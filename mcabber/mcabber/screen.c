@@ -1,7 +1,7 @@
 /*
  * screen.c     -- UI stuff
  *
- * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
  * Parts of this file come from the Cabber project <cabber@ajmacias.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -253,14 +253,14 @@ static ccolor *get_user_color(const char *color)
     return NULL;
   ccol = g_new0(ccolor, 1);
   ccol->color_attrib = isbright ? A_BOLD : A_NORMAL;
-  ccol->color_pair = cl + COLOR_max; //user colors come after the internal ones
+  ccol->color_pair = cl + COLOR_max; // User colors come after the internal ones
   return ccol;
 }
 
 static void ensure_string_htable(GHashTable **table,
     GDestroyNotify value_destroy_func)
 {
-  if (*table)//Have it already
+  if (*table) // Have it already
     return;
   *table = g_hash_table_new_full(g_str_hash, g_str_equal,
       g_free, value_destroy_func);
@@ -273,7 +273,7 @@ static void ensure_string_htable(GHashTable **table,
 void scr_MucColor(const char *muc, muccoltype type)
 {
   gchar *muclow = g_utf8_strdown(muc, -1);
-  if (type == MC_REMOVE) {//Remove it
+  if (type == MC_REMOVE) { // Remove it
     if (strcmp(muc, "*")) {
       if (muccolors && g_hash_table_lookup(muccolors, muclow))
         g_hash_table_remove(muccolors, muclow);
@@ -281,7 +281,7 @@ void scr_MucColor(const char *muc, muccoltype type)
       scr_LogPrint(LPRINT_NORMAL, "Can not remove global coloring mode");
     }
     g_free(muclow);
-  } else {//Add or overwrite
+  } else { // Add or overwrite
     if (strcmp(muc, "*")) {
       muccoltype *value = g_new(muccoltype, 1);
       *value = type;
@@ -292,7 +292,7 @@ void scr_MucColor(const char *muc, muccoltype type)
       g_free(muclow);
     }
   }
-  //Need to redraw?
+  // Need to redraw?
   if (chatmode &&
       ((buddy_search_jid(muc) == current_buddy) || !strcmp(muc, "*")))
     scr_UpdateBuddyWindow();
@@ -307,17 +307,17 @@ void scr_MucNickColor(const char *nick, const char *color)
   bool need_update = FALSE;
   snick = g_strdup_printf("<%s>", nick);
   mnick = g_strdup_printf("*%s ", nick);
-  if (!strcmp(color, "-")) {//Remove the color
+  if (!strcmp(color, "-")) { // Remove the color
     if (nickcolors) {
       nickcolor *nc = g_hash_table_lookup(nickcolors, snick);
-      if (nc) {//Have this nick already
+      if (nc) { // Have this nick already
         nc->manual = FALSE;
         nc = g_hash_table_lookup(nickcolors, mnick);
-        assert(nc);//Must have both at the same time
+        assert(nc); // Must have both at the same time
         nc->manual = FALSE;
       }// Else -> no color saved, nothing to delete
     }
-    g_free(snick);//They are not saved in the hash
+    g_free(snick); // They are not saved in the hash
     g_free(mnick);
     need_update = TRUE;
   } else {
@@ -331,9 +331,9 @@ void scr_MucNickColor(const char *nick, const char *color)
       ensure_string_htable(&nickcolors, NULL);
       nc->manual = TRUE;
       nc->color = cl;
-      //Free the struct, if any there already
+      // Free the struct, if any there already
       g_free(g_hash_table_lookup(nickcolors, mnick));
-      //Save the new ones
+      // Save the new ones
       g_hash_table_replace(nickcolors, mnick, nc);
       g_hash_table_replace(nickcolors, snick, nc);
       need_update = TRUE;
@@ -383,7 +383,7 @@ bool scr_RosterColor(const char *status, const char *wildcard,
       break;
     }
   }
-  if (!strcmp(color,"-")) {//Delete the rule
+  if (!strcmp(color,"-")) { // Delete the rule
     if (found) {
       free_rostercolrule(found->data);
       rostercolrules = g_slist_delete_link(rostercolrules, found);
@@ -540,7 +540,7 @@ static void ParseColors(void)
       }
       g_free(ncolor_start);
     }
-    if (!nickcols) {//Fallback to have something
+    if (!nickcols) { // Fallback to have something
       nickcolcount = 1;
 			nickcols = g_new(ccolor*, 1);
 			*nickcols = g_new(ccolor, 1);
@@ -1335,7 +1335,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
     num_history_blocks = get_max_history_blocks();
 
   text_locale = from_utf8(text);
-  //Convert the nick alone and compute its length
+  // Convert the nick alone and compute its length
   if (mucnicklen) {
     nicktmp = g_strndup(text, mucnicklen);
     nicklocaltmp = from_utf8(nicktmp);
@@ -1948,7 +1948,7 @@ void scr_DrawRoster(void)
         wattrset(rosterWnd, get_color(COLOR_ROSTERNMSG));
       else {
         int color = get_color(COLOR_ROSTER);
-        if ((!isspe) && (!isgrp)) {//Look for color rules
+        if ((!isspe) && (!isgrp)) { // Look for color rules
           GSList *head;
           const char *jid = buddy_getjid(BUDDATA(buddy));
           for (head = rostercolrules; head; head = g_slist_next(head)) {
@@ -2660,7 +2660,6 @@ void scr_BufferScrollLock(int lock)
     win_entry->bd->lock = TRUE;
   } else {
     win_entry->bd->lock = FALSE;
-    //win_entry->bd->cleared = FALSE;
     if (isspe || (buddy_getflags(BUDDATA(current_buddy)) & ROSTER_FLAG_MSG))
       win_entry->bd->top = NULL;
   }

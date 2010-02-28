@@ -168,7 +168,7 @@ static gboolean do_help_in_dir(const char *arg, const char *path, const char *ji
     fname = g_strdup_printf("%s/hlp_%s.txt", path, arg);
   else
     fname = g_strdup_printf("%s/hlp.txt", path);
-  
+
   channel = g_io_channel_new_file(fname, "r", NULL);
 
   if (!channel)
@@ -179,7 +179,7 @@ static gboolean do_help_in_dir(const char *arg, const char *path, const char *ji
   while (TRUE) {
     gsize     endpos;
     GIOStatus ret;
-    
+
     ret = g_io_channel_read_line_string(channel, line, &endpos, NULL);
     if (ret != G_IO_STATUS_NORMAL) // XXX G_IO_STATUS_AGAIN?
       break;
@@ -234,7 +234,7 @@ void help_process(char *arg)
 
   if (settings_opt_get_int("help_to_current") && CURRENT_JID)
     jid = CURRENT_JID;
-  
+
   { // search
     GSList *hel;
 
@@ -268,7 +268,7 @@ void help_process(char *arg)
 
               if (g_strstr_len(nstart, len, string)) {
                 gchar *match = g_strndup(nstart, len);
-              
+
                 if (!g_slist_find_custom(matches, match,
                                          (GCompareFunc)strcmp))
                   matches = g_slist_append(matches, match);

@@ -1,8 +1,8 @@
 /*
  * xmpp_iq.c    -- Jabber protocol IQ-related stuff
  *
- * Copyright (C) 2008-2009 Frank Zschockelt <mcabber@freakysoft.de>
- * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2008-2010 Frank Zschockelt <mcabber@freakysoft.de>
+ * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
  * Parts come from the centericq project:
  * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
  * Some small parts come from the Pidgin project <http://pidgin.im/>
@@ -383,16 +383,16 @@ static LmHandlerResult handle_iq_command_leave_groupchats(LmMessageHandler *h,
     lm_message_node_add_child(field, "required", NULL);
 
     foreach_buddy(ROSTER_TYPE_ROOM, &_callback_foreach_buddy_groupchat, field);
-    //TODO: return an error if we are not connected to groupchats
+    // TODO: return an error if we are not connected to groupchats
   } else if (action && !strcmp(action, "cancel")) {
     lm_message_node_set_attribute(command, "status", "canceled");
   } else  { // (if sessionid and not canceled)
-    LmMessageNode *form = lm_message_node_find_xmlns(x, "jabber:x:data");//TODO
+    LmMessageNode *form = lm_message_node_find_xmlns(x, "jabber:x:data");// TODO
     if (form) {
       LmMessageNode *field;
 
       lm_message_node_set_attribute(command, "status", "completed");
-      //TODO: implement sth. like "field?var=groupchats" in xmlnode...
+      // TODO: implement sth. like "field?var=groupchats" in xmlnode...
       field  = lm_message_node_get_child(form, "field");
       while (field && strcmp("groupchats",
                              lm_message_node_get_attribute(field, "var")))

@@ -1,7 +1,7 @@
 /*
  * commands.c   -- user commands handling
  *
- * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -198,7 +198,6 @@ void cmd_init(void)
   cmd_add("say_to", "Say something to a specific buddy", COMPL_JID, 0,
           &do_say_to);
   cmd_add("screen_refresh", "Redraw mcabber screen", 0, 0, &do_screen_refresh);
-  //cmd_add("search");
   cmd_add("set", "Set/query an option value", 0, 0, &do_set);
   cmd_add("source", "Read a configuration file", 0, 0, &do_source);
   cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status);
@@ -1274,10 +1273,10 @@ static void send_message(const char *msg, const char *subj,
 
 static LmMessageSubType scan_mtype(char **arg)
 {
-  //Try splitting it
+  // Try splitting it
   char **parlist = split_arg(*arg, 2, 1);
   LmMessageSubType result = LM_MESSAGE_SUB_TYPE_NOT_SET;
-  //Is it any good parameter?
+  // Is it a good parameter?
   if (parlist && *parlist) {
     if (!strcmp("-n", *parlist)) {
       result = LM_MESSAGE_SUB_TYPE_NORMAL;
@@ -1287,7 +1286,7 @@ static LmMessageSubType scan_mtype(char **arg)
     if (result != LM_MESSAGE_SUB_TYPE_NOT_SET || (!strcmp("--", *parlist)))
       *arg += strlen(*arg) - (parlist[1] ? strlen(parlist[1]) : 0);
   }
-  //Anything found? -> skip it
+  // Anything found? -> skip it
   free_arg_lst(parlist);
   return result;
 }

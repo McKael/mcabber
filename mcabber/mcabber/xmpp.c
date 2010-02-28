@@ -1,8 +1,8 @@
 /*
  * xmpp.c       -- Jabber protocol handling
  *
- * Copyright (C) 2008-2009 Frank Zschockelt <mcabber@freakysoft.de>
- * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2008-2010 Frank Zschockelt <mcabber@freakysoft.de>
+ * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
  * Parts come from the centericq project:
  * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
  *
@@ -204,8 +204,8 @@ void xmpp_delbuddy(const char *bjid)
   }
 
   // Cancel the subscriptions
-  xmpp_send_s10n(cleanjid, LM_MESSAGE_SUB_TYPE_UNSUBSCRIBED); //cancel "from"
-  xmpp_send_s10n(cleanjid, LM_MESSAGE_SUB_TYPE_UNSUBSCRIBE);  //cancel "to"
+  xmpp_send_s10n(cleanjid, LM_MESSAGE_SUB_TYPE_UNSUBSCRIBED); // cancel "from"
+  xmpp_send_s10n(cleanjid, LM_MESSAGE_SUB_TYPE_UNSUBSCRIBE);  // cancel "to"
 
   // Ask for removal from roster
   iq = lm_message_new_with_sub_type(NULL, LM_MESSAGE_TYPE_IQ,
@@ -422,7 +422,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
     g_free(enc);
   }
 
-  //XEP-0184: Message Receipts
+  // XEP-0184: Message Receipts
   if (sl_buddy && rname && xep184 &&
       caps_has_feature(buddy_resource_getcaps(sl_buddy->data, rname),
                        NS_RECEIPTS)) {
@@ -768,7 +768,7 @@ static void check_signature(const char *barejid, const char *rname,
   if (!res_pgpdata)
     return;
 
-  if (!node->name || strcmp(node->name, "x")) //XXX: probably useless
+  if (!node->name || strcmp(node->name, "x")) // XXX: probably useless
     return; // We expect "<x xmlns='jabber:x:signed'>"
 
   // Get signature
@@ -1266,7 +1266,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   if (from && (body || subject))
     gotmessage(mstype, from, body, enc, subject, timestamp,
                lm_message_node_find_xmlns(m->node, NS_SIGNED));
-  //report received message if message receipt was requested
+  // Report received message if message receipt was requested
   if (lm_message_node_get_child(m->node, "request")) {
     LmMessage *rcvd = lm_message_new(from, LM_MESSAGE_TYPE_MESSAGE);
     lm_message_node_set_attribute(rcvd->node, "id", lm_message_get_id(m));
@@ -1575,7 +1575,7 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
-//TODO: Use the enum of loudmouth, when it's included in the header...
+// TODO: Use the enum of loudmouth, when it's included in the header...
 typedef enum {
   LM_LOG_LEVEL_VERBOSE = 1 << (G_LOG_LEVEL_USER_SHIFT),
   LM_LOG_LEVEL_NET     = 1 << (G_LOG_LEVEL_USER_SHIFT + 1),

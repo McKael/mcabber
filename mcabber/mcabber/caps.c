@@ -134,7 +134,7 @@ gint _strcmp_sort(gconstpointer a, gconstpointer b)
   return g_strcmp0(a, b);
 }
 
-//generates the sha1 hash for the special capability "" and returns it
+// Generates the sha1 hash for the special capability "" and returns it
 const char *caps_generate(void)
 {
   char *identity;

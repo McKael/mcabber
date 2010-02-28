@@ -1,7 +1,7 @@
 /*
  * roster.c     -- Local roster implementation
  *
- * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -168,7 +168,6 @@ static void free_all_resources(GSList **reslist)
 
 // Resources are sorted in ascending order
 static gint resource_compare_prio(res *a, res *b) {
-  //return (a->prio - b->prio);
   if (a->prio < b->prio) return -1;
   else                   return 1;
 }

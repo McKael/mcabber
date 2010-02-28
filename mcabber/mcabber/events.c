@@ -202,7 +202,7 @@ void evs_deinit(void)
       event->notify(event->data);
     if (event->source)
       g_source_remove(event->source);
-  
+
     evs_list = g_slist_remove(evs_list, event);
     g_free(event->id);
     g_free(event->description);

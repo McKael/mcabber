@@ -133,8 +133,8 @@ void lm_message_node_hide(LmMessageNode *node)
     node->next->prev = prev_sibling;
 }
 
-//maybe not a good idea, because it uses internals of loudmouth...
-//it's used for rosternotes/bookmarks
+// Maybe not a good idea, because it uses internals of loudmouth...
+// It's used for rosternotes/bookmarks
 LmMessageNode *lm_message_node_new(const gchar *name, const gchar *xmlns)
 {
   LmMessageNode *node;

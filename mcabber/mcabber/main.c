@@ -1,7 +1,7 @@
 /*
  * main.c
  *
- * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
  * Parts of this file come from Cabber <cabber@ajmacias.com>
  *
  * This program is free software; you can redistribute it and/or modify

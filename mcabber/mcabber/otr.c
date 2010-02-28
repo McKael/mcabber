@@ -119,7 +119,7 @@ void otr_init(const char *fjid)
 {
   char *root;
 
-  if (userstate) //already initialised
+  if (userstate) // already initialised
     return;
 
   otr_is_enabled = !!settings_opt_get_int("otr");
@@ -167,7 +167,7 @@ void otr_terminate(void)
    * This is reported to be a bug in libgcrypt :-/
    * Mikael
    */
-#if defined(HAVE_GNUTLS) && !defined(HAVE_OPENSSL) //TODO: broken now
+#if defined(HAVE_GNUTLS) && !defined(HAVE_OPENSSL) // TODO: broken now
   if (!settings_opt_get_int("ssl"))
 #endif
   otrl_userstate_free(userstate);

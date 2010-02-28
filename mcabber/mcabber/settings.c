@@ -1,7 +1,7 @@
 /*
  * settings.c   -- Configuration stuff
  *
- * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -251,14 +251,11 @@ guint parse_assigment(gchar *assignment, gchar **pkey, gchar **pval)
   key = assignment;
   // Remove leading spaces in option name
   while ((!isalnum(*key)) && (*key != '=') && *key) {
-    //if (!isblank(*key))
-    //  scr_LogPrint("Error in assignment parsing!");
     key++;
   }
   if (!*key) return FALSE; // Empty assignment
 
   if (*key == '=') {
-    //scr_LogPrint("Cannot parse assignment!");
     return FALSE;
   }
   // Ok, key points to the option name
@@ -266,7 +263,6 @@ guint parse_assigment(gchar *assignment, gchar **pkey, gchar **pval)
   for (val = key+1 ; *val && (*val != '=') ; val++)
     if (!isalnum(*val) && !isblank(*val) && (*val != '_') && (*val != '-')) {
       // Key should only have alnum chars...
-      //scr_LogPrint("Error in assignment parsing!");
       return FALSE;
     }
   // Remove trailing spaces in option name:
@@ -275,8 +271,7 @@ guint parse_assigment(gchar *assignment, gchar **pkey, gchar **pval)
   // Check for embedded whitespace characters
   for (p = key; p < t; p++) {
     if (isblank(*p)) {
-      //scr_LogPrint("Error in assignment parsing!"
-      //             " (Name should not contain space chars)");
+      // Name should not contain space chars...
       return FALSE;
     }
   }

@@ -1,7 +1,7 @@
 /*
  * compl.c      -- Completion system
  *
- * Copyright (C) 2005-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,7 +138,6 @@ void done_completion(void)
 
 //  cancel_completion()
 // Returns the number of chars to delete to cancel the completion
-//guint cancel_completion(compl *c)
 guint cancel_completion(void)
 {
   if (!InputCompl)  return 0;

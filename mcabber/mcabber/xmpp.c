@@ -1448,7 +1448,6 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
                                  LmMessage *m, gpointer user_data)
 {
   int i;
-  guint dbgflg;
   const char *xmlns = NULL;
   LmMessageNode *x;
   LmMessageSubType mstype = lm_message_get_sub_type(m);
@@ -1471,12 +1470,13 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
       (mstype == LM_MESSAGE_SUB_TYPE_GET))
     send_iq_error(connection, m, XMPP_ERROR_NOT_IMPLEMENTED);
 
-  if (mstype == LM_MESSAGE_SUB_TYPE_RESULT)
-    dbgflg = LPRINT_DEBUG;
-  else
-    dbgflg = LPRINT_NORMAL|LPRINT_DEBUG;
+  scr_LogPrint(LPRINT_DEBUG, "Unhandled IQ: %s", lm_message_node_to_string(m->node));
 
-  scr_LogPrint(dbgflg, "Unhandled IQ: %s", lm_message_node_to_string(m->node));
+  if (mstype != LM_MESSAGE_SUB_TYPE_RESULT) {
+    scr_LogPrint(LPRINT_NORMAL, "Received unhandled IQ request from <%s>.",
+                 lm_message_get_from(m));
+  }
+
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 

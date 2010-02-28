@@ -1401,7 +1401,9 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     const char *msg;
     msg = roster_getstatusmsg(r, rname);
     if ((ust != roster_getstatus(r, rname)) ||
-        (!ustmsg && msg && msg[0]) || (ustmsg && (!msg || strcmp(ustmsg, msg))))
+        (!ustmsg && msg && msg[0]) ||
+        (ustmsg && (!msg || strcmp(ustmsg, msg))) ||
+        (bpprio != roster_getprio(r, rname)))
       hk_statuschange(r, rname, bpprio, timestamp, ust, ustmsg);
     // Presence signature processing
     if (!ustmsg)

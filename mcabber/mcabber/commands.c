@@ -2040,7 +2040,10 @@ static void do_rename(char *arg)
     guint del_name = 0;
     if (!*newname || !strcmp(arg, "-"))
       del_name = TRUE;
-    buddy_setname(bud, (del_name ? (char*)bjid : name_utf8));
+    /* We do not rename the buddy right now because the server could reject
+     * the request.  Let's wait for the server answer.
+     * buddy_setname(bud, (del_name ? (char*)bjid : name_utf8));
+     */
     xmpp_updatebuddy(bjid, (del_name ? NULL : name_utf8), group);
   }
 

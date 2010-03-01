@@ -93,6 +93,7 @@ void process_key(keycode kcode);
 void scr_InitLocaleCharSet(void);
 void scr_InitCurses(void);
 void scr_TerminateCurses(void);
+gboolean scr_CursesStatus(void);
 void scr_DrawMainWindow(unsigned int fullinit);
 void scr_DrawRoster(void);
 void scr_UpdateMainStatus(int forceupdate);

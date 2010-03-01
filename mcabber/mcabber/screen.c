@@ -735,6 +735,11 @@ void scr_InitLocaleCharSet(void)
   utf8_mode = (strcmp(LocaleCharSet, "UTF-8") == 0);
 }
 
+gboolean scr_CursesStatus(void)
+{
+  return Curses;
+}
+
 void scr_InitCurses(void)
 {
   /* Key sequences initialization */

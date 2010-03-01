@@ -1917,6 +1917,9 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
       mystatusmsg = NULL;
   }
 
+  if (!scr_CursesStatus())
+    return;  // Called from config. file
+
   if (!Autoaway)
     update_last_use();
 

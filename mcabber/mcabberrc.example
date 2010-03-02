@@ -260,7 +260,7 @@ set cmdhistory_lines = 250
 
 # Traces logging
 # If you want advanced traces, please specify a file and a level here.
-# There are currently 4 traceloglog levels:
+# There are currently 4 tracelog levels:
 #  lvl 1: most events of the log window are written to the file
 #  lvl 2: Loudmouth verbose logging
 #  lvl 3: debug logging (XML, etc.)

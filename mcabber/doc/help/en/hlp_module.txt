@@ -1,0 +1,13 @@
+
+ /MODULE [-f] load|unload module
+ /MODULE [list]
+
+Load or unload module.
+
+/module [-f] load module
+ Loads specified module. If -f flag is specified, most of module loading errors will be ignored.
+/module [-f] unload module
+ Unloads specified module.
+ Note: The force flag will not remove any dependent on this modules!
+/module [list]
+ Lists modules in a format: [modulename]  [reference count] ([manually/automatically loaded]) [loaded modules, that this module depends on]

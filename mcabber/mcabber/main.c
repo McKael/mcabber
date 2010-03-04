@@ -47,6 +47,10 @@
 #include "help.h"
 #include "events.h"
 
+#ifdef MODULES_ENABLE
+# include "modules.h"
+#endif
+
 #ifdef ENABLE_HGCSET
 # include "hgcset.h"
 #endif
@@ -361,6 +365,9 @@ int main(int argc, char **argv)
   settings_init();
   scr_init_bindings();
   caps_init();
+#ifdef MODULES_ENABLE
+  modules_init();
+#endif
   /* Initialize charset */
   scr_InitLocaleCharSet();
   ut_InitDebug();
@@ -471,7 +478,7 @@ int main(int argc, char **argv)
   evs_deinit();
   scr_TerminateCurses();
 #ifdef MODULES_ENABLE
-  cmd_deinit();
+  modules_deinit();
 #endif
   fifo_deinit();
 #ifdef HAVE_LIBOTR

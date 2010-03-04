@@ -5,18 +5,48 @@
 
 ===========================================
 
-Mcabber loads modules via glib's GModule.
-
-Thus, in your module you can provide functions
+To obtain information on module mcabber uses struct
+module_info_t, that module should provide in public
+variable with name info_<modulename>. If module name
+contains any extra symbols except [a-z0-9_] they should
+be replaced with '_'.
 
 --------------------------------------------------------
+  #include <mcabber/modules.h>
+
+  typedef void (*module_init_t)(void);
+  typedef void (*module_uninit_t)(void);
+
+  typedef struct {
+    const gchar      *mcabber_version;
+    module_init_t     init;
+    module_uninit_t   uninit;
+    const gchar     **requires;
+  } module_info_t;
+--------------------------------------------------------
+
+Callbacks init and uninit will be called after module
+and it's dependencies loading. 'requires' should contain
+NULL-terminated list of module names, that should be loaded
+before this. 'mcabber_version' is required and should contain
+mcabber version, that this module is designed to work with.
+Three other fields may be NULL.
+
+To load modules, mcabber uses glib's GModule, thus, in your
+module you can also use functions
+
+--------------------------------------------------------
+  #include <glib.h>
+  #include <gmodule.h>
+
   const gchar* g_module_check_init (GModule *module);
   void         g_module_unload (GModule *module);
 --------------------------------------------------------
 
-to do something when module is loaded and unloaded. On
-success g_module_check_init should return NULL, and
-error message otherwise.
+to do something before any version/dependency checks will
+be performed when module is loaded/unloaded. On success
+g_module_check_init should return NULL, and error message
+otherwise.
 
 As module is loaded, you can use mcabber functions,
 declared in mcabber's header files (though you should
@@ -26,6 +56,46 @@ some day).
 I will not explain them all, there are too much of
 them, but will provide description for those, provided
 especially for module writers.
+
+--------------------------------------------------------
+  #include <mcabber/modules.h>
+
+  const gchar *module_load (const gchar *name,
+			    gboolean manual,
+			    gboolean force);
+  const gchar *module_unload (const gchar *name,
+			      gboolean manual,
+			      gboolean force);
+--------------------------------------------------------
+
+These functions load and unload modules respectively.
+You can use them to handle optional dependencies. What
+happens, when module is loaded:
+ - check if module is present, and if present just
+   increase it's reference count
+ - load .so via glib (and call g_module_check_init, if
+   present)
+ - check for information structure presence
+ - check target mcabber version compatibility
+ - load modules, that this module requires (note, that
+   dependency problems will be reported as error
+   invariably, force flag have no effect on this check)
+ - module placed into a list of modules
+ - module init routine is called
+And when unloaded:
+ - check if module is present
+ - decrease reference count, if it is not zero, return
+ - run module uninit routine
+ - unload modules, that were loaded as dependencies for
+   this
+ - remove from modules list
+They return error message or NULL in case of success.
+'manual' flag indicates, that module will be loaded by
+direct user request. It serves the purpose of tracking
+user and automatic references (user can have only one).
+'force' flag on module loading causes mcabber to ignore
+most of the loading errors. On unload it forces
+unloading even if reference count is not zero.
 
 --------------------------------------------------------
   #include <mcabber/commands.h>
@@ -200,10 +270,10 @@ void g_module_unload (GModule *module)
 Now, compile this file (hello.c) with
 
 libtool --mode=compile gcc `pkg-config --cflags glib-2.0 \
-  gmodule-2.0` -c hello.c
+  gmodule-2.0 mcabber` -c hello.c
 libtool --mode=link gcc -module -rpath /usr/lib/mcabber/ \
-  `pkg-config --libs glib-2.0 gmodule-2.0` -o libhello.la \
-  hello.lo
+  `pkg-config --libs glib-2.0 gmodule-2.0 mcabber` \
+  -o libhello.la hello.lo
 
 (you should substitute /usr/lib/mcabber to directory, where
 your modules are located) and then install obtained module with
@@ -216,13 +286,68 @@ finish action, as we're working with module object, not system-
 wide library, but maybe some systems require that.
 
 Now, set modules_dir mcabber variable to point to your modules
-dir, and try to run /load hello. If all goes well, you should
-see in status buffer message "Hello World!".
-Now unload module by running command /unload hello, that
-should bring up message "Bye, World!".
+dir, and try to run /module -f load hello. If all goes well,
+you should see in status buffer message "Hello World!" (as
+well as some complaints, as we forced module loading).
+Now unload module by running command /module unload hello,
+that should bring up message "Bye, World!".
 
 That's it, you just created very simple dynamically loadable
-mcabber module.
+mcabber module. But, as you noticed, it needs force to be
+loaded. Now, let's add information structure, that mcabber
+wants.
+
+==========================
+
+   Example: info struct
+
+==========================
+
+--------------------------------------------------------
+#include <mcabber/logprint.h>
+/* module_info_t definition */
+#include <mcabber/modules.h>
+
+/* Print something on module loading */
+void hello_init (void)
+{
+	scr_LogPrint (LPRINT_NORMAL, "Hello, World!");
+}
+
+/* ... and unloading */
+void hello_uninit (void)
+{
+	scr_LogPrint (LPRINT_NORMAL, "Bye, World!");
+}
+
+module_info_t info_hello = {
+	.mcabber_version = "0.10.0",
+	.requires        = NULL,
+	.init            = hello_init,
+	.uninit          = hello_uninit,
+};
+
+/* The End */
+--------------------------------------------------------
+
+Here we now do not use glib nor gmodule, so, we can omit
+them in compilation lines:
+
+libtool --mode=compile gcc `pkg-config --cflags mcabber` \
+  -c hello.c
+libtool --mode=link gcc -module -rpath /usr/lib/mcabber/ \
+  `pkg-config --libs mcabber` -o libhello.la hello.lo
+
+Again compile it, copy, and try to load, now without -f
+flag. As you may notice, when loading previous example,
+mcabber first printed "Hello, World!", and only then
+complaint about module not having information struct.
+That's because g_module_check_init is called right
+after module loading, before mcabber even have a chance
+to look at module, while .init from info struct is
+called afterwards by mcabber itself. You can try to
+introduce some error (eg too high or missing target
+mcabber version) and see the difference.
 
 =======================
 
@@ -233,11 +358,9 @@ mcabber module.
 Now, let's allow our module to do some real work.
 
 --------------------------------------------------------
-#include <glib.h>
-#include <gmodule.h>
-
 #include <mcabber/logprint.h>
 #include <mcabber/commands.h>
+#include <mcabber/modules.h>
 
 /* Handler for command */
 void do_hello (char *args)
@@ -249,16 +372,22 @@ void do_hello (char *args)
 }
 
 /* Register command */
-const gchar* g_module_check_init (GModule *module)
+void hello_init (void)
 {
 	cmd_add ("hello", "", 0, 0, do_hello, NULL);
-	return NULL;
 }
 
 /* Unregister command */
-void g_module_unload (GModule *module)
+void hello_uninit (void)
 {
 	cmd_del ("hello");
+}
+
+module_info_t hello_info = {
+	.mcabber_version = "0.10.0",
+	.requires        = NULL,
+	.init            = hello_init,
+	.uninit          = hello_uninit,
 }
 
 /* The End */
@@ -281,11 +410,9 @@ your commands. You can as well use built-in completions,
 their IDs are listed in compl.h.
 
 --------------------------------------------------------
-#include <glib.h>
-#include <gmodule.h>
-
 #include <mcabber/logprint.h>
 #include <mcabber/commands.h>
+#include <mcabber/modules.h>
 #include <mcabber/compl.h>
 
 static guint hello_cid = 0;
@@ -303,7 +430,7 @@ void do_hello (char *args)
 }
 
 /* Initialization */
-const gchar* g_module_check_init (GModule *module)
+void hello_init (void)
 {
 	/* Obtain handle for our completion
 	 * category */
@@ -315,16 +442,22 @@ const gchar* g_module_check_init (GModule *module)
 		                         "World");
 	cmd_add ("hello", "", hello_cid, 0, do_hello,
                  NULL);
-	return NULL;
 }
 
 /* Deinitialization */
-void g_module_unload (GModule *module)
+void hello_uninit (void)
 {
 	/* Give back category handle */
 	if (hello_cid)
 		compl_del_category (hello_cid);
 	cmd_del ("hello");
+}
+
+module_info_t hello_info = {
+	.mcabber_version = "0.10.0",
+	.requires        = NULL,
+	.init            = hello_init,
+	.uninit          = hello_uninit,
 }
 
 /* The End */
@@ -349,8 +482,6 @@ builtin beeper flexibility. I wanted beeping on any
 muc conference message, not just ones, directed to me.
 
 --------------------------------------------------------
-#include <glib.h>
-#include <gmodule.h>
 #include <string.h>
 
 #include <mcabber/logprint.h>
@@ -359,6 +490,7 @@ muc conference message, not just ones, directed to me.
 #include <mcabber/hooks.h>
 #include <mcabber/screen.h>
 #include <mcabber/settings.h>
+#include <mcabber/module.h>
 
 static guint beep_cid = 0;
 
@@ -400,7 +532,7 @@ void do_beep (char *args)
 }
 
 /* Initialization */
-const gchar* g_module_check_init (GModule *module)
+void beep_init (void)
 {
 	/* Create completions */
 	beep_cid = compl_new_category ();
@@ -414,11 +546,10 @@ const gchar* g_module_check_init (GModule *module)
 	 * We are only interested in incoming message events
 	 */
 	hk_add_handler (beep_hh, HOOK_MESSAGE_IN, NULL);
-	return NULL;
 }
 
 /* Deinitialization */
-void g_module_unload (GModule *module)
+void beep_uninit (void)
 {
 	/* Unregister event handler */
 	hk_del_handler (beep_hh, NULL);
@@ -429,19 +560,15 @@ void g_module_unload (GModule *module)
 		compl_del_category (beep_cid);
 }
 
+module_info_t beep_info = {
+	.mcabber_version = "0.10.0",
+	.requires        = NULL,
+	.init            = beep_init,
+	.uninit          = beep_uninit,
+}
+
 /* The End */
 --------------------------------------------------------
-
-Note, that to compile this we also need to add loudmouth-1.0
-to pkg-config command line, so, you will have something like
-
-libtool --mode=compile gcc `pkg-config --cflags glib-2.0 \
-  gmodule-2.0 loudmouth-1.0` -c beep.c
-libtool --mode=link gcc -module -rpath /usr/lib/mcabber/ \
-  `pkg-config --cflags glib-2.0 gmodule-2.0` -o libbeep.la \
-  beep.lo
-libtool --mode=install install libbeep.la \
-  /usr/lib/mcabber/libbeep.la
 
 If you use CMake (as do I), corresponding CMakeLists.txt
 snippet:
@@ -450,30 +577,85 @@ snippet:
 cmake_minimum_required(VERSION 2.6)
 project(beep C)
 
-set(MCABBER_INCLUDE_DIR "/usr/include" CACHE FILEPATH
-    "Path to mcabber headers")
-
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(GLIB REQUIRED glib-2.0)
-pkg_check_modules(GMODULE REQUIRED gmodule-2.0)
-pkg_check_modules(LM REQUIRED loudmouth-1.0)
+pkg_check_modules(MCABBER REQUIRED mcabber)
 # this one should be before any target definitions
-link_directories(${GLIB_LIBRARY_DIRS}
-                 ${GMODULE_LIBRARY_DIRS})
+link_directories(${MCABBER_LIBRARY_DIRS})
 
 add_library(beep MODULE beep.c)
 
-include_directories(SYSTEM ${GLIB_INCLUDE_DIRS}
-                    ${GMODULE_INCLUDE_DIRS}
-                    ${LM_INCLUDE_DIRS}
-                    ${MCABBER_INCLUDE_DIR})
-target_link_libraries(beep ${GLIB_LIBRARIES}
-                      ${GMODULE_LIBRARIES})
+include_directories(SYSTEM ${MCABBER_INCLUDE_DIRS})
+target_link_libraries(beep ${MCABBER_LIBRARIES)
 include_directories(${beep_SOURCE_DIR}
                     ${beep_BINARY_DIR})
 
 install(TARGETS beep DESTINATION lib/mcabber)
 --------------------------------------------------------
+
+===========================
+
+   Example: dependencies
+
+===========================
+
+I will not provide here a complete example of two
+modules, one of which depends on other, only some
+use cases.
+
+Info struct for module, that depends on two other
+modules:
+
+--------------------------------------------------------
+#include <mcabber/modules.h>
+
+const gchar *a_deps[] = { "b", "c", NULL };
+
+module_info_t info_a = {
+	.mcabber_version = "0.10.0",
+	.requires        = a_deps,
+	.init            = a_init,
+	.uninit          = a_uninit,
+};
+--------------------------------------------------------
+
+If your module needs to "authenticate" mcabber version
+too, this can be done in g_module_check_init:
+
+--------------------------------------------------------
+#include <glib.h>
+#include <gmodule.h>
+
+#include <mcabber/main.h>
+
+const gchar *g_module_check_init (GModule *module)
+{
+	char *ver = mcabber_version ();
+
+	// ver now contains version in format
+	// X.X.X[-xxx][ (XXXXXXXXX)]
+	if (...)
+		return "Incompatible mcabber version";
+
+	g_free (ver);
+	return NULL;
+}
+--------------------------------------------------------
+
+Also you can use glib check_init routine to modify
+module information, that will be checked by mcabber,
+eg. if you want your module to always pass mcabber
+version check, you can assign version, obtained from
+mcabber_version() to corresponding field in your struct.
+Or you can modify your module's dependencies, though
+direct module_load() will have the same effect, and
+can be used for optional dependencies, that your module
+can work without.
+
+Note: remember, that g_module_check_init will be always
+called, even if later module will not pass checks, thus:
+ - do not use functions from other modules there;
+ - provide g_module_unload to undo anything, check_init
+   has done.
 
 ==============
 
@@ -509,5 +691,5 @@ a more suitable version of text in question).
   -- Myhailo Danylenko
   -- mailto:isbear@ukrpost.net
   -- xmpp:isbear@unixzone.org.ua
-  -- Mon, 18 Jan 2010 15:52:40 +0200
+  -- Thu, 04 Mar 2010 09:32:38 +0200
 

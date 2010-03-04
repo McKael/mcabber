@@ -98,17 +98,9 @@ static void do_say_internal(char *arg, int parse_flags);
 static GSList *Commands;
 
 #ifdef MODULES_ENABLE
-#include <gmodule.h>
+#include "modules.h"
 
-static void do_load(char *arg);
-static void do_unload(char *arg);
-
-typedef struct {
-  char *name;
-  GModule *module;
-} loaded_module_t;
-
-GSList *loaded_modules = NULL;
+static void do_module(char *arg);
 
 gpointer cmd_del(const char *name)
 {
@@ -205,8 +197,7 @@ void cmd_init(void)
           COMPL_JID, COMPL_STATUS, &do_status_to);
   cmd_add("version", "Show mcabber version", 0, 0, &do_version);
 #ifdef MODULES_ENABLE
-  cmd_add("load", "Load module", 0, 0, &do_load);
-  cmd_add("unload", "Unload module", 0, 0, &do_unload);
+  cmd_add("module", "Manipulations with modules", 0, 0, &do_module);
 #endif
 
   // Status category
@@ -342,23 +333,6 @@ void cmd_init(void)
   compl_add_category_word(COMPL_COLOR, "muc");
   compl_add_category_word(COMPL_COLOR, "mucnick");
 }
-
-#ifdef MODULES_ENABLE
-void cmd_deinit ()
-{
-  GSList *el = loaded_modules;
-  while (el) {
-    loaded_module_t *module = el->data;
-    if (!g_module_close ((GModule *) module->module))
-      scr_LogPrint (LPRINT_LOGNORM, "* Module unloading failed: %s",
-                    g_module_error ());
-    g_free (module->name);
-    g_free (module);
-    el = g_slist_next (el);
-  }
-  g_slist_free (loaded_modules);
-}
-#endif
 
 //  expandalias(line)
 // If there is one, expand the alias in line and returns a new allocated line
@@ -2980,65 +2954,33 @@ static void display_all_bookmarks(void)
 }
 
 #ifdef MODULES_ENABLE
-static gint module_list_comparator(gconstpointer arg1, gconstpointer arg2)
+static void do_module(char *arg)
 {
-  const loaded_module_t *module = arg1;
-  const char *name = arg2;
-  return g_strcmp0(module->name, name);
-}
+  gboolean force = FALSE;
+  char **args;
 
-static void do_load(char *arg)
-{
-  GModule *mod;
-  GSList *lmod;
-  char *mdir, *path;
-  if (!arg || !*arg) {
-    scr_LogPrint(LPRINT_LOGNORM, "Missing modulename.");
-    return;
+  if (arg[0] == '-' && arg[1] == 'f') {
+    force = TRUE;
+    arg +=2;
+    while (*arg && *arg == ' ')
+      ++arg;
   }
-  lmod = g_slist_find_custom(loaded_modules, arg, module_list_comparator);
-  if (lmod) {
-    scr_LogPrint(LPRINT_LOGNORM, "Module %s is already loaded.", arg);
-    return;
+  
+  args = split_arg(arg, 2, 0);
+  if (!args[0] || !strcmp(args[0], "list")) {
+    module_list_print();
+  } else {
+    const gchar *error;
+    if (!strcmp(args[0], "load"))
+      error = module_load(args[1], TRUE, force);
+    else if (!strcmp(args[0], "unload"))
+      error = module_unload(args[1], TRUE, force);
+    else
+      error = "Unknown subcommand";
+    if (error)
+      scr_LogPrint(LPRINT_LOGNORM, "Error: %s.",  error);
   }
-  mdir = expand_filename(settings_opt_get("modules_dir"));
-  path = g_module_build_path(mdir ? mdir : PKGLIB_DIR, arg);
-  mod  = g_module_open(path, G_MODULE_BIND_LAZY);
-  if (!mod)
-    scr_LogPrint(LPRINT_LOGNORM, "Module loading failed: %s",
-                 g_module_error());
-  else {
-    loaded_module_t *module = g_new(loaded_module_t, 1);
-    module->name   = g_strdup(arg);
-    module->module = mod;
-    loaded_modules = g_slist_prepend(loaded_modules, module);
-    scr_LogPrint(LPRINT_LOGNORM, "Loaded module %s.", arg);
-  }
-  g_free(path);
-  g_free(mdir);
-}
-
-static void do_unload(char *arg)
-{
-  GSList *module;
-  if (!arg || !*arg) {
-    scr_LogPrint(LPRINT_LOGNORM, "Missing modulename.");
-    return;
-  }
-  module = g_slist_find_custom(loaded_modules, arg, module_list_comparator);
-  if (module) {
-    loaded_module_t *mod = module->data;
-    if (!g_module_close(mod->module))
-      scr_LogPrint(LPRINT_LOGNORM, "Module unloading failed: %s",
-                   g_module_error());
-    else {
-      g_free(mod->name);
-      g_free(mod);
-      loaded_modules = g_slist_delete_link(loaded_modules, module);
-      scr_LogPrint(LPRINT_LOGNORM, "Unloaded module %s.", arg);
-    }
-  } else
-    scr_LogPrint(LPRINT_LOGNORM, "Module %s not loaded.", arg);
+  free_arg_lst(args);
 }
 #endif
 

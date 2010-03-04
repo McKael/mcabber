@@ -16,8 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <glib.h>
-#include <gmodule.h>
 #include <string.h>
 
 #include <mcabber/logprint.h>
@@ -26,11 +24,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <mcabber/hooks.h>
 #include <mcabber/screen.h>
 #include <mcabber/settings.h>
+#include <mcabber/modules.h>
+
+static void beep_init   (void);
+static void beep_uninit (void);
+
+/* Module description */
+module_info_t info_beep = {
+	.mcabber_version = "0.10.0",
+	.requires        = NULL,
+	.init            = beep_init,
+	.uninit          = beep_uninit,
+};
 
 static guint beep_cid = 0;
 
 /* Event handler */
-void beep_hh (guint32 hid, hk_arg_t *args, gpointer userdata)
+static void beep_hh (guint32 hid, hk_arg_t *args, gpointer userdata)
 {
 	/* Check if beeping is enabled */
 	if (settings_opt_get_int ("beep_enable"))
@@ -39,7 +49,7 @@ void beep_hh (guint32 hid, hk_arg_t *args, gpointer userdata)
 }
 
 /* beep command handler */
-void do_beep (char *args)
+static void do_beep (char *args)
 {
 	/* Check arguments, and if recognized,
 	 * set mcabber option accordingly */
@@ -67,7 +77,7 @@ void do_beep (char *args)
 }
 
 /* Initialization */
-const gchar* g_module_check_init (GModule *module)
+static void beep_init (void)
 {
 	/* Create completions */
 	beep_cid = compl_new_category ();
@@ -81,11 +91,10 @@ const gchar* g_module_check_init (GModule *module)
 	 * We are only interested in incoming message events
 	 */
 	hk_add_handler (beep_hh, HOOK_MESSAGE_IN, NULL);
-	return NULL;
 }
 
 /* Deinitialization */
-void g_module_unload (GModule *module)
+static void beep_uninit (void)
 {
 	/* Unregister event handler */
 	hk_del_handler (beep_hh, NULL);

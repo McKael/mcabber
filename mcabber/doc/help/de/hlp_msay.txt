@@ -1,5 +1,5 @@
 
- /MSAY begin|verbatim|send|send_to|toggle|abort
+ /MSAY begin|verbatim|send|send_to|toggle|toggle_verbatim|abort
 
 Eine mehrzeilige Nachricht verschicken. Um eine einzelne Nachricht mit mehreren Zeilen zu verschicken, sollte dieser Modus verwendet werden.
 In diesem Modus wird jede Zeile (außer Befehlszeilen), die in der Eingabezeile eingegeben wurden, zu der Nachricht hinzugefügt. Sobald die Nachricht fertig ist, kann sie zu dem gerade ausgewählten Buddy durch "/msay send" geschickt werden.
@@ -15,7 +15,7 @@ Der "toggle" Unterbefehl kann auf eine Taste gelegt werden, um den Mehrzeilen-Mo
  Sendet die eingegebene mehrzeilige Nachricht an den Buddy
 /msay send_to [-n|-h] jid
  Sendet die eingegebene mehrzeilige Nachricht an die übergebene "jid"
-/msay toggle
+/msay toggle|toggle_verbatim
  Wechsel der Modi (sozusagen "/msay begin|send" im Wechsel)
 /msay abort
  Den Mehrzeilen-Modus, ohne die Nachricht abzuschicken, verlassen

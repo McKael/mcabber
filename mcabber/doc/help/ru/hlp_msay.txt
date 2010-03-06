@@ -1,5 +1,5 @@
 
- /MSAY begin|verbatim|send|send_to|toggle|abort
+ /MSAY begin|verbatim|send|send_to|toggle|toggle_verbatim|abort
 
 
 Посылает сообщение, состоящие из большого количества строк. Чтобы написать сообщение из нескольких строк должен использоваться режим поддержки многострочного сообщения 'multi-line mode'.
@@ -16,7 +16,7 @@
  Послать текущее многострочное сообщение текущему пользователю
 /msay send_to [-n|-h] jid
  Послать текущее многострочное сообщение определенному "jid"
-/msay toggle
+/msay toggle|toggle_verbatim
  Узнать режим многострочный сообщения 'multi-line mode'
 /msay abort
  Выйти из режима многострочного сообщения не отправляя его

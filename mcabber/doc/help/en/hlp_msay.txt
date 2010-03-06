@@ -1,5 +1,5 @@
 
- /MSAY begin|verbatim|send|send_to|toggle|abort
+ /MSAY begin|verbatim|send|send_to|toggle|toggle_verbatim|abort
 
 Send a multi-line message.  To write a single message with several lines, the 'multi-line mode' should be used.
 In multi-line mode, each line (except command lines) typed in the input line will be added to the multi-line message.  Once the message is finished, it can be sent to the current selected buddy with the "/msay send" command.
@@ -15,7 +15,7 @@ The 'toggle' subcommand can be bound to a key to use the multi-line mode quickly
  Send the current multi-line message to the currently selected buddy
 /msay send_to [-n|-h] jid
  Send the current multi-line message to "jid"
-/msay toggle
+/msay toggle|toggle_verbatim
  Switch to/from multi-line mode (begin/send)
 /msay abort
  Leave multi-line mode without sending the message

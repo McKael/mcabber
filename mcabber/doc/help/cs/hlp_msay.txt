@@ -1,5 +1,5 @@
 
- /MSAY begin|verbatim|send|send_to|toggle|abort
+ /MSAY begin|verbatim|send|send_to|toggle|toggle_verbatim|abort
 
 Pošle víceřádkovou zprávu. Pro posílání zpráv s více řádky se používá víceřádkový režim.
 Ve víceřádkovém režimu je každý řádek (mimo příkazových řádků) napsasný do vstupního řádku přidán do víceřádkové zprávy. Až je zpráva připravena, odešle se vybranému kontaktu pomocí příkazu "/msay send".
@@ -15,7 +15,7 @@ Tip: Parametr 'toggle' může být svázán s klávesou pro rychlé přepínán�
  Pošle aktuální víceřádkovou zprávu aktuálně zvolenému kontaktu.
 /msay send_to [-n|-h] jid
  Pošle aktuální víceřádkovou zprávu kontaktu 'jid'.
-/msay toggle
+/msay toggle|toggle_verbatim
  Přepne do/z víceřádkového režimu (begin/send).
 /msay abort
  Ukončí víceřádkový režim bez odeslání zprávy.

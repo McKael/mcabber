@@ -2959,22 +2959,24 @@ static void do_module(char *arg)
   gboolean force = FALSE;
   char **args;
 
-  if (arg[0] == '-' && arg[1] == 'f') {
-    force = TRUE;
-    arg +=2;
-    while (*arg && *arg == ' ')
-      ++arg;
-  }
-  
   args = split_arg(arg, 2, 0);
   if (!args[0] || !strcmp(args[0], "list")) {
     module_list_print();
   } else {
     const gchar *error;
+    const gchar *name = args[1];
+
+    if (name && name[0] == '-' && name[1] == 'f') {
+      force = TRUE;
+      name +=2;
+      while (*name && *name == ' ')
+        ++name;
+    }
+
     if (!strcmp(args[0], "load"))
-      error = module_load(args[1], TRUE, force);
+      error = module_load(name, TRUE, force);
     else if (!strcmp(args[0], "unload"))
-      error = module_unload(args[1], TRUE, force);
+      error = module_unload(name, TRUE, force);
     else
       error = "Unknown subcommand";
     if (error)

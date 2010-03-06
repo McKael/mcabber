@@ -187,7 +187,7 @@ int cfg_read_file(char *filename, guint mainfile)
         startswith(line, "source ", FALSE) ||
         startswith(line, "color ", FALSE)  ||
 #ifdef MODULES_ENABLE
-        startswith(line, "module ", FALSE)   ||
+        startswith(line, "module ", FALSE) ||
 #endif
         startswith(line, "status ", FALSE) ||
         startswith(line, "otrpolicy", FALSE)) {
@@ -201,7 +201,7 @@ int cfg_read_file(char *filename, guint mainfile)
           !startswith(line, "status ", FALSE) &&
           !startswith(line, "color ", FALSE)  &&
 #ifdef MODULES_ENABLE
-          !startswith(line, "module ", FALSE)   &&
+          !startswith(line, "module ", FALSE) &&
 #endif
           !startswith(line, "otrpolicy ", FALSE)) {
         scr_LogPrint(LPRINT_LOGNORM, "Error in configuration file (l. %d): "

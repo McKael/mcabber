@@ -10,4 +10,4 @@ Load or unload module.
  Unloads specified module.
  Note: The force flag will not remove any dependent on this modules!
 /module [list]
- Lists modules in a format: [modulename]  [reference count] ([manually/automatically loaded]) [loaded modules, that this module depends on]
+ Lists modules in a format: [modulename]  [reference count] ([Manually/Automatically loaded]) [loaded modules, that this module depends on]

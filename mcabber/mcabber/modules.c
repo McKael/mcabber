@@ -65,7 +65,8 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
     return "Missing module name";
 
   { // Check if module is already loaded
-    GSList *lmod = g_slist_find_custom(loaded_modules, arg, module_list_comparator);
+    GSList *lmod = g_slist_find_custom(loaded_modules, arg,
+                                       module_list_comparator);
 
     if (lmod) {
       loaded_module_t *module = lmod->data;
@@ -74,7 +75,8 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
         if (!module->locked) {
           module->locked = TRUE;
           module->refcount += 1;
-          return force ? NULL : "Module is already automatically loaded, marked as manually loaded";
+          return force ? NULL : "Module is already automatically loaded, "
+                                "marked as manually loaded";
         } else
           return force ? NULL : "Module is already loaded";
       } else {
@@ -107,7 +109,8 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
         return "Module provides no information structure";
       }
 
-      scr_LogPrint(LPRINT_LOGNORM, "Forced to ignore error: Module provides no information structure.");
+      scr_LogPrint(LPRINT_LOGNORM, "Forced to ignore error: "
+                                 "Module provides no information structure.");
     }
 
     g_free(varname);
@@ -122,7 +125,8 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
       return "Module requires newer version of mcabber";
     }
 
-    scr_LogPrint(LPRINT_LOGNORM, "Forced to ignore error: Module requires newer version of mcabber.");
+    scr_LogPrint(LPRINT_LOGNORM, "Forced to ignore error: "
+                                 "Module requires newer version of mcabber.");
   }
 
   // Load dependencies
@@ -134,20 +138,24 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
 
       if (err) {
         GSList *mel;
-        scr_LogPrint(LPRINT_LOGNORM, "Error loading dependency module %s: %s.", *dep, err);
+        scr_LogPrint(LPRINT_LOGNORM, "Error loading dependency module %s: %s.",
+                     *dep, err);
 
         // Unload already loaded dependencies
         for (mel = deps; mel; mel = mel->next) {
           gchar *ldmname = mel->data;
           err = module_unload(ldmname, FALSE, FALSE);
-          scr_LogPrint(LPRINT_LOGNORM, "Error unloading dependency module %s: %s.", ldmname, err);
+          scr_LogPrint(LPRINT_LOGNORM,
+                       "Error unloading dependency module %s: %s.",
+                       ldmname, err);
           g_free(ldmname);
         }
         g_slist_free(deps);
 
         // Unload module
         if (!g_module_close(mod))
-          scr_LogPrint(LPRINT_LOGNORM, "Error unloading module %s: %s.", arg, g_module_error());
+          scr_LogPrint(LPRINT_LOGNORM, "Error unloading module %s: %s.",
+                       arg, g_module_error());
         return "Dependency problems";
       }
 
@@ -200,7 +208,8 @@ const gchar *module_unload(const gchar *arg, gboolean manual, gboolean force)
   if (manual) {
     if (!module->locked) {
       if (force)
-        scr_LogPrint(LPRINT_LOGNORM, "Forced to ignore error: Manually unloading automatically loaded module.");
+        scr_LogPrint(LPRINT_LOGNORM, "Forced to ignore error: "
+                     "Manually unloading automatically loaded module.");
       else
         return "Module is not loaded manually";
     }
@@ -211,7 +220,8 @@ const gchar *module_unload(const gchar *arg, gboolean manual, gboolean force)
   module->refcount -= 1;
   if (module->refcount > 0) {
     if (force)
-      scr_LogPrint(LPRINT_LOGNORM, "Forced to ignore error: Refcount is not zero (%u).", module->refcount);
+      scr_LogPrint(LPRINT_LOGNORM, "Forced to ignore error: "
+                   "Refcount is not zero (%u).", module->refcount);
     else
       return manual ? "Module is required by some other modules" : NULL;
   }
@@ -234,7 +244,9 @@ const gchar *module_unload(const gchar *arg, gboolean manual, gboolean force)
       gchar *ldmname = dep->data;
       const gchar *err = module_unload(ldmname, FALSE, FALSE);
       if (err) // XXX
-        scr_LogPrint(LPRINT_LOGNORM, "Error unloading automatically loaded module %s: %s.", ldmname, err);
+        scr_LogPrint(LPRINT_LOGNORM,
+                     "Error unloading automatically loaded module %s: %s.",
+                     ldmname, err);
       g_free(ldmname);
     }
     g_slist_free(module->dependencies);
@@ -283,7 +295,8 @@ void module_list_print(void)
     loaded_module_t *module = mel->data;
     GSList *dep;
 
-    g_string_append_printf(message, format, module->name, module->refcount, module->locked ? 'M' : 'A');
+    g_string_append_printf(message, format, module->name, module->refcount,
+                           module->locked ? 'M' : 'A');
 
     // Append loaded module dependencies
     if (module->dependencies) {
@@ -349,4 +362,4 @@ void modules_deinit(void)
   }
 }
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */
+/* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

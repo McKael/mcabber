@@ -13,9 +13,7 @@ mcabber/mcabber.pc
 
 autom4te.cache
 mcabber/aclocal.m4
-mcabber/config.sub
 mcabber/configure
-mcabber/connwrap/depcomp
 mcabber/depcomp
 mcabber/libtool
 mcabber/ltmain.sh
@@ -27,7 +25,7 @@ mcabber/mcabber/stamp-h1
 mcabber/include/stamp-h2
 
 config.h*
-config.{log,cache,guess,status}
+config.{log,cache,guess,status,sub}
 
 mcabber/doc/guide/guide.{aux,bbl,blg,log,out,pdf,toc}
 

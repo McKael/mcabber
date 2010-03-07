@@ -92,8 +92,6 @@ static void do_otr(char *arg);
 static void do_otrpolicy(char *arg);
 static void do_echo(char *arg);
 
-static void do_say_internal(char *arg, int parse_flags);
-
 // Global variable for the commands list
 static GSList *Commands;
 
@@ -511,7 +509,7 @@ int process_line(const char *line)
     if (scr_get_multimode())
       scr_append_multiline(line);
     else
-      do_say_internal((char*)line, 0);
+      say_cmd((char*)line, 0);
     return 0;
   }
 
@@ -1264,7 +1262,7 @@ static LmMessageSubType scan_mtype(char **arg)
   return result;
 }
 
-static void do_say_internal(char *arg, int parse_flags)
+void say_cmd(char *arg, int parse_flags)
 {
   gpointer bud;
   LmMessageSubType msgtype = LM_MESSAGE_SUB_TYPE_NOT_SET;
@@ -1294,7 +1292,7 @@ static void do_say_internal(char *arg, int parse_flags)
 }
 
 static void do_say(char *arg) {
-  do_say_internal(arg, 1);
+  say_cmd(arg, 1);
 }
 
 static void do_msay(char *arg)

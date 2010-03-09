@@ -1398,7 +1398,7 @@ void scr_UpdateMainStatus(int forceupdate)
   werase(mainstatusWnd);
   if (info) {
     char *info_locale = from_utf8(info);
-    mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s: %s",
+    mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s %s",
               (unread_msg(NULL) ? '#' : ' '),
               imstatus2char[xmpp_getstatus()],
               info_locale, (sm ? sm : ""));

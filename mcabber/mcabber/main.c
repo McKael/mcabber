@@ -62,8 +62,6 @@
 static unsigned int terminate_ui;
 GMainContext *main_context;
 
-static gboolean update_screen = TRUE;
-
 static struct termios *backup_termios;
 
 char *mcabber_version(void)
@@ -295,7 +293,6 @@ static gboolean keyboard_activity(void)
 
   while (kcode.value != ERR) {
     process_key(kcode);
-    update_screen = TRUE;
     scr_Getch(&kcode);
   }
   scr_CheckAutoAway(FALSE);
@@ -467,8 +464,7 @@ int main(int argc, char **argv)
         keyboard_activity();
       if (update_roster)
         scr_DrawRoster();
-      if(update_screen)
-        scr_DoUpdate();
+      scr_DoUpdate();
     }
 
     g_source_destroy(mc_source);

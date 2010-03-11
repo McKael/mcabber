@@ -882,7 +882,8 @@ static void _try_to_reconnect(void)
 {
   xmpp_disconnect();
   if (AutoConnection)
-    g_timeout_add_seconds(RECONNECTION_TIMEOUT, xmpp_reconnect, NULL);
+    g_timeout_add_seconds(RECONNECTION_TIMEOUT + (random() % 90L),
+                          xmpp_reconnect, NULL);
 }
 
 static void connection_open_cb(LmConnection *connection, gboolean success,
@@ -1707,12 +1708,14 @@ void xmpp_connect(void)
   if (!resource)
     resource = resource_prefix;
 
+  // Initialize pseudo-random seed
+  srandom(time(NULL));
+
   if (!settings_opt_get("disable_random_resource")) {
 #if HAVE_ARC4RANDOM
     dynresource = g_strdup_printf("%s.%08x", resource, arc4random());
 #else
     unsigned int tab[2];
-    srandom(time(NULL));
     tab[0] = (unsigned int) (0xffff * (random() / (RAND_MAX + 1.0)));
     tab[1] = (unsigned int) (0xffff * (random() / (RAND_MAX + 1.0)));
     dynresource = g_strdup_printf("%s.%04x%04x", resource, tab[0], tab[1]);

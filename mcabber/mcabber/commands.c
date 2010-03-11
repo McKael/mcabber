@@ -2099,6 +2099,8 @@ static void do_set(char *arg)
   if (!*arg) {
     // list all set options
     settings_foreach(SETTINGS_TYPE_OPTION, print_option_cb, "%s = [%s]");
+    scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+    update_roster = TRUE;
     return;
   }
 
@@ -2136,6 +2138,7 @@ static void do_set(char *arg)
 static void dump_alias(char *k, char *v, void *param)
 {
   scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8, "Alias %s = %s", k, v);
+  scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
 }
 
 static void do_alias(char *arg)
@@ -2146,6 +2149,7 @@ static void do_alias(char *arg)
   assign = parse_assigment(arg, &alias, &value);
   if (!alias) {
     settings_foreach(SETTINGS_TYPE_ALIAS, &dump_alias, NULL);
+    update_roster = TRUE;
     return;
   }
   if (!assign) {  // This is a query
@@ -2199,6 +2203,8 @@ static void do_bind(char *arg)
   assign = parse_assigment(arg, &k_code, &value);
   if (!k_code) {
     settings_foreach(SETTINGS_TYPE_BINDING, &dump_bind, NULL);
+    scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+    update_roster = TRUE;
     return;
   }
   if (!assign) {  // This is a query

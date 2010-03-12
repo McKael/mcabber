@@ -3191,9 +3191,9 @@ void readline_updowncase_word(int upcase)
     } else {
       stopsymbol_allowed = 0;
       if (upcase)
-        *ptr_inputline = towupper(get_char(ptr_inputline));
+        put_char(ptr_inputline, towupper(get_char(ptr_inputline)));
       else
-        *ptr_inputline = towlower(get_char(ptr_inputline));
+        put_char(ptr_inputline, towlower(get_char(ptr_inputline)));
     }
     ptr_inputline = next_char(ptr_inputline);
   }
@@ -3212,9 +3212,10 @@ void readline_capitalize_word(void)
     } else {
       stopsymbol_allowed = 0;
       if (!upcased) {
-        *ptr_inputline = towupper(get_char(ptr_inputline));
+        put_char(ptr_inputline, towupper(get_char(ptr_inputline)));
         upcased = 1;
-      } else *ptr_inputline = towlower(get_char(ptr_inputline));
+      } else
+        put_char(ptr_inputline, towlower(get_char(ptr_inputline)));
     }
     ptr_inputline = next_char(ptr_inputline);
   }

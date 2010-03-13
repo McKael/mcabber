@@ -174,9 +174,10 @@ static void compile_options(void)
   puts("Compiled with unicode support.");
 #endif
 #ifdef MODULES_ENABLE
-  puts ("Compiled with modules support.");
+  printf("Compiled with modules support. (API %s:%d-%d)\n",
+         MCABBER_BRANCH, MCABBER_API_MIN, MCABBER_API_VERSION);
 # ifdef PKGLIB_DIR
-  puts ("Modules directory: " PKGLIB_DIR);
+  puts("Modules directory: " PKGLIB_DIR);
 # endif
 #endif
 #ifdef HAVE_GPGME

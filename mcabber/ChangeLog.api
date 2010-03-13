@@ -1,3 +1,12 @@
+dev (3)
+
+ * settings_set_guard() returns success status and will refuse to replace an
+   existing guard
+ * Min API 3
+ * Changeset d80a9e32ab1a
+
+ -- Myhailo Danylenko, 2010-03-13
+
 dev (2)
 
  * Add api.h

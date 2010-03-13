@@ -124,7 +124,7 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
         if(!g_module_close(mod))
           scr_LogPrint(LPRINT_LOGNORM, "Error closing module: %s.",
                        g_module_error());
-        return "Incompatible mcabber api version";
+        return "Incompatible mcabber API version";
       } else
         break;
       info = info->next;

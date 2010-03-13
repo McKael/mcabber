@@ -2086,8 +2086,10 @@ static void do_move(char *arg)
 
 static void list_option_cb(char *k, char *v, void *f)
 {
-  GSList **list = f;
-  *list = g_slist_insert_sorted(*list, k, (GCompareFunc)strcmp);
+  if (strcmp(k, "password")) {
+    GSList **list = f;
+    *list = g_slist_insert_sorted(*list, k, (GCompareFunc)strcmp);
+  }
 }
 
 static void do_set(char *arg)

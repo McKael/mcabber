@@ -2084,10 +2084,10 @@ static void do_move(char *arg)
   update_roster = TRUE;
 }
 
-static void print_option_cb(char *k, char *v, void *f)
+static void list_option_cb(char *k, char *v, void *f)
 {
-  char *format = (char *)f;
-  scr_LogPrint (LPRINT_NORMAL, format, k, v);
+  GSList **list = f;
+  *list = g_slist_insert_sorted(*list, k, (GCompareFunc)strcmp);
 }
 
 static void do_set(char *arg)
@@ -2098,9 +2098,31 @@ static void do_set(char *arg)
 
   if (!*arg) {
     // list all set options
-    settings_foreach(SETTINGS_TYPE_OPTION, print_option_cb, "%s = [%s]");
-    scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
-    update_roster = TRUE;
+    GSList *list = NULL;
+    // Get sorted list of keys
+    settings_foreach(SETTINGS_TYPE_OPTION, list_option_cb, &list);
+    if (list) {
+      gsize max = 0;
+      GSList *lel;
+      gchar *format;
+      // Find out maximum key length
+      for (lel = list; lel; lel = lel->next) {
+        const gchar *key = lel->data;
+        gsize len = strlen(key);
+        if (len > max)
+          max = len;
+      }
+      // Print out list of options
+      format = g_strdup_printf("%%-%us = [%%s]", max);
+      for (lel = list; lel; lel = lel->next) {
+        const gchar *key = lel->data;
+        scr_LogPrint(LPRINT_NORMAL, format, key, settings_opt_get(key));
+      }
+      g_free(format);
+      scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+      update_roster = TRUE;
+    } else
+      scr_LogPrint(LPRINT_NORMAL, "No options found.");
     return;
   }
 

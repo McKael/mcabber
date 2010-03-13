@@ -1,0 +1,16 @@
+
+ /MODULE load|unload [-f] module
+ /MODULE info module
+ /MODULE [list]
+
+Charge, décharge ou affiche les informations concernant un module.
+
+/module load [-f] module
+ Charge le module spécifié. Si l'option -f est donnée, la plupart des erreurs seront ignorées lors du chargement du module.
+/module unload [-f] module
+ Décharge le module spécifié.
+ Note : l'option force (-f) ne retirera pas les modules dépendant de ce celui-là!
+/module info module
+ Affiche les informations disponibles à propos de ce module.
+/module [list]
+ Liste les modules au format suivant : [nom module]  [compteur références] ([chargé Manuellement/Automatiquement]) [informations supplémentaires, telles que la version ou les dépendances]

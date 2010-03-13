@@ -2,19 +2,23 @@ mcabber (0.10.0-dev)
 
  * Switch to the Loudmouth library (franky)
  * MCabber can now do DNS SRV lookups so the variable
-   'username' has been replaced with 'jid' in the configuration file
- * Use locale to determine the online help language (Myhailo Danylenko)
+   NOTE: 'username' has been replaced with 'jid' in the configuration file
+ * [UI] Use locale to determine the online help language (Myhailo Danylenko)
+ * [UI] Print list of options with "/set" (Myhailo Danylenko)
+ * [UI] Fix iline word_upcase/word_downcase/word_capit commands
  * Add support for modules in mcabber (Myhailo Danylenko)
  * Sample "beep" module (Myhailo Danylenko)
  * Allow commands shading (Myhailo Danylenko)
  * Message Receipts (XEP-0184) support (franky)
  * Update of Entity Capabilities support (franky)
- * Allow changing the nickname in MUC bookmarks (Myhailo Danylenko)
- * Print list of options with "/set" (Myhailo Danylenko)
  * New command /request ping (Myhailo, Mikael)
  * Add libidn support
+ * [MUC] Allow changing the nickname in MUC bookmarks (Myhailo Danylenko)
+ * [MUC] A suffix (i.e. ":") can be appended to completed nicknames
  * Command "/source" now accepts a file pattern (Myhailo Danylenko)
  * Tracelog level can now be changed at runtime (Myhailo Danylenko)
+ * Small vCard support improvements
+ * Startup status can be set in the configuration file
  * Obsolete option 'hide_offline_buddies' has been removed
  * Obsolete XEP-0022 (Message Events) is now disabled by default
 

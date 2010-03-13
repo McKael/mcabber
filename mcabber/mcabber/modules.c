@@ -264,10 +264,10 @@ const gchar *module_unload(const gchar *arg, gboolean manual, gboolean force)
 
   // Destroy structure
   loaded_modules = g_slist_delete_link(loaded_modules, lmod);
+  // Output this here, as arg may point to module->name
+  scr_LogPrint(LPRINT_LOGNORM, "Unloaded module %s.", module->name);
   g_free(module->name);
   g_free(module);
-
-  scr_LogPrint(LPRINT_LOGNORM, "Unloaded module %s.", arg);
 
   return NULL;
 }

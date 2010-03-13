@@ -26,7 +26,7 @@
 #include "settings.h"
 #include "config.h"
 #include "modules.h"
-#include "logprint.h"
+#include "screen.h"
 #include "utils.h"
 
 // Registry of loaded modules
@@ -393,6 +393,8 @@ void module_info_print(const gchar *name)
     if (info->description)
       scr_LogPrint(LPRINT_NORMAL, "Description: %s", info->description);
   }
+  scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+  update_roster = TRUE;
 }
 
 //  modules_init()

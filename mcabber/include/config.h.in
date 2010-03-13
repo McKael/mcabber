@@ -55,12 +55,6 @@
 /* Mcabber branch name (string) */
 #undef MCABBER_BRANCH
 
-/* Api version of mcabber branch */
-#undef MCABBER_API_VERSION
-
-/* XXX */
-#undef MCABBER_API_MIN
-
 /* Mcabber version (string) */
 #undef MCABBER_VERSION
 

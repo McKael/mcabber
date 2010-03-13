@@ -32,7 +32,7 @@ hgcset.h:
 endif
 
 if INSTALL_HEADERS
-mcabber_SOURCES += modules.c modules.h
+mcabber_SOURCES += modules.c modules.h api.h
 mcabberinclude_HEADERS = main.h roster.h events.h \
 			 commands.h compl.h \
 			 hbuf.h screen.h logprint.h \
@@ -41,7 +41,7 @@ mcabberinclude_HEADERS = main.h roster.h events.h \
 			 xmpp.h xmpp_helper.h xmpp_defines.h \
 			 xmpp_iq.h xmpp_iqrequest.h \
 			 xmpp_muc.h xmpp_s10n.h \
-			 caps.h fifo.h help.h modules.h \
+			 caps.h fifo.h help.h modules.h api.h \
 			 $(top_srcdir)/include/config.h
 
 if OTR

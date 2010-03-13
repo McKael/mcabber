@@ -3,7 +3,7 @@
 
 #include <glib.h>
 #include <gmodule.h>
-#include <mcabber/config.h> // MCABBER_BRANCH, MCABBER_API_VERSION
+#include <mcabber/api.h> // MCABBER_BRANCH, MCABBER_API_VERSION
 
 // Module loading process looks like this:
 //   check, if module is loaded
@@ -51,8 +51,6 @@ typedef struct {
 
 // Registry of loaded modules
 extern GSList *loaded_modules;
-extern const gchar *mcabber_branch;
-extern const guint mcabber_api_version;
 
 // Should be considered mcabber private and not a part of api
 

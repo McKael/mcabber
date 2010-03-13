@@ -17,20 +17,30 @@ be replaced with '_'.
   typedef void (*module_init_t)(void);
   typedef void (*module_uninit_t)(void);
 
-  typedef struct {
-    const gchar      *mcabber_version;
+  typedef struct module_info_struct module_info_t;
+  struct module_info_struct {
+    const gchar      *branch;
     module_init_t     init;
     module_uninit_t   uninit;
     const gchar     **requires;
-  } module_info_t;
+    guint             api;
+    const gchar      *version;
+    const gchar      *description;
+    module_info_t    *next;
+  };
 --------------------------------------------------------
 
 Callbacks init and uninit will be called after module
-and it's dependencies loading. 'requires' should contain
+and it's dependencies loading. 'requires' can contain a
 NULL-terminated list of module names, that should be loaded
-before this. 'mcabber_version' is required and should contain
-mcabber version, that this module is designed to work with.
-Three other fields may be NULL.
+before this. 'branch' and 'api' are required and should
+contain mcabber branch and api version, that this module is
+designed to work with. For these values see ChangeLog.api.
+'version' and 'description' fields are optional and just
+provide user with additional information about module.
+'description' field can contain newlines. 'next' field can
+contain pointer to the next struct with another branch of
+mcabber, if your module can work with multiple branches.
 
 To load modules, mcabber uses glib's GModule, thus, in your
 module you can also use functions
@@ -76,7 +86,8 @@ happens, when module is loaded:
  - load .so via glib (and call g_module_check_init, if
    present)
  - check for information structure presence
- - check target mcabber version compatibility
+ - find suitable branch and check api version
+   compatibility
  - load modules, that this module requires (note, that
    dependency problems will be reported as error
    invariably, force flag have no effect on this check)
@@ -321,10 +332,15 @@ void hello_uninit (void)
 }
 
 module_info_t info_hello = {
-	.mcabber_version = "0.10.0",
+	.branch          = "dev",
+	.api             = 1,
 	.requires        = NULL,
 	.init            = hello_init,
 	.uninit          = hello_uninit,
+	.version         = "0.0.1",
+	.description     = "Hello world module\n"
+		"(as well as bye world module)",
+	.next            = NULL,
 };
 
 /* The End */
@@ -384,10 +400,15 @@ void hello_uninit (void)
 }
 
 module_info_t hello_info = {
-	.mcabber_version = "0.10.0",
+	.branch          = "dev",
+	.api             = 1,
 	.requires        = NULL,
 	.init            = hello_init,
 	.uninit          = hello_uninit,
+	.version         = "0.0.2",
+	.description     = "Hello world module\n"
+		"Provides command /hello",
+	.next            = NULL,
 }
 
 /* The End */
@@ -454,10 +475,15 @@ void hello_uninit (void)
 }
 
 module_info_t hello_info = {
-	.mcabber_version = "0.10.0",
+	.branch          = "dev",
+	.api             = 1,
 	.requires        = NULL,
 	.init            = hello_init,
 	.uninit          = hello_uninit,
+	.version         = "0.0.3",
+	.description     = "Hello world module"
+		"Provides command /hello with completion",
+	.next            = NULL,
 }
 
 /* The End */
@@ -561,10 +587,16 @@ void beep_uninit (void)
 }
 
 module_info_t beep_info = {
-	.mcabber_version = "0.10.0",
+	.branch          = "dev",
+	.api             = 1,
 	.requires        = NULL,
 	.init            = beep_init,
 	.uninit          = beep_uninit,
+	.version         = "0.0.1",
+	.description     = "Simple beeper module\n"
+		"Recognizes option beep_enable\n"
+		"Provides command /beep",
+	.next            = NULL,
 }
 
 /* The End */
@@ -611,10 +643,14 @@ modules:
 const gchar *a_deps[] = { "b", "c", NULL };
 
 module_info_t info_a = {
-	.mcabber_version = "0.10.0",
+	.branch          = "dev",
+	.api             = 1,
 	.requires        = a_deps,
 	.init            = a_init,
 	.uninit          = a_uninit,
+	.version         = NULL,
+	.description     = NULL,
+	.next            = NULL,
 };
 --------------------------------------------------------
 
@@ -626,30 +662,35 @@ too, this can be done in g_module_check_init:
 #include <gmodule.h>
 
 #include <mcabber/main.h>
+#include <mcabber/modules.h>
 
 const gchar *g_module_check_init (GModule *module)
 {
 	char *ver = mcabber_version ();
-
 	// ver now contains version in format
-	// X.X.X[-xxx][ (XXXXXXXXX)]
+	// X.X.X[-xxx][ (XXXXXXXXXXXXX)]
+	const gchar *branch = mcabber_branch;
+	guint api = mcabber_api_version;
+	const gchar *error = NULL;
+
 	if (...)
-		return "Incompatible mcabber version";
+		error = "Incompatible mcabber version";
 
 	g_free (ver);
-	return NULL;
+	return error;
 }
 --------------------------------------------------------
 
 Also you can use glib check_init routine to modify
 module information, that will be checked by mcabber,
 eg. if you want your module to always pass mcabber
-version check, you can assign version, obtained from
-mcabber_version() to corresponding field in your struct.
+version check, you can assign branch information,
+obtained from mcabber_... variables to corresponding
+fields in your struct.
 Or you can modify your module's dependencies, though
 direct module_load() will have the same effect, and
 can be used for optional dependencies, that your module
-can work without.
+can still work without.
 
 Note: remember, that g_module_check_init will be always
 called, even if later module will not pass checks, thus:
@@ -691,5 +732,5 @@ a more suitable version of text in question).
   -- Myhailo Danylenko
   -- mailto:isbear@ukrpost.net
   -- xmpp:isbear@unixzone.org.ua
-  -- Thu, 04 Mar 2010 09:32:38 +0200
+  -- Sat, 13 Mar 2010 12:18:17 +0200
 

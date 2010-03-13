@@ -494,7 +494,7 @@ int process_line(const char *line)
     }
     if (current_buddy) {
       if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_GROUP)
-	do_group("toggle");
+        do_group("toggle");
       else {
         // Enter chat mode
         scr_set_chatmode(TRUE);
@@ -2967,7 +2967,7 @@ static void do_module(char *arg)
   if (!args[0] || !strcmp(args[0], "list")) {
     module_list_print();
   } else {
-    const gchar *error;
+    const gchar *error = NULL;
     const gchar *name = args[1];
 
     if (name && name[0] == '-' && name[1] == 'f') {
@@ -2981,6 +2981,8 @@ static void do_module(char *arg)
       error = module_load(name, TRUE, force);
     else if (!strcmp(args[0], "unload"))
       error = module_unload(name, TRUE, force);
+    else if (!strcmp(args[0], "info"))
+      module_info_print(name);
     else
       error = "Unknown subcommand";
     if (error)

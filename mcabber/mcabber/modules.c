@@ -29,20 +29,11 @@
 #include "logprint.h"
 #include "utils.h"
 
-// Information about loaded module
-typedef struct {
-  guint          refcount;
-  gboolean       locked;
-  gchar         *name;
-  GModule       *module;
-  GSList        *dependencies;
-  module_info_t *info;
-} loaded_module_t;
-
 // Registry of loaded modules
-// FIXME This should be a hash table
-// but this needs long thinking and will not affect external interfaces
-static GSList *loaded_modules = NULL;
+GSList *loaded_modules = NULL;
+
+const gchar *mcabber_branch = MCABBER_BRANCH;
+const guint mcabber_api_version = MCABBER_API_VERSION;
 
 static gint module_list_comparator(gconstpointer arg1, gconstpointer arg2)
 {
@@ -59,7 +50,6 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
 {
   GModule       *mod;
   module_info_t *info;
-  GSList        *deps = NULL;
 
   if (!arg || !*arg)
     return "Missing module name";
@@ -96,7 +86,7 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
       return g_module_error();
   }
 
-  { // Obtain module information structure
+  { // Obtain module information structures list
     gchar *varname = g_strdup_printf("info_%s", arg);
     gpointer var = NULL;
 
@@ -106,6 +96,9 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
     if (!g_module_symbol(mod, varname, &var)) {
       if (!force) {
         g_free(varname);
+        if(!g_module_close(mod))
+          scr_LogPrint(LPRINT_LOGNORM, "Error closing module: %s.",
+                       g_module_error());
         return "Module provides no information structure";
       }
 
@@ -117,21 +110,38 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
     info = var;
   }
 
-  // Version check
-  if (info && info->mcabber_version && *(info->mcabber_version)
-      && (strcmp(info->mcabber_version, PACKAGE_VERSION) > 0)) {
-    if (!force) {
-      g_module_close(mod);
-      return "Module requires newer version of mcabber";
+  // Find appropriate info struct
+  if (info) {
+    while (info) {
+      if (!info->branch || !*(info->branch)) {
+        scr_LogPrint(LPRINT_DEBUG, "No branch name, "
+                     "skipping info chunk.");
+      } else if (strcmp(info->branch, mcabber_branch)) {
+        scr_LogPrint(LPRINT_DEBUG, "Unhandled branch %s, "
+                     "skipping info chunk.", info->branch);
+      } else if (info->api > mcabber_api_version ||
+                 info->api < MCABBER_API_MIN) { // XXX force?
+        if(!g_module_close(mod))
+          scr_LogPrint(LPRINT_LOGNORM, "Error closing module: %s.",
+                       g_module_error());
+        return "Incompatible mcabber api version";
+      } else
+        break;
+      info = info->next;
     }
 
-    scr_LogPrint(LPRINT_LOGNORM, "Forced to ignore error: "
-                                 "Module requires newer version of mcabber.");
+    if (!info) { // XXX force?
+      if(!g_module_close(mod))
+        scr_LogPrint(LPRINT_LOGNORM, "Error closing module: %s.",
+                     g_module_error());
+      return "No supported mcabber branch description found";
+    }
   }
 
   // Load dependencies
   if (info && info->requires) {
     const gchar **dep;
+    GSList *deps = NULL;
 
     for (dep = info->requires; *dep; ++dep) {
       const gchar *err = module_load(*dep, FALSE, FALSE);
@@ -159,8 +169,10 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
         return "Dependency problems";
       }
 
-      deps = g_slist_append(deps, g_strdup(*dep));
+      deps = g_slist_append(deps, (gpointer) *dep);
     }
+
+    g_slist_free(deps);
   }
 
   { // Register module
@@ -171,7 +183,6 @@ const gchar *module_load(const gchar *arg, gboolean manual, gboolean force)
     module->name         = g_strdup(arg);
     module->module       = mod;
     module->info         = info;
-    module->dependencies = deps;
 
     loaded_modules = g_slist_prepend(loaded_modules, module);
   }
@@ -231,27 +242,25 @@ const gchar *module_unload(const gchar *arg, gboolean manual, gboolean force)
   // Run uninitialization routine
   if (info && info->uninit)
     info->uninit();
-  // XXX Prevent uninitialization routine to be called again
+
+  // Unload dependencies
+  if (info && info->requires) {
+    const gchar **dep;
+    for (dep = info->requires; *dep; ++dep) {
+      const gchar *err = module_unload(*dep, FALSE, FALSE);
+      if (err) // XXX
+        scr_LogPrint(LPRINT_LOGNORM,
+                     "Error unloading automatically loaded module %s: %s.",
+                     *dep, err);
+    }
+  }
+
+  // XXX Prevent uninitialization routine and dep unloading to be performed again
   module->info = NULL;
 
   // Unload module
   if (!g_module_close(module->module))
     return g_module_error(); // XXX destroy structure?
-
-  { // Unload dependencies
-    GSList *dep;
-    for (dep = module->dependencies; dep; dep = dep->next) {
-      gchar *ldmname = dep->data;
-      const gchar *err = module_unload(ldmname, FALSE, FALSE);
-      if (err) // XXX
-        scr_LogPrint(LPRINT_LOGNORM,
-                     "Error unloading automatically loaded module %s: %s.",
-                     ldmname, err);
-      g_free(ldmname);
-    }
-    g_slist_free(module->dependencies);
-    module->dependencies = NULL;
-  }
 
   // Destroy structure
   loaded_modules = g_slist_delete_link(loaded_modules, lmod);
@@ -278,7 +287,7 @@ void module_list_print(void)
     return;
   }
 
-  // Counnt maximum module name length
+  // Count maximum module name length
   for (mel = loaded_modules; mel; mel = mel -> next) {
     loaded_module_t *module = mel->data;
     gsize len = strlen(module->name);
@@ -293,23 +302,32 @@ void module_list_print(void)
   message = g_string_new("Loaded modules:\n");
   for (mel = loaded_modules; mel; mel = mel -> next) {
     loaded_module_t *module = mel->data;
-    GSList *dep;
 
     g_string_append_printf(message, format, module->name, module->refcount,
                            module->locked ? 'M' : 'A');
 
-    // Append loaded module dependencies
-    if (module->dependencies) {
-      g_string_append(message, " depends: ");
+    if (module->info) {
+      module_info_t *info = module->info;
 
-      for (dep = module->dependencies; dep; dep = dep->next) {
-        const gchar *name = dep->data;
-        g_string_append(message, name);
-        g_string_append(message, ", ");
+      // Module version
+      if (info->version) {
+        g_string_append(message, " version: ");
+        g_string_append(message, info->version);
       }
 
-      // Chop extra ", "
-      g_string_truncate(message, message->len - 2);
+      // Module dependencies
+      if (info->requires && *(info->requires)) {
+        const gchar **dep;
+        g_string_append(message, " depends: ");
+
+        for (dep = info->requires; *dep; ++dep) {
+          g_string_append(message, *dep);
+          g_string_append(message, ", ");
+        }
+
+        // Chop extra ", "
+        g_string_truncate(message, message->len - 2);
+      }
     }
 
     g_string_append_c(message, '\n');
@@ -322,6 +340,53 @@ void module_list_print(void)
 
   g_string_free(message, TRUE);
   g_free(format);
+}
+
+//  module_info_print(name)
+// Prints info about specific module
+void module_info_print(const gchar *name)
+{
+  GSList *lmod;
+  loaded_module_t *module;
+  module_info_t *info;
+
+  lmod = g_slist_find_custom(loaded_modules, name, module_list_comparator);
+  if (!lmod) {
+    scr_LogPrint(LPRINT_NORMAL, "Module %s not found.", name);
+    return;
+  }
+
+  module = lmod->data;
+  info = module->info;
+
+  scr_LogPrint(LPRINT_NORMAL, "Name: %s", module->name);
+  scr_LogPrint(LPRINT_NORMAL, "Location: %s", g_module_name(module->module));
+  scr_LogPrint(LPRINT_NORMAL, "Loaded: %s",
+               module->locked ? "Manually" : "Automatically");
+  scr_LogPrint(LPRINT_NORMAL, "Reference count: %u", module->refcount);
+
+  if (info) {
+
+    if (info->version)
+      scr_LogPrint(LPRINT_NORMAL, "Version: %s", info->version);
+
+    if (info->requires && *(info->requires)) {
+      GString *message = g_string_new("Depends on: ");
+      const gchar **dep;
+      for (dep = info->requires; *dep; ++dep) {
+        g_string_append(message, *dep);
+        g_string_append(message, ", ");
+      }
+
+      // Chop last ", "
+      g_string_truncate(message, message->len - 2);
+      scr_LogPrint(LPRINT_NORMAL, "%s", message->str);
+      g_string_free(message, TRUE);
+    }
+
+    if (info->description)
+      scr_LogPrint(LPRINT_NORMAL, "Description: %s", info->description);
+  }
 }
 
 //  modules_init()

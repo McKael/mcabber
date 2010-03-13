@@ -307,6 +307,11 @@ set cmdhistory_lines = 250
 # Set 'muc_disable_nick_hl' to 1 if you don't want mcabber to color lines
 # containing your nickname in a MUC room.
 #set muc_disable_nick_hl = 0
+#
+# Set 'completion_muc_suffix' if you want mcabber to append a string to
+# suggested nicknames (only at the beginning of a line), like ":" or ",".
+# (Default: none)
+#set completion_muc_suffix = ": "
 
 # Status messages
 # The 'message' value will override all others, take care!

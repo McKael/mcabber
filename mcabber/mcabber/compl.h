@@ -33,11 +33,12 @@ guint compl_new_category (void);
 void  compl_del_category (guint id);
 #endif
 
-void    compl_add_category_word(guint, const char *command);
-void    compl_del_category_word(guint categ, const char *word);
+void    compl_add_category_word(guint, const gchar *command);
+void    compl_del_category_word(guint categ, const gchar *word);
 GSList *compl_get_category_list(guint cat_flags, guint *dynlist);
 
-guint   new_completion(char *prefix, GSList *compl_cat);
+guint   new_completion(const gchar *prefix, GSList *compl_cat,
+                       const gchar *suffix);
 void    done_completion(void);
 guint   cancel_completion(void);
 const char *complete(void);

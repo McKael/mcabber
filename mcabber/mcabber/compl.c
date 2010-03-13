@@ -91,13 +91,14 @@ void compl_del_category (guint id)
 }
 #endif
 
-//  new_completion(prefix, compl_cat)
+//  new_completion(prefix, compl_cat, suffix)
 // . prefix    = beginning of the word, typed by the user
 // . compl_cat = pointer to a completion category list (list of *char)
+// . suffix    = string to append to all completion possibilities (i.e. ":")
 // Set the InputCompl pointer to an allocated compl structure.
 // done_completion() must be called when finished.
 // Returns the number of possible completions.
-guint new_completion(char *prefix, GSList *compl_cat)
+guint new_completion(const char *prefix, GSList *compl_cat, const gchar *suffix)
 {
   compl *c;
   GSList *sl_cat;
@@ -112,8 +113,14 @@ guint new_completion(char *prefix, GSList *compl_cat)
   for (sl_cat = compl_cat; sl_cat; sl_cat = g_slist_next(sl_cat)) {
     char *word = sl_cat->data;
     if (!strncasecmp(prefix, word, len)) {
-      if (strlen(word) != len)
-        c->list = g_slist_append(c->list, g_strdup(word+len)); // TODO sort
+      if (strlen(word) != len) {
+        gchar *compval;
+        if (suffix)
+          compval = g_strdup_printf("%s%s", word+len, suffix);
+        else
+          compval = g_strdup(word+len);
+        c->list = g_slist_append(c->list, compval); // TODO sort
+      }
     }
   }
   c->next = c->list;
@@ -175,7 +182,7 @@ const char *complete()
 
 //  compl_add_category_word(categ, command)
 // Adds a keyword as a possible completion in category categ.
-void compl_add_category_word(guint categ, const char *word)
+void compl_add_category_word(guint categ, const gchar *word)
 {
   GSList *sl_cat;
   category *cat;
@@ -208,7 +215,7 @@ void compl_add_category_word(guint categ, const char *word)
 
 //  compl_del_category_word(categ, command)
 // Removes a keyword from category categ in completion list.
-void compl_del_category_word(guint categ, const char *word)
+void compl_del_category_word(guint categ, const gchar *word)
 {
   GSList *sl_cat, *sl_elt;
   category *cat;

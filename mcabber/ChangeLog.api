@@ -1,6 +1,13 @@
+dev (2)
+
+ * Add api.h
+ * Add scr_gettextwidth() (61f0482d3993)
+ * Changeset e7ce50fe19a9
+
+ -- Myhailo Danylenko, 2010-03-13
+
 dev (1)
 
  * Initial API version
 
  -- Myhailo Danylenko, 2010-03-13
-

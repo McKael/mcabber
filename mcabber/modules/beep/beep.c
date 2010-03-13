@@ -25,16 +25,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <mcabber/screen.h>
 #include <mcabber/settings.h>
 #include <mcabber/modules.h>
+#include <mcabber/config.h>
 
 static void beep_init   (void);
 static void beep_uninit (void);
 
 /* Module description */
 module_info_t info_beep = {
-	.mcabber_version = "0.10.0",
+	.branch          = MCABBER_BRANCH,
 	.requires        = NULL,
 	.init            = beep_init,
 	.uninit          = beep_uninit,
+	.api             = MCABBER_API_VERSION,
+	.version         = MCABBER_VERSION,
+	.description     = "Simple beeper module\n"
+		"Recognizes option beep_enable\n"
+		"Provides command /beep",
+	.next            = NULL,
 };
 
 static guint beep_cid = 0;

@@ -350,6 +350,11 @@ void module_info_print(const gchar *name)
   loaded_module_t *module;
   module_info_t *info;
 
+  if (!name || !name[0]) {
+    scr_LogPrint(LPRINT_NORMAL, "Please specify a module name.");
+    return;
+  }
+
   lmod = g_slist_find_custom(loaded_modules, name, module_list_comparator);
   if (!lmod) {
     scr_LogPrint(LPRINT_NORMAL, "Module %s not found.", name);

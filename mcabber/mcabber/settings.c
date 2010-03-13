@@ -51,6 +51,10 @@ typedef struct {
 } T_pgpopt;
 #endif
 
+typedef struct {
+  settings_guard_t guard;
+} installed_guard_t;
+
 #ifdef HAVE_LIBOTR
 static GHashTable *otrpolicy;
 static enum otr_policy default_policy;
@@ -74,7 +78,7 @@ void settings_init(void)
   option  = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
   alias   = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
   binding = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
-  guards  = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, NULL);
+  guards  = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
 #ifdef HAVE_GPGME
   pgpopt = g_hash_table_new(&g_str_hash, &g_str_equal);
 #endif
@@ -299,12 +303,19 @@ guint parse_assigment(gchar *assignment, gchar **pkey, gchar **pval)
   return TRUE;
 }
 
-void settings_set_guard(const gchar *key, settings_guard_t guard)
+gboolean settings_set_guard(const gchar *key, settings_guard_t guard)
 {
   if (!guard)
     g_hash_table_remove(guards, key);
-  else
-    g_hash_table_insert(guards, g_strdup(key), (gpointer)guard);
+  else {
+    installed_guard_t *iguard = g_hash_table_lookup(guards, key);
+    if (iguard)
+      return FALSE;
+    iguard = g_new(installed_guard_t, 1);
+    iguard->guard = guard;
+    g_hash_table_insert(guards, g_strdup(key), iguard);
+  }
+  return TRUE;
 }
 
 void settings_del_guard(const gchar *key)
@@ -327,9 +338,9 @@ void settings_set(guint type, const gchar *key, const gchar *value)
   settings_guard_t guard = NULL;
 
   if (type == SETTINGS_TYPE_OPTION) {
-    guard = (settings_guard_t)g_hash_table_lookup(guards, key);
+    installed_guard_t *guard = g_hash_table_lookup(guards, key);
     if (guard)
-      dup_value = guard(key, value);
+      dup_value = guard->guard(key, value);
   }
 
   hash = get_hash(type);

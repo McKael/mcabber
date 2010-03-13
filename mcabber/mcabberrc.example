@@ -168,7 +168,7 @@ set cmdhistory_lines = 250
 
 # You can specify a maximum number of data blocks per buffer (1 block contains
 # about 8kB).  The default is 0 (unlimited).  If set, this value must be > 2.
-#set max_history_blocks = 8
+set max_history_blocks = 8
 
 # IQ settings
 # Set iq_version_hide_os to 1 if you do not want to allow people to retrieve

@@ -1,13 +1,16 @@
 
  /MODULE load|unload [-f] module
+ /MODULE info module
  /MODULE [list]
 
-Load or unload module.
+Load, unload or show info on module.
 
 /module load [-f] module
  Loads specified module. If -f flag is specified, most of module loading errors will be ignored.
 /module unload [-f] module
  Unloads specified module.
  Note: The force flag will not remove any dependent on this modules!
+/module info module
+ Shows available information about this module.
 /module [list]
- Lists modules in a format: [modulename]  [reference count] ([Manually/Automatically loaded]) [loaded modules, that this module depends on]
+ Lists modules in a format: [modulename]  [reference count] ([Manually/Automatically loaded]) [any extra info, like version or dependencies]

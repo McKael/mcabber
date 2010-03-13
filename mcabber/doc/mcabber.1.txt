@@ -1,11 +1,11 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.10.0-dev, October 2009
+v0.10.0-dev, March 2010
 
 NAME
 ----
-mcabber - a simple Jabber console client
+mcabber - a simple Jabber (XMPP) console client
 
 SYNOPSIS
 --------
@@ -13,7 +13,7 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-`mcabber(1)` is a small Jabber console client. +
+`mcabber(1)` is a small Jabber (XMPP) console client. +
 For now it needs a configuration file to start, so please copy the sample
 mcabberrc file and adapt your connection settings.
 
@@ -22,12 +22,12 @@ it cannot (un)register accounts yet.
 
 Here are some of the features of `mcabber`:
 
-- 'SSL/TLS support'.
+- 'SASL/SSL/TLS support'.
 - 'MUC support' (Multi-User Chat).
-- 'PGP support'
+- 'PGP, OTR support'
 - 'Chat States' support (typing notifications)
 - 'History logging:'  If enabled (see the CONFIGURATION FILE section),
-  `mcabber` can save discussions to history log files.
+  `mcabber` can save discussions to text history log files.
 - 'Commands completion:'  If possible, `mcabber` will try to complete your
   command line if you hit the Tab key.
 - 'Input line history:'  Any message or command entered is in the input line
@@ -36,11 +36,16 @@ Here are some of the features of `mcabber`:
   external action such as a shell script if you enable it in your
   configuration file.  A sample events script ("eventcmd") is provided with
   `mcabber` source code, in the contrib directory.
+- 'Modules:'  `mcabber` can load modules (a.k.a. plugins) at runtime that
+  extend its features.
 
 OPTIONS
 -------
---help, -h::
+-h::
         Quick help usage message
+
+-V::
+        Displays `mcabber` version and compile-time definitions.
 
 -f configfile::
         Use configuration file 'configfile'
@@ -81,12 +86,12 @@ Up and Down arrow keys can be used to move in the input line history; they
 jump to the previous/next line from the history beginning with the same string
 (from first column to the cursor column).
 
-To send a message, move to the choosen buddy in the buddylist, type your
+To send a message, move to the chosen buddy in the buddylist, type your
 message and hit enter.  If the line begins with a slash, this will be
 interpreted as a command (see the COMMAND section below).  Hit escape to
 leave the chat mode.
 
-Here is a quick description of the key bindings:
+Here is a quick description of the default key bindings:
 
 Esc::           Disable chat mode
 Ctrl-a::        Go to the beginning of the input line
@@ -154,7 +159,7 @@ Examples:
         '#[o] John';;     John is online, can see your status, and sent you a message that you did not read yet
         ' \{?\} Sally';;  Neither you nor Sally have authorized each other to see your online status
         ' \{a\} Jane';;   Jane is away, but she cannot see your online status
-        '#[C] x@y.c';;    You are participating in x@y.c conference room, and there are unread messages
+        '#[C] \x@y.c';;   You are participating in \x@y.c conference room, and there are unread messages
 
 COMMANDS
 --------
@@ -163,251 +168,343 @@ You will find an overview of the `mcabber` commands in this manual.
 
 COMMANDS RELATED TO MCABBER
 ---------------------------
+/add [jid [nickname]]::
+        Add the "jid" Jabber user to our roster (default group), and send a notification request to this buddy.  If no nickname is specified, the jid is used.  If no jid (or an empty string "") is provided or if jid is ".", the current buddy is used.
+
+        ['jid' [nickname]];;  Add to our roster "jid" as "nickname"
+
+        Example: "/add somebody@jabber.server.com Somebody"
+
 /alias [name [= command line]]::
-        Add "name" as an alias for "command line". +
-        Aliases are expanded only once, thus they can not be chained. +
-        "/alias name" displays the value associated with the "name" alias; +
-        "/alias name =" unsets the "name" alias. +
-        "/alias" displays a list of the existing aliases. +
-        Example: "/alias away = status away".
+        This command let you to add aliases which can simplify sophisticated commands. +
+        You can manage your aliases by:
+
+        (without arguments);;  Print list of currently defined aliases
+        'name';;  Print the value of alias called "name"
+        'name'=;;  Unset alias called "name"
+        'name' = command line;;  Set alias called "name" with value "command line"
+
+        Example: "/alias away = status away"
+
+/authorization allow|cancel|request|request_unsubscribe [jid]::
+        This command manages presence subscriptions: it allows you to request presence subscriptions from others on your roster, and allows you to control who receives your presence notifications. +
+        If no JID is provided, the currently-selected buddy is used.
+
+        'allow';;  Allow the buddy to receive your presence updates
+        'cancel';;  Cancel the buddy's subscription to your presence updates
+        'request';;  Request a subscription to the buddy's presence updates
+        'request_unsubscribe';;  Request unsubscription from the buddy's presence updates
 
 /bind [keycode [= command line]]::
-        Bind a command line to the key with the "keycode" code number. +
-        Keycodes of unused keys are displayed by `mcabber` in the log window
-        when pressing the key, for example "Unknown key=265". +
-        "/bind keycode" displays the command line bound to the given keycode; +
-        "/bind keycode =" unbinds the given keycode. +
-        "/bind" displays a list of the bound keycodes. +
-        Note: aliases can be used in key bindings. +
-        Example: "/bind 265 = status online" (265 is F1 for me, but it may
-        depend on your ncurses installation).
+        Bind the command to the key given as "keycode".  To examine which keys are currently not used look at `mcabber` log window and press examined key.  For example: "Unknown key=265" means that you can bind some command to key #265.
 
-/buffer clear|close|close_all|purge::
+        (without arguments);;  Display list of current bindings
+        'keycode';;  Display the command line bound to this key
+        'keycode'=;;  Unbind key with code "keycode"
+        'keycode' = command line;;  Bind "command line" to the key with code "keycode"
+
+        Example: "/bind 265 = status away" (265 is F1). +
+        Note: keycodes can be different depending on your ncurses configuration. +
+        Tip: aliases also can be used instead of commands.
+
+/buffer clear|close|close_all|purge|list::
 /buffer top|bottom|date|%|search_backward|search_forward::
 /buffer scroll_lock|scroll_unlock|scroll_toggle::
-        The 'buffer' command manipulates the current buddy's buffer
-        (chat window).
+/buffer save filename::
+        Buddy's buffer manipulation command.  Eg. you can search through buffer for "text", clear chat window etc.
 
-        'clear';;                clear the current buddy chat window
-        'close';;                empty all contents of the buffer and close the current buddy chat window
-        'close_all';;            empty all contents of the chat buffers and close the chat windows
-        'purge';;                clear the current buddy chat window and empty all contents of the chat buffer
-        'top';;                  jump to the top of the current buddy chat buffer
-        'bottom';;               jump to the bottom of the current buddy chat buffer
-        'up' [n];;               scroll the buffer up n lines (default: half a screen)
-        'down' [n];;             scroll the buffer down n lines (default: half a screen)
-        'date' date;;            jump to the first line after the specified date in the chat buffer (date format: "YYYY-mm-dd[THH:MM:SS]", "-" and ":" are optional)
-        '%' n;;                  jump to position %n of the buddy chat buffer
-        'search_backward' text;; search for "text" in the current buddy chat buffer
-        'search_forward'  text;; search for "text" in the current buddy chat buffer
-        'scroll_lock';;          lock buffer scrolling
-        'scroll_unlock';;        unlock buffer scrolling
-        'scroll_toggle';;        toggle buffer scrolling (lock/unlock)
+        'clear';;  Clear the current buddy chat window
+        'close' [jid];;  Empty all contents of the buffer and close the current buddy chat window
+        'close_all';;  Empty all contents of the chat buffers and close the chat windows
+        'purge' [jid];;  Clear the current buddy chat window and empty all contents of the chat buffer
+        'list';;  Display the list of existing buffers, with their length (lines/blocks)
+        'top';;  Jump to the top of the current buddy chat buffer
+        'bottom';;  Jump to the bottom of the current buddy chat buffer
+        'up' [n];;  Scroll the buffer up [n] lines (default: half a screen)
+        'down' [n];;  Scroll the buffer down [n] lines (default: half a screen)
+        'date' [date];;  Jump to the first line after the specified [date] in the chat buffer (date format: "YYYY-mm-dd")
+        % n;;  Jump to position %n of the buddy chat buffer
+        'search_backward' text;;  Search for [text] in the current buddy chat buffer
+        'search_forward' text;;  Search for [text] in the current buddy chat buffer
+        'scroll_lock';;  Lock buffer scrolling
+        'scroll_unlock';;  Unlock buffer scrolling
+        'scroll_toggle';;  Toggle buffer scrolling (lock/unlock)
+        'save' filename;;  Save the contents of the current buffer to the file "filename"
+
+/chat_disable [--show-roster]::
+        Disable chat mode. +
+        With --show-roster, the fullscreen mode will be disabled.
 
 /clear::
-        The 'clear' command is actually an alias for "/buffer clear".
+        This command is actually an alias for "/buffer clear".  It clears the current buddy chat window.
 
-/help [command]::
-        Display generic help or help about a specific mcabber command.
+/color roster (status wildcard (color|-)|clear)::
+/color mucnick nick (color|-)::
+/color muc (jid|.|*) [on|preset|off|-]::
+        The 'color' command allows setting dynamic color properties of the screen.
 
-/quit::
-        Disconnect and leave `mcabber(1)`.
+        'roster' clear;;  Remove all color rules for the roster. All roster items will get its default color.
+        'roster' status wildcard color;;  Set a color rule (or overwrite, if it already exists). The status is string containing all statuses the roster item can have for the rule to match, or * if any status is OK. Wildcard is the file-matching wildcard that will be applied to JID. Color is the wanted color. If color is -, the rule is removed. If more than one rule matches, the color from the last created (not overwritten) is used.
+        'mucnick' nick (color|-);;  Marks the nick to be colored by given color. If a MUC has colored nicks, this one will be used. If color is -, the color is marked as chosen automatically, which means it will not be used in 'preset' coloring mode, but will stay the same in 'on' coloring mode.
+        'muc' (jid|.|*) [on|preset|off|-];;  Sets a MUC nick coloring mode. If a jid (. means currently selected jid) is provided, the mode will apply to this specific MUC. If * is used, it will be applied to all MUCs, except the ones set by their jid. Mode 'on' colors all nicks, 'preset' only the ones manually set by /color mucnick command and 'off' colors none. If not specified, defaults to 'on'. Mode '-' removes the mode from given JID, which means the global one will apply. You can not remove the global mode. Default global coloring mode is 'off'.
 
-/set option[=value]::
-        Display or set an option value.
-
-/source [file]::
-        Read a configuration file.
-
-/version::
-        Display mcabber version
-
-COMMANDS RELATED TO THE SERVER AND CONNECTION
----------------------------------------------
 /connect::
         Establish connection to the Jabber server.
 
-/disconnect::
-        Terminate connection to the Jabber server.  Note: the roster is only
-        available when the connection to the server is active, so the
-        buddylist is empty when disconnected.
-
-/event #n|* accept|ignore|reject::
-/event list::
-        Tell mcabber what to do about a pending event. +
-        If the first parameter is "*", the command will apply to all
-        queued events.
-
-        'accept';;  accept the event #n
-        'ignore';;  remove the event #n from the list
-        'reject';;  reject the event #n
-        'list';;    list all pending events
-
-/rawxml send string::
-        'send' string: send string (raw XML format) to the Jabber server.  No check is done on the string provided.  BEWARE! Use this only if you know what you are doing, or you could terminate the connection.
-
-COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES
----------------------------------------------------
-/add [jid [nickname]]::
-        Add the "jid" Jabber user to our roster (default group), and send a
-        notification request to this buddy.  If no nickname is specified, the
-        jid is used.  If no jid (or an empty string "") is provided or if jid
-        is ".", the current buddy is used.
-
-/authorization allow|cancel|request|request_unsubscribe [jid]::
-        Manage the presence subscriptions. +
-        If no jid is provided, the current buddy is used.
-
-        'allow';;   allow the buddy to receive your presence updates
-        'cancel';;  cancel the buddy' subscription to your presence updates
-        'request';; request a subscription to the buddy's presence updates
-        'request_unsubscribe';; request unsubscription from the buddy's presence updates
-
 /del::
-        Delete the current buddy from our roster, unsubscribe from its presence
-        notification and unsubscribe it from ours.
+        Delete the current buddy from our roster, unsubscribe from its presence notification and unsubscribe it from ours.
 
-/group fold|unfold|toggle::
-        The 'group' command changes the current group display.
+/disconnect::
+        Terminate the connection to the Jabber server. +
+        Note: the roster is only available when the connection to the server is active, so the buddylist is empty when disconnected.
 
-        'fold';;   fold (shrink) the current group tree in the roster
-        'unfold';; unfold (expand) the current group tree in the roster
-        'toggle';; toggle the state (fold/unfold) of the current tree
+/echo message::
+        Display "message" in the log window.
+
+/event #n|* accept|ignore|reject [event-specific arguments]::
+/event list::
+        Tell mcabber what to do about pending events. +
+        If the first parameter is '*', the command will apply to all queued events. +
+        Event-specific arguments will be interpreted on event-to event basis. The only built-in case, when argument is used is MUC invitation reject - argument, if present, will be interpreted as reject reason.
+
+        #N|* accept [event-specific arguments];;  Event number #N/All events will be accepted
+        #N|* ignore [event-specific arguments];;  Event number #N/All events will be ignored
+        #N|* reject [event-specific arguments];;  Event number #N/All events will be rejected
+        'list';;  List all pending events
+
+/group fold|unfold|toggle [groupname]::
+        This command changes the current group display.
+
+        'fold' [groupname];;  Fold (shrink) the current/specified group tree in the roster
+        'unfold' [groupname];;  Unfold (expand) the current/specified group tree in the roster
+        'toggle' [groupname];;  Toggle the state (fold/unfold) of the current/specified tree
+
+/help [command|+topic]::
+        Display help for command "command" or topic "topic". +
+        Example: "/help buffer"
+
+/iline fchar|bchar|char_fdel|char_bdel|char_swap::
+/iline fword|bword|word_bdel|word_fdel::
+/iline word_upcase|word_downcase|word_capit::
+/iline hist_beginning_search_bwd|hist_beginning_search_fwd::
+/iline hist_prev|hist_next::
+/iline iline_start|iline_end|iline_fdel|iline_bdel::
+/iline iline_accept|iline_accept_down_hist::
+/iline compl_do|compl_cancel::
+/iline send_multiline::
+        Input line commands
+
+        'fchar';;  Move to the next letter
+        'bchar';;  Move to the previous letter
+        'char_fdel';;  Delete the letter at cursor position
+        'char_bdel';;  Delete the letter before cursor position
+        'char_swap';;  Transpose chars
+        'fword';;  Move the cursor forward to the end of the current or next word
+        'bword';;  Move the cursor back to the start of the current or previous word
+        'word_bdel';;  Delete the word from cursor position to its start
+        'word_fdel';;  Delete the word from cursor position to its end
+        'word_upcase';;  Convert the word from cursor position to its end to upper case
+        'word_downcase';;  Convert the word from cursor position to its end to down case
+        'word_capit';;  Capitalize the word from cursor position to its end
+        'hist_beginning_search_bwd';;  Search backward in the history for a  line  beginning  with  the current  line  up  to the cursor (this leaves the cursor in its original position)
+        'hist_beginning_search_fwd';;  Search forward in the history for a  line  beginning  with  the current  line  up  to the cursor (this leaves the cursor in its original position)
+        'hist_prev';;  Previous line of input line history
+        'hist_next';;  Next line of input line history
+        'iline_start';;  Go to the beginning of the input line
+        'iline_end';;  Go to the end of the input line
+        'iline_fdel';;  Delete from the cursor to the end of line
+        'iline_bdel';;  Delete from beginning of the line to the cursor
+        'iline_accept';;  Accept line
+        'iline_accept_down_hist';;  Accept line and put the next history line in the input line
+        'compl_do';;  Complete current word, in the input line
+        'compl_cancel';;  Cancel completion
+        'send_multiline';;  Send/terminate a multi-line message
 
 /info::
         Display info on the selected entry (user, agent, group...). +
-        For users, resources are displayed with the status, priority and
-        status message (if available) of each resource.
+        For users, resources are displayed with the status, priority and status message (if available) of each resource.
+
+/module load|unload [-f] module::
+/module info module::
+/module [list]::
+        Load, unload or show info on module.
+
+        'load' [-f] module;;  Loads specified module. If -f flag is specified, most of module loading errors will be ignored.
+        'unload' [-f] module;;  Unloads specified module. Note: The force flag will not remove any dependent on this modules!
+        'info' module;;  Shows available information about this module.
+        ['list'];;  Lists modules in a format: [modulename]  [reference count] ([Manually/Automatically loaded]) [any extra info, like version or dependencies]
 
 /move [groupname]::
-        Move the current buddy to the requested group.  If no group is
-        specified, then the buddy is moved to the default group.
-        If the group groupname doesn't exist, it is created. +
-        Tip: if the chatmode is enabled, you can use "/roster alternate"
-        to jump to the moved buddy.
+        Move the current buddy to the requested group.  If no group is specified, then the buddy is moved to the default group.  If the group "groupname" doesn't exist, it is created. +
+        Tip: if the chatmode is enabled, you can use "/roster alternate" to jump to the moved buddy.
 
 /msay begin|verbatim|send|send_to|toggle|toggle_verbatim|abort::
-        Send a multi-line message.  To write a single message with several
-        lines, the 'multi-line mode' should be used. +
-        In multi-line mode, each line (except command lines) typed in the input
-        line will be added to the multi-line message.  Once the message is
-        finished, it can be sent to the current selected buddy with the "/msay
-        send" command (or Ctrl-d). +
-        The 'begin' subcommand enables multi-line mode.  Note that it allows
-        a message subject to be specified. +
-        The 'verbatim' multi-line mode disables commands, so that it is
-        possible to enter lines starting with a slash.  Only the "/msay"
-        command (with send or abort parameters) can be used to exit verbatim
-        mode. +
-        The 'toggle' and 'toggle_verbatim' subcommands can be bound to a key to
-        use the multi-line mode quickly (for example, "bind M109 = msay toggle"
-        to switch using the Meta-m combination).
+        Send a multi-line message.  To write a single message with several lines, the 'multi-line mode' should be used. +
+        In multi-line mode, each line (except command lines) typed in the input line will be added to the multi-line message.  Once the message is finished, it can be sent to the current selected buddy with the "/msay send" command. +
+        The 'begin' subcommand enables multi-line mode.  Note that it allows a message subject to be specified. +
+        The 'verbatim' multi-line mode disables commands, so that it is possible to enter lines starting with a slash.  Only the "/msay" command (with send or abort parameters) can be used to exit verbatim mode. +
+        The 'toggle' subcommand can be bound to a key to use the multi-line mode quickly (for example, "bind M13 = msay toggle" to switch using the Meta-Enter combination).
 
-        'begin' [subject];; enter multi-line mode
-        'verbatim';;        enter verbatim multi-line mode
-        'send';;            send the current multi-line message to the currently selected buddy
-        'send_to' jid;;     send the current multi-line message to "jid"
-        'toggle';;          switch to/from multi-line mode (begin/send)
-        'toggle_verbatim';; same with verbatim multi-line mode
-        'abort';;           leave multi-line mode without sending the message
+        'begin' [subject];;  Enter multi-line mode
+        'verbatim';;  Enter verbatim multi-line mode
+        'send' [-n|-h];;  Send the current multi-line message to the currently selected buddy
+        'send_to' [-n|-h] jid;;  Send the current multi-line message to "jid"
+        'toggle'|'toggle_verbatim';;  Switch to/from multi-line mode (begin/send)
+        'abort';;  Leave multi-line mode without sending the message
+
+        The -n or -h flags turn the message to "normal" or "headline" accordingly, as opposed to default "chat" message.
+
+/otr key::
+/otr start|stop|info [jid]::
+/otr fingerprint [jid [fpr]]::
+/otr smpq|smpr [jid] secret::
+/otr smpa [jid]::
+        You can use the shortcut-jid "." for the currently selected contact.
+
+        'key';;  Print the fingerprint of your private key to the Status Buffer
+        'start' [jid];;  Open an OTR channel to the specified jid (or the currently selected contact)
+        'stop' [jid];;  Close the OTR channel to the specified jid (or the currently selected contact)
+        'info' [jid];;  Show current OTR status for the specified jid (or the currently selected contact)
+        'fingerprint' [jid [fpr]];;  Show the active fingerprint of an OTR channel. If the fingerprint is provided instead of "fpr", the fingerprint will become trusted. If you replace "fpr" by some bogus string the fingerprint will loose the trusted status.
+        'smpq' [jid] secret;;  Initiate the Socialist Millionaires Protocol with the secret and the buddy
+        'smpr' [jid] secret;;  Respond to the Initiation of the jid with the secret
+        'smpa' [jid];;  Abort the running Socialist Millionaires Protocol
+
+/otrpolicy::
+/otrpolicy (default|jid) (plain|manual|opportunistic|always)::
+        You can use the shortcut-jid "." for the currently selected contact.
+
+        (without arguments);;  Prints all OTR policies to the status buffer
+        ('default'|'jid') (plain|manual|opportunistic|always);;  Sets either the default policy or the policy for the given jid The plain policy should never be used, because you won't be able to receive or send any OTR encrypted messages. If you set the policy to manual, you or your chat partner have to start the OTR encryption by hand (e.g. with /otr start). The policy "opportunistic" does that itself by sending a special whitespace-sequence at the end of unencrypted messages. So the other OTR-enabled chat client knows, that you want to use OTR. Note that the first message will always be unencryted, if you use this policy. With the policy "always" no message will be sent in plain text. If you try to sent the first message unencrypted, mcabber will try to establish an OTR channel. Please resend your message, when you get the information that the channel was established. If someone sends you plaintext messages while the policy is set to "always", you'll be able to read the message but it won't be saved to the history.
 
 /pgp disable|enable|force|info [jid]::
 /pgp setkey [jid [key]]::
-        Manipulate PGP settings for the specified jid (by default the currently selected contact).  Please note that PGP encryption won't be used if no remote PGP support is detected, even if PGP is enabled with this command.
+        This command manipulates PGP settings for the specified jid (by default the currently selected contact). +
+        Please note that PGP encryption won't be used if no remote PGP support is detected, even if PGP is enabled with this command.  You can force PGP encryption with the "force" subcommand.
 
-        'disable' [jid];;   disable PGP encryption for jid (or the currently selected contact)
-        'enable' [jid];;    enable PGP encryption for jid (or the currently selected contact)
-        [-]'force' [jid];;  enforce PGP encryption, even for offline messages, and always assume the recipient has PGP support
-        'info' [jid];;      show current PGP settings for the contact
-        'setkey' [jid [key]];;  set the PGP key to be used to encrypt message for this contact.  If no key is provided, the current key is erased.  You can use the shortcut-jid "." for the currently selected contact.
+        'disable' [jid];;  Disable PGP encryption for jid (or the currently selected contact)
+        'enable' [jid];;  Enable PGP encryption for jid (or the currently selected contact)
+        [+|-]'force' [jid];;  Enforce PGP encryption, even for offline messages, and always assume the recipient has PGP support.  If a message can't be encrypted (missing key or key id), the messages won't be sent at all.  This option is ignored when PGP is disabled.
+        'info' [jid];;  Show current PGP settings for the contact
+        'setkey' [jid [key]];;  Set the PGP key to be used to encrypt message for this contact. If no key is provided, the current key is erased. You can use the shortcut-jid "." for the currently selected contact.
+
+/quit::
+        This command closes all connections and quit mcabber.
+
+/rawxml send string::
+        Send "string" (raw XML format) to the Jabber server. +
+        No check is done on the string provided. +
+        BEWARE!
+        Use this only if you know what you are doing, or you could terminate the connection. +
+        Example: "/rawxml send <presence><show>away</show></presence>"
 
 /rename name::
-        Rename current buddy or group to the given name.
-        Please note that a group name change is only done when the server's
-        acknowledgment is received, so a slight delay can be noticed.
+        Rename the current buddy or group to the given "name".  If "name" is -, the name is removed from the roster (and mcabber will display the JID or username).
 
-/request last|time|vcard|version [jid]::
-        Send a "IQ" query to the current buddy, or to the specified Jabber
-        user.  If the resource is not provided with the jid, mcabber will
-        send the query to all known resources for this user.
+/request last|ping|time|vcard|version [jid]::
+        Send a "IQ" query to the current buddy, or to the specified Jabber user.  If the resource is not provided with the jid, mcabber will send the query to all known resources for this user.
 
-/room join|leave|names|nick|privmsg|remove|topic|unlock|destroy::
-/room invite|kick|ban|role|affil::
-/room bookmark [add|del] [-autojoin|+autojoin]::
+        'last';;  Request "last" information (usually idle time)
+        'ping';;  Send an XMPP Ping request.  Note that you should use the full JID since a ping sent to a bare JID will be handled by the server.
+        'time';;  Request time from the buddy
+        'vcard';;  Request VCard from the buddy
+        'version';;  Request version from the buddy
+
+/room join|leave|names|nick|remove|topic|unlock|destroy::
+/room privmsg|invite|whois|kick|ban|unban|role|affil::
+/room setopt print_status|auto_whois [value]::
+/room bookmark [add|del] [-autojoin|+autojoin] [-|nick]::
         The 'room' command handles Multi-User Chat room actions.
 
-        'join' [room [nick [pass]]];; join "room", using "nick" as nickname.  If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.  A password can be provided to enter protected rooms.  If your nickname contains space characters, use quotes.
-        'leave' [message];;     leave the current room
-        'names' [--detail|--short|--quiet];; display the members of the current room
-        'nick' nick;;           change your nickname in the current room
-        'privmsg' nick msg;;    send private message "msg" to "nick"
-        'remove';;              remove the current room from the roster (you must have left this room before)
-        'topic';;               set topic for current room
-        'unlock';;              unlock current room (if you are the owner)
-        'destroy' [reason];;    destroy the current room (use with care!)
-        'whois' nick;;          display MUC information about "nick"
-        'ban' jid [reason];;    ban jid from the current room
-        'invite' jid [reason];; invite jid to the current room
-        'kick' nick [reason];;  kick "nick" from the current room
-        'role' jid role [reason];;  change jid's role (role can be "none", "visitor", "participant", "moderator")
-        'affil' jid affil [reason];; change jid's affiliation (affil can be "none", "member", "admin", "owner")
-        'bookmark'              add/update/remove a room bookmark, set/unset autojoin
+        'join' [room [nick [pass]]];;  Join "room", using "nick" as nickname.  If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.  A password can be provided to enter protected rooms.  If your nickname contains space characters, use quotes.
+        'leave' [message];;  Leave the current room
+        'names' [--detail|--short|--quiet|--compact];;  Display members of the current room
+        'nick' newnick;;  Change your nickname in the current room
+        'privmsg' nick msg;;  Send private message "msg" to "nick"
+        'remove';;  Remove the current room from the roster (you must have left this room before)
+        'topic' -|newtopic;;  Set topic for current room
+        'unlock';;  Unlock current room (if you are the owner)
+        'destroy' [reason];;  Destroy the current room (use with care!)
+        'whois' nick;;  Display MUC information about "nick"
+        'ban' jid [reason];;  Ban jid from the current room
+        'unban' jid;;  Unban jid from the current room
+        'invite' jid [reason];;  Invite jid to the current room
+        'kick' nick [reason];;  Kick "nick" from the current room
+        'role' jid role [reason];;  Change jid's role (role can be "none", "visitor", "participant", "moderator")
+        'affil' jid affil [reason];;  Change jid's affiliation (affil can be "none", "member", "admin", "owner")
+        'setopt' print_status|auto_whois [value];;  Change settings for the current room For print_status, the possible values are "default", "none", "in_and_out", "all". For auto_whois, the possible values are "default", "off", "on". When the value is "default", the options muc_print_status / muc_auto_whois is used.
+        'bookmark' [add|del] [-autojoin|+autojoin] [-|nick];;  Add, remove or update a bookmark (default is add). If autojoin is set, mcabber will automatically join the MUC room when it connects to the server. To see the list of bookmarks, use /room bookmark in the status buffer.
 
 /roster bottom|top|up|down|group_prev|group_next::
 /roster alternate|unread_first|unread_next::
 /roster search bud::
-/roster hide_offline|show_offline|toggle_offline::
-/roster item_lock|item_unlock::
+/roster display|hide_offline|show_offline|toggle_offline::
+/roster item_lock|item_unlock|item_toggle_lock::
 /roster hide|show|toggle::
 /roster note [-|text]::
-        The 'roster' command manipulates the roster/buddylist.  Here are the available parameters:
+        The 'roster' command manipulates the roster/buddylist. +
+        Here are the available parameters:
 
-        'bottom';;       jump to the bottom of the roster
-        'top';;          jump to the top of the roster
-        'up';;           move up in the roster
-        'down';;         move down in the roster
-        'group_prev';;   jump to the previous group in the roster
-        'group_next';;   jump to the next group in the roster
-        'alternate';;    jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
-        'unread_first';; jump to the first unread message
-        'unread_next';;  jump to the next unread message
-        'search' bud;;   search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
-        'hide_offline';; hide offline buddies
-        'show_offline';; show offline buddies
-        'toggle_offline';; toggle display of offline buddies
-        'item_lock' jid;;   lock the roster item so it remains visible regardless of its status
-        'item_unlock' jid;; undo the effects of item_lock
-        'hide';;         hide roster (full-width chat window)
-        'show';;         show roster
-        'toggle';;       toggle roster visibility
-        'note' [text];;  display or set an annotation (if text is "-", the annotation is deleted).  In the "status" buffer, it will display all annotations.
+        'bottom';;  Jump to the bottom of the roster
+        'top';;  Jump to the top of the roster
+        'up' [n];;  Move up [n lines] in the roster
+        'down' [n];;  Move down [n lines] in the roster
+        'group_prev';;  Jump to the previous group in the roster
+        'group_next';;  Jump to the next group in the roster
+        'alternate';;  Jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode.  This command is thus especially useful after commands like "/roster unread_next" (Ctrl-q).
+        'unread_first';;  Jump to the first unread message
+        'unread_next';;  Jump to the next unread message
+        'search' bud;;  Search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
+        'display' [mask];;  See or update the roster filter. The mask should contain the shortcut letters of the status you want to see ([o]nline, [f]ree_for_chat, [d]o_not_disturb, [n]ot_available, [a]way, [_]offline). For example "ofdna" to display only connected buddies.
+        'hide_offline';;  Hide offline buddies (same as /roster display ofdna)
+        'show_offline';;  Show offline buddies (same as /roster display ofdna_)
+        'toggle_offline';;  Toggle display of offline buddies
+        'item_lock' [jid];;  Lock the roster item so it remains visible regardless of its status
+        'item_unlock' [jid];;  Undo the effects of item_lock
+        'item_toggle_lock' [jid];;  Invert the current lock flag
+        'hide';;  Hide roster (full-width chat window)
+        'show';;  Show roster
+        'toggle';;  Toggle roster visibility
+        'note' [-|text];;  Set/update/delete an annotation. If there is no text, the current item's annotation is displayed -- if you are in the status buffer, all notes are displayed. If text is "-", the note is erased.
 
-/say text::
-        Send the "text" message to the currently selected buddy.  Can be useful
-        if you want to send a message beginning with a slash, for example.
+/say [-n|-h|--] text::
+        Send the "text" message to the currently selected buddy.  It can be useful if you want to send a message beginning with a slash, for example. +
+        The "-n" flag turns the message to "normal" type, "-h" to "headline". "--" can be used to send chat message beginning with -n or -h.
 
-/say_to jid text::
-        Send the "text" message to the specified jid.
-        Please note that this command doesn't set the default resource for
-        a contact, so if you want to send several messages to a specific
-        resource you will have to use "/say_to" for each message.
+/say_to [-n|-h] [-q] [-f file] jid text::
+        Send the "text" message to the specified jid. +
+        Please note that this command doesn't set the default resource for a contact, so if you want to send several messages to a specific resource you will have to use "/say_to" for each message. +
+        The "-n" flag turns the message to "normal" type, "-h" to "headline".  "--" can be used to send chat messages beginning with -n or -h. +
+        When "-q" is used, the message will be sent in the background and will not change the current active window. +
+        A text file can be provided with the "-f" switch (in which case there's no need to pass a text argument after the jid, of course).
 
-/status [online|avail|invisible|free|dnd|notavail|away [-|StatusMessage]]::
+/screen_refresh::
+        Refresh the mcabber screen.
+
+/set option [= value]::
+        Display or set an option value.
+
+/source pattern::
+        Read configuration files, that match glob pattern (sorted in alphabetical order).
+
+/status [online|avail|invisible|free|dnd|notavail|away [-|statusmessage]]::
+/status message -|statusmessage::
         Show or set the current status. +
         If no status is specified, display the current status. +
-        If a status message is specified, it will overrride the message*
-        variables (these variables can be set in the configuration file).
-        If no relevant message* variable is set and no status message provided,
-        the current status message is kept.  If StatusMessage is "-", the
-        current status message is cleared.
+        If a status message is specified, it will overrride the message* variables (these variables can be set in the configuration file). +
+        If no relevant message* variable is set and no status message provided, the current status message is kept. +
+        If StatusMessage is "-", the current status message is cleared. +
+        With the "/status message" command, mcabber will update the message while preserving the status.
 
-/status_to jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]::
+/status_to jid online|avail|invisible|free|dnd|notavail|away [statusmessage]::
+/status_to jid message statusmessage::
         Send the requested status to the specified Jabber user. +
         If the specified jid is ".", the current buddy is used. +
-        Note: this status will be overridden by subsequent "/status" commands.
-        If you are using the auto-away feature, the status will overridden
-        too. +
-        Note: The jid can include a resource (i.e. user@server/resource).
+        Note: this status will be overridden by subsequent "/status" commands.  If you are using the auto-away feature, the status will overridden too. +
+        Note: The jid can include a resource (i.e. \user@server/resource).
+
+/version::
+        Display current version of mcabber.
 
 CONFIGURATION FILE
 ------------------
@@ -420,26 +517,26 @@ The following files can be used by `mcabber(1)`:
     $HOME/.mcabber/mcabberrc    Default configuration file
     $HOME/.mcabberrc            Configuration file used if no other has been found
     $HOME/.mcabber/histo/       Default directory for storing chat history files, if enabled
+    /usr/share/mcabber/help/    Default directory for online help files
+    /usr/lib/mcabber/           Default directory for modules
 
 BUGS
 ----
-Certainly.  Please tell me if you find one!  :-)
+Certainly.  Please tell me if you find one!  :-) +
+Please visit our website to find out about the MUC room and the bug tracker.
 
 AUTHOR
 ------
-Written by mailto:mcabber@lilotux.net[Mikael BERTHE]. +
-Originally based on http://cabber.sourceforge.net[Cabber], please
-consult the AUTHORS file for details.
+Written by mailto:mikael@lilotux.net[Mikael BERTHE] and others
+(see AUTHORS file). +
 
 RESOURCES
 ---------
-http://www.lilotux.net/~mikael/mcabber/[Main web site]
+http://mcabber.com/[Main web site]
 
 COPYING
 -------
-Copyright \(C) 2005, 2006, 2007, 2008 Mikael Berthe. +
-Some portions are Copyright \(C) 2002-2004 mailto:cabber@ajmacias.com[].
+Copyright \(C) 2005-2010 Mikael Berthe and others. +
 
 Free use of this software is granted under the terms of the GNU General Public
 License (GPL).
-

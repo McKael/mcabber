@@ -1,83 +1,178 @@
+'\" t
 .\"     Title: mcabber
-.\"    Author: Mikael BERTHE
-.\"      Date: 11/03/2007
-.\"    Manual:
-.\"    Source:
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 03/13/2010
+.\"    Manual: \ \&
+.\"    Source: \ \& 0.10.0-dev
+.\"  Language: English
 .\"
-.TH "MCABBER" "1" "11/03/2007" "" ""
+.TH "MCABBER" "1" "03/13/2010" "\ \& 0\&.10\&.0\-dev" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
 .ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
 .SH "NAME"
-mcabber \- a simple Jabber console client
+mcabber \- a simple Jabber (XMPP) console client
 .SH "SYNOPSIS"
+.sp
 \fImcabber\fR [ \-h | \-V | \-f configfile ]
-.sp
 .SH "DESCRIPTION"
-mcabber(1) is a small Jabber console client. For now it needs a configuration file to start, so please copy the sample mcabberrc file and adapt your connection settings.
 .sp
-You also need to have an existing Jabber account to use this software, as it cannot (un)register accounts yet.
+mcabber(1) is a small Jabber (XMPP) console client\&. For now it needs a configuration file to start, so please copy the sample mcabberrc file and adapt your connection settings\&.
+.sp
+You also need to have an existing Jabber account to use this software, as it cannot (un)register accounts yet\&.
 .sp
 Here are some of the features of mcabber:
 .sp
-.sp
 .RS 4
-\h'-04'\(bu\h'+03'
-\fISSL/TLS support\fR.
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
+\fISASL/SSL/TLS support\fR\&.
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
 \fIMUC support\fR
-(Multi\-User Chat).
+(Multi\-User Chat)\&.
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'
-\fIPGP support\fR
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
+\fIPGP, OTR support\fR
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
 \fIChat States\fR
 support (typing notifications)
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
 \fIHistory logging:\fR
 If enabled (see the CONFIGURATION FILE section),
 mcabber
-can save discussions to history log files.
+can save discussions to text history log files\&.
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
 \fICommands completion:\fR
 If possible,
 mcabber
-will try to complete your command line if you hit the Tab key.
+will try to complete your command line if you hit the Tab key\&.
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
 \fIInput line history:\fR
-Any message or command entered is in the input line history and can be reused easily.
+Any message or command entered is in the input line history and can be reused easily\&.
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
 \fIExternal actions:\fR
-Some events (like receiving a message) can trigger an external action such as a shell script if you enable it in your configuration file. A sample events script ("eventcmd") is provided with
+Some events (like receiving a message) can trigger an external action such as a shell script if you enable it in your configuration file\&. A sample events script ("eventcmd") is provided with
 mcabber
-source code, in the contrib directory.
+source code, in the contrib directory\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+
+\fIModules:\fR
+mcabber
+can load modules (a\&.k\&.a\&. plugins) at runtime that extend its features\&.
 .RE
 .SH "OPTIONS"
 .PP
-\-\-help, \-h
+\-h
 .RS 4
 Quick help usage message
+.RE
+.PP
+\-V
+.RS 4
+Displays
+mcabber
+version and compile\-time definitions\&.
 .RE
 .PP
 \-f configfile
@@ -86,1045 +181,1251 @@ Use configuration file
 \fIconfigfile\fR
 .RE
 .SH "WINDOWS/PANES"
-The mcabber(1) screen is divided into 4 regions. The \fIroster\fR, alias \fIbuddylist\fR, is on the left. The \fIchat window\fR, or chat buffer, is on the right. The \fIinput line\fR lies at the bottom of the screen, under a small \fIlog window\fR.
 .sp
-Two status lines surround the log window. The bottom status line is the "main status line" and reflects mcabber general status. The other line is the "chat status line" and shows the status of the currently selected buddy.
+The mcabber(1) screen is divided into 4 regions\&. The \fIroster\fR, alias \fIbuddylist\fR, is on the left\&. The \fIchat window\fR, or chat buffer, is on the right\&. The \fIinput line\fR lies at the bottom of the screen, under a small \fIlog window\fR\&.
 .sp
-To display buddies chat buffers, you will have to enter \fIchat mode\fR. You can enter chat mode by pressing enter, and leave chat mode with the ESC key. Simply sending a message will also enable chat mode.
+Two status lines surround the log window\&. The bottom status line is the "main status line" and reflects mcabber general status\&. The other line is the "chat status line" and shows the status of the currently selected buddy\&.
 .sp
-There are several advantages to the two\-mode implementation: first, it allows accurate "unread" message functionality, as described in the next section; without this, merely scrolling to a specific buddy will "read" the new messages of all buddies in\-between. Second, it allows quickly hiding the conversation with a single keystroke. Third, it allows jumping between the few buddies with whom you are conversing with the \fI/roster alternate\fR command described in another section, without having to manually scroll back and forth.
+To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter, and leave chat mode with the ESC key\&. Simply sending a message will also enable chat mode\&.
 .sp
+There are several advantages to the two\-mode implementation: first, it allows accurate "unread" message functionality, as described in the next section; without this, merely scrolling to a specific buddy will "read" the new messages of all buddies in\-between\&. Second, it allows quickly hiding the conversation with a single keystroke\&. Third, it allows jumping between the few buddies with whom you are conversing with the \fI/roster alternate\fR command described in another section, without having to manually scroll back and forth\&.
 .SH "KEYS"
-Text typing occurs in the \fIinput line\fR; basic operations are supported (left arrow, right arrow, home/end keys, insert, delete, backspace\&...).
 .sp
-PageUp and PageDown keys are used to move in the roster.
+Text typing occurs in the \fIinput line\fR; basic operations are supported (left arrow, right arrow, home/end keys, insert, delete, backspace\&...)\&.
 .sp
-Up and Down arrow keys can be used to move in the input line history; they jump to the previous/next line from the history beginning with the same string (from first column to the cursor column).
+PageUp and PageDown keys are used to move in the roster\&.
 .sp
-To send a message, move to the choosen buddy in the buddylist, type your message and hit enter. If the line begins with a slash, this will be interpreted as a command (see the COMMAND section below). Hit escape to leave the chat mode.
+Up and Down arrow keys can be used to move in the input line history; they jump to the previous/next line from the history beginning with the same string (from first column to the cursor column)\&.
 .sp
-Here is a quick description of the key bindings:
+To send a message, move to the chosen buddy in the buddylist, type your message and hit enter\&. If the line begins with a slash, this will be interpreted as a command (see the COMMAND section below)\&. Hit escape to leave the chat mode\&.
 .sp
-.TS
-tab(:);
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l.
-T{
+Here is a quick description of the default key bindings:
+.PP
 Esc
-.sp
-T}:T{
+.RS 4
 Disable chat mode
-.sp
-T}
-T{
-Ctrl\-d
-.sp
-T}:T{
-Send/terminate a multi\-line message
-.sp
-T}
-T{
-Ctrl\-p/Ctrl\-n
-.sp
-T}:T{
-Scroll up/down half a screen in the buffer window (chat mode)
-.sp
-T}
-T{
-Ctrl\-Left
-.sp
-T}:T{
-Move the cursor back to the start of the current or previous word
-.sp
-T}
-T{
-Ctrl\-Right
-.sp
-T}:T{
-Move the cursor forward to the end of the current or next word
-.sp
-T}
-T{
-Ctrl\-u
-.sp
-T}:T{
-Delete from beginning of the line to the cursor
-.sp
-T}
-T{
-Ctrl\-k
-.sp
-T}:T{
-Delete from the cursor to the end of line
-.sp
-T}
-T{
-Ctrl\-w
-.sp
-T}:T{
-Backward kill word
-.sp
-T}
-T{
-Ctrl\-t
-.sp
-T}:T{
-Transpose chars
-.sp
-T}
-T{
-Ctrl\-o
-.sp
-T}:T{
-Accept line and put the next history line in the input line (accept\-line\-and\-down\-history)
-.sp
-T}
-T{
+.RE
+.PP
 Ctrl\-a
-.sp
-T}:T{
+.RS 4
 Go to the beginning of the input line
-.sp
-T}
-T{
+.RE
+.PP
 Ctrl\-e
-.sp
-T}:T{
+.RS 4
 Go to the end of the input line
-.sp
-T}
-T{
+.RE
+.PP
 Ctrl\-l
-.sp
-T}:T{
+.RS 4
 Force a refresh
-.sp
-T}
-T{
+.RE
+.PP
 Up/Down
-.sp
-T}:T{
+.RS 4
 Move in the input line history
-.sp
-T}
-T{
+.RE
+.PP
 PgUp/PgDown
-.sp
-T}:T{
+.RS 4
 Move inside the roster (buddylist)
-.sp
-T}
-T{
+.RE
+.PP
 Tab
-.sp
-T}:T{
+.RS 4
 Complete current word, in the input line
-.sp
-T}
-T{
+.RE
+.PP
 Ctrl\-g
-.sp
-T}:T{
+.RS 4
 Cancel completion
-.sp
-T}
-T{
+.RE
+.PP
 Ctrl\-c
-.sp
-T}:T{
+.RS 4
 Abort multi\-line messages and completions
+.RE
+.PP
+Ctrl\-d
+.RS 4
+Send/terminate a multi\-line message
+.RE
+.PP
+Ctrl\-p/Ctrl\-n
+.RS 4
+Scroll up/down half a screen in the buffer window (chat mode)
+.RE
+.PP
+Ctrl\-Left
+.RS 4
+Move the cursor back to the start of the current or previous word
+.RE
+.PP
+Ctrl\-Right
+.RS 4
+Move the cursor forward to the end of the current or next word
+.RE
+.PP
+Ctrl\-u
+.RS 4
+Delete from beginning of the line to the cursor
+.RE
+.PP
+Ctrl\-k
+.RS 4
+Delete from the cursor to the end of line
+.RE
+.PP
+Ctrl\-w
+.RS 4
+Backward kill word
+.RE
+.PP
+Ctrl\-t
+.RS 4
+Transpose chars
+.RE
+.PP
+Ctrl\-o
+.RS 4
+Accept line and put the next history line in the input line (accept\-line\-and\-down\-history)
+.RE
 .sp
-T}
-.TE
+Additional key bindings may be specified using the \fI/bind\fR command described in the COMMANDS section\&.
+.SH "MCABBER\(cqS ROSTER"
 .sp
-Additional key bindings may be specified using the \fI/bind\fR command described in the COMMANDS section.
+The first listed resource on the roster is \fI[status]\fR, which keeps a log of everything that appears in the short log window below the main chat area\&. While the log window was designed for showing the latest few elements, the dedicated \fI[status]\fR buffer allows more comfortable viewing of the log, as well as scrolling it in a standard manner\&.
 .sp
-.SH "MCABBER'S ROSTER"
-The first listed resource on the roster is \fI[status]\fR, which keeps a log of everything that appears in the short log window below the main chat area. While the log window was designed for showing the latest few elements, the dedicated \fI[status]\fR buffer allows more comfortable viewing of the log, as well as scrolling it in a standard manner.
+Group names are displayed above the resources that are within them, and are indicated by \fI\-\-\-\fR to the left of the name\&.
 .sp
-Group names are displayed above the resources that are within them, and are indicated by \fI\-\-\-\fR to the left of the name.
-.sp
-For every real Jabber resource, the roster displays four pieces of information: the resource's name or alias, its online status, its authorization status, and whether there are unread messages from the resource waiting for you.
+For every real Jabber resource, the roster displays four pieces of information: the resource\(cqs name or alias, its online status, its authorization status, and whether there are unread messages from the resource waiting for you\&.
 .sp
 The online status is one of the following:
-.sp
-.TS
-tab(:);
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l.
-T{
+.PP
 \fIo\fR
-.sp
-T}:T{
+.RS 4
 online
-.sp
-T}
-T{
-\fIC\fR
-.sp
-T}:T{
-a conference room in which you are participating
-.sp
-T}
-T{
+.RE
+.PP
 \fIf\fR
-.sp
-T}:T{
+.RS 4
 free for chat
-.sp
-T}
-T{
+.RE
+.PP
 \fIa\fR
-.sp
-T}:T{
+.RS 4
 away
-.sp
-T}
-T{
+.RE
+.PP
 \fIn\fR
-.sp
-T}:T{
-not available (labeled \fIextended away\fR in some clients)
-.sp
-T}
-T{
+.RS 4
+not available (labeled
+\fIextended away\fR
+in some clients)
+.RE
+.PP
 \fId\fR
-.sp
-T}:T{
+.RS 4
 do not disturb
-.sp
-T}
-T{
+.RE
+.PP
 \fIi\fR
-.sp
-T}:T{
+.RS 4
 invisible (displayed only for your resource)
-.sp
-T}
-T{
+.RE
+.PP
 \fI_\fR
-.sp
-T}:T{
+.RS 4
 offline (or invisible to you)
-.sp
-T}
-T{
+.RE
+.PP
 \fI?\fR
-.sp
-T}:T{
-unknown, usually meaning you are not authorized to see this resource's status
-.sp
-T}
-T{
+.RS 4
+unknown, usually meaning you are not authorized to see this resource\(cqs status
+.RE
+.PP
 \fIx\fR
-.sp
-T}:T{
+.RS 4
 a conference room in which you are not participating
+.RE
+.PP
+\fIC\fR
+.RS 4
+a conference room in which you are participating
+.RE
 .sp
-T}
-.TE
+The authorization status indicates whether a resource is authorized to receive your online status updates, and is displayed by the brackets surrounding the resource\(cqs online status\&. Square brackets, like \fI[o]\fR, indicate that this resource is authorized to receive your status\&. Curly braces, like \fI{o}\fR, indicate that they are not authorized to receive your status\&.
 .sp
-The authorization status indicates whether a resource is authorized to receive your online status updates, and is displayed by the brackets surrounding the resource's online status. Square brackets, like \fI[o]\fR, indicate that this resource is authorized to receive your status. Curly braces, like \fI{o}\fR, indicate that they are not authorized to receive your status.
-.sp
-When there are unread messages from the resource which you have not looked at, a hash mark (\fI#\fR) appears in the leftmost section of the roster for that resource. The hash mark disappears once you view that resource's message log.
+When there are unread messages from the resource which you have not looked at, a hash mark (\fI#\fR) appears in the leftmost section of the roster for that resource\&. The hash mark disappears once you view that resource\(cqs message log\&.
 .sp
 Examples:
-.sp
-.TS
-tab(:);
-l l
-l l
-l l
-l l
-l l.
-T{
-\fI \-\-\- Buds\fR
-.sp
-T}:T{
-This is a group named \fIBuds\fR
-.sp
-T}
-T{
+.PP
+\fI\-\-\- Buds\fR
+.RS 4
+This is a group named
+\fIBuds\fR
+.RE
+.PP
 \fI#[o] John\fR
-.sp
-T}:T{
+.RS 4
 John is online, can see your status, and sent you a message that you did not read yet
-.sp
-T}
-T{
-\fI {?} Sally\fR
-.sp
-T}:T{
+.RE
+.PP
+\fI{?} Sally\fR
+.RS 4
 Neither you nor Sally have authorized each other to see your online status
-.sp
-T}
-T{
-\fI {a} Jane\fR
-.sp
-T}:T{
+.RE
+.PP
+\fI{a} Jane\fR
+.RS 4
 Jane is away, but she cannot see your online status
-.sp
-T}
-T{
-\fI#[C] x@y.c\fR
-.sp
-T}:T{
-You are participating in x@y.c conference room, and there are unread messages
-.sp
-T}
-.TE
-.sp
+.RE
+.PP
+\fI#[C] x@y\&.c\fR
+.RS 4
+You are participating in x@y\&.c conference room, and there are unread messages
+.RE
 .SH "COMMANDS"
-Please refer to the online help (command /help), it is probably more up\-to\-date than this manpage. Furthermore, help files have been translated into several languages. You will find an overview of the mcabber commands in this manual.
 .sp
+Please refer to the online help (command /help), it is probably more up\-to\-date than this manpage\&. Furthermore, help files have been translated into several languages\&. You will find an overview of the mcabber commands in this manual\&.
 .SH "COMMANDS RELATED TO MCABBER"
-.PP
-/alias [name [= command line]]
-.RS 4
-Add "name" as an alias for "command line".
-Aliases are expanded only once, thus they can not be chained.
-"/alias name" displays the value associated with the "name" alias;
-"/alias name =" unsets the "name" alias.
-"/alias" displays a list of the existing aliases. Example: "/alias away = status away".
-.RE
-.PP
-/bind [keycode [= command line]]
-.RS 4
-Bind a command line to the key with the "keycode" code number.
-Keycodes of unused keys are displayed by mcabber in the log window when pressing the key, for example "Unknown key=265".
-"/bind keycode" displays the command line bound to the given keycode;
-"/bind keycode =" unbinds the given keycode.
-"/bind" displays a list of the bound keycodes.
-Note: aliases can be used in key bindings.
-Example: "/bind 265 = status online" (265 is F1 for me, but it may depend on your ncurses installation).
-.RE
-.PP
-/buffer clear|close|close_all|purge, /buffer top|bottom|date|%|search_backward|search_forward, /buffer scroll_lock|scroll_unlock|scroll_toggle
-.RS 4
-The
-\fIbuffer\fR
-command manipulates the current buddy's buffer (chat window).
-.TS
-tab(:);
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l.
-T{
-\fIclear\fR
-T}:T{
-clear the current buddy chat window
-T}
-T{
-\fIclose\fR
-T}:T{
-empty all contents of the buffer and close the current buddy chat window
-T}
-T{
-\fIclose_all\fR
-T}:T{
-empty all contents of the chat buffers and close the chat windows
-T}
-T{
-\fIpurge\fR
-T}:T{
-clear the current buddy chat window and empty all contents of the chat buffer
-T}
-T{
-\fItop\fR
-T}:T{
-jump to the top of the current buddy chat buffer
-T}
-T{
-\fIbottom\fR
-T}:T{
-jump to the bottom of the current buddy chat buffer
-T}
-T{
-\fIup\fR
-[n]
-T}:T{
-scroll the buffer up n lines (default: half a screen)
-T}
-T{
-\fIdown\fR
-[n]
-T}:T{
-scroll the buffer down n lines (default: half a screen)
-T}
-T{
-\fIdate\fR
-date
-T}:T{
-jump to the first line after the specified date in the chat buffer (date format: "YYYY\-mm\-dd[THH:MM:SS]", "\-" and ":" are optional)
-T}
-T{
-\fI%\fR
-n
-T}:T{
-jump to position %n of the buddy chat buffer
-T}
-T{
-\fIsearch_backward\fR
-text
-T}:T{
-search for "text" in the current buddy chat buffer
-T}
-T{
-\fIsearch_forward\fR
-text
-T}:T{
-search for "text" in the current buddy chat buffer
-T}
-T{
-\fIscroll_lock\fR
-T}:T{
-lock buffer scrolling
-T}
-T{
-\fIscroll_unlock\fR
-T}:T{
-unlock buffer scrolling
-T}
-T{
-\fIscroll_toggle\fR
-T}:T{
-toggle buffer scrolling (lock/unlock)
-T}
-.TE
-.sp
-.RE
-.PP
-/clear
-.RS 4
-The
-\fIclear\fR
-command is actually an alias for "/buffer clear".
-.RE
-.PP
-/help [command]
-.RS 4
-Display generic help or help about a specific mcabber command.
-.RE
-.PP
-/quit
-.RS 4
-Disconnect and leave
-mcabber(1).
-.RE
-.PP
-/set option[=value]
-.RS 4
-Display or set an option value.
-.RE
-.PP
-/source [file]
-.RS 4
-Read a configuration file.
-.RE
-.PP
-/version
-.RS 4
-Display mcabber version
-.RE
-.SH "COMMANDS RELATED TO THE SERVER AND CONNECTION"
-.PP
-/connect
-.RS 4
-Establish connection to the Jabber server.
-.RE
-.PP
-/disconnect
-.RS 4
-Terminate connection to the Jabber server. Note: the roster is only available when the connection to the server is active, so the buddylist is empty when disconnected.
-.RE
-.PP
-/event #n|* accept|ignore|reject, /event list
-.RS 4
-Tell mcabber what to do about a pending event. If the first parameter is "*", the command will apply to all queued events.
-.TS
-tab(:);
-l l
-l l
-l l
-l l.
-T{
-\fIaccept\fR
-T}:T{
-accept the event #n
-T}
-T{
-\fIignore\fR
-T}:T{
-remove the event #n from the list
-T}
-T{
-\fIreject\fR
-T}:T{
-reject the event #n
-T}
-T{
-\fIlist\fR
-T}:T{
-list all pending events
-T}
-.TE
-.sp
-.RE
-.PP
-/rawxml send string
-.RS 4
-
-\fIsend\fR
-string: send string (raw XML format) to the Jabber server. No check is done on the string provided. BEWARE! Use this only if you know what you are doing, or you could terminate the connection.
-.RE
-.SH "COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES"
 .PP
 /add [jid [nickname]]
 .RS 4
-Add the "jid" Jabber user to our roster (default group), and send a notification request to this buddy. If no nickname is specified, the jid is used. If no jid (or an empty string "") is provided or if jid is ".", the current buddy is used.
+Add the "jid" Jabber user to our roster (default group), and send a notification request to this buddy\&. If no nickname is specified, the jid is used\&. If no jid (or an empty string "") is provided or if jid is "\&.", the current buddy is used\&.
+.PP
+[\fIjid\fR [nickname]]
+.RS 4
+Add to our roster "jid" as "nickname"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Example: "/add somebody@jabber\&.server\&.com Somebody"
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.RE
+.PP
+/alias [name [= command line]]
+.RS 4
+This command let you to add aliases which can simplify sophisticated commands\&.
+
+You can manage your aliases by:
+.PP
+(without arguments)
+.RS 4
+Print list of currently defined aliases
+.RE
+.PP
+\fIname\fR
+.RS 4
+Print the value of alias called "name"
+.RE
+.PP
+\fIname\fR=
+.RS 4
+Unset alias called "name"
+.RE
+.PP
+\fIname\fR = command line
+.RS 4
+Set alias called "name" with value "command line"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Example: "/alias away = status away"
+.fi
+.if n \{\
+.RE
+.\}
+.RE
 .RE
 .PP
 /authorization allow|cancel|request|request_unsubscribe [jid]
 .RS 4
-Manage the presence subscriptions. If no jid is provided, the current buddy is used.
-.TS
-tab(:);
-l l
-l l
-l l
-l l.
-T{
+This command manages presence subscriptions: it allows you to request presence subscriptions from others on your roster, and allows you to control who receives your presence notifications\&.
+
+If no JID is provided, the currently\-selected buddy is used\&.
+.PP
 \fIallow\fR
-T}:T{
-allow the buddy to receive your presence updates
-T}
-T{
+.RS 4
+Allow the buddy to receive your presence updates
+.RE
+.PP
 \fIcancel\fR
-T}:T{
-cancel the buddy' subscription to your presence updates
-T}
-T{
+.RS 4
+Cancel the buddy\(cqs subscription to your presence updates
+.RE
+.PP
 \fIrequest\fR
-T}:T{
-request a subscription to the buddy's presence updates
-T}
-T{
+.RS 4
+Request a subscription to the buddy\(cqs presence updates
+.RE
+.PP
 \fIrequest_unsubscribe\fR
-T}:T{
-request unsubscription from the buddy's presence updates
-T}
-.TE
+.RS 4
+Request unsubscription from the buddy\(cqs presence updates
+.RE
+.RE
+.PP
+/bind [keycode [= command line]]
+.RS 4
+Bind the command to the key given as "keycode"\&. To examine which keys are currently not used look at
+mcabber
+log window and press examined key\&. For example: "Unknown key=265" means that you can bind some command to key #265\&.
+.PP
+(without arguments)
+.RS 4
+Display list of current bindings
+.RE
+.PP
+\fIkeycode\fR
+.RS 4
+Display the command line bound to this key
+.RE
+.PP
+\fIkeycode\fR=
+.RS 4
+Unbind key with code "keycode"
+.RE
+.PP
+\fIkeycode\fR = command line
+.RS 4
+Bind "command line" to the key with code "keycode"
 .sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Example: "/bind 265 = status away" (265 is F1)\&. +
+Note: keycodes can be different depending on your ncurses configuration\&. +
+Tip: aliases also can be used instead of commands\&.
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.RE
+.PP
+/buffer clear|close|close_all|purge|list, /buffer top|bottom|date|%|search_backward|search_forward, /buffer scroll_lock|scroll_unlock|scroll_toggle, /buffer save filename
+.RS 4
+Buddy\(cqs buffer manipulation command\&. Eg\&. you can search through buffer for "text", clear chat window etc\&.
+.PP
+\fIclear\fR
+.RS 4
+Clear the current buddy chat window
+.RE
+.PP
+\fIclose\fR [jid]
+.RS 4
+Empty all contents of the buffer and close the current buddy chat window
+.RE
+.PP
+\fIclose_all\fR
+.RS 4
+Empty all contents of the chat buffers and close the chat windows
+.RE
+.PP
+\fIpurge\fR [jid]
+.RS 4
+Clear the current buddy chat window and empty all contents of the chat buffer
+.RE
+.PP
+\fIlist\fR
+.RS 4
+Display the list of existing buffers, with their length (lines/blocks)
+.RE
+.PP
+\fItop\fR
+.RS 4
+Jump to the top of the current buddy chat buffer
+.RE
+.PP
+\fIbottom\fR
+.RS 4
+Jump to the bottom of the current buddy chat buffer
+.RE
+.PP
+\fIup\fR [n]
+.RS 4
+Scroll the buffer up [n] lines (default: half a screen)
+.RE
+.PP
+\fIdown\fR [n]
+.RS 4
+Scroll the buffer down [n] lines (default: half a screen)
+.RE
+.PP
+\fIdate\fR [date]
+.RS 4
+Jump to the first line after the specified [date] in the chat buffer (date format: "YYYY\-mm\-dd")
+.RE
+.PP
+% n
+.RS 4
+Jump to position %n of the buddy chat buffer
+.RE
+.PP
+\fIsearch_backward\fR text
+.RS 4
+Search for [text] in the current buddy chat buffer
+.RE
+.PP
+\fIsearch_forward\fR text
+.RS 4
+Search for [text] in the current buddy chat buffer
+.RE
+.PP
+\fIscroll_lock\fR
+.RS 4
+Lock buffer scrolling
+.RE
+.PP
+\fIscroll_unlock\fR
+.RS 4
+Unlock buffer scrolling
+.RE
+.PP
+\fIscroll_toggle\fR
+.RS 4
+Toggle buffer scrolling (lock/unlock)
+.RE
+.PP
+\fIsave\fR filename
+.RS 4
+Save the contents of the current buffer to the file "filename"
+.RE
+.RE
+.PP
+/chat_disable [\-\-show\-roster]
+.RS 4
+Disable chat mode\&.
+
+With \-\-show\-roster, the fullscreen mode will be disabled\&.
+.RE
+.PP
+/clear
+.RS 4
+This command is actually an alias for "/buffer clear"\&. It clears the current buddy chat window\&.
+.RE
+.PP
+/color roster (status wildcard (color|\-)|clear), /color mucnick nick (color|\-), /color muc (jid|\&.|*) [on|preset|off|\-]
+.RS 4
+The
+\fIcolor\fR
+command allows setting dynamic color properties of the screen\&.
+.PP
+\fIroster\fR clear
+.RS 4
+Remove all color rules for the roster\&. All roster items will get its default color\&.
+.RE
+.PP
+\fIroster\fR status wildcard color
+.RS 4
+Set a color rule (or overwrite, if it already exists)\&. The status is string containing all statuses the roster item can have for the rule to match, or * if any status is OK\&. Wildcard is the file\-matching wildcard that will be applied to JID\&. Color is the wanted color\&. If color is \-, the rule is removed\&. If more than one rule matches, the color from the last created (not overwritten) is used\&.
+.RE
+.PP
+\fImucnick\fR nick (color|\-)
+.RS 4
+Marks the nick to be colored by given color\&. If a MUC has colored nicks, this one will be used\&. If color is \-, the color is marked as chosen automatically, which means it will not be used in
+\fIpreset\fR
+coloring mode, but will stay the same in
+\fIon\fR
+coloring mode\&.
+.RE
+.PP
+\fImuc\fR (jid|\&.|*) [on|preset|off|\-]
+.RS 4
+Sets a MUC nick coloring mode\&. If a jid (\&. means currently selected jid) is provided, the mode will apply to this specific MUC\&. If * is used, it will be applied to all MUCs, except the ones set by their jid\&. Mode
+\fIon\fR
+colors all nicks,
+\fIpreset\fR
+only the ones manually set by /color mucnick command and
+\fIoff\fR
+colors none\&. If not specified, defaults to
+\fIon\fR\&. Mode
+\fI\-\fR
+removes the mode from given JID, which means the global one will apply\&. You can not remove the global mode\&. Default global coloring mode is
+\fIoff\fR\&.
+.RE
+.RE
+.PP
+/connect
+.RS 4
+Establish connection to the Jabber server\&.
 .RE
 .PP
 /del
 .RS 4
-Delete the current buddy from our roster, unsubscribe from its presence notification and unsubscribe it from ours.
+Delete the current buddy from our roster, unsubscribe from its presence notification and unsubscribe it from ours\&.
 .RE
 .PP
-/group fold|unfold|toggle
+/disconnect
 .RS 4
-The
-\fIgroup\fR
-command changes the current group display.
-.TS
-tab(:);
-l l
-l l
-l l.
-T{
-\fIfold\fR
-T}:T{
-fold (shrink) the current group tree in the roster
-T}
-T{
-\fIunfold\fR
-T}:T{
-unfold (expand) the current group tree in the roster
-T}
-T{
-\fItoggle\fR
-T}:T{
-toggle the state (fold/unfold) of the current tree
-T}
-.TE
-.sp
+Terminate the connection to the Jabber server\&.
+
+Note: the roster is only available when the connection to the server is active, so the buddylist is empty when disconnected\&.
+.RE
+.PP
+/echo message
+.RS 4
+Display "message" in the log window\&.
+.RE
+.PP
+/event #n|* accept|ignore|reject [event\-specific arguments], /event list
+.RS 4
+Tell mcabber what to do about pending events\&.
+
+If the first parameter is
+\fI*\fR, the command will apply to all queued events\&.
+
+Event\-specific arguments will be interpreted on event\-to event basis\&. The only built\-in case, when argument is used is MUC invitation reject \- argument, if present, will be interpreted as reject reason\&.
+.PP
+#N|* accept [event\-specific arguments]
+.RS 4
+Event number #N/All events will be accepted
+.RE
+.PP
+#N|* ignore [event\-specific arguments]
+.RS 4
+Event number #N/All events will be ignored
+.RE
+.PP
+#N|* reject [event\-specific arguments]
+.RS 4
+Event number #N/All events will be rejected
+.RE
+.PP
+\fIlist\fR
+.RS 4
+List all pending events
+.RE
+.RE
+.PP
+/group fold|unfold|toggle [groupname]
+.RS 4
+This command changes the current group display\&.
+.PP
+\fIfold\fR [groupname]
+.RS 4
+Fold (shrink) the current/specified group tree in the roster
+.RE
+.PP
+\fIunfold\fR [groupname]
+.RS 4
+Unfold (expand) the current/specified group tree in the roster
+.RE
+.PP
+\fItoggle\fR [groupname]
+.RS 4
+Toggle the state (fold/unfold) of the current/specified tree
+.RE
+.RE
+.PP
+/help [command|+topic]
+.RS 4
+Display help for command "command" or topic "topic"\&.
+
+Example: "/help buffer"
+.RE
+.PP
+/iline fchar|bchar|char_fdel|char_bdel|char_swap, /iline fword|bword|word_bdel|word_fdel, /iline word_upcase|word_downcase|word_capit, /iline hist_beginning_search_bwd|hist_beginning_search_fwd, /iline hist_prev|hist_next, /iline iline_start|iline_end|iline_fdel|iline_bdel, /iline iline_accept|iline_accept_down_hist, /iline compl_do|compl_cancel, /iline send_multiline
+.RS 4
+Input line commands
+.PP
+\fIfchar\fR
+.RS 4
+Move to the next letter
+.RE
+.PP
+\fIbchar\fR
+.RS 4
+Move to the previous letter
+.RE
+.PP
+\fIchar_fdel\fR
+.RS 4
+Delete the letter at cursor position
+.RE
+.PP
+\fIchar_bdel\fR
+.RS 4
+Delete the letter before cursor position
+.RE
+.PP
+\fIchar_swap\fR
+.RS 4
+Transpose chars
+.RE
+.PP
+\fIfword\fR
+.RS 4
+Move the cursor forward to the end of the current or next word
+.RE
+.PP
+\fIbword\fR
+.RS 4
+Move the cursor back to the start of the current or previous word
+.RE
+.PP
+\fIword_bdel\fR
+.RS 4
+Delete the word from cursor position to its start
+.RE
+.PP
+\fIword_fdel\fR
+.RS 4
+Delete the word from cursor position to its end
+.RE
+.PP
+\fIword_upcase\fR
+.RS 4
+Convert the word from cursor position to its end to upper case
+.RE
+.PP
+\fIword_downcase\fR
+.RS 4
+Convert the word from cursor position to its end to down case
+.RE
+.PP
+\fIword_capit\fR
+.RS 4
+Capitalize the word from cursor position to its end
+.RE
+.PP
+\fIhist_beginning_search_bwd\fR
+.RS 4
+Search backward in the history for a line beginning with the current line up to the cursor (this leaves the cursor in its original position)
+.RE
+.PP
+\fIhist_beginning_search_fwd\fR
+.RS 4
+Search forward in the history for a line beginning with the current line up to the cursor (this leaves the cursor in its original position)
+.RE
+.PP
+\fIhist_prev\fR
+.RS 4
+Previous line of input line history
+.RE
+.PP
+\fIhist_next\fR
+.RS 4
+Next line of input line history
+.RE
+.PP
+\fIiline_start\fR
+.RS 4
+Go to the beginning of the input line
+.RE
+.PP
+\fIiline_end\fR
+.RS 4
+Go to the end of the input line
+.RE
+.PP
+\fIiline_fdel\fR
+.RS 4
+Delete from the cursor to the end of line
+.RE
+.PP
+\fIiline_bdel\fR
+.RS 4
+Delete from beginning of the line to the cursor
+.RE
+.PP
+\fIiline_accept\fR
+.RS 4
+Accept line
+.RE
+.PP
+\fIiline_accept_down_hist\fR
+.RS 4
+Accept line and put the next history line in the input line
+.RE
+.PP
+\fIcompl_do\fR
+.RS 4
+Complete current word, in the input line
+.RE
+.PP
+\fIcompl_cancel\fR
+.RS 4
+Cancel completion
+.RE
+.PP
+\fIsend_multiline\fR
+.RS 4
+Send/terminate a multi\-line message
+.RE
 .RE
 .PP
 /info
 .RS 4
-Display info on the selected entry (user, agent, group\&...). For users, resources are displayed with the status, priority and status message (if available) of each resource.
+Display info on the selected entry (user, agent, group\&...)\&.
+
+For users, resources are displayed with the status, priority and status message (if available) of each resource\&.
+.RE
+.PP
+/module load|unload [\-f] module, /module info module, /module [list]
+.RS 4
+Load, unload or show info on module\&.
+.PP
+\fIload\fR [\-f] module
+.RS 4
+Loads specified module\&. If \-f flag is specified, most of module loading errors will be ignored\&.
+.RE
+.PP
+\fIunload\fR [\-f] module
+.RS 4
+Unloads specified module\&. Note: The force flag will not remove any dependent on this modules!
+.RE
+.PP
+\fIinfo\fR module
+.RS 4
+Shows available information about this module\&.
+.RE
+.PP
+[\fIlist\fR]
+.RS 4
+Lists modules in a format: [modulename] [reference count] ([Manually/Automatically loaded]) [any extra info, like version or dependencies]
+.RE
 .RE
 .PP
 /move [groupname]
 .RS 4
-Move the current buddy to the requested group. If no group is specified, then the buddy is moved to the default group. If the group groupname doesn't exist, it is created. Tip: if the chatmode is enabled, you can use "/roster alternate" to jump to the moved buddy.
+Move the current buddy to the requested group\&. If no group is specified, then the buddy is moved to the default group\&. If the group "groupname" doesn\(cqt exist, it is created\&.
+
+Tip: if the chatmode is enabled, you can use "/roster alternate" to jump to the moved buddy\&.
 .RE
 .PP
 /msay begin|verbatim|send|send_to|toggle|toggle_verbatim|abort
 .RS 4
-Send a multi\-line message. To write a single message with several lines, the
+Send a multi\-line message\&. To write a single message with several lines, the
 \fImulti\-line mode\fR
-should be used. In multi\-line mode, each line (except command lines) typed in the input line will be added to the multi\-line message. Once the message is finished, it can be sent to the current selected buddy with the "/msay send" command (or Ctrl\-d). The
+should be used\&.
+
+In multi\-line mode, each line (except command lines) typed in the input line will be added to the multi\-line message\&. Once the message is finished, it can be sent to the current selected buddy with the "/msay send" command\&.
+
+The
 \fIbegin\fR
-subcommand enables multi\-line mode. Note that it allows a message subject to be specified. The
+subcommand enables multi\-line mode\&. Note that it allows a message subject to be specified\&.
+
+The
 \fIverbatim\fR
-multi\-line mode disables commands, so that it is possible to enter lines starting with a slash. Only the "/msay" command (with send or abort parameters) can be used to exit verbatim mode. The
+multi\-line mode disables commands, so that it is possible to enter lines starting with a slash\&. Only the "/msay" command (with send or abort parameters) can be used to exit verbatim mode\&.
+
+The
 \fItoggle\fR
-and
-\fItoggle_verbatim\fR
-subcommands can be bound to a key to use the multi\-line mode quickly (for example, "bind M109 = msay toggle" to switch using the Meta\-m combination).
-.TS
-tab(:);
-l l
-l l
-l l
-l l
-l l
-l l
-l l.
-T{
-\fIbegin\fR
-[subject]
-T}:T{
-enter multi\-line mode
-T}
-T{
+subcommand can be bound to a key to use the multi\-line mode quickly (for example, "bind M13 = msay toggle" to switch using the Meta\-Enter combination)\&.
+.PP
+\fIbegin\fR [subject]
+.RS 4
+Enter multi\-line mode
+.RE
+.PP
 \fIverbatim\fR
-T}:T{
-enter verbatim multi\-line mode
-T}
-T{
-\fIsend\fR
-T}:T{
-send the current multi\-line message to the currently selected buddy
-T}
-T{
-\fIsend_to\fR
-jid
-T}:T{
-send the current multi\-line message to "jid"
-T}
-T{
-\fItoggle\fR
-T}:T{
-switch to/from multi\-line mode (begin/send)
-T}
-T{
-\fItoggle_verbatim\fR
-T}:T{
-same with verbatim multi\-line mode
-T}
-T{
+.RS 4
+Enter verbatim multi\-line mode
+.RE
+.PP
+\fIsend\fR [\-n|\-h]
+.RS 4
+Send the current multi\-line message to the currently selected buddy
+.RE
+.PP
+\fIsend_to\fR [\-n|\-h] jid
+.RS 4
+Send the current multi\-line message to "jid"
+.RE
+.PP
+\fItoggle\fR|\fItoggle_verbatim\fR
+.RS 4
+Switch to/from multi\-line mode (begin/send)
+.RE
+.PP
 \fIabort\fR
-T}:T{
-leave multi\-line mode without sending the message
-T}
-.TE
+.RS 4
+Leave multi\-line mode without sending the message
 .sp
+.if n \{\
+.RS 4
+.\}
+.nf
+The \-n or \-h flags turn the message to "normal" or "headline" accordingly, as opposed to default "chat" message\&.
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.RE
+.PP
+/otr key, /otr start|stop|info [jid], /otr fingerprint [jid [fpr]], /otr smpq|smpr [jid] secret, /otr smpa [jid]
+.RS 4
+You can use the shortcut\-jid "\&." for the currently selected contact\&.
+.PP
+\fIkey\fR
+.RS 4
+Print the fingerprint of your private key to the Status Buffer
+.RE
+.PP
+\fIstart\fR [jid]
+.RS 4
+Open an OTR channel to the specified jid (or the currently selected contact)
+.RE
+.PP
+\fIstop\fR [jid]
+.RS 4
+Close the OTR channel to the specified jid (or the currently selected contact)
+.RE
+.PP
+\fIinfo\fR [jid]
+.RS 4
+Show current OTR status for the specified jid (or the currently selected contact)
+.RE
+.PP
+\fIfingerprint\fR [jid [fpr]]
+.RS 4
+Show the active fingerprint of an OTR channel\&. If the fingerprint is provided instead of "fpr", the fingerprint will become trusted\&. If you replace "fpr" by some bogus string the fingerprint will loose the trusted status\&.
+.RE
+.PP
+\fIsmpq\fR [jid] secret
+.RS 4
+Initiate the Socialist Millionaires Protocol with the secret and the buddy
+.RE
+.PP
+\fIsmpr\fR [jid] secret
+.RS 4
+Respond to the Initiation of the jid with the secret
+.RE
+.PP
+\fIsmpa\fR [jid]
+.RS 4
+Abort the running Socialist Millionaires Protocol
+.RE
+.RE
+.PP
+/otrpolicy, /otrpolicy (default|jid) (plain|manual|opportunistic|always)
+.RS 4
+You can use the shortcut\-jid "\&." for the currently selected contact\&.
+.PP
+(without arguments)
+.RS 4
+Prints all OTR policies to the status buffer
+.RE
+.PP
+(\fIdefault\fR|\fIjid\fR) (plain|manual|opportunistic|always)
+.RS 4
+Sets either the default policy or the policy for the given jid The plain policy should never be used, because you won\(cqt be able to receive or send any OTR encrypted messages\&. If you set the policy to manual, you or your chat partner have to start the OTR encryption by hand (e\&.g\&. with /otr start)\&. The policy "opportunistic" does that itself by sending a special whitespace\-sequence at the end of unencrypted messages\&. So the other OTR\-enabled chat client knows, that you want to use OTR\&. Note that the first message will always be unencryted, if you use this policy\&. With the policy "always" no message will be sent in plain text\&. If you try to sent the first message unencrypted, mcabber will try to establish an OTR channel\&. Please resend your message, when you get the information that the channel was established\&. If someone sends you plaintext messages while the policy is set to "always", you\(cqll be able to read the message but it won\(cqt be saved to the history\&.
+.RE
 .RE
 .PP
 /pgp disable|enable|force|info [jid], /pgp setkey [jid [key]]
 .RS 4
-Manipulate PGP settings for the specified jid (by default the currently selected contact). Please note that PGP encryption won't be used if no remote PGP support is detected, even if PGP is enabled with this command.
-.TS
-tab(:);
-l l
-l l
-l l
-l l
-l l.
-T{
-\fIdisable\fR
-[jid]
-T}:T{
-disable PGP encryption for jid (or the currently selected contact)
-T}
-T{
-\fIenable\fR
-[jid]
-T}:T{
-enable PGP encryption for jid (or the currently selected contact)
-T}
-T{
-\fIforce\fR
-[jid]
-T}:T{
-enforce PGP encryption, even for offline messages, and always assume the recipient has PGP support
-T}
-T{
-\fIinfo\fR
-[jid]
-T}:T{
-show current PGP settings for the contact
-T}
-T{
-\fIsetkey\fR
-[jid [key]]
-T}:T{
-set the PGP key to be used to encrypt message for this contact. If no key is provided, the current key is erased. You can use the shortcut\-jid "." for the currently selected contact.
-T}
-.TE
-.sp
+This command manipulates PGP settings for the specified jid (by default the currently selected contact)\&.
+
+Please note that PGP encryption won\(cqt be used if no remote PGP support is detected, even if PGP is enabled with this command\&. You can force PGP encryption with the "force" subcommand\&.
+.PP
+\fIdisable\fR [jid]
+.RS 4
+Disable PGP encryption for jid (or the currently selected contact)
+.RE
+.PP
+\fIenable\fR [jid]
+.RS 4
+Enable PGP encryption for jid (or the currently selected contact)
+.RE
+.PP
+\fIforce\fR [jid]
+.RS 4
+Enforce PGP encryption, even for offline messages, and always assume the recipient has PGP support\&. If a message can\(cqt be encrypted (missing key or key id), the messages won\(cqt be sent at all\&. This option is ignored when PGP is disabled\&.
+.RE
+.PP
+\fIinfo\fR [jid]
+.RS 4
+Show current PGP settings for the contact
+.RE
+.PP
+\fIsetkey\fR [jid [key]]
+.RS 4
+Set the PGP key to be used to encrypt message for this contact\&. If no key is provided, the current key is erased\&. You can use the shortcut\-jid "\&." for the currently selected contact\&.
+.RE
+.RE
+.PP
+/quit
+.RS 4
+This command closes all connections and quit mcabber\&.
+.RE
+.PP
+/rawxml send string
+.RS 4
+Send "string" (raw XML format) to the Jabber server\&.
+
+No check is done on the string provided\&.
+
+BEWARE! Use this only if you know what you are doing, or you could terminate the connection\&.
+
+Example: "/rawxml send <presence><show>away</show></presence>"
 .RE
 .PP
 /rename name
 .RS 4
-Rename current buddy or group to the given name. Please note that a group name change is only done when the server's acknowledgment is received, so a slight delay can be noticed.
+Rename the current buddy or group to the given "name"\&. If "name" is \-, the name is removed from the roster (and mcabber will display the JID or username)\&.
 .RE
 .PP
-/request last|time|vcard|version [jid]
+/request last|ping|time|vcard|version [jid]
 .RS 4
-Send a "IQ" query to the current buddy, or to the specified Jabber user. If the resource is not provided with the jid, mcabber will send the query to all known resources for this user.
+Send a "IQ" query to the current buddy, or to the specified Jabber user\&. If the resource is not provided with the jid, mcabber will send the query to all known resources for this user\&.
+.PP
+\fIlast\fR
+.RS 4
+Request "last" information (usually idle time)
 .RE
 .PP
-/room join|leave|names|nick|privmsg|remove|topic|unlock|destroy, /room invite|kick|ban|role|affil, /room bookmark [add|del] [\-autojoin|+autojoin]
+\fIping\fR
+.RS 4
+Send an XMPP Ping request\&. Note that you should use the full JID since a ping sent to a bare JID will be handled by the server\&.
+.RE
+.PP
+\fItime\fR
+.RS 4
+Request time from the buddy
+.RE
+.PP
+\fIvcard\fR
+.RS 4
+Request VCard from the buddy
+.RE
+.PP
+\fIversion\fR
+.RS 4
+Request version from the buddy
+.RE
+.RE
+.PP
+/room join|leave|names|nick|remove|topic|unlock|destroy, /room privmsg|invite|whois|kick|ban|unban|role|affil, /room setopt print_status|auto_whois [value], /room bookmark [add|del] [\-autojoin|+autojoin] [\-|nick]
 .RS 4
 The
 \fIroom\fR
-command handles Multi\-User Chat room actions.
-.TS
-tab(:);
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l.
-T{
-\fIjoin\fR
-[room [nick [pass]]]
-T}:T{
-join "room", using "nick" as nickname. If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file). If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id. A password can be provided to enter protected rooms. If your nickname contains space characters, use quotes.
-T}
-T{
-\fIwhois\fR
-nick
-T}:T{
-display MUC information about "nick"
-T}
-T{
-\fIban\fR
-jid [reason]
-T}:T{
-ban jid from the current room
-T}
-T{
-\fIinvite\fR
-jid [reason]
-T}:T{
-invite jid to the current room
-T}
-T{
-\fIkick\fR
-nick [reason]
-T}:T{
-kick "nick" from the current room
-T}
-T{
-\fIrole\fR
-jid role [reason]
-T}:T{
-change jid's role (role can be "none", "visitor", "participant", "moderator")
-T}
-T{
-\fIaffil\fR
-jid affil [reason]
-T}:T{
-change jid's affiliation (affil can be "none", "member", "admin", "owner")
-\fIbookmark\fR
-add/update/remove a room bookmark, set/unset autojoin
-T}
-T{
-\fIleave\fR
-[message]
-T}:T{
-leave the current room
-T}
-T{
-\fInames\fR
-[\-\-detail|\-\-short|\-\-quiet]
-T}:T{
-display the members of the current room
-T}
-T{
-\fInick\fR
-nick
-T}:T{
-change your nickname in the current room
-T}
-T{
-\fIprivmsg\fR
-nick msg
-T}:T{
-send private message "msg" to "nick"
-T}
-T{
-\fIremove\fR
-T}:T{
-remove the current room from the roster (you must have left this room before)
-T}
-T{
-\fItopic\fR
-T}:T{
-set topic for current room
-T}
-T{
-\fIunlock\fR
-T}:T{
-unlock current room (if you are the owner)
-T}
-T{
-\fIdestroy\fR
-[reason]
-T}:T{
-destroy the current room (use with care!)
-T}
-.TE
-.sp
+command handles Multi\-User Chat room actions\&.
+.PP
+\fIjoin\fR [room [nick [pass]]]
+.RS 4
+Join "room", using "nick" as nickname\&. If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file)\&. If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "\&." can be used instead of the full room id\&. A password can be provided to enter protected rooms\&. If your nickname contains space characters, use quotes\&.
 .RE
 .PP
-/roster bottom|top|up|down|group_prev|group_next, /roster alternate|unread_first|unread_next, /roster search bud, /roster hide_offline|show_offline|toggle_offline, /roster item_lock|item_unlock, /roster hide|show|toggle, /roster note [\-|text]
+\fIleave\fR [message]
+.RS 4
+Leave the current room
+.RE
+.PP
+\fInames\fR [\-\-detail|\-\-short|\-\-quiet|\-\-compact]
+.RS 4
+Display members of the current room
+.RE
+.PP
+\fInick\fR newnick
+.RS 4
+Change your nickname in the current room
+.RE
+.PP
+\fIprivmsg\fR nick msg
+.RS 4
+Send private message "msg" to "nick"
+.RE
+.PP
+\fIremove\fR
+.RS 4
+Remove the current room from the roster (you must have left this room before)
+.RE
+.PP
+\fItopic\fR \-|newtopic
+.RS 4
+Set topic for current room
+.RE
+.PP
+\fIunlock\fR
+.RS 4
+Unlock current room (if you are the owner)
+.RE
+.PP
+\fIdestroy\fR [reason]
+.RS 4
+Destroy the current room (use with care!)
+.RE
+.PP
+\fIwhois\fR nick
+.RS 4
+Display MUC information about "nick"
+.RE
+.PP
+\fIban\fR jid [reason]
+.RS 4
+Ban jid from the current room
+.RE
+.PP
+\fIunban\fR jid
+.RS 4
+Unban jid from the current room
+.RE
+.PP
+\fIinvite\fR jid [reason]
+.RS 4
+Invite jid to the current room
+.RE
+.PP
+\fIkick\fR nick [reason]
+.RS 4
+Kick "nick" from the current room
+.RE
+.PP
+\fIrole\fR jid role [reason]
+.RS 4
+Change jid\(cqs role (role can be "none", "visitor", "participant", "moderator")
+.RE
+.PP
+\fIaffil\fR jid affil [reason]
+.RS 4
+Change jid\(cqs affiliation (affil can be "none", "member", "admin", "owner")
+.RE
+.PP
+\fIsetopt\fR print_status|auto_whois [value]
+.RS 4
+Change settings for the current room For print_status, the possible values are "default", "none", "in_and_out", "all"\&. For auto_whois, the possible values are "default", "off", "on"\&. When the value is "default", the options muc_print_status / muc_auto_whois is used\&.
+.RE
+.PP
+\fIbookmark\fR [add|del] [\-autojoin|+autojoin] [\-|nick]
+.RS 4
+Add, remove or update a bookmark (default is add)\&. If autojoin is set, mcabber will automatically join the MUC room when it connects to the server\&. To see the list of bookmarks, use /room bookmark in the status buffer\&.
+.RE
+.RE
+.PP
+/roster bottom|top|up|down|group_prev|group_next, /roster alternate|unread_first|unread_next, /roster search bud, /roster display|hide_offline|show_offline|toggle_offline, /roster item_lock|item_unlock|item_toggle_lock, /roster hide|show|toggle, /roster note [\-|text]
 .RS 4
 The
 \fIroster\fR
-command manipulates the roster/buddylist. Here are the available parameters:
-.TS
-tab(:);
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l.
-T{
+command manipulates the roster/buddylist\&.
+
+Here are the available parameters:
+.PP
 \fIbottom\fR
-T}:T{
-jump to the bottom of the roster
-T}
-T{
-\fIsearch\fR
-bud
-T}:T{
-search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
-T}
-T{
-\fIhide_offline\fR
-T}:T{
-hide offline buddies
-T}
-T{
-\fIshow_offline\fR
-T}:T{
-show offline buddies
-T}
-T{
-\fItoggle_offline\fR
-T}:T{
-toggle display of offline buddies
-T}
-T{
-\fIitem_lock\fR
-jid
-T}:T{
-lock the roster item so it remains visible regardless of its status
-T}
-T{
-\fIitem_unlock\fR
-jid
-T}:T{
-undo the effects of item_lock
-T}
-T{
-\fIhide\fR
-T}:T{
-hide roster (full\-width chat window)
-T}
-T{
-\fIshow\fR
-T}:T{
-show roster
-T}
-T{
-\fItoggle\fR
-T}:T{
-toggle roster visibility
-T}
-T{
-\fInote\fR
-[text]
-T}:T{
-display or set an annotation (if text is "\-", the annotation is deleted). In the "status" buffer, it will display all annotations.
-T}
-T{
+.RS 4
+Jump to the bottom of the roster
+.RE
+.PP
 \fItop\fR
-T}:T{
-jump to the top of the roster
-T}
-T{
-\fIup\fR
-T}:T{
-move up in the roster
-T}
-T{
-\fIdown\fR
-T}:T{
-move down in the roster
-T}
-T{
+.RS 4
+Jump to the top of the roster
+.RE
+.PP
+\fIup\fR [n]
+.RS 4
+Move up [n lines] in the roster
+.RE
+.PP
+\fIdown\fR [n]
+.RS 4
+Move down [n lines] in the roster
+.RE
+.PP
 \fIgroup_prev\fR
-T}:T{
-jump to the previous group in the roster
-T}
-T{
+.RS 4
+Jump to the previous group in the roster
+.RE
+.PP
 \fIgroup_next\fR
-T}:T{
-jump to the next group in the roster
-T}
-T{
+.RS 4
+Jump to the next group in the roster
+.RE
+.PP
 \fIalternate\fR
-T}:T{
-jump to alternate buddy. The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
-T}
-T{
+.RS 4
+Jump to alternate buddy\&. The "alternate" buddy is the last buddy left while being in chat mode\&. This command is thus especially useful after commands like "/roster unread_next" (Ctrl\-q)\&.
+.RE
+.PP
 \fIunread_first\fR
-T}:T{
-jump to the first unread message
-T}
-T{
+.RS 4
+Jump to the first unread message
+.RE
+.PP
 \fIunread_next\fR
-T}:T{
-jump to the next unread message
-T}
-.TE
-.sp
+.RS 4
+Jump to the next unread message
 .RE
 .PP
-/say text
+\fIsearch\fR bud
 .RS 4
-Send the "text" message to the currently selected buddy. Can be useful if you want to send a message beginning with a slash, for example.
+Search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
 .RE
 .PP
-/say_to jid text
+\fIdisplay\fR [mask]
 .RS 4
-Send the "text" message to the specified jid. Please note that this command doesn't set the default resource for a contact, so if you want to send several messages to a specific resource you will have to use "/say_to" for each message.
+See or update the roster filter\&. The mask should contain the shortcut letters of the status you want to see ([o]nline, [f]ree_for_chat, [d]o_not_disturb, [n]ot_available, [a]way, [_]offline)\&. For example "ofdna" to display only connected buddies\&.
 .RE
 .PP
-/status [online|avail|invisible|free|dnd|notavail|away [\-|StatusMessage]]
+\fIhide_offline\fR
 .RS 4
-Show or set the current status.
-If no status is specified, display the current status.
-If a status message is specified, it will overrride the message* variables (these variables can be set in the configuration file). If no relevant message* variable is set and no status message provided, the current status message is kept. If StatusMessage is "\-", the current status message is cleared.
+Hide offline buddies (same as /roster display ofdna)
 .RE
 .PP
-/status_to jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
+\fIshow_offline\fR
 .RS 4
-Send the requested status to the specified Jabber user.
-If the specified jid is ".", the current buddy is used.
-Note: this status will be overridden by subsequent "/status" commands. If you are using the auto\-away feature, the status will overridden too. Note: The jid can include a resource (i.e. user@server/resource).
+Show offline buddies (same as /roster display ofdna_)
+.RE
+.PP
+\fItoggle_offline\fR
+.RS 4
+Toggle display of offline buddies
+.RE
+.PP
+\fIitem_lock\fR [jid]
+.RS 4
+Lock the roster item so it remains visible regardless of its status
+.RE
+.PP
+\fIitem_unlock\fR [jid]
+.RS 4
+Undo the effects of item_lock
+.RE
+.PP
+\fIitem_toggle_lock\fR [jid]
+.RS 4
+Invert the current lock flag
+.RE
+.PP
+\fIhide\fR
+.RS 4
+Hide roster (full\-width chat window)
+.RE
+.PP
+\fIshow\fR
+.RS 4
+Show roster
+.RE
+.PP
+\fItoggle\fR
+.RS 4
+Toggle roster visibility
+.RE
+.PP
+\fInote\fR [\-|text]
+.RS 4
+Set/update/delete an annotation\&. If there is no text, the current item\(cqs annotation is displayed \(em if you are in the status buffer, all notes are displayed\&. If text is "\-", the note is erased\&.
+.RE
+.RE
+.PP
+/say [\-n|\-h|\-\-] text
+.RS 4
+Send the "text" message to the currently selected buddy\&. It can be useful if you want to send a message beginning with a slash, for example\&.
+
+The "\-n" flag turns the message to "normal" type, "\-h" to "headline"\&. "\-\-" can be used to send chat message beginning with \-n or \-h\&.
+.RE
+.PP
+/say_to [\-n|\-h] [\-q] [\-f file] jid text
+.RS 4
+Send the "text" message to the specified jid\&.
+
+Please note that this command doesn\(cqt set the default resource for a contact, so if you want to send several messages to a specific resource you will have to use "/say_to" for each message\&.
+
+The "\-n" flag turns the message to "normal" type, "\-h" to "headline"\&. "\-\-" can be used to send chat messages beginning with \-n or \-h\&.
+
+When "\-q" is used, the message will be sent in the background and will not change the current active window\&.
+
+A text file can be provided with the "\-f" switch (in which case there\(cqs no need to pass a text argument after the jid, of course)\&.
+.RE
+.PP
+/screen_refresh
+.RS 4
+Refresh the mcabber screen\&.
+.RE
+.PP
+/set option [= value]
+.RS 4
+Display or set an option value\&.
+.RE
+.PP
+/source pattern
+.RS 4
+Read configuration files, that match glob pattern (sorted in alphabetical order)\&.
+.RE
+.PP
+/status [online|avail|invisible|free|dnd|notavail|away [\-|statusmessage]], /status message \-|statusmessage
+.RS 4
+Show or set the current status\&.
+
+If no status is specified, display the current status\&.
+
+If a status message is specified, it will overrride the message* variables (these variables can be set in the configuration file)\&.
+
+If no relevant message* variable is set and no status message provided, the current status message is kept\&.
+
+If StatusMessage is "\-", the current status message is cleared\&.
+
+With the "/status message" command, mcabber will update the message while preserving the status\&.
+.RE
+.PP
+/status_to jid online|avail|invisible|free|dnd|notavail|away [statusmessage], /status_to jid message statusmessage
+.RS 4
+Send the requested status to the specified Jabber user\&.
+
+If the specified jid is "\&.", the current buddy is used\&.
+
+Note: this status will be overridden by subsequent "/status" commands\&. If you are using the auto\-away feature, the status will overridden too\&.
+
+Note: The jid can include a resource (i\&.e\&. user@server/resource)\&.
+.RE
+.PP
+/version
+.RS 4
+Display current version of mcabber\&.
 .RE
 .SH "CONFIGURATION FILE"
-See the provided sample configuration file, which should be self\-documenting.
 .sp
+See the provided sample configuration file, which should be self\-documenting\&.
 .SH "FILES"
+.sp
 The following files can be used by mcabber(1):
 .sp
-.sp
+.if n \{\
 .RS 4
+.\}
 .nf
-$HOME/.mcabber/mcabberrc    Default configuration file
-$HOME/.mcabberrc            Configuration file used if no other has been found
-$HOME/.mcabber/histo/       Default directory for storing chat history files, if enabled
+$HOME/\&.mcabber/mcabberrc    Default configuration file
+$HOME/\&.mcabberrc            Configuration file used if no other has been found
+$HOME/\&.mcabber/histo/       Default directory for storing chat history files, if enabled
+/usr/share/mcabber/help/    Default directory for online help files
+/usr/lib/mcabber/           Default directory for modules
 .fi
+.if n \{\
 .RE
+.\}
 .SH "BUGS"
-Certainly. Please tell me if you find one! :\-)
 .sp
+Certainly\&. Please tell me if you find one! :\-) Please visit our website to find out about the MUC room and the bug tracker\&.
 .SH "AUTHOR"
-Written by \fIMikael BERTHE\fR\&[1]. Originally based on \fICabber\fR\&[2], please consult the AUTHORS file for details.
 .sp
+Written by \m[blue]\fBMikael BERTHE\fR\m[]\&\s-2\u[1]\d\s+2 and others (see AUTHORS file)\&.
 .SH "RESOURCES"
-\fIMain web site\fR\&[3]
 .sp
+\m[blue]\fBMain web site\fR\m[]\&\s-2\u[2]\d\s+2
 .SH "COPYING"
-Copyright (C) 2005, 2006, 2007, 2008 Mikael Berthe. Some portions are Copyright (C) 2002\-2004 \fIcabber@ajmacias.com\fR\&[4].
 .sp
-Free use of this software is granted under the terms of the GNU General Public License (GPL).
+Copyright (C) 2005\-2010 Mikael Berthe and others\&.
 .sp
-.SH "REFERENCES"
+Free use of this software is granted under the terms of the GNU General Public License (GPL)\&.
+.SH "NOTES"
 .IP " 1." 4
 Mikael BERTHE
 .RS 4
-\%mailto:mcabber@lilotux.net
+\%mailto:mikael@lilotux.net
 .RE
 .IP " 2." 4
-Cabber
-.RS 4
-\%http://cabber.sourceforge.net
-.RE
-.IP " 3." 4
 Main web site
 .RS 4
-\%http://www.lilotux.net/~mikael/mcabber/
-.RE
-.IP " 4." 4
-cabber@ajmacias.com
-.RS 4
-\%mailto:cabber@ajmacias.com
+\%http://mcabber.com/
 .RE

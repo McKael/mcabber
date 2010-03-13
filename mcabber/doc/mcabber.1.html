@@ -1,1321 +1,2623 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-<meta name="generator" content="AsciiDoc 8.2.1" />
-<meta name="author" content="Mikael BERTHE" />
-<meta name="author-email" content="mcabber@lilotux.net" />
-<link rel="stylesheet" href="./manpage.css" type="text/css" />
-<title>mcabber</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.5.2" />
+<title>MCABBER(1)</title>
+<style type="text/css">
+/* Debug borders */
+p, li, dt, dd, div, pre, h1, h2, h3, h4, h5, h6 {
+/*
+  border: 1px solid red;
+*/
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+tt {
+  color: navy;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  font-family: sans-serif;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+
+div.sectionbody {
+  font-family: serif;
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+span#author {
+  color: #527bbd;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+span#email {
+}
+span#revnumber, span#revdate, span#revremark {
+  font-family: sans-serif;
+}
+
+div#footer {
+  font-family: sans-serif;
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+div#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+div#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+div#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 10%;
+  border-left: 5px solid #dddddd;
+  color: #777777;
+}
+
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock > div.content {
+  white-space: pre;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 3px solid #dddddd;
+}
+
+div.exampleblock > div.content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-family: sans-serif;
+  font-weight: bold;
+}
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+.footnote, .footnoteref {
+  font-size: 0.8em;
+}
+
+span.footnote, span.footnoteref {
+  vertical-align: super;
+}
+
+#footnotes {
+  margin: 20px 0 20px 0;
+  padding: 7px 0 0 0;
+}
+
+#footnotes div.footnote {
+  margin: 0 0 5px 0;
+}
+
+#footnotes hr {
+  border: none;
+  border-top: 1px solid silver;
+  height: 1px;
+  text-align: left;
+  margin-left: 0;
+  width: 20%;
+  min-width: 100px;
+}
+
+
+@media print {
+  div#footer-badges { display: none; }
+}
+
+div#toc {
+  margin-bottom: 2.5em;
+}
+
+div#toctitle {
+  color: #527bbd;
+  font-family: sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+/* Overrides for manpage documents */
+h1 {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  border-top: 2px solid silver;
+  border-bottom: 2px solid silver;
+}
+h2 {
+  border-style: none;
+}
+div.sectionbody {
+  margin-left: 5%;
+}
+
+@media print {
+  div#toc { display: none; }
+}
+
+/* Workarounds for IE6's broken and incomplete CSS2. */
+
+div.sidebar-content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+div.sidebar-title, div.image-title {
+  color: #527bbd;
+  font-family: sans-serif;
+  font-weight: bold;
+  margin-top: 0.0em;
+  margin-bottom: 0.5em;
+}
+
+div.listingblock div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock-attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock-content {
+  white-space: pre;
+}
+div.verseblock-attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+
+div.exampleblock-content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+/* IE6 sets dynamically generated links as visited. */
+div#toc a:visited { color: blue; }
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+window.onload = function(){asciidoc.footnotes();}
+var asciidoc = {  // Namespace.
+
+/////////////////////////////////////////////////////////////////////
+// Table Of Contents generator
+/////////////////////////////////////////////////////////////////////
+
+/* Author: Mihai Bazon, September 2002
+ * http://students.infoiasi.ro/~mishoo
+ *
+ * Table Of Content generator
+ * Version: 0.4
+ *
+ * Feel free to use this script under the terms of the GNU General Public
+ * License, as long as you do not remove or alter this notice.
+ */
+
+ /* modified by Troy D. Hanson, September 2006. License: GPL */
+ /* modified by Stuart Rackham, 2006, 2009. License: GPL */
+
+// toclevels = 1..4.
+toc: function (toclevels) {
+
+  function getText(el) {
+    var text = "";
+    for (var i = el.firstChild; i != null; i = i.nextSibling) {
+      if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
+        text += i.data;
+      else if (i.firstChild != null)
+        text += getText(i);
+    }
+    return text;
+  }
+
+  function TocEntry(el, text, toclevel) {
+    this.element = el;
+    this.text = text;
+    this.toclevel = toclevel;
+  }
+
+  function tocEntries(el, toclevels) {
+    var result = new Array;
+    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    // Function that scans the DOM tree for header elements (the DOM2
+    // nodeIterator API would be a better technique but not supported by all
+    // browsers).
+    var iterate = function (el) {
+      for (var i = el.firstChild; i != null; i = i.nextSibling) {
+        if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
+          var mo = re.exec(i.tagName);
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
+            result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
+          iterate(i);
+        }
+      }
+    }
+    iterate(el);
+    return result;
+  }
+
+  var toc = document.getElementById("toc");
+  var entries = tocEntries(document.getElementById("content"), toclevels);
+  for (var i = 0; i < entries.length; ++i) {
+    var entry = entries[i];
+    if (entry.element.id == "")
+      entry.element.id = "_toc_" + i;
+    var a = document.createElement("a");
+    a.href = "#" + entry.element.id;
+    a.appendChild(document.createTextNode(entry.text));
+    var div = document.createElement("div");
+    div.appendChild(a);
+    div.className = "toclevel" + entry.toclevel;
+    toc.appendChild(div);
+  }
+  if (entries.length == 0)
+    toc.parentNode.removeChild(toc);
+},
+
+
+/////////////////////////////////////////////////////////////////////
+// Footnotes generator
+/////////////////////////////////////////////////////////////////////
+
+/* Based on footnote generation code from:
+ * http://www.brandspankingnew.net/archive/2005/07/format_footnote.html
+ */
+
+footnotes: function () {
+  var cont = document.getElementById("content");
+  var noteholder = document.getElementById("footnotes");
+  var spans = cont.getElementsByTagName("span");
+  var refs = {};
+  var n = 0;
+  for (i=0; i<spans.length; i++) {
+    if (spans[i].className == "footnote") {
+      n++;
+      // Use [\s\S] in place of . so multi-line matches work.
+      // Because JavaScript has no s (dotall) regex flag.
+      note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+      noteholder.innerHTML +=
+        "<div class='footnote' id='_footnote_" + n + "'>" +
+        "<a href='#_footnoteref_" + n + "' title='Return to text'>" +
+        n + "</a>. " + note + "</div>";
+      spans[i].innerHTML =
+        "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
+        "' title='View footnote' class='footnote'>" + n + "</a>]";
+      var id =spans[i].getAttribute("id");
+      if (id != null) refs["#"+id] = n;
+    }
+  }
+  if (n == 0)
+    noteholder.parentNode.removeChild(noteholder);
+  else {
+    // Process footnoterefs.
+    for (i=0; i<spans.length; i++) {
+      if (spans[i].className == "footnoteref") {
+        var href = spans[i].getElementsByTagName("a")[0].getAttribute("href");
+        href = href.match(/#.*/)[0];  // Because IE return full URL.
+        n = refs[href];
+        spans[i].innerHTML =
+          "[<a href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+      }
+    }
+  }
+}
+
+}
+/*]]>*/
+</script>
 </head>
 <body>
-<div id="content">
-<h1>MCABBER(1) Manual Page</h1>
+<div id="header">
+<h1>
+MCABBER(1) Manual Page
+</h1>
 <h2>NAME</h2>
+<div class="sectionbody">
 <p>mcabber -
-   a simple Jabber console client
+   a simple Jabber (XMPP) console client
 </p>
-<div id="synopsis">
-<h2>SYNOPSIS</h2>
-<p><b>mcabber</b> [ -h | -V | -f configfile ]</p>
 </div>
-<h2>DESCRIPTION</h2>
-<p><tt>mcabber(1)</tt> is a small Jabber console client.<br />
+</div>
+<div id="content">
+<h2 id="_synopsis">SYNOPSIS</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><em>mcabber</em> [ -h | -V | -f configfile ]</p></div>
+</div>
+<h2 id="_description">DESCRIPTION</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><tt>mcabber(1)</tt> is a small Jabber (XMPP) console client.<br />
 For now it needs a configuration file to start, so please copy the sample
-mcabberrc file and adapt your connection settings.</p>
-<p>You also need to have an existing Jabber account to use this software, as
-it cannot (un)register accounts yet.</p>
-<p>Here are some of the features of <tt>mcabber</tt>:</p>
-<ul>
+mcabberrc file and adapt your connection settings.</p></div>
+<div class="paragraph"><p>You also need to have an existing Jabber account to use this software, as
+it cannot (un)register accounts yet.</p></div>
+<div class="paragraph"><p>Here are some of the features of <tt>mcabber</tt>:</p></div>
+<div class="ulist"><ul>
 <li>
 <p>
-<b>SSL/TLS support</b>.
+<em>SASL/SSL/TLS support</em>.
 </p>
 </li>
 <li>
 <p>
-<b>MUC support</b> (Multi-User Chat).
+<em>MUC support</em> (Multi-User Chat).
 </p>
 </li>
 <li>
 <p>
-<b>PGP support</b>
+<em>PGP, OTR support</em>
 </p>
 </li>
 <li>
 <p>
-<b>Chat States</b> support (typing notifications)
+<em>Chat States</em> support (typing notifications)
 </p>
 </li>
 <li>
 <p>
-<b>History logging:</b>  If enabled (see the CONFIGURATION FILE section),
-  <tt>mcabber</tt> can save discussions to history log files.
+<em>History logging:</em>  If enabled (see the CONFIGURATION FILE section),
+  <tt>mcabber</tt> can save discussions to text history log files.
 </p>
 </li>
 <li>
 <p>
-<b>Commands completion:</b>  If possible, <tt>mcabber</tt> will try to complete your
+<em>Commands completion:</em>  If possible, <tt>mcabber</tt> will try to complete your
   command line if you hit the Tab key.
 </p>
 </li>
 <li>
 <p>
-<b>Input line history:</b>  Any message or command entered is in the input line
+<em>Input line history:</em>  Any message or command entered is in the input line
   history and can be reused easily.
 </p>
 </li>
 <li>
 <p>
-<b>External actions:</b>  Some events (like receiving a message) can trigger an
+<em>External actions:</em>  Some events (like receiving a message) can trigger an
   external action such as a shell script if you enable it in your
   configuration file.  A sample events script ("eventcmd") is provided with
   <tt>mcabber</tt> source code, in the contrib directory.
 </p>
 </li>
-</ul>
-<h2>OPTIONS</h2>
-<dl>
-<dt><b>
---help, -h
-</b></dt>
+<li>
+<p>
+<em>Modules:</em>  <tt>mcabber</tt> can load modules (a.k.a. plugins) at runtime that
+  extend its features.
+</p>
+</li>
+</ul></div>
+</div>
+<h2 id="_options">OPTIONS</h2>
+<div class="sectionbody">
+<div class="dlist"><dl>
+<dt class="hdlist1">
+-h
+</dt>
 <dd>
+<p>
         Quick help usage message
+</p>
 </dd>
-<dt><b>
--f configfile
-</b></dt>
+<dt class="hdlist1">
+-V
+</dt>
 <dd>
-        Use configuration file <b>configfile</b>
+<p>
+        Displays <tt>mcabber</tt> version and compile-time definitions.
+</p>
 </dd>
-</dl>
-<h2>WINDOWS/PANES</h2>
-<p>The <tt>mcabber(1)</tt> screen is divided into 4 regions.
-The <b>roster</b>, alias <b>buddylist</b>, is on the left.  The <b>chat window</b>, or chat
-buffer, is on the right.  The <b>input line</b> lies at the bottom of the screen,
-under a small <b>log window</b>.</p>
-<p>Two status lines surround the log window.  The bottom status line is the
+<dt class="hdlist1">
+-f configfile
+</dt>
+<dd>
+<p>
+        Use configuration file <em>configfile</em>
+</p>
+</dd>
+</dl></div>
+</div>
+<h2 id="_windows_panes">WINDOWS/PANES</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>The <tt>mcabber(1)</tt> screen is divided into 4 regions.
+The <em>roster</em>, alias <em>buddylist</em>, is on the left.  The <em>chat window</em>, or chat
+buffer, is on the right.  The <em>input line</em> lies at the bottom of the screen,
+under a small <em>log window</em>.</p></div>
+<div class="paragraph"><p>Two status lines surround the log window.  The bottom status line is the
 "main status line" and reflects mcabber general status.  The other line
 is the "chat status line" and shows the status of the currently selected
-buddy.</p>
-<p>To display buddies chat buffers, you will have to enter <b>chat mode</b>.
+buddy.</p></div>
+<div class="paragraph"><p>To display buddies chat buffers, you will have to enter <em>chat mode</em>.
 You can enter chat mode by pressing enter, and leave chat mode with the ESC
-key.  Simply sending a message will also enable chat mode.</p>
-<p>There are several advantages to the two-mode implementation: first, it allows
+key.  Simply sending a message will also enable chat mode.</p></div>
+<div class="paragraph"><p>There are several advantages to the two-mode implementation: first, it allows
 accurate "unread" message functionality, as described in the next section;
 without this, merely scrolling to a specific buddy will "read" the new
 messages of all buddies in-between.  Second, it allows quickly hiding the
 conversation with a single keystroke.  Third, it allows jumping between
-the few buddies with whom you are conversing with the <b>/roster alternate</b>
+the few buddies with whom you are conversing with the <em>/roster alternate</em>
 command described in another section, without having to manually scroll
-back and forth.</p>
-<h2>KEYS</h2>
-<p>Text typing occurs in the <b>input line</b>; basic operations are supported
-(left arrow, right arrow, home/end keys, insert, delete, backspace&#8230;).</p>
-<p>PageUp and PageDown keys are used to move in the roster.</p>
-<p>Up and Down arrow keys can be used to move in the input line history; they
+back and forth.</p></div>
+</div>
+<h2 id="_keys">KEYS</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Text typing occurs in the <em>input line</em>; basic operations are supported
+(left arrow, right arrow, home/end keys, insert, delete, backspace&#8230;).</p></div>
+<div class="paragraph"><p>PageUp and PageDown keys are used to move in the roster.</p></div>
+<div class="paragraph"><p>Up and Down arrow keys can be used to move in the input line history; they
 jump to the previous/next line from the history beginning with the same string
-(from first column to the cursor column).</p>
-<p>To send a message, move to the choosen buddy in the buddylist, type your
+(from first column to the cursor column).</p></div>
+<div class="paragraph"><p>To send a message, move to the chosen buddy in the buddylist, type your
 message and hit enter.  If the line begins with a slash, this will be
 interpreted as a command (see the COMMAND section below).  Hit escape to
-leave the chat mode.</p>
-<p>Here is a quick description of the key bindings:</p>
-<table class="hlist">
-<tr valign="top">
-<td>
+leave the chat mode.</p></div>
+<div class="paragraph"><p>Here is a quick description of the default key bindings:</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
 Esc
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Disable chat mode
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-a
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Go to the beginning of the input line
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-e
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Go to the end of the input line
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-l
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Force a refresh
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Up/Down
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Move in the input line history
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 PgUp/PgDown
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Move inside the roster (buddylist)
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Tab
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Complete current word, in the input line
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-g
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Cancel completion
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-c
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Abort multi-line messages and completions
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-d
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Send/terminate a multi-line message
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-p/Ctrl-n
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Scroll up/down half a screen in the buffer window (chat mode)
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-Left
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Move the cursor back to the start of the current or previous word
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-Right
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Move the cursor forward to the end of the current or next word
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-u
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Delete from beginning of the line to the cursor
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-k
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Delete from the cursor to the end of line
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-w
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Backward kill word
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-t
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Transpose chars
-</td>
-</tr>
-<tr valign="top">
-<td>
+</p>
+</dd>
+<dt class="hdlist1">
 Ctrl-o
-</td>
-<td>
+</dt>
+<dd>
+<p>
 Accept line and put the next history line in the input line (accept-line-and-down-history)
-</td>
-</tr>
-</table>
-<p>Additional key bindings may be specified using the <b>/bind</b> command described
-in the COMMANDS section.</p>
-<h2>MCABBER'S ROSTER</h2>
-<p>The first listed resource on the roster is <b>[status]</b>, which keeps a log of
+</p>
+</dd>
+</dl></div>
+<div class="paragraph"><p>Additional key bindings may be specified using the <em>/bind</em> command described
+in the COMMANDS section.</p></div>
+</div>
+<h2 id="_mcabber_8217_s_roster">MCABBER&#8217;S ROSTER</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>The first listed resource on the roster is <em>[status]</em>, which keeps a log of
 everything that appears in the short log window below the main chat area.
 While the log window was designed for showing the latest few elements, the
-dedicated <b>[status]</b> buffer allows more comfortable viewing of the log, as
-well as scrolling it in a standard manner.</p>
-<p>Group names are displayed above the resources that are within them, and are
-indicated by <b>---</b> to the left of the name.</p>
-<p>For every real Jabber resource, the roster displays four pieces of information:
-the resource's name or alias, its online status, its authorization status, and
-whether there are unread messages from the resource waiting for you.</p>
-<p>The online status is one of the following:</p>
-<table class="hlist">
-<tr valign="top">
-<td>
-<b>o</b>
-</td>
-<td>
-online
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>f</b>
-</td>
-<td>
-free for chat
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>a</b>
-</td>
-<td>
-away
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>n</b>
-</td>
-<td>
-not available (labeled <b>extended away</b> in some clients)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>d</b>
-</td>
-<td>
-do not disturb
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>i</b>
-</td>
-<td>
-invisible (displayed only for your resource)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>_</b>
-</td>
-<td>
-offline (or invisible to you)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>?</b>
-</td>
-<td>
-unknown, usually meaning you are not authorized to see this resource's status
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>x</b>
-</td>
-<td>
-a conference room in which you are not participating
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>C</b>
-</td>
-<td>
-a conference room in which you are participating
-</td>
-</tr>
-</table>
-<p>The authorization status indicates whether a resource is authorized to receive
-your online status updates, and is displayed by the brackets surrounding the
-resource's online status.  Square brackets, like <b>[o]</b>, indicate that this
-resource is authorized to receive your status.  Curly braces, like <b>{o}</b>,
-indicate that they are not authorized to receive your status.</p>
-<p>When there are unread messages from the resource which you have not looked at,
-a hash mark (<b>#</b>) appears in the leftmost section of the roster for that
-resource.  The hash mark disappears once you view that resource's message log.</p>
-<p>Examples:</p>
-<table class="hlist">
-<tr valign="top">
-<td>
-<b> --- Buds</b>
-</td>
-<td>
-This is a group named <b>Buds</b>
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>#[o] John</b>
-</td>
-<td>
-John is online, can see your status, and sent you a message that you did not read yet
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b> {?} Sally</b>
-</td>
-<td>
-Neither you nor Sally have authorized each other to see your online status
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b> {a} Jane</b>
-</td>
-<td>
-Jane is away, but she cannot see your online status
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>#[C] x@y.c</b>
-</td>
-<td>
-You are participating in x@y.c conference room, and there are unread messages
-</td>
-</tr>
-</table>
-<h2>COMMANDS</h2>
-<p>Please refer to the online help (command /help), it is probably more up-to-date than this manpage.  Furthermore, help files have been translated into several languages.<br />
-You will find an overview of the <tt>mcabber</tt> commands in this manual.</p>
-<h2>COMMANDS RELATED TO MCABBER</h2>
-<dl>
-<dt><b>
-/alias [name [= command line]]
-</b></dt>
+dedicated <em>[status]</em> buffer allows more comfortable viewing of the log, as
+well as scrolling it in a standard manner.</p></div>
+<div class="paragraph"><p>Group names are displayed above the resources that are within them, and are
+indicated by <em>---</em> to the left of the name.</p></div>
+<div class="paragraph"><p>For every real Jabber resource, the roster displays four pieces of information:
+the resource&#8217;s name or alias, its online status, its authorization status, and
+whether there are unread messages from the resource waiting for you.</p></div>
+<div class="paragraph"><p>The online status is one of the following:</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>o</em>
+</dt>
 <dd>
-        Add "name" as an alias for "command line". <tt>
-        Aliases are expanded only once, thus they can not be chained. </tt>
-        "/alias name" displays the value associated with the "name" alias; <tt>
-        "/alias name =" unsets the "name" alias. </tt>
-        "/alias" displays a list of the existing aliases.<br />
-        Example: "/alias away = status away".
-</dd>
-<dt><b>
-/bind [keycode [= command line]]
-</b></dt>
-<dd>
-        Bind a command line to the key with the "keycode" code number. <tt>
-        Keycodes of unused keys are displayed by <tt>mcabber</tt> in the log window
-        when pressing the key, for example "Unknown key=265". </tt>
-        "/bind keycode" displays the command line bound to the given keycode; <tt>
-        "/bind keycode =" unbinds the given keycode. </tt>
-        "/bind" displays a list of the bound keycodes. <tt>
-        Note: aliases can be used in key bindings. </tt>
-        Example: "/bind 265 = status online" (265 is F1 for me, but it may
-        depend on your ncurses installation).
-</dd>
-<dt><b>
-/buffer clear|close|close_all|purge
-</b></dt>
-<dt><b>
-/buffer top|bottom|date|%|search_backward|search_forward
-</b></dt>
-<dt><b>
-/buffer scroll_lock|scroll_unlock|scroll_toggle
-</b></dt>
-<dd>
-        The <b>buffer</b> command manipulates the current buddy's buffer
-        (chat window).
-<table class="hlist">
-<tr valign="top">
-<td>
-<b>clear</b>
-</td>
-<td>
-clear the current buddy chat window
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>close</b>
-</td>
-<td>
-empty all contents of the buffer and close the current buddy chat window
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>close_all</b>
-</td>
-<td>
-empty all contents of the chat buffers and close the chat windows
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>purge</b>
-</td>
-<td>
-clear the current buddy chat window and empty all contents of the chat buffer
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>top</b>
-</td>
-<td>
-jump to the top of the current buddy chat buffer
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>bottom</b>
-</td>
-<td>
-jump to the bottom of the current buddy chat buffer
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>up</b> [n]
-</td>
-<td>
-scroll the buffer up n lines (default: half a screen)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>down</b> [n]
-</td>
-<td>
-scroll the buffer down n lines (default: half a screen)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>date</b> date
-</td>
-<td>
-jump to the first line after the specified date in the chat buffer (date format: "YYYY-mm-dd[THH:MM:SS]", "-" and ":" are optional)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>%</b> n
-</td>
-<td>
-jump to position %n of the buddy chat buffer
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>search_backward</b> text
-</td>
-<td>
-search for "text" in the current buddy chat buffer
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>search_forward</b>  text
-</td>
-<td>
-search for "text" in the current buddy chat buffer
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>scroll_lock</b>
-</td>
-<td>
-lock buffer scrolling
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>scroll_unlock</b>
-</td>
-<td>
-unlock buffer scrolling
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>scroll_toggle</b>
-</td>
-<td>
-toggle buffer scrolling (lock/unlock)
-</td>
-</tr>
-</table>
-</dd>
-<dt><b>
-/clear
-</b></dt>
-<dd>
-        The <b>clear</b> command is actually an alias for "/buffer clear".
-</dd>
-<dt><b>
-/help [command]
-</b></dt>
-<dd>
-        Display generic help or help about a specific mcabber command.
-</dd>
-<dt><b>
-/quit
-</b></dt>
-<dd>
-        Disconnect and leave <tt>mcabber(1)</tt>.
-</dd>
-<dt><b>
-/set option[=value]
-</b></dt>
-<dd>
-        Display or set an option value.
-</dd>
-<dt><b>
-/source [file]
-</b></dt>
-<dd>
-        Read a configuration file.
-</dd>
-<dt><b>
-/version
-</b></dt>
-<dd>
-        Display mcabber version
-</dd>
-</dl>
-<h2>COMMANDS RELATED TO THE SERVER AND CONNECTION</h2>
-<dl>
-<dt><b>
-/connect
-</b></dt>
-<dd>
-        Establish connection to the Jabber server.
-</dd>
-<dt><b>
-/disconnect
-</b></dt>
-<dd>
-        Terminate connection to the Jabber server.  Note: the roster is only
-        available when the connection to the server is active, so the
-        buddylist is empty when disconnected.
-</dd>
-<dt><b>
-/event #n|* accept|ignore|reject
-</b></dt>
-<dt><b>
-/event list
-</b></dt>
-<dd>
-        Tell mcabber what to do about a pending event.<br />
-        If the first parameter is "*", the command will apply to all
-        queued events.
-<table class="hlist">
-<tr valign="top">
-<td>
-<b>accept</b>
-</td>
-<td>
-accept the event #n
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>ignore</b>
-</td>
-<td>
-remove the event #n from the list
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>reject</b>
-</td>
-<td>
-reject the event #n
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>list</b>
-</td>
-<td>
-list all pending events
-</td>
-</tr>
-</table>
-</dd>
-<dt><b>
-/rawxml send string
-</b></dt>
-<dd>
-        <b>send</b> string: send string (raw XML format) to the Jabber server.  No check is done on the string provided.  BEWARE! Use this only if you know what you are doing, or you could terminate the connection.
-</dd>
-</dl>
-<h2>COMMANDS RELATED TO THE ROSTER AND JABBER RESOURCES</h2>
-<dl>
-<dt><b>
-/add [jid [nickname]]
-</b></dt>
-<dd>
-        Add the "jid" Jabber user to our roster (default group), and send a
-        notification request to this buddy.  If no nickname is specified, the
-        jid is used.  If no jid (or an empty string "") is provided or if jid
-        is ".", the current buddy is used.
-</dd>
-<dt><b>
-/authorization allow|cancel|request|request_unsubscribe [jid]
-</b></dt>
-<dd>
-        Manage the presence subscriptions.<br />
-        If no jid is provided, the current buddy is used.
-<table class="hlist">
-<tr valign="top">
-<td>
-<b>allow</b>
-</td>
-<td>
-allow the buddy to receive your presence updates
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>cancel</b>
-</td>
-<td>
-cancel the buddy' subscription to your presence updates
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>request</b>
-</td>
-<td>
-request a subscription to the buddy's presence updates
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>request_unsubscribe</b>
-</td>
-<td>
-request unsubscription from the buddy's presence updates
-</td>
-</tr>
-</table>
-</dd>
-<dt><b>
-/del
-</b></dt>
-<dd>
-        Delete the current buddy from our roster, unsubscribe from its presence
-        notification and unsubscribe it from ours.
-</dd>
-<dt><b>
-/group fold|unfold|toggle
-</b></dt>
-<dd>
-        The <b>group</b> command changes the current group display.
-<table class="hlist">
-<tr valign="top">
-<td>
-<b>fold</b>
-</td>
-<td>
-fold (shrink) the current group tree in the roster
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>unfold</b>
-</td>
-<td>
-unfold (expand) the current group tree in the roster
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>toggle</b>
-</td>
-<td>
-toggle the state (fold/unfold) of the current tree
-</td>
-</tr>
-</table>
-</dd>
-<dt><b>
-/info
-</b></dt>
-<dd>
-        Display info on the selected entry (user, agent, group&#8230;).<br />
-        For users, resources are displayed with the status, priority and
-        status message (if available) of each resource.
-</dd>
-<dt><b>
-/move [groupname]
-</b></dt>
-<dd>
-        Move the current buddy to the requested group.  If no group is
-        specified, then the buddy is moved to the default group.
-        If the group groupname doesn't exist, it is created.<br />
-        Tip: if the chatmode is enabled, you can use "/roster alternate"
-        to jump to the moved buddy.
-</dd>
-<dt><b>
-/msay begin|verbatim|send|send_to|toggle|toggle_verbatim|abort
-</b></dt>
-<dd>
-        Send a multi-line message.  To write a single message with several
-        lines, the <b>multi-line mode</b> should be used. <tt>
-        In multi-line mode, each line (except command lines) typed in the input
-        line will be added to the multi-line message.  Once the message is
-        finished, it can be sent to the current selected buddy with the "/msay
-        send" command (or Ctrl-d). </tt>
-        The <b>begin</b> subcommand enables multi-line mode.  Note that it allows
-        a message subject to be specified. <tt>
-        The <b>verbatim</b> multi-line mode disables commands, so that it is
-        possible to enter lines starting with a slash.  Only the "/msay"
-        command (with send or abort parameters) can be used to exit verbatim
-        mode. </tt>
-        The <b>toggle</b> and <b>toggle_verbatim</b> subcommands can be bound to a key to
-        use the multi-line mode quickly (for example, "bind M109 = msay toggle"
-        to switch using the Meta-m combination).
-<table class="hlist">
-<tr valign="top">
-<td>
-<b>begin</b> [subject]
-</td>
-<td>
-enter multi-line mode
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>verbatim</b>
-</td>
-<td>
-enter verbatim multi-line mode
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>send</b>
-</td>
-<td>
-send the current multi-line message to the currently selected buddy
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>send_to</b> jid
-</td>
-<td>
-send the current multi-line message to "jid"
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>toggle</b>
-</td>
-<td>
-switch to/from multi-line mode (begin/send)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>toggle_verbatim</b>
-</td>
-<td>
-same with verbatim multi-line mode
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>abort</b>
-</td>
-<td>
-leave multi-line mode without sending the message
-</td>
-</tr>
-</table>
-</dd>
-<dt><b>
-/pgp disable|enable|force|info [jid]
-</b></dt>
-<dt><b>
-/pgp setkey [jid [key]]
-</b></dt>
-<dd>
-        Manipulate PGP settings for the specified jid (by default the currently selected contact).  Please note that PGP encryption won't be used if no remote PGP support is detected, even if PGP is enabled with this command.
-<table class="hlist">
-<tr valign="top">
-<td>
-<b>disable</b> [jid]
-</td>
-<td>
-disable PGP encryption for jid (or the currently selected contact)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>enable</b> [jid]
-</td>
-<td>
-enable PGP encryption for jid (or the currently selected contact)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>force</b> [jid]
-</td>
-<td>
-enforce PGP encryption, even for offline messages, and always assume the recipient has PGP support
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>info</b> [jid]
-</td>
-<td>
-show current PGP settings for the contact
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>setkey</b> [jid [key]]
-</td>
-<td>
-set the PGP key to be used to encrypt message for this contact.  If no key is provided, the current key is erased.  You can use the shortcut-jid "." for the currently selected contact.
-</td>
-</tr>
-</table>
-</dd>
-<dt><b>
-/rename name
-</b></dt>
-<dd>
-        Rename current buddy or group to the given name.
-        Please note that a group name change is only done when the server's
-        acknowledgment is received, so a slight delay can be noticed.
-</dd>
-<dt><b>
-/request last|time|vcard|version [jid]
-</b></dt>
-<dd>
-        Send a "IQ" query to the current buddy, or to the specified Jabber
-        user.  If the resource is not provided with the jid, mcabber will
-        send the query to all known resources for this user.
-</dd>
-<dt><b>
-/room join|leave|names|nick|privmsg|remove|topic|unlock|destroy
-</b></dt>
-<dt><b>
-/room invite|kick|ban|role|affil
-</b></dt>
-<dt><b>
-/room bookmark [add|del] [-autojoin|+autojoin]
-</b></dt>
-<dd>
-        The <b>room</b> command handles Multi-User Chat room actions.
-<table class="hlist">
-<tr valign="top">
-<td>
-<b>join</b> [room [nick [pass]]]
-</td>
-<td>
-join "room", using "nick" as nickname.  If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.  A password can be provided to enter protected rooms.  If your nickname contains space characters, use quotes.
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>leave</b> [message]
-</td>
-<td>
-leave the current room
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>names</b> [--detail|--short|--quiet]
-</td>
-<td>
-display the members of the current room
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>nick</b> nick
-</td>
-<td>
-change your nickname in the current room
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>privmsg</b> nick msg
-</td>
-<td>
-send private message "msg" to "nick"
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>remove</b>
-</td>
-<td>
-remove the current room from the roster (you must have left this room before)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>topic</b>
-</td>
-<td>
-set topic for current room
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>unlock</b>
-</td>
-<td>
-unlock current room (if you are the owner)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>destroy</b> [reason]
-</td>
-<td>
-destroy the current room (use with care!)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>whois</b> nick
-</td>
-<td>
-display MUC information about "nick"
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>ban</b> jid [reason]
-</td>
-<td>
-ban jid from the current room
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>invite</b> jid [reason]
-</td>
-<td>
-invite jid to the current room
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>kick</b> nick [reason]
-</td>
-<td>
-kick "nick" from the current room
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>role</b> jid role [reason]
-</td>
-<td>
-change jid's role (role can be "none", "visitor", "participant", "moderator")
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>affil</b> jid affil [reason]
-</td>
-<td>
-change jid's affiliation (affil can be "none", "member", "admin", "owner")
-        <b>bookmark</b>              add/update/remove a room bookmark, set/unset autojoin
-</td>
-</tr>
-</table>
-</dd>
-<dt><b>
-/roster bottom|top|up|down|group_prev|group_next
-</b></dt>
-<dt><b>
-/roster alternate|unread_first|unread_next
-</b></dt>
-<dt><b>
-/roster search bud
-</b></dt>
-<dt><b>
-/roster hide_offline|show_offline|toggle_offline
-</b></dt>
-<dt><b>
-/roster item_lock|item_unlock
-</b></dt>
-<dt><b>
-/roster hide|show|toggle
-</b></dt>
-<dt><b>
-/roster note [-|text]
-</b></dt>
-<dd>
-        The <b>roster</b> command manipulates the roster/buddylist.  Here are the available parameters:
-<table class="hlist">
-<tr valign="top">
-<td>
-<b>bottom</b>
-</td>
-<td>
-jump to the bottom of the roster
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>top</b>
-</td>
-<td>
-jump to the top of the roster
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>up</b>
-</td>
-<td>
-move up in the roster
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>down</b>
-</td>
-<td>
-move down in the roster
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>group_prev</b>
-</td>
-<td>
-jump to the previous group in the roster
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>group_next</b>
-</td>
-<td>
-jump to the next group in the roster
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>alternate</b>
-</td>
-<td>
-jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode (this command is thus especially useful after commands like "/roster unread_first")
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>unread_first</b>
-</td>
-<td>
-jump to the first unread message
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>unread_next</b>
-</td>
-<td>
-jump to the next unread message
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>search</b> bud
-</td>
-<td>
-search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>hide_offline</b>
-</td>
-<td>
-hide offline buddies
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>show_offline</b>
-</td>
-<td>
-show offline buddies
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>toggle_offline</b>
-</td>
-<td>
-toggle display of offline buddies
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>item_lock</b> jid
-</td>
-<td>
-lock the roster item so it remains visible regardless of its status
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>item_unlock</b> jid
-</td>
-<td>
-undo the effects of item_lock
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>hide</b>
-</td>
-<td>
-hide roster (full-width chat window)
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>show</b>
-</td>
-<td>
-show roster
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>toggle</b>
-</td>
-<td>
-toggle roster visibility
-</td>
-</tr>
-<tr valign="top">
-<td>
-<b>note</b> [text]
-</td>
-<td>
-display or set an annotation (if text is "-", the annotation is deleted).  In the "status" buffer, it will display all annotations.
-</td>
-</tr>
-</table>
-</dd>
-<dt><b>
-/say text
-</b></dt>
-<dd>
-        Send the "text" message to the currently selected buddy.  Can be useful
-        if you want to send a message beginning with a slash, for example.
-</dd>
-<dt><b>
-/say_to jid text
-</b></dt>
-<dd>
-        Send the "text" message to the specified jid.
-        Please note that this command doesn't set the default resource for
-        a contact, so if you want to send several messages to a specific
-        resource you will have to use "/say_to" for each message.
-</dd>
-<dt><b>
-/status [online|avail|invisible|free|dnd|notavail|away [-|StatusMessage]]
-</b></dt>
-<dd>
-        Show or set the current status. <tt>
-        If no status is specified, display the current status. </tt>
-        If a status message is specified, it will overrride the message*
-        variables (these variables can be set in the configuration file).
-        If no relevant message* variable is set and no status message provided,
-        the current status message is kept.  If StatusMessage is "-", the
-        current status message is cleared.
-</dd>
-<dt><b>
-/status_to jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
-</b></dt>
-<dd>
-        Send the requested status to the specified Jabber user. <tt>
-        If the specified jid is ".", the current buddy is used. </tt>
-        Note: this status will be overridden by subsequent "/status" commands.
-        If you are using the auto-away feature, the status will overridden
-        too.<br />
-        Note: The jid can include a resource (i.e. user@server/resource).
-</dd>
-</dl>
-<h2>CONFIGURATION FILE</h2>
-<p>See the provided sample configuration file, which should be self-documenting.</p>
-<h2>FILES</h2>
-<p>The following files can be used by <tt>mcabber(1)</tt>:</p>
-<div class="literalparagraph"><pre>$HOME/.mcabber/mcabberrc    Default configuration file
-$HOME/.mcabberrc            Configuration file used if no other has been found
-$HOME/.mcabber/histo/       Default directory for storing chat history files, if enabled</pre></div>
-<h2>BUGS</h2>
-<p>Certainly.  Please tell me if you find one!  :-)</p>
-<h2>AUTHOR</h2>
-<p>Written by <a href="mailto:mcabber@lilotux.net">Mikael BERTHE</a>.<br />
-Originally based on <a href="http://cabber.sourceforge.net">Cabber</a>, please
-consult the AUTHORS file for details.</p>
-<h2>RESOURCES</h2>
-<p><a href="http://www.lilotux.net/~mikael/mcabber/">Main web site</a></p>
-<h2>COPYING</h2>
-<p>Copyright (C) 2005, 2006, 2007, 2008 Mikael Berthe.<br />
-Some portions are Copyright (C) 2002-2004 <a href="mailto:cabber@ajmacias.com">cabber@ajmacias.com</a>.</p>
-<p>Free use of this software is granted under the terms of the GNU General Public
-License (GPL).</p>
-<div id="footer">
 <p>
-Version 0.10.0-dev<br />
-Last updated 27-Jun-2007 22:11:34 CEST
+online
 </p>
+</dd>
+<dt class="hdlist1">
+<em>f</em>
+</dt>
+<dd>
+<p>
+free for chat
+</p>
+</dd>
+<dt class="hdlist1">
+<em>a</em>
+</dt>
+<dd>
+<p>
+away
+</p>
+</dd>
+<dt class="hdlist1">
+<em>n</em>
+</dt>
+<dd>
+<p>
+not available (labeled <em>extended away</em> in some clients)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>d</em>
+</dt>
+<dd>
+<p>
+do not disturb
+</p>
+</dd>
+<dt class="hdlist1">
+<em>i</em>
+</dt>
+<dd>
+<p>
+invisible (displayed only for your resource)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>_</em>
+</dt>
+<dd>
+<p>
+offline (or invisible to you)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>?</em>
+</dt>
+<dd>
+<p>
+unknown, usually meaning you are not authorized to see this resource&#8217;s status
+</p>
+</dd>
+<dt class="hdlist1">
+<em>x</em>
+</dt>
+<dd>
+<p>
+a conference room in which you are not participating
+</p>
+</dd>
+<dt class="hdlist1">
+<em>C</em>
+</dt>
+<dd>
+<p>
+a conference room in which you are participating
+</p>
+</dd>
+</dl></div>
+<div class="paragraph"><p>The authorization status indicates whether a resource is authorized to receive
+your online status updates, and is displayed by the brackets surrounding the
+resource&#8217;s online status.  Square brackets, like <em>[o]</em>, indicate that this
+resource is authorized to receive your status.  Curly braces, like <em>{o}</em>,
+indicate that they are not authorized to receive your status.</p></div>
+<div class="paragraph"><p>When there are unread messages from the resource which you have not looked at,
+a hash mark (<em>#</em>) appears in the leftmost section of the roster for that
+resource.  The hash mark disappears once you view that resource&#8217;s message log.</p></div>
+<div class="paragraph"><p>Examples:</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>--- Buds</em>
+</dt>
+<dd>
+<p>
+This is a group named <em>Buds</em>
+</p>
+</dd>
+<dt class="hdlist1">
+<em>#[o] John</em>
+</dt>
+<dd>
+<p>
+John is online, can see your status, and sent you a message that you did not read yet
+</p>
+</dd>
+<dt class="hdlist1">
+<em>{?} Sally</em>
+</dt>
+<dd>
+<p>
+Neither you nor Sally have authorized each other to see your online status
+</p>
+</dd>
+<dt class="hdlist1">
+<em>{a} Jane</em>
+</dt>
+<dd>
+<p>
+Jane is away, but she cannot see your online status
+</p>
+</dd>
+<dt class="hdlist1">
+<em>#[C] x@y.c</em>
+</dt>
+<dd>
+<p>
+You are participating in x@y.c conference room, and there are unread messages
+</p>
+</dd>
+</dl></div>
+</div>
+<h2 id="_commands">COMMANDS</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Please refer to the online help (command /help), it is probably more up-to-date than this manpage.  Furthermore, help files have been translated into several languages.<br />
+You will find an overview of the <tt>mcabber</tt> commands in this manual.</p></div>
+</div>
+<h2 id="_commands_related_to_mcabber">COMMANDS RELATED TO MCABBER</h2>
+<div class="sectionbody">
+<div class="dlist"><dl>
+<dt class="hdlist1">
+/add [jid [nickname]]
+</dt>
+<dd>
+<p>
+        Add the "jid" Jabber user to our roster (default group), and send a notification request to this buddy.  If no nickname is specified, the jid is used.  If no jid (or an empty string "") is provided or if jid is ".", the current buddy is used.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+[<em>jid</em> [nickname]]
+</dt>
+<dd>
+<p>
+Add to our roster "jid" as "nickname"
+</p>
+<div class="literalblock">
+<div class="content">
+<pre><tt>Example: "/add somebody@jabber.server.com Somebody"</tt></pre>
+</div></div>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/alias [name [= command line]]
+</dt>
+<dd>
+<p>
+        This command let you to add aliases which can simplify sophisticated commands.<br />
+        You can manage your aliases by:
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+(without arguments)
+</dt>
+<dd>
+<p>
+Print list of currently defined aliases
+</p>
+</dd>
+<dt class="hdlist1">
+<em>name</em>
+</dt>
+<dd>
+<p>
+Print the value of alias called "name"
+</p>
+</dd>
+<dt class="hdlist1">
+<em>name</em>=
+</dt>
+<dd>
+<p>
+Unset alias called "name"
+</p>
+</dd>
+<dt class="hdlist1">
+<em>name</em> = command line
+</dt>
+<dd>
+<p>
+Set alias called "name" with value "command line"
+</p>
+<div class="literalblock">
+<div class="content">
+<pre><tt>Example: "/alias away = status away"</tt></pre>
+</div></div>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/authorization allow|cancel|request|request_unsubscribe [jid]
+</dt>
+<dd>
+<p>
+        This command manages presence subscriptions: it allows you to request presence subscriptions from others on your roster, and allows you to control who receives your presence notifications.<br />
+        If no JID is provided, the currently-selected buddy is used.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>allow</em>
+</dt>
+<dd>
+<p>
+Allow the buddy to receive your presence updates
+</p>
+</dd>
+<dt class="hdlist1">
+<em>cancel</em>
+</dt>
+<dd>
+<p>
+Cancel the buddy&#8217;s subscription to your presence updates
+</p>
+</dd>
+<dt class="hdlist1">
+<em>request</em>
+</dt>
+<dd>
+<p>
+Request a subscription to the buddy&#8217;s presence updates
+</p>
+</dd>
+<dt class="hdlist1">
+<em>request_unsubscribe</em>
+</dt>
+<dd>
+<p>
+Request unsubscription from the buddy&#8217;s presence updates
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/bind [keycode [= command line]]
+</dt>
+<dd>
+<p>
+        Bind the command to the key given as "keycode".  To examine which keys are currently not used look at <tt>mcabber</tt> log window and press examined key.  For example: "Unknown key=265" means that you can bind some command to key #265.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+(without arguments)
+</dt>
+<dd>
+<p>
+Display list of current bindings
+</p>
+</dd>
+<dt class="hdlist1">
+<em>keycode</em>
+</dt>
+<dd>
+<p>
+Display the command line bound to this key
+</p>
+</dd>
+<dt class="hdlist1">
+<em>keycode</em>=
+</dt>
+<dd>
+<p>
+Unbind key with code "keycode"
+</p>
+</dd>
+<dt class="hdlist1">
+<em>keycode</em> = command line
+</dt>
+<dd>
+<p>
+Bind "command line" to the key with code "keycode"
+</p>
+<div class="literalblock">
+<div class="content">
+<pre><tt>Example: "/bind 265 = status away" (265 is F1). +
+Note: keycodes can be different depending on your ncurses configuration. +
+Tip: aliases also can be used instead of commands.</tt></pre>
+</div></div>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/buffer clear|close|close_all|purge|list
+</dt>
+<dt class="hdlist1">
+/buffer top|bottom|date|%|search_backward|search_forward
+</dt>
+<dt class="hdlist1">
+/buffer scroll_lock|scroll_unlock|scroll_toggle
+</dt>
+<dt class="hdlist1">
+/buffer save filename
+</dt>
+<dd>
+<p>
+        Buddy&#8217;s buffer manipulation command.  Eg. you can search through buffer for "text", clear chat window etc.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>clear</em>
+</dt>
+<dd>
+<p>
+Clear the current buddy chat window
+</p>
+</dd>
+<dt class="hdlist1">
+<em>close</em> [jid]
+</dt>
+<dd>
+<p>
+Empty all contents of the buffer and close the current buddy chat window
+</p>
+</dd>
+<dt class="hdlist1">
+<em>close_all</em>
+</dt>
+<dd>
+<p>
+Empty all contents of the chat buffers and close the chat windows
+</p>
+</dd>
+<dt class="hdlist1">
+<em>purge</em> [jid]
+</dt>
+<dd>
+<p>
+Clear the current buddy chat window and empty all contents of the chat buffer
+</p>
+</dd>
+<dt class="hdlist1">
+<em>list</em>
+</dt>
+<dd>
+<p>
+Display the list of existing buffers, with their length (lines/blocks)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>top</em>
+</dt>
+<dd>
+<p>
+Jump to the top of the current buddy chat buffer
+</p>
+</dd>
+<dt class="hdlist1">
+<em>bottom</em>
+</dt>
+<dd>
+<p>
+Jump to the bottom of the current buddy chat buffer
+</p>
+</dd>
+<dt class="hdlist1">
+<em>up</em> [n]
+</dt>
+<dd>
+<p>
+Scroll the buffer up [n] lines (default: half a screen)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>down</em> [n]
+</dt>
+<dd>
+<p>
+Scroll the buffer down [n] lines (default: half a screen)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>date</em> [date]
+</dt>
+<dd>
+<p>
+Jump to the first line after the specified [date] in the chat buffer (date format: "YYYY-mm-dd")
+</p>
+</dd>
+<dt class="hdlist1">
+% n
+</dt>
+<dd>
+<p>
+Jump to position %n of the buddy chat buffer
+</p>
+</dd>
+<dt class="hdlist1">
+<em>search_backward</em> text
+</dt>
+<dd>
+<p>
+Search for [text] in the current buddy chat buffer
+</p>
+</dd>
+<dt class="hdlist1">
+<em>search_forward</em> text
+</dt>
+<dd>
+<p>
+Search for [text] in the current buddy chat buffer
+</p>
+</dd>
+<dt class="hdlist1">
+<em>scroll_lock</em>
+</dt>
+<dd>
+<p>
+Lock buffer scrolling
+</p>
+</dd>
+<dt class="hdlist1">
+<em>scroll_unlock</em>
+</dt>
+<dd>
+<p>
+Unlock buffer scrolling
+</p>
+</dd>
+<dt class="hdlist1">
+<em>scroll_toggle</em>
+</dt>
+<dd>
+<p>
+Toggle buffer scrolling (lock/unlock)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>save</em> filename
+</dt>
+<dd>
+<p>
+Save the contents of the current buffer to the file "filename"
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/chat_disable [--show-roster]
+</dt>
+<dd>
+<p>
+        Disable chat mode.<br />
+        With --show-roster, the fullscreen mode will be disabled.
+</p>
+</dd>
+<dt class="hdlist1">
+/clear
+</dt>
+<dd>
+<p>
+        This command is actually an alias for "/buffer clear".  It clears the current buddy chat window.
+</p>
+</dd>
+<dt class="hdlist1">
+/color roster (status wildcard (color|-)|clear)
+</dt>
+<dt class="hdlist1">
+/color mucnick nick (color|-)
+</dt>
+<dt class="hdlist1">
+/color muc (jid|.|*) [on|preset|off|-]
+</dt>
+<dd>
+<p>
+        The <em>color</em> command allows setting dynamic color properties of the screen.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>roster</em> clear
+</dt>
+<dd>
+<p>
+Remove all color rules for the roster. All roster items will get its default color.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>roster</em> status wildcard color
+</dt>
+<dd>
+<p>
+Set a color rule (or overwrite, if it already exists). The status is string containing all statuses the roster item can have for the rule to match, or * if any status is OK. Wildcard is the file-matching wildcard that will be applied to JID. Color is the wanted color. If color is -, the rule is removed. If more than one rule matches, the color from the last created (not overwritten) is used.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>mucnick</em> nick (color|-)
+</dt>
+<dd>
+<p>
+Marks the nick to be colored by given color. If a MUC has colored nicks, this one will be used. If color is -, the color is marked as chosen automatically, which means it will not be used in <em>preset</em> coloring mode, but will stay the same in <em>on</em> coloring mode.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>muc</em> (jid|.|*) [on|preset|off|-]
+</dt>
+<dd>
+<p>
+Sets a MUC nick coloring mode. If a jid (. means currently selected jid) is provided, the mode will apply to this specific MUC. If * is used, it will be applied to all MUCs, except the ones set by their jid. Mode <em>on</em> colors all nicks, <em>preset</em> only the ones manually set by /color mucnick command and <em>off</em> colors none. If not specified, defaults to <em>on</em>. Mode <em>-</em> removes the mode from given JID, which means the global one will apply. You can not remove the global mode. Default global coloring mode is <em>off</em>.
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/connect
+</dt>
+<dd>
+<p>
+        Establish connection to the Jabber server.
+</p>
+</dd>
+<dt class="hdlist1">
+/del
+</dt>
+<dd>
+<p>
+        Delete the current buddy from our roster, unsubscribe from its presence notification and unsubscribe it from ours.
+</p>
+</dd>
+<dt class="hdlist1">
+/disconnect
+</dt>
+<dd>
+<p>
+        Terminate the connection to the Jabber server.<br />
+        Note: the roster is only available when the connection to the server is active, so the buddylist is empty when disconnected.
+</p>
+</dd>
+<dt class="hdlist1">
+/echo message
+</dt>
+<dd>
+<p>
+        Display "message" in the log window.
+</p>
+</dd>
+<dt class="hdlist1">
+/event #n|* accept|ignore|reject [event-specific arguments]
+</dt>
+<dt class="hdlist1">
+/event list
+</dt>
+<dd>
+<p>
+        Tell mcabber what to do about pending events.<br />
+        If the first parameter is <em>*</em>, the command will apply to all queued events.<br />
+        Event-specific arguments will be interpreted on event-to event basis. The only built-in case, when argument is used is MUC invitation reject - argument, if present, will be interpreted as reject reason.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+#N|* accept [event-specific arguments]
+</dt>
+<dd>
+<p>
+Event number #N/All events will be accepted
+</p>
+</dd>
+<dt class="hdlist1">
+#N|* ignore [event-specific arguments]
+</dt>
+<dd>
+<p>
+Event number #N/All events will be ignored
+</p>
+</dd>
+<dt class="hdlist1">
+#N|* reject [event-specific arguments]
+</dt>
+<dd>
+<p>
+Event number #N/All events will be rejected
+</p>
+</dd>
+<dt class="hdlist1">
+<em>list</em>
+</dt>
+<dd>
+<p>
+List all pending events
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/group fold|unfold|toggle [groupname]
+</dt>
+<dd>
+<p>
+        This command changes the current group display.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>fold</em> [groupname]
+</dt>
+<dd>
+<p>
+Fold (shrink) the current/specified group tree in the roster
+</p>
+</dd>
+<dt class="hdlist1">
+<em>unfold</em> [groupname]
+</dt>
+<dd>
+<p>
+Unfold (expand) the current/specified group tree in the roster
+</p>
+</dd>
+<dt class="hdlist1">
+<em>toggle</em> [groupname]
+</dt>
+<dd>
+<p>
+Toggle the state (fold/unfold) of the current/specified tree
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/help [command|+topic]
+</dt>
+<dd>
+<p>
+        Display help for command "command" or topic "topic".<br />
+        Example: "/help buffer"
+</p>
+</dd>
+<dt class="hdlist1">
+/iline fchar|bchar|char_fdel|char_bdel|char_swap
+</dt>
+<dt class="hdlist1">
+/iline fword|bword|word_bdel|word_fdel
+</dt>
+<dt class="hdlist1">
+/iline word_upcase|word_downcase|word_capit
+</dt>
+<dt class="hdlist1">
+/iline hist_beginning_search_bwd|hist_beginning_search_fwd
+</dt>
+<dt class="hdlist1">
+/iline hist_prev|hist_next
+</dt>
+<dt class="hdlist1">
+/iline iline_start|iline_end|iline_fdel|iline_bdel
+</dt>
+<dt class="hdlist1">
+/iline iline_accept|iline_accept_down_hist
+</dt>
+<dt class="hdlist1">
+/iline compl_do|compl_cancel
+</dt>
+<dt class="hdlist1">
+/iline send_multiline
+</dt>
+<dd>
+<p>
+        Input line commands
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>fchar</em>
+</dt>
+<dd>
+<p>
+Move to the next letter
+</p>
+</dd>
+<dt class="hdlist1">
+<em>bchar</em>
+</dt>
+<dd>
+<p>
+Move to the previous letter
+</p>
+</dd>
+<dt class="hdlist1">
+<em>char_fdel</em>
+</dt>
+<dd>
+<p>
+Delete the letter at cursor position
+</p>
+</dd>
+<dt class="hdlist1">
+<em>char_bdel</em>
+</dt>
+<dd>
+<p>
+Delete the letter before cursor position
+</p>
+</dd>
+<dt class="hdlist1">
+<em>char_swap</em>
+</dt>
+<dd>
+<p>
+Transpose chars
+</p>
+</dd>
+<dt class="hdlist1">
+<em>fword</em>
+</dt>
+<dd>
+<p>
+Move the cursor forward to the end of the current or next word
+</p>
+</dd>
+<dt class="hdlist1">
+<em>bword</em>
+</dt>
+<dd>
+<p>
+Move the cursor back to the start of the current or previous word
+</p>
+</dd>
+<dt class="hdlist1">
+<em>word_bdel</em>
+</dt>
+<dd>
+<p>
+Delete the word from cursor position to its start
+</p>
+</dd>
+<dt class="hdlist1">
+<em>word_fdel</em>
+</dt>
+<dd>
+<p>
+Delete the word from cursor position to its end
+</p>
+</dd>
+<dt class="hdlist1">
+<em>word_upcase</em>
+</dt>
+<dd>
+<p>
+Convert the word from cursor position to its end to upper case
+</p>
+</dd>
+<dt class="hdlist1">
+<em>word_downcase</em>
+</dt>
+<dd>
+<p>
+Convert the word from cursor position to its end to down case
+</p>
+</dd>
+<dt class="hdlist1">
+<em>word_capit</em>
+</dt>
+<dd>
+<p>
+Capitalize the word from cursor position to its end
+</p>
+</dd>
+<dt class="hdlist1">
+<em>hist_beginning_search_bwd</em>
+</dt>
+<dd>
+<p>
+Search backward in the history for a  line  beginning  with  the current  line  up  to the cursor (this leaves the cursor in its original position)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>hist_beginning_search_fwd</em>
+</dt>
+<dd>
+<p>
+Search forward in the history for a  line  beginning  with  the current  line  up  to the cursor (this leaves the cursor in its original position)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>hist_prev</em>
+</dt>
+<dd>
+<p>
+Previous line of input line history
+</p>
+</dd>
+<dt class="hdlist1">
+<em>hist_next</em>
+</dt>
+<dd>
+<p>
+Next line of input line history
+</p>
+</dd>
+<dt class="hdlist1">
+<em>iline_start</em>
+</dt>
+<dd>
+<p>
+Go to the beginning of the input line
+</p>
+</dd>
+<dt class="hdlist1">
+<em>iline_end</em>
+</dt>
+<dd>
+<p>
+Go to the end of the input line
+</p>
+</dd>
+<dt class="hdlist1">
+<em>iline_fdel</em>
+</dt>
+<dd>
+<p>
+Delete from the cursor to the end of line
+</p>
+</dd>
+<dt class="hdlist1">
+<em>iline_bdel</em>
+</dt>
+<dd>
+<p>
+Delete from beginning of the line to the cursor
+</p>
+</dd>
+<dt class="hdlist1">
+<em>iline_accept</em>
+</dt>
+<dd>
+<p>
+Accept line
+</p>
+</dd>
+<dt class="hdlist1">
+<em>iline_accept_down_hist</em>
+</dt>
+<dd>
+<p>
+Accept line and put the next history line in the input line
+</p>
+</dd>
+<dt class="hdlist1">
+<em>compl_do</em>
+</dt>
+<dd>
+<p>
+Complete current word, in the input line
+</p>
+</dd>
+<dt class="hdlist1">
+<em>compl_cancel</em>
+</dt>
+<dd>
+<p>
+Cancel completion
+</p>
+</dd>
+<dt class="hdlist1">
+<em>send_multiline</em>
+</dt>
+<dd>
+<p>
+Send/terminate a multi-line message
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/info
+</dt>
+<dd>
+<p>
+        Display info on the selected entry (user, agent, group&#8230;).<br />
+        For users, resources are displayed with the status, priority and status message (if available) of each resource.
+</p>
+</dd>
+<dt class="hdlist1">
+/module load|unload [-f] module
+</dt>
+<dt class="hdlist1">
+/module info module
+</dt>
+<dt class="hdlist1">
+/module [list]
+</dt>
+<dd>
+<p>
+        Load, unload or show info on module.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>load</em> [-f] module
+</dt>
+<dd>
+<p>
+Loads specified module. If -f flag is specified, most of module loading errors will be ignored.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>unload</em> [-f] module
+</dt>
+<dd>
+<p>
+Unloads specified module. Note: The force flag will not remove any dependent on this modules!
+</p>
+</dd>
+<dt class="hdlist1">
+<em>info</em> module
+</dt>
+<dd>
+<p>
+Shows available information about this module.
+</p>
+</dd>
+<dt class="hdlist1">
+[<em>list</em>]
+</dt>
+<dd>
+<p>
+Lists modules in a format: [modulename]  [reference count] ([Manually/Automatically loaded]) [any extra info, like version or dependencies]
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/move [groupname]
+</dt>
+<dd>
+<p>
+        Move the current buddy to the requested group.  If no group is specified, then the buddy is moved to the default group.  If the group "groupname" doesn&#8217;t exist, it is created.<br />
+        Tip: if the chatmode is enabled, you can use "/roster alternate" to jump to the moved buddy.
+</p>
+</dd>
+<dt class="hdlist1">
+/msay begin|verbatim|send|send_to|toggle|toggle_verbatim|abort
+</dt>
+<dd>
+<p>
+        Send a multi-line message.  To write a single message with several lines, the <em>multi-line mode</em> should be used.<br />
+        In multi-line mode, each line (except command lines) typed in the input line will be added to the multi-line message.  Once the message is finished, it can be sent to the current selected buddy with the "/msay send" command.<br />
+        The <em>begin</em> subcommand enables multi-line mode.  Note that it allows a message subject to be specified.<br />
+        The <em>verbatim</em> multi-line mode disables commands, so that it is possible to enter lines starting with a slash.  Only the "/msay" command (with send or abort parameters) can be used to exit verbatim mode.<br />
+        The <em>toggle</em> subcommand can be bound to a key to use the multi-line mode quickly (for example, "bind M13 = msay toggle" to switch using the Meta-Enter combination).
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>begin</em> [subject]
+</dt>
+<dd>
+<p>
+Enter multi-line mode
+</p>
+</dd>
+<dt class="hdlist1">
+<em>verbatim</em>
+</dt>
+<dd>
+<p>
+Enter verbatim multi-line mode
+</p>
+</dd>
+<dt class="hdlist1">
+<em>send</em> [-n|-h]
+</dt>
+<dd>
+<p>
+Send the current multi-line message to the currently selected buddy
+</p>
+</dd>
+<dt class="hdlist1">
+<em>send_to</em> [-n|-h] jid
+</dt>
+<dd>
+<p>
+Send the current multi-line message to "jid"
+</p>
+</dd>
+<dt class="hdlist1">
+<em>toggle</em>|<em>toggle_verbatim</em>
+</dt>
+<dd>
+<p>
+Switch to/from multi-line mode (begin/send)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>abort</em>
+</dt>
+<dd>
+<p>
+Leave multi-line mode without sending the message
+</p>
+<div class="literalblock">
+<div class="content">
+<pre><tt>The -n or -h flags turn the message to "normal" or "headline" accordingly, as opposed to default "chat" message.</tt></pre>
+</div></div>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/otr key
+</dt>
+<dt class="hdlist1">
+/otr start|stop|info [jid]
+</dt>
+<dt class="hdlist1">
+/otr fingerprint [jid [fpr]]
+</dt>
+<dt class="hdlist1">
+/otr smpq|smpr [jid] secret
+</dt>
+<dt class="hdlist1">
+/otr smpa [jid]
+</dt>
+<dd>
+<p>
+        You can use the shortcut-jid "." for the currently selected contact.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>key</em>
+</dt>
+<dd>
+<p>
+Print the fingerprint of your private key to the Status Buffer
+</p>
+</dd>
+<dt class="hdlist1">
+<em>start</em> [jid]
+</dt>
+<dd>
+<p>
+Open an OTR channel to the specified jid (or the currently selected contact)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>stop</em> [jid]
+</dt>
+<dd>
+<p>
+Close the OTR channel to the specified jid (or the currently selected contact)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>info</em> [jid]
+</dt>
+<dd>
+<p>
+Show current OTR status for the specified jid (or the currently selected contact)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>fingerprint</em> [jid [fpr]]
+</dt>
+<dd>
+<p>
+Show the active fingerprint of an OTR channel. If the fingerprint is provided instead of "fpr", the fingerprint will become trusted. If you replace "fpr" by some bogus string the fingerprint will loose the trusted status.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>smpq</em> [jid] secret
+</dt>
+<dd>
+<p>
+Initiate the Socialist Millionaires Protocol with the secret and the buddy
+</p>
+</dd>
+<dt class="hdlist1">
+<em>smpr</em> [jid] secret
+</dt>
+<dd>
+<p>
+Respond to the Initiation of the jid with the secret
+</p>
+</dd>
+<dt class="hdlist1">
+<em>smpa</em> [jid]
+</dt>
+<dd>
+<p>
+Abort the running Socialist Millionaires Protocol
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/otrpolicy
+</dt>
+<dt class="hdlist1">
+/otrpolicy (default|jid) (plain|manual|opportunistic|always)
+</dt>
+<dd>
+<p>
+        You can use the shortcut-jid "." for the currently selected contact.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+(without arguments)
+</dt>
+<dd>
+<p>
+Prints all OTR policies to the status buffer
+</p>
+</dd>
+<dt class="hdlist1">
+(<em>default</em>|<em>jid</em>) (plain|manual|opportunistic|always)
+</dt>
+<dd>
+<p>
+Sets either the default policy or the policy for the given jid The plain policy should never be used, because you won&#8217;t be able to receive or send any OTR encrypted messages. If you set the policy to manual, you or your chat partner have to start the OTR encryption by hand (e.g. with /otr start). The policy "opportunistic" does that itself by sending a special whitespace-sequence at the end of unencrypted messages. So the other OTR-enabled chat client knows, that you want to use OTR. Note that the first message will always be unencryted, if you use this policy. With the policy "always" no message will be sent in plain text. If you try to sent the first message unencrypted, mcabber will try to establish an OTR channel. Please resend your message, when you get the information that the channel was established. If someone sends you plaintext messages while the policy is set to "always", you&#8217;ll be able to read the message but it won&#8217;t be saved to the history.
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/pgp disable|enable|force|info [jid]
+</dt>
+<dt class="hdlist1">
+/pgp setkey [jid [key]]
+</dt>
+<dd>
+<p>
+        This command manipulates PGP settings for the specified jid (by default the currently selected contact).<br />
+        Please note that PGP encryption won&#8217;t be used if no remote PGP support is detected, even if PGP is enabled with this command.  You can force PGP encryption with the "force" subcommand.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>disable</em> [jid]
+</dt>
+<dd>
+<p>
+Disable PGP encryption for jid (or the currently selected contact)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>enable</em> [jid]
+</dt>
+<dd>
+<p>
+Enable PGP encryption for jid (or the currently selected contact)
+</p>
+</dd>
+<dt class="hdlist1">
+<em style="color:+|-;">force</em> [jid]
+</dt>
+<dd>
+<p>
+Enforce PGP encryption, even for offline messages, and always assume the recipient has PGP support.  If a message can&#8217;t be encrypted (missing key or key id), the messages won&#8217;t be sent at all.  This option is ignored when PGP is disabled.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>info</em> [jid]
+</dt>
+<dd>
+<p>
+Show current PGP settings for the contact
+</p>
+</dd>
+<dt class="hdlist1">
+<em>setkey</em> [jid [key]]
+</dt>
+<dd>
+<p>
+Set the PGP key to be used to encrypt message for this contact. If no key is provided, the current key is erased. You can use the shortcut-jid "." for the currently selected contact.
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/quit
+</dt>
+<dd>
+<p>
+        This command closes all connections and quit mcabber.
+</p>
+</dd>
+<dt class="hdlist1">
+/rawxml send string
+</dt>
+<dd>
+<p>
+        Send "string" (raw XML format) to the Jabber server.<br />
+        No check is done on the string provided.<br />
+        BEWARE!
+        Use this only if you know what you are doing, or you could terminate the connection.<br />
+        Example: "/rawxml send &lt;presence&gt;&lt;show&gt;away&lt;/show&gt;&lt;/presence&gt;"
+</p>
+</dd>
+<dt class="hdlist1">
+/rename name
+</dt>
+<dd>
+<p>
+        Rename the current buddy or group to the given "name".  If "name" is -, the name is removed from the roster (and mcabber will display the JID or username).
+</p>
+</dd>
+<dt class="hdlist1">
+/request last|ping|time|vcard|version [jid]
+</dt>
+<dd>
+<p>
+        Send a "IQ" query to the current buddy, or to the specified Jabber user.  If the resource is not provided with the jid, mcabber will send the query to all known resources for this user.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>last</em>
+</dt>
+<dd>
+<p>
+Request "last" information (usually idle time)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>ping</em>
+</dt>
+<dd>
+<p>
+Send an XMPP Ping request.  Note that you should use the full JID since a ping sent to a bare JID will be handled by the server.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>time</em>
+</dt>
+<dd>
+<p>
+Request time from the buddy
+</p>
+</dd>
+<dt class="hdlist1">
+<em>vcard</em>
+</dt>
+<dd>
+<p>
+Request VCard from the buddy
+</p>
+</dd>
+<dt class="hdlist1">
+<em>version</em>
+</dt>
+<dd>
+<p>
+Request version from the buddy
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/room join|leave|names|nick|remove|topic|unlock|destroy
+</dt>
+<dt class="hdlist1">
+/room privmsg|invite|whois|kick|ban|unban|role|affil
+</dt>
+<dt class="hdlist1">
+/room setopt print_status|auto_whois [value]
+</dt>
+<dt class="hdlist1">
+/room bookmark [add|del] [-autojoin|+autojoin] [-|nick]
+</dt>
+<dd>
+<p>
+        The <em>room</em> command handles Multi-User Chat room actions.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>join</em> [room [nick [pass]]]
+</dt>
+<dd>
+<p>
+Join "room", using "nick" as nickname.  If no nickname is provided (or if it is an empty string), the "nickname" option value is used (see sample configuration file).  If the currently selected entry is correctly recognized as a room by mcabber, the shortcut "." can be used instead of the full room id.  A password can be provided to enter protected rooms.  If your nickname contains space characters, use quotes.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>leave</em> [message]
+</dt>
+<dd>
+<p>
+Leave the current room
+</p>
+</dd>
+<dt class="hdlist1">
+<em>names</em> [--detail|--short|--quiet|--compact]
+</dt>
+<dd>
+<p>
+Display members of the current room
+</p>
+</dd>
+<dt class="hdlist1">
+<em>nick</em> newnick
+</dt>
+<dd>
+<p>
+Change your nickname in the current room
+</p>
+</dd>
+<dt class="hdlist1">
+<em>privmsg</em> nick msg
+</dt>
+<dd>
+<p>
+Send private message "msg" to "nick"
+</p>
+</dd>
+<dt class="hdlist1">
+<em>remove</em>
+</dt>
+<dd>
+<p>
+Remove the current room from the roster (you must have left this room before)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>topic</em> -|newtopic
+</dt>
+<dd>
+<p>
+Set topic for current room
+</p>
+</dd>
+<dt class="hdlist1">
+<em>unlock</em>
+</dt>
+<dd>
+<p>
+Unlock current room (if you are the owner)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>destroy</em> [reason]
+</dt>
+<dd>
+<p>
+Destroy the current room (use with care!)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>whois</em> nick
+</dt>
+<dd>
+<p>
+Display MUC information about "nick"
+</p>
+</dd>
+<dt class="hdlist1">
+<em>ban</em> jid [reason]
+</dt>
+<dd>
+<p>
+Ban jid from the current room
+</p>
+</dd>
+<dt class="hdlist1">
+<em>unban</em> jid
+</dt>
+<dd>
+<p>
+Unban jid from the current room
+</p>
+</dd>
+<dt class="hdlist1">
+<em>invite</em> jid [reason]
+</dt>
+<dd>
+<p>
+Invite jid to the current room
+</p>
+</dd>
+<dt class="hdlist1">
+<em>kick</em> nick [reason]
+</dt>
+<dd>
+<p>
+Kick "nick" from the current room
+</p>
+</dd>
+<dt class="hdlist1">
+<em>role</em> jid role [reason]
+</dt>
+<dd>
+<p>
+Change jid&#8217;s role (role can be "none", "visitor", "participant", "moderator")
+</p>
+</dd>
+<dt class="hdlist1">
+<em>affil</em> jid affil [reason]
+</dt>
+<dd>
+<p>
+Change jid&#8217;s affiliation (affil can be "none", "member", "admin", "owner")
+</p>
+</dd>
+<dt class="hdlist1">
+<em>setopt</em> print_status|auto_whois [value]
+</dt>
+<dd>
+<p>
+Change settings for the current room For print_status, the possible values are "default", "none", "in_and_out", "all". For auto_whois, the possible values are "default", "off", "on". When the value is "default", the options muc_print_status / muc_auto_whois is used.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>bookmark</em> [add|del] [-autojoin|+autojoin] [-|nick]
+</dt>
+<dd>
+<p>
+Add, remove or update a bookmark (default is add). If autojoin is set, mcabber will automatically join the MUC room when it connects to the server. To see the list of bookmarks, use /room bookmark in the status buffer.
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/roster bottom|top|up|down|group_prev|group_next
+</dt>
+<dt class="hdlist1">
+/roster alternate|unread_first|unread_next
+</dt>
+<dt class="hdlist1">
+/roster search bud
+</dt>
+<dt class="hdlist1">
+/roster display|hide_offline|show_offline|toggle_offline
+</dt>
+<dt class="hdlist1">
+/roster item_lock|item_unlock|item_toggle_lock
+</dt>
+<dt class="hdlist1">
+/roster hide|show|toggle
+</dt>
+<dt class="hdlist1">
+/roster note [-|text]
+</dt>
+<dd>
+<p>
+        The <em>roster</em> command manipulates the roster/buddylist.<br />
+        Here are the available parameters:
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>bottom</em>
+</dt>
+<dd>
+<p>
+Jump to the bottom of the roster
+</p>
+</dd>
+<dt class="hdlist1">
+<em>top</em>
+</dt>
+<dd>
+<p>
+Jump to the top of the roster
+</p>
+</dd>
+<dt class="hdlist1">
+<em>up</em> [n]
+</dt>
+<dd>
+<p>
+Move up [n lines] in the roster
+</p>
+</dd>
+<dt class="hdlist1">
+<em>down</em> [n]
+</dt>
+<dd>
+<p>
+Move down [n lines] in the roster
+</p>
+</dd>
+<dt class="hdlist1">
+<em>group_prev</em>
+</dt>
+<dd>
+<p>
+Jump to the previous group in the roster
+</p>
+</dd>
+<dt class="hdlist1">
+<em>group_next</em>
+</dt>
+<dd>
+<p>
+Jump to the next group in the roster
+</p>
+</dd>
+<dt class="hdlist1">
+<em>alternate</em>
+</dt>
+<dd>
+<p>
+Jump to alternate buddy.  The "alternate" buddy is the last buddy left while being in chat mode.  This command is thus especially useful after commands like "/roster unread_next" (Ctrl-q).
+</p>
+</dd>
+<dt class="hdlist1">
+<em>unread_first</em>
+</dt>
+<dd>
+<p>
+Jump to the first unread message
+</p>
+</dd>
+<dt class="hdlist1">
+<em>unread_next</em>
+</dt>
+<dd>
+<p>
+Jump to the next unread message
+</p>
+</dd>
+<dt class="hdlist1">
+<em>search</em> bud
+</dt>
+<dd>
+<p>
+Search for a buddy with a name or jid containing "bud" (only in the displayed buddylist)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>display</em> [mask]
+</dt>
+<dd>
+<p>
+See or update the roster filter. The mask should contain the shortcut letters of the status you want to see ([o]nline, [f]ree_for_chat, [d]o_not_disturb, [n]ot_available, [a]way, [_]offline). For example "ofdna" to display only connected buddies.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>hide_offline</em>
+</dt>
+<dd>
+<p>
+Hide offline buddies (same as /roster display ofdna)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>show_offline</em>
+</dt>
+<dd>
+<p>
+Show offline buddies (same as /roster display ofdna_)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>toggle_offline</em>
+</dt>
+<dd>
+<p>
+Toggle display of offline buddies
+</p>
+</dd>
+<dt class="hdlist1">
+<em>item_lock</em> [jid]
+</dt>
+<dd>
+<p>
+Lock the roster item so it remains visible regardless of its status
+</p>
+</dd>
+<dt class="hdlist1">
+<em>item_unlock</em> [jid]
+</dt>
+<dd>
+<p>
+Undo the effects of item_lock
+</p>
+</dd>
+<dt class="hdlist1">
+<em>item_toggle_lock</em> [jid]
+</dt>
+<dd>
+<p>
+Invert the current lock flag
+</p>
+</dd>
+<dt class="hdlist1">
+<em>hide</em>
+</dt>
+<dd>
+<p>
+Hide roster (full-width chat window)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>show</em>
+</dt>
+<dd>
+<p>
+Show roster
+</p>
+</dd>
+<dt class="hdlist1">
+<em>toggle</em>
+</dt>
+<dd>
+<p>
+Toggle roster visibility
+</p>
+</dd>
+<dt class="hdlist1">
+<em>note</em> [-|text]
+</dt>
+<dd>
+<p>
+Set/update/delete an annotation. If there is no text, the current item&#8217;s annotation is displayed&#8201;&#8212;&#8201;if you are in the status buffer, all notes are displayed. If text is "-", the note is erased.
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+/say [-n|-h|--] text
+</dt>
+<dd>
+<p>
+        Send the "text" message to the currently selected buddy.  It can be useful if you want to send a message beginning with a slash, for example.<br />
+        The "-n" flag turns the message to "normal" type, "-h" to "headline". "--" can be used to send chat message beginning with -n or -h.
+</p>
+</dd>
+<dt class="hdlist1">
+/say_to [-n|-h] [-q] [-f file] jid text
+</dt>
+<dd>
+<p>
+        Send the "text" message to the specified jid.<br />
+        Please note that this command doesn&#8217;t set the default resource for a contact, so if you want to send several messages to a specific resource you will have to use "/say_to" for each message.<br />
+        The "-n" flag turns the message to "normal" type, "-h" to "headline".  "--" can be used to send chat messages beginning with -n or -h.<br />
+        When "-q" is used, the message will be sent in the background and will not change the current active window.<br />
+        A text file can be provided with the "-f" switch (in which case there&#8217;s no need to pass a text argument after the jid, of course).
+</p>
+</dd>
+<dt class="hdlist1">
+/screen_refresh
+</dt>
+<dd>
+<p>
+        Refresh the mcabber screen.
+</p>
+</dd>
+<dt class="hdlist1">
+/set option [= value]
+</dt>
+<dd>
+<p>
+        Display or set an option value.
+</p>
+</dd>
+<dt class="hdlist1">
+/source pattern
+</dt>
+<dd>
+<p>
+        Read configuration files, that match glob pattern (sorted in alphabetical order).
+</p>
+</dd>
+<dt class="hdlist1">
+/status [online|avail|invisible|free|dnd|notavail|away [-|statusmessage]]
+</dt>
+<dt class="hdlist1">
+/status message -|statusmessage
+</dt>
+<dd>
+<p>
+        Show or set the current status.<br />
+        If no status is specified, display the current status.<br />
+        If a status message is specified, it will overrride the message* variables (these variables can be set in the configuration file).<br />
+        If no relevant message* variable is set and no status message provided, the current status message is kept.<br />
+        If StatusMessage is "-", the current status message is cleared.<br />
+        With the "/status message" command, mcabber will update the message while preserving the status.
+</p>
+</dd>
+<dt class="hdlist1">
+/status_to jid online|avail|invisible|free|dnd|notavail|away [statusmessage]
+</dt>
+<dt class="hdlist1">
+/status_to jid message statusmessage
+</dt>
+<dd>
+<p>
+        Send the requested status to the specified Jabber user.<br />
+        If the specified jid is ".", the current buddy is used.<br />
+        Note: this status will be overridden by subsequent "/status" commands.  If you are using the auto-away feature, the status will overridden too.<br />
+        Note: The jid can include a resource (i.e. user@server/resource).
+</p>
+</dd>
+<dt class="hdlist1">
+/version
+</dt>
+<dd>
+<p>
+        Display current version of mcabber.
+</p>
+</dd>
+</dl></div>
+</div>
+<h2 id="_configuration_file">CONFIGURATION FILE</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>See the provided sample configuration file, which should be self-documenting.</p></div>
+</div>
+<h2 id="_files">FILES</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>The following files can be used by <tt>mcabber(1)</tt>:</p></div>
+<div class="literalblock">
+<div class="content">
+<pre><tt>$HOME/.mcabber/mcabberrc    Default configuration file
+$HOME/.mcabberrc            Configuration file used if no other has been found
+$HOME/.mcabber/histo/       Default directory for storing chat history files, if enabled
+/usr/share/mcabber/help/    Default directory for online help files
+/usr/lib/mcabber/           Default directory for modules</tt></pre>
+</div></div>
+</div>
+<h2 id="_bugs">BUGS</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Certainly.  Please tell me if you find one!  :-)<br />
+Please visit our website to find out about the MUC room and the bug tracker.</p></div>
+</div>
+<h2 id="_author">AUTHOR</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Written by <a href="mailto:mikael@lilotux.net">Mikael BERTHE</a> and others
+(see AUTHORS file).<br /></p></div>
+</div>
+<h2 id="_resources">RESOURCES</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><a href="http://mcabber.com/">Main web site</a></p></div>
+</div>
+<h2 id="_copying">COPYING</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Copyright (C) 2005-2010 Mikael Berthe and others.<br /></p></div>
+<div class="paragraph"><p>Free use of this software is granted under the terms of the GNU General Public
+License (GPL).</p></div>
+</div>
+</div>
+<div id="footnotes"><hr /></div>
+<div id="footer">
+<div id="footer-text">
+Version 0.10.0-dev<br />
+Last updated 2010-03-13 17:43:30 CEST
 </div>
 </div>
 </body>

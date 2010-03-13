@@ -2103,14 +2103,20 @@ static void do_set(char *arg)
     settings_foreach(SETTINGS_TYPE_OPTION, list_option_cb, &list);
     if (list) {
       gsize max = 0;
+      gsize maxmax = scr_gettextwidth() / 3;
       GSList *lel;
       gchar *format;
       // Find out maximum key length
       for (lel = list; lel; lel = lel->next) {
         const gchar *key = lel->data;
         gsize len = strlen(key);
-        if (len > max)
+        if (len > max) {
           max = len;
+          if (max > maxmax) {
+            max = maxmax;
+            break;
+          }
+        }
       }
       // Print out list of options
       format = g_strdup_printf("%%-%us = [%%s]", max);

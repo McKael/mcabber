@@ -846,6 +846,11 @@ guint scr_getprefixwidth(void)
   return timepreflengths[(n < 3 ? n : 0)];
 }
 
+guint scr_gettextwidth(void)
+{
+  return maxX - Roster_Width - scr_getprefixwidth();
+}
+
 //  scr_print_logwindow(string)
 // Display the string in the log window.
 // Note: The string must be in the user's locale!

@@ -20,12 +20,12 @@ be replaced with '_'.
   typedef struct module_info_struct module_info_t;
   struct module_info_struct {
     const gchar      *branch;
-    module_init_t     init;
-    module_uninit_t   uninit;
-    const gchar     **requires;
     guint             api;
     const gchar      *version;
     const gchar      *description;
+    const gchar     **requires;
+    module_init_t     init;
+    module_uninit_t   uninit;
     module_info_t    *next;
   };
 --------------------------------------------------------

@@ -26,12 +26,12 @@ typedef void (*module_uninit_t)(void);
 typedef struct module_info_struct module_info_t;
 struct module_info_struct {
   const gchar      *branch;           // Contains mcabber branch name, that this module is written to work with
-  module_init_t     init;             // Initialization callback to be called after all dependencies will be loaded
-  module_uninit_t   uninit;           // Uninitialization callback to be called before module unloading
-  const gchar     **requires;         // NULL-terminated list of module names, that must be loaded before this module
   guint             api;              // Mcabber branch api version, that module is supposed to work with
   const gchar      *version;          // Module version string. Optional.
   const gchar      *description;      // Module description. Can contain multiple lines.
+  const gchar     **requires;         // NULL-terminated list of module names, that must be loaded before this module
+  module_init_t     init;             // Initialization callback to be called after all dependencies will be loaded
+  module_uninit_t   uninit;           // Uninitialization callback to be called before module unloading
   module_info_t    *next;             // If module supports multiple branches, it can provide several branch structs.
 };
 

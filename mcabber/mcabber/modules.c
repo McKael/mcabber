@@ -374,6 +374,7 @@ void module_info_print(const gchar *name)
 
     if (info->version)
       scr_LogPrint(LPRINT_NORMAL, "Version: %s", info->version);
+    scr_LogPrint(LPRINT_NORMAL, "API: %s:%u", info->branch, info->api);
 
     if (info->requires && *(info->requires)) {
       GString *message = g_string_new("Depends on: ");

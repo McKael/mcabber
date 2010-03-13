@@ -2121,7 +2121,7 @@ static void do_set(char *arg)
         }
       }
       // Print out list of options
-      format = g_strdup_printf("%%-%us = [%%s]", max);
+      format = g_strdup_printf("%%-%us = [%%s]", (unsigned)max);
       for (lel = list; lel; lel = lel->next) {
         const gchar *key = lel->data;
         scr_LogPrint(LPRINT_NORMAL, format, key, settings_opt_get(key));

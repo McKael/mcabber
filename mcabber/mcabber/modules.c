@@ -296,7 +296,7 @@ void module_list_print(void)
   }
 
   // Create format string
-  format = g_strdup_printf("%%-%us  %%2u (%%c)", maxlen);
+  format = g_strdup_printf("%%-%us  %%2u (%%c)", (unsigned)maxlen);
 
   // Fill the message to be printed
   message = g_string_new("Loaded modules:\n");

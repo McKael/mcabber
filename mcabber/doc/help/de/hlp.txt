@@ -3,4 +3,4 @@
 
 Zeigt die Hilfe zu einem Befehl oder ein Thema an.
 Wenn kein Argument gegeben ist, wird diese Hilfe angezeigt.
-Verfügbare Befehle: add, alias, authorization, bind, buffer, chat_disable, clear, color, connect, del, disconnect, echo, event, group, help, iline, info, move, msay, otr, otrpolicy, pgp, quit, rawxml, rename, request, room, roster, say_to, say, screen_refresh, set, source, status_to, status, version.
+Verfügbare Befehle: add, alias, authorization, bind, buffer, chat_disable, clear, color, connect, del, disconnect, echo, event, group, help, iline, info, module, move, msay, otr, otrpolicy, pgp, quit, rawxml, rename, request, room, roster, say_to, say, screen_refresh, set, source, status_to, status, version.

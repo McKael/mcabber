@@ -4,7 +4,7 @@
 
 Tell mcabber what to do about pending events.
 If the first parameter is '*', the command will apply to all queued events.
-Event-specific arguments will be interpreted on event-to event basis. The only built-in case, when argument is used is MUC invitation reject - argument, if present, will be interpreted as reject reason.
+Event-specific arguments will be interpreted on event-to event basis.  The only built-in case, when argument is used is MUC invitation reject - argument, if present, will be interpreted as reject reason.
 
 /event #N|* accept [event-specific arguments]
  Event number #N/All events will be accepted

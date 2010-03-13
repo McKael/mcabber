@@ -2,4 +2,4 @@
  /SAY [-n|-h|--] text
 
 Send the "text" message to the currently selected buddy.  It can be useful if you want to send a message beginning with a slash, for example.
-The "-n" flag turns the message to "normal" type, "-h" to "headline". "--" can be used to send chat message beginning with -n or -h.
+The "-n" flag turns the message to "normal" type, "-h" to "headline".  "--" can be used to send chat message beginning with -n or -h.

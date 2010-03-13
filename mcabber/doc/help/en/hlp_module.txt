@@ -6,10 +6,10 @@
 Load, unload or show info on module.
 
 /module load [-f] module
- Loads specified module. If -f flag is specified, most of module loading errors will be ignored.
+ Loads specified module.  If -f flag is specified, most of module loading errors will be ignored.
 /module unload [-f] module
  Unloads specified module.
- Note: The force flag will not remove any dependent on this modules!
+ Note: The force flag will not remove any dependency on this module!
 /module info module
  Shows available information about this module.
 /module [list]

@@ -13,6 +13,6 @@ You can use the shortcut-jid "." for the currently selected contact.
 
  If you set the policy to manual, you or your chat partner have to start the OTR encryption by hand (e.g. with /otr start).
 
- The policy "opportunistic" does that itself by sending a special whitespace-sequence at the end of unencrypted messages. So the other OTR-enabled chat client knows, that you want to use OTR. Note that the first message will always be unencryted, if you use this policy.
+ The policy "opportunistic" does that itself by sending a special whitespace-sequence at the end of unencrypted messages.  So the other OTR-enabled chat client knows, that you want to use OTR.  Note that the first message will always be unencryted, if you use this policy.
 
- With the policy "always" no message will be sent in plain text. If you try to sent the first message unencrypted, mcabber will try to establish an OTR channel. Please resend your message, when you get the information that the channel was established. If someone sends you plaintext messages while the policy is set to "always", you'll be able to read the message but it won't be saved to the history.
+ With the policy "always" no message will be sent in plain text.  If you try to sent the first message unencrypted, mcabber will try to establish an OTR channel.  Please resend your message, when you get the information that the channel was established.  If someone sends you plaintext messages while the policy is set to "always", you'll be able to read the message but it won't be saved to the history.

@@ -17,7 +17,7 @@ You can use the shortcut-jid "." for the currently selected contact.
  Show current OTR status for the specified jid (or the currently selected contact)
 /otr fingerprint [jid [fpr]]
  Show the active fingerprint of an OTR channel.
- If the fingerprint is provided instead of "fpr", the fingerprint will become trusted. If you replace "fpr" by some bogus string the fingerprint will loose the trusted status.
+ If the fingerprint is provided instead of "fpr", the fingerprint will become trusted.  If you replace "fpr" by some bogus string the fingerprint will loose the trusted status.
 /otr smpq [jid] secret
  Initiate the Socialist Millionaires Protocol with the secret and the buddy
 /otr smpr [jid] secret

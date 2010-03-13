@@ -3,4 +3,4 @@
 
 Отображает файл помощи о запрошенной команде или топике.
 Если выполнить без аргументов, будут отображены допустимые команды.
-Допустимые команды: add, alias, authorization, bind, buffer, chat_disable, clear, color, connect, del, disconnect, echo, event, group, help, iline, info, move, msay, otr, otrpolicy, pgp, quit, rawxml, rename, request, room, roster, say_to, say, screen_refresh, set, source, status_to, status, version.
+Допустимые команды: add, alias, authorization, bind, buffer, chat_disable, clear, color, connect, del, disconnect, echo, event, group, help, iline, info, module, move, msay, otr, otrpolicy, pgp, quit, rawxml, rename, request, room, roster, say_to, say, screen_refresh, set, source, status_to, status, version.

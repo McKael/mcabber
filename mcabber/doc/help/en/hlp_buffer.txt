@@ -4,7 +4,7 @@
  /BUFFER scroll_lock|scroll_unlock|scroll_toggle
  /BUFFER save filename
 
-Buddy's buffer manipulation command.  Eg. you can search through buffer for "text", clear chat window etc.
+Buddy's buffer manipulation command.  E.g. you can search through buffer for "text", clear chat window etc.
 
 /buffer clear
  Clear the current buddy chat window

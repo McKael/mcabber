@@ -1,4 +1,4 @@
 
- /SET option [= value]
+ /SET [option [= value]]
 
 Tonen of instellen van de waarde van een optie.

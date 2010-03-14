@@ -1,4 +1,4 @@
 
- /SET opcja [= wartość]
+ /SET [opcja [= wartość]]
 
 Wyświetla, lub zmienia wartość opcji "opcja".

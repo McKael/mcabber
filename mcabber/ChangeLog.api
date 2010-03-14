@@ -1,3 +1,11 @@
+dev (4)
+
+ * Big API cleanup (functions renamed)
+ * Min API 4
+ * Changeset e4378fbab5d7
+
+  -- Mikael Berthe, 2010-03-14
+
 dev (3)
 
  * settings_set_guard() returns success status and will refuse to replace an

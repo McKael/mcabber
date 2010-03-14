@@ -203,9 +203,9 @@ void hk_message_in(const char *bjid, const char *resname,
   }
 
   // Note: the hlog_write should not be called first, because in some
-  // cases scr_WriteIncomingMessage() will load the history and we'd
+  // cases scr_write_incoming_message() will load the history and we'd
   // have the message twice...
-  scr_WriteIncomingMessage(bjid, wmsg, timestamp, message_flags, mucnicklen);
+  scr_write_incoming_message(bjid, wmsg, timestamp, message_flags, mucnicklen);
 
   // We don't log the modified message, but the original one
   if (wmsg == mmsg)
@@ -336,13 +336,13 @@ void hk_message_out(const char *bjid, const char *nick,
   }
 
   // Note: the hlog_write should not be called first, because in some
-  // cases scr_WriteOutgoingMessage() will load the history and we'd
+  // cases scr_write_outgoing_message() will load the history and we'd
   // have the message twice...
   if (encrypted == ENCRYPTED_PGP)
     cryptflag = HBB_PREFIX_PGPCRYPT;
   else if (encrypted == ENCRYPTED_OTR)
     cryptflag = HBB_PREFIX_OTRCRYPT;
-  scr_WriteOutgoingMessage(bjid, wmsg, cryptflag, xep184);
+  scr_write_outgoing_message(bjid, wmsg, cryptflag, xep184);
 
   // We don't log private messages
   if (!nick)
@@ -427,8 +427,8 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
       bn = g_strdup_printf("Buddy status has changed: [%c>%c] %s",
                            imstatus2char[oldstat], imstatus2char[status],
                            ((status_msg) ? status_msg : ""));
-      scr_WriteIncomingMessage(bjid, bn, timestamp,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
+      scr_write_incoming_message(bjid, bn, timestamp,
+                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
       g_free(bn);
     }
   }

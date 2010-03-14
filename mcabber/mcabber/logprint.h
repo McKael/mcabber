@@ -13,9 +13,11 @@
 #define LPRINT_LOGNORM  (LPRINT_NORMAL|LPRINT_LOG)
 
 void scr_print_logwindow(const char *string);
-void scr_LogPrint(unsigned int flag, const char *fmt, ...) G_GNUC_PRINTF (2, 3);
-
+void scr_log_print(unsigned int flag, const char *fmt, ...) G_GNUC_PRINTF (2, 3);
 void scr_do_update(void);
+
+// For backward compatibility:
+#define scr_LogPrint    scr_log_print
 
 #endif /* __MCABBER_LOGPRINT_H__ */
 

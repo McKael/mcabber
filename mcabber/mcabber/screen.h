@@ -88,11 +88,11 @@ typedef enum {
 } muccoltype;
 
 
-void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
-                              time_t timestamp, guint prefix,
-                              unsigned mucnicklen);
-void scr_WriteOutgoingMessage(const char *jidto,   const char *text,
-                              guint prefix, gpointer xep184);
+void scr_write_incoming_message(const char *jidfrom, const char *text,
+                                time_t timestamp, guint prefix,
+                                unsigned mucnicklen);
+void scr_write_outgoing_message(const char *jidto,   const char *text,
+                                guint prefix, gpointer xep184);
 
 void scr_getch(keycode *kcode);
 void scr_process_key(keycode kcode);
@@ -183,6 +183,12 @@ void readline_iline_end(void);
 void readline_backward_kill_iline(void);
 void readline_forward_kill_iline(void);
 void readline_send_multiline(void);
+
+
+// For backward compatibility:
+
+#define scr_WriteIncomingMessage    scr_write_incoming_message
+#define scr_WriteOutgoingMessage    scr_write_outgoing_message
 
 #endif
 

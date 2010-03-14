@@ -877,11 +877,11 @@ void scr_print_logwindow(const char *string)
   }
 }
 
-//  scr_LogPrint(...)
+//  scr_log_print(...)
 // Display a message in the log window and in the status buffer.
 // Add the message to the tracelog file if the log flag is set.
 // This function will convert from UTF-8 unless the LPRINT_NOTUTF8 flag is set.
-void scr_LogPrint(unsigned int flag, const char *fmt, ...)
+void scr_log_print(unsigned int flag, const char *fmt, ...)
 {
   time_t timestamp;
   char strtimestamp[64];
@@ -2092,8 +2092,9 @@ static void scr_write_message(const char *bjid, const char *text,
 }
 
 // If prefix is NULL, HBB_PREFIX_IN is supposed.
-void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
-        time_t timestamp, guint prefix, unsigned mucnicklen)
+void scr_write_incoming_message(const char *jidfrom, const char *text,
+                                time_t timestamp,
+                                guint prefix, unsigned mucnicklen)
 {
   if (!(prefix &
         ~HBB_PREFIX_NOFLAG & ~HBB_PREFIX_HLIGHT & ~HBB_PREFIX_HLIGHT_OUT &
@@ -2107,8 +2108,8 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
   scr_write_message(jidfrom, text, timestamp, prefix, mucnicklen, NULL);
 }
 
-void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix,
-                              gpointer xep184)
+void scr_write_outgoing_message(const char *jidto, const char *text,
+                                guint prefix, gpointer xep184)
 {
   GSList *roster_elt;
   roster_elt = roster_find(jidto, jidsearch,

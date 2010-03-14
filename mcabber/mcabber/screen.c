@@ -859,6 +859,12 @@ guint scr_gettextwidth(void)
   return maxX - Roster_Width - scr_getprefixwidth();
 }
 
+guint scr_gettextheight(void)
+{
+  // log window, two status bars and one input line
+  return maxY - Log_Win_Height - 3;
+}
+
 //  scr_print_logwindow(string)
 // Display the string in the log window.
 // Note: The string must be in the user's locale!

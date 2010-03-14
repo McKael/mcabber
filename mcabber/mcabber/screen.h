@@ -122,6 +122,7 @@ const char *scr_get_multimode_subj(void);
 
 guint scr_getprefixwidth(void);
 guint scr_gettextwidth(void);
+guint scr_gettextheight(void);
 void  scr_line_prefix(hbb_line *line, char *prefix, guint preflen);
 
 void scr_beep(void);

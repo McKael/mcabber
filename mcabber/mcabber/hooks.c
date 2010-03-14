@@ -70,7 +70,7 @@ void hk_del_handler(hk_handler_t handler, gpointer userdata)
   GSList *el = g_slist_find_custom(hk_handler_queue, &h,
                                    (GCompareFunc) hk_queue_search_cb);
   if (el) {
-    g_free (el->data);
+    g_free(el->data);
     hk_handler_queue = g_slist_delete_link(hk_handler_queue, el);
   }
 }
@@ -95,6 +95,7 @@ void hk_message_in(const char *bjid, const char *resname,
   GSList *roster_usr;
   unsigned mucnicklen = 0;
   const char *ename = NULL;
+  gboolean urgent = FALSE;
 
   if (encrypted == ENCRYPTED_PGP)
     message_flags |= HBB_PREFIX_PGPCRYPT;
@@ -172,7 +173,7 @@ void hk_message_in(const char *bjid, const char *resname,
         // highlight it.
         if (resname && !strcmp(resname, nick)) {
           message_flags |= HBB_PREFIX_HLIGHT_OUT;
-        } else if (!settings_opt_get_int("muc_disable_nick_hl")) {
+        } else {
           // We're not the sender.  Can we see our nick?
           const char *msgptr = msg;
           while ((msgptr = strcasestr(msgptr, nick)) != NULL) {
@@ -191,6 +192,8 @@ void hk_message_in(const char *bjid, const char *resname,
               continue;
             // Check right boundary
             if (!iswalnum(get_char(rightb)) && get_char(rightb) != '_')
+              urgent = TRUE;
+            if (urgent && !settings_opt_get_int("muc_disable_nick_hl"))
               message_flags |= HBB_PREFIX_HLIGHT;
           }
         }
@@ -245,13 +248,14 @@ void hk_message_in(const char *bjid, const char *resname,
         { "resource", resname },
         { "message", wmsg },
         { "groupchat", is_groupchat ? "true" : "false" },
+        { "urgent", urgent ? "true" : "false" },
         { NULL, NULL },
       };
       while (h) {
         hook_list_data_t *data = h->data;
         if (data->flags & HOOK_MESSAGE_IN)
           (data->handler) (HOOK_MESSAGE_IN, args, data->userdata);
-        h = g_slist_next (h);
+        h = g_slist_next(h);
       }
     }
   }
@@ -350,7 +354,7 @@ void hk_message_out(const char *bjid, const char *nick,
         hook_list_data_t *data = h->data;
         if (data->flags & HOOK_MESSAGE_OUT)
           (data->handler) (HOOK_MESSAGE_OUT, args, data->userdata);
-        h = g_slist_next (h);
+        h = g_slist_next(h);
       }
     }
   }
@@ -448,7 +452,7 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
         hook_list_data_t *data = h->data;
         if (data->flags & HOOK_STATUS_CHANGE)
           (data->handler) (HOOK_STATUS_CHANGE, args, data->userdata);
-        h = g_slist_next (h);
+        h = g_slist_next(h);
       }
     }
   }
@@ -481,7 +485,7 @@ void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
         hook_list_data_t *data = h->data;
         if (data->flags & HOOK_MY_STATUS_CHANGE)
           (data->handler) (HOOK_MY_STATUS_CHANGE, args, data->userdata);
-        h = g_slist_next (h);
+        h = g_slist_next(h);
       }
     }
   }
@@ -507,7 +511,7 @@ void hk_postconnect(void)
         hook_list_data_t *data = h->data;
         if (data->flags & HOOK_POST_CONNECT)
           (data->handler) (HOOK_POST_CONNECT, args, data->userdata);
-        h = g_slist_next (h);
+        h = g_slist_next(h);
       }
     }
   }
@@ -543,7 +547,7 @@ void hk_predisconnect(void)
         hook_list_data_t *data = h->data;
         if (data->flags & HOOK_PRE_DISCONNECT)
           (data->handler) (HOOK_PRE_DISCONNECT, args, data->userdata);
-        h = g_slist_next (h);
+        h = g_slist_next(h);
       }
     }
   }

@@ -242,6 +242,7 @@ void hk_message_in(const char *bjid, const char *resname,
       hk_arg_t args[] = {
         { "hook", "hook-message-in" },
         { "jid", bjid },
+        { "resource", resname },
         { "message", wmsg },
         { "groupchat", is_groupchat ? "true" : "false" },
         { NULL, NULL },

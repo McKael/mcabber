@@ -47,16 +47,16 @@ typedef struct {
 
 static GSList *hk_handler_queue = NULL;
 
-void hk_add_handler (hk_handler_t handler, guint32 flags, gpointer userdata)
+void hk_add_handler(hk_handler_t handler, guint32 flags, gpointer userdata)
 {
-  hook_list_data_t *h = g_new (hook_list_data_t, 1);
+  hook_list_data_t *h = g_new(hook_list_data_t, 1);
   h->handler  = handler;
   h->flags    = flags;
   h->userdata = userdata;
-  hk_handler_queue = g_slist_append (hk_handler_queue, h);
+  hk_handler_queue = g_slist_append(hk_handler_queue, h);
 }
 
-static gint hk_queue_search_cb (hook_list_data_t *a, hook_list_data_t *b)
+static gint hk_queue_search_cb(hook_list_data_t *a, hook_list_data_t *b)
 {
   if (a->handler == b->handler && a->userdata == b->userdata)
     return 0;
@@ -64,13 +64,14 @@ static gint hk_queue_search_cb (hook_list_data_t *a, hook_list_data_t *b)
     return 1;
 }
 
-void hk_del_handler (hk_handler_t handler, gpointer userdata)
+void hk_del_handler(hk_handler_t handler, gpointer userdata)
 {
   hook_list_data_t h = { handler, 0, userdata };
-  GSList *el = g_slist_find_custom (hk_handler_queue, &h, (GCompareFunc) hk_queue_search_cb);
+  GSList *el = g_slist_find_custom(hk_handler_queue, &h,
+                                   (GCompareFunc) hk_queue_search_cb);
   if (el) {
     g_free (el->data);
-    hk_handler_queue = g_slist_delete_link (hk_handler_queue, el);
+    hk_handler_queue = g_slist_delete_link(hk_handler_queue, el);
   }
 }
 #endif
@@ -236,19 +237,6 @@ void hk_message_in(const char *bjid, const char *resname,
   {
     GSList *h = hk_handler_queue;
     if (h) {
-#if 0
-      hk_arg_t *args = g_new (hk_arg_t, 5);
-      args[0].name = "hook";
-      args[0].value = "hook-message-in";
-      args[1].name = "jid";
-      args[1].value = bjid;
-      args[2].name = "message";
-      args[2].value = wmsg;
-      args[3].name = "groupchat";
-      args[3].value = is_groupchat ? "true" : "false";
-      args[4].name = NULL;
-      args[4].value = NULL;
-#else
       // We can use a const array for keys/static values, so modules
       // can do fast known to them args check by just comparing pointers...
       hk_arg_t args[] = {
@@ -258,7 +246,6 @@ void hk_message_in(const char *bjid, const char *resname,
         { "groupchat", is_groupchat ? "true" : "false" },
         { NULL, NULL },
       };
-#endif
       while (h) {
         hook_list_data_t *data = h->data;
         if (data->flags & HOOK_MESSAGE_IN)

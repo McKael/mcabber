@@ -28,8 +28,8 @@ typedef struct {
 
 typedef void (*hk_handler_t) (guint32 flags, hk_arg_t *args, gpointer userdata);
 
-void hk_add_handler (hk_handler_t handler, guint32 flags, gpointer userdata);
-void hk_del_handler (hk_handler_t handler, gpointer userdata);
+void hk_add_handler(hk_handler_t handler, guint32 flags, gpointer userdata);
+void hk_del_handler(hk_handler_t handler, gpointer userdata);
 #endif
 
 void hk_message_in(const char *bjid, const char *resname,
@@ -42,8 +42,8 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
                      time_t timestamp, enum imstatus status,
                      char const *status_msg);
 void hk_mystatuschange(time_t timestamp,
-                              enum imstatus old_status,
-                              enum imstatus new_status, const char *msg);
+                       enum imstatus old_status, enum imstatus new_status,
+                       const char *msg);
 
 void hk_postconnect(void);
 void hk_predisconnect(void);

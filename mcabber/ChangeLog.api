@@ -1,3 +1,10 @@
+dev (5)
+
+ * Add resource name to the hook-message-in hook
+ * Changeset 5c043358ded0
+
+  -- Mikael Berthe, 2010-03-14
+
 dev (4)
 
  * Big API cleanup (functions renamed)

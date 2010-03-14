@@ -2,3 +2,4 @@
  /SET [option [= valeur]]
 
 Affiche ou définit une option.
+En l'absence d'option, affiche toutes les options et leurs valeurs.

@@ -611,7 +611,7 @@ static void cb_create_privkey(void *opdata, const char *accountname,
   scr_LogPrint(LPRINT_LOGNORM,
                "Generating new OTR key for %s. This may take a while...",
                accountname);
-  scr_DoUpdate();
+  scr_do_update();
 
   e = otrl_privkey_generate(userstate, keyfile, accountname, protocol);
 

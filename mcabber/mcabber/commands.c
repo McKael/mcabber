@@ -498,7 +498,7 @@ int process_line(const char *line)
       else {
         // Enter chat mode
         scr_set_chatmode(TRUE);
-        scr_ShowBuddyWindow();
+        scr_show_buddy_window();
       }
     }
     return 0;
@@ -686,7 +686,7 @@ inline static void roster_updown(int updown, char *nitems)
     nbitems = strtol(nitems, NULL, 10);
 
   if (nbitems > 0)
-    scr_RosterUpDown(updown, nbitems);
+    scr_roster_up_down(updown, nbitems);
 }
 
 /* Commands callback functions */
@@ -709,17 +709,17 @@ static void do_roster(char *arg)
   }
 
   if (!strcasecmp(subcmd, "top")) {
-    scr_RosterTop();
+    scr_roster_top();
     update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "bottom")) {
-    scr_RosterBottom();
+    scr_roster_bottom();
     update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "hide")) {
-    scr_RosterVisibility(0);
+    scr_roster_visibility(0);
   } else if (!strcasecmp(subcmd, "show")) {
-    scr_RosterVisibility(1);
+    scr_roster_visibility(1);
   } else if (!strcasecmp(subcmd, "toggle")) {
-    scr_RosterVisibility(-1);
+    scr_roster_visibility(-1);
   } else if (!strcasecmp(subcmd, "hide_offline")) {
     buddylist_set_hide_offline_buddies(TRUE);
     if (current_buddy)
@@ -734,7 +734,7 @@ static void do_roster(char *arg)
     buddylist_build();
     update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "display")) {
-    scr_RosterDisplay(arg);
+    scr_roster_display(arg);
   } else if (!strcasecmp(subcmd, "item_lock")) {
     roster_buddylock(arg, 1);
   } else if (!strcasecmp(subcmd, "item_unlock")) {
@@ -742,11 +742,11 @@ static void do_roster(char *arg)
   } else if (!strcasecmp(subcmd, "item_toggle_lock")) {
     roster_buddylock(arg, -1);
   } else if (!strcasecmp(subcmd, "unread_first")) {
-    scr_RosterUnreadMessage(0);
+    scr_roster_unread_message(0);
   } else if (!strcasecmp(subcmd, "unread_next")) {
-    scr_RosterUnreadMessage(1);
+    scr_roster_unread_message(1);
   } else if (!strcasecmp(subcmd, "alternate")) {
-    scr_RosterJumpAlternate();
+    scr_roster_jump_alternate();
   } else if (!strncasecmp(subcmd, "search", 6)) {
     strip_arg_special_chars(arg);
     if (!arg || !*arg) {
@@ -754,16 +754,16 @@ static void do_roster(char *arg)
       free_arg_lst(paramlst);
       return;
     }
-    scr_RosterSearch(arg);
+    scr_roster_search(arg);
     update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "up")) {
     roster_updown(-1, arg);
   } else if (!strcasecmp(subcmd, "down")) {
     roster_updown(1, arg);
   } else if (!strcasecmp(subcmd, "group_prev")) {
-    scr_RosterPrevGroup();
+    scr_roster_prev_group();
   } else if (!strcasecmp(subcmd, "group_next")) {
-    scr_RosterNextGroup();
+    scr_roster_next_group();
   } else if (!strcasecmp(subcmd, "note")) {
     roster_note(arg);
   } else
@@ -795,14 +795,14 @@ void do_color(char *arg)
     color = arglist[2];
 
     if (status && !strcmp(status, "clear")) { // Not a color command, clear all
-      scr_RosterClearColor();
+      scr_roster_clear_color();
       update_roster = TRUE;
     } else {
       if (!status || !*status || !wildcard || !*wildcard || !color || !*color) {
         scr_LogPrint(LPRINT_NORMAL, "Missing argument");
       } else {
-        update_roster = scr_RosterColor(status, wildcard, color)
-                        || update_roster;
+        update_roster = scr_roster_color(status, wildcard, color) ||
+                        update_roster;
       }
     }
     free_arg_lst(arglist);
@@ -822,13 +822,13 @@ void do_color(char *arg)
           scr_LogPrint(LPRINT_NORMAL, "Not a JID");
         else {
           if (!mode || !*mode || !strcasecmp(mode, "on"))
-            scr_MucColor(muc, MC_ALL);
+            scr_muc_color(muc, MC_ALL);
           else if (!strcasecmp(mode, "preset"))
-            scr_MucColor(muc, MC_PRESET);
+            scr_muc_color(muc, MC_PRESET);
           else if (!strcasecmp(mode, "off"))
-            scr_MucColor(muc, MC_OFF);
+            scr_muc_color(muc, MC_OFF);
           else if (!strcmp(mode, "-"))
-            scr_MucColor(muc, MC_REMOVE);
+            scr_muc_color(muc, MC_REMOVE);
           else
             scr_LogPrint(LPRINT_NORMAL, "Unknown coloring mode");
         }
@@ -842,7 +842,7 @@ void do_color(char *arg)
     if (!nick || !*nick || !color || !*color)
       scr_LogPrint(LPRINT_NORMAL, "Missing argument");
     else
-      scr_MucNickColor(nick, color);
+      scr_muc_nick_color(nick, color);
     free_arg_lst(arglist);
   } else
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
@@ -868,7 +868,7 @@ void cmd_setstatus(const char *recipient, const char *arg)
   // (esp. for FIFO or remote commands) or the behaviour could be
   // unexpected...
   if (!recipient)
-    scr_CheckAutoAway(TRUE);
+    scr_check_auto_away(TRUE);
 
   paramlst = split_arg(arg, 2, 1); // status, message
   status = *paramlst;
@@ -1067,11 +1067,11 @@ static void do_del(char *arg)
   }
 
   // Close the buffer
-  scr_BufferPurge(1, NULL);
+  scr_buffer_purge(1, NULL);
 
   scr_LogPrint(LPRINT_LOGNORM, "Removing <%s>...", bjid);
   xmpp_delbuddy(bjid);
-  scr_UpdateBuddyWindow();
+  scr_update_buddy_window();
 }
 
 static void do_group(char *arg)
@@ -1134,7 +1134,7 @@ static void do_group(char *arg)
   }
 
   if (group_state != group_unfold && leave_buddywindow)
-    scr_RosterPrevGroup();
+    scr_roster_prev_group();
 
   buddy_hide_group(group, group_state);
 
@@ -1182,7 +1182,7 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
 
   if (!quiet) {
     // Jump to window, create one if needed
-    scr_RosterJumpJid(bare_jid);
+    scr_roster_jump_jid(bare_jid);
   }
 
   // Check if we're sending a message to a conference room
@@ -1268,7 +1268,7 @@ void say_cmd(char *arg, int parse_flags)
   LmMessageSubType msgtype = LM_MESSAGE_SUB_TYPE_NOT_SET;
 
   scr_set_chatmode(TRUE);
-  scr_ShowBuddyWindow();
+  scr_show_buddy_window();
 
   if (!current_buddy) {
     scr_LogPrint(LPRINT_NORMAL,
@@ -1366,7 +1366,7 @@ static void do_msay(char *arg)
   }
 
   scr_set_chatmode(TRUE);
-  scr_ShowBuddyWindow();
+  scr_show_buddy_window();
 
   if (!strcasecmp(subcmd, "send_to")) {
     int err = FALSE;
@@ -1593,7 +1593,7 @@ inline static void buffer_updown(int updown, char *nlines)
     nblines = strtol(nlines, NULL, 10);
 
   if (nblines >= 0)
-    scr_BufferScrollUpDown(updown, nblines);
+    scr_buffer_scroll_up_down(updown, nblines);
 }
 
 static void buffer_search(int direction, char *arg)
@@ -1603,7 +1603,7 @@ static void buffer_search(int direction, char *arg)
     return;
   }
 
-  scr_BufferSearch(direction, arg);
+  scr_buffer_search(direction, arg);
 }
 
 static void buffer_date(char *date)
@@ -1619,7 +1619,7 @@ static void buffer_date(char *date)
 
   t = from_iso8601(date, 0);
   if (t)
-    scr_BufferDate(t);
+    scr_buffer_date(t);
   else
     scr_LogPrint(LPRINT_NORMAL, "The date you specified is "
                  "not correctly formatted or invalid.");
@@ -1641,7 +1641,7 @@ static void buffer_percent(char *arg1, char *arg2)
     return;
   }
 
-  scr_BufferPercent(atoi((*arg1 ? arg1 : arg2)));
+  scr_buffer_percent(atoi((*arg1 ? arg1 : arg2)));
 }
 
 static void do_buffer(char *arg)
@@ -1670,23 +1670,23 @@ static void do_buffer(char *arg)
   }
 
   if (!strcasecmp(subcmd, "top")) {
-    scr_BufferTopBottom(-1);
+    scr_buffer_top_bottom(-1);
   } else if (!strcasecmp(subcmd, "bottom")) {
-    scr_BufferTopBottom(1);
+    scr_buffer_top_bottom(1);
   } else if (!strcasecmp(subcmd, "clear")) {
-    scr_BufferClear();
+    scr_buffer_clear();
   } else if (!strcasecmp(subcmd, "close")) {
-    scr_BufferPurge(1, arg);
+    scr_buffer_purge(1, arg);
   } else if (!strcasecmp(subcmd, "close_all")) {
-    scr_BufferPurgeAll(1);
+    scr_buffer_purge_all(1);
   } else if (!strcasecmp(subcmd, "purge")) {
-    scr_BufferPurge(0, arg);
+    scr_buffer_purge(0, arg);
   } else if (!strcasecmp(subcmd, "scroll_lock")) {
-    scr_BufferScrollLock(1);
+    scr_buffer_scroll_lock(1);
   } else if (!strcasecmp(subcmd, "scroll_unlock")) {
-    scr_BufferScrollLock(0);
+    scr_buffer_scroll_lock(0);
   } else if (!strcasecmp(subcmd, "scroll_toggle")) {
-    scr_BufferScrollLock(-1);
+    scr_buffer_scroll_lock(-1);
   } else if (!strcasecmp(subcmd, "up")) {
     buffer_updown(-1, arg);
   } else if (!strcasecmp(subcmd, "down")) {
@@ -1702,9 +1702,9 @@ static void do_buffer(char *arg)
   } else if (*subcmd == '%') {
     buffer_percent(subcmd+1, arg);
   } else if (!strcasecmp(subcmd, "save")) {
-    scr_BufferDump(arg);
+    scr_buffer_dump(arg);
   } else if (!strcasecmp(subcmd, "list")) {
-    scr_BufferList();
+    scr_buffer_list();
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }
@@ -1743,7 +1743,7 @@ static void do_info(char *arg)
 
     // Enter chat mode
     scr_set_chatmode(TRUE);
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
 
     snprintf(buffer, 4095, "jid:  <%s>", bjid);
     scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
@@ -1878,7 +1878,7 @@ static void room_names(gpointer bud, char *arg)
 
   // Enter chat mode
   scr_set_chatmode(TRUE);
-  scr_ShowBuddyWindow();
+  scr_show_buddy_window();
 
   bjid = buddy_getjid(bud);
 
@@ -2004,7 +2004,7 @@ static void do_rename(char *arg)
     foreach_group_member(bud, &move_group_member, name_utf8);
     // Let's jump to the previous buddy, because this group name should
     // disappear when we receive the server answer.
-    scr_RosterUpDown(-1, 1);
+    scr_roster_up_down(-1, 1);
   } else {
     // Rename a single buddy
     guint del_name = 0;
@@ -2061,7 +2061,7 @@ static void do_move(char *arg)
     /* guint msgflag; */
 
     xmpp_updatebuddy(bjid, name, *group_utf8 ? group_utf8 : NULL);
-    scr_RosterUpDown(-1, 1);
+    scr_roster_up_down(-1, 1);
 
     /* We do not move the buddy right now because the server could reject
      * the request.  Let's wait for the server answer.
@@ -2687,7 +2687,7 @@ static void room_remove(gpointer bud, char *arg)
   }
   // Delete the room
   roster_del_user(buddy_getjid(bud));
-  scr_UpdateBuddyWindow();
+  scr_update_buddy_window();
   buddylist_build();
   update_roster = TRUE;
 }
@@ -2840,7 +2840,7 @@ void cmd_room_whois(gpointer bud, char *arg, guint interactive)
   if (interactive) {
     // Enter chat mode
     scr_set_chatmode(TRUE);
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
   } else
     msg_flag |= HBB_PREFIX_NOFLAG;
 

@@ -79,6 +79,10 @@ static void scr_end_current_completion(void);
 static void scr_insert_text(const char*);
 static void scr_handle_tab(void);
 
+#if defined XEP0022 || defined XEP0085
+static gboolean scr_chatstates_timeout();
+#endif
+
 #if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
 static void spellcheck(char *, char *);
 #endif
@@ -118,8 +122,7 @@ static int roster_hidden;
 static int chatmode;
 static int multimode;
 static char *multiline, *multimode_subj;
-int update_roster;
-int utf8_mode = 0;
+
 static bool Curses;
 static bool log_win_on_top;
 static bool roster_win_on_right;
@@ -141,7 +144,11 @@ static int    chatstate; /* (0=active, 1=composing, 2=paused) */
 static bool   lock_chatstate;
 static time_t chatstate_timestamp;
 static guint  chatstate_timeout_id = 0;
-int chatstates_disabled;
+
+int update_roster;
+int utf8_mode;
+gboolean chatstates_disabled;
+gboolean Autoaway;
 
 #define MAX_KEYSEQ_LENGTH 8
 
@@ -158,15 +165,16 @@ static GRegex *url_regex;
 GSList *keyseqlist;
 static void add_keyseq(char *seqstr, guint mkeycode, gint value);
 
-void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
-                       unsigned int prefix_flags, int force_show,
-                       unsigned mucnicklen, gpointer xep184);
+static void scr_write_in_window(const char *winId, const char *text,
+                                time_t timestamp, unsigned int prefix_flags,
+                                int force_show, unsigned mucnicklen,
+                                gpointer xep184);
 
-void scr_WriteMessage(const char *bjid, const char *text,
-                      time_t timestamp, guint prefix_flags,
-                      unsigned mucnicklen, gpointer xep184);
+static void scr_write_message(const char *bjid, const char *text,
+                              time_t timestamp, guint prefix_flags,
+                              unsigned mucnicklen, gpointer xep184);
 
-inline void scr_UpdateBuddyWindow(void);
+inline void scr_update_buddy_window(void);
 inline void scr_set_chatmode(int enable);
 
 #define SPELLBADCHAR 5
@@ -207,7 +215,7 @@ static muccoltype glob_muccol = MC_OFF;
 
 /* Functions */
 
-static int FindColor(const char *name)
+static int find_color(const char *name)
 {
   int result;
 
@@ -248,7 +256,7 @@ static ccolor *get_user_color(const char *color)
     isbright = TRUE;
     color += 6;
   }
-  cl = FindColor(color);
+  cl = find_color(color);
   if (cl < 0)
     return NULL;
   ccol = g_new0(ccolor, 1);
@@ -258,7 +266,7 @@ static ccolor *get_user_color(const char *color)
 }
 
 static void ensure_string_htable(GHashTable **table,
-    GDestroyNotify value_destroy_func)
+                                 GDestroyNotify value_destroy_func)
 {
   if (*table) // Have it already
     return;
@@ -270,7 +278,7 @@ static void ensure_string_htable(GHashTable **table,
 // The MUC room does not need to be in the roster at that time
 // muc - the JID of room
 // type - the new type
-void scr_MucColor(const char *muc, muccoltype type)
+void scr_muc_color(const char *muc, muccoltype type)
 {
   gchar *muclow = g_utf8_strdown(muc, -1);
   if (type == MC_REMOVE) { // Remove it
@@ -295,13 +303,13 @@ void scr_MucColor(const char *muc, muccoltype type)
   // Need to redraw?
   if (chatmode &&
       ((buddy_search_jid(muc) == current_buddy) || !strcmp(muc, "*")))
-    scr_UpdateBuddyWindow();
+    scr_update_buddy_window();
 }
 
 // Sets the color for nick in MUC
 // If color is "-", the color is marked as automaticly assigned and is
 // not used if the room is in the "preset" mode
-void scr_MucNickColor(const char *nick, const char *color)
+void scr_muc_nick_color(const char *nick, const char *color)
 {
   char *snick, *mnick;
   bool need_update = FALSE;
@@ -341,7 +349,7 @@ void scr_MucNickColor(const char *nick, const char *color)
   }
   if (need_update && chatmode &&
       (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_ROOM))
-    scr_UpdateBuddyWindow();
+    scr_update_buddy_window();
 }
 
 static void free_rostercolrule(rostercolor *col)
@@ -354,7 +362,7 @@ static void free_rostercolrule(rostercolor *col)
 }
 
 // Removes all roster coloring rules
-void scr_RosterClearColor(void)
+void scr_roster_clear_color(void)
 {
   GSList *head;
   for (head = rostercolrules; head; head = g_slist_next(head)) {
@@ -371,8 +379,8 @@ void scr_RosterClearColor(void)
 // Returns weather it was successfull (therefore the roster should be
 // redrawed) or not. If it failed, for example because of invalid color
 // name, it also prints the error.
-bool scr_RosterColor(const char *status, const char *wildcard,
-                     const char *color)
+bool scr_roster_color(const char *status, const char *wildcard,
+                      const char *color)
 {
   GSList *head;
   GSList *found = NULL;
@@ -414,7 +422,7 @@ bool scr_RosterColor(const char *status, const char *wildcard,
   }
 }
 
-static void ParseColors(void)
+static void parse_colors(void)
 {
   const char *colors[] = {
     "", "",
@@ -466,49 +474,49 @@ static void ParseColors(void)
           init_pair(2, COLOR_WHITE, COLOR_BLACK);
           break;
       case COLOR_GENERAL:
-          init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
-                    FindColor(background));
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_WHITE),
+                    find_color(background));
           break;
       case COLOR_MSGOUT:
-          init_pair(i+1, ((color) ? FindColor(color) : COLOR_CYAN),
-                    FindColor(background));
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_CYAN),
+                    find_color(background));
           break;
       case COLOR_MSGHL:
-          init_pair(i+1, ((color) ? FindColor(color) : COLOR_YELLOW),
-                    FindColor(background));
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_YELLOW),
+                    find_color(background));
           break;
       case COLOR_STATUS:
-          init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
-                    FindColor(backstatus));
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_WHITE),
+                    find_color(backstatus));
           break;
       case COLOR_ROSTER:
-          init_pair(i+1, ((color) ? FindColor(color) : COLOR_GREEN),
-                    FindColor(background));
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_GREEN),
+                    find_color(background));
           break;
       case COLOR_ROSTERSEL:
-          init_pair(i+1, ((color) ? FindColor(color) : COLOR_BLUE),
-                    FindColor(backselected));
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_BLUE),
+                    find_color(backselected));
           break;
       case COLOR_ROSTERSELNMSG:
-          init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
-                    FindColor(backselected));
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_RED),
+                    find_color(backselected));
           break;
       case COLOR_ROSTERNMSG:
-          init_pair(i+1, ((color) ? FindColor(color) : COLOR_RED),
-                    FindColor(background));
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_RED),
+                    find_color(background));
           break;
       case COLOR_INFO:
-          init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
-                    FindColor(background));
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_WHITE),
+                    find_color(background));
           break;
       case COLOR_MSGIN:
-          init_pair(i+1, ((color) ? FindColor(color) : COLOR_WHITE),
-                    FindColor(background));
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_WHITE),
+                    find_color(background));
           break;
     }
   }
   for (i = COLOR_max; i < (COLOR_max + COLORS); i++)
-    init_pair(i, i-COLOR_max, FindColor(background));
+    init_pair(i, i-COLOR_max, find_color(background));
 
   if (!nickcols) {
     char *ncolors = g_strdup(settings_opt_get("nick_colors"));
@@ -724,7 +732,7 @@ static int is_speckey(int key)
   return FALSE;
 }
 
-void scr_InitLocaleCharSet(void)
+void scr_init_locale_charset(void)
 {
   setlocale(LC_ALL, "");
 #ifdef HAVE_LOCALCHARSET_H
@@ -735,12 +743,12 @@ void scr_InitLocaleCharSet(void)
   utf8_mode = (strcmp(LocaleCharSet, "UTF-8") == 0);
 }
 
-gboolean scr_CursesStatus(void)
+gboolean scr_curses_status(void)
 {
   return Curses;
 }
 
-void scr_InitCurses(void)
+void scr_init_curses(void)
 {
   /* Key sequences initialization */
   init_keycodes();
@@ -765,11 +773,11 @@ void scr_InitCurses(void)
 #endif
   }
 
-  ParseColors();
+  parse_colors();
 
   getmaxyx(stdscr, maxY, maxX);
   Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
-  // Note scr_DrawMainWindow() should be called early after scr_InitCurses()
+  // Note scr_draw_main_window() should be called early after scr_init_curses()
   // to update Log_Win_Height and set max{X,Y}
 
   inputLine[0] = 0;
@@ -789,7 +797,7 @@ void scr_InitCurses(void)
   return;
 }
 
-void scr_TerminateCurses(void)
+void scr_terminate_curses(void)
 {
   if (!Curses) return;
   clear();
@@ -803,7 +811,7 @@ void scr_TerminateCurses(void)
   return;
 }
 
-void scr_Beep(void)
+void scr_beep(void)
 {
   beep();
 }
@@ -919,8 +927,8 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
     if (Curses) {
       wprintw(logWnd, "\n%s", buffer_locale);
       update_panels();
-      scr_WriteInWindow(NULL, buf_specialwindow, timestamp,
-                        HBB_PREFIX_SPECIAL, FALSE, 0, NULL);
+      scr_write_in_window(NULL, buf_specialwindow, timestamp,
+                          HBB_PREFIX_SPECIAL, FALSE, 0, NULL);
     } else {
       printf("%s\n", buffer_locale);
       // ncurses are not initialized yet, so we call directly hbuf routine
@@ -936,13 +944,13 @@ void scr_LogPrint(unsigned int flag, const char *fmt, ...)
   if (flag & (LPRINT_LOG|LPRINT_DEBUG)) {
     strftime(strtimestamp, 23, "[%Y-%m-%d %H:%M:%S]", localtime(&timestamp));
     buffer = g_strdup_printf("%s %s\n", strtimestamp, btext);
-    ut_WriteLog(flag, buffer);
+    ut_write_log(flag, buffer);
     g_free(buffer);
   }
   g_free(btext);
 }
 
-static winbuf *scr_SearchWindow(const char *winId, int special)
+static winbuf *scr_search_window(const char *winId, int special)
 {
   char *id;
   winbuf *wbp;
@@ -960,9 +968,9 @@ static winbuf *scr_SearchWindow(const char *winId, int special)
   return wbp;
 }
 
-int scr_BuddyBufferExists(const char *bjid)
+int scr_buddy_buffer_exists(const char *bjid)
 {
-  return (scr_SearchWindow(bjid, FALSE) != NULL);
+  return (scr_search_window(bjid, FALSE) != NULL);
 }
 
 //  scr_new_buddy(title, dontshow)
@@ -991,7 +999,7 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
     char *id;
     id = hlog_get_log_jid(title);
     if (id) {
-      winbuf *wb = scr_SearchWindow(id, FALSE);
+      winbuf *wb = scr_search_window(id, FALSE);
       if (!wb)
         wb = scr_new_buddy(id, TRUE);
       tmp->bd=wb->bd;
@@ -1072,9 +1080,9 @@ void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
   }
 }
 
-//  scr_UpdateWindow()
+//  scr_update_window()
 // (Re-)Display the given chat window.
-static void scr_UpdateWindow(winbuf *win_entry)
+static void scr_update_window(winbuf *win_entry)
 {
   int n;
   guint prefixwidth;
@@ -1216,7 +1224,7 @@ static void scr_UpdateWindow(winbuf *win_entry)
   g_free(lines);
 }
 
-static winbuf *scr_CreateWindow(const char *winId, int special, int dont_show)
+static winbuf *scr_create_window(const char *winId, int special, int dont_show)
 {
   if (special) {
     if (!statusWindow) {
@@ -1229,17 +1237,17 @@ static winbuf *scr_CreateWindow(const char *winId, int special, int dont_show)
   }
 }
 
-//  scr_ShowWindow()
+//  scr_show_window()
 // Display the chat window with the given identifier.
 // "special" must be true if this is a special buffer window.
-static void scr_ShowWindow(const char *winId, int special)
+static void scr_show_window(const char *winId, int special)
 {
   winbuf *win_entry;
 
-  win_entry = scr_SearchWindow(winId, special);
+  win_entry = scr_search_window(winId, special);
 
   if (!win_entry) {
-    win_entry = scr_CreateWindow(winId, special, FALSE);
+    win_entry = scr_create_window(winId, special, FALSE);
   }
 
   top_panel(win_entry->panel);
@@ -1252,7 +1260,7 @@ static void scr_ShowWindow(const char *winId, int special)
   update_roster = TRUE;
 
   // Refresh the window
-  scr_UpdateWindow(win_entry);
+  scr_update_window(win_entry);
 
   // Finished :)
   update_panels();
@@ -1260,9 +1268,9 @@ static void scr_ShowWindow(const char *winId, int special)
   top_panel(inputPanel);
 }
 
-//  scr_ShowBuddyWindow()
+//  scr_show_buddy_window()
 // Display the chat window buffer for the current buddy.
-void scr_ShowBuddyWindow(void)
+void scr_show_buddy_window(void)
 {
   const gchar *bjid;
 
@@ -1271,7 +1279,7 @@ void scr_ShowBuddyWindow(void)
   } else {
     bjid = CURRENT_JID;
     if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL) {
-      scr_ShowWindow(buddy_getname(BUDDATA(current_buddy)), TRUE);
+      scr_show_window(buddy_getname(BUDDATA(current_buddy)), TRUE);
       return;
     }
   }
@@ -1283,17 +1291,17 @@ void scr_ShowBuddyWindow(void)
     return;
   }
 
-  scr_ShowWindow(bjid, FALSE);
+  scr_show_window(bjid, FALSE);
 }
 
-//  scr_UpdateBuddyWindow()
+//  scr_update_buddy_window()
 // (Re)Display the current window.
-// If chatmode is enabled, call scr_ShowBuddyWindow(),
+// If chatmode is enabled, call scr_show_buddy_window(),
 // else display the chat window.
-inline void scr_UpdateBuddyWindow(void)
+inline void scr_update_buddy_window(void)
 {
   if (chatmode) {
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
     return;
   }
 
@@ -1301,14 +1309,15 @@ inline void scr_UpdateBuddyWindow(void)
   top_panel(inputPanel);
 }
 
-//  scr_WriteInWindow()
+//  scr_write_in_window()
 // Write some text in the winId window (this usually is a jid).
 // Use winId == NULL for the special status buffer.
 // Lines are splitted when they are too long to fit in the chat window.
 // If this window doesn't exist, it is created.
-void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
-                       unsigned int prefix_flags, int force_show,
-                       unsigned mucnicklen, gpointer xep184)
+static void scr_write_in_window(const char *winId, const char *text,
+                                time_t timestamp, unsigned int prefix_flags,
+                                int force_show, unsigned mucnicklen,
+                                gpointer xep184)
 {
   winbuf *win_entry;
   char *text_locale;
@@ -1320,7 +1329,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 
   // Look for the window entry.
   special = (winId == NULL);
-  win_entry = scr_SearchWindow(winId, special);
+  win_entry = scr_search_window(winId, special);
 
   // Do we have to really show the window?
   if (!chatmode)
@@ -1330,7 +1339,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
 
   // If the window entry doesn't exist yet, let's create it.
   if (!win_entry) {
-    win_entry = scr_CreateWindow(winId, special, dont_show);
+    win_entry = scr_create_window(winId, special, dont_show);
   }
 
   // The message must be displayed -> update top pointer
@@ -1379,7 +1388,7 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
       setmsgflg = TRUE;
     // Show and refresh the window
     top_panel(win_entry->panel);
-    scr_UpdateWindow(win_entry);
+    scr_update_window(win_entry);
     top_panel(inputPanel);
     update_panels();
   } else if (!(prefix_flags & HBB_PREFIX_NOFLAG)) {
@@ -1393,9 +1402,11 @@ void scr_WriteInWindow(const char *winId, const char *text, time_t timestamp,
   }
 }
 
-//  scr_UpdateMainStatus()
+//  scr_update_main_status(forceupdate)
 // Redraw the main (bottom) status line.
-void scr_UpdateMainStatus(int forceupdate)
+// You can set forceupdate to FALSE in order to optimize screen refresh
+// if you call top_panel()/update_panels() later.
+void scr_update_main_status(int forceupdate)
 {
   char *sm = from_utf8(xmpp_getstatusmsg());
   const char *info = settings_opt_get("info");
@@ -1419,13 +1430,13 @@ void scr_UpdateMainStatus(int forceupdate)
   g_free(sm);
 }
 
-//  scr_DrawMainWindow()
+//  scr_draw_main_window()
 // Set fullinit to TRUE to also create panels.  Set it to FALSE for a resize.
 //
 // I think it could be improved a _lot_ but I'm really not an ncurses
 // expert... :-\   Mikael.
 //
-void scr_DrawMainWindow(unsigned int fullinit)
+void scr_draw_main_window(unsigned int fullinit)
 {
   int requested_size;
   gchar *ver, *message;
@@ -1499,7 +1510,7 @@ void scr_DrawMainWindow(unsigned int fullinit)
     mainstatusWnd = newwin(1, maxX, maxY-2, 0);
     inputWnd  = newwin(1, maxX, maxY-1, 0);
     if (!rosterWnd || !chatWnd || !logWnd || !inputWnd) {
-      scr_TerminateCurses();
+      scr_terminate_curses();
       fprintf(stderr, "Cannot create windows!\n");
       exit(EXIT_FAILURE);
     }
@@ -1638,13 +1649,13 @@ void scr_Resize(void)
 
   // First, update the global variables
   getmaxyx(stdscr, maxY, maxX);
-  // scr_DrawMainWindow() will take care of maxY and Log_Win_Height
+  // scr_draw_main_window() will take care of maxY and Log_Win_Height
 
   // Make sure the cursor stays inside the window
   check_offset(0);
 
   // Resize windows and update panels
-  scr_DrawMainWindow(FALSE);
+  scr_draw_main_window(FALSE);
 
   // Resize all buddy windows
   dim.l = CHAT_WIN_HEIGHT;
@@ -1664,13 +1675,13 @@ void scr_Resize(void)
 
   // Refresh current buddy window
   if (chatmode)
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
 }
 
-//  scr_UpdateChatStatus(forceupdate)
+//  scr_update_chat_status(forceupdate)
 // Redraw the buddy status bar.
 // Set forceupdate to TRUE if update_panels() must be called.
-void scr_UpdateChatStatus(int forceupdate)
+void scr_update_chat_status(int forceupdate)
 {
   unsigned short btype, isgrp, ismuc, isspe;
   const char *btypetext = "Unknown";
@@ -1681,7 +1692,7 @@ void scr_UpdateChatStatus(int forceupdate)
 
   // Usually we need to update the bottom status line too,
   // at least to refresh the pending message flag.
-  scr_UpdateMainStatus(FALSE);
+  scr_update_main_status(FALSE);
 
   // Clear the line
   werase(chatstatusWnd);
@@ -1724,7 +1735,7 @@ void scr_UpdateChatStatus(int forceupdate)
 
   if (chatmode && !isgrp) {
     winbuf *win_entry;
-    win_entry = scr_SearchWindow(buddy_getjid(BUDDATA(current_buddy)), isspe);
+    win_entry = scr_search_window(buddy_getjid(BUDDATA(current_buddy)), isspe);
     if (win_entry && win_entry->bd->lock)
       mvwprintw(chatstatusWnd, 0, 0, "*");
   }
@@ -1817,9 +1828,9 @@ void increment_if_buddy_not_filtered(gpointer rosterdata, void *param)
     *p=*p+1;
 }
 
-//  scr_DrawRoster()
+//  scr_draw_roster()
 // Display the buddylist (not really the roster) on the screen
-void scr_DrawRoster(void)
+void scr_draw_roster(void)
 {
   static int offset = 0;
   char *name, *rline;
@@ -1843,7 +1854,7 @@ void scr_DrawRoster(void)
   if (!buddylist)
     offset = 0;
   else
-    scr_UpdateChatStatus(FALSE);
+    scr_update_chat_status(FALSE);
 
   // Cleanup of roster window
   werase(rosterWnd);
@@ -2024,12 +2035,12 @@ void scr_DrawRoster(void)
   curs_set(cursor_backup);
 }
 
-//  scr_RosterVisibility(status)
+//  scr_roster_visibility(status)
 // Set the roster visibility:
 // status=1   Show roster
 // status=0   Hide roster
 // status=-1  Toggle roster status
-void scr_RosterVisibility(int status)
+void scr_roster_visibility(int status)
 {
   int old_roster_status = roster_hidden;
 
@@ -2048,7 +2059,7 @@ void scr_RosterVisibility(int status)
 }
 
 #ifdef HAVE_GLIB_REGEX
-static inline void scr_LogUrls(const gchar *string)
+static inline void scr_log_urls(const gchar *string)
 {
   GMatchInfo *match_info;
 
@@ -2063,9 +2074,9 @@ static inline void scr_LogUrls(const gchar *string)
 }
 #endif
 
-void scr_WriteMessage(const char *bjid, const char *text,
-                      time_t timestamp, guint prefix_flags,
-                      unsigned mucnicklen, gpointer xep184)
+static void scr_write_message(const char *bjid, const char *text,
+                              time_t timestamp, guint prefix_flags,
+                              unsigned mucnicklen, gpointer xep184)
 {
   char *xtext;
 
@@ -2073,8 +2084,8 @@ void scr_WriteMessage(const char *bjid, const char *text,
 
   xtext = ut_expand_tabs(text); // Expand tabs and filter out some chars
 
-  scr_WriteInWindow(bjid, xtext, timestamp, prefix_flags, FALSE, mucnicklen,
-                    xep184);
+  scr_write_in_window(bjid, xtext, timestamp, prefix_flags, FALSE, mucnicklen,
+                      xep184);
 
   if (xtext != (char*)text)
     g_free(xtext);
@@ -2091,9 +2102,9 @@ void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
 
 #ifdef HAVE_GLIB_REGEX
   if (url_regex)
-    scr_LogUrls(text);
+    scr_log_urls(text);
 #endif
-  scr_WriteMessage(jidfrom, text, timestamp, prefix, mucnicklen, NULL);
+  scr_write_message(jidfrom, text, timestamp, prefix, mucnicklen, NULL);
 }
 
 void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix,
@@ -2103,21 +2114,21 @@ void scr_WriteOutgoingMessage(const char *jidto, const char *text, guint prefix,
   roster_elt = roster_find(jidto, jidsearch,
                            ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
 
-  scr_WriteMessage(jidto, text,
-                   0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT, 0, xep184);
+  scr_write_message(jidto, text,
+                    0, prefix|HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT, 0, xep184);
 
   // Show jidto's buffer unless the buddy is not in the buddylist
   if (roster_elt && g_list_position(buddylist, roster_elt->data) != -1)
-    scr_ShowWindow(jidto, FALSE);
+    scr_show_window(jidto, FALSE);
 }
 
-void scr_RemoveReceiptFlag(const char *bjid, gpointer xep184)
+void scr_remove_receipt_flag(const char *bjid, gpointer xep184)
 {
-  winbuf *win_entry = scr_SearchWindow(bjid, FALSE);
+  winbuf *win_entry = scr_search_window(bjid, FALSE);
   if (win_entry) {
     hbuf_remove_receipt(win_entry->bd->hbuf, xep184);
     if (chatmode && (buddy_search_jid(bjid) == current_buddy))
-      scr_UpdateBuddyWindow();
+      scr_update_buddy_window();
   }
 }
 
@@ -2154,7 +2165,7 @@ static inline void set_autoaway(bool setaway)
 //  set_chatstate(state)
 // Set the current chat state (0=active, 1=composing, 2=paused)
 // If the chat state has changed, call xmpp_send_chatstate()
-static inline void set_chatstate(int state)
+static void set_chatstate(int state)
 {
 #if defined XEP0022 || defined XEP0085
   if (chatstates_disabled)
@@ -2169,7 +2180,7 @@ static inline void set_chatstate(int state)
       if (chatstate == 1) {
         if (chatstate_timeout_id == 0)
           chatstate_timeout_id = g_timeout_add_seconds(1,
-                                                       scr_ChatStatesTimeout,
+                                                       scr_chatstates_timeout,
                                                        NULL);
         jep_state = ROSTER_EVENT_COMPOSING;
       }
@@ -2186,7 +2197,7 @@ static inline void set_chatstate(int state)
 }
 
 #if defined XEP0022 || defined XEP0085
-gboolean scr_ChatStatesTimeout(void)
+static gboolean scr_chatstates_timeout(void)
 {
   time_t now;
   time(&now);
@@ -2223,7 +2234,7 @@ static gboolean scr_autoaway_timeout_callback(gpointer data)
   return FALSE;
 }
 
-static void scr_ReinstallAutoAwayTimeout(void)
+static void scr_reinstall_autoaway_timeout(void)
 {
   unsigned int autoaway_timeout = settings_opt_get_int("autoaway");
   enum imstatus cur_st = xmpp_getstatus();
@@ -2238,13 +2249,13 @@ static void scr_ReinstallAutoAwayTimeout(void)
 }
 
 // Check if we should reset autoaway timeout source
-void scr_CheckAutoAway(int activity)
+void scr_check_auto_away(int activity)
 {
   if (Autoaway && activity) {
-    scr_ReinstallAutoAwayTimeout();
+    scr_reinstall_autoaway_timeout();
     set_autoaway(FALSE);
   } else if (activity || !autoaway_source)
-    scr_ReinstallAutoAwayTimeout();
+    scr_reinstall_autoaway_timeout();
 }
 
 //  set_current_buddy(newbuddy)
@@ -2280,28 +2291,28 @@ static void set_current_buddy(GList *newbuddy)
   update_roster = TRUE;
 }
 
-//  scr_RosterTop()
+//  scr_roster_top()
 // Go to the first buddy in the buddylist
-void scr_RosterTop(void)
+void scr_roster_top(void)
 {
   set_current_buddy(buddylist);
   if (chatmode)
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
 }
 
-//  scr_RosterBottom()
+//  scr_roster_bottom()
 // Go to the last buddy in the buddylist
-void scr_RosterBottom(void)
+void scr_roster_bottom(void)
 {
   set_current_buddy(g_list_last(buddylist));
   if (chatmode)
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
 }
 
-//  scr_RosterUpDown(updown, n)
+//  scr_roster_up_down(updown, n)
 // Go to the nth next buddy in the buddylist
 // (up if updown == -1, down if updown == 1)
-void scr_RosterUpDown(int updown, unsigned int n)
+void scr_roster_up_down(int updown, unsigned int n)
 {
   unsigned int i;
 
@@ -2313,12 +2324,12 @@ void scr_RosterUpDown(int updown, unsigned int n)
       set_current_buddy(g_list_next(current_buddy));
   }
   if (chatmode)
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
 }
 
-//  scr_RosterPrevGroup()
+//  scr_roster_prev_group()
 // Go to the previous group in the buddylist
-void scr_RosterPrevGroup(void)
+void scr_roster_prev_group(void)
 {
   GList *bud;
 
@@ -2329,15 +2340,15 @@ void scr_RosterPrevGroup(void)
     if (buddy_gettype(BUDDATA(bud)) & ROSTER_TYPE_GROUP) {
       set_current_buddy(bud);
       if (chatmode)
-        scr_ShowBuddyWindow();
+        scr_show_buddy_window();
       break;
     }
   }
 }
 
-//  scr_RosterNextGroup()
+//  scr_roster_next_group()
 // Go to the next group in the buddylist
-void scr_RosterNextGroup(void)
+void scr_roster_next_group(void)
 {
   GList *bud;
 
@@ -2348,25 +2359,25 @@ void scr_RosterNextGroup(void)
     if (buddy_gettype(BUDDATA(bud)) & ROSTER_TYPE_GROUP) {
       set_current_buddy(bud);
       if (chatmode)
-        scr_ShowBuddyWindow();
+        scr_show_buddy_window();
       break;
     }
   }
 }
 
-//  scr_RosterSearch(str)
+//  scr_roster_search(str)
 // Look forward for a buddy with jid/name containing str.
-void scr_RosterSearch(char *str)
+void scr_roster_search(char *str)
 {
   set_current_buddy(buddy_search(str));
   if (chatmode)
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
 }
 
-//  scr_RosterJumpJid(bjid)
+//  scr_roster_jump_jid(bjid)
 // Jump to buddy bjid.
 // NOTE: With this function, the buddy is added to the roster if doesn't exist.
-void scr_RosterJumpJid(char *barejid)
+void scr_roster_jump_jid(char *barejid)
 {
   GSList *roster_elt;
   // Look for an existing buddy
@@ -2382,14 +2393,14 @@ void scr_RosterJumpJid(char *barejid)
   // Jump to the buddy
   set_current_buddy(buddy_search_jid(barejid));
   if (chatmode)
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
 }
 
-//  scr_RosterUnreadMessage(next)
+//  scr_roster_unread_message(next)
 // Go to a new message.  If next is not null, try to go to the next new
 // message.  If it is not possible or if next is NULL, go to the first new
 // message from unread_list.
-void scr_RosterUnreadMessage(int next)
+void scr_roster_unread_message(int next)
 {
   gpointer unread_ptr;
   gpointer refbuddata;
@@ -2416,26 +2427,26 @@ void scr_RosterUnreadMessage(int next)
   nbuddy = g_list_find(buddylist, unread_ptr);
   if (nbuddy) {
     set_current_buddy(nbuddy);
-    if (chatmode) scr_ShowBuddyWindow();
+    if (chatmode) scr_show_buddy_window();
   } else
     scr_LogPrint(LPRINT_LOGNORM, "Error: nbuddy == NULL"); // should not happen
 }
 
-//  scr_RosterJumpAlternate()
+//  scr_roster_jump_alternate()
 // Try to jump to alternate (== previous) buddy
-void scr_RosterJumpAlternate(void)
+void scr_roster_jump_alternate(void)
 {
   if (!alternate_buddy || g_list_position(buddylist, alternate_buddy) == -1)
     return;
   set_current_buddy(alternate_buddy);
   if (chatmode)
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
 }
 
-//  scr_RosterDisplay(filter)
+//  scr_roster_display(filter)
 // Set the roster filter mask.  If filter is null/empty, the current
 // mask is displayed.
-void scr_RosterDisplay(const char *filter)
+void scr_roster_display(const char *filter)
 {
   guchar status;
   enum imstatus budstate;
@@ -2464,11 +2475,11 @@ void scr_RosterDisplay(const char *filter)
   scr_LogPrint(LPRINT_NORMAL, "Roster status filter: %s", strfilter);
 }
 
-//  scr_BufferScrollUpDown()
+//  scr_buffer_scroll_up_down()
 // Scroll up/down the current buddy window,
 // - half a screen if nblines is 0,
 // - up if updown == -1, down if updown == 1
-void scr_BufferScrollUpDown(int updown, unsigned int nblines)
+void scr_buffer_scroll_up_down(int updown, unsigned int nblines)
 {
   winbuf *win_entry;
   int n, nbl;
@@ -2479,7 +2490,7 @@ void scr_BufferScrollUpDown(int updown, unsigned int nblines)
   if (!current_buddy) return;
 
   isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
-  win_entry  = scr_SearchWindow(CURRENT_JID, isspe);
+  win_entry  = scr_search_window(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   if (!nblines) {
@@ -2515,15 +2526,15 @@ void scr_BufferScrollUpDown(int updown, unsigned int nblines)
   }
 
   // Refresh the window
-  scr_UpdateWindow(win_entry);
+  scr_update_window(win_entry);
 
   // Finished :)
   update_panels();
 }
 
-//  scr_BufferClear()
+//  scr_buffer_clear()
 // Clear the current buddy window (used for the /clear command)
-void scr_BufferClear(void)
+void scr_buffer_clear(void)
 {
   winbuf *win_entry;
   guint isspe;
@@ -2531,14 +2542,14 @@ void scr_BufferClear(void)
   // Get win_entry
   if (!current_buddy) return;
   isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
-  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
+  win_entry = scr_search_window(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   win_entry->bd->cleared = TRUE;
   win_entry->bd->top = NULL;
 
   // Refresh the window
-  scr_UpdateWindow(win_entry);
+  scr_update_window(win_entry);
 
   // Finished :)
   update_panels();
@@ -2565,10 +2576,10 @@ static void buffer_purge(gpointer key, gpointer value, gpointer data)
   }
 }
 
-//  scr_BufferPurge(closebuf, jid)
+//  scr_buffer_purge(closebuf, jid)
 // Purge/Drop the current buddy buffer or jid's buffer if jid != NULL.
 // If closebuf is 1, close the buffer.
-void scr_BufferPurge(int closebuf, const char *jid)
+void scr_buffer_purge(int closebuf, const char *jid)
 {
   winbuf *win_entry;
   guint isspe;
@@ -2592,7 +2603,7 @@ void scr_BufferPurge(int closebuf, const char *jid)
     cjid = CURRENT_JID;
     isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
   }
-  win_entry = scr_SearchWindow(cjid, isspe);
+  win_entry = scr_search_window(cjid, isspe);
   if (!win_entry) return;
 
   if (!isspe) {
@@ -2620,13 +2631,16 @@ void scr_BufferPurge(int closebuf, const char *jid)
   update_roster = TRUE;
 
   // Refresh the window
-  scr_UpdateBuddyWindow();
+  scr_update_buddy_window();
 
   // Finished :)
   update_panels();
 }
 
-void scr_BufferPurgeAll(int closebuf)
+//  scr_buffer_purge_all(closebuf)
+// Purge all existing buffers.
+// If closebuf is 1, the buffers are closed.
+void scr_buffer_purge_all(int closebuf)
 {
   guint *p_closebuf;
   p_closebuf = g_new(guint, 1);
@@ -2641,18 +2655,18 @@ void scr_BufferPurgeAll(int closebuf)
   }
 
   // Refresh the window
-  scr_UpdateBuddyWindow();
+  scr_update_buddy_window();
 
   // Finished :)
   update_panels();
 }
 
-//  scr_BufferScrollLock(lock)
+//  scr_buffer_scroll_lock(lock)
 // Lock/unlock the current buddy buffer
 // lock = 1 : lock
 // lock = 0 : unlock
 // lock = -1: toggle lock status
-void scr_BufferScrollLock(int lock)
+void scr_buffer_scroll_lock(int lock)
 {
   winbuf *win_entry;
   guint isspe;
@@ -2660,7 +2674,7 @@ void scr_BufferScrollLock(int lock)
   // Get win_entry
   if (!current_buddy) return;
   isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
-  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
+  win_entry = scr_search_window(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   if (lock == -1)
@@ -2675,25 +2689,25 @@ void scr_BufferScrollLock(int lock)
   }
 
   // If chatmode is disabled and we're at the bottom of the buffer,
-  // we need to set the "top" line, so we need to call scr_ShowBuddyWindow()
+  // we need to set the "top" line, so we need to call scr_show_buddy_window()
   // at least once.  (Maybe it will cause a double refresh...)
   if (!chatmode && !win_entry->bd->top) {
     chatmode = TRUE;
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
     chatmode = FALSE;
   }
 
   // Refresh the window
-  scr_UpdateBuddyWindow();
+  scr_update_buddy_window();
 
   // Finished :)
   update_panels();
 }
 
-//  scr_BufferTopBottom()
+//  scr_buffer_top_bottom()
 // Jump to the head/tail of the current buddy window
 // (top if topbottom == -1, bottom topbottom == 1)
-void scr_BufferTopBottom(int topbottom)
+void scr_buffer_top_bottom(int topbottom)
 {
   winbuf *win_entry;
   guint isspe;
@@ -2701,7 +2715,7 @@ void scr_BufferTopBottom(int topbottom)
   // Get win_entry
   if (!current_buddy) return;
   isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
-  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
+  win_entry = scr_search_window(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   win_entry->bd->cleared = FALSE;
@@ -2711,16 +2725,16 @@ void scr_BufferTopBottom(int topbottom)
     win_entry->bd->top = g_list_first(win_entry->bd->hbuf);
 
   // Refresh the window
-  scr_UpdateWindow(win_entry);
+  scr_update_window(win_entry);
 
   // Finished :)
   update_panels();
 }
 
-//  scr_BufferSearch(direction, text)
+//  scr_buffer_search(direction, text)
 // Jump to the next line containing text
 // (backward search if direction == -1, forward if topbottom == 1)
-void scr_BufferSearch(int direction, const char *text)
+void scr_buffer_search(int direction, const char *text)
 {
   winbuf *win_entry;
   GList *current_line, *search_res;
@@ -2729,7 +2743,7 @@ void scr_BufferSearch(int direction, const char *text)
   // Get win_entry
   if (!current_buddy) return;
   isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
-  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
+  win_entry = scr_search_window(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   if (win_entry->bd->top)
@@ -2744,7 +2758,7 @@ void scr_BufferSearch(int direction, const char *text)
     win_entry->bd->top = search_res;
 
     // Refresh the window
-    scr_UpdateWindow(win_entry);
+    scr_update_window(win_entry);
 
     // Finished :)
     update_panels();
@@ -2752,9 +2766,9 @@ void scr_BufferSearch(int direction, const char *text)
     scr_LogPrint(LPRINT_NORMAL, "Search string not found");
 }
 
-//  scr_BufferPercent(n)
+//  scr_buffer_percent(n)
 // Jump to the specified position in the buffer, in %
-void scr_BufferPercent(int pc)
+void scr_buffer_percent(int pc)
 {
   winbuf *win_entry;
   GList *search_res;
@@ -2763,7 +2777,7 @@ void scr_BufferPercent(int pc)
   // Get win_entry
   if (!current_buddy) return;
   isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
-  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
+  win_entry = scr_search_window(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   if (pc < 0 || pc > 100) {
@@ -2777,16 +2791,16 @@ void scr_BufferPercent(int pc)
   win_entry->bd->top = search_res;
 
   // Refresh the window
-  scr_UpdateWindow(win_entry);
+  scr_update_window(win_entry);
 
   // Finished :)
   update_panels();
 }
 
-//  scr_BufferDate(t)
+//  scr_buffer_date(t)
 // Jump to the first line after date t in the buffer
 // t is a date in seconds since `00:00:00 1970-01-01 UTC'
-void scr_BufferDate(time_t t)
+void scr_buffer_date(time_t t)
 {
   winbuf *win_entry;
   GList *search_res;
@@ -2795,7 +2809,7 @@ void scr_BufferDate(time_t t)
   // Get win_entry
   if (!current_buddy) return;
   isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
-  win_entry = scr_SearchWindow(CURRENT_JID, isspe);
+  win_entry = scr_search_window(CURRENT_JID, isspe);
   if (!win_entry) return;
 
   search_res = hbuf_jump_date(win_entry->bd->hbuf, t);
@@ -2804,13 +2818,15 @@ void scr_BufferDate(time_t t)
   win_entry->bd->top = search_res;
 
   // Refresh the window
-  scr_UpdateWindow(win_entry);
+  scr_update_window(win_entry);
 
   // Finished :)
   update_panels();
 }
 
-void scr_BufferDump(const char *file)
+//  scr_buffer_dump(filename)
+// Dump the current buffer content to the specified file.
+void scr_buffer_dump(const char *file)
 {
   char *extfname;
 
@@ -2844,7 +2860,7 @@ static void buffer_list(gpointer key, gpointer value, gpointer data)
                g_list_length(head), hbuf_get_blocks_number(head));
 }
 
-void scr_BufferList(void)
+void scr_buffer_list(void)
 {
   scr_LogPrint(LPRINT_NORMAL, "Buffer list:");
   buffer_list("[status]", statusWindow, NULL);
@@ -2859,7 +2875,7 @@ void scr_BufferList(void)
 inline void scr_set_chatmode(int enable)
 {
   chatmode = enable;
-  scr_UpdateChatStatus(TRUE);
+  scr_update_chat_status(TRUE);
 }
 
 //  scr_get_chatmode()
@@ -2892,7 +2908,7 @@ void scr_setmsgflag_if_needed(const char *bjid, int special)
     else
       current_id = buddy_getjid(BUDDATA(current_buddy));
     if (current_id) {
-      winbuf *win_entry = scr_SearchWindow(current_id, special);
+      winbuf *win_entry = scr_search_window(current_id, special);
       if (!win_entry) return;
       iscurrentlocked = win_entry->bd->lock;
     }
@@ -3249,7 +3265,7 @@ void readline_forward_char(void)
 // If down_history is true, load the next history line.
 int readline_accept_line(int down_history)
 {
-  scr_CheckAutoAway(TRUE);
+  scr_check_auto_away(TRUE);
   if (process_line(inputLine))
     return 255;
   // Add line to history
@@ -3300,22 +3316,22 @@ void readline_do_completion(void)
 
 void readline_refresh_screen(void)
 {
-  scr_CheckAutoAway(TRUE);
-  ParseColors();
+  scr_check_auto_away(TRUE);
+  parse_colors();
   scr_Resize();
   redrawwin(stdscr);
 }
 
 void readline_disable_chat_mode(guint show_roster)
 {
-  scr_CheckAutoAway(TRUE);
+  scr_check_auto_away(TRUE);
   currentWindow = NULL;
   chatmode = FALSE;
   if (current_buddy)
     buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
   if (show_roster)
-    scr_RosterVisibility(1);
-  scr_UpdateChatStatus(FALSE);
+    scr_roster_visibility(1);
+  scr_update_chat_status(FALSE);
   top_panel(chatPanel);
   top_panel(inputPanel);
   update_panels();
@@ -3781,7 +3797,7 @@ static inline int match_utf8_keyseq(int *iseq)
   return c;
 }
 
-void scr_Getch(keycode *kcode)
+void scr_getch(keycode *kcode)
 {
   keyseq *mks = NULL;
   int  ks[MAX_KEYSEQ_LENGTH+1];
@@ -3866,7 +3882,7 @@ void scr_Getch(keycode *kcode)
   return;
 }
 
-void scr_DoUpdate(void)
+void scr_do_update(void)
 {
   doupdate();
 }
@@ -3894,7 +3910,7 @@ static int bindcommand(keycode kcode)
 
   if (boundcmd) {
     gchar *cmdline = from_utf8(boundcmd);
-    scr_CheckAutoAway(TRUE);
+    scr_check_auto_away(TRUE);
     if (process_command(cmdline, TRUE))
       return 255; // Quit
     g_free(cmdline);
@@ -3910,9 +3926,9 @@ static int bindcommand(keycode kcode)
   return -1;
 }
 
-//  process_key(key)
+//  scr_process_key(key)
 // Handle the pressed key, in the command line (bottom).
-void process_key(keycode kcode)
+void scr_process_key(keycode kcode)
 {
   int key = kcode.value;
   int display_char = FALSE;

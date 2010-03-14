@@ -198,7 +198,7 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
   if (!fstat(fileno(fp), &bufstat)) {
     if (bufstat.st_size > 3145728) {
       scr_LogPrint(LPRINT_NORMAL, "Reading <%s> history file...", bjid);
-      scr_DoUpdate();
+      scr_do_update();
     }
   }
 

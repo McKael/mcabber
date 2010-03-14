@@ -55,6 +55,8 @@ enum colors {
 int COLOR_ATTRIB[COLOR_max];
 
 extern int update_roster;
+extern gboolean chatstates_disabled;
+extern gboolean Autoaway;
 
 typedef struct {
   int value;
@@ -85,29 +87,30 @@ typedef enum {
   MC_REMOVE
 } muccoltype;
 
-void scr_init_bindings(void);
 
-void scr_Getch(keycode *kcode);
-void process_key(keycode kcode);
-
-void scr_InitLocaleCharSet(void);
-void scr_InitCurses(void);
-void scr_TerminateCurses(void);
-gboolean scr_CursesStatus(void);
-void scr_DrawMainWindow(unsigned int fullinit);
-void scr_DrawRoster(void);
-void scr_UpdateMainStatus(int forceupdate);
-void scr_UpdateChatStatus(int forceupdate);
-void scr_RosterVisibility(int status);
 void scr_WriteIncomingMessage(const char *jidfrom, const char *text,
                               time_t timestamp, guint prefix,
                               unsigned mucnicklen);
 void scr_WriteOutgoingMessage(const char *jidto,   const char *text,
                               guint prefix, gpointer xep184);
-void scr_RemoveReceiptFlag(const char *jidto, gpointer xep184);
-void scr_ShowBuddyWindow(void);
-int  scr_BuddyBufferExists(const char *jid);
-void scr_UpdateBuddyWindow(void);
+
+void scr_getch(keycode *kcode);
+void scr_process_key(keycode kcode);
+
+void scr_init_bindings(void);
+void scr_init_locale_charset(void);
+void scr_init_curses(void);
+void scr_terminate_curses(void);
+gboolean scr_curses_status(void);
+void scr_draw_main_window(unsigned int fullinit);
+void scr_draw_roster(void);
+void scr_update_main_status(int forceupdate);
+void scr_update_chat_status(int forceupdate);
+void scr_roster_visibility(int status);
+void scr_remove_receipt_flag(const char *jidto, gpointer xep184);
+void scr_show_buddy_window(void);
+int  scr_buddy_buffer_exists(const char *jid);
+void scr_update_buddy_window(void);
 void scr_set_chatmode(int enable);
 int  scr_get_chatmode(void);
 void scr_set_multimode(int enable, char *subject);
@@ -121,44 +124,39 @@ guint scr_getprefixwidth(void);
 guint scr_gettextwidth(void);
 void  scr_line_prefix(hbb_line *line, char *prefix, guint preflen);
 
-void scr_Beep(void);
+void scr_beep(void);
+void scr_check_auto_away(int activity);
 
-bool Autoaway;
-
-void scr_CheckAutoAway(int activity);
-
-#if defined XEP0022 || defined XEP0085
-gboolean scr_ChatStatesTimeout();
-#endif
-int chatstates_disabled;
 
 // For commands...
-void scr_RosterTop(void);
-void scr_RosterBottom(void);
-void scr_RosterUpDown(int updown, unsigned int n);
-void scr_RosterPrevGroup(void);
-void scr_RosterNextGroup(void);
-void scr_RosterSearch(char *);
-void scr_RosterJumpJid(char *);
-void scr_RosterDisplay(const char *);
-void scr_BufferTopBottom(int topbottom);
-void scr_BufferClear(void);
-void scr_BufferScrollLock(int lock);
-void scr_BufferPurge(int, const char*);
-void scr_BufferPurgeAll(int);
-void scr_BufferSearch(int direction, const char *text);
-void scr_BufferPercent(int pc);
-void scr_BufferDate(time_t t);
-void scr_BufferDump(const char *file);
-void scr_RosterUnreadMessage(int);
-void scr_RosterJumpAlternate(void);
-void scr_BufferScrollUpDown(int updown, unsigned int nblines);
-bool scr_RosterColor(const char *status, const char *wildcard,
-                     const char *color);
-void scr_RosterClearColor(void);
-void scr_MucColor(const char *muc, muccoltype type);
-void scr_MucNickColor(const char *nick, const char *color);
-void scr_BufferList(void);
+void scr_roster_top(void);
+void scr_roster_bottom(void);
+void scr_roster_up_down(int updown, unsigned int n);
+void scr_roster_prev_group(void);
+void scr_roster_next_group(void);
+void scr_roster_search(char *);
+void scr_roster_jump_jid(char *);
+void scr_roster_jump_alternate(void);
+void scr_roster_unread_message(int);
+void scr_roster_display(const char *);
+
+void scr_buffer_top_bottom(int topbottom);
+void scr_buffer_clear(void);
+void scr_buffer_scroll_lock(int lock);
+void scr_buffer_purge(int, const char*);
+void scr_buffer_purge_all(int);
+void scr_buffer_search(int direction, const char *text);
+void scr_buffer_percent(int pc);
+void scr_buffer_date(time_t t);
+void scr_buffer_dump(const char *file);
+void scr_buffer_list(void);
+void scr_buffer_scroll_up_down(int updown, unsigned int nblines);
+
+bool scr_roster_color(const char *status, const char *wildcard,
+                      const char *color);
+void scr_roster_clear_color(void);
+void scr_muc_color(const char *muc, muccoltype type);
+void scr_muc_nick_color(const char *nick, const char *color);
 
 void readline_transpose_chars(void);
 void readline_forward_kill_word(void);

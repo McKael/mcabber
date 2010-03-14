@@ -15,7 +15,7 @@
 void scr_print_logwindow(const char *string);
 void scr_LogPrint(unsigned int flag, const char *fmt, ...) G_GNUC_PRINTF (2, 3);
 
-void scr_DoUpdate(void);
+void scr_do_update(void);
 
 #endif /* __MCABBER_LOGPRINT_H__ */
 

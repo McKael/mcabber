@@ -79,7 +79,7 @@ static void mcabber_terminate(const char *msg)
 {
   fifo_deinit();
   xmpp_disconnect();
-  scr_TerminateCurses();
+  scr_terminate_curses();
 
   // Restore term settings, if needed.
   if (backup_termios)
@@ -103,7 +103,7 @@ void sig_handler(int signum)
         if (pid > 0) {
           // exit status 2 -> beep
           if (WIFEXITED(status) && WEXITSTATUS(status) == 2) {
-            scr_Beep();
+            scr_beep();
           }
         }
       }
@@ -289,14 +289,14 @@ static gboolean keyboard_activity(void)
   if (terminate_ui) {
     return FALSE;
   }
-  scr_DoUpdate();
-  scr_Getch(&kcode);
+  scr_do_update();
+  scr_getch(&kcode);
 
   while (kcode.value != ERR) {
-    process_key(kcode);
-    scr_Getch(&kcode);
+    scr_process_key(kcode);
+    scr_getch(&kcode);
   }
-  scr_CheckAutoAway(FALSE);
+  scr_check_auto_away(FALSE);
 
   return TRUE;
 }
@@ -367,8 +367,8 @@ int main(int argc, char **argv)
   modules_init();
 #endif
   /* Initialize charset */
-  scr_InitLocaleCharSet();
-  ut_InitDebug();
+  scr_init_locale_charset();
+  ut_init_debug();
   help_init();
 
   /* Parsing config file... */
@@ -404,8 +404,8 @@ int main(int argc, char **argv)
 
   /* Initialize N-Curses */
   scr_LogPrint(LPRINT_DEBUG, "Initializing N-Curses...");
-  scr_InitCurses();
-  scr_DrawMainWindow(TRUE);
+  scr_init_curses();
+  scr_draw_main_window(TRUE);
 
   optval   = (settings_opt_get_int("logging") > 0);
   optval2  = (settings_opt_get_int("load_logs") > 0);
@@ -425,10 +425,10 @@ int main(int argc, char **argv)
 
   optstring = settings_opt_get("roster_display_filter");
   if (optstring)
-    scr_RosterDisplay(optstring);
+    scr_roster_display(optstring);
   // Empty filter isn't allowed...
   if (!buddylist_get_filter())
-    scr_RosterDisplay("*");
+    scr_roster_display("*");
 
   chatstates_disabled = settings_opt_get_int("disable_chatstates");
 
@@ -442,7 +442,7 @@ int main(int argc, char **argv)
 
   if (ret < 0) {
     scr_LogPrint(LPRINT_NORMAL, "No configuration file has been found.");
-    scr_ShowBuddyWindow();
+    scr_show_buddy_window();
   } else {
     /* Connection */
     xmpp_connect();
@@ -464,8 +464,8 @@ int main(int argc, char **argv)
       if (g_main_context_iteration(main_context, TRUE) == FALSE)
         keyboard_activity();
       if (update_roster)
-        scr_DrawRoster();
-      scr_DoUpdate();
+        scr_draw_roster();
+      scr_do_update();
     }
 
     g_source_destroy(mc_source);
@@ -473,7 +473,7 @@ int main(int argc, char **argv)
   }
 
   evs_deinit();
-  scr_TerminateCurses();
+  scr_terminate_curses();
 #ifdef MODULES_ENABLE
   modules_deinit();
 #endif

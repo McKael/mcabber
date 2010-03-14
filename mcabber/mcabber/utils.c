@@ -218,9 +218,9 @@ static gchar *tracelog_file_guard(const gchar *key, const gchar *new_value)
   return g_strdup(new_value);
 }
 
-//  ut_InitDebug()
+//  ut_init_debug()
 // Installs otpion guards before initial config file parsing.
-void ut_InitDebug(void)
+void ut_init_debug(void)
 {
   DebugEnabled = 0;
   FName        = NULL;
@@ -228,7 +228,7 @@ void ut_InitDebug(void)
   settings_set_guard("tracelog_file",  tracelog_file_guard);
 }
 
-void ut_WriteLog(unsigned int flag, const char *data)
+void ut_write_log(unsigned int flag, const char *data)
 {
   if (!DebugEnabled || !FName) return;
 

@@ -291,7 +291,7 @@ void hk_message_in(const char *bjid, const char *resname,
   if (settings_opt_get_int("beep_on_message")) {
     if ((!is_groupchat && !(message_flags & HBB_PREFIX_ERR)) ||
         (is_groupchat  && (message_flags & HBB_PREFIX_HLIGHT)))
-      scr_Beep();
+      scr_beep();
   }
 
   // We need to update the roster if the sender is unknown or
@@ -423,7 +423,7 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
   if (st_in_buf == 2 ||
       (st_in_buf == 1 && (status == offline || oldstat == offline))) {
     // Write the status change in the buddy's buffer, only if it already exists
-    if (scr_BuddyBufferExists(bjid)) {
+    if (scr_buddy_buffer_exists(bjid)) {
       bn = g_strdup_printf("Buddy status has changed: [%c>%c] %s",
                            imstatus2char[oldstat], imstatus2char[status],
                            ((status_msg) ? status_msg : ""));
@@ -436,7 +436,7 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
   roster_setstatus(bjid, rn, prio, status, status_msg, timestamp,
                    role_none, affil_none, NULL);
   buddylist_build();
-  scr_DrawRoster();
+  scr_draw_roster();
   hlog_write_status(bjid, timestamp, status, status_msg);
 
 #ifdef MODULES_ENABLE

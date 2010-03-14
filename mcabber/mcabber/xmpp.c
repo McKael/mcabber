@@ -298,7 +298,7 @@ static LmHandlerResult cb_xep184(LmMessageHandler *h, LmConnection *c,
                                  LmMessage *m, gpointer user_data)
 {
   char *from = jidtodisp(lm_message_get_from(m));
-  scr_RemoveReceiptFlag(from, h);
+  scr_remove_receipt_flag(from, h);
   g_free(from);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
@@ -954,7 +954,7 @@ static void connection_close_cb(LmConnection *connection,
   rosternotes = NULL;
   // Update display
   update_roster = TRUE;
-  scr_UpdateBuddyWindow();
+  scr_update_buddy_window();
 
   if (!reason)
     scr_LogPrint(LPRINT_LOGNORM, "Disconnected.");
@@ -1145,7 +1145,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
     }
 
     buddylist_build();
-    scr_DrawRoster();
+    scr_draw_roster();
     goto gotmessage_return;
   }
 
@@ -1249,7 +1249,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       g_free(s);
       g_free(mbuf);
       // The topic is displayed in the chat status line, so refresh now.
-      scr_UpdateChatStatus(TRUE);
+      scr_update_chat_status(TRUE);
     }
   }
 
@@ -1920,14 +1920,14 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
       mystatusmsg = NULL;
   }
 
-  if (!scr_CursesStatus())
+  if (!scr_curses_status())
     return;  // Called from config. file
 
   if (!Autoaway)
     update_last_use();
 
   // Update status line
-  scr_UpdateMainStatus(TRUE);
+  scr_update_main_status(TRUE);
 }
 
 

@@ -52,7 +52,7 @@ static void beep_hh (guint32 hid, hk_arg_t *args, gpointer userdata)
 	/* Check if beeping is enabled */
 	if (settings_opt_get_int ("beep_enable"))
 		/* *BEEP*! */
-		scr_Beep ();
+		scr_beep ();
 }
 
 /* beep command handler */

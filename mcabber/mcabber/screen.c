@@ -3552,7 +3552,7 @@ static void scr_handle_tab(void)
       // Init completion
       n = new_completion(prefix, list,
                          (compl_categ == COMPL_RESOURCE ?
-                          settings_opt_get("completion_muc_suffix") : NULL));
+                          settings_opt_get("muc_completion_suffix") : NULL));
       g_free(prefix);
       if (n == 0 && nrow == -1) {
         // This is a MUC room and we can't complete from the beginning of the

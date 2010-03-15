@@ -308,10 +308,10 @@ set max_history_blocks = 8
 # containing your nickname in a MUC room.
 #set muc_disable_nick_hl = 0
 #
-# Set 'completion_muc_suffix' if you want mcabber to append a string to
+# Set 'muc_completion_suffix' if you want mcabber to append a string to
 # suggested nicknames (only at the beginning of a line), like ":" or ",".
 # (Default: none)
-#set completion_muc_suffix = ": "
+#set muc_completion_suffix = ": "
 
 # Status messages
 # The 'message' value will override all others, take care!

@@ -335,10 +335,10 @@ void settings_set(guint type, const gchar *key, const gchar *value)
 {
   GHashTable *hash;
   gchar *dup_value = NULL;
-  settings_guard_t guard = NULL;
+  installed_guard_t *guard = NULL;
 
   if (type == SETTINGS_TYPE_OPTION) {
-    installed_guard_t *guard = g_hash_table_lookup(guards, key);
+    guard = g_hash_table_lookup(guards, key);
     if (guard)
       dup_value = guard->guard(key, value);
   }

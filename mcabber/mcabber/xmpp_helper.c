@@ -344,9 +344,9 @@ static const char *defaulterrormsg(guint code)
 //  display_server_error(x)
 // Display the error to the user
 // x: error tag xmlnode pointer
-void display_server_error(LmMessageNode *x)
+void display_server_error(LmMessageNode *x, const char *from)
 {
-  const char *desc = NULL, *errname=NULL, *s;
+  const char *desc = NULL, *errname = NULL, *s;
   char *sdesc, *tmp;
 
   if (!x) return;
@@ -359,8 +359,13 @@ void display_server_error(LmMessageNode *x)
    */
   if (x->children)
     errname = x->children->name;
-  scr_LogPrint(LPRINT_LOGNORM, "Received error packet [%s]",
-               (errname ? errname : ""));
+
+  if (from)
+    scr_LogPrint(LPRINT_LOGNORM, "Received error packet [%s] from <%s>",
+                 (errname ? errname : ""), from);
+  else
+    scr_LogPrint(LPRINT_LOGNORM, "Received error packet [%s]",
+                 (errname ? errname : ""));
 
   // For backward compatibility
   if (!errname && ((s = lm_message_node_get_attribute(x, "code")) != NULL)) {

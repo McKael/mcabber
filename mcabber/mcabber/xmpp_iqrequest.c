@@ -112,7 +112,8 @@ static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
         break;
 
     case LM_MESSAGE_SUB_TYPE_ERROR:
-        display_server_error(lm_message_node_get_child(m->node, "error"));
+        display_server_error(lm_message_node_get_child(m->node, "error"),
+                             fjid);
         mesg = g_strdup_printf("Ping to <%s> failed.  "
                                "Response time: %d second%s %d ms.",
                                fjid, (int)dsec, dsec > 1 ? "s" : "",
@@ -217,7 +218,7 @@ static LmHandlerResult cb_version(LmMessageHandler *h, LmConnection *c,
   // Check for error message
   if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
     scr_LogPrint(LPRINT_LOGNORM, "Received error IQ message (%s)", bjid);
-    display_server_error(lm_message_node_get_child(m->node, "error"));
+    display_server_error(lm_message_node_get_child(m->node, "error"), NULL);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
@@ -282,7 +283,7 @@ static LmHandlerResult cb_time(LmMessageHandler *h, LmConnection *c,
   // Check for error message
   if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
     scr_LogPrint(LPRINT_LOGNORM, "Received error IQ message (%s)", bjid);
-    display_server_error(lm_message_node_get_child(m->node, "error"));
+    display_server_error(lm_message_node_get_child(m->node, "error"), NULL);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
@@ -347,7 +348,7 @@ static LmHandlerResult cb_last(LmMessageHandler *h, LmConnection *c,
   // Check for error message
   if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
     scr_LogPrint(LPRINT_LOGNORM, "Received error IQ message (%s)", bjid);
-    display_server_error(lm_message_node_get_child(m->node, "error"));
+    display_server_error(lm_message_node_get_child(m->node, "error"), NULL);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
@@ -530,7 +531,7 @@ static LmHandlerResult cb_vcard(LmMessageHandler *h, LmConnection *c,
   // Check for error message
   if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
     scr_LogPrint(LPRINT_LOGNORM, "Received error IQ message (%s)", bjid);
-    display_server_error(lm_message_node_get_child(m->node, "error"));
+    display_server_error(lm_message_node_get_child(m->node, "error"), NULL);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 

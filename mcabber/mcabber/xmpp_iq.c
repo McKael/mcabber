@@ -150,7 +150,8 @@ LmHandlerResult handle_iq_dummy(LmMessageHandler *h, LmConnection *c,
 {
   LmMessageSubType mstype = lm_message_get_sub_type(m);
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
-    display_server_error(lm_message_node_get_child(m->node, "error"));
+    display_server_error(lm_message_node_get_child(m->node, "error"),
+                         lm_message_get_from(m));
   }
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }

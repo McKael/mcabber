@@ -48,7 +48,7 @@ LmMessage *lm_message_new_presence(enum imstatus st,
 const gchar* lm_message_get_from(LmMessage *m);
 const gchar* lm_message_get_id(LmMessage *m);
 
-void display_server_error(LmMessageNode *x);
+void display_server_error(LmMessageNode *x, const char *from);
 
 /* XEP-0115 (Entity Capabilities) node */
 const char *entity_version(enum imstatus status);

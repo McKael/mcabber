@@ -1258,7 +1258,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
 
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     x = lm_message_node_get_child(m->node, "error");
-    display_server_error(x);
+    display_server_error(x, from);
 #if defined XEP0022 || defined XEP0085
     // If the XEP85/22 support is probed, set it back to unknown so that
     // we probe it again.
@@ -1299,7 +1299,8 @@ static LmHandlerResult cb_caps(LmMessageHandler *h, LmConnection *c,
 
   caps_add(ver);
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
-    display_server_error(lm_message_node_get_child(m->node, "error"));
+    display_server_error(lm_message_node_get_child(m->node, "error"),
+                         lm_message_get_from(m));
   } else if (mstype == LM_MESSAGE_SUB_TYPE_RESULT) {
     LmMessageNode *info;
     LmMessageNode *query = lm_message_node_get_child(m->node, "query");
@@ -1355,7 +1356,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     LmMessageNode *x;
     scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", bjid);
     x = lm_message_node_find_child(m->node, "error");
-    display_server_error(x);
+    display_server_error(x, from);
     // Let's check it isn't a nickname conflict.
     // XXX Note: We should handle the <conflict/> string condition.
     if ((p = lm_message_node_get_attribute(x, "code")) != NULL) {
@@ -1464,7 +1465,8 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
   LmMessageSubType mstype = lm_message_get_sub_type(m);
 
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
-    display_server_error(lm_message_node_get_child(m->node, "error"));
+    display_server_error(lm_message_node_get_child(m->node, "error"),
+                         lm_message_get_from(m));
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 

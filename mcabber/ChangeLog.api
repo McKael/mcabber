@@ -1,3 +1,15 @@
+dev (8)
+
+ * Changeset 47699a09ceb3
+   Rework the whole hook system.  Hook handler API slightly modified.
+ * Changeset 5e2db25fdb17
+   Rename "hook-message-in" to "hook-post-message-in"
+ * Changeset 246c5d359c97
+   Add "hook-pre-message-in"
+   Incoming messages can be filtered.
+
+  -- Mikael Berthe, 2010-03-20
+
 dev (7)
 
  * Add scr_gettextheight()

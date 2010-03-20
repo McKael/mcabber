@@ -223,7 +223,7 @@ static void main_init_pgp(void)
     pgp_invalid = TRUE;
   } else if (!(pp || pgp_agent)) {
     // Request PGP passphrase
-    pp = typed_passwd = ask_password("PGP passphrase");
+    pp = typed_passwd = ask_password("your PGP passphrase");
   }
   gpg_init(pk, pp);
   // Erase password from the settings array
@@ -238,7 +238,7 @@ static void main_init_pgp(void)
     // Let's check the pasphrase
     int i;
     for (i = 1; retries < 0 || i <= retries; i++) {
-      typed_passwd = ask_password("PGP passphrase"); // Ask again...
+      typed_passwd = ask_password("your PGP passphrase"); // Ask again...
       if (typed_passwd) {
         gpg_set_passphrase(typed_passwd);
         memset(typed_passwd, 0, strlen(typed_passwd));
@@ -391,7 +391,7 @@ int main(int argc, char **argv)
     if (p)
       printf("User JID: %s\n", p);
 
-    pwd = ask_password("Jabber password");
+    pwd = ask_password("your Jabber password");
     settings_set(SETTINGS_TYPE_OPTION, "password", pwd);
     g_free(pwd);
   }

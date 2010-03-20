@@ -232,6 +232,26 @@ void hk_message_in(const char *bjid, const char *resname,
       wmsg = (char*) msg;
   }
 
+#ifdef MODULES_ENABLE
+  {
+    guint h_result;
+    hk_arg_t args[] = {
+      { "jid", bjid },
+      { "resource", resname },
+      { "message", wmsg },
+      { "groupchat", is_groupchat ? "true" : "false" },
+      { NULL, NULL },
+    };
+    h_result = hk_run_handlers(HOOK_PRE_MESSAGE_IN, args);
+    if (h_result == HOOK_HANDLER_RESULT_NO_MORE_HOOK_DROP_DATA) {
+      scr_LogPrint(LPRINT_DEBUG, "Message dropped (hook result).");
+      g_free(bmsg);
+      g_free(mmsg);
+      return;
+    }
+  }
+#endif
+
   // If this user isn't in the roster, we add it
   roster_usr = roster_find(bjid, jidsearch, 0);
   if (!roster_usr) {
@@ -348,7 +368,6 @@ void hk_message_in(const char *bjid, const char *resname,
       { NULL, NULL },
     };
     hk_run_handlers(HOOK_POST_MESSAGE_IN, args);
-    // TODO: check (and use) return value
   }
 #endif
 

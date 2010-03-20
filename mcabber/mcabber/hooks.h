@@ -14,7 +14,7 @@
 #include <glib.h>
 
 // Core hooks
-#define HOOK_MESSAGE_IN         "hook-message-in"
+#define HOOK_POST_MESSAGE_IN    "hook-post-message-in"
 #define HOOK_MESSAGE_OUT        "hook-message-out"
 #define HOOK_STATUS_CHANGE      "hook-status-change"
 #define HOOK_MY_STATUS_CHANGE   "hook-my-status-change"

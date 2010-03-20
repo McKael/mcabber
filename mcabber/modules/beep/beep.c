@@ -98,7 +98,7 @@ static void beep_init (void)
 	/* Add handler
 	 * We are only interested in incoming message events
 	 */
-	beep_hid = hk_add_handler (beep_hh, HOOK_MESSAGE_IN,
+	beep_hid = hk_add_handler (beep_hh, HOOK_POST_MESSAGE_IN,
 				   G_PRIORITY_DEFAULT_IDLE, NULL);
 }
 
@@ -106,7 +106,7 @@ static void beep_init (void)
 static void beep_uninit (void)
 {
 	/* Unregister event handler */
-	hk_del_handler (HOOK_MESSAGE_IN, beep_hid);
+	hk_del_handler (HOOK_POST_MESSAGE_IN, beep_hid);
 	/* Unregister command */
 	cmd_del ("beep");
 	/* Give back completion handle */

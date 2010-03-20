@@ -347,7 +347,7 @@ void hk_message_in(const char *bjid, const char *resname,
       { "urgent", urgent ? "true" : "false" },
       { NULL, NULL },
     };
-    hk_run_handlers(HOOK_MESSAGE_IN, args);
+    hk_run_handlers(HOOK_POST_MESSAGE_IN, args);
     // TODO: check (and use) return value
   }
 #endif

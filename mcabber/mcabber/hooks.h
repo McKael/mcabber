@@ -13,23 +13,32 @@
 #ifdef MODULES_ENABLE
 #include <glib.h>
 
-#define HOOK_MESSAGE_IN       ( 0x00000001 )
-#define HOOK_MESSAGE_OUT      ( 0x00000002 )
-#define HOOK_STATUS_CHANGE    ( 0x00000004 )
-#define HOOK_MY_STATUS_CHANGE ( 0x00000008 )
-#define HOOK_POST_CONNECT     ( 0x00000010 )
-#define HOOK_PRE_DISCONNECT   ( 0x00000020 )
-#define HOOK_INTERNAL         ( HOOK_POST_CONNECT | HOOK_PRE_DISCONNECT )
+// Core hooks
+#define HOOK_MESSAGE_IN         "hook-message-in"
+#define HOOK_MESSAGE_OUT        "hook-message-out"
+#define HOOK_STATUS_CHANGE      "hook-status-change"
+#define HOOK_MY_STATUS_CHANGE   "hook-my-status-change"
+#define HOOK_POST_CONNECT       "hook-post-connect"
+#define HOOK_PRE_DISCONNECT     "hook-pre-disconnect"
+
+typedef enum {
+  HOOK_HANDLER_RESULT_ALLOW_MORE_HOOKS = 0,
+  HOOK_HANDLER_RESULT_NO_MORE_HOOK,
+  HOOK_HANDLER_RESULT_NO_MORE_HOOK_DROP_DATA,
+} hk_handler_result;
 
 typedef struct {
   const char *name;
   const char *value;
 } hk_arg_t;
 
-typedef void (*hk_handler_t) (guint32 flags, hk_arg_t *args, gpointer userdata);
+typedef guint (*hk_handler_t) (const gchar *hookname, hk_arg_t *args,
+                               gpointer userdata);
 
-void hk_add_handler(hk_handler_t handler, guint32 flags, gpointer userdata);
-void hk_del_handler(hk_handler_t handler, gpointer userdata);
+guint hk_add_handler(hk_handler_t handler, const gchar *hookname,
+                     gint priority, gpointer userdata);
+void  hk_del_handler(const gchar *hookname, guint hid);
+guint hk_run_handlers(const gchar *hookname, hk_arg_t *args);
 #endif
 
 void hk_message_in(const char *bjid, const char *resname,

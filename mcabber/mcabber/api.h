@@ -3,8 +3,8 @@
 
 #include <mcabber/config.h> // For MCABBER_BRANCH
 
-#define MCABBER_API_VERSION 7
-#define MCABBER_API_MIN     4
+#define MCABBER_API_VERSION 8
+#define MCABBER_API_MIN     8
 
 extern const gchar *mcabber_branch;
 extern const guint mcabber_api_version;

@@ -41,38 +41,139 @@
 
 typedef struct {
   hk_handler_t handler;
-  guint32      flags;
-  gpointer     userdata;
+  gint      priority;
+  gpointer  userdata;
+  guint     hid;
 } hook_list_data_t;
 
-static GSList *hk_handler_queue = NULL;
+static GHashTable *hk_handler_hash = NULL;
 
-void hk_add_handler(hk_handler_t handler, guint32 flags, gpointer userdata)
+//  _new_hook_id()
+// Return a unique Hook Id
+static guint _new_hook_id(void)
 {
-  hook_list_data_t *h = g_new(hook_list_data_t, 1);
-  h->handler  = handler;
-  h->flags    = flags;
-  h->userdata = userdata;
-  hk_handler_queue = g_slist_append(hk_handler_queue, h);
+  static guint hidcounter;
+
+  return ++hidcounter;
 }
 
-static gint hk_queue_search_cb(hook_list_data_t *a, hook_list_data_t *b)
+//  _new_hook_queue(hookname)
+// Create a new hash table entry with a GSList pointer for the specified hook
+static GSList **_new_hook_queue(const gchar *hookname)
 {
-  if (a->handler == b->handler && a->userdata == b->userdata)
-    return 0;
-  else
+  GSList **p;
+  // Create the hash table if needed.
+  if (!hk_handler_hash) {
+    hk_handler_hash = g_hash_table_new_full(&g_str_hash, &g_str_equal,
+                                            &g_free, &g_free);
+    if (!hk_handler_hash) {
+      scr_log_print(LPRINT_LOGNORM, "Couldn't create hook hash table!");
+      return NULL;
+    }
+  }
+
+  // Add a queue for the requested hook
+  p = g_new(GSList*, 1);
+  *p = NULL;
+  g_hash_table_insert(hk_handler_hash, g_strdup(hookname), p);
+
+  return p;
+}
+
+static gint _hk_compare_prio(hook_list_data_t *a, hook_list_data_t *b)
+{
+  if (a->priority > b->priority)
     return 1;
+  return 0;
 }
 
-void hk_del_handler(hk_handler_t handler, gpointer userdata)
+//  hk_add_handler(handler, hookname, priority, userdata)
+// Create a hook handler and a hook hash entry if needed.
+// Return the handler id.
+guint hk_add_handler(hk_handler_t handler, const gchar *hookname,
+                     gint priority, gpointer userdata)
 {
-  hook_list_data_t h = { handler, 0, userdata };
-  GSList *el = g_slist_find_custom(hk_handler_queue, &h,
-                                   (GCompareFunc) hk_queue_search_cb);
+  GSList **hqueue = NULL;
+  hook_list_data_t *h = g_new(hook_list_data_t, 1);
+
+  h->handler  = handler;
+  h->priority = priority;
+  h->userdata = userdata;
+  h->hid      = _new_hook_id();
+
+  if (hk_handler_hash)
+    hqueue = g_hash_table_lookup(hk_handler_hash, hookname);
+
+  if (!hqueue)
+    hqueue = _new_hook_queue(hookname);
+
+  if (!hqueue)
+    return 0;
+
+  *hqueue = g_slist_insert_sorted(*hqueue, h, (GCompareFunc)_hk_compare_prio);
+
+  return h->hid;
+}
+
+static gint _hk_queue_search_cb(hook_list_data_t *a, guint *hid)
+{
+  if (a->hid == *hid)
+    return 0;
+  return 1;
+}
+
+//  hk_del_handler(hookname, hook_id)
+// Remove the handler with specified hook id from the hookname queue.
+// The hash entry is removed if the queue is empty.
+void hk_del_handler(const gchar *hookname, guint hid)
+{
+  GSList **hqueue;
+  GSList *el;
+
+  if (!hid)
+    return;
+
+  hqueue = g_hash_table_lookup(hk_handler_hash, hookname);
+
+  if (!hqueue) {
+    scr_log_print(LPRINT_LOGNORM, "*ERROR*: Couldn't remove hook handler!");
+    return;
+  }
+
+  el = g_slist_find_custom(*hqueue, &hid,
+                           (GCompareFunc)_hk_queue_search_cb);
   if (el) {
     g_free(el->data);
-    hk_handler_queue = g_slist_delete_link(hk_handler_queue, el);
+    *hqueue = g_slist_delete_link(*hqueue, el);
+    // Remove hook hash table entry if the hook queue is empty
+    if (!*hqueue)
+      g_hash_table_remove(hk_handler_hash, hookname);
   }
+}
+
+//  hk_run_handlers(hookname, args)
+// Process all hooks for the "hookname" event.
+// Note that the processing is interrupted as soon as one of the handlers
+// do not return HOOK_HANDLER_RESULT_ALLOW_MORE_HOOKS (i.e. 0).
+guint hk_run_handlers(const gchar *hookname, hk_arg_t *args)
+{
+  GSList **hqueue;
+  GSList *h;
+  guint ret = 0;
+
+  if (!hk_handler_hash)
+    return 0;
+
+  hqueue = g_hash_table_lookup(hk_handler_hash, hookname);
+  if (!hqueue)
+    return 0; // Should we use a special code?
+
+  for (h = *hqueue; h; h = g_slist_next(h)) {
+    hook_list_data_t *data = h->data;
+    ret = (data->handler)(hookname, args, data->userdata);
+    if (ret) break;
+  }
+  return ret;
 }
 #endif
 
@@ -238,26 +339,16 @@ void hk_message_in(const char *bjid, const char *resname,
 
 #ifdef MODULES_ENABLE
   {
-    GSList *h = hk_handler_queue;
-    if (h) {
-      // We can use a const array for keys/static values, so modules
-      // can do fast known to them args check by just comparing pointers...
-      hk_arg_t args[] = {
-        { "hook", "hook-message-in" },
-        { "jid", bjid },
-        { "resource", resname },
-        { "message", wmsg },
-        { "groupchat", is_groupchat ? "true" : "false" },
-        { "urgent", urgent ? "true" : "false" },
-        { NULL, NULL },
-      };
-      while (h) {
-        hook_list_data_t *data = h->data;
-        if (data->flags & HOOK_MESSAGE_IN)
-          (data->handler) (HOOK_MESSAGE_IN, args, data->userdata);
-        h = g_slist_next(h);
-      }
-    }
+    hk_arg_t args[] = {
+      { "jid", bjid },
+      { "resource", resname },
+      { "message", wmsg },
+      { "groupchat", is_groupchat ? "true" : "false" },
+      { "urgent", urgent ? "true" : "false" },
+      { NULL, NULL },
+    };
+    hk_run_handlers(HOOK_MESSAGE_IN, args);
+    // TODO: check (and use) return value
   }
 #endif
 
@@ -342,21 +433,13 @@ void hk_message_out(const char *bjid, const char *nick,
 
 #ifdef MODULES_ENABLE
   {
-    GSList *h = hk_handler_queue;
-    if (h) {
-      hk_arg_t args[] = {
-        { "hook", "hook-message-out" },
-        { "jid", bjid },
-        { "message", wmsg },
-        { NULL, NULL },
-      };
-      while (h) {
-        hook_list_data_t *data = h->data;
-        if (data->flags & HOOK_MESSAGE_OUT)
-          (data->handler) (HOOK_MESSAGE_OUT, args, data->userdata);
-        h = g_slist_next(h);
-      }
-    }
+    hk_arg_t args[] = {
+      { "jid", bjid },
+      { "message", wmsg },
+      { NULL, NULL },
+    };
+    hk_run_handlers(HOOK_MESSAGE_OUT, args);
+    // TODO: check (and use) return value
   }
 #endif
 
@@ -433,28 +516,20 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
 
 #ifdef MODULES_ENABLE
   {
-    GSList *h = hk_handler_queue;
-    if (h) {
-      char os[2] = " \0";
-      char ns[2] = " \0";
-      hk_arg_t args[] = {
-        { "hook", "hook-status-change" },
-        { "jid", bjid },
-        { "resource", rn },
-        { "old_status", os },
-        { "new_status", ns },
-        { "message", status_msg ? status_msg : "" },
-        { NULL, NULL },
-      };
-      os[0] = imstatus2char[oldstat];
-      ns[0] = imstatus2char[status];
-      while (h) {
-        hook_list_data_t *data = h->data;
-        if (data->flags & HOOK_STATUS_CHANGE)
-          (data->handler) (HOOK_STATUS_CHANGE, args, data->userdata);
-        h = g_slist_next(h);
-      }
-    }
+    char os[2] = " \0";
+    char ns[2] = " \0";
+    hk_arg_t args[] = {
+      { "jid", bjid },
+      { "resource", rn },
+      { "old_status", os },
+      { "new_status", ns },
+      { "message", status_msg ? status_msg : "" },
+      { NULL, NULL },
+    };
+    os[0] = imstatus2char[oldstat];
+    ns[0] = imstatus2char[status];
+
+    hk_run_handlers(HOOK_STATUS_CHANGE, args);
   }
 #endif
 
@@ -471,23 +546,15 @@ void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
 
 #ifdef MODULES_ENABLE
   {
-    GSList *h = hk_handler_queue;
-    if (h) {
-      char ns[2] = " \0";
-      hk_arg_t args[] = {
-        { "hook", "hook-my-status-change" },
-        { "new_status", ns },
-        { "message", msg ? msg : "" },
-        { NULL, NULL },
-      };
-      ns[0] = imstatus2char[new_status];
-      while (h) {
-        hook_list_data_t *data = h->data;
-        if (data->flags & HOOK_MY_STATUS_CHANGE)
-          (data->handler) (HOOK_MY_STATUS_CHANGE, args, data->userdata);
-        h = g_slist_next(h);
-      }
-    }
+    char ns[2] = " \0";
+    hk_arg_t args[] = {
+      { "new_status", ns },
+      { "message", msg ? msg : "" },
+      { NULL, NULL },
+    };
+    ns[0] = imstatus2char[new_status];
+
+    hk_run_handlers(HOOK_MY_STATUS_CHANGE, args);
   }
 #endif
 
@@ -501,19 +568,10 @@ void hk_postconnect(void)
 
 #ifdef MODULES_ENABLE
   {
-    GSList *h = hk_handler_queue;
-    if (h) {
-      hk_arg_t args[] = {
-        { "hook", "hook-post-connect" },
-        { NULL, NULL },
-      };
-      while (h) {
-        hook_list_data_t *data = h->data;
-        if (data->flags & HOOK_POST_CONNECT)
-          (data->handler) (HOOK_POST_CONNECT, args, data->userdata);
-        h = g_slist_next(h);
-      }
-    }
+    hk_arg_t args[] = {
+      { NULL, NULL },
+    };
+    hk_run_handlers(HOOK_POST_CONNECT, args);
   }
 #endif
 
@@ -537,19 +595,10 @@ void hk_predisconnect(void)
 
 #ifdef MODULES_ENABLE
   {
-    GSList *h = hk_handler_queue;
-    if (h) {
-      hk_arg_t args[] = {
-        { "hook", "hook-pre-disconnect" },
-        { NULL, NULL },
-      };
-      while (h) {
-        hook_list_data_t *data = h->data;
-        if (data->flags & HOOK_PRE_DISCONNECT)
-          (data->handler) (HOOK_PRE_DISCONNECT, args, data->userdata);
-        h = g_slist_next(h);
-      }
-    }
+    hk_arg_t args[] = {
+      { NULL, NULL },
+    };
+    hk_run_handlers(HOOK_PRE_DISCONNECT, args);
   }
 #endif
 

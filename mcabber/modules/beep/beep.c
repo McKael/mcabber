@@ -45,14 +45,15 @@ module_info_t info_beep = {
 };
 
 static guint beep_cid = 0;
+static guint beep_hid;
 
 /* Event handler */
-static void beep_hh (guint32 hid, hk_arg_t *args, gpointer userdata)
+static guint beep_hh (const gchar *hookname, hk_arg_t *args, gpointer userdata)
 {
 	/* Check if beeping is enabled */
 	if (settings_opt_get_int ("beep_enable"))
-		/* *BEEP*! */
-		scr_beep ();
+		scr_beep (); /* *BEEP*! */
+	return HOOK_HANDLER_RESULT_ALLOW_MORE_HOOKS;
 }
 
 /* beep command handler */
@@ -97,14 +98,15 @@ static void beep_init (void)
 	/* Add handler
 	 * We are only interested in incoming message events
 	 */
-	hk_add_handler (beep_hh, HOOK_MESSAGE_IN, NULL);
+	beep_hid = hk_add_handler (beep_hh, HOOK_MESSAGE_IN,
+				   G_PRIORITY_DEFAULT_IDLE, NULL);
 }
 
 /* Deinitialization */
 static void beep_uninit (void)
 {
 	/* Unregister event handler */
-	hk_del_handler (beep_hh, NULL);
+	hk_del_handler (HOOK_MESSAGE_IN, beep_hid);
 	/* Unregister command */
 	cmd_del ("beep");
 	/* Give back completion handle */

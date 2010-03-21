@@ -357,6 +357,11 @@ GSList *roster_add_group(const char *name)
   return p_group;
 }
 
+// Comparison function used to sort the unread list by ui (attn) priority
+static gint _roster_compare_uiprio(roster *a, roster *b) {
+  return (b->ui_prio - a->ui_prio);
+}
+
 // Returns a pointer to the new user, or existing user with that name
 // Note: if onserver is -1, the flag won't be changed.
 GSList *roster_add_user(const char *jid, const char *name, const char *group,
@@ -416,7 +421,8 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
   if (unread_jid_del(jid)) {
     roster_usr->flags |= ROSTER_FLAG_MSG;
     // Append the roster_usr to unread_list
-    unread_list = g_slist_append(unread_list, roster_usr);
+    unread_list = g_slist_insert_sorted(unread_list, roster_usr,
+                                        (GCompareFunc)&_roster_compare_uiprio);
   }
   roster_usr->type = type;
   roster_usr->subscription = esub;
@@ -606,7 +612,8 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
       roster_usr->flags |= ROSTER_FLAG_MSG;
       // Append the roster_usr to unread_list, but avoid duplicates
       if (!g_slist_find(unread_list, roster_usr))
-        unread_list = g_slist_append(unread_list, roster_usr);
+        unread_list = g_slist_insert_sorted(unread_list, roster_usr,
+                                        (GCompareFunc)&_roster_compare_uiprio);
     } else {
       if (roster_usr->flags & ROSTER_FLAG_MSG)
         unread_list_modified = TRUE;
@@ -640,7 +647,8 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
     roster_grp->flags |= ROSTER_FLAG_MSG; // group
     // Append the roster_usr to unread_list, but avoid duplicates
     if (!g_slist_find(unread_list, roster_usr))
-      unread_list = g_slist_append(unread_list, roster_usr);
+      unread_list = g_slist_insert_sorted(unread_list, roster_usr,
+                                      (GCompareFunc)&_roster_compare_uiprio);
   } else {
     // Message flag is FALSE.
     guint msg = FALSE;
@@ -715,6 +723,8 @@ void roster_setuiprio(const char *jid, guint special, guint value,
     newval = value;
 
   roster_usr->ui_prio = newval;
+  unread_list = g_slist_sort(unread_list,
+                             (GCompareFunc)&_roster_compare_uiprio);
 }
 
 guint roster_getuiprio(const char *jid, guint special)

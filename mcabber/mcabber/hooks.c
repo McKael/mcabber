@@ -196,7 +196,7 @@ void hk_message_in(const char *bjid, const char *resname,
   GSList *roster_usr;
   unsigned mucnicklen = 0;
   const char *ename = NULL;
-  gboolean attention = FALSE;
+  gboolean attention = FALSE, mucprivmsg = FALSE;
 
   if (encrypted == ENCRYPTED_PGP)
     message_flags |= HBB_PREFIX_PGPCRYPT;
@@ -283,6 +283,7 @@ void hk_message_in(const char *bjid, const char *resname,
           g_free(mmsg);
           wmsg = mmsg = g_strdup_printf("PRIV#*%s %s", resname, msg+4);
         }
+        mucprivmsg = TRUE;
       }
       message_flags |= HBB_PREFIX_HLIGHT;
     } else {
@@ -331,6 +332,20 @@ void hk_message_in(const char *bjid, const char *resname,
   // cases scr_write_incoming_message() will load the history and we'd
   // have the message twice...
   scr_write_incoming_message(bjid, wmsg, timestamp, message_flags, mucnicklen);
+
+  // Set urgent (a.k.a. "attention") flag
+  {
+    guint uip;
+    if (is_groupchat) {
+      if (mucprivmsg)     uip = ROSTER_UI_PRIO_MUC_PRIV_MESSAGE;
+      else if (attention) uip = ROSTER_UI_PRIO_MUC_HL_MESSAGE;
+      else                uip = ROSTER_UI_PRIO_MUC_MESSAGE;
+    } else {
+      if (attention) uip = ROSTER_UI_PRIO_ATTENTION_MESSAGE;
+      else           uip = ROSTER_UI_PRIO_PRIVATE_MESSAGE;
+    }
+    scr_setattentionflag_if_needed(bjid, FALSE, uip, prio_max);
+  }
 
   // We don't log the modified message, but the original one
   if (wmsg == mmsg)

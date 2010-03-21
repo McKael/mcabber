@@ -1,3 +1,19 @@
+dev (10)
+
+ * Add "hook-unread-list-change"
+ * Changeset 9daf6b3f30d6
+
+  -- Mikael Berthe, 2010-03-21
+
+dev (9)
+
+ * Add roster UI priority
+   roster_setuiprio(), roster_getuiprio(), buddy_getuiprio(),
+   scr_setattentionflag_if_needed()
+ * Changeset b135572fcd26
+
+  -- Mikael Berthe, 2010-03-21
+
 dev (8)
 
  * Changeset 47699a09ceb3

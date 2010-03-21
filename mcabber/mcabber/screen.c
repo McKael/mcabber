@@ -73,6 +73,10 @@ const char *LocaleCharSet = "C";
 static unsigned short int Log_Win_Height;
 static unsigned short int Roster_Width;
 
+// Default attention sign trigger levels
+static guint ui_attn_sign_prio_level_muc = ROSTER_UI_PRIO_MUC_HL_MESSAGE;
+static guint ui_attn_sign_prio_level     = ROSTER_UI_PRIO_ATTENTION_MESSAGE;
+
 static inline void check_offset(int);
 static void scr_cancel_current_completion(void);
 static void scr_end_current_completion(void);
@@ -1911,7 +1915,9 @@ void scr_draw_roster(void)
   rOffset = offset;
 
   for (i=0; i<maxy && buddy; buddy = g_list_next(buddy)) {
-    unsigned short bflags, btype, ismsg, isgrp, ismuc, ishid, isspe;
+    unsigned short bflags, btype;
+    unsigned short ismsg, isgrp, ismuc, ishid, isspe;
+    guint isurg;
     gchar *rline_locale;
     GSList *resources, *p_res;
 
@@ -1923,6 +1929,7 @@ void scr_draw_roster(void)
     isgrp = btype  & ROSTER_TYPE_GROUP;
     ismuc = btype  & ROSTER_TYPE_ROOM;
     isspe = btype  & ROSTER_TYPE_SPECIAL;
+    isurg = buddy_getuiprio(BUDDATA(buddy));
 
     if (rOffset > 0) {
       rOffset--;
@@ -1977,10 +1984,10 @@ void scr_draw_roster(void)
         int color = get_color(COLOR_ROSTER);
         if ((!isspe) && (!isgrp)) { // Look for color rules
           GSList *head;
-          const char *jid = buddy_getjid(BUDDATA(buddy));
+          const char *bjid = buddy_getjid(BUDDATA(buddy));
           for (head = rostercolrules; head; head = g_slist_next(head)) {
             rostercolor *rc = head->data;
-            if (g_pattern_match_string(rc->compiled, jid) &&
+            if (g_pattern_match_string(rc->compiled, bjid) &&
                 (!strcmp("*", rc->status) || strchr(rc->status, status))) {
               color = compose_color(rc->color);
               break;
@@ -1995,6 +2002,13 @@ void scr_draw_roster(void)
       g_utf8_strncpy(name, buddy_getname(BUDDATA(buddy)), Roster_Width-7);
     else
       name[0] = 0;
+
+    if (pending == '#') {
+      // Attention sign?
+      if ((ismuc && isurg >= ui_attn_sign_prio_level_muc) ||
+          (!ismuc && isurg >= ui_attn_sign_prio_level))
+        pending = '!';
+    }
 
     if (isgrp) {
       if (ishid) {

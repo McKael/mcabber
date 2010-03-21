@@ -9,6 +9,14 @@
 
 #define SPECIAL_BUFFER_STATUS_ID  "[status]"
 
+// Default UI priorities
+#define ROSTER_UI_PRIO_MUC_MESSAGE        20
+#define ROSTER_UI_PRIO_MUC_HL_MESSAGE     30
+#define ROSTER_UI_PRIO_MUC_PRIV_MESSAGE   40
+#define ROSTER_UI_PRIO_PRIVATE_MESSAGE    50
+#define ROSTER_UI_PRIO_ATTENTION_MESSAGE  100
+#define ROSTER_UI_PRIO_STATUS_WIN_MESSAGE 500
+
 enum imstatus {
     offline,
     available,
@@ -55,6 +63,12 @@ enum subscr {
 enum findwhat {
   jidsearch,
   namesearch
+};
+
+enum setuiprio_ops {
+  prio_set, // Set priority
+  prio_max, // Set priority to max(specified, current)
+  prio_inc, // Increment priority
 };
 
 extern char *strprintstatus[];
@@ -166,6 +180,9 @@ void    roster_setstatus(const char *jid, const char *resname, gchar prio,
                          const char *realjid);
 void    roster_setflags(const char *jid, guint flags, guint value);
 void    roster_msg_setflag(const char *jid, guint special, guint value);
+void    roster_setuiprio(const char *jid, guint special, guint value,
+                         enum setuiprio_ops action);
+guint   roster_getuiprio(const char *jid, guint special);
 const char *roster_getname(const char *jid);
 const char *roster_getnickname(const char *jid);
 void    roster_settype(const char *jid, guint type);
@@ -226,6 +243,7 @@ const char *buddy_getrjid(gpointer rosterdata, const char *resname);
 void    buddy_del_all_resources(gpointer rosterdata);
 void    buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint   buddy_getflags(gpointer rosterdata);
+guint   buddy_getuiprio(gpointer rosterdata);
 void    buddy_setonserverflag(gpointer rosterdata, guint onserver);
 guint   buddy_getonserverflag(gpointer rosterdata);
 GList  *buddy_search_jid(const char *jid);

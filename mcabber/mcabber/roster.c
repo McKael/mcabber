@@ -103,6 +103,7 @@ typedef struct {
 
   /* Flag used for the UI */
   guint flags;
+  guint ui_prio;  // Boolean, positive if "attention" is requested
 
   // list: user -> points to his group; group -> points to its users list
   GSList *list;
@@ -610,6 +611,7 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
       if (roster_usr->flags & ROSTER_FLAG_MSG)
         unread_list_modified = TRUE;
       roster_usr->flags &= ~ROSTER_FLAG_MSG;
+      roster_usr->ui_prio = 0;
       if (unread_list) {
         GSList *node = g_slist_find(unread_list, roster_usr);
         if (node)
@@ -645,6 +647,7 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
     if (roster_usr->flags & ROSTER_FLAG_MSG)
       unread_list_modified = TRUE;
     roster_usr->flags &= ~ROSTER_FLAG_MSG;
+    roster_usr->ui_prio = 0;
     if (unread_list) {
       GSList *node = g_slist_find(unread_list, roster_usr);
       if (node)
@@ -681,6 +684,55 @@ roster_msg_setflag_return:
     /* Call external command */
     hk_ext_cmd("", 'U', (guchar)MIN(255, unread_count), NULL);
   }
+}
+
+//  roster_setuiprio(jid, special, prio_value, action)
+// Set the "attention" priority value for the given roster item.
+// Note that this function doesn't create the roster item if it doesn't exist.
+void roster_setuiprio(const char *jid, guint special, guint value,
+                      enum setuiprio_ops action)
+{
+  guint oldval, newval;
+  roster *roster_usr;
+
+  if (special) {
+    roster_usr = &roster_special;
+  } else {
+    GSList *sl_user = roster_find(jid, jidsearch,
+                        ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
+    if (!sl_user)
+      return;
+
+    roster_usr = (roster*)sl_user->data;
+  }
+  oldval = roster_usr->ui_prio;
+
+  if (action == prio_max)
+    newval = MAX(oldval, value);
+  else if (action == prio_inc)
+    newval = oldval + value;
+  else // prio_set
+    newval = value;
+
+  roster_usr->ui_prio = newval;
+}
+
+guint roster_getuiprio(const char *jid, guint special)
+{
+  roster *roster_usr;
+  GSList *sl_user;
+
+  if (special) {
+    roster_usr = &roster_special;
+    return roster_usr->ui_prio;
+  }
+
+  sl_user = roster_find(jid, jidsearch,
+                        ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
+  if (!sl_user)
+    return 0;
+  roster_usr = (roster*)sl_user->data;
+  return roster_usr->ui_prio;
 }
 
 const char *roster_getname(const char *jid)
@@ -1392,6 +1444,12 @@ guint buddy_getflags(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->flags;
+}
+
+guint buddy_getuiprio(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->ui_prio;
 }
 
 //  buddy_setonserverflag()

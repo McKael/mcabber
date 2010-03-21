@@ -2926,6 +2926,41 @@ void scr_setmsgflag_if_needed(const char *bjid, int special)
     roster_msg_setflag(bjid, special, TRUE);
 }
 
+//  scr_setattentionflag_if_needed(bare_jid, special, value, action)
+// Set the attention flag unless we're already in the jid buffer window
+// TODO: avoid code duplication with scr_setmsgflag_if_needed()
+void scr_setattentionflag_if_needed(const char *bjid, int special,
+                                    guint value, enum setuiprio_ops action)
+{
+  const char *current_id;
+  winbuf *wb;
+  bool iscurrentlocked = FALSE;
+
+  if (!bjid)
+    return;
+
+  wb = scr_search_window(bjid, special);
+  if (!wb)
+    return;
+
+  if (current_buddy) {
+    if (special)
+      current_id = buddy_getname(BUDDATA(current_buddy));
+    else
+      current_id = buddy_getjid(BUDDATA(current_buddy));
+    if (current_id) {
+      winbuf *win_entry = scr_search_window(current_id, special);
+      if (!win_entry) return;
+      iscurrentlocked = win_entry->bd->lock;
+    }
+  } else {
+    current_id = NULL;
+  }
+
+  if (!chatmode || !current_id || strcmp(bjid, current_id) || iscurrentlocked)
+    roster_setuiprio(bjid, special, value, action);
+}
+
 //  scr_set_multimode()
 // Public function to (un)set multimode...
 // Convention:

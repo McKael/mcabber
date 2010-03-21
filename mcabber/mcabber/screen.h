@@ -116,6 +116,8 @@ int  scr_get_chatmode(void);
 void scr_set_multimode(int enable, char *subject);
 int  scr_get_multimode(void);
 void scr_setmsgflag_if_needed(const char *jid, int special);
+void scr_setattentionflag_if_needed(const char *bjid, int special,
+                                    guint value, enum setuiprio_ops action);
 void scr_append_multiline(const char *line);
 const char *scr_get_multiline(void);
 const char *scr_get_multimode_subj(void);

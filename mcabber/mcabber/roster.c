@@ -687,8 +687,57 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
 
 roster_msg_setflag_return:
   if (unread_list_modified) {
-    guint unread_count = g_slist_length(unread_list);
+    guint unread_count;
     hlog_save_state();
+
+#ifdef MODULES_ENABLE
+    {
+      gpointer unread_ptr, first_unread;
+      guint muc_unread = 0, muc_attention = 0;
+      guint attention_count = 0;
+      unread_count = 0;
+
+      unread_ptr = first_unread = unread_msg(NULL);
+      if (first_unread) {
+        do {
+          guint type = buddy_gettype(unread_ptr);
+          unread_count++;
+
+          if (type & ROSTER_TYPE_ROOM) {
+            muc_unread++;
+            if (buddy_getuiprio(unread_ptr) >= ROSTER_UI_PRIO_MUC_HL_MESSAGE)
+                muc_attention++;
+          } else {
+            if (buddy_getuiprio(unread_ptr) >= ROSTER_UI_PRIO_ATTENTION_MESSAGE)
+              attention_count++;
+          }
+          unread_ptr = unread_msg(unread_ptr);
+        } while (unread_ptr && unread_ptr != first_unread);
+      }
+
+      {
+        gchar *str_unread = g_strdup_printf("%u", unread_count);
+        gchar *str_attention = g_strdup_printf("%u", attention_count);
+        gchar *str_muc_unread = g_strdup_printf("%u", muc_unread);
+        gchar *str_muc_attention = g_strdup_printf("%u", muc_attention);
+        hk_arg_t args[] = {
+          { "unread", str_unread },               // All unread
+          { "attention", str_attention },         // Attention (private)
+          { "muc_unread", str_muc_unread },       // MUC unread
+          { "muc_attention", str_muc_attention }, // MUC attention (highlight)
+          { NULL, NULL },
+        };
+        hk_run_handlers(HOOK_UNREAD_LIST_CHANGE, args);
+        g_free(str_unread);
+        g_free(str_attention);
+        g_free(str_muc_unread);
+        g_free(str_muc_attention);
+      }
+    }
+#else
+    unread_count = g_slist_length(unread_list);
+#endif
+
     /* Call external command */
     hk_ext_cmd("", 'U', (guchar)MIN(255, unread_count), NULL);
   }

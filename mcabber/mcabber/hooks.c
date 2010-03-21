@@ -337,12 +337,12 @@ void hk_message_in(const char *bjid, const char *resname,
   {
     guint uip;
     if (is_groupchat) {
-      if (mucprivmsg)     uip = ROSTER_UI_PRIO_MUC_PRIV_MESSAGE;
-      else if (attention) uip = ROSTER_UI_PRIO_MUC_HL_MESSAGE;
+      if (attention)      uip = ROSTER_UI_PRIO_MUC_HL_MESSAGE;
       else                uip = ROSTER_UI_PRIO_MUC_MESSAGE;
     } else {
-      if (attention) uip = ROSTER_UI_PRIO_ATTENTION_MESSAGE;
-      else           uip = ROSTER_UI_PRIO_PRIVATE_MESSAGE;
+      if (mucprivmsg)     uip = ROSTER_UI_PRIO_MUC_PRIV_MESSAGE;
+      else if (attention) uip = ROSTER_UI_PRIO_ATTENTION_MESSAGE;
+      else                uip = ROSTER_UI_PRIO_PRIVATE_MESSAGE;
     }
     scr_setattentionflag_if_needed(bjid, FALSE, uip, prio_max);
   }

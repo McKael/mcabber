@@ -196,7 +196,7 @@ void hk_message_in(const char *bjid, const char *resname,
   GSList *roster_usr;
   unsigned mucnicklen = 0;
   const char *ename = NULL;
-  gboolean urgent = FALSE;
+  gboolean attention = FALSE;
 
   if (encrypted == ENCRYPTED_PGP)
     message_flags |= HBB_PREFIX_PGPCRYPT;
@@ -313,8 +313,8 @@ void hk_message_in(const char *bjid, const char *resname,
               continue;
             // Check right boundary
             if (!iswalnum(get_char(rightb)) && get_char(rightb) != '_')
-              urgent = TRUE;
-            if (urgent && !settings_opt_get_int("muc_disable_nick_hl"))
+              attention = TRUE;
+            if (attention && !settings_opt_get_int("muc_disable_nick_hl"))
               message_flags |= HBB_PREFIX_HLIGHT;
           }
         }
@@ -364,7 +364,7 @@ void hk_message_in(const char *bjid, const char *resname,
       { "resource", resname },
       { "message", wmsg },
       { "groupchat", is_groupchat ? "true" : "false" },
-      { "urgent", urgent ? "true" : "false" },
+      { "attention", attention ? "true" : "false" },
       { NULL, NULL },
     };
     hk_run_handlers(HOOK_POST_MESSAGE_IN, args);

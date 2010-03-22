@@ -649,6 +649,30 @@ void hk_predisconnect(void)
   g_free(cmdline);
 }
 
+void hk_unread_list_change(guint unread_count, guint attention_count,
+                           guint muc_unread, guint muc_attention)
+{
+#ifdef MODULES_ENABLE
+  gchar *str_unread = g_strdup_printf("%u", unread_count);
+  gchar *str_attention = g_strdup_printf("%u", attention_count);
+  gchar *str_muc_unread = g_strdup_printf("%u", muc_unread);
+  gchar *str_muc_attention = g_strdup_printf("%u", muc_attention);
+  hk_arg_t args[] = {
+    { "unread", str_unread },               // All unread
+    { "attention", str_attention },         // Attention (private)
+    { "muc_unread", str_muc_unread },       // MUC unread
+    { "muc_attention", str_muc_attention }, // MUC attention (highlight)
+    { NULL, NULL },
+  };
+  hk_run_handlers(HOOK_UNREAD_LIST_CHANGE, args);
+  g_free(str_unread);
+  g_free(str_attention);
+  g_free(str_muc_unread);
+  g_free(str_muc_attention);
+#endif
+}
+
+
 /* External commands */
 
 //  hk_ext_cmd_init()

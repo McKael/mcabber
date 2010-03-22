@@ -59,6 +59,9 @@ void hk_mystatuschange(time_t timestamp,
 void hk_postconnect(void);
 void hk_predisconnect(void);
 
+void hk_unread_list_change(guint unread_count, guint attention_count,
+                           guint muc_unread, guint muc_attention);
+
 void hk_ext_cmd_init(const char *command);
 void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data);
 

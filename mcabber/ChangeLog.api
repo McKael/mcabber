@@ -1,3 +1,10 @@
+dev (11)
+
+ * s/ALLOW_MORE_HOOKS/ALLOW_MORE_HANDLERS/ in handler return code
+ * Changeset 1c3efa9bc422
+
+  -- Mikael Berthe, 2010-03-22
+
 dev (10)
 
  * Add "hook-unread-list-change"

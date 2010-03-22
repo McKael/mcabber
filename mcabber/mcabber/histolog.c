@@ -523,6 +523,8 @@ void hlog_load_state(void)
         scr_LogPrint(LPRINT_LOGNORM, "WARNING: unread message from <%s>.",
                      bjid);
         scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+        scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                                 ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
       }
       // Add the JID to unread_jids.  It will be used when the contact is
       // added to the roster.

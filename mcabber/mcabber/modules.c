@@ -394,6 +394,8 @@ void module_info_print(const gchar *name)
       scr_LogPrint(LPRINT_NORMAL, "Description: %s", info->description);
   }
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+  scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                                 ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
   update_roster = TRUE;
 }
 

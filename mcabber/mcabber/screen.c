@@ -2888,6 +2888,8 @@ void scr_buffer_list(void)
   g_hash_table_foreach(winbufhash, buffer_list, NULL);
   scr_LogPrint(LPRINT_NORMAL, "End of buffer list.");
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+  scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                                 ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
   update_roster = TRUE;
 }
 

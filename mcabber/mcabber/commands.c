@@ -625,6 +625,8 @@ static void display_all_annotations(void)
   // with winId = NULL (special window)
   g_slist_foreach(notes, (GFunc)&display_and_free_note, NULL);
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+  scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                                 ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
   update_roster = TRUE;
   g_slist_free(notes);
 }
@@ -2128,6 +2130,8 @@ static void do_set(char *arg)
       }
       g_free(format);
       scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+      scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                                 ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
       update_roster = TRUE;
     } else
       scr_LogPrint(LPRINT_NORMAL, "No options found.");
@@ -2169,6 +2173,8 @@ static void dump_alias(char *k, char *v, void *param)
 {
   scr_LogPrint(LPRINT_NORMAL|LPRINT_NOTUTF8, "Alias %s = %s", k, v);
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+  scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                                 ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
 }
 
 static void do_alias(char *arg)
@@ -2234,6 +2240,8 @@ static void do_bind(char *arg)
   if (!k_code) {
     settings_foreach(SETTINGS_TYPE_BINDING, &dump_bind, NULL);
     scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+    scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                                   ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
     update_roster = TRUE;
     return;
   }
@@ -2982,6 +2990,8 @@ static void display_all_bookmarks(void)
   }
 
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+  scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                                 ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
   update_roster = TRUE;
   g_string_free(sbuf, TRUE);
   g_slist_free(bm);

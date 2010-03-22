@@ -1634,7 +1634,10 @@ static void lm_debug_handler (const gchar    *log_domain,
 }
 
 
-void xmpp_connect(void)
+//  xmpp_connect()
+// Return a non-zero value if there's an obvious problem
+// (no JID, no password, etc.)
+gint xmpp_connect(void)
 {
   const char *userjid, *password, *resource, *servername, *ssl_fpr;
   char *dynresource = NULL;
@@ -1660,11 +1663,11 @@ void xmpp_connect(void)
 
   if (!userjid) {
     scr_LogPrint(LPRINT_LOGNORM, "Your JID has not been specified!");
-    return;
+    return -1;
   }
   if (!password) {
     scr_LogPrint(LPRINT_LOGNORM, "Your password has not been specified!");
-    return;
+    return -1;
   }
 
   lconnection = lm_connection_new_with_context(NULL, main_context);
@@ -1770,13 +1773,13 @@ void xmpp_connect(void)
     if (ssl || tls) {
       scr_LogPrint(LPRINT_LOGNORM, "** Error: SSL is NOT available, "
                    "please recompile loudmouth with SSL enabled.");
-      return;
+      return -1;
     }
   }
 
   if (ssl && tls) {
     scr_LogPrint(LPRINT_LOGNORM, "You can only set ssl or tls, not both.");
-    return;
+    return -1;
   }
 
   if (!port)
@@ -1784,9 +1787,9 @@ void xmpp_connect(void)
   lm_connection_set_port(lconnection, port);
 
   if (ssl_fpr && (!hex_to_fingerprint(ssl_fpr, fpr))) {
-    scr_LogPrint(LPRINT_LOGNORM, "** Plese set the fingerprint in the format "
+    scr_LogPrint(LPRINT_LOGNORM, "** Please set the fingerprint in the format "
                  "97:5C:00:3F:1D:77:45:25:E2:C5:70:EC:83:C8:87:EE");
-    return;
+    return -1;
   }
 
   lssl = lm_ssl_new((ssl_fpr ? fpr : NULL), ssl_cb, NULL, NULL);
@@ -1796,15 +1799,16 @@ void xmpp_connect(void)
     lm_ssl_unref(lssl);
   } else if (ssl || tls) {
     scr_LogPrint(LPRINT_LOGNORM, "** Error: Couldn't create SSL struct.");
-    return;
+    return -1;
   }
 
   if (!lm_connection_open(lconnection, connection_open_cb,
                           NULL, FALSE, &error)) {
     _try_to_reconnect();
     scr_LogPrint(LPRINT_LOGNORM, "Failed to open: %s", error->message);
-    g_error_free (error);
+    g_error_free(error);
   }
+  return 0;
 }
 
 //  insert_entity_capabilities(presence_stanza)

@@ -32,7 +32,7 @@ struct bookmark {
 extern LmConnection* lconnection;
 extern LmSSL* lssl;
 
-void xmpp_connect(void);
+int  xmpp_connect(void);
 void xmpp_disconnect(void);
 gboolean xmpp_is_online(void);
 

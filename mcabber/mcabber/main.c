@@ -445,8 +445,13 @@ int main(int argc, char **argv)
     scr_show_buddy_window();
   } else {
     /* Connection */
-    xmpp_connect();
+    if (xmpp_connect())
+      scr_show_buddy_window();
   }
+
+  // Initial drawing
+  scr_draw_roster();
+  scr_do_update();
 
   { // add keypress processing source
     GSource *mc_source = g_source_new(&mcabber_source_funcs,

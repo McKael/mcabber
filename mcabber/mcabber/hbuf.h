@@ -56,4 +56,4 @@ guint hbuf_get_blocks_number(GList *p_hbuf);
 
 #endif /* __MCABBER_HBUF_H__ */
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0 sw=2 ts=2:  For Vim users... */

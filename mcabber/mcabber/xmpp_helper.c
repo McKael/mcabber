@@ -399,4 +399,4 @@ void display_server_error(LmMessageNode *x, const char *from)
   g_free(sdesc);
 }
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

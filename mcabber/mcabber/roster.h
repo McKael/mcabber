@@ -263,4 +263,4 @@ GSList *compl_list(guint type);
 
 #endif /* __MCABBER_ROSTER_H__ */
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

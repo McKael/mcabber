@@ -748,4 +748,4 @@ void xmpp_request_storage(const gchar *storage)
   lm_message_unref(iq);
 }
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

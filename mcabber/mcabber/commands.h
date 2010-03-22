@@ -34,4 +34,4 @@ void say_cmd(char *arg, int parse_flags);
 
 #endif /* __MCABBER_COMMANDS_H__ */
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0 sw=2 ts=2:  For Vim users... */

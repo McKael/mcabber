@@ -32,4 +32,4 @@ void send_iq_error(LmConnection *c, LmMessage *m, guint error);
 
 #endif /* __MCABBER_XMPP_IQ_H__ */
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

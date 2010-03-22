@@ -843,4 +843,4 @@ LmHandlerResult handle_iq_vcard(LmMessageHandler *h, LmConnection *c,
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

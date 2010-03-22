@@ -2269,4 +2269,4 @@ void xmpp_set_storage_rosternotes(const char *barejid, const char *note)
                  "Warning: you're not connected to the server.");
 }
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

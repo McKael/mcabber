@@ -435,4 +435,4 @@ void modules_deinit(void)
   }
 }
 
-/* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0 sw=2 ts=2:  For Vim users... */

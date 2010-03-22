@@ -39,4 +39,4 @@ int  otr_enabled    (void);
 
 #endif /* __MCABBER_OTR_H__ */
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

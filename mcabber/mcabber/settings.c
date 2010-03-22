@@ -648,4 +648,4 @@ guint get_max_history_blocks(void)
   return (guint)max_num_of_blocks;
 }
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

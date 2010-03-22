@@ -769,4 +769,4 @@ void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data)
   g_free(datafname);
 }
 
-/* vim: set expandtab cindent cinoptions=>2\:2(0:  For Vim users... */
+/* vim: set expandtab cindent cinoptions=>2\:2(0 sw=2 ts=2:  For Vim users... */

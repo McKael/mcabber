@@ -243,7 +243,7 @@ void hk_message_in(const char *bjid, const char *resname,
       { NULL, NULL },
     };
     h_result = hk_run_handlers(HOOK_PRE_MESSAGE_IN, args);
-    if (h_result == HOOK_HANDLER_RESULT_NO_MORE_HOOK_DROP_DATA) {
+    if (h_result == HOOK_HANDLER_RESULT_NO_MORE_HANDLER_DROP_DATA) {
       scr_LogPrint(LPRINT_DEBUG, "Message dropped (hook result).");
       g_free(bmsg);
       g_free(mmsg);

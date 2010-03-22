@@ -485,9 +485,9 @@ gboolean hbuf_remove_receipt(GList *hbuf, gpointer xep184)
 {
   hbuf_block *blk;
 
-  hbuf = g_list_first(hbuf);
+  hbuf = g_list_last(hbuf);
 
-  for ( ; hbuf; hbuf = g_list_next(hbuf)) {
+  for ( ; hbuf; hbuf = g_list_previous(hbuf)) {
     blk = (hbuf_block*)(hbuf->data);
     if (blk->prefix.xep184 == xep184) {
       blk->prefix.xep184 = NULL;

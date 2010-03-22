@@ -53,7 +53,7 @@ static guint beep_hh (const gchar *hookname, hk_arg_t *args, gpointer userdata)
 	/* Check if beeping is enabled */
 	if (settings_opt_get_int ("beep_enable"))
 		scr_beep (); /* *BEEP*! */
-	return HOOK_HANDLER_RESULT_ALLOW_MORE_HOOKS;
+	return HOOK_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
 }
 
 /* beep command handler */

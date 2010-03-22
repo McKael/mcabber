@@ -154,7 +154,7 @@ void hk_del_handler(const gchar *hookname, guint hid)
 //  hk_run_handlers(hookname, args)
 // Process all hooks for the "hookname" event.
 // Note that the processing is interrupted as soon as one of the handlers
-// do not return HOOK_HANDLER_RESULT_ALLOW_MORE_HOOKS (i.e. 0).
+// do not return HOOK_HANDLER_RESULT_ALLOW_MORE_HANDLERS (i.e. 0).
 guint hk_run_handlers(const gchar *hookname, hk_arg_t *args)
 {
   GSList **hqueue;

@@ -869,6 +869,13 @@ guint scr_gettextheight(void)
   return maxY - Log_Win_Height - 3;
 }
 
+guint scr_getlogwinheight(void)
+{
+  if (Log_Win_Height >= 2)
+    return Log_Win_Height - 2;
+  return 0;
+}
+
 //  scr_print_logwindow(string)
 // Display the string in the log window.
 // Note: The string must be in the user's locale!

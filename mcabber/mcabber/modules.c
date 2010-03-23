@@ -340,7 +340,7 @@ void module_list_print(void)
 
   scr_LogPrint(LPRINT_NORMAL, "%s", message->str);
 
-  if (module_count + 2 > scr_getlogwinheight()) {
+  if (module_count + 1 > scr_getlogwinheight()) {
     scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
     scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
                                   ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);

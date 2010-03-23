@@ -2042,7 +2042,7 @@ GSList *xmpp_get_all_storage_bookmarks(void)
       bm_elt = g_new0(struct bookmark, 1);
       bm_elt->roomjid = g_strdup(fjid);
       autojoin = lm_message_node_get_attribute(x, "autojoin");
-      nick = lm_message_node_get_attribute(x, "nick");
+      nick = lm_message_node_get_child_value(x, "nick");
       name = lm_message_node_get_attribute(x, "name");
       if (autojoin && !strcmp(autojoin, "1"))
         bm_elt->autojoin = 1;

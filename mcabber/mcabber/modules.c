@@ -281,6 +281,7 @@ void module_list_print(void)
   gsize maxlen = 0;
   gchar *format;
   GString *message;
+  guint module_count = 0;
 
   if (!loaded_modules) {
     scr_LogPrint(LPRINT_LOGNORM, "No modules loaded.");
@@ -293,6 +294,7 @@ void module_list_print(void)
     gsize len = strlen(module->name);
     if (len > maxlen)
       maxlen = len;
+    module_count++;
   }
 
   // Create format string
@@ -336,7 +338,13 @@ void module_list_print(void)
   // Chop extra "\n"
   g_string_truncate(message, message->len - 1);
 
-  scr_LogPrint(LPRINT_LOGNORM, "%s", message->str);
+  scr_LogPrint(LPRINT_NORMAL, "%s", message->str);
+
+  if (module_count + 2 > scr_getlogwinheight()) {
+    scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+    scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                                  ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
+  }
 
   g_string_free(message, TRUE);
   g_free(format);
@@ -396,7 +404,6 @@ void module_info_print(const gchar *name)
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
   scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
                                  ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
-  update_roster = TRUE;
 }
 
 //  modules_init()

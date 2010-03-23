@@ -2897,7 +2897,6 @@ void scr_buffer_list(void)
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
   scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
                                  ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
-  update_roster = TRUE;
 }
 
 //  scr_set_chatmode()
@@ -2945,8 +2944,10 @@ void scr_setmsgflag_if_needed(const char *bjid, int special)
   } else {
     current_id = NULL;
   }
-  if (!chatmode || !current_id || strcmp(bjid, current_id) || iscurrentlocked)
+  if (!chatmode || !current_id || strcmp(bjid, current_id) || iscurrentlocked) {
     roster_msg_setflag(bjid, special, TRUE);
+    update_roster = TRUE;
+  }
 }
 
 //  scr_setattentionflag_if_needed(bare_jid, special, value, action)
@@ -2980,8 +2981,10 @@ void scr_setattentionflag_if_needed(const char *bjid, int special,
     current_id = NULL;
   }
 
-  if (!chatmode || !current_id || strcmp(bjid, current_id) || iscurrentlocked)
+  if (!chatmode || !current_id || strcmp(bjid, current_id) || iscurrentlocked) {
     roster_setuiprio(bjid, special, value, action);
+    update_roster = TRUE;
+  }
 }
 
 //  scr_set_multimode()

@@ -627,7 +627,6 @@ static void display_all_annotations(void)
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
   scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
                                  ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
-  update_roster = TRUE;
   g_slist_free(notes);
 }
 
@@ -2132,7 +2131,6 @@ static void do_set(char *arg)
       scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
       scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
                                  ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
-      update_roster = TRUE;
     } else
       scr_LogPrint(LPRINT_NORMAL, "No options found.");
     return;
@@ -2242,7 +2240,6 @@ static void do_bind(char *arg)
     scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
     scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
                                    ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
-    update_roster = TRUE;
     return;
   }
   if (!assign) {  // This is a query
@@ -2992,7 +2989,6 @@ static void display_all_bookmarks(void)
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
   scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
                                  ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
-  update_roster = TRUE;
   g_string_free(sbuf, TRUE);
   g_slist_free(bm);
 }

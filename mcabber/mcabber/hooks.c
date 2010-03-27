@@ -653,6 +653,19 @@ void hk_unread_list_change(guint unread_count, guint attention_count,
                            guint muc_unread, guint muc_attention)
 {
 #ifdef MODULES_ENABLE
+  // Previous static variables are initialized with an unlikely value
+  static guint prev_unread = 65535;
+  static guint prev_attention = 65535;
+  static guint prev_muc_unread = 65535;
+  static guint prev_muc_attention = 65535;
+
+  // Do not call the handlers if the unread values haven't changed
+  if (unread_count    == prev_unread     &&
+      attention_count == prev_attention  &&
+      muc_unread      == prev_muc_unread &&
+      muc_attention   == prev_muc_attention)
+    return;
+
   gchar *str_unread = g_strdup_printf("%u", unread_count);
   gchar *str_attention = g_strdup_printf("%u", attention_count);
   gchar *str_muc_unread = g_strdup_printf("%u", muc_unread);
@@ -669,6 +682,11 @@ void hk_unread_list_change(guint unread_count, guint attention_count,
   g_free(str_attention);
   g_free(str_muc_unread);
   g_free(str_muc_attention);
+
+  prev_unread        = unread_count;
+  prev_attention     = attention_count;
+  prev_muc_unread    = muc_unread;
+  prev_muc_attention = muc_attention;
 #endif
 }
 

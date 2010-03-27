@@ -23,7 +23,7 @@ AM_CPPFLAGS = -I$(top_srcdir) $(GLIB_CFLAGS) $(LOUDMOUTH_CFLAGS) \
 CLEANFILES = hgcset.h
 
 if HGCSET
-mcabber_SOURCES += hgcset.h
+BUILT_SOURCES = hgcset.h
 
 hgcset.h:
 	../hgcset.sh

@@ -372,17 +372,17 @@ void module_info_print(const gchar *name)
   module = lmod->data;
   info = module->info;
 
-  scr_LogPrint(LPRINT_NORMAL, "Name: %s", module->name);
-  scr_LogPrint(LPRINT_NORMAL, "Location: %s", g_module_name(module->module));
-  scr_LogPrint(LPRINT_NORMAL, "Loaded: %s",
+  scr_LogPrint(LPRINT_NORMAL, "Module %s", module->name);
+  scr_LogPrint(LPRINT_NORMAL, " Location: %s", g_module_name(module->module));
+  scr_LogPrint(LPRINT_NORMAL, " Loaded: %s",
                module->locked ? "Manually" : "Automatically");
-  scr_LogPrint(LPRINT_NORMAL, "Reference count: %u", module->refcount);
+  scr_LogPrint(LPRINT_NORMAL, " Reference count: %u", module->refcount);
 
   if (info) {
 
     if (info->version)
-      scr_LogPrint(LPRINT_NORMAL, "Version: %s", info->version);
-    scr_LogPrint(LPRINT_NORMAL, "API: %s:%u", info->branch, info->api);
+      scr_LogPrint(LPRINT_NORMAL, " Version: %s", info->version);
+    scr_LogPrint(LPRINT_NORMAL, " API: %s:%u", info->branch, info->api);
 
     if (info->requires && *(info->requires)) {
       GString *message = g_string_new("Depends on: ");
@@ -394,12 +394,12 @@ void module_info_print(const gchar *name)
 
       // Chop last ", "
       g_string_truncate(message, message->len - 2);
-      scr_LogPrint(LPRINT_NORMAL, "%s", message->str);
+      scr_LogPrint(LPRINT_NORMAL, " %s", message->str);
       g_string_free(message, TRUE);
     }
 
     if (info->description)
-      scr_LogPrint(LPRINT_NORMAL, "Description: %s", info->description);
+      scr_LogPrint(LPRINT_NORMAL, " Description: %s", info->description);
   }
   scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
   scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,

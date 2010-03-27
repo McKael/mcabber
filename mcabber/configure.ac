@@ -261,7 +261,7 @@ if test "${hgcset}" = "yes"; then
 fi
 
 AM_CONDITIONAL([OTR], [test x$libotr_found = xyes])
-AM_CONDITIONAL([INSTALL_HEADERS], [test x$enable_modules != xyes])
+AM_CONDITIONAL([INSTALL_HEADERS], [test x$enable_modules != xno])
 
 # Prepare some config.h variables
 AC_DEFINE([MCABBER_BRANCH], "dev", [Mcabber branch])

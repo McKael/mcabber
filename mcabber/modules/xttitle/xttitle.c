@@ -1,5 +1,5 @@
 /*
- *  Module "xttitle"    -- Update X terminal tittle
+ *  Module "xttitle"    -- Update X terminal title
  *
  * Copyright (C) 2010 Mikael Berthe <mikael@lilotux.net>
  *
@@ -66,7 +66,7 @@ static guint unread_list_hh(const gchar *hookname, hk_arg_t *args,
   // flag (that is, MUC buffer that have no highlighted messages).
   unread = all_unread - (muc_unread - muc_attention);
 
-  // Update the terminal tittle
+  // Update the terminal title
   if (muc_unread) {
     printf("\033]0;MCabber -- %d message%c (total:%d / MUC:%d)\007",
            unread, (unread > 1 ? 's' : ' '), all_unread, muc_unread);

@@ -590,11 +590,10 @@ void roster_setflags(const char *jid, guint flags, guint value)
     roster_usr->flags &= ~flags;
 }
 
-//  roster_unread_count()
-guint roster_unread_count(void)
+//  roster_unread_check()
+static void roster_unread_check(void)
 {
   guint unread_count = 0;
-#ifdef MODULES_ENABLE
   gpointer unread_ptr, first_unread;
   guint muc_unread = 0, muc_attention = 0;
   guint attention_count = 0;
@@ -619,8 +618,6 @@ guint roster_unread_count(void)
 
   hk_unread_list_change(unread_count, attention_count,
                         muc_unread, muc_attention);
-#endif
-  return unread_count;
 }
 
 //  roster_msg_setflag()
@@ -720,17 +717,8 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
 
 roster_msg_setflag_return:
   if (unread_list_modified) {
-    guint unread_count;
     hlog_save_state();
-
-#ifdef MODULES_ENABLE
-    unread_count = roster_unread_count();
-#else
-    unread_count = g_slist_length(unread_list);
-#endif
-
-    /* Call external command */
-    hk_ext_cmd("", 'U', (guchar)MIN(255, unread_count), NULL);
+    roster_unread_check();
   }
 }
 
@@ -765,7 +753,7 @@ void roster_setuiprio(const char *jid, guint special, guint value,
   roster_usr->ui_prio = newval;
   unread_list = g_slist_sort(unread_list,
                              (GCompareFunc)&_roster_compare_uiprio);
-  roster_unread_count();
+  roster_unread_check();
 }
 
 guint roster_getuiprio(const char *jid, guint special)

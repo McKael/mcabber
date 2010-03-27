@@ -215,7 +215,8 @@ set max_history_blocks = 8
 #   $events_command MSG OUT jabber@id       (when sending a message)
 #   $events_command MSG MUC room_id [file]  (when receiving a MUC message)
 #   $events_command STATUS X jabber@id      (new buddy status is X)
-#   $events_command UNREAD N                (number of unread buddy buffers)
+#   $events_command UNREAD "N x y z"        (number of unread buddy buffers)
+#   (x=attention y=muc unread buffers z=muc unread buffers with attention sign)
 # See sample script in contrib/ directory.
 #set events_command = ~/.mcabber/eventcmd
 #

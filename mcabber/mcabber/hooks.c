@@ -652,12 +652,12 @@ void hk_predisconnect(void)
 void hk_unread_list_change(guint unread_count, guint attention_count,
                            guint muc_unread, guint muc_attention)
 {
-#ifdef MODULES_ENABLE
   // Previous static variables are initialized with an unlikely value
   static guint prev_unread = 65535;
   static guint prev_attention = 65535;
   static guint prev_muc_unread = 65535;
   static guint prev_muc_attention = 65535;
+  gchar *str_unread;
 
   // Do not call the handlers if the unread values haven't changed
   if (unread_count    == prev_unread     &&
@@ -666,28 +666,37 @@ void hk_unread_list_change(guint unread_count, guint attention_count,
       muc_attention   == prev_muc_attention)
     return;
 
-  gchar *str_unread = g_strdup_printf("%u", unread_count);
-  gchar *str_attention = g_strdup_printf("%u", attention_count);
-  gchar *str_muc_unread = g_strdup_printf("%u", muc_unread);
-  gchar *str_muc_attention = g_strdup_printf("%u", muc_attention);
-  hk_arg_t args[] = {
-    { "unread", str_unread },               // All unread
-    { "attention", str_attention },         // Attention (private)
-    { "muc_unread", str_muc_unread },       // MUC unread
-    { "muc_attention", str_muc_attention }, // MUC attention (highlight)
-    { NULL, NULL },
-  };
-  hk_run_handlers(HOOK_UNREAD_LIST_CHANGE, args);
-  g_free(str_unread);
-  g_free(str_attention);
-  g_free(str_muc_unread);
-  g_free(str_muc_attention);
+#ifdef MODULES_ENABLE
+  {
+    str_unread = g_strdup_printf("%u", unread_count);
+    gchar *str_attention = g_strdup_printf("%u", attention_count);
+    gchar *str_muc_unread = g_strdup_printf("%u", muc_unread);
+    gchar *str_muc_attention = g_strdup_printf("%u", muc_attention);
+    hk_arg_t args[] = {
+      { "unread", str_unread },               // All unread
+      { "attention", str_attention },         // Attention (private)
+      { "muc_unread", str_muc_unread },       // MUC unread
+      { "muc_attention", str_muc_attention }, // MUC attention (highlight)
+      { NULL, NULL },
+    };
+    hk_run_handlers(HOOK_UNREAD_LIST_CHANGE, args);
+    g_free(str_unread);
+    g_free(str_attention);
+    g_free(str_muc_unread);
+    g_free(str_muc_attention);
+  }
+#endif
 
   prev_unread        = unread_count;
   prev_attention     = attention_count;
   prev_muc_unread    = muc_unread;
   prev_muc_attention = muc_attention;
-#endif
+
+  /* Call external command */
+  str_unread = g_strdup_printf("%u %u %u %u", unread_count, attention_count,
+                               muc_unread, muc_attention);
+  hk_ext_cmd("", 'U', (guchar)MIN(255, unread_count), str_unread);
+  g_free(str_unread);
 }
 
 
@@ -712,12 +721,11 @@ void hk_ext_cmd_init(const char *command)
 void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data)
 {
   pid_t pid;
-  char *arg_type = NULL;
-  char *arg_info = NULL;
-  char *arg_data = NULL;
+  const char *arg_type = NULL;
+  const char *arg_info = NULL;
+  const char *arg_data = NULL;
   char status_str[2];
   char *datafname = NULL;
-  char unread_str[16];
 
   if (!extcmd) return;
 
@@ -744,8 +752,7 @@ void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data)
         break;
     case 'U': /* Unread buffer count */
         arg_type = "UNREAD";
-        g_snprintf(unread_str, sizeof unread_str, "%d", info);
-        arg_info = unread_str;  /* number of remaining unread bjids */
+        arg_info = data;
         break;
     default:
         return;

@@ -5,13 +5,12 @@
 
 ===========================================
 
-To obtain information on module mcabber uses struct
-module_info_t, that module should provide in public
-variable with name info_<modulename>. If module name
-contains any extra symbols except [a-z0-9_] they should
-be replaced with '_'.
+To obtain information on module mcabber uses struct module_info_t, that
+module should provide in public variable with name info_<modulename>.
+If the module name contains any extra symbols except [a-z0-9_] they
+should be replaced with '_'.
 
---------------------------------------------------------
+------------------------------------------------------------------------
   #include <mcabber/modules.h>
 
   typedef void (*module_init_t)(void);
@@ -28,46 +27,42 @@ be replaced with '_'.
     module_uninit_t   uninit;
     module_info_t    *next;
   };
---------------------------------------------------------
+------------------------------------------------------------------------
 
-Callbacks init and uninit will be called after module
-and it's dependencies loading. 'requires' can contain a
-NULL-terminated list of module names, that should be loaded
-before this. 'branch' and 'api' are required and should
-contain mcabber branch and api version, that this module is
-designed to work with. For these values see ChangeLog.api.
-'version' and 'description' fields are optional and just
-provide user with additional information about module.
-'description' field can contain newlines. 'next' field can
-contain pointer to the next struct with another branch of
-mcabber, if your module can work with multiple branches.
+Callbacks init and uninit will be called after module and its
+dependencies loading.  'requires' can contain a NULL-terminated list of
+module names, that should be loaded before this.  'branch' and 'api' are
+required and should contain mcabber branch and api version, that this
+module is designed to work with.  For these values see ChangeLog.api.
+'version' and 'description' fields are optional and just provide user
+with additional information about the module.  'description' field can
+contain newlines.  The 'next' field can contain pointer to the next
+struct with another branch of mcabber, if your module can work with
+multiple branches.
 
-To load modules, mcabber uses glib's GModule, thus, in your
-module you can also use functions
+To load modules, mcabber uses glib's GModule, thus, in your module you
+can also use functions
 
---------------------------------------------------------
+------------------------------------------------------------------------
   #include <glib.h>
   #include <gmodule.h>
 
   const gchar* g_module_check_init (GModule *module);
   void         g_module_unload (GModule *module);
---------------------------------------------------------
+------------------------------------------------------------------------
 
-to do something before any version/dependency checks will
-be performed when module is loaded/unloaded. On success
-g_module_check_init should return NULL, and error message
-otherwise.
+to do something before any version/dependency check is performed when
+your module is loaded/unloaded.  On success g_module_check_init should
+return NULL, and error message otherwise.
 
-As module is loaded, you can use mcabber functions,
-declared in mcabber's header files (though you should
-consider, that they may change their calling conventions
-some day).
+As module is loaded, you can use mcabber functions, declared in
+mcabber's header files (though you should consider, that they may change
+their calling conventions some day).
 
-I will not explain them all, there are too much of
-them, but will provide description for those, provided
-especially for module writers.
+I will not explain them all, there are too much of them, but will
+provide description for those, provided especially for module writers.
 
---------------------------------------------------------
+------------------------------------------------------------------------
   #include <mcabber/modules.h>
 
   const gchar *module_load (const gchar *name,
@@ -76,173 +71,178 @@ especially for module writers.
   const gchar *module_unload (const gchar *name,
 			      gboolean manual,
 			      gboolean force);
---------------------------------------------------------
+------------------------------------------------------------------------
 
-These functions load and unload modules respectively.
-You can use them to handle optional dependencies. What
-happens, when module is loaded:
- - check if module is present, and if present just
-   increase it's reference count
- - load .so via glib (and call g_module_check_init, if
-   present)
+These functions load and unload modules respectively.  You can use them
+to handle optional dependencies.  What happens, when module is loaded:
+ - check if module is present, and if present just increase it's
+   reference count
+ - load .so via glib (and call g_module_check_init, if present)
  - check for information structure presence
- - find suitable branch and check api version
-   compatibility
- - load modules, that this module requires (note, that
-   dependency problems will be reported as error
-   invariably, force flag have no effect on this check)
+ - find suitable branch and check api version compatibility
+ - load modules, that this module requires (note, that dependency
+   problems will be reported as error invariably, force flag have no
+   effect on this check)
  - module placed into a list of modules
  - module init routine is called
 And when unloaded:
  - check if module is present
  - decrease reference count, if it is not zero, return
  - run module uninit routine
- - unload modules, that were loaded as dependencies for
-   this
+ - unload modules, that were loaded as dependencies for this one
  - remove from modules list
-They return error message or NULL in case of success.
-'manual' flag indicates, that module will be loaded by
-direct user request. It serves the purpose of tracking
-user and automatic references (user can have only one).
-'force' flag on module loading causes mcabber to ignore
-most of the loading errors. On unload it forces
-unloading even if reference count is not zero.
+They return error message or NULL in case of success.  'manual' flag
+indicates, that module will be loaded by direct user request.  It serves
+the purpose of tracking user and automatic references (user can have
+only one).  'force' flag on module loading causes mcabber to ignore most
+of the loading errors.  On unload it forces unloading even if reference
+count is not zero.
 
---------------------------------------------------------
+------------------------------------------------------------------------
   #include <mcabber/commands.h>
 
   void cmd_add (const char *name, const char *help,
                 guint flags1, guint flags2,
 		void (*f)(char*), gpointer userdata);
   void cmd_del (const char *name);
---------------------------------------------------------
+------------------------------------------------------------------------
 
-These two functions are provided to declare mcabber
-commands, offered by your module.
+These two functions are provided to declare mcabber commands, offered by
+your module.
  - name is a command name.
- - help is a short description of your command, however
-   for now it is not used at all and can be omitted.
- - flags are completion identifiers for first and second
-   command arguments, for list of built-in completions,
-   see compl.h. You can declare your own completion
-   lists, using functions from compl.h, described later.
- - f is a user-provided callback function, that will be
-   called upon executing mcabber command. If you will
-   provide non-NULL userdata, function must be of type
+ - help is a short description of your command, however for now it is
+   not used at all and can be omitted.
+ - flags are completion identifiers for first and second command
+   arguments, for list of built-in completions, see compl.h.  You can
+   declare your own completion lists, using functions from compl.h,
+   described later.
+ - f is a user-provided callback function, that will be called upon
+   executing mcabber command.  If you will provide non-NULL userdata,
+   function must be of type
    void (*f) (char *commandline, gpointer userdata).
- - userdata is a pointer to data, transparently passed
-   to callback. See f description.
+ - userdata is a pointer to data, transparently passed to callback.
+   See f description.
 
---------------------------------------------------------
+------------------------------------------------------------------------
   #include <mcabber/compl.h>
 
   guint compl_new_category (void);
   void  compl_del_category (guint id);
 
   void    compl_add_category_word (guint categ,
-                                   const char *command); 
+                                   const char *command);
   void    compl_del_category_word (guint categ,
-                                   const char *word); 
+                                   const char *word);
   GSList *compl_get_category_list (guint cat_flags,
-                                   guint *dynlist); 
---------------------------------------------------------
+                                   guint *dynlist);
+------------------------------------------------------------------------
 
-These functions allow you to define and manage word
-lists for completion categories, used by your commands.
-First you need to obtain handle for completion type,
-that you later will supply as flags, when declaring
-your commands. For that use function compl_new_category.
-It returns new category id or zero, if mcabber runs
-out of completion ids (for now there are only 32 ids
-available, and 20 of them are already taken by builtin
-commands). compl_del_category allows you to delete
-user-defined category, deleting all words in it too.
+These functions allow you to define and manage word lists for completion
+categories, used by your commands.  First you need to obtain handle for
+completion type, that you later will supply as flags, when declaring
+your commands.  For that use function compl_new_category.  It returns
+new category id, or zero if mcabber runs out of completion ids (for now
+there are only 32 ids available, and 20 of them are already used for
+builtin commands).  compl_del_category allows you to delete user-defined
+category, deleting all words in it too.
 
-Now, that you have a completion category, you can at any
-time add or delete words from it's completion list.
-For that use functions compl_add_category_word and
-compl_del_category_word. You can obtain current contents
-of category by using gompl_get_category_list. If after
-execution dynlist is TRUE, you should free obtained
-list of words (both, words and list).
+Now, that you have a completion category, you can at any time add or
+delete words from its completion list.  To do that, use the functions
+compl_add_category_word and compl_del_category_word.  You can obtain
+current contents of category by using gompl_get_category_list.  If after
+execution dynlist is TRUE, you should free obtained list of words (both,
+words and list).
 
---------------------------------------------------------
+------------------------------------------------------------------------
   #include <mcabber/hooks.h>
- 
-  typedef struct { 
-    const char *name; 
-    const char *value; 
-  } hk_arg_t; 
-  
-  typedef void (*hk_handler_t) (guint32 hookid,
-                                hk_arg_t *args,
-                                gpointer userdata); 
-   
-  void hk_add_handler (hk_handler_t handler,
-                       guint32 flags,
-                       gpointer userdata); 
-  void hk_del_handler (hk_handler_t handler,
-                       gpointer userdata); 
---------------------------------------------------------
 
-These functions allow your module to react to events,
-such as incoming and outgoing messages, buddy status
-changes and sever connection establishment or breakup.
-Flags field specifies mask of events, upon which this
-handler should be called. Flags, that comprise this
-mask can be found in hooks.h. You can specify not yet
-used flags in mask, if you need to handle all events.
-Handler can determine, which event is occured by
-hookid argument and by a "hook" field in args, that
-may provide more precise information in some cases.
-Args argument is a list of hk_arg_t structures,
-terminated by structure, whose name field is set to
-NULL. Usually the "hook" field is in the first
-structure of the list, however it is not guaranted,
-that this will be so forever.
+  typedef struct {
+    const char *name;
+    const char *value;
+  } hk_arg_t;
 
-Currently there are next events possible:
- - hook-message-in (HOOK_MESSAGE_IN) with parameters
+  typedef guint (*hk_handler_t) (const gchar *hookname,
+				 hk_arg_t *args,
+				 gpointer userdata);
+
+  guint hk_add_handler (hk_handler_t handler,
+			const gchar *hookname,
+			gint priority,
+			gpointer userdata);
+  void hk_del_handler (const gchar *hookname,
+                       guint hid);
+------------------------------------------------------------------------
+
+These functions allow your module to react to events, such as incoming
+and outgoing messages, buddy status changes and server connection
+establishment or breakup.  The hookname string specifies the events the
+handler wants to subscribe to.  The available strings can be found in
+hooks.h.
+
+The hk_add_handler() function will return a handler id which you will
+use to remove the handler with hk_del_handler().
+Args argument is a list of hk_arg_t structures, terminated by structure,
+whose name field is set to NULL.
+
+Your handler should return one of the values in the hk_handler_result
+enum (see hooks.h), usually HOOK_HANDLER_RESULT_ALLOW_MORE_HANDLERS so
+that other handlers can be triggers as well.
+
+A handler can determine which event has occured by checking the hookname
+argument (a same hook handler can subscribe to several events by using
+hk_add_handler() several times).
+
+Currently the following events exist:
+ - hook-pre-message-in (HOOK_PRE_MESSAGE_IN) with parameters
    * jid - sender of the incoming message
-   * message - message body, converted to locale
-     charset
-   * groupchat ("true" or "false")
+   * resource - resource of the incoming message
+   * message - message body, converted to locale charset
+   * groupchat - ("true" or "false")
+ - hook-post-message-in (HOOK_POST_MESSAGE_IN) with parameters
+   * jid - sender of the incoming message
+   * resource - resource of the incoming message
+   * message - message body, converted to locale charset
+   * groupchat - ("true" or "false")
+   * attention - In a MUC message, true if you've been highlighted
+     In a regular message, true if the sender has requested your
+     attention (only implemented for MUC currently)
  - hook-message-out (HOOK_MESSAGE_OUT) with parameters
    * jid - recipient of the outgoing message
-   * message - message body, converted to locale
-     charset
+   * message - message body, converted to locale charset
  - hook-status-change (HOOK_STATUS_CHANGE) with
    parameters
    * jid - buddy, whose status has changed
    * resource - resource, whose status has changed
-   * old_status - old status of the buddy, one-char
-     string, representing mcabber status letter -
-     one of 'ofdna?_'.
-   * new_status - new buddy status. The same as
-     old_status.
-   * message - new status message. Old one should be
-     still available to module as the current buddy's
-     message.
+   * old_status - old status of the buddy, one-char string,
+     representing mcabber status letter - one of 'ofdna?_'.
+   * new_status - new buddy status.  Same as above.
+   * message - new status message.  Old one should still be
+     available to module as the current buddy's message.
  - hook-my-status-change (HOOK_MY_STATUS_CHANGE) with
    parameters
    * new_status - user's new status, see
-     hook-status-change. Old one should still be
+     hook-status-change.  Old one should still be
      available as the current status of the user.
    * message - new status message
  - hook-post-connect (HOOK_POST_CONNECT) with no parameters
- - hook-pre-disconnect (HOOK_PRE_DICSONNECT) with no
-   parameters
+ - hook-pre-disconnect (HOOK_PRE_DISCONNECT) with no parameters
+ - hook-unread-list-change (HOOK_UNREAD_LIST_CHANGE)
+   * unread - number of buffers with the pending message flag (#)
+   * attention - number of non-MUC buffers with the attention sign (!)
+   * muc_unread - number of MUC buffers with the unread message flag
+   * muc_attention - number of MUC buffers with the attention sign
 
---------------------------------------------------------
+
+------------------------------------------------------------------------
   #include <mcabber/xmpp_helper.h>
 
   void xmpp_add_feature (const char *xmlns);
   void xmpp_del_feature (const char *xmlns);
---------------------------------------------------------
+------------------------------------------------------------------------
 
-These functions may be useful, if your module implements
-some additional functionality to mcabber, that should be
-advertised in a client's discovery features list.
+These functions may be useful, if your module implements some additional
+functionality to mcabber, that should be advertised in a client's
+discovery features list.
 
 =====================
 
@@ -250,33 +250,32 @@ advertised in a client's discovery features list.
 
 =====================
 
-Now, let's write a simple module, called "hello", that
-will do no more than just print something on loading
-and unloading.
+Now, let's write a simple module, called "hello", that will do no more
+than just print something on loading and unloading.
 
---------------------------------------------------------
+------------------------------------------------------------------------
 #include <glib.h>
 #include <gmodule.h>
 
-/* We will use scr_LogPrint mcabber function,
+/* We will use scr_log_print() mcabber function,
    that does mcabber's messages output */
 #include <mcabber/logprint.h>
 
 /* Print something on module loading */
-const gchar* g_module_check_init (GModule *module)
+const gchar* g_module_check_init(GModule *module)
 {
-	scr_LogPrint (LPRINT_NORMAL, "Hello, World!");
+	scr_log_print(LPRINT_NORMAL, "Hello, World!");
 	return NULL;
 }
 
 /* ... and unloading */
-void g_module_unload (GModule *module)
+void g_module_unload(GModule *module)
 {
-	scr_LogPrint (LPRINT_NORMAL, "Bye, World!");
+	scr_log_print(LPRINT_NORMAL, "Bye, World!");
 }
 
 /* The End */
---------------------------------------------------------
+------------------------------------------------------------------------
 
 Now, compile this file (hello.c) with
 
@@ -286,27 +285,26 @@ libtool --mode=link gcc -module -rpath /usr/lib/mcabber/ \
   `pkg-config --libs glib-2.0 gmodule-2.0 mcabber` \
   -o libhello.la hello.lo
 
-(you should substitute /usr/lib/mcabber to directory, where
+(you should substitute /usr/lib/mcabber to the directory where
 your modules are located) and then install obtained module with
 
 libtool --mode=install install libhello.la \
   /usr/lib/mcabber/libhello.la
 
-Note, that you, most likely need not run suggested by libtool
-finish action, as we're working with module object, not system-
-wide library, but maybe some systems require that.
+Note that you most likely need not run suggested by libtool finish
+action, as we're working with module object, not system- wide library,
+but maybe some systems require that.
 
 Now, set modules_dir mcabber variable to point to your modules
-dir, and try to run /module -f load hello. If all goes well,
-you should see in status buffer message "Hello World!" (as
-well as some complaints, as we forced module loading).
+directory, and try to run /module -f load hello.  If all goes well,
+you should see in status buffer message "Hello World!" (as well as
+some complaints, as we forced module loading).
 Now unload module by running command /module unload hello,
 that should bring up message "Bye, World!".
 
-That's it, you just created very simple dynamically loadable
-mcabber module. But, as you noticed, it needs force to be
-loaded. Now, let's add information structure, that mcabber
-wants.
+That's it, you just created very simple dynamically loadable mcabber
+module.  But, as you noticed, it needs force to be loaded.  Now, let's
+add the information structure that mcabber wants.
 
 ==========================
 
@@ -314,56 +312,54 @@ wants.
 
 ==========================
 
---------------------------------------------------------
+------------------------------------------------------------------------
 #include <mcabber/logprint.h>
 /* module_info_t definition */
 #include <mcabber/modules.h>
 
 /* Print something on module loading */
-void hello_init (void)
+void hello_init(void)
 {
-	scr_LogPrint (LPRINT_NORMAL, "Hello, World!");
+	scr_log_print(LPRINT_NORMAL, "Hello, World!");
 }
 
 /* ... and unloading */
-void hello_uninit (void)
+void hello_uninit(void)
 {
-	scr_LogPrint (LPRINT_NORMAL, "Bye, World!");
+	scr_log_print(LPRINT_NORMAL, "Bye, World!");
 }
 
 module_info_t info_hello = {
 	.branch          = "dev",
 	.api             = 1,
+	.version         = "0.0.1",
+	.description     = "Hello world module\n"
+		" (as well as bye world module)",
 	.requires        = NULL,
 	.init            = hello_init,
 	.uninit          = hello_uninit,
-	.version         = "0.0.1",
-	.description     = "Hello world module\n"
-		"(as well as bye world module)",
 	.next            = NULL,
 };
 
 /* The End */
---------------------------------------------------------
+------------------------------------------------------------------------
 
-Here we now do not use glib nor gmodule, so, we can omit
-them in compilation lines:
+Here we still do not use glib nor gmodule, so, we can omit them in
+compilation lines:
 
 libtool --mode=compile gcc `pkg-config --cflags mcabber` \
   -c hello.c
 libtool --mode=link gcc -module -rpath /usr/lib/mcabber/ \
   `pkg-config --libs mcabber` -o libhello.la hello.lo
 
-Again compile it, copy, and try to load, now without -f
-flag. As you may notice, when loading previous example,
-mcabber first printed "Hello, World!", and only then
-complaint about module not having information struct.
-That's because g_module_check_init is called right
-after module loading, before mcabber even have a chance
-to look at module, while .init from info struct is
-called afterwards by mcabber itself. You can try to
-introduce some error (eg too high or missing target
-mcabber version) and see the difference.
+Again compile it, copy, and try to load, now without -f flag.  As you
+may notice, when loading previous example, mcabber first printed "Hello,
+World!", and only then complaint about module not having information
+struct.  That's because g_module_check_init is called right after module
+loading, before mcabber even has a chance to look at module, while .init
+from info struct is called afterwards by mcabber itself.  You can try to
+introduce some error (e.g. too high or missing target mcabber version)
+and see the difference.
 
 =======================
 
@@ -373,52 +369,51 @@ mcabber version) and see the difference.
 
 Now, let's allow our module to do some real work.
 
---------------------------------------------------------
+------------------------------------------------------------------------
 #include <mcabber/logprint.h>
 #include <mcabber/commands.h>
 #include <mcabber/modules.h>
 
 /* Handler for command */
-void do_hello (char *args)
+void do_hello(char *args)
 {
 	/* args contains command line with command
          * name and any spaces after it stripped */
-	scr_LogPrint (LPRINT_NORMAL, "Hello, %s!", 
+	scr_log_print(LPRINT_NORMAL, "Hello, %s!",
                       *args != '\0' ? args : "World");
 }
 
 /* Register command */
-void hello_init (void)
+void hello_init(void)
 {
-	cmd_add ("hello", "", 0, 0, do_hello, NULL);
+	cmd_add("hello", "", 0, 0, do_hello, NULL);
 }
 
 /* Unregister command */
-void hello_uninit (void)
+void hello_uninit(void)
 {
-	cmd_del ("hello");
+	cmd_del("hello");
 }
 
 module_info_t hello_info = {
 	.branch          = "dev",
 	.api             = 1,
+	.version         = "0.0.2",
+	.description     = "Hello world module\n"
+		" Provides command /hello",
 	.requires        = NULL,
 	.init            = hello_init,
 	.uninit          = hello_uninit,
-	.version         = "0.0.2",
-	.description     = "Hello world module\n"
-		"Provides command /hello",
 	.next            = NULL,
 }
 
 /* The End */
---------------------------------------------------------
+------------------------------------------------------------------------
 
-Now, compile it and try to load and run /hello with some
-arguments.
+Now, compile it and try to load and run /hello with some arguments.
 
-Note, that we used one-argument version of command
-handler, as we specified no userdata.
+Note, that we used one-argument version of command handler, as we have
+specified no userdata.
 
 ==========================
 
@@ -426,11 +421,11 @@ handler, as we specified no userdata.
 
 ==========================
 
-Now let's investigate how to provide custom completion to
-your commands. You can as well use built-in completions,
-their IDs are listed in compl.h.
+Now let's investigate how to provide custom completion to your commands.
+You can as well use built-in completions, their IDs are listed in
+compl.h.
 
---------------------------------------------------------
+------------------------------------------------------------------------
 #include <mcabber/logprint.h>
 #include <mcabber/commands.h>
 #include <mcabber/modules.h>
@@ -439,62 +434,61 @@ their IDs are listed in compl.h.
 static guint hello_cid = 0;
 
 /* hello command handler */
-void do_hello (char *args)
+void do_hello(char *args)
 {
 	/* If argument is provided, add it to
 	 * completions list. */
 	if (hello_cid && *args != '\0')
-		compl_add_category_word (hello_cid,
-		                         args);
-	scr_LogPrint (LPRINT_NORMAL, "Hello, %s!",
+		compl_add_category_word(hello_cid,
+		                        args);
+	scr_log_print(LPRINT_NORMAL, "Hello, %s!",
 	              *args != '\0' ? args : "World");
 }
 
 /* Initialization */
-void hello_init (void)
+void hello_init(void)
 {
 	/* Obtain handle for our completion
 	 * category */
-	hello_cid = compl_new_category ();
+	hello_cid = compl_new_category();
 	if (hello_cid)
 		/* Add known default word to
 		 * completion list */
-		compl_add_category_word (hello_cid,
+		compl_add_category_word(hello_cid,
 		                         "World");
-	cmd_add ("hello", "", hello_cid, 0, do_hello,
+	cmd_add("hello", "", hello_cid, 0, do_hello,
                  NULL);
 }
 
 /* Deinitialization */
-void hello_uninit (void)
+void hello_uninit(void)
 {
 	/* Give back category handle */
 	if (hello_cid)
-		compl_del_category (hello_cid);
-	cmd_del ("hello");
+		compl_del_category(hello_cid);
+	cmd_del("hello");
 }
 
 module_info_t hello_info = {
 	.branch          = "dev",
 	.api             = 1,
+	.version         = "0.0.3",
+	.description     = "Hello world module"
+		" Provides command /hello with completion",
 	.requires        = NULL,
 	.init            = hello_init,
 	.uninit          = hello_uninit,
-	.version         = "0.0.3",
-	.description     = "Hello world module"
-		"Provides command /hello with completion",
 	.next            = NULL,
 }
 
 /* The End */
---------------------------------------------------------
+------------------------------------------------------------------------
 
-Now you can use completion for hello command. Note, that
-this code have some serious simplifications, made for
-simplicity reasons. For now, compl_add_category_word
-does not checks, if word already exists in completions
-list (although it is marked as TODO, so, some day it
-will), so, we should check it ourselves.
+Now you can use completion for hello command.  Note, that this code have
+some serious simplifications, made for simplicity reasons.  For now,
+compl_add_category_word does not checks, if word already exists in
+completions list (although it is marked as TODO, so, some day it will),
+so, we should check it ourselves.
 
 =====================
 
@@ -502,12 +496,12 @@ will), so, we should check it ourselves.
 
 =====================
 
-Now let's implement our own beeper. Why anyone may wish
-to do this? I am not satisfied with default mcabber's
-builtin beeper flexibility. I wanted beeping on any
-muc conference message, not just ones, directed to me.
+Now let's implement our own beeper.  Why may anyone wish to do this?
+I am not satisfied with default mcabber's builtin beeper flexibility.
+I wanted beeping on any MUC conference message, not just the ones
+directed to me.
 
---------------------------------------------------------
+------------------------------------------------------------------------
 #include <string.h>
 
 #include <mcabber/logprint.h>
@@ -518,94 +512,98 @@ muc conference message, not just ones, directed to me.
 #include <mcabber/settings.h>
 #include <mcabber/module.h>
 
-static guint beep_cid = 0;
+static guint beep_cid = 0;  /* Command completion category id */
+static guint beep_hid = 0;  /* Hook handler id */
 
 /* Event handler */
-void beep_hh (guint32 hid, hk_arg_t *args, gpointer userdata)
+static guint beep_hh(const gchar *hookname, hk_arg_t *args,
+		     gpointer userdata)
 {
 	/* Check if beeping is enabled */
-	if (settings_opt_get_int ("beep_enable"))
-		/* *BEEP*! */
-		scr_Beep ();
+	if (settings_opt_get_int("beep_enable"))
+		scr_Beep(); /* *BEEP*! */
+
+	return HOOK_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
 }
 
 /* beep command handler */
-void do_beep (char *args)
+static void do_beep(char *args)
 {
 	/* Check arguments, and if recognized,
 	 * set mcabber option accordingly */
-	if (!strcmp (args, "enable") ||
-	    !strcmp (args, "on") ||
-	    !strcmp (args, "yes") ||
-	    !strcmp (args, "1"))
-		settings_set (SETTINGS_TYPE_OPTION,
+	if (!strcmp(args, "enable") ||
+	    !strcmp(args, "on") ||
+	    !strcmp(args, "yes") ||
+	    !strcmp(args, "1"))
+		settings_set(SETTINGS_TYPE_OPTION,
 		              "beep_enable", "1");
-	else if (!strcmp (args, "disable") ||
-		 !strcmp (args, "off") ||
-		 !strcmp (args, "no") ||
-		 !strcmp (args, "0"))
-		settings_set (SETTINGS_TYPE_OPTION,
+	else if (!strcmp(args, "disable") ||
+		 !strcmp(args, "off") ||
+		 !strcmp(args, "no") ||
+		 !strcmp(args, "0"))
+		settings_set(SETTINGS_TYPE_OPTION,
 		              "beep_enable", "0");
 
 	/* Output current state, either if state is
 	 * changed and if argument is not recognized */
-	if (settings_opt_get_int ("beep_enable"))
-		scr_LogPrint (LPRINT_NORMAL,
+	if (settings_opt_get_int("beep_enable"))
+		scr_log_print(LPRINT_NORMAL,
 		              "Beep on messages is enabled");
 	else
-		scr_LogPrint (LPRINT_NORMAL,
+		scr_log_print(LPRINT_NORMAL,
 		              "Beep on messages is disabled");
 }
 
 /* Initialization */
-void beep_init (void)
+static void beep_init (void)
 {
 	/* Create completions */
-	beep_cid = compl_new_category ();
+	beep_cid = compl_new_category();
 	if (beep_cid) {
-		compl_add_category_word (beep_cid, "enable");
-		compl_add_category_word (beep_cid, "disable");
+		compl_add_category_word(beep_cid, "enable");
+		compl_add_category_word(beep_cid, "disable");
 	}
 	/* Add command */
-	cmd_add ("beep", "", beep_cid, 0, do_beep, NULL);
+	cmd_add("beep", "", beep_cid, 0, do_beep, NULL);
 	/* Add handler
 	 * We are only interested in incoming message events
 	 */
-	hk_add_handler (beep_hh, HOOK_MESSAGE_IN, NULL);
+	beep_hid = hk_add_handler(beep_hh, HOOK_POST_MESSAGE_IN,
+				  G_PRIORITY_DEFAULT_IDLE, NULL);
 }
 
 /* Deinitialization */
-void beep_uninit (void)
+void beep_uninit(void)
 {
 	/* Unregister event handler */
-	hk_del_handler (beep_hh, NULL);
+	hk_del_handler(HOOK_POST_MESSAGE_IN, beep_hid);
 	/* Unregister command */
-	cmd_del ("beep");
+	cmd_del("beep");
 	/* Give back completion handle */
 	if (beep_cid)
-		compl_del_category (beep_cid);
+		compl_del_category(beep_cid);
 }
 
 module_info_t beep_info = {
 	.branch          = "dev",
 	.api             = 1,
+	.version         = "0.0.1",
+	.description     = "Simple beeper module\n"
+		" Recognizes option beep_enable\n"
+		" Provides command /beep",
 	.requires        = NULL,
 	.init            = beep_init,
 	.uninit          = beep_uninit,
-	.version         = "0.0.1",
-	.description     = "Simple beeper module\n"
-		"Recognizes option beep_enable\n"
-		"Provides command /beep",
 	.next            = NULL,
 }
 
 /* The End */
---------------------------------------------------------
+------------------------------------------------------------------------
 
 If you use CMake (as do I), corresponding CMakeLists.txt
 snippet:
 
---------------------------------------------------------
+------------------------------------------------------------------------
 cmake_minimum_required(VERSION 2.6)
 project(beep C)
 
@@ -622,7 +620,7 @@ include_directories(${beep_SOURCE_DIR}
                     ${beep_BINARY_DIR})
 
 install(TARGETS beep DESTINATION lib/mcabber)
---------------------------------------------------------
+------------------------------------------------------------------------
 
 ===========================
 
@@ -630,14 +628,12 @@ install(TARGETS beep DESTINATION lib/mcabber)
 
 ===========================
 
-I will not provide here a complete example of two
-modules, one of which depends on other, only some
-use cases.
+I will not provide here a complete example of two modules, one of which
+depends on other, only some use cases.
 
-Info struct for module, that depends on two other
-modules:
+Info struct for module, that depends on two other modules:
 
---------------------------------------------------------
+------------------------------------------------------------------------
 #include <mcabber/modules.h>
 
 const gchar *a_deps[] = { "b", "c", NULL };
@@ -645,19 +641,19 @@ const gchar *a_deps[] = { "b", "c", NULL };
 module_info_t info_a = {
 	.branch          = "dev",
 	.api             = 1,
+	.version         = NULL,
+	.description     = NULL,
 	.requires        = a_deps,
 	.init            = a_init,
 	.uninit          = a_uninit,
-	.version         = NULL,
-	.description     = NULL,
 	.next            = NULL,
 };
---------------------------------------------------------
+------------------------------------------------------------------------
 
-If your module needs to "authenticate" mcabber version
-too, this can be done in g_module_check_init:
+If your module needs to "authenticate" mcabber version too, this can be
+done in g_module_check_init:
 
---------------------------------------------------------
+------------------------------------------------------------------------
 #include <glib.h>
 #include <gmodule.h>
 
@@ -679,24 +675,20 @@ const gchar *g_module_check_init (GModule *module)
 	g_free (ver);
 	return error;
 }
---------------------------------------------------------
+------------------------------------------------------------------------
 
-Also you can use glib check_init routine to modify
-module information, that will be checked by mcabber,
-eg. if you want your module to always pass mcabber
-version check, you can assign branch information,
-obtained from mcabber_... variables to corresponding
-fields in your struct.
-Or you can modify your module's dependencies, though
-direct module_load() will have the same effect, and
-can be used for optional dependencies, that your module
-can still work without.
+Also you can use glib check_init routine to modify module information,
+that will be checked by mcabber, e.g. if you want your module to always
+pass mcabber version check, you can assign branch information, obtained
+from mcabber_... variables to corresponding fields in your struct.
+Or you can modify your module's dependencies, though direct
+module_load() will have the same effect, and can be used for optional
+dependencies, that your module can still work without.
 
-Note: remember, that g_module_check_init will be always
-called, even if later module will not pass checks, thus:
+Note: remember, that g_module_check_init will be always called, even if
+later the module will not pass checks, thus:
  - do not use functions from other modules there;
- - provide g_module_unload to undo anything, check_init
-   has done.
+ - provide g_module_unload to undo anything, check_init has done.
 
 ==============
 
@@ -704,33 +696,29 @@ called, even if later module will not pass checks, thus:
 
 ==============
 
-As mcabber now uses glib mainloop, you can use glib's
-event sources, for example, fifo reading already uses
-GIOChannels for non-blocking IO.
+As mcabber now uses glib mainloop, you can use glib's event sources, for
+example, fifo reading already uses GIOChannels for non-blocking IO.
 
-You can extend xmpp part of mcabber functionality by
-providing lm message handlers with high priority and
-allowing unhandled by your handler messages be taken
-care by mcabber's handlers on normal priority level.
-This is where you may need to modify set of advertised
-supported disco features.
+You can extend XMPP part of mcabber functionality by providing lm
+message handlers with high priority and allowing unhandled by your
+handler messages be taken care by mcabber's handlers on normal priority
+level.  This is where you may need to modify set of advertised supported
+disco features.
 
-Many useful examples can be found in my modules, that
-can be found at http://isbear.unixzone.org.ua/source.
+Many useful examples can be found in my modules, that can be found at
+http://isbear.unixzone.org.ua/source.
 
-If you think, that your module needs to change
-something, hardcoded in current implementation - feel
-free to mail me or join mcabber's MUC room and
-discuss this - for now I have only implemented things,
-that I found necessary for written by me modules.
+If you think, that your module needs to change something, hardcoded in
+current implementation - feel free to mail me or join mcabber's MUC room
+and discuss it - for now we have only implemented things, that we have
+found necessary for our own modules.
 
-Also I am not native English speaker, so, if you find
-some errors or non-natural constructs in this howto,
-please, inform me (I will be glad, if you also provide
-a more suitable version of text in question).
+Also I am not native English speaker, so, if you find some errors or
+non-natural constructs in this howto, please, inform me (I will be glad,
+if you also provide a more suitable version of text in question).
 
   -- Myhailo Danylenko
   -- mailto:isbear@ukrpost.net
   -- xmpp:isbear@unixzone.org.ua
-  -- Sat, 13 Mar 2010 12:18:17 +0200
+  -- Sat, 27 Mar 2010 13:30:00 +0100
 

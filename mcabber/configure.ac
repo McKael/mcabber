@@ -72,7 +72,7 @@ MC_TM_GMTOFF
 
 # Check if we must provide a SIGWINCH handler
 AC_ARG_ENABLE(sigwinch,
-        [  --enable-sigwinch       compile with SIGWINCH handler],
+        AC_HELP_STRING([--enable-sigwinch], [compile with SIGWINCH handler]),
         [with_sigwinch=$enableval],
         [with_sigwinch=$with_ext_funcs])
 AC_MSG_RESULT($with_sigwinch)
@@ -170,7 +170,8 @@ if test "$libidn" != "no" ; then
 fi
 
 # Check for gpgme
-AC_ARG_ENABLE(gpgme, AC_HELP_STRING([--disable-gpgme], [disable GPGME support]),
+AC_ARG_ENABLE(gpgme,
+    AC_HELP_STRING([--disable-gpgme], [disable GPGME support]),
     [ if test x"$enableval" = x"no"; then
         enable_gpgme=no
       fi
@@ -182,7 +183,9 @@ if test x"${enable_gpgme}" != x"no"; then
 fi
 
 # Check for otr
-AC_ARG_ENABLE(otr, [  --enable-otr            enable OTR (Off-the-Record) messaging support],
+AC_ARG_ENABLE(otr,
+              AC_HELP_STRING([--enable-otr],
+                             [enable OTR (Off-the-Record) messaging support]),
               enable_otr=$enableval, otr="")
 if test "x$enable_otr" = "xyes"; then
   # Look for libgcrypt and libotr
@@ -194,10 +197,12 @@ if test "x$enable_otr" = "xyes"; then
 fi
 
 # Check for Enchant stuff
-AC_ARG_ENABLE(enchant, [  --enable-enchant        enable enchant support],
+AC_ARG_ENABLE(enchant,
+              AC_HELP_STRING([--enable-enchant], [enable enchant support]),
               enable_enchant=$enableval, enchant="")
 # Check for Aspell stuff
-AC_ARG_ENABLE(aspell, [  --enable-aspell         enable aspell support],
+AC_ARG_ENABLE(aspell,
+              AC_HELP_STRING([--enable-aspell], [enable aspell support]),
               enable_aspell=$enableval, aspell="")
 
 if test "x$enable_enchant" = "xyes"; then
@@ -230,7 +235,7 @@ fi
 AC_DEFINE_DIR(PKGLIB_DIR, "${libdir}/${PACKAGE}", [Modules directory])
 
 AC_ARG_ENABLE(debug,
-    [AC_HELP_STRING(--enable-debug, add development compilation options)],
+    AC_HELP_STRING([--enable-debug], [add development compilation options]),
     debug=$enableval, debug="")
 if test x"${debug}" = x"yes"; then
     AC_DEFINE_UNQUOTED([ENABLE_DEBUG],[1],[Devel compilation options])
@@ -248,7 +253,7 @@ else
 fi
 
 AC_ARG_ENABLE(hgcset,
-    [AC_HELP_STRING(--disable-hgcset, do not use Mercurial changeset value)],
+    AC_HELP_STRING([--disable-hgcset], [do not use Mercurial changeset value]),
     hgcset=$enableval, hgcset="yes")
 AM_CONDITIONAL(HGCSET, [test x$hgcset = xyes])
 if test "${hgcset}" = "yes"; then
@@ -256,7 +261,7 @@ if test "${hgcset}" = "yes"; then
 fi
 
 AM_CONDITIONAL([OTR], [test x$libotr_found = xyes])
-AM_CONDITIONAL([INSTALL_HEADERS], [test x$enable_modules = xyes])
+AM_CONDITIONAL([INSTALL_HEADERS], [test x$enable_modules != xyes])
 
 # Prepare some config.h variables
 AC_DEFINE([MCABBER_BRANCH], "dev", [Mcabber branch])

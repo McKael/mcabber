@@ -267,6 +267,7 @@ CFLAGS="$CFLAGS -D_GNU_SOURCE"
 AC_CONFIG_FILES([mcabber/Makefile
                  modules/Makefile
                  modules/beep/Makefile
+                 modules/xttitle/Makefile
                  doc/Makefile
                  doc/guide/Makefile
                  doc/help/Makefile

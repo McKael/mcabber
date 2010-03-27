@@ -3,6 +3,10 @@ mcabber (0.10.0)
  * MCabber now uses the Loudmouth library (version 1.4.3 or greater).
  * The JID should be provided in the configuration file, the variable
    'username' has been replaced with 'jid'.
+ * The UNREAD events now passes more data to the external script
+   (including the number of buffers with the attention sign,
+   the number of unread MUC buffers, and the number of unread MUC
+   buffers with the attention sign).
 
  -- Mikael, ?
 

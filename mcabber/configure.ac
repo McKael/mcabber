@@ -131,9 +131,10 @@ if test "$mc_cv_ncurses_escdelay" = yes; then
               [Define if ncurses has ESCDELAY variable])
 fi
 
-AC_ARG_ENABLE(modules, [  --enable-modules        enable dynamic modules loading],
+AC_ARG_ENABLE(modules, AC_HELP_STRING([--disable-modules],
+                                      [disable dynamic modules loading]),
               enable_modules=$enableval)
-if test "x$enable_modules" = "xyes"; then
+if test "x$enable_modules" != "xno"; then
   AC_DEFINE(MODULES_ENABLE, 1, [Define if you want dynamic modules loading])
   gmodule_module=gmodule
 else

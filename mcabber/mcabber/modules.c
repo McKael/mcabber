@@ -1,5 +1,5 @@
 /*
- * modules.c   -- modules handling
+ * modules.c    -- Modules handling
  *
  * Copyright (C) 2010 Myhailo Danylenko <isbear@ukrpost.net>
  *

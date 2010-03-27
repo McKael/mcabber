@@ -2,6 +2,7 @@
  * compl.c      -- Completion system
  *
  * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2009,2010 Myhailo Danylenko <isbear@ukrpost.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,12 +68,12 @@ guint registered_cats = COMPL_CMD|COMPL_JID|COMPL_URLJID|COMPL_NAME| \
 // Returns 0, if no more categories can be allocated.
 // Note, that user should not make any assumptions about id nature,
 // as it is likely to change in future.
-guint compl_new_category (void)
+guint compl_new_category(void)
 {
   guint i = 0;
   while ((registered_cats >> i) & 1)
     i++;
-  if (i >= sizeof (guint)*8)
+  if (i >= 8 * sizeof (guint))
     return 0;
   else {
     guint id = 1 << i;
@@ -81,11 +82,11 @@ guint compl_new_category (void)
   }
 }
 
-//  compl_del_category (id)
+//  compl_del_category(id)
 // Frees reserved id for category.
 // Note, that for now it not validates its input, so, be careful
 // and specify exactly what you get from compl_new_category.
-void compl_del_category (guint id)
+void compl_del_category(guint id)
 {
   registered_cats &= ~id;
 }

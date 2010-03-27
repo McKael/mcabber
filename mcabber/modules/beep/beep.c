@@ -33,14 +33,14 @@ static void beep_uninit (void);
 /* Module description */
 module_info_t info_beep = {
 	.branch          = MCABBER_BRANCH,
-	.requires        = NULL,
-	.init            = beep_init,
-	.uninit          = beep_uninit,
 	.api             = MCABBER_API_VERSION,
 	.version         = MCABBER_VERSION,
 	.description     = "Simple beeper module\n"
-		"Recognizes option beep_enable\n"
-		"Provides command /beep",
+		" Recognizes option beep_enable\n"
+		" Provides command /beep",
+	.requires        = NULL,
+	.init            = beep_init,
+	.uninit          = beep_uninit,
 	.next            = NULL,
 };
 

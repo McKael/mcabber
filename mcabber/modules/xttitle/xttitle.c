@@ -3,6 +3,9 @@
  *
  * Copyright (C) 2010 Mikael Berthe <mikael@lilotux.net>
  *
+ * The option 'xttitle_short_format' can be set to 1 to use a very
+ * short terminal title.
+ *
  * This module is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
@@ -49,6 +52,7 @@ static guint unread_list_hh(const gchar *hookname, hk_arg_t *args,
   guint muc_unread = 0;
   guint muc_attention = 0;
   guint unread; // private message count
+  static gchar buf[128];
 
   // Note: We can add "attention" string later, but it isn't used
   // yet in mcabber...
@@ -66,17 +70,31 @@ static guint unread_list_hh(const gchar *hookname, hk_arg_t *args,
   // flag (that is, MUC buffer that have no highlighted messages).
   unread = all_unread - (muc_unread - muc_attention);
 
-  // Update the terminal title
-  if (muc_unread) {
-    printf("\033]0;MCabber -- %d message%c (total:%d / MUC:%d)\007",
-           unread, (unread > 1 ? 's' : ' '), all_unread, muc_unread);
-  } else {
-    if (unread)
-      printf("\033]0;MCabber -- %d message%c\007", unread,
-             (unread > 1 ? 's' : ' '));
+  // TODO: let the user use a format string, instead of hard-coded defaults...
+  if (settings_opt_get_int("xttitle_short_format") == 1) {
+    // Short title message
+    if (!all_unread)
+      snprintf(buf, sizeof(buf), "MCabber");
+    else if (unread == all_unread)
+      snprintf(buf, sizeof(buf), "MCabber (%u)", unread);
     else
-      printf("\033]0;MCabber -- No message\007");
+      snprintf(buf, sizeof(buf), "MCabber (%u/%u)", unread, all_unread);
+  } else {
+    // Long title message
+    if (muc_unread) {
+      snprintf(buf, sizeof(buf), "MCabber -- %u message%c (total:%u / MUC:%u)",
+               unread, (unread > 1 ? 's' : ' '), all_unread, muc_unread);
+    } else {
+      if (unread)
+        snprintf(buf, sizeof(buf), "MCabber -- %u message%c", unread,
+                 (unread > 1 ? 's' : ' '));
+      else
+        snprintf(buf, sizeof(buf), "MCabber -- No message");
+    }
   }
+
+  // Update the terminal title
+  printf("\033]0;%s\007", buf);
 
   return HOOK_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
 }
@@ -87,6 +105,8 @@ static void xttitle_init(void)
   // Add hook handler for unread message data
   unread_list_hid = hk_add_handler(unread_list_hh, HOOK_UNREAD_LIST_CHANGE,
                                    G_PRIORITY_DEFAULT_IDLE, NULL);
+  // Default title
+  printf("\033]0;MCabber\007");
 }
 
 // Uninitialization
@@ -94,6 +114,8 @@ static void xttitle_uninit(void)
 {
   // Unregister handler
   hk_del_handler(HOOK_UNREAD_LIST_CHANGE, unread_list_hid);
+  // Reset title
+  printf("\033]0;MCabber\007");
 }
 
 /* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

@@ -862,16 +862,16 @@ in the COMMANDS section.</p></div>
 </div>
 <h2 id="_mcabber_8217_s_roster">MCABBER&#8217;S ROSTER</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>The first listed resource on the roster is <em>[status]</em>, which keeps a log of
+<div class="paragraph"><p>The first listed item on the roster is <em>[status]</em>, which keeps a log of
 everything that appears in the short log window below the main chat area.
 While the log window was designed for showing the latest few elements, the
 dedicated <em>[status]</em> buffer allows more comfortable viewing of the log, as
 well as scrolling it in a standard manner.</p></div>
-<div class="paragraph"><p>Group names are displayed above the resources that are within them, and are
+<div class="paragraph"><p>Group names are displayed above the items that are within them, and are
 indicated by <em>---</em> to the left of the name.</p></div>
-<div class="paragraph"><p>For every real Jabber resource, the roster displays four pieces of information:
-the resource&#8217;s name or alias, its online status, its authorization status, and
-whether there are unread messages from the resource waiting for you.</p></div>
+<div class="paragraph"><p>For every real Jabber contact, the roster displays four pieces of information:
+the buddy&#8217;s name or alias, its online status, its authorization status, and
+whether there are unread messages from the buddy waiting for you.</p></div>
 <div class="paragraph"><p>The online status is one of the following:</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
@@ -935,7 +935,7 @@ offline (or invisible to you)
 </dt>
 <dd>
 <p>
-unknown, usually meaning you are not authorized to see this resource&#8217;s status
+unknown, usually meaning you are not authorized to see this buddy&#8217;s status
 </p>
 </dd>
 <dt class="hdlist1">
@@ -955,18 +955,22 @@ a conference room in which you are participating
 </p>
 </dd>
 </dl></div>
-<div class="paragraph"><p>The authorization status indicates whether a resource is authorized to receive
+<div class="paragraph"><p>The authorization status indicates whether a buddy is authorized to receive
 your online status updates, and is displayed by the brackets surrounding the
-resource&#8217;s online status.  Square brackets, like <em>[o]</em>, indicate that this
-resource is authorized to receive your status.  Curly braces, like <em>{o}</em>,
+buddy&#8217;s online status.  Square brackets, like <em>[o]</em>, indicate that this
+buddy is authorized to receive your status.  Curly braces, like <em>{o}</em>,
 indicate that they are not authorized to receive your status.</p></div>
-<div class="paragraph"><p>When there are unread messages from the resource which you have not looked at,
+<div class="paragraph"><p>When there are unread messages from a buddy which you have not looked at,
 a hash mark (<em>#</em>) appears in the leftmost section of the roster for that
-resource.  The hash mark disappears once you view that resource&#8217;s message log.</p></div>
+buddy.  The hash mark disappears once you view that buddy&#8217;s message
+buffer.
+When the user attention is requested (or when you receive a message containing
+your nickname in a MUC room), the hash mark is replaced with the <em>attention
+sign</em>, an exclamation mark (<em>!</em>).</p></div>
 <div class="paragraph"><p>Examples:</p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
-<em>--- Buds</em>
+' --- Buds'
 </dt>
 <dd>
 <p>
@@ -982,7 +986,7 @@ John is online, can see your status, and sent you a message that you did not rea
 </p>
 </dd>
 <dt class="hdlist1">
-<em>{?} Sally</em>
+<em> {?} Sally</em>
 </dt>
 <dd>
 <p>
@@ -990,7 +994,7 @@ Neither you nor Sally have authorized each other to see your online status
 </p>
 </dd>
 <dt class="hdlist1">
-<em>{a} Jane</em>
+<em> {a} Jane</em>
 </dt>
 <dd>
 <p>
@@ -1189,7 +1193,7 @@ Tip: aliases also can be used instead of commands.</tt></pre>
 </dt>
 <dd>
 <p>
-        Buddy&#8217;s buffer manipulation command.  Eg. you can search through buffer for "text", clear chat window etc.
+        Buddy&#8217;s buffer manipulation command.  E.g. you can search through buffer for "text", clear chat window etc.
 </p>
 <div class="dlist"><dl>
 <dt class="hdlist1">
@@ -1366,7 +1370,7 @@ Save the contents of the current buffer to the file "filename"
 </dt>
 <dd>
 <p>
-Remove all color rules for the roster. All roster items will get its default color.
+Remove all color rules for the roster.  All roster items will get its default color.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1374,7 +1378,7 @@ Remove all color rules for the roster. All roster items will get its default col
 </dt>
 <dd>
 <p>
-Set a color rule (or overwrite, if it already exists). The status is string containing all statuses the roster item can have for the rule to match, or * if any status is OK. Wildcard is the file-matching wildcard that will be applied to JID. Color is the wanted color. If color is -, the rule is removed. If more than one rule matches, the color from the last created (not overwritten) is used.
+Set a color rule (or overwrite, if it already exists).  The status is string containing all statuses the roster item can have for the rule to match, or * if any status is OK.  Wildcard is the file-matching wildcard that will be applied to JID.  Color is the wanted color. If color is -, the rule is removed. If more than one rule matches, the color from the last created (not overwritten) is used.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1382,7 +1386,7 @@ Set a color rule (or overwrite, if it already exists). The status is string cont
 </dt>
 <dd>
 <p>
-Marks the nick to be colored by given color. If a MUC has colored nicks, this one will be used. If color is -, the color is marked as chosen automatically, which means it will not be used in <em>preset</em> coloring mode, but will stay the same in <em>on</em> coloring mode.
+Marks the nick to be colored by given color.  If a MUC has colored nicks, this one will be used.  If color is -, the color is marked as chosen automatically, which means it will not be used in <em>preset</em> coloring mode, but will stay the same in <em>on</em> coloring mode.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1390,7 +1394,7 @@ Marks the nick to be colored by given color. If a MUC has colored nicks, this on
 </dt>
 <dd>
 <p>
-Sets a MUC nick coloring mode. If a jid (. means currently selected jid) is provided, the mode will apply to this specific MUC. If * is used, it will be applied to all MUCs, except the ones set by their jid. Mode <em>on</em> colors all nicks, <em>preset</em> only the ones manually set by /color mucnick command and <em>off</em> colors none. If not specified, defaults to <em>on</em>. Mode <em>-</em> removes the mode from given JID, which means the global one will apply. You can not remove the global mode. Default global coloring mode is <em>off</em>.
+Sets a MUC nick coloring mode.  If a jid (. means currently selected jid) is provided, the mode will apply to this specific MUC.  If * is used, it will be applied to all MUCs, except the ones set by their jid. Mode <em>on</em> colors all nicks, <em>preset</em> only the ones manually set by /color mucnick command and <em>off</em> colors none.  If not specified, defaults to <em>on</em>.  Mode <em>-</em> removes the mode from given JID, which means the global one will apply.  You can not remove the global mode. Default global coloring mode is <em>off</em>.
 </p>
 </dd>
 </dl></div>
@@ -1438,7 +1442,7 @@ Sets a MUC nick coloring mode. If a jid (. means currently selected jid) is prov
 <p>
         Tell mcabber what to do about pending events.<br />
         If the first parameter is <em>*</em>, the command will apply to all queued events.<br />
-        Event-specific arguments will be interpreted on event-to event basis. The only built-in case, when argument is used is MUC invitation reject - argument, if present, will be interpreted as reject reason.
+        Event-specific arguments will be interpreted on event-to event basis.  The only built-in case, when argument is used is MUC invitation reject - argument, if present, will be interpreted as reject reason.
 </p>
 <div class="dlist"><dl>
 <dt class="hdlist1">
@@ -1780,7 +1784,7 @@ Send/terminate a multi-line message
 </dt>
 <dd>
 <p>
-Loads specified module. If -f flag is specified, most of module loading errors will be ignored.
+Loads specified module.  If -f flag is specified, most of module loading errors will be ignored.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1788,7 +1792,7 @@ Loads specified module. If -f flag is specified, most of module loading errors w
 </dt>
 <dd>
 <p>
-Unloads specified module. Note: The force flag will not remove any dependent on this modules!
+Unloads specified module. Note: The force flag will not remove any dependency on this module!
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1941,7 +1945,7 @@ Show current OTR status for the specified jid (or the currently selected contact
 </dt>
 <dd>
 <p>
-Show the active fingerprint of an OTR channel. If the fingerprint is provided instead of "fpr", the fingerprint will become trusted. If you replace "fpr" by some bogus string the fingerprint will loose the trusted status.
+Show the active fingerprint of an OTR channel. If the fingerprint is provided instead of "fpr", the fingerprint will become trusted.  If you replace "fpr" by some bogus string the fingerprint will loose the trusted status.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1994,7 +1998,7 @@ Prints all OTR policies to the status buffer
 </dt>
 <dd>
 <p>
-Sets either the default policy or the policy for the given jid The plain policy should never be used, because you won&#8217;t be able to receive or send any OTR encrypted messages. If you set the policy to manual, you or your chat partner have to start the OTR encryption by hand (e.g. with /otr start). The policy "opportunistic" does that itself by sending a special whitespace-sequence at the end of unencrypted messages. So the other OTR-enabled chat client knows, that you want to use OTR. Note that the first message will always be unencryted, if you use this policy. With the policy "always" no message will be sent in plain text. If you try to sent the first message unencrypted, mcabber will try to establish an OTR channel. Please resend your message, when you get the information that the channel was established. If someone sends you plaintext messages while the policy is set to "always", you&#8217;ll be able to read the message but it won&#8217;t be saved to the history.
+Sets either the default policy or the policy for the given jid The plain policy should never be used, because you won&#8217;t be able to receive or send any OTR encrypted messages. If you set the policy to manual, you or your chat partner have to start the OTR encryption by hand (e.g. with /otr start). The policy "opportunistic" does that itself by sending a special whitespace-sequence at the end of unencrypted messages.  So the other OTR-enabled chat client knows, that you want to use OTR.  Note that the first message will always be unencryted, if you use this policy. With the policy "always" no message will be sent in plain text.  If you try to sent the first message unencrypted, mcabber will try to establish an OTR channel.  Please resend your message, when you get the information that the channel was established.  If someone sends you plaintext messages while the policy is set to "always", you&#8217;ll be able to read the message but it won&#8217;t be saved to the history.
 </p>
 </dd>
 </dl></div>
@@ -2497,7 +2501,7 @@ Set/update/delete an annotation. If there is no text, the current item&#8217;s a
 <dd>
 <p>
         Send the "text" message to the currently selected buddy.  It can be useful if you want to send a message beginning with a slash, for example.<br />
-        The "-n" flag turns the message to "normal" type, "-h" to "headline". "--" can be used to send chat message beginning with -n or -h.
+        The "-n" flag turns the message to "normal" type, "-h" to "headline".  "--" can be used to send chat message beginning with -n or -h.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -2521,11 +2525,12 @@ Set/update/delete an annotation. If there is no text, the current item&#8217;s a
 </p>
 </dd>
 <dt class="hdlist1">
-/set option [= value]
+/set [option [= value]]
 </dt>
 <dd>
 <p>
-        Display or set an option value.
+        Display or set an option value.<br />
+        Without arguments prints a list of all set options with their values
 </p>
 </dd>
 <dt class="hdlist1">
@@ -2604,7 +2609,9 @@ Please visit our website to find out about the MUC room and the bug tracker.</p>
 </div>
 <h2 id="_resources">RESOURCES</h2>
 <div class="sectionbody">
-<div class="paragraph"><p><a href="http://mcabber.com/">Main web site</a></p></div>
+<div class="paragraph"><p><a href="http://mcabber.com/">Main web site</a><br />
+<a href="http://wiki.mcabber.com/">Official wiki</a><br />
+<a href="xmpp:mcabber@conf.lilotux.net">MCabber MUC room</a></p></div>
 </div>
 <h2 id="_copying">COPYING</h2>
 <div class="sectionbody">
@@ -2617,7 +2624,7 @@ License (GPL).</p></div>
 <div id="footer">
 <div id="footer-text">
 Version 0.10.0-dev<br />
-Last updated 2010-03-13 17:43:30 CEST
+Last updated 2010-03-28 11:48:11 CEST
 </div>
 </div>
 </body>

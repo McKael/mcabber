@@ -117,18 +117,18 @@ in the COMMANDS section.
 
 MCABBER'S ROSTER
 ----------------
-The first listed resource on the roster is '[status]', which keeps a log of
+The first listed item on the roster is '[status]', which keeps a log of
 everything that appears in the short log window below the main chat area.
 While the log window was designed for showing the latest few elements, the
 dedicated '[status]' buffer allows more comfortable viewing of the log, as
 well as scrolling it in a standard manner.
 
-Group names are displayed above the resources that are within them, and are
+Group names are displayed above the items that are within them, and are
 indicated by '---' to the left of the name.
 
-For every real Jabber resource, the roster displays four pieces of information:
-the resource's name or alias, its online status, its authorization status, and
-whether there are unread messages from the resource waiting for you.
+For every real Jabber contact, the roster displays four pieces of information:
+the buddy's name or alias, its online status, its authorization status, and
+whether there are unread messages from the buddy waiting for you.
 
 The online status is one of the following:
 
@@ -139,19 +139,23 @@ The online status is one of the following:
         'd';;  do not disturb
         'i';;  invisible (displayed only for your resource)
         '_';;  offline (or invisible to you)
-        '?';;  unknown, usually meaning you are not authorized to see this resource's status
+        '?';;  unknown, usually meaning you are not authorized to see this buddy's status
         'x';;  a conference room in which you are not participating
         'C';;  a conference room in which you are participating
 
-The authorization status indicates whether a resource is authorized to receive
+The authorization status indicates whether a buddy is authorized to receive
 your online status updates, and is displayed by the brackets surrounding the
-resource's online status.  Square brackets, like '[o]', indicate that this
-resource is authorized to receive your status.  Curly braces, like '\{o\}',
+buddy's online status.  Square brackets, like '[o]', indicate that this
+buddy is authorized to receive your status.  Curly braces, like '\{o\}',
 indicate that they are not authorized to receive your status.
 
-When there are unread messages from the resource which you have not looked at,
+When there are unread messages from a buddy which you have not looked at,
 a hash mark ('#') appears in the leftmost section of the roster for that
-resource.  The hash mark disappears once you view that resource's message log.
+buddy.  The hash mark disappears once you view that buddy's message
+buffer.
+When the user attention is requested (or when you receive a message containing
+your nickname in a MUC room), the hash mark is replaced with the 'attention
+sign', an exclamation mark ('!').
 
 Examples:
 
@@ -211,7 +215,7 @@ COMMANDS RELATED TO MCABBER
 /buffer top|bottom|date|%|search_backward|search_forward::
 /buffer scroll_lock|scroll_unlock|scroll_toggle::
 /buffer save filename::
-        Buddy's buffer manipulation command.  Eg. you can search through buffer for "text", clear chat window etc.
+        Buddy's buffer manipulation command.  E.g. you can search through buffer for "text", clear chat window etc.
 
         'clear';;  Clear the current buddy chat window
         'close' [jid];;  Empty all contents of the buffer and close the current buddy chat window
@@ -243,10 +247,10 @@ COMMANDS RELATED TO MCABBER
 /color muc (jid|.|*) [on|preset|off|-]::
         The 'color' command allows setting dynamic color properties of the screen.
 
-        'roster' clear;;  Remove all color rules for the roster. All roster items will get its default color.
-        'roster' status wildcard color;;  Set a color rule (or overwrite, if it already exists). The status is string containing all statuses the roster item can have for the rule to match, or * if any status is OK. Wildcard is the file-matching wildcard that will be applied to JID. Color is the wanted color. If color is -, the rule is removed. If more than one rule matches, the color from the last created (not overwritten) is used.
-        'mucnick' nick (color|-);;  Marks the nick to be colored by given color. If a MUC has colored nicks, this one will be used. If color is -, the color is marked as chosen automatically, which means it will not be used in 'preset' coloring mode, but will stay the same in 'on' coloring mode.
-        'muc' (jid|.|*) [on|preset|off|-];;  Sets a MUC nick coloring mode. If a jid (. means currently selected jid) is provided, the mode will apply to this specific MUC. If * is used, it will be applied to all MUCs, except the ones set by their jid. Mode 'on' colors all nicks, 'preset' only the ones manually set by /color mucnick command and 'off' colors none. If not specified, defaults to 'on'. Mode '-' removes the mode from given JID, which means the global one will apply. You can not remove the global mode. Default global coloring mode is 'off'.
+        'roster' clear;;  Remove all color rules for the roster.  All roster items will get its default color.
+        'roster' status wildcard color;;  Set a color rule (or overwrite, if it already exists).  The status is string containing all statuses the roster item can have for the rule to match, or * if any status is OK.  Wildcard is the file-matching wildcard that will be applied to JID.  Color is the wanted color. If color is -, the rule is removed. If more than one rule matches, the color from the last created (not overwritten) is used.
+        'mucnick' nick (color|-);;  Marks the nick to be colored by given color.  If a MUC has colored nicks, this one will be used.  If color is -, the color is marked as chosen automatically, which means it will not be used in 'preset' coloring mode, but will stay the same in 'on' coloring mode.
+        'muc' (jid|.|*) [on|preset|off|-];;  Sets a MUC nick coloring mode.  If a jid (. means currently selected jid) is provided, the mode will apply to this specific MUC.  If * is used, it will be applied to all MUCs, except the ones set by their jid. Mode 'on' colors all nicks, 'preset' only the ones manually set by /color mucnick command and 'off' colors none.  If not specified, defaults to 'on'.  Mode '-' removes the mode from given JID, which means the global one will apply.  You can not remove the global mode. Default global coloring mode is 'off'.
 
 /connect::
         Establish connection to the Jabber server.
@@ -265,7 +269,7 @@ COMMANDS RELATED TO MCABBER
 /event list::
         Tell mcabber what to do about pending events. +
         If the first parameter is '*', the command will apply to all queued events. +
-        Event-specific arguments will be interpreted on event-to event basis. The only built-in case, when argument is used is MUC invitation reject - argument, if present, will be interpreted as reject reason.
+        Event-specific arguments will be interpreted on event-to event basis.  The only built-in case, when argument is used is MUC invitation reject - argument, if present, will be interpreted as reject reason.
 
         #N|* accept [event-specific arguments];;  Event number #N/All events will be accepted
         #N|* ignore [event-specific arguments];;  Event number #N/All events will be ignored
@@ -329,8 +333,8 @@ COMMANDS RELATED TO MCABBER
 /module [list]::
         Load, unload or show info on module.
 
-        'load' [-f] module;;  Loads specified module. If -f flag is specified, most of module loading errors will be ignored.
-        'unload' [-f] module;;  Unloads specified module. Note: The force flag will not remove any dependent on this modules!
+        'load' [-f] module;;  Loads specified module.  If -f flag is specified, most of module loading errors will be ignored.
+        'unload' [-f] module;;  Unloads specified module. Note: The force flag will not remove any dependency on this module!
         'info' module;;  Shows available information about this module.
         ['list'];;  Lists modules in a format: [modulename]  [reference count] ([Manually/Automatically loaded]) [any extra info, like version or dependencies]
 
@@ -365,7 +369,7 @@ COMMANDS RELATED TO MCABBER
         'start' [jid];;  Open an OTR channel to the specified jid (or the currently selected contact)
         'stop' [jid];;  Close the OTR channel to the specified jid (or the currently selected contact)
         'info' [jid];;  Show current OTR status for the specified jid (or the currently selected contact)
-        'fingerprint' [jid [fpr]];;  Show the active fingerprint of an OTR channel. If the fingerprint is provided instead of "fpr", the fingerprint will become trusted. If you replace "fpr" by some bogus string the fingerprint will loose the trusted status.
+        'fingerprint' [jid [fpr]];;  Show the active fingerprint of an OTR channel. If the fingerprint is provided instead of "fpr", the fingerprint will become trusted.  If you replace "fpr" by some bogus string the fingerprint will loose the trusted status.
         'smpq' [jid] secret;;  Initiate the Socialist Millionaires Protocol with the secret and the buddy
         'smpr' [jid] secret;;  Respond to the Initiation of the jid with the secret
         'smpa' [jid];;  Abort the running Socialist Millionaires Protocol
@@ -375,7 +379,7 @@ COMMANDS RELATED TO MCABBER
         You can use the shortcut-jid "." for the currently selected contact.
 
         (without arguments);;  Prints all OTR policies to the status buffer
-        ('default'|'jid') (plain|manual|opportunistic|always);;  Sets either the default policy or the policy for the given jid The plain policy should never be used, because you won't be able to receive or send any OTR encrypted messages. If you set the policy to manual, you or your chat partner have to start the OTR encryption by hand (e.g. with /otr start). The policy "opportunistic" does that itself by sending a special whitespace-sequence at the end of unencrypted messages. So the other OTR-enabled chat client knows, that you want to use OTR. Note that the first message will always be unencryted, if you use this policy. With the policy "always" no message will be sent in plain text. If you try to sent the first message unencrypted, mcabber will try to establish an OTR channel. Please resend your message, when you get the information that the channel was established. If someone sends you plaintext messages while the policy is set to "always", you'll be able to read the message but it won't be saved to the history.
+        ('default'|'jid') (plain|manual|opportunistic|always);;  Sets either the default policy or the policy for the given jid The plain policy should never be used, because you won't be able to receive or send any OTR encrypted messages. If you set the policy to manual, you or your chat partner have to start the OTR encryption by hand (e.g. with /otr start). The policy "opportunistic" does that itself by sending a special whitespace-sequence at the end of unencrypted messages.  So the other OTR-enabled chat client knows, that you want to use OTR.  Note that the first message will always be unencryted, if you use this policy. With the policy "always" no message will be sent in plain text.  If you try to sent the first message unencrypted, mcabber will try to establish an OTR channel.  Please resend your message, when you get the information that the channel was established.  If someone sends you plaintext messages while the policy is set to "always", you'll be able to read the message but it won't be saved to the history.
 
 /pgp disable|enable|force|info [jid]::
 /pgp setkey [jid [key]]::
@@ -469,7 +473,7 @@ COMMANDS RELATED TO MCABBER
 
 /say [-n|-h|--] text::
         Send the "text" message to the currently selected buddy.  It can be useful if you want to send a message beginning with a slash, for example. +
-        The "-n" flag turns the message to "normal" type, "-h" to "headline". "--" can be used to send chat message beginning with -n or -h.
+        The "-n" flag turns the message to "normal" type, "-h" to "headline".  "--" can be used to send chat message beginning with -n or -h.
 
 /say_to [-n|-h] [-q] [-f file] jid text::
         Send the "text" message to the specified jid. +
@@ -481,8 +485,9 @@ COMMANDS RELATED TO MCABBER
 /screen_refresh::
         Refresh the mcabber screen.
 
-/set option [= value]::
-        Display or set an option value.
+/set [option [= value]]::
+        Display or set an option value. +
+        Without arguments prints a list of all set options with their values
 
 /source pattern::
         Read configuration files, that match glob pattern (sorted in alphabetical order).
@@ -532,7 +537,9 @@ Written by mailto:mikael@lilotux.net[Mikael BERTHE] and others
 
 RESOURCES
 ---------
-http://mcabber.com/[Main web site]
+http://mcabber.com/[Main web site] +
+http://wiki.mcabber.com/[Official wiki] +
+xmpp:mcabber@conf.lilotux.net[MCabber MUC room]
 
 COPYING
 -------

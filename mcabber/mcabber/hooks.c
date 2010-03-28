@@ -372,6 +372,15 @@ void hk_message_in(const char *bjid, const char *resname,
   if (settings_opt_get_int("eventcmd_use_nickname"))
     ename = roster_getname(bjid);
 
+  // Display the sender in the log window
+  if ((!is_groupchat) && !(message_flags & HBB_PREFIX_ERR) &&
+      settings_opt_get_int("log_display_sender")) {
+    const char *name = roster_getname(bjid);
+    if (!name) name = "";
+    scr_LogPrint(LPRINT_NORMAL, "Message received from %s <%s/%s>",
+                 name, bjid, (resname ? resname : ""));
+  }
+
 #ifdef MODULES_ENABLE
   {
     hk_arg_t args[] = {
@@ -392,15 +401,6 @@ void hk_message_in(const char *bjid, const char *resname,
   // - We do call hk_ext_cmd() for messages to the current window
   if (!active_window && ((is_groupchat && !timestamp) || !is_groupchat))
     hk_ext_cmd(ename ? ename : bjid, (is_groupchat ? 'G' : 'M'), 'R', wmsg);
-
-  // Display the sender in the log window
-  if ((!is_groupchat) && !(message_flags & HBB_PREFIX_ERR) &&
-      settings_opt_get_int("log_display_sender")) {
-    const char *name = roster_getname(bjid);
-    if (!name) name = "";
-    scr_LogPrint(LPRINT_NORMAL, "Message received from %s <%s/%s>",
-                 name, bjid, (resname ? resname : ""));
-  }
 
   // Beep, if enabled:
   // - if it's a private message

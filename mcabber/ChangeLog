@@ -2,7 +2,7 @@ mcabber (0.10.0-dev)
 
  * Switch to the Loudmouth library (franky)
  * Warning: 'username' has been replaced with 'jid' in the configuration file
- * MCabber can now do DNS SRV lookups so the variable
+ * MCabber can now do DNS SRV lookups
  * [UI] Buffers have priorities (and by default MUC rooms have a lower
    priority).  The priority is used by mcabber to jump to the next unread
    buffer.

@@ -44,6 +44,8 @@ elif [ $event = "STATUS" ]; then
   # Buddy $arg2 status is $arg1 (_, O, I, F, D, N, A)
   echo > /dev/null
 elif [ $event = "UNREAD" ]; then
-  # $arg1 is the number of unread buffers
+  # $arg1 contains 4 numbers separated with space chars:
+  # Nr of unread buffers, nr of unread buffers with attention sign,
+  # nr of MUC unread buffers, nr of MUC unread buffers with attention sign.
   echo > /dev/null
 fi

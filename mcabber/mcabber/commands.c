@@ -1016,8 +1016,6 @@ static void do_add(char *arg)
       id = NULL;
     } else {
       mc_strtolower(id);
-      // Actually an UTF-8 id isn't needed because only the bare jid will
-      // be used.
       id = jid_utf8 = to_utf8(id);
     }
   } else {

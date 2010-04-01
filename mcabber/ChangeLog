@@ -27,6 +27,7 @@ mcabber (0.10.0-dev)
  * Obsolete option 'hide_offline_buddies' has been removed
  * Obsolete XEP-0022 (Message Events) is now disabled by default
  * No suffix is displayed in the status bar after the 'info' value
+ * Add Vim syntax file for mcabber history log files to contrib
 
  -- Mikael, ?
 

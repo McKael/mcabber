@@ -120,7 +120,8 @@ guint new_completion(const char *prefix, GSList *compl_cat, const gchar *suffix)
           compval = g_strdup_printf("%s%s", word+len, suffix);
         else
           compval = g_strdup(word+len);
-        c->list = g_slist_insert_sorted(c->list, compval, g_ascii_strcasecmp);
+        c->list = g_slist_insert_sorted(c->list, compval,
+                                        (GCompareFunc)g_ascii_strcasecmp);
       }
     }
   }
@@ -210,10 +211,11 @@ void compl_add_category_word(guint categ, const gchar *word)
     nword = g_strdup(word);
   }
 
-  if (g_slist_find_custom(cat->words, nword, g_strcmp0) != NULL)
+  if (g_slist_find_custom(cat->words, nword, (GCompareFunc)g_strcmp0) != NULL)
     return;
 
-  cat->words = g_slist_insert_sorted(cat->words, nword, g_ascii_strcasecmp);
+  cat->words = g_slist_insert_sorted(cat->words, nword,
+                                     (GCompareFunc)g_ascii_strcasecmp);
 }
 
 //  compl_del_category_word(categ, command)

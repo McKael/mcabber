@@ -3,7 +3,7 @@
 
 function MCabber_log_ftdetect()
     if getline(1) =~ '^\u. \d\{8}T\d\d:\d\d:\d\dZ \d\{3} '
-      setfiletype mcabber_log
+      setlocal filetype=mcabber_log
     endif
 endfunction
 

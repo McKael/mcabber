@@ -69,10 +69,10 @@ typedef struct {
   guint events;
   char *caps;
 #ifdef XEP0022
-  struct jep0022 jep22;
+  struct xep0022 xep22;
 #endif
 #ifdef XEP0085
-  struct jep0085 jep85;
+  struct xep0085 xep85;
 #endif
 #ifdef HAVE_GPGME
   struct pgp_data pgpdata;
@@ -146,8 +146,8 @@ static inline void free_resource_data(res *p_res)
   g_free((gchar*)p_res->name);
   g_free((gchar*)p_res->realjid);
 #ifdef XEP0022
-  g_free(p_res->jep22.last_msgid_sent);
-  g_free(p_res->jep22.last_msgid_rcvd);
+  g_free(p_res->xep22.last_msgid_sent);
+  g_free(p_res->xep22.last_msgid_rcvd);
 #endif
 #ifdef HAVE_GPGME
   g_free(p_res->pgpdata.sign_keyid);
@@ -1325,24 +1325,24 @@ void buddy_resource_setcaps(gpointer rosterdata, const char *resname,
   }
 }
 
-struct jep0022 *buddy_resource_jep22(gpointer rosterdata, const char *resname)
+struct xep0022 *buddy_resource_xep22(gpointer rosterdata, const char *resname)
 {
 #ifdef XEP0022
   roster *roster_usr = rosterdata;
   res *p_res = get_resource(roster_usr, resname);
   if (p_res)
-    return &p_res->jep22;
+    return &p_res->xep22;
 #endif
   return NULL;
 }
 
-struct jep0085 *buddy_resource_jep85(gpointer rosterdata, const char *resname)
+struct xep0085 *buddy_resource_xep85(gpointer rosterdata, const char *resname)
 {
 #ifdef XEP0085
   roster *roster_usr = rosterdata;
   res *p_res = get_resource(roster_usr, resname);
   if (p_res)
-    return &p_res->jep85;
+    return &p_res->xep85;
 #endif
   return NULL;
 }

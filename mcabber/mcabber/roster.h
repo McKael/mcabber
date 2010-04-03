@@ -115,14 +115,14 @@ struct role_affil {
 // #define XEP0022 (Officially obsoleted by XMPP Council)
 #define XEP0085
 
-struct jep0022 {
+struct xep0022 {
   guint support;
   guint last_state_sent;
   gchar *last_msgid_sent;
   guint last_state_rcvd;
   gchar *last_msgid_rcvd;
 };
-struct jep0085 {
+struct xep0085 {
   guint support;
   guint last_state_sent;
   guint last_state_rcvd;
@@ -234,8 +234,8 @@ guint   buddy_resource_getevents(gpointer rosterdata, const char *resname);
 void    buddy_resource_setcaps(gpointer rosterdata, const char *resname,
                                const char *caps);
 char   *buddy_resource_getcaps(gpointer rosterdata, const char *resname);
-struct jep0022 *buddy_resource_jep22(gpointer rosterdata, const char *resname);
-struct jep0085 *buddy_resource_jep85(gpointer rosterdata, const char *resname);
+struct xep0022 *buddy_resource_xep22(gpointer rosterdata, const char *resname);
+struct xep0085 *buddy_resource_xep85(gpointer rosterdata, const char *resname);
 struct pgp_data *buddy_resource_pgp(gpointer rosterdata, const char *resname);
 enum imrole buddy_getrole(gpointer rosterdata, const char *resname);
 enum imaffiliation buddy_getaffil(gpointer rosterdata, const char *resname);

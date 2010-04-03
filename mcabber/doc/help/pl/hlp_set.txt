@@ -2,3 +2,4 @@
  /SET [opcja [= wartość]]
 
 Wyświetla, lub zmienia wartość opcji "opcja".
+Jeżeli nie podano argumentów wyświetla listę wszystkich ustawionych opcji i ich wartości.

@@ -1,15 +1,16 @@
 
- /EVENT #N|* accept|ignore|reject
+ /EVENT #N|* accept|ignore|reject [argumenty zdarzenia]
  /EVENT list
 
 Zarządza oczekującymi zdarzeniami.
 Jeżeli pierwszy parametr to '*', polecenie będzie dotyczyło wszystkich oczekujących zdarzeń.
+Argumenty zdarzenia będą interpretowane na zasadach zdarzenie-do-zdarzenia. Jedyny wbudowany przypadek: w momencie odrzucania zaproszenia (reject) - argument, o ile występuje zostanie zinterpretowany jako powód odrzucenia.
 
-/event #N|* accept
+/event #N|* accept [argumenty zdarzenia]
  Zdarzenie o podanym numerze (#N) lub wszystkie (*) będą akceptowane
-/event #N|* ignore
+/event #N|* ignore [argumenty zdarzenia]
  Zdarzenie o podanym numerze (#N) lub wszystkie (*) będą ignorowane
-/event #N|* reject
+/event #N|* reject [argumenty zdarzenia]
  Zdarzenie o podanym numerze (#N) lub wszystkie (*) będą odrzucane
 /event list
  Wyświetla listę oczekujących zdarzeń

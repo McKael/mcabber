@@ -1,0 +1,16 @@
+
+ /MODULE load|unload [-f] module
+ /MODULE info module
+ /MODULE [list]
+
+Włącza, wyłącza lub wyświetla informacje o module.
+
+/module load [-f] module
+ Włącza wskazany moduł.  Jeżeli wywołano z flagą -f, większość błędów ładowania modułu zostanie zignorowanych.
+/module unload [-f] module
+ Wyłącza wskazany moduł.
+ Uwaga: Użycie flagi -f nie spowoduje usunięcia zależności od modułu!
+/module info module
+ Wyświetla dostępne informacje na temat modułu.
+/module [list]
+ Wyświetla moduły w postaci: [nazwa modułu]  [liczba odwołań] ([Załadowany ręcznie/automatycznie]) [dodatkowe informacje takie jak wersja, zależności modułu]

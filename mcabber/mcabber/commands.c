@@ -1496,8 +1496,10 @@ static void do_say_to(char *arg)
   char **paramlst;
   char *fjid, *msg;
   char *file = NULL;
+  char *xfjid = NULL;
   LmMessageSubType msg_type = LM_MESSAGE_SUB_TYPE_NOT_SET;
   bool quiet = FALSE;
+  bool expandfjid = FALSE;
 
   if (!xmpp_is_online()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
@@ -1545,7 +1547,12 @@ static void do_say_to(char *arg)
   fjid = *paramlst;
   msg = *(paramlst+1);
 
-  if (!strcmp(fjid, ".")) {
+  if (!strncmp(fjid, "." JID_RESOURCE_SEPARATORSTR, 2))
+    expandfjid = TRUE;
+
+  if (expandfjid || !strcmp(fjid, ".")) {
+    const gchar *res = fjid+2;
+    fjid = NULL;
     // Send the message to the current buddy
     if (current_buddy)
       fjid = (char*)buddy_getjid(BUDDATA(current_buddy));
@@ -1553,6 +1560,10 @@ static void do_say_to(char *arg)
       scr_LogPrint(LPRINT_NORMAL, "Please specify a Jabber ID.");
       free_arg_lst(paramlst);
       return;
+    }
+    if (expandfjid) {
+      xfjid = g_strdup_printf("%s%c%s", fjid, JID_RESOURCE_SEPARATOR, res);
+      fjid = xfjid;
     }
   } else if (check_jid_syntax(fjid)) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify a valid Jabber ID.");
@@ -1575,6 +1586,7 @@ static void do_say_to(char *arg)
 
   send_message_to(fjid, msg, NULL, msg_type, quiet);
 
+  g_free(xfjid);
   g_free(fjid);
   g_free(msg);
   free_arg_lst(paramlst);

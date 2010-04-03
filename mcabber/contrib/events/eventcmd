@@ -31,7 +31,7 @@ if [ $event = "MSG" ]; then
       ;;
     MUC)
       # Groupchat message in room $arg2
-      if [ -n "$filename" && -f "$filename" ]; then
+      if [ -n "$filename" -a -f "$filename" ]; then
         # We could process filename here...
         /bin/rm $filename
       fi

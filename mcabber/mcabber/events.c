@@ -23,7 +23,7 @@
 #include <glib.h>
 #include <string.h>
 #include "events.h"
-#include "logprint.h"
+#include "screen.h"
 
 typedef struct {
   char           *id;
@@ -162,16 +162,23 @@ int evs_callback(const char *evid, guint context, const char *arg)
 // Prints list of events to mcabber log window.
 void evs_display_list(void)
 {
+  guint count = 0;
   GSList *p;
 
-  scr_LogPrint(LPRINT_LOGNORM, "Events list:");
+  scr_LogPrint(LPRINT_NORMAL, "Events list:");
   for (p = evs_list; p; p = g_slist_next(p)) {
     evs_t *i = p->data;
-    scr_LogPrint(LPRINT_LOGNORM,
+    scr_LogPrint(LPRINT_NORMAL,
                  "Id: %-3s %s", i->id,
                  (i->description ? i->description : ""));
+    count++;
   }
-  scr_LogPrint(LPRINT_LOGNORM, "End of events list.");
+  scr_LogPrint(LPRINT_NORMAL, "End of events list.");
+  if (count+2 > scr_getlogwinheight()) {
+    scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+    scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                                   ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
+  }
 }
 
 //  evs_geteventslist()

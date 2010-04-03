@@ -503,6 +503,12 @@ int check_jid_syntax(const char *fjid)
   /* and it must not be longer than 1023 bytes */
   if (domlen > 1023) return 1;
 
+  /* /.+/ is not a valid domain name pattern */
+  for (str = domain; *str && *str != JID_RESOURCE_SEPARATOR; str++)
+    if (*str != '.') break;
+  if (!*str || *str == JID_RESOURCE_SEPARATOR)
+    return 1; /* domain contains only dots */
+
 #ifdef HAVE_LIBIDN
   idnpp = idnprep;
   str = domain;

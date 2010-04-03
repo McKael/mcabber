@@ -55,7 +55,7 @@ static char *user_histo_file(const char *bjid)
     return NULL;
 
   if (!g_strcmp0(bjid, ".") || !g_strcmp0(bjid, "..") ||
-      strchr(bjid, "/"))
+      strchr(bjid, '/'))
     return NULL;
 
   lowerid = g_strdup(bjid);

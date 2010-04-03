@@ -3479,8 +3479,15 @@ void readline_iline_end(void)
 
 void readline_backward_kill_iline(void)
 {
-  strcpy(inputLine, ptr_inputline);
-  ptr_inputline = inputLine;
+  char *dest = inputLine;
+
+  if (ptr_inputline == inputLine) return;
+
+  if (*dest == COMMAND_CHAR && ptr_inputline != dest+1)
+    dest = next_char(dest);
+
+  strcpy(dest, ptr_inputline);
+  ptr_inputline = dest;
   inputline_offset = 0;
 }
 

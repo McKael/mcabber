@@ -77,29 +77,29 @@ struct xmpp_error xmpp_errors[] = {
 static GSList *xmpp_additional_features = NULL;
 static char *ver, *ver_notavail;
 
-void xmpp_add_feature (const char *xmlns)
+void xmpp_add_feature(const char *xmlns)
 {
   if (xmlns) {
     ver = NULL;
     ver_notavail = NULL;
     xmpp_additional_features = g_slist_append(xmpp_additional_features,
-                                              g_strdup (xmlns));
+                                              g_strdup(xmlns));
   }
 }
 
-void xmpp_del_feature (const char *xmlns)
+void xmpp_del_feature(const char *xmlns)
 {
   GSList *feature = xmpp_additional_features;
   while (feature) {
     if (!strcmp(feature->data, xmlns)) {
       ver = NULL;
       ver_notavail = NULL;
-      g_free (feature->data);
+      g_free(feature->data);
       xmpp_additional_features = g_slist_delete_link(xmpp_additional_features,
                                                      feature);
       return;
     }
-    feature = g_slist_next (feature);
+    feature = g_slist_next(feature);
   }
 }
 #endif
@@ -225,7 +225,7 @@ const char *entity_version(enum imstatus status)
   caps_add_feature("", NS_MUC);
   // advertise ChatStates only if they aren't disabled
   if (!settings_opt_get_int("disable_chatstates"))
-   caps_add_feature("", NS_CHATSTATES);
+    caps_add_feature("", NS_CHATSTATES);
   caps_add_feature("", NS_TIME);
   caps_add_feature("", NS_XMPP_TIME);
   caps_add_feature("", NS_VERSION);
@@ -235,13 +235,13 @@ const char *entity_version(enum imstatus status)
   if (!settings_opt_get_int("iq_last_disable") &&
       (!settings_opt_get_int("iq_last_disable_when_notavail") ||
        status != notavail))
-   caps_add_feature("", NS_LAST);
+    caps_add_feature("", NS_LAST);
 #ifdef MODULES_ENABLE
   {
     GSList *el = xmpp_additional_features;
     while (el) {
       caps_add_feature("", el->data);
-      el = g_slist_next (el);
+      el = g_slist_next(el);
     }
   }
 #endif

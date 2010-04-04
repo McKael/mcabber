@@ -1272,11 +1272,15 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
                lm_message_node_find_xmlns(m->node, NS_SIGNED));
   // Report received message if message receipt was requested
   if (lm_message_node_get_child(m->node, "request")) {
+    const gchar *mid;
+    LmMessageNode *y;
     LmMessage *rcvd = lm_message_new(from, LM_MESSAGE_TYPE_MESSAGE);
-    lm_message_node_set_attribute(rcvd->node, "id", lm_message_get_id(m));
-    lm_message_node_set_attribute
-            (lm_message_node_add_child(rcvd->node, "received", NULL),
-             "xmlns", NS_RECEIPTS);
+    mid = lm_message_get_id(m);
+    // For backward compatibility (XEP184 < v.1.1):
+    lm_message_node_set_attribute(rcvd->node, "id", mid);
+    y = lm_message_node_add_child(rcvd->node, "received", NULL);
+    lm_message_node_set_attribute(y, "xmlns", NS_RECEIPTS);
+    lm_message_node_set_attribute(y, "id", mid);
     lm_connection_send(connection, rcvd, NULL);
     lm_message_unref(rcvd);
   }

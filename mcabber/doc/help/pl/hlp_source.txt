@@ -1,4 +1,4 @@
 
- /SOURCE plik
+ /SOURCE wzorzec
 
-Wczytuje plik konfiguracyjny.
+Wczytuje pliki konfiguracyjne, pasujące do podanego wzorca (według kojelności alfabetycznej).

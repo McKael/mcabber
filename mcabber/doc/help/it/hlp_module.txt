@@ -1,0 +1,16 @@
+
+ /MODULE load|unload [-f] modulo
+ /MODULE info modulo
+ /MODULE [list]
+
+Carica, scarica o mostra le informazioni disponibili per un modulo.
+
+/module load [-f] modulo
+ Carica il modulo specificato. Se viene specificato il flag -f, la maggior parte degli errori in fase di caricamento del modulo viene ignorata.
+/module unload [-f] modulo
+ Scarica il modulo specificato.
+ Nota: il flag -f non rimuove nessun modulo dipendente da <modulo>!
+/module info modulo
+ Mostra le informazioni disponibili del modulo.
+/module [list]
+ Elenca i moduli nel formato: [nome modulo] [conteggio dei riferimenti] ([caricati manualmente/automaticamente)] [informazioni supplementari, come versione e dipendenze]

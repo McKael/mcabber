@@ -1,8 +1,7 @@
 
  /ALIAS [nome [= comando]]
 
-Questo comando consente di definire alias che possono semplificare l'uso di
-comandi sofisticati.
+Questo comando consente di definire alias che possono semplificare l'uso di comandi sofisticati.
 Gli alias possono essere gestiti come segue:
 
 /alias

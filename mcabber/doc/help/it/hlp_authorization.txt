@@ -1,7 +1,7 @@
 
  /AUTHORIZATION allow|cancel|request|request_unsubscribe [jid]
 
-Questo comando gestisce la sottoscrizione delle presenze: ti consente di richiedere la sottoscrizione delle presenze altrui al tuo roster, e ti consente di controllare che riceve la notifica della tua presenza.
+Questo comando gestisce la sottoscrizione delle presenze: ti consente di richiedere la sottoscrizione delle presenze altrui al tuo roster, e ti consente di controllare chi riceve la notifica della tua presenza.
 Se non viene specificato nessun JID viene utilizzato il contatto correntemente selezionato.
 
 /authorization allow

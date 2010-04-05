@@ -8,7 +8,6 @@ Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
 
 /room join [stanza [nick [pass]]]
  Entra nella "stanza", utilizzando "nick" come nickname. Se non viene specificato un nickname (o se la stringa è vuota), viene utilizzato il valore dell'opzione "nickname" (vedi il file di configurazione di esempio). Se l'elemento correntemente selezionato viene riconosciuto da mcabber come una stanza, si può utilizzare "." al posto dell'id completo. Si può inserire una password per entrare nelle stanza protette. Se il nickname contiene spazi, usate gli apici.
-
 /room leave [message]
  Abbandona la stanza corrente
 /room names [--detail|--short|--quiet|--compact]

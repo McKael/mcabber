@@ -30,7 +30,7 @@
 /room ban jid [reason]
  Наложить запрет (забанить) пользователя "jid" в текущей конференции
 /room unban jid
- Unban jid from the current room
+ Снять бан с пользователя "jid" в текущей конференции
 /room invite jid [reason]
  Пригласить пользователя "jid" в текущую конференцию
 /room kick nick [reason]

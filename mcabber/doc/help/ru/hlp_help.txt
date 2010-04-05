@@ -2,4 +2,4 @@
  /HELP [command|+topic]
 
 Выводит помощь для указанной команды "command" или темы "topic"
-Пример: "/help buffer"  выводит помощь по команде "buffer"
+Пример: "/help buffer" выводит помощь по команде "buffer"

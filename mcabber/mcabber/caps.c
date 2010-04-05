@@ -148,7 +148,8 @@ const char *caps_generate(void)
 
   g_hash_table_steal(caps_cache, "");
   sha1 = g_checksum_new(G_CHECKSUM_SHA1);
-  identity = g_strdup_printf("%s/%s//%s<", c->category, c->type, c->name);
+  identity = g_strdup_printf("%s/%s//%s<", c->category, c->type,
+                             c->name ? c->name : "");
   g_checksum_update(sha1, (guchar*)identity, -1);
   g_free(identity);
 

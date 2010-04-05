@@ -1,7 +1,7 @@
 /*
  * caps.c       -- Entity Capabilities Cache for mcabber
  *
- * Copyright (C) 2008 Frank Zschockelt <mcabber@freakysoft.de>
+ * Copyright (C) 2008-2010 Frank Zschockelt <mcabber@freakysoft.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ void caps_set_identity(char *hash,
                        const char *type)
 {
   caps *c;
-  if (!hash)
+  if (!hash || !category || !type)
     return;
 
   c = g_hash_table_lookup(caps_cache, hash);
@@ -89,7 +89,7 @@ void caps_set_identity(char *hash,
 void caps_add_feature(char *hash, const char *feature)
 {
   caps *c;
-  if (!hash)
+  if (!hash || !feature)
     return;
   c = g_hash_table_lookup(caps_cache, hash);
   if (c) {
@@ -101,7 +101,7 @@ void caps_add_feature(char *hash, const char *feature)
 int caps_has_feature(char *hash, char *feature)
 {
   caps *c;
-  if (!hash)
+  if (!hash || !feature)
     return 0;
   c = g_hash_table_lookup(caps_cache, hash);
   if (c)
@@ -148,7 +148,8 @@ const char *caps_generate(void)
 
   g_hash_table_steal(caps_cache, "");
   sha1 = g_checksum_new(G_CHECKSUM_SHA1);
-  identity = g_strdup_printf("%s/%s//%s<", c->category, c->type, c->name);
+  identity = g_strdup_printf("%s/%s//%s<", c->category, c->type,
+                             c->name ? c->name : "");
   g_checksum_update(sha1, (guchar*)identity, -1);
   g_free(identity);
 

@@ -75,7 +75,7 @@ void caps_set_identity(char *hash,
                        const char *type)
 {
   caps *c;
-  if (!hash || !category || !name || !type)
+  if (!hash || !category || !type)
     return;
 
   c = g_hash_table_lookup(caps_cache, hash);

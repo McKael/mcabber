@@ -32,6 +32,8 @@ fi
 
 AC_SYS_LARGEFILE
 
+PKG_PROG_PKG_CONFIG
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h \
@@ -151,8 +153,6 @@ AM_PATH_GLIB_2_0(2.14.0,
 
 # Check for loudmouth
 PKG_CHECK_MODULES(LOUDMOUTH, loudmouth-1.0 >= 1.4.2)
-AC_SUBST(LOUDMOUTH_CFLAGS)
-AC_SUBST(LOUDMOUTH_LIBS)
 
 # Check for libidn
 AC_ARG_WITH(libidn, AC_HELP_STRING([--with-libidn=[DIR]],

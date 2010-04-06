@@ -14,11 +14,11 @@ mcabber_SOURCES += otr.c otr.h nohtml.c nohtml.h
 endif
 
 LDADD = $(GLIB_LIBS) $(LOUDMOUTH_LIBS) $(GPGME_LIBS) $(LIBOTR_LIBS) \
-				$(ENCHANT_LIBS)
+				$(ENCHANT_LIBS) $(LIBIDN_LIBS)
 
 AM_CPPFLAGS = -I$(top_srcdir) $(GLIB_CFLAGS) $(LOUDMOUTH_CFLAGS) \
 				$(GPGME_CFLAGS) $(LIBOTR_CFLAGS) \
-				$(ENCHANT_CFLAGS)
+				$(ENCHANT_CFLAGS) $(LIBIDN_CFLAGS)
 
 CLEANFILES = hgcset.h
 

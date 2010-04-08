@@ -1,4 +1,4 @@
 
- /SOURCE file
+ /SOURCE tekst-patroon
 
-Lees een configuratie-bestand in.
+Lees configuratie-bestanden in, die voldoen aan het tekst-patroon (gesorteerd op alfabetische volgorde).

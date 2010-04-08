@@ -6,6 +6,7 @@ Verstuur een "IQ" verzoek naar de actieve buddy, danwel naar het aangegeven Jabb
 /request last
  Verzoek "last" informatie (normalerwijs 'inactieve' tijd)
 /request ping
+ Stuur een XMPP Ping verzoek.  Gebruik hier de volledige JID omdat een ping naar de kale JID wordt afgehandeld door de server.
 /request time
  Vraag de buddy om de tijd
 /request vcard

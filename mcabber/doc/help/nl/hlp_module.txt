@@ -1,0 +1,16 @@
+
+ /MODULE load|unload [-f] module
+ /MODULE info module
+ /MODULE [list]
+
+Laad, ontlaad of toon info over module.
+
+/module load [-f] module
+ Laad een specifieke module.  Als de '-f' (force) flag wordt meegegeven, zullen de meeste foutmeldingen tijdens het laden worden genegeerd.
+/module unload [-f] module
+ Ontlaad specifieke module.
+ NB: Gebruik van de '-f' (force) optie zal de afhankelijkheden van deze module niet verwijderen!
+/module info module
+ Toont beschikbare informatie over deze module.
+/module [list]
+ Toont lijst van modules in het volgende formaat: [modulenaam]  [aantal referenties] ([Handmatig/Automatisch geladen]) [extra informatie, zoals versie of afhankelijkheden]

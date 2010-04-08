@@ -1,15 +1,16 @@
 
- /EVENT #N|* accept|ignore|reject
+ /EVENT #N|* accept|ignore|reject [gebeurtenis-specifieke argumenten]
  /EVENT list
 
 Vertel mcabber wat te doen met gebeurtenissen in de wachtrij.
 Indien de eerste parameter '*' is, zal het commando van toepassing zijn op alle wachtende gebeurtenissen.
+Gebeurtenis-specifieke argumenten worden ge-evalueerd per gebeurtenis. Slechts een geval is ingebouwd; wanneer een argument meegegeven wordt bij een weigering van een MUC uitnodiging,  wordt het argument gezien als de reden voor de weigering.
 
-/event #N|* accept
- Gebeurtenis nummer #N | Alle gebeurtenissen worden geaccepteerd
-/event #N|* ignore
- Gebeurtenis nummer #N | Alle gebeurtenissen worden genegeerd
-/event #N|* reject
- Gebeurtenis nummer #N | Alle gebeurtenissen worden geweigerd
+/event #N|* accept [gebeurtenis-specifieke argumenten]
+ Gebeurtenis nummer #N/Alle gebeurtenissen worden geaccepteerd
+/event #N|* ignore [gebeurtenis-specifieke argumenten]
+ Gebeurtenis nummer #N/Alle gebeurtenissen worden genegeerd
+/event #N|* reject [gebeurtenis-specifieke argumenten]
+ Gebeurtenis nummer #N/Alle gebeurtenissen worden geweigerd
 /event list
  Toon een lijst van wachtende gebeurtenissen

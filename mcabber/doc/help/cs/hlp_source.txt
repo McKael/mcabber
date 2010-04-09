@@ -1,4 +1,4 @@
 
- /SOURCE soubor
+ /SOURCE maska
 
-Načte kounfigurační soubor.
+Načte kounfigurační soubory, které odpovídají dané masce (v abecedním pořadí).

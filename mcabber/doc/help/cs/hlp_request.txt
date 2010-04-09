@@ -6,8 +6,9 @@ Pošle "IQ" žádost kontaktu 'jid' resp. aktuálně zvolenému kontaktu a zobra
 /request last
  Požádá o poslední informaci (obvykle čas zahálení (idle)).
 /request ping
+ Požádá o odezvu. Je třeba použít úplné JID, neboť odezvu na holé JID odesílá server.
 /request time
- Požádá  časové razítko.
+ Požádá o časové razítko.
 /request vcard
  Požádá o vizitku (vCard).
 /request version

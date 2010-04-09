@@ -1,0 +1,16 @@
+
+ /MODULE load|unload [-f] modul
+ /MODULE info modul
+ /MODULE [list]
+
+Nahraje, uvolní z paměti nebo ukáže informace o modulu.
+
+/module load [-f] modul
+ Nahraje do paměti daný modul. Při použití parametru -f je většina chybových hlášení ignorována.
+/module unload [-f] modul
+ Uvolní z paměti daný modul.
+ Poznámka: Parametr -f neodstraní závislosti na daném modulu!
+/module info modul
+ Zobrazí dostupné informace o daném modulu.
+/module [list]
+ Vypíše přehled modulů ve formátu: [jméno modulu]  [počet referancí] ([ručně/automaticky nahraný]) [další informace jako verze nebo závislosti]

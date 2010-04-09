@@ -1,15 +1,16 @@
 
- /EVENT #N|* accept|ignore|reject
+ /EVENT #N|* accept|ignore|reject [arguments]
  /EVENT list
 
 Cette commande permet de gérer les "événements" en attente.
 Si le premier paramètre est '*', la commande sera appliquée à tous les événements en attente.
+Les arguments dépendent de l'événement en question.  Lorsque l'événement est une invitation MUC, l'argument éventuel sera utilisé comme le motif du rejet.  (C'est le seul cas où un argument est utilisé actuellement.)
 
-/event #N|* accept
+/event #N|* accept [arg]
  Accepter l'événement #N / tous les événements
-/event #N|* ignore
+/event #N|* ignore [arg]
  Ignorer l'événement #N / tous les événements
-/event #N|* reject
+/event #N|* reject [arg]
  Rejeter l'événement #N / tous les événements
 /event list
  Afficher les événements en attente

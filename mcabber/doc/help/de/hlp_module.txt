@@ -1,0 +1,16 @@
+
+ /MODULE load|unload [-f] module
+ /MODULE info module
+ /MODULE [list]
+
+Ein Modul laden, entladen oder Informationen darüber anzeigen.
+
+/module load [-f] module
+ Läd das angegebene Modul. Wenn -f benutzt wird, so werden die meisten Fehler beim Laden des Moduls ignoriert.
+/module unload [-f] module
+ Entläd das angegebene Modul.
+ Wenn -f angegeben wird, so werden abhängige Module nicht entladen!
+/module info module
+ Zeigt Informationen über dieses Modul an.
+/module [list]
+ Auflistung aller Module in dem Format: [Modulname]  [Referenzzähler] ([Manuell/Automatisch geladen]) [weitere Informationen, wie die Version oder Abhängigkeiten]

@@ -6,6 +6,7 @@ Sendet spezielle Anfragen an den Buddy oder zu dem spezifizierten Jabber User. W
 /request last
  "letzte" Information abfragen (meist nur die Idlezeit)
 /request ping
+ XMPP Ping senden. Die jid sollte die Ressource beinhalten, sonst wird der Ping vom Server beantwortet.
 /request time
  Zeit vom Kontakt abfragen
 /request vcard

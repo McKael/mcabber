@@ -1,15 +1,16 @@
 
- /EVENT #N|* accept|ignore|reject
+ /EVENT #N|* accept|ignore|reject [Ereignis spezifische Parameter]
  /EVENT list
 
 Sagt mcabber was mit den wartenden Ereignissen passieren soll.
-Wenn der erste Parameter * ist, dann soll der Befehl auf alle wartenden Ereignisse angewendet werden.
+Wenn der erste Parameter * ist, dann wird der Befehl auf alle wartenden Ereignisse angewendet.
+Ereignis spezifische Parameter werden je nach dem zugrundeliegenden Event behandelt. Bisher wird dieser nur beim Ablehnen von MUC-Einladungen berücksichtigt: Hier wird der Parameter als Grund der Ablehnung gesendet.
 
-/event #N|* accept
+/event #N|* accept [Ereignis spezifische Parameter]
  Ereignis #N/alle Ereignisse werden angenommen
-/event #N|* ignore
+/event #N|* ignore [Ereignis spezifische Parameter]
  Ereignis #N/alle Ereignisse werden ignoriert
-/event #N|* reject
+/event #N|* reject [Ereignis spezifische Parameter]
  Ereignis mit der Nummer #N/alle Ereignisse werden abgelehnt
 /event list
  Zeigt alle noch nicht behandelten Ereignisse an

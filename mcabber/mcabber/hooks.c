@@ -238,7 +238,7 @@ void hk_message_in(const char *bjid, const char *resname,
     hk_arg_t args[] = {
       { "jid", bjid },
       { "resource", resname },
-      { "message", wmsg },
+      { "message", msg },
       { "groupchat", is_groupchat ? "true" : "false" },
       { NULL, NULL },
     };
@@ -386,7 +386,7 @@ void hk_message_in(const char *bjid, const char *resname,
     hk_arg_t args[] = {
       { "jid", bjid },
       { "resource", resname },
-      { "message", wmsg },
+      { "message", msg },
       { "groupchat", is_groupchat ? "true" : "false" },
       { "attention", attention ? "true" : "false" },
       { NULL, NULL },

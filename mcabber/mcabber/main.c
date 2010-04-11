@@ -379,19 +379,19 @@ int main(int argc, char **argv)
   if (ret == -2)
     exit(EXIT_FAILURE);
 
+  /* Display configuration settings */
+  {
+    const char *p;
+    if ((p = settings_opt_get("server")) != NULL)
+      scr_log_print(LPRINT_NORMAL, "Server: %s", p);
+    if ((p = settings_opt_get("jid")) != NULL)
+      scr_log_print(LPRINT_NORMAL, "User JID: %s", p);
+  }
+
   /* If no password is stored, we ask for it before entering
      ncurses mode -- unless the username is unknown. */
   if (settings_opt_get("jid") && !settings_opt_get("password")) {
-    const char *p;
-    char *pwd;
-    p = settings_opt_get("server");
-    if (p)
-      printf("Server: %s\n", p);
-    p = settings_opt_get("jid");
-    if (p)
-      printf("User JID: %s\n", p);
-
-    pwd = ask_password("your Jabber password");
+    char *pwd = ask_password("your Jabber password");
     settings_set(SETTINGS_TYPE_OPTION, "password", pwd);
     g_free(pwd);
   }

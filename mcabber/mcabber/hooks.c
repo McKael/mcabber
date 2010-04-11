@@ -197,6 +197,14 @@ void hk_message_in(const char *bjid, const char *resname,
   unsigned mucnicklen = 0;
   const char *ename = NULL;
   gboolean attention = FALSE, mucprivmsg = FALSE;
+#ifdef MODULES_ENABLE
+  gchar strdelay[32];
+
+  if (timestamp)
+    to_iso8601(strdelay, timestamp);
+  else
+    strdelay[0] = '\0';
+#endif
 
   if (encrypted == ENCRYPTED_PGP)
     message_flags |= HBB_PREFIX_PGPCRYPT;
@@ -240,6 +248,7 @@ void hk_message_in(const char *bjid, const char *resname,
       { "resource", resname },
       { "message", msg },
       { "groupchat", is_groupchat ? "true" : "false" },
+      { "delayed", strdelay },
       { NULL, NULL },
     };
     h_result = hk_run_handlers(HOOK_PRE_MESSAGE_IN, args);
@@ -389,6 +398,7 @@ void hk_message_in(const char *bjid, const char *resname,
       { "message", msg },
       { "groupchat", is_groupchat ? "true" : "false" },
       { "attention", attention ? "true" : "false" },
+      { "delayed", strdelay },
       { NULL, NULL },
     };
     hk_run_handlers(HOOK_POST_MESSAGE_IN, args);

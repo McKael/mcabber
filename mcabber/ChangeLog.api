@@ -1,5 +1,6 @@
 dev (13)
 
+ * Stable api 0.10.0:1
  * Rename jep00{22,85} to xep00{22,85}
  * Rename buddy_resource_jep{22,85}() to buddy_resource_xep{22,85}()
  * Changeset e45d13074721

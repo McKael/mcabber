@@ -1,4 +1,4 @@
-mcabber (0.10.0-dev)
+mcabber (0.10.0)
 
  * Switch to the Loudmouth library (franky)
  * Warning: 'username' has been replaced with 'jid' in the configuration file
@@ -29,7 +29,7 @@ mcabber (0.10.0-dev)
  * No suffix is displayed in the status bar after the 'info' value
  * Add Vim syntax file for mcabber history log files to contrib
 
- -- Mikael, ?
+ -- Mikael, 2010-04-11
 
 mcabber (0.9.10)
 

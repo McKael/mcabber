@@ -1153,6 +1153,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
   // this is a regular message from an unsubscribed user.
   // System messages (from our server) are allowed.
   if (settings_opt_get_int("block_unsubscribed") &&
+      (roster_gettype(bjid) != ROSTER_TYPE_ROOM) &&
       !(roster_getsubscription(bjid) & sub_from) &&
       (type != LM_MESSAGE_SUB_TYPE_GROUPCHAT)) {
     char *sbjid = jidtodisp(lm_connection_get_jid(lconnection));

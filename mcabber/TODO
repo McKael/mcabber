@@ -4,9 +4,11 @@ TODO:
 Please see the issue tracker for other features/bugs:
 http://bitbucket.org/McKael/mcabber-crew/issues/?status=new&status=open
 
+The following list isn't necessarily up-to-date:
+
 * Improve the completion system
 * Enable /roster search for offline (hidden) buddies (hidden groups, etc.)
-* Publish personal information
+* Publish personal information (a module exists)
 * MUC: advanced settings for room creation
 * MUC: ignore patterns
 * "Offline roster" (when disconnected)
@@ -18,12 +20,8 @@ http://bitbucket.org/McKael/mcabber-crew/issues/?status=new&status=open
   See XEP-0191: Simple Communications Blocking
 * Human-readable key binding config?
 * Possibility to hide log window(?)
-* Copy highlighted messages to the [status] window (or another one)
 * Improve /info, esp. in MUC rooms
-* Update the terminal's title
-  (Can this be done from an event script?)
-* Message filters
-* Data Forms
+* Data Forms (a module exists)
 
 * File transfer!!
 

@@ -109,9 +109,11 @@ const gchar* lm_message_node_get_child_value(LmMessageNode *node,
 {
   LmMessageNode *tmp;
   tmp = lm_message_node_find_child(node, child);
-  if (tmp)
-    return lm_message_node_get_value(tmp);
-  else return NULL;
+  if (tmp) {
+    const gchar *val = lm_message_node_get_value(tmp);
+    return (val ? val : "");
+  }
+  return NULL;
 }
 
 static LmMessageNode *hidden = NULL;

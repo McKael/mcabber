@@ -1402,6 +1402,8 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     ust = offline;
 
   ustmsg = lm_message_node_get_child_value(m->node, "status");
+  if (ustmsg && !*ustmsg)
+    ustmsg = NULL;
 
   // Timestamp?
   timestamp = lm_message_node_get_timestamp(m->node);

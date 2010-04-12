@@ -241,21 +241,21 @@ static LmHandlerResult cb_version(LmMessageHandler *h, LmConnection *c,
 
   // Get result data...
   p = lm_message_node_get_child_value(ansqry, "name");
-  if (p) {
+  if (p && *p) {
     buf = g_strdup_printf("Name:    %s", p);
     scr_WriteIncomingMessage(bjid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = lm_message_node_get_child_value(ansqry, "version");
-  if (p) {
+  if (p && *p) {
     buf = g_strdup_printf("Version: %s", p);
     scr_WriteIncomingMessage(bjid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = lm_message_node_get_child_value(ansqry, "os");
-  if (p) {
+  if (p && *p) {
     buf = g_strdup_printf("OS:      %s", p);
     scr_WriteIncomingMessage(bjid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
@@ -306,21 +306,21 @@ static LmHandlerResult cb_time(LmMessageHandler *h, LmConnection *c,
 
   // Get result data...
   p = lm_message_node_get_child_value(ansqry, "utc");
-  if (p) {
+  if (p && *p) {
     buf = g_strdup_printf("UTC:  %s", p);
     scr_WriteIncomingMessage(bjid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = lm_message_node_get_child_value(ansqry, "tz");
-  if (p) {
+  if (p && *p) {
     buf = g_strdup_printf("TZ:   %s", p);
     scr_WriteIncomingMessage(bjid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = lm_message_node_get_child_value(ansqry, "display");
-  if (p) {
+  if (p && *p) {
     buf = g_strdup_printf("Time: %s", p);
     scr_WriteIncomingMessage(bjid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
@@ -406,7 +406,7 @@ static void display_vcard_item(const char *bjid, const char *label,
 {
   char *buf;
 
-  if (!text || !bjid || !label)
+  if (!text || !*text || !bjid || !label)
     return;
 
   buf = g_strdup_printf("%s: %s%s%s%s%s%s%s%s%s%s", label,

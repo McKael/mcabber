@@ -325,6 +325,8 @@ static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
   *mbnick = lm_message_node_get_attribute(y, "nick");
   // For kick/ban, there can be actor and reason tags
   *reason = lm_message_node_get_child_value(y, "reason");
+  if (*reason && !**reason)
+    *reason = NULL;
   z = lm_message_node_find_child(y, "actor");
   if (z)
     *actorjid = lm_message_node_get_attribute(z, "jid");
@@ -543,8 +545,8 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
         LmMessageNode *destroynode = lm_message_node_find_child(xmldata,
                                                                 "destroy");
         if (destroynode) {
-          if ((reason = lm_message_node_get_child_value(destroynode,
-                                                       "reason"))) {
+          reason = lm_message_node_get_child_value(destroynode, "reason");
+          if (reason && *reason) {
             mbuf = g_strdup_printf("You have left %s, "
                                    "the room has been destroyed: %s",
                                    roomjid, reason);

@@ -491,7 +491,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
   }
 
   // Check for departure/arrival
-  if (!mbnick && ust == offline) {
+  if (statuscode != 303 && ust == offline) {
     // Somebody is leaving
     enum { leave=0, kick, ban } how = leave;
     bool we_left = FALSE;
@@ -515,21 +515,27 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
     // The message depends on _who_ left, and _how_
     if (how) {
       gchar *mbuf_end;
+      gchar *reason_msg = NULL;
       // Forced leave
       if (actorjid) {
-        mbuf_end = g_strdup_printf("%s from %s by <%s>.\nReason: %s",
+        mbuf_end = g_strdup_printf("%s from %s by <%s>.",
                                    (how == ban ? "banned" : "kicked"),
-                                   roomjid, actorjid, reason);
+                                   roomjid, actorjid);
       } else {
         mbuf_end = g_strdup_printf("%s from %s.",
                                    (how == ban ? "banned" : "kicked"),
                                    roomjid);
       }
+      if (reason)
+        reason_msg = g_strdup_printf("\nReason: %s", reason);
       if (we_left)
-        mbuf = g_strdup_printf("You have been %s", mbuf_end);
+        mbuf = g_strdup_printf("You have been %s%s", mbuf_end,
+                               reason_msg ? reason_msg : "");
       else
-        mbuf = g_strdup_printf("%s has been %s", rname, mbuf_end);
+        mbuf = g_strdup_printf("%s has been %s%s", rname, mbuf_end,
+                               reason_msg ? reason_msg : "");
 
+      g_free(reason_msg);
       g_free(mbuf_end);
     } else {
       // Natural leave

@@ -1721,8 +1721,9 @@ gint xmpp_connect(void)
   lm_message_handler_unref(handler);
 
   /* Connect to server */
-  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server: %s",
-               servername ? servername : "...");
+  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "Connecting to server%s%s",
+               servername ? ": " : "",
+               servername ? servername : "");
   if (!resource)
     resource = resource_prefix;
 
@@ -1745,7 +1746,7 @@ gint xmpp_connect(void)
 
   if (port)
     scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " using port %d", port);
-  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " resource %s", resource);
+  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, " with resource %s", resource);
 
   if (proxy_host) {
     int proxy_port = settings_opt_get_int("proxy_port");

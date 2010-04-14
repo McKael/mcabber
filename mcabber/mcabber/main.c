@@ -384,8 +384,16 @@ int main(int argc, char **argv)
     const char *p;
     if ((p = settings_opt_get("server")) != NULL)
       scr_log_print(LPRINT_NORMAL, "Server: %s", p);
-    if ((p = settings_opt_get("jid")) != NULL)
+    if ((p = settings_opt_get("jid")) != NULL) {
       scr_log_print(LPRINT_NORMAL, "User JID: %s", p);
+    } else if (settings_opt_get("username")) {
+      /* TODO: remove after 0.10.1/2 */
+      scr_log_print(LPRINT_NORMAL, "** ERROR: The JID is missing, but "
+                    "the variable 'username' is defined in your "
+                    "configuration file.\n"
+                    "** Please update your configuration file and set "
+                    "the 'jid' variable.");
+    }
   }
 
   /* If no password is stored, we ask for it before entering

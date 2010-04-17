@@ -709,6 +709,42 @@ void hk_unread_list_change(guint unread_count, guint attention_count,
   g_free(str_unread);
 }
 
+//  hk_presence_subscription_request(jid, message)
+// Return non-zero if mcabber should stop processing the subscription request
+guint hk_subscription(LmMessageSubType mstype, const gchar *bjid,
+                      const gchar *msg)
+{
+#ifdef MODULES_ENABLE
+  guint h_result;
+  const char *stype;
+
+  if (mstype == LM_MESSAGE_SUB_TYPE_SUBSCRIBE)
+    stype = "subscribe";
+  else if (mstype == LM_MESSAGE_SUB_TYPE_UNSUBSCRIBE)
+    stype = "unsubscribe";
+  else if (mstype == LM_MESSAGE_SUB_TYPE_SUBSCRIBED)
+    stype = "subscribed";
+  else if (mstype == LM_MESSAGE_SUB_TYPE_UNSUBSCRIBED)
+    stype = "unsubscribed";
+  else return 0; // Should not happen
+
+  {
+    hk_arg_t args[] = {
+      { "type", stype },
+      { "jid", bjid },
+      { "message", msg ? msg : "" },
+      { NULL, NULL },
+    };
+    h_result = hk_run_handlers(HOOK_SUBSCRIPTION, args);
+  }
+  if (h_result != HOOK_HANDLER_RESULT_ALLOW_MORE_HANDLERS) {
+    scr_LogPrint(LPRINT_DEBUG, "Subscription message ignored (hook result).");
+    return h_result;
+  }
+#endif
+  return 0;
+}
+
 
 /* External commands */
 

@@ -22,6 +22,7 @@
 #define HOOK_POST_CONNECT       "hook-post-connect"
 #define HOOK_PRE_DISCONNECT     "hook-pre-disconnect"
 #define HOOK_UNREAD_LIST_CHANGE "hook-unread-list-change"
+#define HOOK_SUBSCRIPTION       "hook-subscription"
 
 typedef enum {
   HOOK_HANDLER_RESULT_ALLOW_MORE_HANDLERS = 0,
@@ -61,6 +62,9 @@ void hk_predisconnect(void);
 
 void hk_unread_list_change(guint unread_count, guint attention_count,
                            guint muc_unread, guint muc_attention);
+
+guint hk_subscription(LmMessageSubType mstype, const gchar *bjid,
+                      const gchar *msg);
 
 void hk_ext_cmd_init(const char *command);
 void hk_ext_cmd(const char *bjid, guchar type, guchar info, const char *data);

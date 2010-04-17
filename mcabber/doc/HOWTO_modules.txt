@@ -235,6 +235,11 @@ Currently the following events exist:
    * attention - number of non-MUC buffers with the attention sign (!)
    * muc_unread - number of MUC buffers with the unread message flag
    * muc_attention - number of MUC buffers with the attention sign
+ - hook-subscription (HOOK_SUBSCRIPTION)
+   * type - the type of the subscription message received.  Can be one
+     of subscribe, unsubscribe, subscribed, unsubscribed.
+   * jid - sender of the incoming subscription message
+   * message - optional message sent with the request
 
 
 ------------------------------------------------------------------------

@@ -1521,19 +1521,25 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
   char *r;
   char *buf;
   int newbuddy;
-  const char *from = lm_message_get_from(m);
   LmMessageSubType mstype;
+  guint hook_result;
+  const char *from = lm_message_get_from(m);
+  const char *msg = lm_message_node_get_child_value(m->node, "status");
 
   r = jidtodisp(from);
 
   newbuddy = !roster_find(r, jidsearch, 0);
   mstype = lm_message_get_sub_type(m);
 
+  hook_result = hk_subscription(mstype, r, msg);
+
   if (mstype == LM_MESSAGE_SUB_TYPE_SUBSCRIBE) {
     /* The sender wishes to subscribe to our presence */
-    const char *msg;
 
-    msg = lm_message_node_get_child_value(m->node, "status");
+    if (hook_result) {
+      g_free(r);
+      return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+    }
 
     buf = g_strdup_printf("<%s> wants to subscribe to your presence updates",
                           from);

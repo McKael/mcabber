@@ -1483,6 +1483,14 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
+  if (mstype == LM_MESSAGE_SUB_TYPE_RESULT) {
+    scr_LogPrint(LPRINT_DEBUG, "Unhandled IQ result? %s", lm_message_node_to_string(m->node)); // TODO check
+
+    scr_LogPrint(LPRINT_NORMAL, "Received unhandled IQ result from <%s>.",
+                 lm_message_get_from(m));
+    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
+  }
+
   for (x = m->node->children; x; x=x->next) {
     xmlns = lm_message_node_get_attribute(x, "xmlns");
     if (xmlns)
@@ -1498,10 +1506,8 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
 
   scr_LogPrint(LPRINT_DEBUG, "Unhandled IQ: %s", lm_message_node_to_string(m->node));
 
-  if (mstype != LM_MESSAGE_SUB_TYPE_RESULT) {
-    scr_LogPrint(LPRINT_NORMAL, "Received unhandled IQ request from <%s>.",
-                 lm_message_get_from(m));
-  }
+  scr_LogPrint(LPRINT_NORMAL, "Received unhandled IQ request from <%s>.",
+               lm_message_get_from(m));
 
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }

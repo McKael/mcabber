@@ -1484,9 +1484,6 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
   if (mstype == LM_MESSAGE_SUB_TYPE_RESULT) {
     scr_LogPrint(LPRINT_DEBUG, "Unhandled IQ result? %s",
                  lm_message_node_to_string(m->node));
-
-    scr_LogPrint(LPRINT_NORMAL, "Received unhandled IQ result from <%s>.",
-                 lm_message_get_from(m));
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   }
 

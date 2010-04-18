@@ -43,6 +43,9 @@
 #define NS_CHATSTATES "http://jabber.org/protocol/chatstates"
 #define NS_COMMANDS   "http://jabber.org/protocol/commands"
 #define NS_MUC        "http://jabber.org/protocol/muc"
+#define NS_MUC_USER   "http://jabber.org/protocol/muc#user"
+#define NS_MUC_ADMIN  "http://jabber.org/protocol/muc#admin"
+#define NS_MUC_OWNER  "http://jabber.org/protocol/muc#owner"
 
 #define NS_XDBGINSERT "jabber:xdb:ginsert"
 #define NS_XDBNSLIST  "jabber:xdb:nslist"

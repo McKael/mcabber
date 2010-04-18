@@ -1293,8 +1293,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   }
 
   if (from) {
-    x = lm_message_node_find_xmlns(m->node,
-                                   "http://jabber.org/protocol/muc#user");
+    x = lm_message_node_find_xmlns(m->node, NS_MUC_USER);
     if (x && !strcmp(x->name, "x"))
       got_muc_message(from, x);
   }
@@ -1345,8 +1344,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   LmMessageSubType mstype;
 
   // Check for MUC presence packet
-  muc_packet = lm_message_node_find_xmlns
-          (m->node, "http://jabber.org/protocol/muc#user");
+  muc_packet = lm_message_node_find_xmlns(m->node, NS_MUC_USER);
 
   from = lm_message_get_from(m);
 

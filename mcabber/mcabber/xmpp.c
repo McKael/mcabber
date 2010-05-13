@@ -1341,12 +1341,22 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   char bpprio;
   time_t timestamp = 0L;
   LmMessageNode *muc_packet, *caps;
-  LmMessageSubType mstype;
+  LmMessageSubType mstype = lm_message_get_sub_type(m);
 
   // Check for MUC presence packet
   muc_packet = lm_message_node_find_xmlns(m->node, NS_MUC_USER);
 
   from = lm_message_get_from(m);
+  if (!from) {
+    scr_LogPrint(LPRINT_LOGNORM, "Unexpected presence packet!");
+
+    if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
+      display_server_error(lm_message_node_get_child(m->node, "error"),
+                           lm_message_get_from(m));
+      return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+    }
+    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
+  }
 
   rname = strchr(from, JID_RESOURCE_SEPARATOR);
   if (rname) rname++;
@@ -1359,7 +1369,6 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   }
 
   bjid = jidtodisp(from);
-  mstype = lm_message_get_sub_type(m);
 
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     LmMessageNode *x;
@@ -1516,15 +1525,24 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
   char *r;
   char *buf;
   int newbuddy;
-  LmMessageSubType mstype;
   guint hook_result;
+  LmMessageSubType mstype = lm_message_get_sub_type(m);
   const char *from = lm_message_get_from(m);
   const char *msg = lm_message_node_get_child_value(m->node, "status");
 
+  if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
+    display_server_error(lm_message_node_get_child(m->node, "error"),
+                         lm_message_get_from(m));
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
+  if (!from) {
+    scr_LogPrint(LPRINT_DEBUG, "handle_s10n: Unexpected presence packet!");
+    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
+  }
   r = jidtodisp(from);
 
   newbuddy = !roster_find(r, jidsearch, 0);
-  mstype = lm_message_get_sub_type(m);
 
   hook_result = hk_subscription(mstype, r, msg);
 

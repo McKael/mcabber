@@ -65,6 +65,12 @@ char *jidtodisp(const char *fjid)
   char *ptr;
   char *alias;
 
+  if (!fjid) {
+    scr_LogPrint(LPRINT_LOGNORM, "** jidtodisp: NULL JID, "
+                                 "this is probably a bug, please report!");
+    return NULL;
+  }
+
   alias = g_strdup(fjid);
 
   if ((ptr = strchr(alias, JID_RESOURCE_SEPARATOR)) != NULL) {

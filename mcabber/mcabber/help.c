@@ -195,6 +195,8 @@ static gboolean do_help_in_dir(const char *arg, const char *path, const char *ji
     ++lines;
   }
 
+  g_io_channel_unref(channel);
+
   g_string_free(line, TRUE);
 
   if (!lines)

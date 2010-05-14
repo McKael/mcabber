@@ -121,6 +121,9 @@ static gboolean attach_fifo(const char *name)
   if (fd == -1)
     return FALSE;
 
+  if (fifo_channel)
+    g_io_channel_unref(fifo_channel);
+
   fifo_channel = g_io_channel_unix_new(fd);
 
   g_io_channel_set_flags(fifo_channel, G_IO_FLAG_NONBLOCK, NULL);

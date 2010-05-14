@@ -804,8 +804,6 @@ static void check_signature(const char *barejid, const char *rname,
 
 static LmSSLResponse ssl_cb(LmSSL *ssl, LmSSLStatus status, gpointer ud)
 {
-  scr_LogPrint(LPRINT_LOGNORM, "SSL status:%d", status);
-
   switch (status) {
   case LM_SSL_STATUS_NO_CERT_FOUND:
     scr_LogPrint(LPRINT_LOGNORM, "No certificate found!");
@@ -840,6 +838,8 @@ static LmSSLResponse ssl_cb(LmSSL *ssl, LmSSLStatus status, gpointer ud)
   case LM_SSL_STATUS_GENERIC_ERROR:
     scr_LogPrint(LPRINT_LOGNORM, "Generic SSL error!");
     break;
+  default:
+    scr_LogPrint(LPRINT_LOGNORM, "SSL error:%d", status);
   }
 
   if (settings_opt_get_int("ssl_ignore_checks"))

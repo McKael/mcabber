@@ -1,3 +1,10 @@
+dev (16)
+
+ * Add "error" argument to the message-in hooks
+ * Changeset 3cabdacf58df
+
+  -- Mikael Berthe, 2010-05-16
+
 dev (15)
 
  * Add "hook-subscription" hook

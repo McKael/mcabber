@@ -197,6 +197,7 @@ void hk_message_in(const char *bjid, const char *resname,
   unsigned mucnicklen = 0;
   const char *ename = NULL;
   gboolean attention = FALSE, mucprivmsg = FALSE;
+  gboolean error_msg_subtype = (type == LM_MESSAGE_SUB_TYPE_ERROR);
 #ifdef MODULES_ENABLE
   gchar strdelay[32];
 
@@ -249,6 +250,7 @@ void hk_message_in(const char *bjid, const char *resname,
       { "message", msg },
       { "groupchat", is_groupchat ? "true" : "false" },
       { "delayed", strdelay },
+      { "error", error_msg_subtype ? "true" : "false" },
       { NULL, NULL },
     };
     h_result = hk_run_handlers(HOOK_PRE_MESSAGE_IN, args);
@@ -332,7 +334,7 @@ void hk_message_in(const char *bjid, const char *resname,
     }
   }
 
-  if (type  == LM_MESSAGE_SUB_TYPE_ERROR) {
+  if (error_msg_subtype) {
     message_flags = HBB_PREFIX_ERR | HBB_PREFIX_IN;
     scr_LogPrint(LPRINT_LOGNORM, "Error message received from <%s>", bjid);
   }
@@ -399,6 +401,7 @@ void hk_message_in(const char *bjid, const char *resname,
       { "groupchat", is_groupchat ? "true" : "false" },
       { "attention", attention ? "true" : "false" },
       { "delayed", strdelay },
+      { "error", error_msg_subtype ? "true" : "false" },
       { NULL, NULL },
     };
     hk_run_handlers(HOOK_POST_MESSAGE_IN, args);

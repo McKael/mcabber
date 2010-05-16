@@ -200,6 +200,7 @@ Currently the following events exist:
    * groupchat - ("true" or "false")
    * delayed - message timestamp (ISO-8601 string) or empty string if
      the message wasn't delayed
+   * error - "true" if this is an error message
  - hook-post-message-in (HOOK_POST_MESSAGE_IN) with parameters
    * jid - sender of the incoming message
    * resource - resource of the incoming message
@@ -210,6 +211,7 @@ Currently the following events exist:
      attention (only implemented for MUC currently)
    * delayed - message timestamp (ISO-8601 string) or empty string if
      the message wasn't delayed
+   * error - "true" if this is an error message
  - hook-message-out (HOOK_MESSAGE_OUT) with parameters
    * jid - recipient of the outgoing message
    * message - message body, converted to locale charset

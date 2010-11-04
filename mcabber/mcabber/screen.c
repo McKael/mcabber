@@ -163,7 +163,7 @@ typedef struct {
 } keyseq;
 
 #ifdef HAVE_GLIB_REGEX
-static GRegex *url_regex;
+static GRegex *url_regex = NULL;
 #endif
 
 GSList *keyseqlist;
@@ -808,8 +808,10 @@ void scr_terminate_curses(void)
   refresh();
   endwin();
 #ifdef HAVE_GLIB_REGEX
-  if (url_regex)
+  if (url_regex) {
     g_regex_unref(url_regex);
+    url_regex = NULL;
+  }
 #endif
   Curses = FALSE;
   return;

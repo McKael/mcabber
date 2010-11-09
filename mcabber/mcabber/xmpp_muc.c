@@ -147,6 +147,7 @@ void xmpp_room_join(const char *room, const char *nickname, const char *passwd)
 
   // Send the XML request
   x = lm_message_new_presence(mystatus, roomid, mystatusmsg);
+  xmpp_insert_entity_capabilities(x->node, mystatus); // Entity Caps (XEP-0115)
   y = lm_message_node_add_child(x->node, "x", NULL);
   lm_message_node_set_attribute(y, "xmlns", NS_MUC);
   if (passwd)

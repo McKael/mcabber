@@ -1859,9 +1859,9 @@ gint xmpp_connect(void)
   return 0;
 }
 
-//  insert_entity_capabilities(presence_stanza)
+//  xmpp_insert_entity_capabilities(presence_stanza)
 // Entity Capabilities (XEP-0115)
-static void insert_entity_capabilities(LmMessageNode *x, enum imstatus status)
+void xmpp_insert_entity_capabilities(LmMessageNode *x, enum imstatus status)
 {
   LmMessageNode *y;
   const char *ver = entity_version(status);
@@ -1922,7 +1922,7 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
   if (isonline) {
     const char *s_msg = (st != invisible ? msg : NULL);
     m = lm_message_new_presence(st, recipient, s_msg);
-    insert_entity_capabilities(m->node, st); // Entity Capabilities (XEP-0115)
+    xmpp_insert_entity_capabilities(m->node, st); // Entity Caps (XEP-0115)
 #ifdef HAVE_GPGME
     if (!do_not_sign && gpg_enabled()) {
       char *signature;

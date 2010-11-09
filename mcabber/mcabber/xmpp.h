@@ -63,6 +63,8 @@ void xmpp_setstatus(enum imstatus st, const char *recipient,
 
 void xmpp_send_chatstate(gpointer buddy, guint chatstate);
 
+void xmpp_insert_entity_capabilities(LmMessageNode *x, enum imstatus status);
+
 GSList *xmpp_get_all_storage_bookmarks(void);
 GSList *xmpp_get_all_storage_rosternotes(void);
 void xmpp_set_storage_bookmark(const char *roomid, const char *name,

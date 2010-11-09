@@ -1442,6 +1442,12 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   if (caps && ust != offline) {
     const char *ver = lm_message_node_get_attribute(caps, "ver");
     GSList *sl_buddy = NULL;
+
+    if (!ver) {
+      scr_LogPrint(LPRINT_LOGNORM, "Error: malformed caps version (%s)", bjid);
+      goto handle_presence_return;
+    }
+
     if (rname)
       sl_buddy = roster_find(bjid, jidsearch, ROSTER_TYPE_USER);
     // Only cache the caps if the user is on the roster
@@ -1470,6 +1476,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     }
   }
 
+handle_presence_return:
   g_free(bjid);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }

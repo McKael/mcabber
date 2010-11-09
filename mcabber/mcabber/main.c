@@ -386,12 +386,20 @@ int main(int argc, char **argv)
     if ((p = settings_opt_get("jid")) != NULL) {
       scr_log_print(LPRINT_NORMAL, "User JID: %s", p);
     } else if (settings_opt_get("username")) {
-      /* TODO: remove after 0.10.1/2 */
+      /* TODO: remove after 0.10.2/3 */
       scr_log_print(LPRINT_NORMAL, "** ERROR: The JID is missing, but "
                     "the variable 'username' is defined in your "
                     "configuration file.\n"
                     "** Please update your configuration file and set "
                     "the 'jid' variable.");
+    }
+
+    if (settings_opt_get("ssl_verify")) {  // Deprecated option
+      /* TODO: remove after 0.10.2/3 */
+      scr_log_print(LPRINT_NORMAL,
+                    "** ERROR: The option ssl_verify is deprecated.\n"
+                    "** Please update your configuration file and use "
+                    "the 'ssl_ignore_checks' variable.");
     }
   }
 

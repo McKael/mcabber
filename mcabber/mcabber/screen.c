@@ -1377,7 +1377,8 @@ static void scr_write_in_window(const char *winId, const char *text,
   if (mucnicklen) {
     nicktmp = g_strndup(text, mucnicklen);
     nicklocaltmp = from_utf8(nicktmp);
-    mucnicklen = strlen(nicklocaltmp);
+    if (nicklocaltmp)
+      mucnicklen = strlen(nicklocaltmp);
     g_free(nicklocaltmp);
     g_free(nicktmp);
   }
@@ -4017,9 +4018,10 @@ void scr_process_key(keycode kcode)
 
   switch (kcode.mcode) {
     case 0:
+        // key = kcode.value;
         break;
     case MKEY_EQUIV:
-        key = kcode.value;
+        // key = kcode.value;
         break;
     case MKEY_META:
     default:

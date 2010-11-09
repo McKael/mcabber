@@ -636,6 +636,14 @@ LmHandlerResult handle_iq_roster(LmMessageHandler *h, LmConnection *c,
     g_free(cleanalias);
   }
 
+  // Acknowledge IQ message
+  if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_SET) {
+    LmMessage *result;
+    result = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
+    lm_connection_send(c, result, NULL);
+    lm_message_unref(result);
+  }
+
   buddylist_build();
   update_roster = TRUE;
   if (need_refresh)

@@ -3217,6 +3217,13 @@ static void do_version(char *arg)
   gchar *ver = mcabber_version();
   scr_LogPrint(LPRINT_NORMAL, "This is mcabber version %s.", ver);
   g_free(ver);
+#ifdef MODULES_ENABLE
+  scr_LogPrint(LPRINT_NORMAL, "Compiled with modules support (API %s:%d-%d).",
+         MCABBER_BRANCH, MCABBER_API_MIN, MCABBER_API_VERSION);
+# ifdef PKGLIB_DIR
+  scr_LogPrint(LPRINT_NORMAL, " Modules directory: " PKGLIB_DIR);
+# endif
+#endif
 }
 
 static void do_request(char *arg)

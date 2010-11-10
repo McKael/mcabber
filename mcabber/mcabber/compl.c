@@ -86,6 +86,7 @@ void compl_init_system(void)
   register_builtin_cat(COMPL_COLOR);
   register_builtin_cat(COMPL_OTR);
   register_builtin_cat(COMPL_OTRPOLICY);
+  register_builtin_cat(COMPL_MODULE);
 }
 
 //  compl_new_category()

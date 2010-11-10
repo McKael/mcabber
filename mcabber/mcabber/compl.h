@@ -26,6 +26,7 @@
 #define COMPL_COLOR       19
 #define COMPL_OTR         20
 #define COMPL_OTRPOLICY   21
+#define COMPL_MODULE      22
 
 #ifdef MODULES_ENABLE
 void  compl_init_system(void);

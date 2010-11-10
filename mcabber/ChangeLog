@@ -1,6 +1,16 @@
 mcabber (0.10.1-dev)
 
- * 
+ * Display a warning when the configuration file hasn't been updated
+ * Display better messages when connecting to the XMPP server
+ * [MUC] Do not block MUC private messages when 'block_unsubscribed' is set
+ * [MUC] Fix handling of empty room topic
+ * [MUC] Add caps to presence when joining a MUC room
+ * Display module API information in the output of /version
+ * Increase the number of available categories for completions
+ * [Hooks] New "hook-subscription" hook, update to the message-in hooks
+   (See ChangeLog.api)
+ * Many misc. bugfixes
+ * Minor documentation update
 
  -- Mikael, ?
 

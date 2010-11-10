@@ -47,6 +47,7 @@
 #include "events.h"
 
 #ifdef MODULES_ENABLE
+# include "compl.h"
 # include "modules.h"
 #endif
 
@@ -363,6 +364,7 @@ int main(int argc, char **argv)
   scr_init_bindings();
   caps_init();
 #ifdef MODULES_ENABLE
+  compl_init_system();
   modules_init();
 #endif
   /* Initialize charset */

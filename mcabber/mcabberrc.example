@@ -126,6 +126,10 @@ set cmdhistory_lines = 250
 # running you can use "/roster display").
 #set roster_display_filter = ofdna_
 
+# By default command line completion is case-sensitive; this can be changed
+# by setting the option 'completion_ignore_case' to 1.
+#set completion_ignore_case = 0
+
 # Typing notifications, Chat States, Events (XEP-22/85)
 # Set disable_chatstates to 1 if you don't want to use typing notifications.
 # Note: changing this option once mcabber is running has no effect.

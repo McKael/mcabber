@@ -36,6 +36,7 @@
 #include "utf8.h"
 #include "roster.h"
 #include "events.h"
+#include "settings.h"
 #include "logprint.h"
 
 // Completion structure
@@ -135,17 +136,23 @@ guint new_completion(const char *prefix, GSList *compl_cat, const gchar *suffix)
 {
   compl *c;
   GSList *sl_cat;
+  gint (*cmp)(const char *s1, const char *s2, size_t n);
   size_t len = strlen(prefix);
 
   if (InputCompl) { // This should not happen, but hey...
     cancel_completion();
   }
 
+  if (settings_opt_get_int("completion_ignore_case"))
+    cmp = &strncasecmp;
+  else
+    cmp = &strncmp;
+
   c = g_new0(compl, 1);
   // Build the list of matches
   for (sl_cat = compl_cat; sl_cat; sl_cat = g_slist_next(sl_cat)) {
     char *word = sl_cat->data;
-    if (!strncasecmp(prefix, word, len)) {
+    if (!cmp(prefix, word, len)) {
       if (strlen(word) != len) {
         gchar *compval;
         if (suffix)

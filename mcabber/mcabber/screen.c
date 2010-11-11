@@ -3619,7 +3619,12 @@ static void scr_handle_tab(void)
 
   if (!completion_started) {
     guint dynlist;
-    GSList *list = compl_get_category_list(compl_categ, &dynlist);
+    GSList *list;
+
+    if (!compl_categ)
+      return; // Nothing to complete
+
+    list = compl_get_category_list(compl_categ, &dynlist);
     if (list) {
       guint n;
       char *prefix = g_strndup(row, ptr_inputline-row);

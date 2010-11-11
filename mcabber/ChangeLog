@@ -5,6 +5,8 @@ mcabber (0.10.1-dev)
  * [MUC] Do not block MUC private messages when 'block_unsubscribed' is set
  * [MUC] Fix handling of empty room topic
  * [MUC] Add caps to presence when joining a MUC room
+ * New option 'completion_ignore_case' - completion is now case sensitive
+   by default
  * Display module API information in the output of /version
  * Increase the number of available categories for completions
  * [Hooks] New "hook-subscription" hook, update to the message-in hooks

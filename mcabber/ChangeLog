@@ -1,4 +1,4 @@
-mcabber (0.10.1-dev)
+mcabber (0.10.1)
 
  * Display a warning when the configuration file hasn't been updated
  * Display better messages when connecting to the XMPP server
@@ -14,7 +14,7 @@ mcabber (0.10.1-dev)
  * Many misc. bugfixes
  * Minor documentation update
 
- -- Mikael, ?
+ -- Mikael, 2010-12-01
 
 mcabber (0.10.0)
 

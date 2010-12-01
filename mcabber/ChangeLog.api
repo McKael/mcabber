@@ -1,5 +1,6 @@
 dev (16)
 
+ * Stable api 0.10.1:1
  * Add "error" argument to the message-in hooks
  * Changeset 3cabdacf58df
 

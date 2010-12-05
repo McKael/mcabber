@@ -4051,6 +4051,7 @@ void scr_process_key(keycode kcode)
         readline_do_completion();
         break;
     case 13:    // Enter
+    case 343:   // Enter on Maemo
         if (readline_accept_line(FALSE) == 255) {
           mcabber_set_terminate_ui();
           return;

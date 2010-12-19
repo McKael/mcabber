@@ -495,7 +495,6 @@ int main(int argc, char **argv)
   }
 
   evs_deinit();
-  scr_terminate_curses();
 #ifdef MODULES_ENABLE
   modules_deinit();
 #endif
@@ -512,6 +511,8 @@ int main(int argc, char **argv)
   if (settings_opt_get_int("spell_enable"))
     spellcheck_deinit();
 #endif
+
+  scr_terminate_curses();
   /* Save pending message state */
   hlog_save_state();
   caps_free();

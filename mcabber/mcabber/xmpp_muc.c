@@ -617,10 +617,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
                  autowhois_on : autowhois_off);
 
   if (new_member && autowhois == autowhois_on) {
-    // FIXME: This will fail for some UTF-8 nicknames.
-    gchar *joiner_nick = from_utf8(rname);
-    cmd_room_whois(room_elt->data, joiner_nick, FALSE);
-    g_free(joiner_nick);
+    cmd_room_whois(room_elt->data, rname, FALSE);
   }
 
   scr_draw_roster();

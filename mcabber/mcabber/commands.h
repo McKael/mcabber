@@ -27,7 +27,7 @@ gpointer cmd_del(const char *name);
 void cmd_add(const char *name, const char *help, guint flags1, guint flags2, void (*f)(char*), gpointer userdata);
 #endif
 
-void cmd_room_whois(gpointer bud, char *nick_locale, guint interactive);
+void cmd_room_whois(gpointer bud, const char *nick, guint interactive);
 void cmd_room_leave(gpointer bud, char *arg);
 void cmd_setstatus(const char *recipient, const char *arg);
 void say_cmd(char *arg, int parse_flags);

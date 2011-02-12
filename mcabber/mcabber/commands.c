@@ -2830,9 +2830,11 @@ static void room_setopt(gpointer bud, char *arg)
 
 //  cmd_room_whois(..)
 // If interactive is TRUE, chatmode can be enabled.
-void cmd_room_whois(gpointer bud, char *arg, guint interactive)
+// Please note that usernick is expected in UTF-8 locale iff interactive is FALSE
+// (in order to work correctly with auto_whois).
+void cmd_room_whois(gpointer bud, const char *usernick, guint interactive)
 {
-  char **paramlst;
+  char **paramlst = NULL;
   gchar *nick, *buffer;
   const char *bjid, *realjid;
   const char *rst_msg;
@@ -2843,16 +2845,19 @@ void cmd_room_whois(gpointer bud, char *arg, guint interactive)
   time_t rst_time;
   guint msg_flag = HBB_PREFIX_INFO;
 
-  paramlst = split_arg(arg, 1, 0); // nickname
-  nick = *paramlst;
+  if (interactive) {
+    paramlst = split_arg(usernick, 1, 0); // nickname
+    nick = to_utf8(*paramlst);
+  } else {
+    nick = g_strdup(usernick);
+  }
 
   if (!nick || !*nick) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify a nickname.");
-    free_arg_lst(paramlst);
+    if (paramlst)
+      free_arg_lst(paramlst);
     return;
   }
-
-  nick = to_utf8(nick);
 
   if (interactive) {
     // Enter chat mode
@@ -2866,7 +2871,8 @@ void cmd_room_whois(gpointer bud, char *arg, guint interactive)
 
   if (rstatus == offline) {
     scr_LogPrint(LPRINT_NORMAL, "No such member: %s", nick);
-    free_arg_lst(paramlst);
+    if (paramlst)
+      free_arg_lst(paramlst);
     g_free(nick);
     return;
   }
@@ -2912,7 +2918,8 @@ void cmd_room_whois(gpointer bud, char *arg, guint interactive)
 
   g_free(buffer);
   g_free(nick);
-  free_arg_lst(paramlst);
+  if (paramlst)
+    free_arg_lst(paramlst);
 }
 
 static void room_bookmark(gpointer bud, char *arg)

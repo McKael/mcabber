@@ -163,10 +163,9 @@ void xmpp_updatebuddy(const char *bjid, const char *name, const char *group)
   x = lm_message_node_add_child(iq->node, "query", NULL);
   lm_message_node_set_attribute(x, "xmlns", NS_ROSTER);
   x = lm_message_node_add_child(x, "item", NULL);
-  lm_message_node_set_attributes(x,
-                                 "jid", cleanjid,
-                                 "name", name,
-                                 NULL);
+  lm_message_node_set_attribute(x, "jid", cleanjid);
+  if (name)
+    lm_message_node_set_attribute(x, "name", name);
 
   if (group)
     lm_message_node_add_child(x, "group", group);

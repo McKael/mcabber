@@ -1,1 +1,1 @@
-SUBDIRS = beep xttitle
+SUBDIRS = beep xttitle fifo

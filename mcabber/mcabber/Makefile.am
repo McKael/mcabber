@@ -7,7 +7,7 @@ mcabber_SOURCES = main.c main.h roster.c roster.h events.c events.h \
 		  xmpp.c xmpp.h xmpp_helper.c xmpp_helper.h xmpp_defines.h \
 		  xmpp_iq.c xmpp_iq.h xmpp_iqrequest.c xmpp_iqrequest.h \
 		  xmpp_muc.c xmpp_muc.h xmpp_s10n.c xmpp_s10n.h \
-		  caps.c caps.h fifo.c fifo.h help.c help.h
+		  caps.c caps.h help.c help.h
 
 if OTR
 mcabber_SOURCES += otr.c otr.h nohtml.c nohtml.h
@@ -53,6 +53,8 @@ mcabberinclude_HEADERS += hgcset.h
 endif
 
 mcabberincludedir = $(includedir)/mcabber
+else
+mcabber_SOURCES += fifo.c fifo.h
 endif
 
 #SUBDIRS =

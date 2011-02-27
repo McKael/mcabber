@@ -41,10 +41,13 @@
 #include "utils.h"
 #include "pgp.h"
 #include "otr.h"
-#include "fifo.h"
 #include "xmpp.h"
 #include "help.h"
 #include "events.h"
+
+#ifndef MODULES_ENABLE
+# include "fifo.h"
+#endif
 
 #ifdef MODULES_ENABLE
 # include "compl.h"
@@ -77,7 +80,9 @@ char *mcabber_version(void)
 
 static void mcabber_terminate(const char *msg)
 {
+#ifndef MODULES_ENABLE
   fifo_deinit();
+#endif
   xmpp_disconnect();
   scr_terminate_curses();
 
@@ -449,8 +454,10 @@ int main(int argc, char **argv)
 
   chatstates_disabled = settings_opt_get_int("disable_chatstates");
 
+#ifndef MODULES_ENABLE
   /* Initialize FIFO named pipe */
   fifo_init();
+#endif
 
   /* Load previous roster state */
   hlog_load_state();
@@ -498,7 +505,9 @@ int main(int argc, char **argv)
 #ifdef MODULES_ENABLE
   modules_deinit();
 #endif
+#ifndef MODULES_ENABLE
   fifo_deinit();
+#endif
 #ifdef HAVE_LIBOTR
   otr_terminate();
 #endif

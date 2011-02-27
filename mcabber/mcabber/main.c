@@ -450,7 +450,7 @@ int main(int argc, char **argv)
   chatstates_disabled = settings_opt_get_int("disable_chatstates");
 
   /* Initialize FIFO named pipe */
-  fifo_init(settings_opt_get("fifo_name"));
+  fifo_init();
 
   /* Load previous roster state */
   hlog_load_state();

@@ -91,6 +91,7 @@ static void fifo_destroy_callback(gpointer data)
 {
   GIOChannel *channel = (GIOChannel *)data;
   g_io_channel_unref(channel);
+  channel = NULL;
 }
 
 static gboolean check_fifo(const char *name)
@@ -140,15 +141,37 @@ static gboolean attach_fifo(const char *name)
   return TRUE;
 }
 
-int fifo_init(const char *fifo_path)
+void fifo_deinit(void)
+{
+  unsetenv(FIFO_ENV_NAME);
+
+  if (fifo_channel)
+    g_source_remove_by_user_data(fifo_channel);
+  /* channel itself should be destroyed by destruction callback */
+  /* destroy open fifo */
+  if (fifo_name) {
+    /* well, that may create fifo, and then unlink,
+     * but at least we will not destroy non-fifo data */
+    if (check_fifo(fifo_name))
+      unlink(fifo_name);
+    g_free(fifo_name);
+    fifo_name = NULL;
+  }
+}
+
+//  fifo_init_internal(path)
+// If path is NULL, reopen existing fifo, else open anew.
+static int fifo_init_internal(const char *fifo_path)
 {
   if (fifo_path) {
+    fifo_deinit();
     fifo_name = expand_filename(fifo_path);
 
     if (!check_fifo(fifo_name)) {
       scr_LogPrint(LPRINT_LOGNORM, "WARNING: Cannot create the FIFO. "
                    "%s already exists and is not a pipe", fifo_name);
       g_free(fifo_name);
+      fifo_name = NULL;
       return -1;
     }
   } else if (fifo_name)
@@ -167,15 +190,26 @@ int fifo_init(const char *fifo_path)
   return 1;
 }
 
-void fifo_deinit(void)
+static gchar *fifo_guard(const gchar *key, const gchar *new_value)
 {
-  unsetenv(FIFO_ENV_NAME);
+  if (new_value)
+    fifo_init_internal(new_value);
+  else
+    fifo_deinit();
+  return g_strdup(new_value);
+}
 
-  /* destroy open fifo */
-  unlink(fifo_name);
-  g_source_remove_by_user_data(fifo_channel);
-  /* channel itself should be destroyed by destruction callback */
-  g_free(fifo_name);
+// Returns 1 in case of success, -1 on error
+int fifo_init(void)
+{
+  const char *path = settings_opt_get("fifo_name");
+  static gboolean guard_installed = FALSE;
+  if (!guard_installed)
+    if (!(guard_installed = settings_set_guard("fifo_name", fifo_guard)))
+      scr_LogPrint(LPRINT_DEBUG, "fifo: BUG: Cannot install option guard!");
+  if (path)
+    return fifo_init_internal(path);
+  return 1;
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0 sw=2 ts=2:  For Vim users... */

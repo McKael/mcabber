@@ -11,9 +11,7 @@ typedef struct {
   const char *help;
   guint completion_flags[2];
   void (*func)(char *);
-#ifdef MODULES_ENABLE
   gpointer userdata;
-#endif
 } cmd;
 
 void cmd_init(void);
@@ -22,7 +20,6 @@ int  process_line(const char *line);
 int  process_command(const char *line, guint iscmd);
 char *expandalias(const char *line);
 #ifdef MODULES_ENABLE
-void cmd_deinit(void);
 gpointer cmd_del(const char *name);
 void cmd_add(const char *name, const char *help, guint flags1, guint flags2, void (*f)(char*), gpointer userdata);
 #endif

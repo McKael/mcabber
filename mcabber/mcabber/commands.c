@@ -91,14 +91,13 @@ static void do_color(char *arg);
 static void do_otr(char *arg);
 static void do_otrpolicy(char *arg);
 static void do_echo(char *arg);
+static void do_module(char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
 
 #ifdef MODULES_ENABLE
 #include "modules.h"
-
-static void do_module(char *arg);
 
 gpointer cmd_del(const char *name)
 {
@@ -115,16 +114,12 @@ gpointer cmd_del(const char *name)
   }
   return NULL;
 }
+#endif
 
 //  cmd_add()
 // Adds a command to the commands list and to the CMD completion list
 void cmd_add(const char *name, const char *help, guint flags_row1,
              guint flags_row2, void (*f)(char*), gpointer userdata)
-#define cmd_add(A, B, C, D, E) cmd_add (A, B, C, D, E, NULL);
-#else
-static void cmd_add(const char *name, const char *help,
-        guint flags_row1, guint flags_row2, void (*f)(char*))
-#endif
 {
   cmd *n_cmd = g_new0(cmd, 1);
   strncpy(n_cmd->name, name, 32-1);
@@ -132,9 +127,7 @@ static void cmd_add(const char *name, const char *help,
   n_cmd->completion_flags[0] = flags_row1;
   n_cmd->completion_flags[1] = flags_row2;
   n_cmd->func = f;
-#ifdef MODULES_ENABLE
   n_cmd->userdata = userdata;
-#endif
   Commands = g_slist_prepend(Commands, n_cmd);
   // Add to completion CMD category
   compl_add_category_word(COMPL_CMD, name);
@@ -148,55 +141,57 @@ static void cmd_add(const char *name, const char *help,
 //
 void cmd_init(void)
 {
-  cmd_add("add", "Add a jabber user", COMPL_JID, 0, &do_add);
-  cmd_add("alias", "Add an alias", 0, 0, &do_alias);
+  cmd_add("add", "Add a jabber user", COMPL_JID, 0, &do_add, NULL);
+  cmd_add("alias", "Add an alias", 0, 0, &do_alias, NULL);
   cmd_add("authorization", "Manage subscription authorizations",
-          COMPL_AUTH, COMPL_JID, &do_authorization);
-  cmd_add("bind", "Add an key binding", 0, 0, &do_bind);
+          COMPL_AUTH, COMPL_JID, &do_authorization, NULL);
+  cmd_add("bind", "Add an key binding", 0, 0, &do_bind, NULL);
   cmd_add("buffer", "Manipulate current buddy's buffer (chat window)",
-          COMPL_BUFFER, 0, &do_buffer);
-  cmd_add("chat_disable", "Disable chat mode", 0, 0, &do_chat_disable);
-  cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear);
-  cmd_add("color", "Set coloring options", COMPL_COLOR, 0, &do_color);
-  cmd_add("connect", "Connect to the server", 0, 0, &do_connect);
-  cmd_add("del", "Delete the current buddy", 0, 0, &do_del);
-  cmd_add("disconnect", "Disconnect from server", 0, 0, &do_disconnect);
-  cmd_add("echo", "Display a string in the log window", 0, 0, &do_echo);
-  cmd_add("event", "Process an event", COMPL_EVENTSID, COMPL_EVENTS, &do_event);
+          COMPL_BUFFER, 0, &do_buffer, NULL);
+  cmd_add("chat_disable", "Disable chat mode", 0, 0, &do_chat_disable, NULL);
+  cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear, NULL);
+  cmd_add("color", "Set coloring options", COMPL_COLOR, 0, &do_color, NULL);
+  cmd_add("connect", "Connect to the server", 0, 0, &do_connect, NULL);
+  cmd_add("del", "Delete the current buddy", 0, 0, &do_del, NULL);
+  cmd_add("disconnect", "Disconnect from server", 0, 0, &do_disconnect, NULL);
+  cmd_add("echo", "Display a string in the log window", 0, 0, &do_echo, NULL);
+  cmd_add("event", "Process an event", COMPL_EVENTSID, COMPL_EVENTS, &do_event,
+          NULL);
   cmd_add("group", "Change group display settings",
-          COMPL_GROUP, COMPL_GROUPNAME, &do_group);
-  cmd_add("help", "Display some help", COMPL_CMD, 0, &do_help);
-  cmd_add("iline", "Manipulate input buffer", 0, 0, &do_iline);
-  cmd_add("info", "Show basic info on current buddy", 0, 0, &do_info);
+          COMPL_GROUP, COMPL_GROUPNAME, &do_group, NULL);
+  cmd_add("help", "Display some help", COMPL_CMD, 0, &do_help, NULL);
+  cmd_add("iline", "Manipulate input buffer", 0, 0, &do_iline, NULL);
+  cmd_add("info", "Show basic info on current buddy", 0, 0, &do_info, NULL);
+  cmd_add("module", "Manipulations with modules", COMPL_MODULE, 0, &do_module,
+          NULL);
   cmd_add("move", "Move the current buddy to another group", COMPL_GROUPNAME,
-          0, &do_move);
+          0, &do_move, NULL);
   cmd_add("msay", "Send a multi-lines message to the selected buddy",
-          COMPL_MULTILINE, 0, &do_msay);
-  cmd_add("otr", "Manage OTR settings", COMPL_OTR, COMPL_JID, &do_otr);
+          COMPL_MULTILINE, 0, &do_msay, NULL);
+  cmd_add("otr", "Manage OTR settings", COMPL_OTR, COMPL_JID, &do_otr, NULL);
   cmd_add("otrpolicy", "Manage OTR policies", COMPL_JID, COMPL_OTRPOLICY,
-          &do_otrpolicy);
-  cmd_add("pgp", "Manage PGP settings", COMPL_PGP, COMPL_JID, &do_pgp);
-  cmd_add("quit", "Exit the software", 0, 0, NULL);
-  cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml);
-  cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename);
+          &do_otrpolicy, NULL);
+  cmd_add("pgp", "Manage PGP settings", COMPL_PGP, COMPL_JID, &do_pgp, NULL);
+  cmd_add("quit", "Exit the software", 0, 0, NULL, NULL);
+  cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml, NULL);
+  cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename, NULL);
   cmd_add("request", "Send a Jabber IQ request", COMPL_REQUEST, COMPL_JID,
-          &do_request);
-  cmd_add("room", "MUC actions command", COMPL_ROOM, 0, &do_room);
+          &do_request, NULL);
+  cmd_add("room", "MUC actions command", COMPL_ROOM, 0, &do_room, NULL);
   cmd_add("roster", "Manipulate the roster/buddylist", COMPL_ROSTER, 0,
-          &do_roster);
-  cmd_add("say", "Say something to the selected buddy", 0, 0, &do_say);
+          &do_roster, NULL);
+  cmd_add("say", "Say something to the selected buddy", 0, 0, &do_say, NULL);
   cmd_add("say_to", "Say something to a specific buddy", COMPL_JID, 0,
-          &do_say_to);
-  cmd_add("screen_refresh", "Redraw mcabber screen", 0, 0, &do_screen_refresh);
-  cmd_add("set", "Set/query an option value", 0, 0, &do_set);
-  cmd_add("source", "Read a configuration file", 0, 0, &do_source);
-  cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status);
+          &do_say_to, NULL);
+  cmd_add("screen_refresh", "Redraw mcabber screen", 0, 0, &do_screen_refresh,
+          NULL);
+  cmd_add("set", "Set/query an option value", 0, 0, &do_set, NULL);
+  cmd_add("source", "Read a configuration file", 0, 0, &do_source, NULL);
+  cmd_add("status", "Show or set your status", COMPL_STATUS, 0, &do_status,
+          NULL);
   cmd_add("status_to", "Show or set your status for one recipient",
-          COMPL_JID, COMPL_STATUS, &do_status_to);
-  cmd_add("version", "Show mcabber version", 0, 0, &do_version);
-#ifdef MODULES_ENABLE
-  cmd_add("module", "Manipulations with modules", COMPL_MODULE, 0, &do_module);
-#endif
+          COMPL_JID, COMPL_STATUS, &do_status_to, NULL);
+  cmd_add("version", "Show mcabber version", 0, 0, &do_version, NULL);
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");
@@ -2830,8 +2825,8 @@ static void room_setopt(gpointer bud, char *arg)
 
 //  cmd_room_whois(..)
 // If interactive is TRUE, chatmode can be enabled.
-// Please note that usernick is expected in UTF-8 locale iff interactive is FALSE
-// (in order to work correctly with auto_whois).
+// Please note that usernick is expected in UTF-8 locale iff interactive is
+// FALSE (in order to work correctly with auto_whois).
 void cmd_room_whois(gpointer bud, const char *usernick, guint interactive)
 {
   char **paramlst = NULL;
@@ -3012,9 +3007,9 @@ static void display_all_bookmarks(void)
   g_slist_free(bm);
 }
 
-#ifdef MODULES_ENABLE
 static void do_module(char *arg)
 {
+#ifdef MODULES_ENABLE
   gboolean force = FALSE;
   char **args;
 
@@ -3044,8 +3039,11 @@ static void do_module(char *arg)
       scr_LogPrint(LPRINT_LOGNORM, "Error: %s.",  error);
   }
   free_arg_lst(args);
-}
+#else
+  scr_log_print(LPRINT_NORMAL,
+                "Please recompile mcabber with modules enabled.");
 #endif
+}
 
 static void do_room(char *arg)
 {
@@ -3813,7 +3811,8 @@ static void do_chat_disable(char *arg)
 
 static int source_print_error(const char *path, int eerrno)
 {
-  scr_LogPrint(LPRINT_DEBUG, "Source: glob (%s) error: %s.", path, strerror(eerrno));
+  scr_LogPrint(LPRINT_DEBUG, "Source: glob (%s) error: %s.",
+               path, strerror(eerrno));
   return 0;
 }
 

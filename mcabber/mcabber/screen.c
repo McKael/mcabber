@@ -72,6 +72,7 @@ const char *LocaleCharSet = "C";
 
 static unsigned short int Log_Win_Height;
 static unsigned short int Roster_Width;
+static gboolean colors_stalled = FALSE;
 
 // Default attention sign trigger levels
 static guint ui_attn_sign_prio_level_muc = ROSTER_UI_PRIO_MUC_HL_MESSAGE;
@@ -560,6 +561,8 @@ static void parse_colors(void)
       (*nickcols)->color_attrib = A_NORMAL;
     }
   }
+
+  colors_stalled = FALSE;
 }
 
 static void init_keycodes(void)
@@ -752,6 +755,13 @@ gboolean scr_curses_status(void)
   return Curses;
 }
 
+static gchar *scr_color_guard(const gchar *key, const gchar *new_value)
+{
+  if (g_strcmp0(settings_opt_get(key), new_value))
+    colors_stalled = TRUE;
+  return g_strdup(new_value);
+}
+
 void scr_init_curses(void)
 {
   /* Key sequences initialization */
@@ -778,6 +788,20 @@ void scr_init_curses(void)
   }
 
   parse_colors();
+
+  settings_set_guard("color_background", scr_color_guard);
+  settings_set_guard("color_general", scr_color_guard);
+  settings_set_guard("color_info", scr_color_guard);
+  settings_set_guard("color_msgin", scr_color_guard);
+  settings_set_guard("color_msgout", scr_color_guard);
+  settings_set_guard("color_msghl", scr_color_guard);
+  settings_set_guard("color_bgstatus", scr_color_guard);
+  settings_set_guard("color_status", scr_color_guard);
+  settings_set_guard("color_roster", scr_color_guard);
+  settings_set_guard("color_bgrostersel", scr_color_guard);
+  settings_set_guard("color_rostersel", scr_color_guard);
+  settings_set_guard("color_rosterselmsg", scr_color_guard);
+  settings_set_guard("color_rosternewmsg", scr_color_guard);
 
   getmaxyx(stdscr, maxY, maxX);
   Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
@@ -3970,6 +3994,8 @@ void scr_getch(keycode *kcode)
 
 void scr_do_update(void)
 {
+  if (colors_stalled)
+    parse_colors();
   doupdate();
 }
 

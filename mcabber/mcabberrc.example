@@ -16,6 +16,9 @@ set jid = yourusername@domain
 # to a specific server.
 #set server = your.jabber.server
 
+# To automatically append the server to the JID in say_to, use this option:
+#set default_server = jabber.org
+
 # If port is not given, mcabber will try to find it out.
 #set port = 5222
 

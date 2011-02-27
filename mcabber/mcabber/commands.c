@@ -1498,6 +1498,7 @@ static void do_say_to(char *arg)
 {
   char **paramlst;
   char *fjid, *msg;
+  char *uncompletedfjid = NULL;
   char *file = NULL;
   LmMessageSubType msg_type = LM_MESSAGE_SUB_TYPE_NOT_SET;
   bool quiet = FALSE;
@@ -1563,9 +1564,24 @@ static void do_say_to(char *arg)
   } else
     fjid = to_utf8(fjid);
 
+  if (!strchr(fjid, JID_DOMAIN_SEPARATOR)) {
+    const gchar *append_server = settings_opt_get("default_server");
+    if (append_server) {
+      gchar *res = strchr(fjid, JID_RESOURCE_SEPARATOR);
+      uncompletedfjid = fjid;
+      if (res) {
+        *res++ = '\0';
+        fjid = g_strdup_printf("%s%c%s%c%s", fjid, JID_DOMAIN_SEPARATOR, append_server,
+                               JID_RESOURCE_SEPARATOR, res);
+      } else
+        fjid = g_strdup_printf("%s%c%s", fjid, JID_DOMAIN_SEPARATOR, append_server);
+    }
+  }
+
   if (check_jid_syntax(fjid)) {
     scr_LogPrint(LPRINT_NORMAL, "Please specify a valid Jabber ID.");
     free_arg_lst(paramlst);
+    g_free(uncompletedfjid);
     g_free(fjid);
     return;
   }
@@ -1584,6 +1600,7 @@ static void do_say_to(char *arg)
 
   send_message_to(fjid, msg, NULL, msg_type, quiet);
 
+  g_free(uncompletedfjid);
   g_free(fjid);
   g_free(msg);
   free_arg_lst(paramlst);

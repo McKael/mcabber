@@ -256,6 +256,7 @@ set max_history_blocks = 8
 
 # FIFO
 # mcabber can create a FIFO named pipe and listen to this pipe for commands.
+# Don't forget to load the FIFO module if you plan to use this feature!
 # Default: disabled.
 # Set 'fifo_hide_commands' to 1 if you don't want to see the FIFO commands
 # in the log window (they will still be written to the tracelog file).
@@ -265,6 +266,8 @@ set max_history_blocks = 8
 #set fifo_name = ~/.mcabber/mcabber.fifo
 #set fifo_hide_commands = 0
 #set fifo_ignore = 0
+#
+#module load fifo
 
 # Traces logging
 # If you want advanced traces, please specify a file and a level here.

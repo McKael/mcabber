@@ -3814,8 +3814,16 @@ static void do_iline(char *arg)
     subcmd = *paramlst;
     arg = *(paramlst+1);
 
+    if (!subcmd || !*subcmd) {
+      scr_LogPrint(LPRINT_NORMAL, "Missing parameter.");
+      free_arg_lst(paramlst);
+      return;
+    }
+
     if (!strcasecmp(subcmd, "iline_insert")) {
       readline_insert(arg);
+    } else {
+      scr_LogPrint(LPRINT_NORMAL, "Invalid subcommand.");
     }
 
     free_arg_lst(paramlst);

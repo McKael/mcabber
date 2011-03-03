@@ -3806,6 +3806,19 @@ static void do_iline(char *arg)
     readline_cancel_completion();
   } else if (!strcasecmp(arg, "compl_do")) {
     readline_do_completion();
+  } else {
+    char **paramlst;
+    char *subcmd;
+
+    paramlst = split_arg(arg, 2, 0); // subcmd, arg
+    subcmd = *paramlst;
+    arg = *(paramlst+1);
+
+    if (!strcasecmp(subcmd, "iline_insert")) {
+      readline_insert(arg);
+    }
+
+    free_arg_lst(paramlst);
   }
 }
 

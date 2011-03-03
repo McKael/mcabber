@@ -3533,6 +3533,14 @@ void readline_send_multiline(void)
     process_command(mkcmdstr("msay send"), TRUE);
 }
 
+void readline_insert(const char *toinsert)
+{
+  if (!toinsert || !*toinsert) return;
+
+  scr_insert_text(toinsert);
+  check_offset(0);
+}
+
 //  which_row()
 // Tells which row our cursor is in, in the command line.
 // -2 -> normal text

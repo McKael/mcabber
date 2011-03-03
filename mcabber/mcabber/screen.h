@@ -187,6 +187,7 @@ void readline_iline_end(void);
 void readline_backward_kill_iline(void);
 void readline_forward_kill_iline(void);
 void readline_send_multiline(void);
+void readline_insert(const char *toinsert);
 
 
 // For backward compatibility:

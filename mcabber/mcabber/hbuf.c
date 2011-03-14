@@ -317,6 +317,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
   guint last_persist_prefixflags = 0;
   GList *last_persist;  // last persistent flags
   hbb_line **array, **array_elt;
+  hbb_line *prev_array_elt = NULL;
 
   // To be able to correctly highlight multi-line messages,
   // we need to look at the last non-null prefix, which should be the first
@@ -352,11 +353,17 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
         // Propagate highlighting flags
         (*array_elt)->flags |= last_persist_prefixflags &
                                (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT |
-                                HBB_PREFIX_INFO | HBB_PREFIX_IN);
+                                HBB_PREFIX_INFO | HBB_PREFIX_IN |
+                                HBB_PREFIX_READMARK);
         // Continuation of a message - omit the prefix
         (*array_elt)->flags |= HBB_PREFIX_CONT;
         (*array_elt)->mucnicklen = 0; // The nick is in the first one
+        // Remove readmark flag from the previous line
+        if (last_persist_prefixflags & HBB_PREFIX_READMARK)
+          prev_array_elt->flags &= ~HBB_PREFIX_READMARK;
       }
+
+      prev_array_elt = *array_elt;
 
       hbuf = g_list_next(hbuf);
     } else
@@ -496,6 +503,38 @@ gboolean hbuf_remove_receipt(GList *hbuf, gpointer xep184)
     }
   }
   return FALSE;
+}
+
+//  hbuf_set_readmark(hbuf, action)
+// Set/Reset the readmark Flag
+// If action is TRUE, set a mark to the latest line,
+// if action is FALSE, remove a previous readmark flag.
+void hbuf_set_readmark(GList *hbuf, gboolean action)
+{
+  hbuf_block *blk;
+
+  if (!hbuf) return;
+
+  hbuf = g_list_last(hbuf);
+
+  if (action) {
+    // Add a readmark flag
+    blk = (hbuf_block*)(hbuf->data);
+    blk->prefix.flags ^= HBB_PREFIX_READMARK;
+    // Shift hbuf in order to remove previous flags
+    // (XXX maybe can be optimized out if there's no risk
+    //  we have several marks)
+    hbuf = g_list_previous(hbuf);
+  }
+
+  // Remove old marks
+  for ( ; hbuf; hbuf = g_list_previous(hbuf)) {
+    blk = (hbuf_block*)(hbuf->data);
+    if (blk->prefix.flags & HBB_PREFIX_READMARK) {
+      blk->prefix.flags &= ~HBB_PREFIX_READMARK;
+      break;
+    }
+  }
 }
 
 //  hbuf_get_blocks_number()

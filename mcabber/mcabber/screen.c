@@ -1127,12 +1127,14 @@ void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
 // (Re-)Display the given chat window.
 static void scr_update_window(winbuf *win_entry)
 {
-  int n;
+  int n, mark_offset = 0;
   guint prefixwidth;
   char pref[96];
   hbb_line **lines, *line;
   GList *hbuf_head;
   int color;
+  bool readmark = FALSE;
+  bool skipline = FALSE;
 
   prefixwidth = scr_getprefixwidth();
   prefixwidth = MIN(prefixwidth, sizeof pref);
@@ -1168,11 +1170,33 @@ static void scr_update_window(winbuf *win_entry)
   // Get the last CHAT_WIN_HEIGHT lines.
   lines = hbuf_get_lines(hbuf_head, CHAT_WIN_HEIGHT);
 
-  // Display these lines
-  for (n = 0; n < CHAT_WIN_HEIGHT; n++) {
-    wmove(win_entry->win, n, 0);
+  if (CHAT_WIN_HEIGHT > 1) {
+    // Do we have a read mark?
+    for (n = 0; n < CHAT_WIN_HEIGHT; n++) {
+      line = *(lines+n);
+      if (line && line->flags & HBB_PREFIX_READMARK) {
+        // If this is not the last line, we'll display a mark
+        if (n+1 < CHAT_WIN_HEIGHT && *(lines+n+1))
+          readmark = TRUE;
+      }
+    }
+  }
+
+  // Skip first line if there's a mark
+  if (readmark) {
+    skipline = TRUE;
+    mark_offset = -1;
+  }
+
+  // Display the lines
+  for (n = 0 ; n < CHAT_WIN_HEIGHT; n++) {
+    int winy = n + mark_offset;
+    wmove(win_entry->win, winy, 0);
     line = *(lines+n);
     if (line) {
+      if (skipline)
+        goto scr_update_window_skipline;
+
       if (line->flags & HBB_PREFIX_HLIGHT_OUT)
         color = COLOR_MSGOUT;
       else if (line->flags & HBB_PREFIX_HLIGHT)
@@ -1192,7 +1216,7 @@ static void scr_update_window(winbuf *win_entry)
       wprintw(win_entry->win, pref);
 
       // Make sure we are at the right position
-      wmove(win_entry->win, n, prefixwidth-1);
+      wmove(win_entry->win, winy, prefixwidth-1);
 
       // The MUC nick - overwrite with proper color
       if (line->mucnicklen) {
@@ -1256,6 +1280,23 @@ static void scr_update_window(winbuf *win_entry)
       // Return the color back
       if (color != COLOR_GENERAL)
         wattrset(win_entry->win, get_color(COLOR_GENERAL));
+
+scr_update_window_skipline:
+      skipline = FALSE;
+      if (readmark && line->flags & HBB_PREFIX_READMARK) {
+        int i, w;
+        mark_offset++;
+
+        // Display the mark
+        winy = n + mark_offset;
+        wmove(win_entry->win, winy, 0);
+        g_snprintf(pref, prefixwidth, "             == ");
+        wprintw(win_entry->win, pref);
+        w = scr_gettextwidth() / 3;
+        for (i=0; i<w; i++)
+          wprintw(win_entry->win, "== ");
+        wclrtoeol(win_entry->win);
+      }
 
       g_free(line->text);
       g_free(line);

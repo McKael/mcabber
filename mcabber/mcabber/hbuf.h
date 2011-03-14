@@ -29,6 +29,7 @@
 #define HBB_PREFIX_OTRCRYPT   (1U<<12)
 #define HBB_PREFIX_CONT       (1U<<13)
 #define HBB_PREFIX_RECEIPT    (1U<<14)
+#define HBB_PREFIX_READMARK   (1U<<15)
 
 typedef struct {
   time_t timestamp;
@@ -49,6 +50,7 @@ GList *hbuf_search(GList *hbuf, int direction, const char *string);
 GList *hbuf_jump_date(GList *hbuf, time_t t);
 GList *hbuf_jump_percent(GList *hbuf, int pc);
 gboolean hbuf_remove_receipt(GList *hbuf, gpointer xep184);
+void hbuf_set_readmark(GList *hbuf, gboolean action);
 
 void hbuf_dump_to_file(GList *hbuf, const char *filename);
 

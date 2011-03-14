@@ -1471,6 +1471,9 @@ static void scr_write_in_window(const char *winId, const char *text,
   if (!dont_show) {
     if (win_entry->bd->lock)
       setmsgflg = TRUE;
+    // If this is an outgoing message, update readmark
+    if (!special && (prefix_flags & HBB_PREFIX_OUT))
+      hbuf_set_readmark(win_entry->bd->hbuf, FALSE);
     // Show and refresh the window
     top_panel(win_entry->panel);
     scr_update_window(win_entry);
@@ -2375,8 +2378,10 @@ static void set_current_buddy(GList *newbuddy)
 
   prev_st = buddy_getstatus(BUDDATA(current_buddy), NULL);
   buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, FALSE);
-  if (chatmode)
+  if (chatmode) {
+    scr_buffer_readmark(TRUE);
     alternate_buddy = current_buddy;
+  }
   current_buddy = newbuddy;
   // Lock the buddy in the buddylist if we're in chat mode
   if (chatmode)
@@ -3482,6 +3487,8 @@ void readline_refresh_screen(void)
 void readline_disable_chat_mode(guint show_roster)
 {
   scr_check_auto_away(TRUE);
+  if (chatmode)
+    scr_buffer_readmark(TRUE);
   currentWindow = NULL;
   chatmode = FALSE;
   if (current_buddy)

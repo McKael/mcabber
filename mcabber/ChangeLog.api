@@ -1,3 +1,9 @@
+dev (17)
+
+ * Add NS_X_CONFERENCE (direct MUC invitations)
+
+  -- Mikael Berthe, 2011-03-14
+
 dev (16)
 
  * Stable api 0.10.1:1

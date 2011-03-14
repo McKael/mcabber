@@ -2946,6 +2946,33 @@ void scr_buffer_date(time_t t)
   update_panels();
 }
 
+//  scr_buffer_jump_readmark()
+// Jump to the buffer readmark, if there's one
+void scr_buffer_jump_readmark(void)
+{
+  winbuf *win_entry;
+  GList *search_res;
+  guint isspe;
+
+  // Get win_entry
+  if (!current_buddy) return;
+  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  if (isspe) return;
+  win_entry = scr_search_window(CURRENT_JID, isspe);
+  if (!win_entry) return;
+
+  search_res = hbuf_jump_readmark(win_entry->bd->hbuf);
+
+  win_entry->bd->cleared = FALSE;
+  win_entry->bd->top = search_res;
+
+  // Refresh the window
+  scr_update_window(win_entry);
+
+  // Finished :)
+  update_panels();
+}
+
 //  scr_buffer_dump(filename)
 // Dump the current buffer content to the specified file.
 void scr_buffer_dump(const char *file)

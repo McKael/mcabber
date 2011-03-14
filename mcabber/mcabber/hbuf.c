@@ -428,6 +428,23 @@ GList *hbuf_jump_percent(GList *hbuf, int pc)
   return g_list_nth(hbuf, pc*hlen/100);
 }
 
+//  hbuf_jump_readmark(hbuf)
+// Return a pointer to the line following the readmark
+// or NULL if no mark was found.
+GList *hbuf_jump_readmark(GList *hbuf)
+{
+  hbuf_block *blk;
+
+  hbuf = g_list_last(hbuf);
+  for ( ; hbuf; hbuf = g_list_previous(hbuf)) {
+    blk = (hbuf_block*)(hbuf->data);
+    if (blk->prefix.flags & HBB_PREFIX_READMARK)
+      return g_list_next(hbuf);
+  }
+
+  return NULL;
+}
+
 //  hbuf_dump_to_file(hbuf, filename)
 // Save the buffer to a file.
 void hbuf_dump_to_file(GList *hbuf, const char *filename)
@@ -522,12 +539,12 @@ void hbuf_set_readmark(GList *hbuf, gboolean action)
     blk = (hbuf_block*)(hbuf->data);
     blk->prefix.flags ^= HBB_PREFIX_READMARK;
     // Shift hbuf in order to remove previous flags
-    // (XXX maybe can be optimized out if there's no risk
+    // (maybe it can be optimized out, if there's no risk
     //  we have several marks)
     hbuf = g_list_previous(hbuf);
   }
 
-  // Remove old marks
+  // Remove old mark
   for ( ; hbuf; hbuf = g_list_previous(hbuf)) {
     blk = (hbuf_block*)(hbuf->data);
     if (blk->prefix.flags & HBB_PREFIX_READMARK) {

@@ -1730,6 +1730,8 @@ static void do_buffer(char *arg)
     scr_buffer_dump(arg);
   } else if (!strcasecmp(subcmd, "list")) {
     scr_buffer_list();
+  } else if (!strcasecmp(subcmd, "readmark")) {
+    scr_buffer_jump_readmark();
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   }

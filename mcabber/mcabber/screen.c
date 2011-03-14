@@ -2800,6 +2800,22 @@ void scr_buffer_scroll_lock(int lock)
   update_panels();
 }
 
+void scr_buffer_readmark(gboolean action)
+{
+  winbuf *win_entry;
+  guint isspe;
+
+  // Get win_entry
+  if (!current_buddy) return;
+  isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
+  if (isspe) return; // Maybe not necessary
+  win_entry = scr_search_window(CURRENT_JID, isspe);
+  if (!win_entry) return;
+
+  hbuf_set_readmark(win_entry->bd->hbuf, action);
+}
+
+
 //  scr_buffer_top_bottom()
 // Jump to the head/tail of the current buddy window
 // (top if topbottom == -1, bottom topbottom == 1)

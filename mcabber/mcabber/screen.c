@@ -1474,9 +1474,10 @@ static void scr_write_in_window(const char *winId, const char *text,
   if (!dont_show) {
     if (win_entry->bd->lock)
       setmsgflg = TRUE;
-    // If this is an outgoing message, update readmark
-    if (!special && (prefix_flags & (HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT)))
-      hbuf_set_readmark(win_entry->bd->hbuf, FALSE);
+    else
+      // If this is an outgoing message, update readmark
+      if (!special && (prefix_flags & (HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT)))
+        hbuf_set_readmark(win_entry->bd->hbuf, FALSE);
     // Show and refresh the window
     top_panel(win_entry->panel);
     scr_update_window(win_entry);
@@ -2820,7 +2821,8 @@ void scr_buffer_readmark(gboolean action)
   win_entry = scr_search_window(CURRENT_JID, isspe);
   if (!win_entry) return;
 
-  hbuf_set_readmark(win_entry->bd->hbuf, action);
+  if (!win_entry->bd->lock)
+    hbuf_set_readmark(win_entry->bd->hbuf, action);
 }
 
 

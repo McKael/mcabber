@@ -385,6 +385,7 @@ set escdelay = 50
 #set color_rostersel    = blue
 #set color_rosterselmsg = red
 #set color_rosternewmsg = red
+#set color_readmark     = red
 
 # You can color roster items by their status and JID.  For example, to have
 # all roster items white, just all contacts from jabber.org that are away,

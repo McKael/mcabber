@@ -441,6 +441,7 @@ static void parse_colors(void)
     "rosternewmsg",
     "info",
     "msgin",
+    "readmark",
     NULL
   };
 
@@ -516,6 +517,10 @@ static void parse_colors(void)
           break;
       case COLOR_MSGIN:
           init_pair(i+1, ((color) ? find_color(color) : COLOR_WHITE),
+                    find_color(background));
+          break;
+      case COLOR_READMARK:
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_RED),
                     find_color(background));
           break;
     }
@@ -1293,12 +1298,14 @@ scr_update_window_skipline:
         // Display the mark
         winy = n + mark_offset;
         wmove(win_entry->win, winy, 0);
+        wattrset(win_entry->win, get_color(COLOR_READMARK));
         g_snprintf(pref, prefixwidth, "             == ");
         wprintw(win_entry->win, pref);
         w = scr_gettextwidth() / 3;
         for (i=0; i<w; i++)
           wprintw(win_entry->win, "== ");
         wclrtoeol(win_entry->win);
+        wattrset(win_entry->win, get_color(COLOR_GENERAL));
       }
 
       g_free(line->text);

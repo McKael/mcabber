@@ -49,6 +49,7 @@ enum colors {
   COLOR_ROSTERNMSG,
   COLOR_INFO,
   COLOR_MSGIN,
+  COLOR_READMARK,
   COLOR_max
 };
 

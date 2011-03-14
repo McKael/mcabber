@@ -2885,7 +2885,7 @@ void scr_buffer_search(int direction, const char *text)
     // Finished :)
     update_panels();
   } else
-    scr_LogPrint(LPRINT_NORMAL, "Search string not found");
+    scr_LogPrint(LPRINT_NORMAL, "Search string not found.");
 }
 
 //  scr_buffer_percent(n)
@@ -2939,6 +2939,9 @@ void scr_buffer_date(time_t t)
   win_entry->bd->cleared = FALSE;
   win_entry->bd->top = search_res;
 
+  if (!search_res)
+    scr_log_print(LPRINT_NORMAL, "Date not found.");
+
   // Refresh the window
   scr_update_window(win_entry);
 
@@ -2965,6 +2968,9 @@ void scr_buffer_jump_readmark(void)
 
   win_entry->bd->cleared = FALSE;
   win_entry->bd->top = search_res;
+
+  if (!search_res)
+    scr_log_print(LPRINT_NORMAL, "Readmark not found.");
 
   // Refresh the window
   scr_update_window(win_entry);

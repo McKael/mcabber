@@ -235,6 +235,7 @@ void cmd_init(void)
   compl_add_category_word(COMPL_BUFFER, "down");
   compl_add_category_word(COMPL_BUFFER, "search_backward");
   compl_add_category_word(COMPL_BUFFER, "search_forward");
+  compl_add_category_word(COMPL_BUFFER, "readmark");
   compl_add_category_word(COMPL_BUFFER, "date");
   compl_add_category_word(COMPL_BUFFER, "%");
   compl_add_category_word(COMPL_BUFFER, "purge");

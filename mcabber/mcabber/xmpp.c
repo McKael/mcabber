@@ -1294,7 +1294,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   if (from) {
     x = lm_message_node_find_xmlns(m->node, NS_MUC_USER);
     if (x && !strcmp(x->name, "x"))
-      got_muc_message(from, x);
+      got_muc_message(from, x, timestamp);
 
     x = lm_message_node_find_xmlns(m->node, NS_X_CONFERENCE);
 

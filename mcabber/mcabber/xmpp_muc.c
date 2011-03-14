@@ -401,8 +401,6 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
                          enum imstatus ust, const char *ustmsg,
                          time_t usttime, char bpprio)
 {
-  LmMessageNode *y;
-  const char *p;
   char *mbuf;
   const char *ournick;
   enum imrole mbrole = role_none;
@@ -412,6 +410,8 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
   const char *mbjid = NULL, *mbnick = NULL;
   const char *actorjid = NULL, *reason = NULL;
   bool new_member = FALSE; // True if somebody else joins the room (not us)
+  bool our_presence = FALSE; // True if this presence is from us (i.e. bears
+                             // code 110)
   guint statuscode = 0;
   guint nickchange = 0;
   GSList *room_elt;
@@ -442,29 +442,94 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
 
   if (!ournick) {
     // It shouldn't happen, probably a server issue
-    mbuf = g_strdup_printf("Unexpected groupchat packet!");
-
-    scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
-    scr_WriteIncomingMessage(roomjid, mbuf, 0, HBB_PREFIX_INFO, 0);
-    g_free(mbuf);
+    const gchar msg[] = "Unexpected groupchat packet!";
+    scr_LogPrint(LPRINT_LOGNORM, msg);
+    scr_WriteIncomingMessage(roomjid, msg, 0, HBB_PREFIX_INFO, 0);
     // Send back an unavailable packet
     xmpp_setstatus(offline, roomjid, "", TRUE);
     scr_draw_roster();
     return;
   }
 
-  // Get the status code
-  // 201: a room has been created
-  // 301: the user has been banned from the room
-  // 303: new room nickname
-  // 307: the user has been kicked from the room
-  // 321,322,332: the user has been removed from the room
-  y = lm_message_node_find_child(xmldata, "status");
-  if (y) {
-    p = lm_message_node_get_attribute(y, "code");
-    if (p)
-      statuscode = atoi(p);
+#define SETSTATUSCODE(VALUE)                                              \
+{                                                                         \
+  if (G_UNLIKELY(statuscode))                                             \
+    scr_LogPrint(LPRINT_DEBUG, "handle_muc_presence: WARNING: "           \
+                 "replacing status code %u with %u.", statuscode, VALUE); \
+  statuscode = VALUE;                                                     \
+}
+
+  { // Get the status code
+    LmMessageNode *node;
+    for (node = xmldata -> children; node; node = node -> next) {
+      if (!g_strcmp0(node -> name, "status")) {
+        const char *codestr = lm_message_node_get_attribute(node, "code");
+        if (codestr) {
+          const char *mesg = NULL;
+          switch (atoi(codestr)) {
+            // initial
+            case 100:
+                    mesg = "The room is not anonymous.";
+                    break;
+            case 110: // It is our presence
+                    our_presence = TRUE;
+                    break;
+            // initial
+            case 170:
+                    mesg = "The room is logged.";
+                    break;
+            // initial
+            case 201: // Room created
+                    SETSTATUSCODE(201);
+                    break;
+            // initial
+            case 210: // Your nick change (on join)
+                    // FIXME: print nick
+                    mesg = "The room has changed your nick!";
+                    buddy_setnickname(room_elt->data, rname);
+                    ournick = rname;
+                    break;
+            case 301: // User banned
+                    SETSTATUSCODE(301);
+                    break;
+            case 303: // Nick change
+                    SETSTATUSCODE(303);
+                    break;
+            case 307: // User kicked
+                    SETSTATUSCODE(307);
+                    break;
+                    // XXX (next three)
+            case 321:
+                    mesg = "User leaves room due to affilation change.";
+                    break;
+            case 322:
+                    mesg = "User leaves room, as room is only for members now.";
+                    break;
+            case 332:
+                    mesg = "User leaves room due to system shutdown.";
+                    break;
+            default:
+                    scr_LogPrint(LPRINT_DEBUG,
+                           "handle_muc_presence: Unknown MUC status code: %s.",
+                           codestr);
+                    break;
+          }
+          if (mesg) {
+            scr_WriteIncomingMessage(roomjid, mesg, usttime,
+                                     HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
+            if (log_muc_conf)
+              hlog_write_message(roomjid, 0, -1, mesg);
+          }
+        }
+      }
+    }
   }
+
+#undef SETSTATUSCODE
+
+  if (!our_presence)
+    if (ournick && !strcmp(ournick, rname))
+      our_presence = TRUE;
 
   // Get the room's "print_status" settings
   printstatus = buddy_getprintstatus(room_elt->data);
@@ -488,7 +553,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
     g_free(mbuf);
     buddy_resource_setname(room_elt->data, rname, mbnick);
     // Maybe it's _our_ nickname...
-    if (ournick && !strcmp(rname, ournick))
+    if (our_presence)
       buddy_setnickname(room_elt->data, mbnick);
     nickchange = TRUE;
   }
@@ -497,7 +562,6 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
   if (statuscode != 303 && ust == offline) {
     // Somebody is leaving
     enum { leave=0, kick, ban } how = leave;
-    bool we_left = FALSE;
 
     if (statuscode == 307)
       how = kick;
@@ -505,8 +569,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
       how = ban;
 
     // If this is a leave, check if it is ourself
-    if (ournick && !strcmp(rname, ournick)) {
-      we_left = TRUE; // _We_ have left! (kicked, banned, etc.)
+    if (our_presence) {
       buddy_setinsideroom(room_elt->data, FALSE);
       buddy_setnickname(room_elt->data, NULL);
       buddy_del_all_resources(room_elt->data);
@@ -531,7 +594,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
       }
       if (reason)
         reason_msg = g_strdup_printf("\nReason: %s", reason);
-      if (we_left)
+      if (our_presence)
         mbuf = g_strdup_printf("You have been %s%s", mbuf_end,
                                reason_msg ? reason_msg : "");
       else
@@ -542,7 +605,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
       g_free(mbuf_end);
     } else {
       // Natural leave
-      if (we_left) {
+      if (our_presence) {
         LmMessageNode *destroynode = lm_message_node_find_child(xmldata,
                                                                 "destroy");
         if (destroynode) {
@@ -575,9 +638,9 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
 
     // Display the mbuf message if we're concerned
     // or if the print_status isn't set to none.
-    if (we_left || printstatus != status_none) {
+    if (our_presence || printstatus != status_none) {
       msgflags = HBB_PREFIX_INFO;
-      if (!we_left && settings_opt_get_int("muc_flag_joins") != 2)
+      if (!our_presence && settings_opt_get_int("muc_flag_joins") != 2)
         msgflags |= HBB_PREFIX_NOFLAG;
       scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
     }
@@ -585,26 +648,31 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
     if (log_muc_conf)
       hlog_write_message(roomjid, 0, -1, mbuf);
 
-    if (we_left) {
+    if (our_presence) {
       scr_LogPrint(LPRINT_LOGNORM, "%s", mbuf);
       g_free(mbuf);
       return;
     }
     g_free(mbuf);
-  } else if (buddy_getstatus(room_elt->data, rname) == offline &&
-             ust != offline) {
-    // Somebody is joining
-    new_member = muc_handle_join(room_elt, rname, roomjid, ournick,
-                                 printstatus, usttime, log_muc_conf);
   } else {
-    // This is a simple member status change
+    enum imstatus old_ust = buddy_getstatus(room_elt->data, rname);
+    if (old_ust == offline && ust != offline) {
+      // Somebody is joining
+      new_member = muc_handle_join(room_elt, rname, roomjid, ournick,
+                                   printstatus, usttime, log_muc_conf);
+    } else {
+      // This is a simple member status change
 
-    if (printstatus == status_all && !nickchange) {
-      mbuf = g_strdup_printf("Member status has changed: %s [%c] %s", rname,
-                             imstatus2char[ust], ((ustmsg) ? ustmsg : ""));
-      scr_WriteIncomingMessage(roomjid, mbuf, usttime,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
-      g_free(mbuf);
+      if (printstatus == status_all && !nickchange) {
+        const char *old_ustmsg = buddy_getstatusmsg(room_elt->data, rname);
+        if (old_ust != ust || g_strcmp0(old_ustmsg, ustmsg)) {
+          mbuf = g_strdup_printf("Member status has changed: %s [%c] %s", rname,
+                                 imstatus2char[ust], ((ustmsg) ? ustmsg : ""));
+          scr_WriteIncomingMessage(roomjid, mbuf, usttime,
+                                 HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
+          g_free(mbuf);
+        }
+      }
     }
   }
 
@@ -727,26 +795,90 @@ void got_invite(const char* from, const char *to, const char* reason,
 
 
 // Specific MUC message handling (for example invitation processing)
-void got_muc_message(const char *from, LmMessageNode *x)
+void got_muc_message(const char *from, LmMessageNode *x, time_t timestamp)
 {
-  LmMessageNode *invite = lm_message_node_get_child(x, "invite");
-  if (invite)
-  {
+  LmMessageNode *node;
+  // invitation
+  node = lm_message_node_get_child(x, "invite");
+  if (node) {
     const char *invite_from;
     const char *reason = NULL;
     const char *password = NULL;
 
-    invite_from = lm_message_node_get_attribute(invite, "from");
-    reason = lm_message_node_get_child_value(invite, "reason");
-    password = lm_message_node_get_child_value(invite, "password");
+    invite_from = lm_message_node_get_attribute(node, "from");
+    reason = lm_message_node_get_child_value(node, "reason");
+    password = lm_message_node_get_child_value(node, "password");
     if (invite_from)
       got_invite(invite_from, from, reason, password, TRUE);
   }
-  // TODO
-  // handle status code = 100 ( not anonymous )
-  // handle status code = 170 ( changement de config )
-  // 10.2.1 Notification of Configuration Changes
+
   // declined invitation
+  node = lm_message_node_get_child(x, "decline");
+  if (node) {
+    const char *decline_from = lm_message_node_get_attribute(node, "from");
+    const char *reason = lm_message_node_get_child_value(node, "reason");
+    if (decline_from) {
+      if (reason)
+        scr_LogPrint(LPRINT_LOGNORM, "<%s> declines your invitation: %s.",
+                     from, reason);
+      else
+        scr_LogPrint(LPRINT_LOGNORM, "<%s> declines your invitation.", from);
+    }
+  }
+
+  // status codes
+  for (node = x -> children; node; node = node -> next) {
+    if (!g_strcmp0(node -> name, "status")) {
+      const char *codestr = lm_message_node_get_attribute(node, "code");
+      if (codestr) {
+        const char *mesg = NULL;
+        switch (atoi(codestr)) {
+          // initial
+          case 100:
+                  mesg = "The room is not anonymous.";
+                  break;
+          case 101:
+                  mesg = "Your affilation has changed while absent.";
+                  break;
+          case 102:
+                  mesg = "The room shows unavailable members.";
+                  break;
+          case 103:
+                  mesg = "The room does not show unavailable members.";
+                  break;
+          case 104:
+                  mesg = "The room configuration has changed.";
+                  break;
+          case 170:
+                  mesg = "The room is logged.";
+                  break;
+          case 171:
+                  mesg = "The room is not logged.";
+                  break;
+          case 172:
+                  mesg = "The room is not anonymous.";
+                  break;
+          case 173:
+                  mesg = "The room is semi-anonymous.";
+                  break;
+          case 174:
+                  mesg = "The room is anonymous.";
+                  break;
+          default:
+                  scr_LogPrint(LPRINT_DEBUG,
+                               "got_muc_message: Unknown MUC status code: %s.",
+                               codestr);
+                  break;
+        }
+        if (mesg) {
+          scr_WriteIncomingMessage(from, mesg, timestamp,
+                                   HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
+        if (settings_opt_get_int("log_muc_conf"))
+            hlog_write_message(from, 0, -1, mesg);
+        }
+      }
+    }
+  }
 }
 
 /* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

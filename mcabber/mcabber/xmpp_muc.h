@@ -14,7 +14,8 @@ void destroy_event_muc_invitation(event_muc_invitation *invitation);
 void roompresence(gpointer room, void *presencedata);
 void got_invite(const char* from, const char *to, const char* reason,
                 const char* passwd, gboolean reply);
-void got_muc_message(const char *from, LmMessageNode *x);
+void got_muc_message(const char *from, LmMessageNode *x,
+                     time_t timestamp);
 void handle_muc_presence(const char *from, LmMessageNode * xmldata,
                          const char *roomjid, const char *rname,
                          enum imstatus ust, const char *ustmsg,

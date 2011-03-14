@@ -1174,18 +1174,21 @@ static void scr_update_window(winbuf *win_entry)
     // Do we have a read mark?
     for (n = 0; n < CHAT_WIN_HEIGHT; n++) {
       line = *(lines+n);
-      if (line && line->flags & HBB_PREFIX_READMARK) {
-        // If this is not the last line, we'll display a mark
-        if (n+1 < CHAT_WIN_HEIGHT && *(lines+n+1))
-          readmark = TRUE;
+      if (line) {
+        if (line->flags & HBB_PREFIX_READMARK) {
+          // If this is not the last line, we'll display a mark
+          if (n+1 < CHAT_WIN_HEIGHT && *(lines+n+1)) {
+            readmark = TRUE;
+            skipline = TRUE;
+            mark_offset = -1;
+          }
+        }
+      } else if (readmark) {
+        // There will be empty lines, so we don't need to skip the first line
+        skipline = FALSE;
+        mark_offset = 0;
       }
     }
-  }
-
-  // Skip first line if there's a mark
-  if (readmark) {
-    skipline = TRUE;
-    mark_offset = -1;
   }
 
   // Display the lines
@@ -1472,7 +1475,7 @@ static void scr_write_in_window(const char *winId, const char *text,
     if (win_entry->bd->lock)
       setmsgflg = TRUE;
     // If this is an outgoing message, update readmark
-    if (!special && (prefix_flags & HBB_PREFIX_OUT))
+    if (!special && (prefix_flags & (HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT)))
       hbuf_set_readmark(win_entry->bd->hbuf, FALSE);
     // Show and refresh the window
     top_panel(win_entry->panel);

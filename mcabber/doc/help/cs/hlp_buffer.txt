@@ -1,6 +1,7 @@
 
  /BUFFER clear|close|close_all|purge|list
- /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER top|bottom|date|%|readmark
+ /BUFFER search_backward|search_forward
  /BUFFER scroll_lock|scroll_unlock|scroll_toggle
  /BUFFER save jméno_souboru
 
@@ -28,6 +29,8 @@ Slouží k manipulaci se záznamem historie rozhovoru. Např. k vyhledávání t
  Přesune se na první řádek po datu [datum] (formát: "RRRR-mm-dd").
 /buffer % n
  Přesune se na procentuální pozici n%.
+/buffer readmark
+ Jump to the readmark (first unread line), if there is one
 /buffer search_backward text
  Vyhledá text [text] v záznamu rozhovoru (zpětně).
 /buffer search_forward text

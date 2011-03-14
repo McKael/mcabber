@@ -1,6 +1,7 @@
 
  /BUFFER clear|close|close_all|purge|list
- /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER top|bottom|date|%|readmark
+ /BUFFER search_backward|search_forward
  /BUFFER scroll_lock|scroll_unlock|scroll_toggle
  /BUFFER save <file>
 
@@ -28,6 +29,8 @@ Comandi per la manipolazione del buffer del contatto. Per esempio, è possibile 
  Salta alla prima linea successiva alla [data] specificata nel buffer di chat (formato della data: "YYYY-mm-dd")
 /buffer % n
  Salta alla posizione %n del buffer di chat corrente
+/buffer readmark
+ Jump to the readmark (first unread line), if there is one
 /buffer search_backward [testo]
  Ricerca all'indietro [testo] nel buffer di chat del contatto corrente
 /buffer search_forward [testo]

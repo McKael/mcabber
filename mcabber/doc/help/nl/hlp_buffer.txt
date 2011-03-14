@@ -1,6 +1,7 @@
 
  /BUFFER clear|close|close_all|purge|list
- /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER top|bottom|date|%|readmark
+ /BUFFER search_backward|search_forward
  /BUFFER scroll_lock|scroll_unlock|scroll_toggle
  /BUFFER save bestandsnaam
 
@@ -28,6 +29,8 @@ Manipuleer de chat buffer van de actieve buddy.  Je kunt bijvoorbeeld de buffer 
  Spring naar de eerste regel na de aangeduide [datum] in de chat buffer (datum formaat: "YYYY-mm-dd")
 /buffer % n
  Spring naar positie %n in de buddy chat buffer
+/buffer readmark
+ Jump to the readmark (first unread line), if there is one
 /buffer search_backward tekst
  Zoek achterwaarts naar [tekst] in de actieve buddy chat buffer
 /buffer search_forward tekst

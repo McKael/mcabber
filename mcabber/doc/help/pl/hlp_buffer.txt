@@ -1,6 +1,7 @@
 
  /BUFFER clear|close|close_all|purge|list
- /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER top|bottom|date|%|readmark
+ /BUFFER search_backward|search_forward
  /BUFFER scroll_lock|scroll_unlock|scroll_toggle
  /BUFFER save filename
 
@@ -28,6 +29,8 @@ Polecenie pozwalające zarządzać buforem rozmowy. Dzięki niemu możemy np. pr
  Skacze do pierwszej linijki, która posiada datę "data" w buforze rozmowy (format daty: "YYYY-mm-dd")
 /buffer % n
  Skacze do pozycji %n w buforze rozmowy
+/buffer readmark
+ Jump to the readmark (first unread line), if there is one
 /buffer search_backward tekst
  Szuka w tył "tekst" w aktualnym buforze rozmowy
 /buffer search_forward tekst

@@ -1,6 +1,7 @@
 
  /BUFFER clear|close|close_all|purge|list
- /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER top|bottom|date|%|readmark
+ /BUFFER search_backward|search_forward
  /BUFFER scroll_lock|scroll_unlock|scroll_toggle
  /BUFFER save filename
 
@@ -28,6 +29,8 @@ Befehl um den Puffer für den momentan ausgewählten Buddy zu verändern. Man ka
  Springe zu der ersten Zeile nach dem Datum, welches im Format "JJJJ-mm-tt" anstatt [date] angegeben werden muss
 /buffer % n
  Springe zur Position "n" im Chatpuffer
+/buffer readmark
+ Jump to the readmark (first unread line), if there is one
 /buffer search_backward text
  Suche rückwärts im Puffer nach "text"
 /buffer search_forward text

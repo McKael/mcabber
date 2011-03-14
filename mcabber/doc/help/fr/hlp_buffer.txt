@@ -1,6 +1,7 @@
 
  /BUFFER clear|close|close_all|purge|list
- /BUFFER top|bottom|date|%|search_backward|search_forward
+ /BUFFER top|bottom|date|%|readmark
+ /BUFFER search_backward|search_forward
  /BUFFER scroll_lock|scroll_unlock|scroll_toggle
  /BUFFER save filename
 
@@ -28,6 +29,8 @@ Cette commande permet de gérer les tampons de discussions avec les différents 
  Va à la première ligne après la [date] dans le tampon actuel (format: "aaaa-mm-jj")
 /buffer % n
  Va à la position n% du tampon
+/buffer readmark
+ Va à la "readmark" (première ligne non lue), si la marque existe
 /buffer search_backward texte
  Cherche "texte" dans le tampon courant, vers le haut
 /buffer search_forward texte

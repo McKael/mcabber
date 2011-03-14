@@ -1482,7 +1482,7 @@ static void scr_write_in_window(const char *winId, const char *text,
     if (win_entry->bd->lock)
       setmsgflg = TRUE;
     else
-      // If this is an outgoing message, update readmark
+      // If this is an outgoing message, remove the readmark
       if (!special && (prefix_flags & (HBB_PREFIX_OUT|HBB_PREFIX_HLIGHT_OUT)))
         hbuf_set_readmark(win_entry->bd->hbuf, FALSE);
     // Show and refresh the window
@@ -2395,8 +2395,11 @@ static void set_current_buddy(GList *newbuddy)
   }
   current_buddy = newbuddy;
   // Lock the buddy in the buddylist if we're in chat mode
-  if (chatmode)
+  if (chatmode) {
     buddy_setflags(BUDDATA(current_buddy), ROSTER_FLAG_LOCK, TRUE);
+    // Remove the readmark if it is at the end of the buffer
+    scr_buffer_readmark(-1);
+  }
   // We should rebuild the buddylist but not everytime
   if (!(buddylist_get_filter() & 1<<prev_st))
     buddylist_build();
@@ -2816,7 +2819,12 @@ void scr_buffer_scroll_lock(int lock)
   update_panels();
 }
 
-void scr_buffer_readmark(gboolean action)
+//  scr_buffer_readmark(action)
+// Update the readmark flag for the current buffer
+// If action = 1, set the readmark flag on the last message
+// If action = 0, reset the readmark flag
+// If action = -1, remove the readmark flag iff it is on the last line
+void scr_buffer_readmark(gchar action)
 {
   winbuf *win_entry;
   guint isspe;
@@ -2828,8 +2836,12 @@ void scr_buffer_readmark(gboolean action)
   win_entry = scr_search_window(CURRENT_JID, isspe);
   if (!win_entry) return;
 
-  if (!win_entry->bd->lock)
-    hbuf_set_readmark(win_entry->bd->hbuf, action);
+  if (!win_entry->bd->lock) {
+    if (action >= 0)
+      hbuf_set_readmark(win_entry->bd->hbuf, action);
+    else
+      hbuf_remove_trailing_readmark(win_entry->bd->hbuf);
+  }
 }
 
 
@@ -3037,8 +3049,11 @@ void scr_buffer_list(void)
 // Public function to (un)set chatmode...
 inline void scr_set_chatmode(int enable)
 {
+  gboolean enter_chatmode = enable && chatmode == FALSE;
   chatmode = enable;
   scr_update_chat_status(TRUE);
+  if (enter_chatmode)
+    scr_buffer_readmark(-1);
 }
 
 //  scr_get_chatmode()

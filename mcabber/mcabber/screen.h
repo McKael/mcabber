@@ -156,7 +156,7 @@ void scr_buffer_date(time_t t);
 void scr_buffer_dump(const char *file);
 void scr_buffer_list(void);
 void scr_buffer_scroll_up_down(int updown, unsigned int nblines);
-void scr_buffer_readmark(gboolean action);
+void scr_buffer_readmark(gchar action);
 void scr_buffer_jump_readmark(void);
 
 bool scr_roster_color(const char *status, const char *wildcard,

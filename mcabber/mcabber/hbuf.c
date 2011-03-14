@@ -554,6 +554,19 @@ void hbuf_set_readmark(GList *hbuf, gboolean action)
   }
 }
 
+//  hbuf_remove_trailing_readmark(hbuf)
+// Unset the buffer readmark if it is on the last line
+void hbuf_remove_trailing_readmark(GList *hbuf)
+{
+  hbuf_block *blk;
+
+  if (!hbuf) return;
+
+  hbuf = g_list_last(hbuf);
+  blk = (hbuf_block*)(hbuf->data);
+  blk->prefix.flags &= ~HBB_PREFIX_READMARK;
+}
+
 //  hbuf_get_blocks_number()
 // Returns the number of allocated hbuf_block's.
 guint hbuf_get_blocks_number(GList *hbuf)

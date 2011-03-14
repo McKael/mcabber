@@ -234,6 +234,7 @@ const char *entity_version(enum imstatus status)
   caps_add_feature("", NS_PING);
   caps_add_feature("", NS_COMMANDS);
   caps_add_feature("", NS_RECEIPTS);
+  caps_add_feature("", NS_X_CONFERENCE);
   if (!settings_opt_get_int("iq_last_disable") &&
       (!settings_opt_get_int("iq_last_disable_when_notavail") ||
        status != notavail))

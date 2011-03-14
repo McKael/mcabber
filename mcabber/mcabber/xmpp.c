@@ -1295,6 +1295,18 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     x = lm_message_node_find_xmlns(m->node, NS_MUC_USER);
     if (x && !strcmp(x->name, "x"))
       got_muc_message(from, x);
+
+    x = lm_message_node_find_xmlns(m->node, NS_X_CONFERENCE);
+
+    if (x && !strcmp(x->name, "x")) {
+      const char *jid = lm_message_node_get_attribute(x, "jid");
+      if (jid) {
+        const char *reason = lm_message_node_get_attribute(x, "reason");
+        const char *password = lm_message_node_get_attribute(x, "password");
+        // FIXME we shouldn't send decline stanzas in this case
+        got_invite(from, jid, reason, password, FALSE);
+      }
+    }
   }
 
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;

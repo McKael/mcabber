@@ -39,6 +39,8 @@
 extern enum imstatus mystatus;
 extern gchar *mystatusmsg;
 
+static GSList *invitations = NULL;
+
 static void decline_invitation(event_muc_invitation *invitation, const char *reason)
 {
   // cut and paste from xmpp_room_invite
@@ -65,10 +67,12 @@ static void decline_invitation(event_muc_invitation *invitation, const char *rea
 
 void destroy_event_muc_invitation(event_muc_invitation *invitation)
 {
+  invitations = g_slist_remove(invitations, invitation);
   g_free(invitation->to);
   g_free(invitation->from);
   g_free(invitation->passwd);
   g_free(invitation->reason);
+  g_free(invitation->evid);
   g_free(invitation);
 }
 
@@ -104,7 +108,8 @@ static gboolean evscallback_invitation(guint evcontext, const char *arg, gpointe
     g_free(nickname);
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Invitation to %s refused.", invitation->to);
-    decline_invitation(invitation, arg);
+    if (invitation->reply)
+      decline_invitation(invitation, arg);
   }
 
   return FALSE;
@@ -643,14 +648,12 @@ void roompresence(gpointer room, void *presencedata)
   g_free(to);
 }
 
-//  got_invite(from, to, reason, passwd)
+//  got_invite(from, to, reason, passwd, reply)
 // This function should be called when receiving an invitation from user
 // "from", to enter the room "to".  Optional reason and room password can
 // be provided.
-// TODO: check for duplicate invites (need an existing invitation registry
-// for that).
-static void got_invite(const char* from, const char *to, const char* reason,
-                       const char* passwd)
+void got_invite(const char* from, const char *to, const char* reason,
+                const char* passwd, gboolean reply)
 {
   GString *sbuf;
   char *barejid;
@@ -670,7 +673,21 @@ static void got_invite(const char* from, const char *to, const char* reason,
   scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO, 0);
   scr_LogPrint(LPRINT_LOGNORM, "%s", sbuf->str);
 
-  {
+  { // remove any equal older invites
+    GSList *iel = invitations;
+    while (iel) {
+      event_muc_invitation *invitation = iel->data;
+      iel = iel -> next;
+      if (!g_strcmp0(to, invitation->to) &&
+          !g_strcmp0(passwd, invitation->passwd)) {
+        scr_LogPrint(LPRINT_DEBUG, "Destroying previous invitation event %s.",
+                     invitation->evid);
+        evs_del(invitation->evid);
+      }
+    }
+  }
+
+  { // create event
     const char *id;
     char *desc = g_strdup_printf("<%s> invites you to %s", from, to);
     event_muc_invitation *invitation;
@@ -680,13 +697,18 @@ static void got_invite(const char* from, const char *to, const char* reason,
     invitation->from = g_strdup(from);
     invitation->passwd = g_strdup(passwd);
     invitation->reason = g_strdup(reason);
+    invitation->reply = reply;
+    invitation->evid = NULL;
+
+    invitations = g_slist_append(invitations, invitation);
 
     id = evs_new(desc, NULL, 0, evscallback_invitation, invitation,
                  (GDestroyNotify)destroy_event_muc_invitation);
     g_free(desc);
-    if (id)
+    if (id) {
+      invitation->evid = g_strdup(id);
       g_string_printf(sbuf, "Please use /event %s accept|reject", id);
-    else
+    } else
       g_string_printf(sbuf, "Unable to create a new event!");
   }
   scr_WriteIncomingMessage(barejid, sbuf->str, 0, HBB_PREFIX_INFO, 0);
@@ -718,7 +740,7 @@ void got_muc_message(const char *from, LmMessageNode *x)
     reason = lm_message_node_get_child_value(invite, "reason");
     password = lm_message_node_get_child_value(invite, "password");
     if (invite_from)
-      got_invite(invite_from, from, reason, password);
+      got_invite(invite_from, from, reason, password, TRUE);
   }
   // TODO
   // handle status code = 100 ( not anonymous )

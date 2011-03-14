@@ -27,6 +27,8 @@
 #define NS_BROWSE    "jabber:iq:browse"
 #define NS_EVENT     "jabber:x:event"
 #define NS_CONFERENCE "jabber:iq:conference"
+// direct muc invitation (xep-0249)
+#define NS_X_CONFERENCE "jabber:x:conference"
 #define NS_SIGNED    "jabber:x:signed"
 #define NS_ENCRYPTED "jabber:x:encrypted"
 #define NS_GATEWAY   "jabber:iq:gateway"

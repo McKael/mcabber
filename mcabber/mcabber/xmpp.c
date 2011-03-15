@@ -1157,7 +1157,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
       (type != LM_MESSAGE_SUB_TYPE_GROUPCHAT)) {
     char *sbjid = jidtodisp(lm_connection_get_jid(lconnection));
     const char *server = strchr(sbjid, JID_DOMAIN_SEPARATOR);
-    if (g_strcmp0(server, bjid)) {
+    if (server && g_strcmp0(server+1, bjid)) {
       scr_LogPrint(LPRINT_LOGNORM, "Blocked a message from <%s>", bjid);
       g_free(sbjid);
       goto gotmessage_return;

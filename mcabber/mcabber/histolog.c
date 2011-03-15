@@ -349,6 +349,9 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
   }
   fclose(fp);
   g_free(data);
+
+  // Set a readmark to separate new content
+  hbuf_set_readmark(*p_buddyhbuf, TRUE);
 }
 
 //  hlog_enable()

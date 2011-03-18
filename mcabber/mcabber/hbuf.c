@@ -347,7 +347,10 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
       (*array_elt)->mucnicklen = blk->prefix.mucnicklen;
       (*array_elt)->text       = g_strndup(blk->ptr, maxlen);
 
-      if ((blk->flags & HBB_FLAG_PERSISTENT) && blk->prefix.flags) {
+      if ((blk->flags & HBB_FLAG_PERSISTENT) &&
+          (blk->prefix.flags & ~HBB_PREFIX_READMARK)) {
+        // This is a new message: persistent block flag and no prefix flag
+        // (except a possible readmark flag)
         last_persist_prefixflags = blk->prefix.flags;
       } else {
         // Propagate highlighting flags
@@ -532,12 +535,13 @@ void hbuf_set_readmark(GList *hbuf, gboolean action)
 
   if (!hbuf) return;
 
-  hbuf = g_list_last(hbuf);
+  hbuf = hbuf_previous_persistent(g_list_last(hbuf));
 
   if (action) {
     // Add a readmark flag
     blk = (hbuf_block*)(hbuf->data);
-    blk->prefix.flags ^= HBB_PREFIX_READMARK;
+    blk->prefix.flags |= HBB_PREFIX_READMARK;
+
     // Shift hbuf in order to remove previous flags
     // (maybe it can be optimized out, if there's no risk
     //  we have several marks)

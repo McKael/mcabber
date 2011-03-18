@@ -1056,6 +1056,9 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
       tmp->bd = g_new0(buffdata, 1);
       hlog_read_history(title, &tmp->bd->hbuf,
                         maxX - Roster_Width - scr_getprefixwidth());
+
+      // Set a readmark to separate new content
+      hbuf_set_readmark(tmp->bd->hbuf, TRUE);
     }
 
     id = g_strdup(title);
@@ -1137,7 +1140,7 @@ static void scr_update_window(winbuf *win_entry)
   char pref[96];
   hbb_line **lines, *line;
   GList *hbuf_head;
-  int color;
+  int color = COLOR_GENERAL;
   bool readmark = FALSE;
   bool skipline = FALSE;
 
@@ -1285,10 +1288,6 @@ static void scr_update_window(winbuf *win_entry)
       wprintw(win_entry->win, "%s", line->text+line->mucnicklen);
       wclrtoeol(win_entry->win);
 
-      // Return the color back
-      if (color != COLOR_GENERAL)
-        wattrset(win_entry->win, get_color(COLOR_GENERAL));
-
 scr_update_window_skipline:
       skipline = FALSE;
       if (readmark && line->flags & HBB_PREFIX_READMARK) {
@@ -1298,7 +1297,8 @@ scr_update_window_skipline:
         // Display the mark
         winy = n + mark_offset;
         wmove(win_entry->win, winy, 0);
-        wattrset(win_entry->win, get_color(COLOR_READMARK));
+        color = COLOR_READMARK;
+        wattrset(win_entry->win, get_color(color));
         g_snprintf(pref, prefixwidth, "             == ");
         wprintw(win_entry->win, pref);
         w = scr_gettextwidth() / 3;
@@ -1307,6 +1307,10 @@ scr_update_window_skipline:
         wclrtoeol(win_entry->win);
         wattrset(win_entry->win, get_color(COLOR_GENERAL));
       }
+
+      // Restore default ("general") color
+      if (color != COLOR_GENERAL)
+        wattrset(win_entry->win, get_color(COLOR_GENERAL));
 
       g_free(line->text);
       g_free(line);

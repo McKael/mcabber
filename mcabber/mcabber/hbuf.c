@@ -297,7 +297,8 @@ GList *hbuf_previous_persistent(GList *l_line)
 
   while (l_line) {
     hbuf_b_elt = (hbuf_block*)l_line->data;
-    if (hbuf_b_elt->flags & HBB_FLAG_PERSISTENT)
+    if (hbuf_b_elt->flags & HBB_FLAG_PERSISTENT &&
+        (hbuf_b_elt->flags & ~HBB_PREFIX_READMARK))
       return l_line;
     l_line = g_list_previous(l_line);
   }
@@ -325,7 +326,8 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
   last_persist = hbuf_previous_persistent(hbuf);
   while (last_persist) {
     blk = (hbuf_block*)last_persist->data;
-    if ((blk->flags & HBB_FLAG_PERSISTENT) && blk->prefix.flags) {
+    if ((blk->flags & HBB_FLAG_PERSISTENT) &&
+        (blk->prefix.flags & ~HBB_PREFIX_READMARK)) {
       last_persist_prefixflags = blk->prefix.flags;
       break;
     }
@@ -362,7 +364,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
         (*array_elt)->flags |= HBB_PREFIX_CONT;
         (*array_elt)->mucnicklen = 0; // The nick is in the first one
         // Remove readmark flag from the previous line
-        if (last_persist_prefixflags & HBB_PREFIX_READMARK)
+        if (prev_array_elt && last_persist_prefixflags & HBB_PREFIX_READMARK)
           prev_array_elt->flags &= ~HBB_PREFIX_READMARK;
       }
 
@@ -485,10 +487,11 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename)
     line.mucnicklen = blk->prefix.mucnicklen;
     line.text       = g_strndup(blk->ptr, maxlen);
 
-    if ((blk->flags & HBB_FLAG_PERSISTENT) && blk->prefix.flags) {
+    if ((blk->flags & HBB_FLAG_PERSISTENT) &&
+        (blk->prefix.flags & ~HBB_PREFIX_READMARK)) {
       last_persist_prefixflags = blk->prefix.flags;
     } else {
-      // Propagate highlighting flags
+      // Propagate necessary highlighting flags
       line.flags |= last_persist_prefixflags &
                     (HBB_PREFIX_HLIGHT_OUT | HBB_PREFIX_HLIGHT |
                      HBB_PREFIX_INFO | HBB_PREFIX_IN);

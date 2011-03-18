@@ -2989,11 +2989,13 @@ void scr_buffer_jump_readmark(void)
 
   search_res = hbuf_jump_readmark(win_entry->bd->hbuf);
 
+  if (!search_res) {
+    scr_log_print(LPRINT_NORMAL, "Readmark not found.");
+    return;
+  }
+
   win_entry->bd->cleared = FALSE;
   win_entry->bd->top = search_res;
-
-  if (!search_res)
-    scr_log_print(LPRINT_NORMAL, "Readmark not found.");
 
   // Refresh the window
   scr_update_window(win_entry);

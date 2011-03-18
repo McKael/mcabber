@@ -2621,6 +2621,7 @@ void scr_buffer_scroll_up_down(int updown, unsigned int nblines)
   hbuf_top = win_entry->bd->top;
 
   if (updown == -1) {   // UP
+    n = 0;
     if (!hbuf_top) {
       hbuf_top = g_list_last(win_entry->bd->hbuf);
       if (!win_entry->bd->cleared) {
@@ -2628,9 +2629,10 @@ void scr_buffer_scroll_up_down(int updown, unsigned int nblines)
         else nbl += CHAT_WIN_HEIGHT - 1;
       } else {
         win_entry->bd->cleared = FALSE;
+        n++; // We'll scroll one line less
       }
     }
-    for (n=0 ; hbuf_top && n < nbl && g_list_previous(hbuf_top) ; n++)
+    for ( ; hbuf_top && n < nbl && g_list_previous(hbuf_top) ; n++)
       hbuf_top = g_list_previous(hbuf_top);
     win_entry->bd->top = hbuf_top;
   } else {              // DOWN

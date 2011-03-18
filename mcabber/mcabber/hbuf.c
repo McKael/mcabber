@@ -439,12 +439,16 @@ GList *hbuf_jump_percent(GList *hbuf, int pc)
 GList *hbuf_jump_readmark(GList *hbuf)
 {
   hbuf_block *blk;
+  GList *r = NULL;
 
   hbuf = g_list_last(hbuf);
   for ( ; hbuf; hbuf = g_list_previous(hbuf)) {
     blk = (hbuf_block*)(hbuf->data);
     if (blk->prefix.flags & HBB_PREFIX_READMARK)
-      return g_list_next(hbuf);
+      return r;
+    if ((blk->flags & HBB_FLAG_PERSISTENT) &&
+        (blk->prefix.flags & ~HBB_PREFIX_READMARK))
+      r = hbuf;
   }
 
   return NULL;

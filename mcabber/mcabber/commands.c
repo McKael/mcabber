@@ -47,10 +47,12 @@
 #define IMSTATUS_ONLINE         "online"
 #define IMSTATUS_OFFLINE        "offline"
 #define IMSTATUS_FREE4CHAT      "free"
-#define IMSTATUS_INVISIBLE      "invisible"
 #define IMSTATUS_AVAILABLE      "avail"
 #define IMSTATUS_NOTAVAILABLE   "notavail"
 #define IMSTATUS_DONOTDISTURB   "dnd"
+#ifdef WITH_DEPRECATED_STATUS_INVISIBLE
+# define IMSTATUS_INVISIBLE      "invisible"
+#endif
 
 // Return value container for the following functions
 static int retval_for_cmds;
@@ -196,7 +198,9 @@ void cmd_init(void)
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");
   compl_add_category_word(COMPL_STATUS, "avail");
+#ifdef WITH_DEPRECATED_STATUS_INVISIBLE
   compl_add_category_word(COMPL_STATUS, "invisible");
+#endif
   compl_add_category_word(COMPL_STATUS, "free");
   compl_add_category_word(COMPL_STATUS, "dnd");
   compl_add_category_word(COMPL_STATUS, "notavail");
@@ -888,7 +892,9 @@ void cmd_setstatus(const char *recipient, const char *arg)
   else if (!strcasecmp(status, IMSTATUS_ONLINE))        st = available;
   else if (!strcasecmp(status, IMSTATUS_AVAILABLE))     st = available;
   else if (!strcasecmp(status, IMSTATUS_AWAY))          st = away;
+#ifdef WITH_DEPRECATED_STATUS_INVISIBLE
   else if (!strcasecmp(status, IMSTATUS_INVISIBLE))     st = invisible;
+#endif
   else if (!strcasecmp(status, IMSTATUS_DONOTDISTURB))  st = dontdisturb;
   else if (!strcasecmp(status, IMSTATUS_NOTAVAILABLE))  st = notavail;
   else if (!strcasecmp(status, IMSTATUS_FREE4CHAT))     st = freeforchat;

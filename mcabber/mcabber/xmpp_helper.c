@@ -304,9 +304,11 @@ LmMessage *lm_message_new_presence(enum imstatus st,
         lm_message_node_add_child(x->node, "show", imstatus_showmap[st]);
         break;
 
+#ifdef WITH_DEPRECATED_STATUS_INVISIBLE
     case invisible:
         lm_message_node_set_attribute(x->node, "type", "invisible");
         break;
+#endif
 
     case offline:
         lm_message_node_set_attribute(x->node, "type", "unavailable");

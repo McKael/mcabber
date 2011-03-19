@@ -488,7 +488,9 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 #endif
 
 xmpp_send_msg_no_chatstates:
+#ifdef WITH_DEPRECATED_STATUS_INVISIBLE
   if (mystatus != invisible)
+#endif
     update_last_use();
   if (xep184 && *xep184) {
     lm_connection_send_with_reply(lconnection, x, *xep184, NULL);
@@ -1931,7 +1933,13 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
   // (But we want to update internal status even when disconnected,
   // in order to avoid some problems during network failures)
   if (isonline) {
+#ifdef WITH_DEPRECATED_STATUS_INVISIBLE
     const char *s_msg = (st != invisible ? msg : NULL);
+#else
+    // XXX Could be removed if/when we get rid of status invisible
+    // completely.
+    const char *s_msg = msg;
+#endif
     m = lm_message_new_presence(st, recipient, s_msg);
     xmpp_insert_entity_capabilities(m->node, st); // Entity Caps (XEP-0115)
 #ifdef HAVE_GPGME
@@ -1955,7 +1963,10 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
 
   if (isonline) {
     // Send presence to chatrooms
-    if (st != invisible) {
+#ifdef WITH_DEPRECATED_STATUS_INVISIBLE
+    if (st != invisible)
+#endif
+    {
       struct T_presence room_presence;
       room_presence.st = st;
       room_presence.msg = msg;
@@ -1970,7 +1981,11 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
       update_roster = TRUE;
 
     if (isonline || mystatus || st)
+#ifdef WITH_DEPRECATED_STATUS_INVISIBLE
       hk_mystatuschange(0, mystatus, st, (st != invisible ? msg : ""));
+#else
+      hk_mystatuschange(0, mystatus, st, msg);
+#endif
     mystatus = st;
   }
 

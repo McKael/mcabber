@@ -1,5 +1,5 @@
 
- /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
+ /STATUS_TO jid online|avail|free|dnd|notavail|away [StatusMessage]
  /STATUS_TO jid message StatusMessage
 
 Send the requested status to the specified Jabber user.

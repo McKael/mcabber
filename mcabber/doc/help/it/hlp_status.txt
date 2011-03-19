@@ -1,5 +1,5 @@
 
- /STATUS [online|avail|invisible|free|dnd|notavail|away [-|Messaggio di stato]]
+ /STATUS [online|avail|free|dnd|notavail|away [-|Messaggio di stato]]
  /STATUS message -|StatusMessage
 
 Mostra od imposta lo stato corrente.

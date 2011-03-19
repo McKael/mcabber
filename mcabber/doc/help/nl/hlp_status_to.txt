@@ -1,5 +1,5 @@
 
- /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [StatusBericht]
+ /STATUS_TO jid online|avail|free|dnd|notavail|away [StatusBericht]
  /STATUS_TO jid message StatusBericht
 
 Verstuur de aangegeven status naar het gespecificeerde Jabber account.

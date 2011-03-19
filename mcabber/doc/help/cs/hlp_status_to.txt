@@ -1,5 +1,5 @@
 
- /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [stavová_zpráva]
+ /STATUS_TO jid online|avail|free|dnd|notavail|away [stavová_zpráva]
  /STATUS_TO jid message stavová_zpráva
 
 Pošle požadovaný stav kontaktu 'jid'. Podrobnosti viz nápověda k příkazu "/status".

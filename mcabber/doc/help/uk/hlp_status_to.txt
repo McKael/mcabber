@@ -1,5 +1,5 @@
 
- /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [повідомлення]
+ /STATUS_TO jid online|avail|free|dnd|notavail|away [повідомлення]
  /STATUS_TO jid message повідомлення
 
 Надсилає до jid вказаний статус. Поточний контакт можна вказати як "." .

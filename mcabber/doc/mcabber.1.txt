@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v0.10.2-dev, December 2010
+v0.10.2-dev, March 2011
 
 NAME
 ----
@@ -137,7 +137,6 @@ The online status is one of the following:
         'a';;  away
         'n';;  not available (labeled 'extended away' in some clients)
         'd';;  do not disturb
-        'i';;  invisible (displayed only for your resource)
         '_';;  offline (or invisible to you)
         '?';;  unknown, usually meaning you are not authorized to see this buddy's status
         'x';;  a conference room in which you are not participating
@@ -493,7 +492,7 @@ COMMANDS RELATED TO MCABBER
 /source pattern::
         Read configuration files, that match glob pattern (sorted in alphabetical order).
 
-/status [online|avail|invisible|free|dnd|notavail|away [-|statusmessage]]::
+/status [online|avail|free|dnd|notavail|away [-|statusmessage]]::
 /status message -|statusmessage::
         Show or set the current status. +
         If no status is specified, display the current status. +
@@ -502,7 +501,7 @@ COMMANDS RELATED TO MCABBER
         If StatusMessage is "-", the current status message is cleared. +
         With the "/status message" command, mcabber will update the message while preserving the status.
 
-/status_to jid online|avail|invisible|free|dnd|notavail|away [statusmessage]::
+/status_to jid online|avail|free|dnd|notavail|away [statusmessage]::
 /status_to jid message statusmessage::
         Send the requested status to the specified Jabber user. +
         If the specified jid is ".", the current buddy is used. +
@@ -544,7 +543,7 @@ xmpp:mcabber@conf.lilotux.net[MCabber MUC room]
 
 COPYING
 -------
-Copyright \(C) 2005-2010 Mikael Berthe and others. +
+Copyright \(C) 2005-2011 Mikael Berthe and others. +
 
 Free use of this software is granted under the terms of the GNU General Public
 License (GPL).

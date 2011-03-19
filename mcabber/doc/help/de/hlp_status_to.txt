@@ -1,5 +1,5 @@
 
- /STATUS_TO jid online|avail|invisible|free|dnd|notavail|away [StatusMessage]
+ /STATUS_TO jid online|avail|free|dnd|notavail|away [StatusMessage]
  /STATUS_TO jid message StatusMessage
 
 Sendet den angegebenen Status zu der jid. Wenn der aktuell ausgewählte Buddy gemeint ist, kann auch "." als jid benutzt werden.

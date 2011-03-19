@@ -1,5 +1,5 @@
 
- /STATUS [online|avail|invisible|free|dnd|notavail|away [-|повідомлення]]
+ /STATUS [online|avail|free|dnd|notavail|away [-|повідомлення]]
  /STATUS message -|повідомлення
 
 Друкує або встановлює ваш статус.

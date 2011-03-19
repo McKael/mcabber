@@ -283,6 +283,7 @@ AC_CONFIG_FILES([mcabber/Makefile
                  modules/beep/Makefile
                  modules/xttitle/Makefile
                  modules/fifo/Makefile
+                 modules/urlregex/Makefile
                  doc/Makefile
                  doc/guide/Makefile
                  doc/help/Makefile

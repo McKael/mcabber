@@ -1,1 +1,1 @@
-SUBDIRS = beep xttitle fifo
+SUBDIRS = beep xttitle fifo urlregex

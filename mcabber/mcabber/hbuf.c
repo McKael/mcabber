@@ -322,14 +322,20 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
 
   // To be able to correctly highlight multi-line messages,
   // we need to look at the last non-null prefix, which should be the first
-  // line of the message.
+  // line of the message.  We also need to check if there's a readmark flag
+  // somewhere in the message.
   last_persist = hbuf_previous_persistent(hbuf);
   while (last_persist) {
     blk = (hbuf_block*)last_persist->data;
-    if ((blk->flags & HBB_FLAG_PERSISTENT) &&
-        (blk->prefix.flags & ~HBB_PREFIX_READMARK)) {
-      last_persist_prefixflags = blk->prefix.flags;
-      break;
+    if ((blk->flags & HBB_FLAG_PERSISTENT) && blk->prefix.flags) {
+      // This can be either the beginning of the message,
+      // or a persistent line with a readmark flag (or both).
+      if (blk->prefix.flags & ~HBB_PREFIX_READMARK) { // First message line
+        last_persist_prefixflags |= blk->prefix.flags;
+        break;
+      } else { // Not the first line, but we need to keep the readmark flag
+        last_persist_prefixflags = blk->prefix.flags;
+      }
     }
     last_persist = g_list_previous(last_persist);
   }
@@ -363,6 +369,10 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
         // Continuation of a message - omit the prefix
         (*array_elt)->flags |= HBB_PREFIX_CONT;
         (*array_elt)->mucnicklen = 0; // The nick is in the first one
+
+        // If there is a readmark on this line, update last_persist_prefixflags
+        if (blk->flags & HBB_FLAG_PERSISTENT)
+          last_persist_prefixflags |= blk->prefix.flags & HBB_PREFIX_READMARK;
         // Remove readmark flag from the previous line
         if (prev_array_elt && last_persist_prefixflags & HBB_PREFIX_READMARK)
           prev_array_elt->flags &= ~HBB_PREFIX_READMARK;

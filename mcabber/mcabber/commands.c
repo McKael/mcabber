@@ -1977,13 +1977,18 @@ static void room_names(gpointer bud, char *arg)
 static void move_group_member(gpointer bud, void *groupnamedata)
 {
   const char *bjid, *name, *groupname;
+  guint on_srv;
 
   groupname = (char *)groupnamedata;
 
   bjid = buddy_getjid(bud);
   name = buddy_getname(bud);
+  on_srv = buddy_getonserverflag(bud);
 
-  xmpp_updatebuddy(bjid, name, *groupname ? groupname : NULL);
+  if (on_srv)
+    xmpp_updatebuddy(bjid, name, *groupname ? groupname : NULL);
+  else
+    buddy_setname(bud, (char*)name);
 }
 
 static void do_rename(char *arg)
@@ -2013,16 +2018,16 @@ static void do_rename(char *arg)
     return;
   }
 
-  if (!(type & ROSTER_TYPE_GROUP) && !on_srv) {
-    scr_LogPrint(LPRINT_NORMAL,
-                 "Note: this item will be added to your server roster.");
-    // If this is a MUC room w/o bookmark, let's give a small hint...
-    if ((type & ROSTER_TYPE_ROOM) && !xmpp_is_bookmarked(bjid)) {
-      scr_LogPrint(LPRINT_NORMAL,
-                   "You should add a room bookmark or it will not be "
-                   "recognized as a MUC room next time you run mcabber.");
-    }
-  }
+  //if (!(type & ROSTER_TYPE_GROUP) && !on_srv) {
+  //  scr_LogPrint(LPRINT_NORMAL,
+  //               "Note: this item will be added to your server roster.");
+  //  // If this is a MUC room w/o bookmark, let's give a small hint...
+  //  if ((type & ROSTER_TYPE_ROOM) && !xmpp_is_bookmarked(bjid)) {
+  //    scr_LogPrint(LPRINT_NORMAL,
+  //                 "You should add a room bookmark or it will not be "
+  //                 "recognized as a MUC room next time you run mcabber.");
+  //  }
+  //}
 
   newname = g_strdup(arg);
   // Remove trailing space
@@ -2044,11 +2049,15 @@ static void do_rename(char *arg)
     guint del_name = 0;
     if (!*newname || !strcmp(arg, "-"))
       del_name = TRUE;
-    /* We do not rename the buddy right now because the server could reject
-     * the request.  Let's wait for the server answer.
-     * buddy_setname(bud, (del_name ? (char*)bjid : name_utf8));
-     */
-    xmpp_updatebuddy(bjid, (del_name ? NULL : name_utf8), group);
+    if (on_srv) {
+      /* We do not rename the buddy right now because the server could reject
+       * the request.  Let's wait for the server answer.
+       */
+      xmpp_updatebuddy(bjid, (del_name ? NULL : name_utf8), group);
+    } else {
+      // This is a local item, we rename it without adding to roster.
+      buddy_setname(bud, (del_name ? (char*)bjid : name_utf8));
+    }
   }
 
   g_free(name_utf8);
@@ -2060,7 +2069,7 @@ static void do_move(char *arg)
 {
   gpointer bud;
   const char *bjid, *name, *oldgroupname;
-  guint type;
+  guint type, on_srv;
   char *newgroupname, *p;
   char *group_utf8;
 
@@ -2071,6 +2080,7 @@ static void do_move(char *arg)
   bjid = buddy_getjid(bud);
   name = buddy_getname(bud);
   type = buddy_gettype(bud);
+  on_srv = buddy_getonserverflag(bud);
 
   oldgroupname = buddy_getgroupname(bud);
 
@@ -2092,25 +2102,28 @@ static void do_move(char *arg)
 
   group_utf8 = to_utf8(newgroupname);
   if (strcmp(oldgroupname, group_utf8)) {
-    /* guint msgflag; */
+    if (on_srv) {
+      xmpp_updatebuddy(bjid, name, *group_utf8 ? group_utf8 : NULL);
+      scr_roster_up_down(-1, 1);
 
-    xmpp_updatebuddy(bjid, name, *group_utf8 ? group_utf8 : NULL);
-    scr_roster_up_down(-1, 1);
+      /* We do not move the buddy right now because the server could reject
+       * the request.  Let's wait for the server answer.
+       */
+    } else {
+      // This is a local item, we move it without adding to roster.
+      guint msgflag;
 
-    /* We do not move the buddy right now because the server could reject
-     * the request.  Let's wait for the server answer.
-
-    // If the buddy has a pending message flag,
-    // we remove it temporarily in order to reset the global group
-    // flag.  We set it back once the buddy is in the new group,
-    // which will update the new group's flag.
-    msgflag = buddy_getflags(bud) & ROSTER_FLAG_MSG;
-    if (msgflag)
-      roster_msg_setflag(bjid, FALSE, FALSE);
-    buddy_setgroup(bud, group_utf8);
-    if (msgflag)
-      roster_msg_setflag(bjid, FALSE, TRUE);
-    */
+      // If the buddy has a pending message flag,
+      // we remove it temporarily in order to reset the global group
+      // flag.  We set it back once the room is in the new group,
+      // which will update the new group's flag.
+      msgflag = buddy_getflags(bud) & ROSTER_FLAG_MSG;
+      if (msgflag)
+        roster_msg_setflag(bjid, FALSE, FALSE);
+      buddy_setgroup(bud, group_utf8);
+      if (msgflag)
+        roster_msg_setflag(bjid, FALSE, TRUE);
+    }
   }
 
   g_free(group_utf8);
@@ -2946,7 +2959,7 @@ void cmd_room_whois(gpointer bud, const char *usernick, guint interactive)
 static void room_bookmark(gpointer bud, char *arg)
 {
   const char *roomid;
-  const char *name = NULL, *nick = NULL;
+  const char *name = NULL, *nick = NULL, *group = NULL;
   char *tmpnick = NULL;
   enum room_autowhois autowhois = 0;
   enum room_printstatus printstatus = 0;
@@ -2987,10 +3000,11 @@ static void room_bookmark(gpointer bud, char *arg)
       nick = buddy_getnickname(bud);
     printstatus = buddy_getprintstatus(bud);
     autowhois   = buddy_getautowhois(bud);
+    group       = buddy_getgroupname(bud);
   }
 
   xmpp_set_storage_bookmark(roomid, name, nick, NULL, autojoin,
-                            printstatus, autowhois);
+                            printstatus, autowhois, group);
   g_free (tmpnick);
 }
 

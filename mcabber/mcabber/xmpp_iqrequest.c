@@ -561,7 +561,7 @@ static LmHandlerResult cb_vcard(LmMessageHandler *h, LmConnection *c,
 static void storage_bookmarks_parse_conference(LmMessageNode *node)
 {
   const char *fjid, *name, *autojoin;
-  const char *pstatus, *awhois;
+  const char *pstatus, *awhois, *group;
   char *bjid;
   GSList *room_elt;
 
@@ -572,13 +572,14 @@ static void storage_bookmarks_parse_conference(LmMessageNode *node)
   autojoin = lm_message_node_get_attribute(node, "autojoin");
   awhois = lm_message_node_get_attribute(node, "autowhois");
   pstatus = lm_message_node_get_child_value(node, "print_status");
+  group = lm_message_node_get_child_value(node, "group");
 
   bjid = jidtodisp(fjid); // Bare jid
 
   // Make sure this is a room (it can be a conversion user->room)
   room_elt = roster_find(bjid, jidsearch, 0);
   if (!room_elt) {
-    room_elt = roster_add_user(bjid, name, NULL, ROSTER_TYPE_ROOM,
+    room_elt = roster_add_user(bjid, name, group, ROSTER_TYPE_ROOM,
                                sub_none, -1);
   } else {
     buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
@@ -588,6 +589,10 @@ static void storage_bookmarks_parse_conference(LmMessageNode *node)
     // in the roster.
     if (name)
       buddy_setname(room_elt->data, name);
+
+    // The same question for roster group.
+    if (group)
+      buddy_setgroup(room_elt->data, group);
     */
   }
 
@@ -602,9 +607,9 @@ static void storage_bookmarks_parse_conference(LmMessageNode *node)
   }
   if (awhois) {
     enum room_autowhois i = autowhois_default;
-    if (!strcmp(awhois, "1"))
+    if (!strcmp(awhois, "1") || !(strcmp(awhois, "true")))
       i = autowhois_on;
-    else if (!strcmp(awhois, "0"))
+    else if (!strcmp(awhois, "0") || !(strcmp(awhois, "false")))
       i = autowhois_off;
     if (i != autowhois_default)
       buddy_setautowhois(room_elt->data, i);

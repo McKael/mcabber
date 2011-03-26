@@ -1493,18 +1493,36 @@ void scr_update_main_status(int forceupdate)
 {
   char *sm = from_utf8(xmpp_getstatusmsg());
   const char *info = settings_opt_get("info");
+  guint prio = 0;
+  gpointer unread_ptr;
+  char unreadchar;
+
+  unread_ptr = unread_msg(NULL);
+  if (unread_ptr) {
+    prio = buddy_getuiprio(unread_ptr);
+    // If there's an unerad buffer but no priority set, let's consider the
+    // priority is 1.
+    if (!prio && buddy_getflags(unread_ptr) & ROSTER_FLAG_MSG)
+      prio = 1;
+  }
+
+  // Status bar unread message flag
+  if (prio >= ROSTER_UI_PRIO_MUC_HL_MESSAGE)
+    unreadchar = '!';
+  else if (prio > 0)
+    unreadchar = '#';
+  else
+    unreadchar = ' ';
 
   werase(mainstatusWnd);
   if (info) {
     char *info_locale = from_utf8(info);
-    mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s %s",
-              (unread_msg(NULL) ? '#' : ' '),
+    mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s %s", unreadchar,
               imstatus2char[xmpp_getstatus()],
               info_locale, (sm ? sm : ""));
     g_free(info_locale);
   } else
-    mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s",
-              (unread_msg(NULL) ? '#' : ' '),
+    mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s", unreadchar,
               imstatus2char[xmpp_getstatus()], (sm ? sm : ""));
   if (forceupdate) {
     top_panel(inputPanel);

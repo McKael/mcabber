@@ -1988,7 +1988,7 @@ static void move_group_member(gpointer bud, void *groupnamedata)
   if (on_srv)
     xmpp_updatebuddy(bjid, name, *groupname ? groupname : NULL);
   else
-    buddy_setname(bud, (char*)name);
+    buddy_setgroup(bud, (char *)groupname);
 }
 
 static void do_rename(char *arg)

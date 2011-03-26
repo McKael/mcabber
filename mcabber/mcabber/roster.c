@@ -1609,10 +1609,12 @@ void foreach_group_member(gpointer groupdata,
 
   sl_roster_usrelt = roster_elt->list;
   while (sl_roster_usrelt) {  // user list loop
+    GSList *next_sl_usrelt;
     roster_usrelt = (roster*) sl_roster_usrelt->data;
 
+    next_sl_usrelt = g_slist_next(sl_roster_usrelt);
     pfunc(roster_usrelt, param);
-    sl_roster_usrelt = g_slist_next(sl_roster_usrelt);
+    sl_roster_usrelt = next_sl_usrelt;
   }
 }
 

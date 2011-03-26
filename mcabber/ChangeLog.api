@@ -1,3 +1,12 @@
+dev (18)
+
+ * Changeset 6febc7d1f760
+   Add room setopt flag_joins
+ * Changeset e6beab22099b
+   Change prototype of xmpp_set_storage_bookmark()
+
+  -- Mikael Berthe, 2011-03-26
+
 dev (17)
 
  * Add NS_X_CONFERENCE (direct MUC invitations)

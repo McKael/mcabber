@@ -1,7 +1,7 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|whois|kick|ban|unban|role|affil
- /ROOM setopt print_status|auto_whois [wert]
+ /ROOM setopt print_status|auto_whois|flag_joins [wert]
  /ROOM bookmark [add|del] [-autojoin|+autojoin] [-|nick]
 
 Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
@@ -39,11 +39,12 @@ Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
  Ändert die Rolle der jid (rolle kann "none", "visitor", "participant" oder "moderator" sein)
 /room affil jid zugeh [grund]
  Ändert die Zugehörigkeit der jid zum Raum. (zugeh kann "none", "member", "admin" oder "owner" sein)
-/room setopt print_status|auto_whois [wert]
+/room setopt print_status|auto_whois|flag_joins [wert]
  Ändert die Einstellungen für den aktuellen MUC.
  Für "print_status" sind folgende Werte möglich: "default", "none", "in_and_out", "all".
  Bei "auto_whois" sind die Werte "default", "off" und "on" gültig.
- Wenn man die Einstellungen auf "default" setzt, so werden die Optionen muc_print_status / muc_auto_whois benutzt.
+ For flag_joins, the possible values are "default", "none", "joins", "all".
+ Wenn man die Einstellungen auf "default" setzt, so werden die Optionen muc_print_status / muc_auto_whois / muc_flag_joins benutzt.
 /room bookmark [add|del] [-autojoin|+autojoin] [-|nick]
  Zum Hinzufügen, Löschen und Ändern von Raum-Bookmarks.
  Wenn autojoin gesetzt ist, wird mcabber nach dem verbinden zum Server diesen MUC automatisch betreten.

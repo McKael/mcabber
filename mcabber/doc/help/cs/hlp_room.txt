@@ -1,7 +1,7 @@
 
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|whois|kick|ban|unban|role|affil
- /ROOM setopt print_status|auto_whois [hodnota]
+ /ROOM setopt print_status|auto_whois|flag_joins [hodnota]
  /ROOM bookmark [add|del] [-autojoin|+autojoin] [-|nick]
 
 Slouží pro správu konferenčních místností MUC (Multi-User Chat).
@@ -38,11 +38,12 @@ Slouží pro správu konferenčních místností MUC (Multi-User Chat).
  Změní roli uživateli 'jid'. Role může být 'none' (žádná), 'visitor' (návštěvník), 'participant' (účastník) nebo 'moderator' (moderátor).
 /room affil jid vztah [důvod]
  Změní uživateli 'jid' vztah k místnosti. Vztah může být 'none' (žádný), 'member' (člen), 'admin' (správce) nebo 'owner' (vlastník).
-/room setopt print_status|auto_whois [hodnota]
+/room setopt print_status|auto_whois|flag_joins [hodnota]
  Změní nastavení pro aktuální místnost.
  Parametr 'print_status' definující, jaké změny stavů v místnosti se vypisují, má možnosti 'default' (výchozí), 'none' (žádné), 'in_and_out' (vstupy a výstupy z místnosti) nebo 'all' (všechny včetně změn stavů uživatelů).
  Parametr 'auto_whois' definující, zda se při vstupu uživatele provede příkaz "/room whois" pro zobrazení informací o uživateli, má možnosti 'default' (výchozí), 'off' (vypnuto) nebo 'on' (zapnuto).
- Pokud je hodnota 'default' (výchozí), použije se nastavení 'muc_print_status'/'muc_auto_whois' z konfiguračního souboru.
+ For flag_joins, the possible values are "default", "none", "joins", "all".
+ Pokud je hodnota 'default' (výchozí), použije se nastavení 'muc_print_status'/'muc_auto_whois'/'muc_flag_joins' z konfiguračního souboru.
 /room bookmark [add|del] [-autojoin|+autojoin] [-|nick]
  Přidá ('add'), odstraní ('del') nebo zaktualizuje záložku. Výchozí je akce 'add'.
  Je-li nastaven parametr 'autojoin', dojde k automatickému vstupu do místnosti po připojení k serveru.

@@ -95,6 +95,8 @@ static void do_otrpolicy(char *arg);
 static void do_echo(char *arg);
 static void do_module(char *arg);
 
+static void room_bookmark(gpointer bud, char *arg);
+
 // Global variable for the commands list
 static GSList *Commands;
 
@@ -1977,18 +1979,23 @@ static void room_names(gpointer bud, char *arg)
 static void move_group_member(gpointer bud, void *groupnamedata)
 {
   const char *bjid, *name, *groupname;
-  guint on_srv;
+  guint type, on_srv;
 
   groupname = (char *)groupnamedata;
 
   bjid = buddy_getjid(bud);
   name = buddy_getname(bud);
+  type = buddy_gettype(bud);
   on_srv = buddy_getonserverflag(bud);
 
   if (on_srv)
     xmpp_updatebuddy(bjid, name, *groupname ? groupname : NULL);
-  else
+  else {
     buddy_setgroup(bud, (char *)groupname);
+    if ((type & ROSTER_TYPE_ROOM) && xmpp_is_bookmarked(bjid) &&
+        settings_opt_get_int("muc_bookmark_autoupdate"))
+      room_bookmark(bud, NULL);
+  }
 }
 
 static void do_rename(char *arg)
@@ -2057,6 +2064,9 @@ static void do_rename(char *arg)
     } else {
       // This is a local item, we rename it without adding to roster.
       buddy_setname(bud, (del_name ? (char*)bjid : name_utf8));
+      if ((type & ROSTER_TYPE_ROOM) && xmpp_is_bookmarked(bjid) &&
+          settings_opt_get_int("muc_bookmark_autoupdate"))
+        room_bookmark(bud, NULL);
     }
   }
 
@@ -2123,6 +2133,9 @@ static void do_move(char *arg)
       buddy_setgroup(bud, group_utf8);
       if (msgflag)
         roster_msg_setflag(bjid, FALSE, TRUE);
+      if ((type & ROSTER_TYPE_ROOM) && xmpp_is_bookmarked(bjid) &&
+          settings_opt_get_int("muc_bookmark_autoupdate"))
+        room_bookmark(bud, NULL);
     }
   }
 
@@ -2800,6 +2813,7 @@ static void room_setopt(gpointer bud, char *arg)
   char *param, *value;
   enum { opt_none = 0, opt_printstatus,
          opt_autowhois, opt_flagjoins } option = 0;
+  guint changed = 0;
 
   paramlst = split_arg(arg, 2, 1); // param, value
   param = *paramlst;
@@ -2849,7 +2863,10 @@ static void room_setopt(gpointer bud, char *arg)
       if (strcasecmp(value, "default") != 0)
         scr_LogPrint(LPRINT_NORMAL, "Unrecognized value, assuming default...");
     }
-    buddy_setprintstatus(bud, eval);
+    if (eval != buddy_getprintstatus(bud)) {
+      buddy_setprintstatus(bud, eval);
+      changed = 1;
+    }
   } else if (option == opt_autowhois) {
     enum room_autowhois eval;
     if (!strcasecmp(value, "on"))
@@ -2861,7 +2878,10 @@ static void room_setopt(gpointer bud, char *arg)
       if (strcasecmp(value, "default") != 0)
         scr_LogPrint(LPRINT_NORMAL, "Unrecognized value, assuming default...");
     }
-    buddy_setautowhois(bud, eval);
+    if (eval != buddy_getautowhois(bud)) {
+      buddy_setautowhois(bud, eval);
+      changed = 1;
+    }
   } else if (option == opt_flagjoins) {
     enum room_flagjoins eval;
     if (!strcasecmp(value, "none"))
@@ -2875,8 +2895,15 @@ static void room_setopt(gpointer bud, char *arg)
       if (strcasecmp(value, "default") != 0)
         scr_LogPrint(LPRINT_NORMAL, "Unrecognized value, assuming default...");
     }
-    buddy_setflagjoins(bud, eval);
+    if (eval != buddy_getflagjoins(bud)) {
+      buddy_setflagjoins(bud, eval);
+      changed = 1;
+    }
   }
+  if (changed &&
+      xmpp_is_bookmarked(buddy_getjid(bud)) &&
+      settings_opt_get_int("muc_bookmark_autoupdate"))
+    room_bookmark(bud, NULL);
 
   free_arg_lst(paramlst);
 }

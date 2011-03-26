@@ -332,6 +332,12 @@ set max_history_blocks = 8
 # suggested nicknames (only at the beginning of a line), like ":" or ",".
 # (Default: none)
 #set muc_completion_suffix = ": "
+#
+# Set 'muc_bookmark_autoupdate' to 1 if you want changes made to room options
+# be stored automatically on server.  Otherwise you'll have to manually use
+# command /room bookmark, or changes will not be permanent (for session only).
+# This setting will not add any bookmark, only update already existing ones.
+#set muc_bookmark_autoupdate = 0
 
 # Status messages
 # The 'message' value will override all others, take care!

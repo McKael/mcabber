@@ -2131,13 +2131,14 @@ GSList *xmpp_get_all_storage_bookmarks(void)
 }
 
 //  xmpp_set_storage_bookmark(roomid, name, nick, passwd, autojoin,
-//                          printstatus, autowhois)
+//                          printstatus, autowhois, flagjoins, group)
 // Update the private storage bookmarks: add a conference room.
 // If name is nil, we remove the bookmark.
 void xmpp_set_storage_bookmark(const char *roomid, const char *name,
                                const char *nick, const char *passwd,
                                int autojoin, enum room_printstatus pstatus,
-                               enum room_autowhois awhois, const char *group)
+                               enum room_autowhois awhois,
+                               enum room_flagjoins fjoins, const char *group)
 {
   LmMessageNode *x;
   bool changed = FALSE;
@@ -2188,6 +2189,8 @@ void xmpp_set_storage_bookmark(const char *roomid, const char *name,
       lm_message_node_set_attributes(x, "autowhois",
                                      (awhois == autowhois_on) ? "1" : "0",
                                      NULL);
+    if (fjoins)
+      lm_message_node_add_child(x, "flag_joins", strflagjoins[fjoins]);
     if (group)
       lm_message_node_add_child(x, "group", group);
     changed = TRUE;

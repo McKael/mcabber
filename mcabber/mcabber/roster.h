@@ -90,6 +90,15 @@ enum room_autowhois {
   autowhois_on
 };
 
+extern char *strflagjoins[];
+
+enum room_flagjoins {
+  flagjoins_default,
+  flagjoins_none,
+  flagjoins_joins,
+  flagjoins_all
+};
+
 struct role_affil {
   enum { type_role, type_affil } type;
   union {
@@ -213,6 +222,8 @@ void    buddy_setprintstatus(gpointer rosterdata, enum room_printstatus);
 enum room_printstatus buddy_getprintstatus(gpointer rosterdata);
 void    buddy_setautowhois(gpointer rosterdata, enum room_autowhois);
 enum room_autowhois buddy_getautowhois(gpointer rosterdata);
+void    buddy_setflagjoins(gpointer rosterdata, enum room_flagjoins);
+enum room_flagjoins buddy_getflagjoins(gpointer rosterdata);
 void    buddy_settype(gpointer rosterdata, guint type);
 guint   buddy_gettype(gpointer rosterdata);
 guint   buddy_getsubscription(gpointer rosterdata);

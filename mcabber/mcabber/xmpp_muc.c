@@ -344,6 +344,7 @@ static bool muc_handle_join(const GSList *room_elt, const char *rname,
 {
   bool new_member = FALSE; // True if somebody else joins the room (not us)
   gchar *mbuf;
+  enum room_flagjoins flagjoins;
 
   if (!buddy_getinsideroom(room_elt->data)) {
     // We weren't inside the room yet.  Now we are.
@@ -385,7 +386,11 @@ static bool muc_handle_join(const GSList *room_elt, const char *rname,
 
   if (mbuf) {
     guint msgflags = HBB_PREFIX_INFO;
-    if (!settings_opt_get_int("muc_flag_joins"))
+    flagjoins = buddy_getflagjoins(room_elt->data);
+    if (flagjoins == flagjoins_default &&
+        !settings_opt_get_int("muc_flag_joins"))
+      flagjoins = flagjoins_none;
+    if (flagjoins == flagjoins_none)
       msgflags |= HBB_PREFIX_NOFLAG;
     scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
     if (log_muc_conf)
@@ -407,6 +412,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
   enum imaffiliation mbaffil = affil_none;
   enum room_printstatus printstatus;
   enum room_autowhois autowhois;
+  enum room_flagjoins flagjoins;
   const char *mbjid = NULL, *mbnick = NULL;
   const char *actorjid = NULL, *reason = NULL;
   bool new_member = FALSE; // True if somebody else joins the room (not us)
@@ -640,8 +646,13 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
     // or if the print_status isn't set to none.
     if (our_presence || printstatus != status_none) {
       msgflags = HBB_PREFIX_INFO;
-      if (!our_presence && settings_opt_get_int("muc_flag_joins") != 2)
+      flagjoins = buddy_getflagjoins(room_elt->data);
+      if (flagjoins == flagjoins_default &&
+          settings_opt_get_int("muc_flag_joins") == 2)
+	flagjoins = flagjoins_all;
+      if (!our_presence && flagjoins != flagjoins_all)
         msgflags |= HBB_PREFIX_NOFLAG;
+      //silent message if someone else joins, and we care about noone
       scr_WriteIncomingMessage(roomjid, mbuf, usttime, msgflags, 0);
     }
 

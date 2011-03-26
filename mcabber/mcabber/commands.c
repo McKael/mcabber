@@ -2798,7 +2798,8 @@ static void room_setopt(gpointer bud, char *arg)
 {
   char **paramlst;
   char *param, *value;
-  enum { opt_none = 0, opt_printstatus, opt_autowhois } option = 0;
+  enum { opt_none = 0, opt_printstatus,
+         opt_autowhois, opt_flagjoins } option = 0;
 
   paramlst = split_arg(arg, 2, 1); // param, value
   param = *paramlst;
@@ -2813,6 +2814,8 @@ static void room_setopt(gpointer bud, char *arg)
     option = opt_printstatus;
   else if (!strcasecmp(param, "auto_whois"))
     option = opt_autowhois;
+  else if (!strcasecmp(param, "flag_joins"))
+    option = opt_flagjoins;
   else {
     scr_LogPrint(LPRINT_NORMAL, "Wrong option!");
     free_arg_lst(paramlst);
@@ -2824,8 +2827,10 @@ static void room_setopt(gpointer bud, char *arg)
     const char *strval;
     if (option == opt_printstatus)
       strval = strprintstatus[buddy_getprintstatus(bud)];
-    else
+    else if (option == opt_autowhois)
       strval = strautowhois[buddy_getautowhois(bud)];
+    else
+      strval = strflagjoins[buddy_getflagjoins(bud)];
     scr_LogPrint(LPRINT_NORMAL, "%s is set to: %s", param, strval);
     free_arg_lst(paramlst);
     return;
@@ -2857,6 +2862,20 @@ static void room_setopt(gpointer bud, char *arg)
         scr_LogPrint(LPRINT_NORMAL, "Unrecognized value, assuming default...");
     }
     buddy_setautowhois(bud, eval);
+  } else if (option == opt_flagjoins) {
+    enum room_flagjoins eval;
+    if (!strcasecmp(value, "none"))
+      eval = flagjoins_none;
+    else if (!strcasecmp(value, "joins"))
+      eval = flagjoins_joins;
+    else if (!strcasecmp(value, "all"))
+      eval = flagjoins_all;
+    else {
+      eval = flagjoins_default;
+      if (strcasecmp(value, "default") != 0)
+        scr_LogPrint(LPRINT_NORMAL, "Unrecognized value, assuming default...");
+    }
+    buddy_setflagjoins(bud, eval);
   }
 
   free_arg_lst(paramlst);
@@ -2962,6 +2981,7 @@ static void room_bookmark(gpointer bud, char *arg)
   const char *name = NULL, *nick = NULL, *group = NULL;
   char *tmpnick = NULL;
   enum room_autowhois autowhois = 0;
+  enum room_flagjoins flagjoins = 0;
   enum room_printstatus printstatus = 0;
   enum { bm_add = 0, bm_del = 1 } action = 0;
   int autojoin = 0;
@@ -3000,11 +3020,12 @@ static void room_bookmark(gpointer bud, char *arg)
       nick = buddy_getnickname(bud);
     printstatus = buddy_getprintstatus(bud);
     autowhois   = buddy_getautowhois(bud);
+    flagjoins   = buddy_getflagjoins(bud);
     group       = buddy_getgroupname(bud);
   }
 
   xmpp_set_storage_bookmark(roomid, name, nick, NULL, autojoin,
-                            printstatus, autowhois, group);
+                            printstatus, autowhois, flagjoins, group);
   g_free (tmpnick);
 }
 

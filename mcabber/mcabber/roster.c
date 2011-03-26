@@ -55,6 +55,13 @@ char *strautowhois[] = {    /* Should match enum in roster.h */
   "on",
 };
 
+char *strflagjoins[] = {    /* Should match enum in roster.h */
+  "default",
+  "none",
+  "joins",
+  "all"
+};
+
 /* Resource structure */
 
 typedef struct {
@@ -94,6 +101,7 @@ typedef struct {
   guint inside_room;
   guint print_status;
   guint auto_whois;
+  guint flag_joins;
 
   /* on_server is TRUE if the item is present on the server roster */
   guint on_server;
@@ -1199,6 +1207,18 @@ enum room_autowhois buddy_getautowhois(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->auto_whois;
+}
+
+void buddy_setflagjoins(gpointer rosterdata, enum room_flagjoins fjoins)
+{
+  roster *roster_usr = rosterdata;
+  roster_usr->flag_joins = fjoins;
+}
+
+enum room_flagjoins buddy_getflagjoins(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->flag_joins;
 }
 
 //  buddy_getgroupname()

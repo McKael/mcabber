@@ -561,7 +561,7 @@ static LmHandlerResult cb_vcard(LmMessageHandler *h, LmConnection *c,
 static void storage_bookmarks_parse_conference(LmMessageNode *node)
 {
   const char *fjid, *name, *autojoin;
-  const char *pstatus, *awhois, *group;
+  const char *pstatus, *awhois, *fjoins, *group;
   char *bjid;
   GSList *room_elt;
 
@@ -572,6 +572,7 @@ static void storage_bookmarks_parse_conference(LmMessageNode *node)
   autojoin = lm_message_node_get_attribute(node, "autojoin");
   awhois = lm_message_node_get_attribute(node, "autowhois");
   pstatus = lm_message_node_get_child_value(node, "print_status");
+  fjoins = lm_message_node_get_child_value(node, "flag_joins");
   group = lm_message_node_get_child_value(node, "group");
 
   bjid = jidtodisp(fjid); // Bare jid
@@ -613,6 +614,14 @@ static void storage_bookmarks_parse_conference(LmMessageNode *node)
       i = autowhois_off;
     if (i != autowhois_default)
       buddy_setautowhois(room_elt->data, i);
+  }
+  if (fjoins) {
+    enum room_flagjoins i;
+    for (i = flagjoins_none; i <= flagjoins_all; i++)
+      if (!strcasecmp(fjoins, strflagjoins[i]))
+        break;
+    if (i <= flagjoins_all)
+      buddy_setflagjoins(room_elt->data, i);
   }
 
   // Is autojoin set?

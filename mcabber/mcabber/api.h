@@ -6,6 +6,8 @@
 #define MCABBER_API_VERSION 20
 #define MCABBER_API_MIN     19
 
+#define MCABBER_BRANCH_DEV  1
+
 extern const gchar *mcabber_branch;
 extern const guint mcabber_api_version;
 

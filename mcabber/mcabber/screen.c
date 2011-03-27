@@ -3206,7 +3206,7 @@ void scr_append_multiline(const char *line)
 
 //  scr_cmdhisto_addline()
 // Add a line to the inputLine history
-static inline void scr_cmdhisto_addline(char *line)
+static void scr_cmdhisto_addline(char *line)
 {
   int max_histo_lines;
 
@@ -3229,6 +3229,19 @@ static inline void scr_cmdhisto_addline(char *line)
 
   cmdhisto = g_list_append(cmdhisto, g_strdup(line));
   cmdhisto_nblines++;
+}
+
+//  scr_cmdhisto_reset()
+// Reset the inputLine history
+static void scr_cmdhisto_reset(void)
+{
+  while (cmdhisto_nblines) {
+    g_free(cmdhisto->data);
+    cmdhisto = g_list_delete_link(cmdhisto, cmdhisto);
+    cmdhisto_nblines--;
+  }
+  cmdhisto_backup[0] = 0;
+  cmdhisto_cur = NULL;
 }
 
 //  scr_cmdhisto_prev()
@@ -3494,6 +3507,13 @@ int readline_accept_line(int down_history)
     cmdhisto_cur = NULL;
   }
   return 0;
+}
+
+//  readline_clear_history()
+// Clear command line history.
+void readline_clear_history(void)
+{
+  scr_cmdhisto_reset();
 }
 
 void readline_cancel_completion(void)

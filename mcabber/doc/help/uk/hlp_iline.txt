@@ -7,6 +7,7 @@
  /ILINE iline_start|iline_end|iline_fdel|iline_bdel
  /ILINE iline_accept|iline_accept_down_hist
  /ILINE iline_insert
+ /ILINE clear_history
  /ILINE compl_do|compl_cancel
  /ILINE send_multiline
 
@@ -58,6 +59,8 @@
  Перейти до наступного рядка в історії, затвердивши поточний.
 /iline iline_insert text
  Insert text in the input line, at the current position.  Please note that quotes have to be escaped, and that the screen is not refreshed (use /screen_refresh).
+/iline clear_history
+ Clear the command line history
 /iline compl_do
  Доповнити поточне слово.
 /iline compl_cancel

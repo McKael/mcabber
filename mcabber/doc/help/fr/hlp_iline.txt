@@ -7,6 +7,7 @@
  /ILINE iline_start|iline_end|iline_fdel|iline_bdel
  /ILINE iline_accept|iline_accept_down_hist
  /ILINE iline_insert
+ /ILINE clear_history
  /ILINE compl_do|compl_cancel
  /ILINE send_multiline
 
@@ -58,6 +59,8 @@ Cette commande permet de manipuler la ligne de commandes. En général elle sera
  Accepter/valider la ligne de commande et charger la ligne suivante de l'historique ligne de commande
 /iline iline_insert texte
  Insérer le texte dans la ligne de commande, à la position du curseur. Notez que les guillemets doivent être protégés (\"), et que l'écran n'est pas rafraîchi (cf. /screen_refresh).
+/iline clear_history
+ Efface l'historique de la ligne de commande
 /iline compl_do
  Compléter le mot actuel dans la ligne de commande
 /iline compl_cancel

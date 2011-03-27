@@ -8,6 +8,8 @@
 
 #define MCABBER_BRANCH_DEV  1
 
+#define MCABBER_API_HAVE_CMD_ID 1
+
 extern const gchar *mcabber_branch;
 extern const guint mcabber_api_version;
 

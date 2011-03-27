@@ -99,6 +99,7 @@ static void room_bookmark(gpointer bud, char *arg);
 
 // Global variable for the commands list
 static GSList *Commands;
+static GSList *safe_commands;
 
 #ifdef MODULES_ENABLE
 #include "modules.h"
@@ -135,6 +136,42 @@ gpointer cmd_add(const char *name, const char *help, guint flags_row1,
   // Add to completion CMD category
   compl_add_category_word(COMPL_CMD, name);
   return n_cmd;
+}
+
+//  cmd_set_safe(name, safe)
+// Sets if command can be used in startup configuration file.
+gboolean cmd_set_safe(const gchar *name, gboolean safe)
+{
+  GSList *sel;
+  if (!name)
+    return FALSE;
+  for (sel = safe_commands; sel; sel = sel->next)
+    if (!strcmp((const char *)sel->data, name)) {
+      if (safe)
+        return FALSE;
+      else {
+        g_free(sel->data);
+        safe_commands = g_slist_delete_link(safe_commands, sel);
+      }
+    }
+  if (safe)
+    safe_commands = g_slist_append(safe_commands, g_strdup(name));
+  else
+    return FALSE;
+  return TRUE;
+}
+
+//  cmd_is_safe(name)
+// Returns if command is safe or not
+gboolean cmd_is_safe(const gchar *name)
+{
+  GSList *sel;
+  if (!name)
+    return FALSE;
+  for (sel = safe_commands; sel; sel = sel->next)
+    if (!strcmp((const char *)sel->data, name))
+      return TRUE;
+  return FALSE;
 }
 
 //  cmd_init()
@@ -196,6 +233,16 @@ void cmd_init(void)
   cmd_add("status_to", "Show or set your status for one recipient",
           COMPL_JID, COMPL_STATUS, &do_status_to, NULL);
   cmd_add("version", "Show mcabber version", 0, 0, &do_version, NULL);
+
+  cmd_set_safe("set", TRUE);
+  cmd_set_safe("bind", TRUE);
+  cmd_set_safe("alias", TRUE);
+  cmd_set_safe("pgp", TRUE);
+  cmd_set_safe("source", TRUE);
+  cmd_set_safe("status", TRUE);
+  cmd_set_safe("color", TRUE);
+  cmd_set_safe("otrpolicy", TRUE);
+  cmd_set_safe("module", TRUE);
 
   // Status category
   compl_add_category_word(COMPL_STATUS, "online");

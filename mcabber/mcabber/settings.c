@@ -183,46 +183,28 @@ int cfg_read_file(char *filename, guint mainfile)
     if ((*line == '\n') || (*line == '\0') || (*line == '#'))
       continue;
 
-    // We only allow assignments line, except for commands "pgp", "source",
-    // "color", "load" and "otrpolicy", unless we're in runtime (i.e. not startup).
-    if (runtime ||
-        (strchr(line, '=') != NULL)        ||
-        startswith(line, "pgp ", FALSE)    ||
-        startswith(line, "source ", FALSE) ||
-        startswith(line, "color ", FALSE)  ||
-#ifdef MODULES_ENABLE
-        startswith(line, "module ", FALSE) ||
-#endif
-        startswith(line, "status ", FALSE) ||
-        startswith(line, "otrpolicy", FALSE)) {
-      // Only accept a few "safe" commands
-      if (!runtime &&
-          !startswith(line, "set ", FALSE)    &&
-          !startswith(line, "bind ", FALSE)   &&
-          !startswith(line, "alias ", FALSE)  &&
-          !startswith(line, "pgp ", FALSE)    &&
-          !startswith(line, "source ", FALSE) &&
-          !startswith(line, "status ", FALSE) &&
-          !startswith(line, "color ", FALSE)  &&
-#ifdef MODULES_ENABLE
-          !startswith(line, "module ", FALSE) &&
-#endif
-          !startswith(line, "otrpolicy ", FALSE)) {
-        scr_LogPrint(LPRINT_LOGNORM, "Error in configuration file (l. %d): "
-                     "this command can't be used here", ln);
+    // If we aren't in runtime (i.e. startup) we'll only accept "safe" commands
+    if (!runtime) {
+      const gchar *cmdend = strchr(line, ' ');
+      gchar *cmdname = NULL;
+      gboolean safe;
+      if (cmdend)
+        cmdname = g_strndup(line, cmdend - line);
+      safe = cmd_is_safe(cmdname ? cmdname : line);
+      g_free(cmdname);
+      if (!safe) {
+        scr_log_print(LPRINT_LOGNORM, "Error in configuration file (l. %d): "
+                      "this command can't be used here", ln);
         err++;
         continue;
       }
-      // Set the leading COMMAND_CHAR to build a command line
-      // and process the command
-      *(--line) = COMMAND_CHAR;
-      if (process_command(line, TRUE) == 255)
-        mcabber_set_terminate_ui();
-    } else {
-      scr_LogPrint(LPRINT_LOGNORM, "Error in configuration file (l. %d): "
-                   "this is not an assignment", ln);
-      err++;
     }
+
+    // Set the leading COMMAND_CHAR to build a command line
+    // and process the command
+    *(--line) = COMMAND_CHAR;
+    if (process_command(line, TRUE) == 255)
+      mcabber_set_terminate_ui();
   }
   g_free(buf);
   fclose(fp);

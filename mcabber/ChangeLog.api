@@ -1,3 +1,10 @@
+dev (20)
+
+ * Add cmd_set_safe() and cmd_is_safe()
+ * Changeset dd65a18dc480
+
+  -- Mikael Berthe, 2011-03-27
+
 dev (19)
 
  * cmd_add now returns gpointer id

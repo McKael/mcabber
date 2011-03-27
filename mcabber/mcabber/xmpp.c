@@ -1203,7 +1203,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
                                        LmMessage *m, gpointer user_data)
 {
   const char *p, *from=lm_message_get_from(m);
-  char *r, *s;
+  char *bjid, *res;
   LmMessageNode *x;
   const char *body = NULL;
   const char *enc = NULL;
@@ -1219,26 +1219,27 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   if (x && (p = lm_message_node_get_value(x)) != NULL)
     enc = p;
 
+  // Get the bare-JID/room (bjid) and the resource/nickname (res)
+  bjid = g_strdup(lm_message_get_from(m));
+  res = strchr(bjid, JID_RESOURCE_SEPARATOR);
+  if (res) *res++ = 0;
+
   p = lm_message_node_get_child_value(m->node, "subject");
   if (p != NULL) {
     if (mstype != LM_MESSAGE_SUB_TYPE_GROUPCHAT) {
       // Chat message
       subject = p;
-    } else {                                      // Room topic
+    } else {
+      // Room topic
       GSList *roombuddy;
       gchar *mbuf;
       const gchar *subj = p;
-      // Get the room (s) and the nickname (r)
-      s = g_strdup(lm_message_get_from(m));
-      r = strchr(s, JID_RESOURCE_SEPARATOR);
-      if (r) *r++ = 0;
-      else   r = s;
       // Set the new topic
-      roombuddy = roster_find(s, jidsearch, 0);
+      roombuddy = roster_find(bjid, jidsearch, 0);
       if (roombuddy)
         buddy_settopic(roombuddy->data, subj);
       // Display inside the room window
-      if (r == s) {
+      if (!res) {
         // No specific resource (this is certainly history)
         if (*subj)
           mbuf = g_strdup_printf("The topic has been set to: %s", subj);
@@ -1246,15 +1247,14 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
           mbuf = g_strdup_printf("The topic has been cleared");
       } else {
         if (*subj)
-          mbuf = g_strdup_printf("%s has set the topic to: %s", r, subj);
+          mbuf = g_strdup_printf("%s has set the topic to: %s", res, subj);
         else
-          mbuf = g_strdup_printf("%s has cleared the topic", r);
+          mbuf = g_strdup_printf("%s has cleared the topic", res);
       }
-      scr_WriteIncomingMessage(s, mbuf, 0,
+      scr_WriteIncomingMessage(bjid, mbuf, 0,
                                HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
       if (settings_opt_get_int("log_muc_conf"))
-        hlog_write_message(s, 0, -1, mbuf);
-      g_free(s);
+        hlog_write_message(bjid, 0, -1, mbuf);
       g_free(mbuf);
       // The topic is displayed in the chat status line, so refresh now.
       scr_update_chat_status(TRUE);
@@ -1275,11 +1275,14 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   } else {
     handle_state_events(from, m->node);
   }
+
   if (from && (body || subject))
     gotmessage(mstype, from, body, enc, subject, timestamp,
                lm_message_node_find_xmlns(m->node, NS_SIGNED));
-  // Report received message if message receipt was requested
-  if (lm_message_node_get_child(m->node, "request")) {
+
+  // Report received message if message delivery receipt was requested
+  if (lm_message_node_get_child(m->node, "request") &&
+      (roster_getsubscription(bjid) & sub_from)) {
     const gchar *mid;
     LmMessageNode *y;
     LmMessage *rcvd = lm_message_new(from, LM_MESSAGE_TYPE_MESSAGE);
@@ -1311,6 +1314,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     }
   }
 
+  g_free(bjid);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 

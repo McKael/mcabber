@@ -107,6 +107,7 @@ static GSList *safe_commands;
 gpointer cmd_del(gpointer id)
 {
   GSList *sl_cmd;
+  if (!id) return NULL;
   for (sl_cmd = Commands; sl_cmd; sl_cmd = sl_cmd->next)
     if (sl_cmd -> data == id) {
       cmd *command = (cmd *) sl_cmd->data;

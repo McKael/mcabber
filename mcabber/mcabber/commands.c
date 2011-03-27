@@ -103,27 +103,26 @@ static GSList *Commands;
 #ifdef MODULES_ENABLE
 #include "modules.h"
 
-gpointer cmd_del(const char *name)
+gpointer cmd_del(gpointer id)
 {
   GSList *sl_cmd;
-  for (sl_cmd = Commands; sl_cmd; sl_cmd = sl_cmd->next) {
-    cmd *command = (cmd *) sl_cmd->data;
-    if (!strcmp (command->name, name)) {
+  for (sl_cmd = Commands; sl_cmd; sl_cmd = sl_cmd->next)
+    if (sl_cmd -> data == id) {
+      cmd *command = (cmd *) sl_cmd->data;
       gpointer userdata = command->userdata;
       Commands = g_slist_delete_link(Commands, sl_cmd);
       compl_del_category_word(COMPL_CMD, command->name);
       g_free(command);
       return userdata;
     }
-  }
   return NULL;
 }
 #endif
 
 //  cmd_add()
 // Adds a command to the commands list and to the CMD completion list
-void cmd_add(const char *name, const char *help, guint flags_row1,
-             guint flags_row2, void (*f)(char*), gpointer userdata)
+gpointer cmd_add(const char *name, const char *help, guint flags_row1,
+                 guint flags_row2, void (*f)(char*), gpointer userdata)
 {
   cmd *n_cmd = g_new0(cmd, 1);
   strncpy(n_cmd->name, name, 32-1);
@@ -135,6 +134,7 @@ void cmd_add(const char *name, const char *help, guint flags_row1,
   Commands = g_slist_prepend(Commands, n_cmd);
   // Add to completion CMD category
   compl_add_category_word(COMPL_CMD, name);
+  return n_cmd;
 }
 
 //  cmd_init()

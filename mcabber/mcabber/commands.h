@@ -20,8 +20,9 @@ int  process_line(const char *line);
 int  process_command(const char *line, guint iscmd);
 char *expandalias(const char *line);
 #ifdef MODULES_ENABLE
-gpointer cmd_del(const char *name);
-void cmd_add(const char *name, const char *help, guint flags1, guint flags2, void (*f)(char*), gpointer userdata);
+gpointer cmd_del(gpointer id);
+gpointer cmd_add(const char *name, const char *help, guint flags1, guint flags2,
+                 void (*f)(char*), gpointer userdata);
 #endif
 
 void cmd_room_whois(gpointer bud, const char *nick, guint interactive);

@@ -46,8 +46,9 @@ module_info_t info_beep = {
         .next            = NULL,
 };
 
-static guint beep_cid = 0;  /* Command completion category id */
-static guint beep_hid = 0;  /* Hook handler id */
+static guint    beep_cid  = 0;  /* Command completion category id */
+static gpointer beep_cmid = 0;  /* Command id */
+static guint    beep_hid  = 0;  /* Hook handler id */
 
 /* Event handler */
 static guint beep_hh(const gchar *hookname, hk_arg_t *args, gpointer userdata)
@@ -94,7 +95,7 @@ static void beep_init(void)
     compl_add_category_word(beep_cid, "disable");
   }
   /* Add command */
-  cmd_add("beep", "", beep_cid, 0, do_beep, NULL);
+  beep_cmid = cmd_add("beep", "", beep_cid, 0, do_beep, NULL);
   /* Add handler
    * We are only interested in incoming message events
    */
@@ -108,7 +109,7 @@ static void beep_uninit(void)
   /* Unregister event handler */
   hk_del_handler(HOOK_POST_MESSAGE_IN, beep_hid);
   /* Unregister command */
-  cmd_del("beep");
+  cmd_del(beep_cmid);
   /* Give back completion handle */
   if (beep_cid)
     compl_del_category(beep_cid);

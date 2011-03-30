@@ -25,6 +25,7 @@
 #include <stdlib.h>
 
 #include "xmpp_helper.h"
+#include "xmpp_iq.h"
 #include "xmpp_muc.h"
 #include "events.h"
 #include "hooks.h"
@@ -194,6 +195,7 @@ int xmpp_room_setattrib(const char *roomid, const char *fjid,
                         const char *reason)
 {
   LmMessage *iq;
+  LmMessageHandler *handler;
   LmMessageNode *query, *x;
 
   if (!xmpp_is_online() || !roomid)
@@ -232,7 +234,9 @@ int xmpp_room_setattrib(const char *roomid, const char *fjid,
   if (reason)
     lm_message_node_add_child(x, "reason", reason);
 
-  lm_connection_send(lconnection, iq, NULL);
+  handler = lm_message_handler_new(handle_iq_dummy, NULL, FALSE);
+  lm_connection_send_with_reply(lconnection, iq, handler, NULL);
+  lm_message_handler_unref(handler);
   lm_message_unref(iq);
 
   return 0;
@@ -243,6 +247,7 @@ int xmpp_room_setattrib(const char *roomid, const char *fjid,
 void xmpp_room_unlock(const char *room)
 {
   LmMessageNode *node;
+  LmMessageHandler *handler;
   LmMessage *iq;
 
   if (!xmpp_is_online() || !room)
@@ -257,7 +262,9 @@ void xmpp_room_unlock(const char *room)
   lm_message_node_set_attributes(node, "xmlns", "jabber:x:data",
                                  "type", "submit", NULL);
 
-  lm_connection_send(lconnection, iq, NULL);
+  handler = lm_message_handler_new(handle_iq_dummy, NULL, FALSE);
+  lm_connection_send_with_reply(lconnection, iq, handler, NULL);
+  lm_message_handler_unref(handler);
   lm_message_unref(iq);
 }
 
@@ -266,6 +273,7 @@ void xmpp_room_unlock(const char *room)
 void xmpp_room_destroy(const char *room, const char *venue, const char *reason)
 {
   LmMessage *iq;
+  LmMessageHandler *handler;
   LmMessageNode *query, *x;
 
   if (!xmpp_is_online() || !room)
@@ -283,7 +291,9 @@ void xmpp_room_destroy(const char *room, const char *venue, const char *reason)
   if (reason)
     lm_message_node_add_child(x, "reason", reason);
 
-  lm_connection_send(lconnection, iq, NULL);
+  handler = lm_message_handler_new(handle_iq_dummy, NULL, FALSE);
+  lm_connection_send_with_reply(lconnection, iq, handler, NULL);
+  lm_message_handler_unref(handler);
   lm_message_unref(iq);
 }
 

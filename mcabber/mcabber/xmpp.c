@@ -198,7 +198,9 @@ void xmpp_delbuddy(const char *bjid)
     y = lm_message_node_add_child(iq->node, "query", NULL);
     lm_message_node_set_attribute(y, "xmlns", NS_REGISTER);
     lm_message_node_add_child(y, "remove", NULL);
-    lm_connection_send(lconnection, iq, NULL);
+    handler = lm_message_handler_new(handle_iq_dummy, NULL, FALSE);
+    lm_connection_send_with_reply(lconnection, iq, handler, NULL);
+    lm_message_handler_unref(handler);
     lm_message_unref(iq);
   }
 
@@ -2038,6 +2040,7 @@ void xmpp_setprevstatus(void)
 void send_storage(LmMessageNode *store)
 {
   LmMessage *iq;
+  LmMessageHandler *handler;
   LmMessageNode *query;
 
   if (!rosternotes) return;
@@ -2048,7 +2051,9 @@ void send_storage(LmMessageNode *store)
   lm_message_node_set_attribute(query, "xmlns", NS_PRIVATE);
   lm_message_node_insert_childnode(query, store);
 
-  lm_connection_send(lconnection, iq, NULL);
+  handler = lm_message_handler_new(handle_iq_dummy, NULL, FALSE);
+  lm_connection_send_with_reply(lconnection, iq, handler, NULL);
+  lm_message_handler_unref(handler);
   lm_message_unref(iq);
 }
 

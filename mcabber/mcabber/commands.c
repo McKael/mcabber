@@ -3091,8 +3091,11 @@ static void room_bookmark(gpointer bud, char *arg)
 
   if (action == bm_add) {
     name = buddy_getname(bud);
-    if (!nick_set)
+    if (!nick_set) {
       nick = buddy_getnickname(bud);
+      if (!nick) //we are probably bookmarking offline room
+        nick = xmpp_get_bookmark_nick(roomid);
+    }
     printstatus = buddy_getprintstatus(bud);
     autowhois   = buddy_getautowhois(bud);
     flagjoins   = buddy_getflagjoins(bud);

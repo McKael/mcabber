@@ -120,7 +120,8 @@ void sig_handler(int signum)
     mcabber_terminate("Killed by SIGINT");
 #ifdef USE_SIGWINCH
   } else if (signum == SIGWINCH) {
-    ungetch(KEY_RESIZE);
+    if (scr_curses_status())
+      ungetch(KEY_RESIZE);
 #endif
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Caught signal: %d", signum);

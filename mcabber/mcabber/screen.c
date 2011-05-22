@@ -2554,8 +2554,10 @@ void scr_roster_jump_alternate(void)
   if (!alternate_buddy || g_list_position(buddylist, alternate_buddy) == -1)
     return;
   set_current_buddy(alternate_buddy);
-  if (chatmode)
+  if (chatmode) {
+    last_activity_buddy = current_buddy;
     scr_show_buddy_window();
+  }
 }
 
 //  scr_roster_display(filter)

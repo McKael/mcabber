@@ -127,6 +127,7 @@ static GHashTable *unread_jids;
 GList *buddylist;
 GList *current_buddy;
 GList *alternate_buddy;
+GList *last_activity_buddy;
 
 static roster roster_special;
 
@@ -960,6 +961,7 @@ void buddylist_build(void)
   roster *roster_elt;
   roster *roster_current_buddy = NULL;
   roster *roster_alternate_buddy = NULL;
+  roster *roster_last_activity_buddy = NULL;
   int shrunk_group;
 
   // We need to remember which buddy is selected.
@@ -969,6 +971,9 @@ void buddylist_build(void)
   if (alternate_buddy)
     roster_alternate_buddy = BUDDATA(alternate_buddy);
   alternate_buddy = NULL;
+  if (last_activity_buddy)
+    roster_last_activity_buddy = BUDDATA(last_activity_buddy);
+  last_activity_buddy = NULL;
 
   // Destroy old buddylist
   if (buddylist) {
@@ -1026,6 +1031,8 @@ void buddylist_build(void)
     current_buddy = g_list_find(buddylist, roster_current_buddy);
   if (roster_alternate_buddy)
     alternate_buddy = g_list_find(buddylist, roster_alternate_buddy);
+  if (roster_last_activity_buddy)
+    last_activity_buddy = g_list_find(buddylist, roster_last_activity_buddy);
   // current_buddy initialization
   if (!current_buddy || (g_list_position(buddylist, current_buddy) == -1))
     current_buddy = g_list_first(buddylist);

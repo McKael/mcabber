@@ -2393,8 +2393,10 @@ static void set_current_buddy(GList *newbuddy)
 void scr_roster_top(void)
 {
   set_current_buddy(buddylist);
-  if (chatmode)
+  if (chatmode) {
+    last_activity_buddy = current_buddy;
     scr_show_buddy_window();
+  }
 }
 
 //  scr_roster_bottom()
@@ -2402,8 +2404,10 @@ void scr_roster_top(void)
 void scr_roster_bottom(void)
 {
   set_current_buddy(g_list_last(buddylist));
-  if (chatmode)
+  if (chatmode) {
+    last_activity_buddy = current_buddy;
     scr_show_buddy_window();
+  }
 }
 
 //  scr_roster_up_down(updown, n)
@@ -2420,8 +2424,10 @@ void scr_roster_up_down(int updown, unsigned int n)
     for (i = 0; i < n; i++)
       set_current_buddy(g_list_next(current_buddy));
   }
-  if (chatmode)
+  if (chatmode) {
+    last_activity_buddy = current_buddy;
     scr_show_buddy_window();
+  }
 }
 
 //  scr_roster_prev_group()
@@ -2436,8 +2442,10 @@ void scr_roster_prev_group(void)
       break;
     if (buddy_gettype(BUDDATA(bud)) & ROSTER_TYPE_GROUP) {
       set_current_buddy(bud);
-      if (chatmode)
+      if (chatmode) {
+        last_activity_buddy = current_buddy;
         scr_show_buddy_window();
+      }
       break;
     }
   }
@@ -2455,8 +2463,10 @@ void scr_roster_next_group(void)
       break;
     if (buddy_gettype(BUDDATA(bud)) & ROSTER_TYPE_GROUP) {
       set_current_buddy(bud);
-      if (chatmode)
+      if (chatmode) {
+        last_activity_buddy = current_buddy;
         scr_show_buddy_window();
+      }
       break;
     }
   }
@@ -2467,8 +2477,10 @@ void scr_roster_next_group(void)
 void scr_roster_search(char *str)
 {
   set_current_buddy(buddy_search(str));
-  if (chatmode)
+  if (chatmode) {
+    last_activity_buddy = current_buddy;
     scr_show_buddy_window();
+  }
 }
 
 //  scr_roster_jump_jid(bjid)
@@ -2489,8 +2501,10 @@ void scr_roster_jump_jid(char *barejid)
   buddylist_build();
   // Jump to the buddy
   set_current_buddy(buddy_search_jid(barejid));
-  if (chatmode)
+  if (chatmode) {
+    last_activity_buddy = current_buddy;
     scr_show_buddy_window();
+  }
 }
 
 //  scr_roster_unread_message(next)
@@ -2509,7 +2523,11 @@ void scr_roster_unread_message(int next)
   else      refbuddata = NULL;
 
   unread_ptr = unread_msg(refbuddata);
-  if (!unread_ptr) return;
+  if (!unread_ptr) {
+    if (!last_activity_buddy || g_list_position(buddylist, last_activity_buddy) == -1)
+      return;
+    unread_ptr = BUDDATA(last_activity_buddy);
+  }
 
   if (!(buddy_gettype(unread_ptr) & ROSTER_TYPE_SPECIAL)) {
     gpointer ngroup;
@@ -3487,6 +3505,7 @@ void readline_forward_char(void)
 int readline_accept_line(int down_history)
 {
   scr_check_auto_away(TRUE);
+  last_activity_buddy = current_buddy;
   if (process_line(inputLine))
     return 255;
   // Add line to history

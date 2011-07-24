@@ -324,8 +324,10 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 #endif
 #if defined XEP0022 || defined XEP0085
   LmMessageNode *event;
-  guint use_xep85 = 0;
   struct xep0085 *xep85 = NULL;
+#if defined XEP0022
+  guint use_xep85 = 0;
+#endif
 #endif
   gchar *enc = NULL;
 
@@ -456,8 +458,10 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
     lm_message_node_set_attribute(event, "xmlns", NS_CHATSTATES);
     if (xep85->support == CHATSTATES_SUPPORT_UNKNOWN)
       xep85->support = CHATSTATES_SUPPORT_PROBED;
+#ifdef XEP0022
     else
       use_xep85 = 1;
+#endif
     xep85->last_state_sent = ROSTER_EVENT_ACTIVE;
   }
 #endif
@@ -971,7 +975,6 @@ static void handle_state_events(const char *from, LmMessageNode *node)
 {
 #if defined XEP0022 || defined XEP0085
   LmMessageNode *state_ns = NULL;
-  const char *body;
   char *rname, *bjid;
   GSList *sl_buddy;
   guint events;
@@ -1023,8 +1026,6 @@ static void handle_state_events(const char *from, LmMessageNode *node)
     return;
   }
 
-  body = lm_message_node_get_child_value(node, "body");
-
   if (which_xep == XEP_85) { /* XEP-0085 */
     xep85->support = CHATSTATES_SUPPORT_OK;
 
@@ -1042,6 +1043,7 @@ static void handle_state_events(const char *from, LmMessageNode *node)
     events = xep85->last_state_rcvd;
   } else {              /* XEP-0022 */
 #ifdef XEP0022
+    const char *body = lm_message_node_get_child_value(node, "body");
     const char *msgid;
     xep22->support = CHATSTATES_SUPPORT_OK;
     xep22->last_state_rcvd = ROSTER_EVENT_NONE;

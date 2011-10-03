@@ -1,3 +1,9 @@
+dev (21)
+ * Changeset 51f032d5ca22
+   New and reworked caps_*() functions
+
+  -- Hermitifier, 2011-10-03
+
 dev (20)
 
  * Add cmd_set_safe() and cmd_is_safe()

@@ -499,6 +499,12 @@ set escdelay = 50
 # for the details).
 #otrpolicy default manual
 
+# Entity Caps cache
+# You can provide a directory where mcabber will store an offline cache
+# of other clients' capabilities. This will likely reduce network overhead
+# on start of new session.
+#set caps_directory = "~/.mcabber/caps"
+
 # Aliases
 alias me = say /me
 alias online   = status online

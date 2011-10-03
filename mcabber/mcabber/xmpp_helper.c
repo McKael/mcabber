@@ -224,6 +224,7 @@ const char *entity_version(enum imstatus status)
   caps_add("");
   caps_set_identity("", "client", PACKAGE_STRING, "pc");
   caps_add_feature("", NS_DISCO_INFO);
+  caps_add_feature("", NS_CAPS);
   caps_add_feature("", NS_MUC);
   // advertise ChatStates only if they aren't disabled
   if (!settings_opt_get_int("disable_chatstates"))

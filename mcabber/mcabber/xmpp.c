@@ -318,8 +318,9 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 #ifdef HAVE_LIBOTR
   int otr_msg = 0;
 #endif
+  char *barejid;
 #if defined HAVE_GPGME || defined XEP0022 || defined XEP0085
-  char *rname, *barejid;
+  char *rname;
   GSList *sl_buddy;
 #endif
 #if defined XEP0022 || defined XEP0085
@@ -349,10 +350,10 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
       subtype = LM_MESSAGE_SUB_TYPE_CHAT;
   }
 
+  barejid = jidtodisp(fjid);
 #if defined HAVE_GPGME || defined HAVE_LIBOTR || \
     defined XEP0022 || defined XEP0085
   rname = strchr(fjid, JID_RESOURCE_SEPARATOR);
-  barejid = jidtodisp(fjid);
   sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
 
   // If we can get a resource name, we use it.  Else we use NULL,
@@ -406,7 +407,6 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   }
 #endif // HAVE_GPGME
 
-  g_free(barejid);
 #endif // HAVE_GPGME || defined XEP0022 || defined XEP0085
 
   x = lm_message_new_with_sub_type(fjid, LM_MESSAGE_TYPE_MESSAGE, subtype);
@@ -428,12 +428,13 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   // XEP-0184: Message Receipts
   if (sl_buddy && xep184 &&
       caps_has_feature(buddy_resource_getcaps(sl_buddy->data, rname),
-                       NS_RECEIPTS)) {
+                       NS_RECEIPTS, barejid)) {
     lm_message_node_set_attribute
             (lm_message_node_add_child(x->node, "request", NULL),
              "xmlns", NS_RECEIPTS);
     *xep184 = lm_message_handler_new(cb_xep184, NULL, NULL);
   }
+  g_free(barejid);
 
 #if defined XEP0022 || defined XEP0085
   // If typing notifications are disabled, we can skip all this stuff...
@@ -1326,28 +1327,99 @@ static LmHandlerResult cb_caps(LmMessageHandler *h, LmConnection *c,
                                LmMessage *m, gpointer user_data)
 {
   char *ver = user_data;
+  char *hash;
+  const char *from = lm_message_get_from(m);
+  char *bjid = jidtodisp(from);
   LmMessageSubType mstype = lm_message_get_sub_type(m);
 
-  caps_add(ver);
-  if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
-    display_server_error(lm_message_node_get_child(m->node, "error"),
-                         lm_message_get_from(m));
-  } else if (mstype == LM_MESSAGE_SUB_TYPE_RESULT) {
+  hash = strchr(ver, ',');
+  if (hash)
+    *hash++ = '\0';
+
+  if (mstype == LM_MESSAGE_SUB_TYPE_RESULT) {
     LmMessageNode *info;
     LmMessageNode *query = lm_message_node_get_child(m->node, "query");
 
+    if (caps_has_hash(ver, bjid))
+      goto caps_callback_return;
+
+    caps_add(ver);
+
     info = lm_message_node_get_child(query, "identity");
-    if (info)
-      caps_set_identity(ver, lm_message_node_get_attribute(info, "category"),
-                        lm_message_node_get_attribute(info, "name"),
-                        lm_message_node_get_attribute(info, "type"));
+    while (info) {
+      if (!g_strcmp0(info->name, "identity"))
+        caps_add_identity(ver, lm_message_node_get_attribute(info, "category"),
+                          lm_message_node_get_attribute(info, "name"),
+                          lm_message_node_get_attribute(info, "type"),
+                          lm_message_node_get_attribute(info, "xml:lang"));
+        info = info->next;
+    }
+    
     info = lm_message_node_get_child(query, "feature");
     while (info) {
       if (!g_strcmp0(info->name, "feature"))
         caps_add_feature(ver, lm_message_node_get_attribute(info, "var"));
       info = info->next;
     }
+
+    info = lm_message_node_get_child(query, "x");
+    {
+      LmMessageNode *field;
+      LmMessageNode *value;
+      const char *formtype, *var;
+      while (info) {
+        if (!g_strcmp0(info->name, "x")
+            && !g_strcmp0(lm_message_node_get_attribute(info, "type"),
+                          "result")
+            && !g_strcmp0(lm_message_node_get_attribute(info, "xmlns"),
+                          "jabber:x:data")) {
+          field = lm_message_node_get_child(info, "field");
+          formtype = NULL;
+          while (field) {
+            if (!g_strcmp0(field->name, "field")
+                && !g_strcmp0(lm_message_node_get_attribute(field, "var"),
+                              "FORM_TYPE")
+                && !g_strcmp0(lm_message_node_get_attribute(field, "type"),
+                              "hidden")) {
+              value = lm_message_node_get_child(field, "value");
+              if (value)
+                formtype = lm_message_node_get_value(value);
+            }
+            field = field->next;
+          }
+          if (formtype) {
+            caps_add_dataform(ver, formtype);
+            field = lm_message_node_get_child(info, "field");
+            while (field) {
+              var = lm_message_node_get_attribute(field, "var");
+              if (!g_strcmp0(field->name, "field")
+                  && (g_strcmp0(var, "FORM_TYPE")
+                  || g_strcmp0(lm_message_node_get_attribute(field, "type"),
+                               "hidden"))) {
+                value = lm_message_node_get_child(field, "value");
+                while (value) {
+                  if (!g_strcmp0(value->name, "value"))
+                    caps_add_dataform_field(ver, formtype, var,
+                      lm_message_node_get_value(value));
+                  value = value->next;
+                }
+              }
+              field = field->next;
+            }
+          }
+        }
+        info = info->next;
+      }
+    }
+
+    if (caps_verify(ver, hash))
+      caps_copy_to_persistent(ver, lm_message_node_to_string(query));
+    else 
+      caps_move_to_local(ver, bjid);
   }
+
+caps_callback_return:
+  g_free(bjid);
   g_free(ver);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
@@ -1462,12 +1534,15 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   caps = lm_message_node_find_xmlns(m->node, NS_CAPS);
   if (caps && ust != offline) {
     const char *ver = lm_message_node_get_attribute(caps, "ver");
+    const char *hash = lm_message_node_get_attribute(caps, "hash");
     GSList *sl_buddy = NULL;
 
-    if (!ver) {
-      scr_LogPrint(LPRINT_LOGNORM, "Error: malformed caps version (%s)", bjid);
+    if (!hash) {
+      // No support for legacy format
       goto handle_presence_return;
     }
+    if (!ver || !g_strcmp0(ver, "") || !g_strcmp0(hash, ""))
+      goto handle_presence_return;
 
     if (rname)
       sl_buddy = roster_find(bjid, jidsearch, ROSTER_TYPE_USER);
@@ -1475,7 +1550,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     if (sl_buddy && buddy_getonserverflag(sl_buddy->data)) {
       buddy_resource_setcaps(sl_buddy->data, rname, ver);
 
-      if (!caps_has_hash(ver)) {
+      if (!caps_has_hash(ver, bjid) && !caps_restore_from_persistent(ver)) {
         char *node;
         LmMessageHandler *handler;
         LmMessage *iq = lm_message_new_with_sub_type(from, LM_MESSAGE_TYPE_IQ,
@@ -1489,7 +1564,9 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
                  "node", node,
                  NULL);
         g_free(node);
-        handler = lm_message_handler_new(cb_caps, g_strdup(ver), NULL);
+        handler = lm_message_handler_new(cb_caps,
+                                         g_strdup_printf("%s,%s",ver,hash),
+                                         NULL);
         lm_connection_send_with_reply(connection, iq, handler, NULL);
         lm_message_unref(iq);
         lm_message_handler_unref(handler);

@@ -521,14 +521,10 @@ static void disco_info_set_caps(LmMessageNode *ansquery,
 
   if (entitycaps)
     caps_foreach_feature(entitycaps, _disco_add_feature_helper, ansquery);
-  else {
+  else
     caps_foreach_feature(entity_version(xmpp_getstatus()),
                          _disco_add_feature_helper,
                          ansquery);
-    lm_message_node_set_attribute
-            (lm_message_node_add_child(ansquery, "feature", NULL),
-             "var", NS_CAPS);
-  }
 }
 
 LmHandlerResult handle_iq_disco_info(LmMessageHandler *h,

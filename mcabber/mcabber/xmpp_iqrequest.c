@@ -650,11 +650,13 @@ static LmHandlerResult cb_storage_bookmarks(LmMessageHandler *h,
                                             LmMessage *m, gpointer user_data)
 {
   LmMessageNode *x, *ansqry;
-  char *p;
+  char *p = NULL;
 
   if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
+    LmMessageNode *error = lm_message_node_get_child(m->node, "error");
     // No server support, or no bookmarks?
-    p = m->node->children->name;
+    if (error && error->children)
+      p = error->children->name;
     if (p && !strcmp(p, "item-not-found")) {
       // item-no-found means the server has Private Storage, but it's
       // currently empty.
@@ -663,9 +665,9 @@ static LmHandlerResult cb_storage_bookmarks(LmMessageHandler *h,
       bookmarks = lm_message_node_new("storage", "storage:bookmarks");
       // We return 0 so that the IQ error message be
       // not displayed, as it isn't a real error.
-      return LM_HANDLER_RESULT_REMOVE_MESSAGE;
-    }
-    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS; // Unhandled error
+    } else
+      scr_LogPrint(LPRINT_LOGNORM, "Server does not support bookmarks storage.");
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
   ansqry = lm_message_node_get_child(m->node, "query");
@@ -697,9 +699,11 @@ static LmHandlerResult cb_storage_rosternotes(LmMessageHandler *h,
   LmMessageNode *ansqry;
 
   if (lm_message_get_sub_type(m) == LM_MESSAGE_SUB_TYPE_ERROR) {
-    const char *p;
+    const char *p = NULL;
+    LmMessageNode *error = lm_message_node_get_child(m->node, "error");
     // No server support, or no roster notes?
-    p = m->node->children->name;
+    if (error && error->children)
+      p = error->children->name;
     if (p && !strcmp(p, "item-not-found")) {
       // item-no-found means the server has Private Storage, but it's
       // currently empty.
@@ -708,9 +712,9 @@ static LmHandlerResult cb_storage_rosternotes(LmMessageHandler *h,
       rosternotes = lm_message_node_new("storage", "storage:rosternotes");
       // We return 0 so that the IQ error message be
       // not displayed, as it isn't a real error.
-      return LM_HANDLER_RESULT_REMOVE_MESSAGE;
-    }
-    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS; // Unhandled error
+    } else
+      scr_LogPrint(LPRINT_LOGNORM, "Server does not support roster notes storage.");
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
   ansqry = lm_message_node_get_child(m->node, "query");

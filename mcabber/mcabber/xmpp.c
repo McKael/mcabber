@@ -2206,7 +2206,7 @@ GSList *xmpp_get_all_storage_bookmarks(void)
       autojoin = lm_message_node_get_attribute(x, "autojoin");
       nick = lm_message_node_get_child_value(x, "nick");
       name = lm_message_node_get_attribute(x, "name");
-      if (autojoin && !strcmp(autojoin, "1"))
+      if (autojoin && (!strcmp(autojoin, "1") || !strcmp(autojoin, "true")))
         bm_elt->autojoin = 1;
       if (nick)
         bm_elt->nick = g_strdup(nick);

@@ -627,7 +627,7 @@ static void storage_bookmarks_parse_conference(LmMessageNode *node)
   // Is autojoin set?
   // If it is, we'll look up for more information (nick? password?) and
   // try to join the room.
-  if (autojoin && !strcmp(autojoin, "1")) {
+  if (autojoin && (!strcmp(autojoin, "1") || !strcmp(autojoin, "true"))) {
     const char *nick, *passwd;
     char *tmpnick = NULL;
     nick = lm_message_node_get_child_value(node, "nick");

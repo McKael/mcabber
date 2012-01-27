@@ -127,6 +127,7 @@ static int roster_hidden;
 static int chatmode;
 static int multimode;
 static char *multiline, *multimode_subj;
+static int no_space_before_items;
 
 static bool Curses;
 static bool log_win_on_top;
@@ -1544,6 +1545,8 @@ void scr_draw_main_window(unsigned int fullinit)
   int chat_y_pos, chatstatus_y_pos, log_y_pos;
   int roster_x_pos, chat_x_pos;
 
+  no_space_before_items = settings_opt_get_int("no_space_before_items");
+
   Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
   requested_size = settings_opt_get_int("log_win_height");
   if (requested_size > 0) {
@@ -1943,6 +1946,8 @@ void scr_draw_roster(void)
   char status, pending;
   enum imstatus currentstatus = xmpp_getstatus();
   int x_pos;
+  char *space;
+  int prefix_length;
 
   // We can reset update_roster
   update_roster = FALSE;
@@ -1998,6 +2003,14 @@ void scr_draw_roster(void)
     x_pos = 1; // 1 char offset (vertical line)
   else
     x_pos = 0;
+
+  space = g_new0(char, 2);
+  if (no_space_before_items) {
+    space[0] = '\0';
+    prefix_length = 6;
+  } else {
+    prefix_length = 7;
+  }
 
   name = g_new0(char, 4*Roster_Width);
   rline = g_new0(char, 4*Roster_Width+1);
@@ -2089,8 +2102,8 @@ void scr_draw_roster(void)
       }
     }
 
-    if (Roster_Width > 7)
-      g_utf8_strncpy(name, buddy_getname(BUDDATA(buddy)), Roster_Width-7);
+    if (Roster_Width > prefix_length)
+      g_utf8_strncpy(name, buddy_getname(BUDDATA(buddy)), Roster_Width-prefix_length);
     else
       name[0] = 0;
 
@@ -2106,16 +2119,16 @@ void scr_draw_roster(void)
         int group_count = 0;
         foreach_group_member(BUDDATA(buddy), increment_if_buddy_not_filtered,
                              &group_count);
-        snprintf(rline, 4*Roster_Width, " %c+++ %s (%i)", pending, name,
+        snprintf(rline, 4*Roster_Width, "%s%c+++ %s (%i)", space, pending, name,
                  group_count);
         /* Do not display the item count if there isn't enough space */
         if (g_utf8_strlen(rline, 4*Roster_Width) >= Roster_Width)
-          snprintf(rline, 4*Roster_Width, " %c+++ %s", pending, name);
+          snprintf(rline, 4*Roster_Width, "%s%c+++ %s", space, pending, name);
       }
       else
-        snprintf(rline, 4*Roster_Width, " %c--- %s", pending, name);
+        snprintf(rline, 4*Roster_Width, "%s%c--- %s", space, pending, name);
     } else if (isspe) {
-      snprintf(rline, 4*Roster_Width, " %c%s", pending, name);
+      snprintf(rline, 4*Roster_Width, "%s%c%s", space, pending, name);
     } else {
       char sepleft  = '[';
       char sepright = ']';
@@ -2128,9 +2141,8 @@ void scr_draw_roster(void)
           sepright = '}';
         }
       }
-
       snprintf(rline, 4*Roster_Width,
-               " %c%c%c%c %s", pending, sepleft, status, sepright, name);
+               "%s%c%c%c%c %s", space, pending, sepleft, status, sepright, name);
     }
 
     rline_locale = from_utf8(rline);
@@ -2139,6 +2151,7 @@ void scr_draw_roster(void)
     i++;
   }
 
+  g_free(space);
   g_free(rline);
   g_free(name);
   top_panel(inputPanel);

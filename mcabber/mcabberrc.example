@@ -129,6 +129,10 @@ set cmdhistory_lines = 250
 # running you can use "/roster display").
 #set roster_display_filter = ofdna_
 
+# By default, mcabber adds an extra space before each buddy in the roster
+# window for aesthetic purposes. You can remove it to gain a little space.
+#set no_space_before_items = 0
+
 # By default command line completion is case-sensitive; this can be changed
 # by setting the option 'completion_ignore_case' to 1.
 #set completion_ignore_case = 0

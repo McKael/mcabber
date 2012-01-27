@@ -2009,6 +2009,7 @@ void scr_draw_roster(void)
     space[0] = '\0';
     prefix_length = 6;
   } else {
+    space[0] = ' ';
     prefix_length = 7;
   }
 

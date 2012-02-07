@@ -350,11 +350,18 @@ static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
 static bool muc_handle_join(const GSList *room_elt, const char *rname,
                             const char *roomjid, const char *ournick,
                             enum room_printstatus printstatus,
-                            time_t usttime, int log_muc_conf)
+                            time_t usttime, int log_muc_conf,
+                            enum room_autowhois autowhois, const char *mbjid)
 {
   bool new_member = FALSE; // True if somebody else joins the room (not us)
+  gchar *nickjid;
   gchar *mbuf;
   enum room_flagjoins flagjoins;
+
+  if (mbjid && autowhois == autowhois_off)
+    nickjid = g_strdup_printf("%s <%s>", rname, mbjid);
+  else
+    nickjid = g_strdup(rname);
 
   if (!buddy_getinsideroom(room_elt->data)) {
     // We weren't inside the room yet.  Now we are.
@@ -380,7 +387,7 @@ static bool muc_handle_join(const GSList *room_elt, const char *rname,
         hlog_write_message(roomjid, 0, -1, mbuf);
       g_free(mbuf);
       if (printstatus != status_none)
-        mbuf = g_strdup_printf("%s has joined", rname);
+        mbuf = g_strdup_printf("%s has joined", nickjid);
       else
         mbuf = NULL;
       new_member = TRUE;
@@ -389,10 +396,12 @@ static bool muc_handle_join(const GSList *room_elt, const char *rname,
     mbuf = NULL;
     if (strcmp(ournick, rname)) {
       if (printstatus != status_none)
-        mbuf = g_strdup_printf("%s has joined", rname);
+        mbuf = g_strdup_printf("%s has joined", nickjid);
       new_member = TRUE;
     }
   }
+
+  g_free(nickjid);
 
   if (mbuf) {
     guint msgflags = HBB_PREFIX_INFO;
@@ -574,6 +583,11 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
     nickchange = TRUE;
   }
 
+  autowhois = buddy_getautowhois(room_elt->data);
+  if (autowhois == autowhois_default)
+    autowhois = (settings_opt_get_int("muc_auto_whois") ?
+                 autowhois_on : autowhois_off);
+
   // Check for departure/arrival
   if (statuscode != 303 && ust == offline) {
     // Somebody is leaving
@@ -680,7 +694,8 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
     if (old_ust == offline && ust != offline) {
       // Somebody is joining
       new_member = muc_handle_join(room_elt, rname, roomjid, ournick,
-                                   printstatus, usttime, log_muc_conf);
+                                   printstatus, usttime, log_muc_conf,
+                                   autowhois, mbjid);
     } else {
       // This is a simple member status change
 
@@ -704,11 +719,6 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
   // Update room member status
   roster_setstatus(roomjid, rname, bpprio, ust, ustmsg, usttime,
                    mbrole, mbaffil, mbjid);
-
-  autowhois = buddy_getautowhois(room_elt->data);
-  if (autowhois == autowhois_default)
-    autowhois = (settings_opt_get_int("muc_auto_whois") ?
-                 autowhois_on : autowhois_off);
 
   if (new_member && autowhois == autowhois_on) {
     cmd_room_whois(room_elt->data, rname, FALSE);

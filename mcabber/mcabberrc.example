@@ -323,6 +323,12 @@ set max_history_blocks = 8
 # Set 'muc_auto_whois' to 1 if you want to call /room whois each time
 # somebody joins a room. (default: 0)
 #set muc_auto_whois = 0
+# Set 'muc_print_jid' to see real jid in non-anonynmous room when somebody
+# joins. This setting will be ignored when auto_whois is enabled.
+# 0: only nick (don't print jid even if available)
+# 1: nick and bare jid
+# 2: nick and full jid with resource
+#set muc_print_jid = 1
 #
 # Set 'muc_disable_nick_hl' to 1 if you don't want mcabber to color lines
 # containing your nickname in a MUC room.

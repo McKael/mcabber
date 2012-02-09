@@ -357,11 +357,19 @@ static bool muc_handle_join(const GSList *room_elt, const char *rname,
   gchar *nickjid;
   gchar *mbuf;
   enum room_flagjoins flagjoins;
+  char *tmp = NULL;
+  int printjid;
 
-  if (mbjid && autowhois == autowhois_off)
+  printjid = settings_opt_get_int("muc_print_jid");
+  if (mbjid && autowhois == autowhois_off && printjid) {
+    if (printjid == 1)
+      tmp = strchr(mbjid, JID_RESOURCE_SEPARATOR);
+    if (tmp) *tmp = '\0';
     nickjid = g_strdup_printf("%s <%s>", rname, mbjid);
-  else
+    if (tmp) *tmp = JID_RESOURCE_SEPARATOR;
+  } else {
     nickjid = g_strdup(rname);
+  }
 
   if (!buddy_getinsideroom(room_elt->data)) {
     // We weren't inside the room yet.  Now we are.

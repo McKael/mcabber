@@ -127,7 +127,7 @@ static int roster_hidden;
 static int chatmode;
 static int multimode;
 static char *multiline, *multimode_subj;
-static int no_space_before_items;
+static int roster_no_leading_space;
 
 static bool Curses;
 static bool log_win_on_top;
@@ -1545,7 +1545,7 @@ void scr_draw_main_window(unsigned int fullinit)
   int chat_y_pos, chatstatus_y_pos, log_y_pos;
   int roster_x_pos, chat_x_pos;
 
-  no_space_before_items = settings_opt_get_int("no_space_before_items");
+  roster_no_leading_space = settings_opt_get_int("roster_no_leading_space");
 
   Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
   requested_size = settings_opt_get_int("log_win_height");
@@ -2005,7 +2005,7 @@ void scr_draw_roster(void)
     x_pos = 0;
 
   space = g_new0(char, 2);
-  if (no_space_before_items) {
+  if (roster_no_leading_space) {
     space[0] = '\0';
     prefix_length = 6;
   } else {

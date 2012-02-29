@@ -3059,7 +3059,7 @@ static void room_bookmark(gpointer bud, char *arg)
   enum room_flagjoins flagjoins = 0;
   enum room_printstatus printstatus = 0;
   enum { bm_add = 0, bm_del = 1 } action = 0;
-  int autojoin = 0;
+  int autojoin = 0, autojoin_set = 0;
   int nick_set = 0;
 
   if (arg && *arg) {
@@ -3073,11 +3073,14 @@ static void room_bookmark(gpointer bud, char *arg)
         action = bm_add;
       else if (!strcasecmp(*pp, "del"))
         action = bm_del;
-      else if (!strcasecmp(*pp, "-autojoin"))
+      else if (!strcasecmp(*pp, "-autojoin")) {
         autojoin = 0;
-      else if (!strcasecmp(*pp, "+autojoin") || !strcasecmp(*pp, "autojoin"))
+        autojoin_set = 1;
+      } else if (!strcasecmp(*pp, "+autojoin")
+          || !strcasecmp(*pp, "autojoin")) {
         autojoin = 1;
-      else if (!strcmp(*pp, "-"))
+        autojoin_set = 1;
+      } else if (!strcmp(*pp, "-"))
         nick_set = 1;
       else {
         nick_set = 1;
@@ -3095,6 +3098,9 @@ static void room_bookmark(gpointer bud, char *arg)
       nick = buddy_getnickname(bud);
       if (!nick) //we are probably bookmarking offline room
         nick = xmpp_get_bookmark_nick(roomid);
+    }
+    if (!autojoin_set) {
+      autojoin = xmpp_get_bookmark_autojoin(roomid);
     }
     printstatus = buddy_getprintstatus(bud);
     autowhois   = buddy_getautowhois(bud);

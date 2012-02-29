@@ -2179,6 +2179,29 @@ const char *xmpp_get_bookmark_nick(const char *bjid)
   return NULL;
 }
 
+int xmpp_get_bookmark_autojoin(const char *bjid)
+{
+  LmMessageNode *x;
+
+  if (!bookmarks || !bjid)
+    return 0;
+  
+  // Walk through the storage bookmark tags
+  for (x = bookmarks->children ; x; x = x->next) {
+    // If the node is a conference item, check the jid.
+    if (x->name && !strcmp(x->name, "conference")) {
+      const char *fjid = lm_message_node_get_attribute(x, "jid");
+      if (fjid && !strcasecmp(bjid, fjid)) {
+        const char *autojoin;
+        autojoin = lm_message_node_get_attribute(x, "autojoin");
+        if (autojoin && (!strcmp(autojoin, "1") || !strcmp(autojoin, "true")))
+          return 1;
+        return 0;
+      }
+    }
+  }
+  return 0;
+}
 
 //  xmpp_get_all_storage_bookmarks()
 // Return a GSList with all storage bookmarks.
@@ -2279,7 +2302,7 @@ void xmpp_set_storage_bookmark(const char *roomid, const char *name,
                                      NULL);
     if (fjoins)
       lm_message_node_add_child(x, "flag_joins", strflagjoins[fjoins]);
-    if (group)
+    if (group && *group)
       lm_message_node_add_child(x, "group", group);
     changed = TRUE;
     scr_LogPrint(LPRINT_LOGNORM, "Updating bookmarks...");

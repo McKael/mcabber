@@ -79,6 +79,7 @@ struct annotation *xmpp_get_storage_rosternotes(const char *barejid,
 void xmpp_set_storage_rosternotes(const char *barejid, const char *note);
 guint xmpp_is_bookmarked(const char *bjid);
 const char *xmpp_get_bookmark_nick(const char *bjid);
+int xmpp_get_bookmark_autojoin(const char *bjid);
 
 void xmpp_request(const char *fjid, enum iqreq_type reqtype);
 void request_vcard(const char *bjid);

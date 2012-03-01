@@ -1,3 +1,9 @@
+dev (23)
+ * Changeset 8dc418af3e72
+   Add buddy_(get|set)activeresource() functions
+
+  -- Hermitifier, 2012-03-01
+
 dev (22)
  * Changeset a73ce708c2c9
    Add xmpp_get_bookmark_autojoin() function

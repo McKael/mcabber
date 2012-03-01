@@ -3,7 +3,7 @@
 
 #include <mcabber/config.h> // For MCABBER_BRANCH
 
-#define MCABBER_API_VERSION 22
+#define MCABBER_API_VERSION 23
 #define MCABBER_API_MIN     21
 
 #define MCABBER_BRANCH_DEV  1

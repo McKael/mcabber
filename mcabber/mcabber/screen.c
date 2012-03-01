@@ -2693,20 +2693,22 @@ void scr_buffer_clear(void)
 // value: winbuf structure
 // data: int, set to 1 if the buffer should be closed.
 // NOTE: does not work for special buffers.
-static void buffer_purge(gpointer key, gpointer value, gpointer data)
+static gboolean buffer_purge(gpointer key, gpointer value, gpointer data)
 {
   int *p_closebuf = data;
   winbuf *win_entry = value;
+  gboolean retval = FALSE;
 
   // Delete the current hbuf
   hbuf_free(&win_entry->bd->hbuf);
 
   if (*p_closebuf) {
-    g_hash_table_remove(winbufhash, key);
+    retval = TRUE;
   } else {
     win_entry->bd->cleared = FALSE;
     win_entry->bd->top = NULL;
   }
+  return retval;
 }
 
 //  scr_buffer_purge(closebuf, jid)
@@ -2742,10 +2744,12 @@ void scr_buffer_purge(int closebuf, const char *jid)
   if (!isspe) {
     p_closebuf = g_new(guint, 1);
     *p_closebuf = closebuf;
-    buffer_purge((gpointer)cjid, win_entry, p_closebuf);
+    if(buffer_purge((gpointer)cjid, win_entry, p_closebuf))
+      g_hash_table_remove(winbufhash, cjid);
     roster_msg_setflag(cjid, FALSE, FALSE);
     g_free(p_closebuf);
     if (closebuf && !hold_chatmode) {
+      //buddy_setactiveresource(bud, resource);
       scr_set_chatmode(FALSE);
       currentWindow = NULL;
     }
@@ -2779,7 +2783,7 @@ void scr_buffer_purge_all(int closebuf)
   p_closebuf = g_new(guint, 1);
 
   *p_closebuf = closebuf;
-  g_hash_table_foreach(winbufhash, buffer_purge, p_closebuf);
+  g_hash_table_foreach_remove(winbufhash, buffer_purge, p_closebuf);
   g_free(p_closebuf);
 
   if (closebuf) {

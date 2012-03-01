@@ -639,6 +639,7 @@ static void xmpp_send_xep22_event(const char *fjid, guint type)
 void xmpp_send_chatstate(gpointer buddy, guint chatstate)
 {
   const char *bjid;
+  const char *activeres;
 #ifdef XEP0085
   GSList *resources, *p_res, *p_next;
   struct xep0085 *xep85 = NULL;
@@ -649,6 +650,7 @@ void xmpp_send_chatstate(gpointer buddy, guint chatstate)
 
   bjid = buddy_getjid(buddy);
   if (!bjid) return;
+  activeres = buddy_getactiveresource(buddy);
 
 #ifdef XEP0085
   /* Send the chatstate to the last resource (which should have the highest
@@ -662,9 +664,11 @@ void xmpp_send_chatstate(gpointer buddy, guint chatstate)
     xep85 = buddy_resource_xep85(buddy, p_res->data);
     if (xep85 && xep85->support == CHATSTATES_SUPPORT_OK) {
       // If p_next is NULL, this is the highest (prio) resource, i.e.
-      // the one we are probably writing to.
-      if (!p_next || (xep85->last_state_sent != ROSTER_EVENT_ACTIVE &&
-                      chatstate == ROSTER_EVENT_ACTIVE))
+      // the one we are probably writing to - unless there is defined an
+      // active resource
+      if (!g_strcmp0(p_res->data, activeres) || (!p_next && !activeres) ||
+             (xep85->last_state_sent != ROSTER_EVENT_ACTIVE &&
+              chatstate == ROSTER_EVENT_ACTIVE))
         xmpp_send_xep85_chatstate(bjid, p_res->data, chatstate);
     }
     g_free(p_res->data);
@@ -676,7 +680,7 @@ void xmpp_send_chatstate(gpointer buddy, guint chatstate)
     return;
 #endif
 #ifdef XEP0022
-  xep22 = buddy_resource_xep22(buddy, NULL);
+  xep22 = buddy_resource_xep22(buddy, activeres);
   if (xep22 && xep22->support == CHATSTATES_SUPPORT_OK) {
     xmpp_send_xep22_event(bjid, chatstate);
   }

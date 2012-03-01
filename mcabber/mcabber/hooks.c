@@ -332,6 +332,9 @@ void hk_message_in(const char *bjid, const char *resname,
         }
       }
     }
+  } else if (settings_opt_get_int("roster_autolock_resource")) {
+    buddy_setactiveresource(roster_usr->data, resname);
+    scr_update_chat_status(FALSE);
   }
 
   if (error_msg_subtype) {

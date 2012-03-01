@@ -280,6 +280,8 @@ void cmd_init(void)
   compl_add_category_word(COMPL_ROSTER, "unread_first");
   compl_add_category_word(COMPL_ROSTER, "unread_next");
   compl_add_category_word(COMPL_ROSTER, "note");
+  compl_add_category_word(COMPL_ROSTER, "resource_lock");
+  compl_add_category_word(COMPL_ROSTER, "resource_unlock");
 
   // Buffer category
   compl_add_category_word(COMPL_BUFFER, "clear");
@@ -620,6 +622,69 @@ static void roster_buddylock(char *bjid, int lock)
   }
 }
 
+static void roster_resourcelock(char *jidres, gboolean lock) {
+  gpointer bud = NULL;
+  char *resource = NULL;
+
+  if (!jidres) {
+    if (lock) return;
+    jidres = ".";
+  }
+
+  if (jidres[0] == '.' &&
+      (jidres[1] == '\0' || jidres[1] == JID_RESOURCE_SEPARATOR)) {
+    //Special jid: . or ./resource
+    switch (jidres[1]) {
+      case JID_RESOURCE_SEPARATOR:
+        resource = jidres+2;
+      case '\0':
+        if (current_buddy)
+          bud = BUDDATA(current_buddy);
+    }
+  } else {
+    char *tmp;
+    if (!check_jid_syntax(jidres) &&
+        (tmp = strchr(jidres, JID_RESOURCE_SEPARATOR))) {
+      //Any other valid full jid
+      *tmp = '\0'; // for roster search by bare jid;
+      resource = tmp+1;
+      GSList *roster_elt;
+      roster_elt = roster_find(jidres, jidsearch,
+          ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+      if (roster_elt)
+        bud = roster_elt->data;
+      *tmp = JID_RESOURCE_SEPARATOR;
+    }
+    if (!bud) {
+      //Resource for current buddy
+      if (current_buddy)
+        bud = BUDDATA(current_buddy);
+      resource = jidres;
+    }
+  }
+  
+  if (bud && buddy_gettype(bud) & (ROSTER_TYPE_USER|ROSTER_TYPE_AGENT)) {
+    if (lock) {
+      GSList *resources, *p_res;
+      gboolean found = FALSE;
+      resources = buddy_getresources(bud);
+      for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
+        if (!g_strcmp0((char*)p_res->data, resource))
+          found = TRUE;
+        g_free(p_res->data);
+      }
+      g_slist_free(resources);
+      if (!found) {
+        scr_LogPrint(LPRINT_NORMAL, "No such resource <%s>...", jidres);
+        return;
+      }
+    } else {
+      resource = NULL;
+    }
+    buddy_setactiveresource(bud, resource);
+    scr_update_chat_status(TRUE);
+  }
+}
 //  display_and_free_note(note, winId)
 // Display the note information in the winId buffer, and free note
 // (winId is a bare jid or NULL for the status window, in which case we
@@ -825,6 +890,10 @@ static void do_roster(char *arg)
     scr_roster_next_group();
   } else if (!strcasecmp(subcmd, "note")) {
     roster_note(arg);
+  } else if (!strcasecmp(subcmd, "resource_lock")) {
+    roster_resourcelock(arg, TRUE);
+  } else if (!strcasecmp(subcmd, "resource_unlock")) {
+    roster_resourcelock(arg, FALSE);
   } else
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
   free_arg_lst(paramlst);
@@ -1286,6 +1355,8 @@ static void send_message(const char *msg, const char *subj,
                          LmMessageSubType type_overwrite)
 {
   const char *bjid;
+  char *jid;
+  const char *activeres;
 
   if (!current_buddy) {
     scr_LogPrint(LPRINT_NORMAL, "No buddy is currently selected.");
@@ -1298,7 +1369,14 @@ static void send_message(const char *msg, const char *subj,
     return;
   }
 
-  send_message_to(bjid, msg, subj, type_overwrite, FALSE);
+  activeres = buddy_getactiveresource(BUDDATA(current_buddy));
+  if (activeres)
+    jid = g_strdup_printf("%s/%s", bjid, activeres);
+  else
+    jid = g_strdup(bjid);
+
+  send_message_to(jid, msg, subj, type_overwrite, FALSE);
+  g_free(jid);
 }
 
 static LmMessageSubType scan_mtype(char **arg)

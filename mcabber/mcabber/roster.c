@@ -94,6 +94,7 @@ typedef struct {
   guint type;
   enum subscr subscription;
   GSList *resource;
+  res *active_resource;
 
   /* For groupchats */
   gchar *nickname;
@@ -265,6 +266,9 @@ static void del_resource(roster *rost, const char *resname)
     p_res->status_msg = NULL;
   }
 
+  if (rost->active_resource == p_res)
+    rost->active_resource = NULL;
+
   // Free allocations and delete resource node
   free_resource_data(p_res);
   rost->resource = g_slist_delete_link(rost->resource, p_res_elt);
@@ -279,6 +283,7 @@ static inline void free_roster_user_data(roster *roster_usr)
   if (!roster_usr)
     return;
   g_free((gchar*)roster_usr->jid);
+  //g_free((gchar*)roster_usr->active_resource);
   g_free((gchar*)roster_usr->name);
   g_free((gchar*)roster_usr->nickname);
   g_free((gchar*)roster_usr->topic);
@@ -1449,6 +1454,32 @@ GSList *buddy_getresources_locale(gpointer rosterdata)
       lp->data = oldname;
   }
   return reslist;
+}
+
+//  buddy_getactiveresource(roster_data)
+// Returns name of active (selected for chat) resource
+const char *buddy_getactiveresource(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  res *resource;
+
+  if (!roster_usr) {
+    if (!current_buddy) return NULL;
+    roster_usr = BUDDATA(current_buddy);
+  }
+  
+  resource = roster_usr->active_resource;
+  if (!resource) return NULL;
+  return resource->name;
+}
+
+void buddy_setactiveresource(gpointer rosterdata, const char *resname)
+{
+  roster *roster_usr = rosterdata;
+  res *p_res = NULL;
+  if (resname)
+    p_res = get_resource(roster_usr, resname);
+  roster_usr->active_resource = p_res;
 }
 
 /*

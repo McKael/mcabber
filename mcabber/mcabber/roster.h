@@ -238,6 +238,8 @@ gchar   buddy_getresourceprio(gpointer rosterdata, const char *resname);
 //int   buddy_isresource(gpointer rosterdata);
 GSList *buddy_getresources(gpointer rosterdata);
 GSList *buddy_getresources_locale(gpointer rosterdata);
+const char *buddy_getactiveresource(gpointer rosterdata);
+void    buddy_setactiveresource(gpointer rosterdata, const char *resname);
 void    buddy_resource_setname(gpointer rosterdata, const char *resname,
                                const char *newname);
 void    buddy_resource_setevents(gpointer rosterdata, const char *resname,

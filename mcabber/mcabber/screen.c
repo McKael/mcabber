@@ -1790,6 +1790,8 @@ void scr_update_chat_status(int forceupdate)
   unsigned short btype, isgrp, ismuc, isspe;
   const char *btypetext = "Unknown";
   const char *fullname;
+  char *fullnameres = NULL;
+  const char *activeres;
   const char *msg = NULL;
   char status;
   char *buf, *buf_locale;
@@ -1856,6 +1858,8 @@ void scr_update_chat_status(int forceupdate)
 
   status = '?';
 
+  activeres = buddy_getactiveresource(BUDDATA(current_buddy));
+
   if (ismuc) {
     if (buddy_getinsideroom(BUDDATA(current_buddy)))
       status = 'C';
@@ -1863,24 +1867,30 @@ void scr_update_chat_status(int forceupdate)
       status = 'x';
   } else if (xmpp_getstatus() != offline) {
     enum imstatus budstate;
-    budstate = buddy_getstatus(BUDDATA(current_buddy), NULL);
+    budstate = buddy_getstatus(BUDDATA(current_buddy), activeres);
     if (budstate < imstatus_size)
       status = imstatus2char[budstate];
   }
 
   // No status message for MUC rooms
   if (!ismuc) {
-    GSList *resources, *p_res, *p_next_res;
-    resources = buddy_getresources(BUDDATA(current_buddy));
+    if (activeres) {
+      fullnameres = g_strdup_printf("%s/%s", fullname, activeres);
+      fullname = fullnameres;
+      msg = buddy_getstatusmsg(BUDDATA(current_buddy), activeres);
+    } else {
+      GSList *resources, *p_res, *p_next_res;
+      resources = buddy_getresources(BUDDATA(current_buddy));
 
-    for (p_res = resources ; p_res ; p_res = p_next_res) {
-      p_next_res = g_slist_next(p_res);
-      // Store the status message of the latest resource (highest priority)
-      if (!p_next_res)
-        msg = buddy_getstatusmsg(BUDDATA(current_buddy), p_res->data);
-      g_free(p_res->data);
+      for (p_res = resources ; p_res ; p_res = p_next_res) {
+        p_next_res = g_slist_next(p_res);
+        // Store the status message of the latest resource (highest priority)
+        if (!p_next_res)
+          msg = buddy_getstatusmsg(BUDDATA(current_buddy), p_res->data);
+        g_free(p_res->data);
+      }
+      g_slist_free(resources);
     }
-    g_slist_free(resources);
   } else {
     msg = buddy_gettopic(BUDDATA(current_buddy));
   }
@@ -1892,6 +1902,7 @@ void scr_update_chat_status(int forceupdate)
   replace_nl_with_dots(buf);
   buf_locale = from_utf8(buf);
   mvwprintw(chatstatusWnd, 0, 1, "%s", buf_locale);
+  g_free(fullnameres);
   g_free(buf_locale);
   g_free(buf);
 
@@ -1900,9 +1911,9 @@ void scr_update_chat_status(int forceupdate)
     char eventchar = 0;
     guint event;
 
-    // We do not specify the resource here, so one of the resources with the
-    // highest priority will be used.
-    event = buddy_resource_getevents(BUDDATA(current_buddy), NULL);
+    // We specify active resource here, so when there is none then the resource
+    // with the highest priority will be used.
+    event = buddy_resource_getevents(BUDDATA(current_buddy), activeres);
 
     if (event == ROSTER_EVENT_ACTIVE)
       eventchar = 'A';
@@ -2703,7 +2714,12 @@ static gboolean buffer_purge(gpointer key, gpointer value, gpointer data)
   hbuf_free(&win_entry->bd->hbuf);
 
   if (*p_closebuf) {
+    GSList *roster_elt;
     retval = TRUE;
+    roster_elt = roster_find(key, jidsearch,
+        ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
+    if (roster_elt)
+      buddy_setactiveresource(roster_elt->data, NULL);
   } else {
     win_entry->bd->cleared = FALSE;
     win_entry->bd->top = NULL;
@@ -2749,7 +2765,6 @@ void scr_buffer_purge(int closebuf, const char *jid)
     roster_msg_setflag(cjid, FALSE, FALSE);
     g_free(p_closebuf);
     if (closebuf && !hold_chatmode) {
-      //buddy_setactiveresource(bud, resource);
       scr_set_chatmode(FALSE);
       currentWindow = NULL;
     }

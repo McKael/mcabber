@@ -43,10 +43,10 @@
 
 #ifdef WITH_ENCHANT
 # include <enchant.h>
-#endif
-
-#ifdef WITH_ASPELL
-# include <aspell.h>
+#else
+# ifdef WITH_ASPELL
+#  include <aspell.h>
+# endif
 #endif
 
 #include "screen.h"
@@ -4365,9 +4365,6 @@ void spellcheck_init(void)
      spell_checker = NULL;
      spell_broker = NULL;
   }
-
-  spell_broker = enchant_broker_init();
-  spell_checker = enchant_broker_request_dict(spell_broker, spell_lang);
 #endif
 #ifdef WITH_ASPELL
   if (spell_checker) {
@@ -4376,9 +4373,23 @@ void spellcheck_init(void)
     spell_checker = NULL;
     spell_config = NULL;
   }
+#endif
 
+  if (!spell_lang) { // Cannot initialize: language not specified
+    scr_LogPrint(LPRINT_LOGNORM, "Error: Cannot initialize spell checker, language not specified.");
+    scr_LogPrint(LPRINT_LOGNORM, "Please set the 'spell_lang' variable.");
+    return;
+  }
+
+#ifdef WITH_ENCHANT
+  spell_broker = enchant_broker_init();
+  spell_checker = enchant_broker_request_dict(spell_broker, spell_lang);
+#endif
+
+#ifdef WITH_ASPELL
   spell_config = new_aspell_config();
-  aspell_config_replace(spell_config, "encoding", spell_encoding);
+  if (spell_encoding)
+    aspell_config_replace(spell_config, "encoding", spell_encoding);
   aspell_config_replace(spell_config, "lang", spell_lang);
   possible_err = new_aspell_speller(spell_config);
 

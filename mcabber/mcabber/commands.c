@@ -1223,7 +1223,18 @@ static void do_group(char *arg)
   arg = *(paramlst+1);
 
   if (!subcmd || !*subcmd)
-    goto do_group_return;   // Should not happen anyway
+    goto do_group_return;   // Should not happen
+
+  if (!strcasecmp(subcmd, "expand") || !strcasecmp(subcmd, "unfold"))
+    group_state = group_unfold;
+  else if (!strcasecmp(subcmd, "shrink") || !strcasecmp(subcmd, "fold"))
+    group_state = group_fold;
+  else if (!strcasecmp(subcmd, "toggle"))
+    group_state = group_toggle;
+  else {
+    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
+    goto do_group_return;
+  }
 
   if (arg && *arg) {
     GSList *roster_elt;
@@ -1235,8 +1246,10 @@ static void do_group(char *arg)
   } else {
     group = buddy_getgroup(BUDDATA(current_buddy));
   }
-  if (!group)
+  if (!group) {
+    scr_LogPrint(LPRINT_NORMAL, "Group not found.");
     goto do_group_return;
+  }
 
   // We'll have to redraw the chat window if we're not currently on the group
   // entry itself, because it means we'll have to leave the current buddy
@@ -1244,20 +1257,8 @@ static void do_group(char *arg)
   leave_buddywindow = (group != BUDDATA(current_buddy) &&
                        group == buddy_getgroup(BUDDATA(current_buddy)));
 
-
   if (!(buddy_gettype(group) & ROSTER_TYPE_GROUP)) {
     scr_LogPrint(LPRINT_NORMAL, "You need to select a group.");
-    goto do_group_return;
-  }
-
-  if (!strcasecmp(subcmd, "expand") || !strcasecmp(subcmd, "unfold"))
-    group_state = group_unfold;
-  else if (!strcasecmp(subcmd, "shrink") || !strcasecmp(subcmd, "fold"))
-    group_state = group_fold;
-  else if (!strcasecmp(subcmd, "toggle"))
-    group_state = group_toggle;
-  else {
-    scr_LogPrint(LPRINT_NORMAL, "Unrecognized parameter!");
     goto do_group_return;
   }
 

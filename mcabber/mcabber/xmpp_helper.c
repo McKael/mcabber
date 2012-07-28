@@ -22,6 +22,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>   // snprintf
 
 #include "xmpp_helper.h"
 #include "settings.h"

@@ -1949,13 +1949,11 @@ static void do_info(char *arg)
       enum imstatus rstatus;
       const char *rst_msg;
       time_t rst_time;
-      struct pgp_data *rpgp;
 
       rprio   = buddy_getresourceprio(bud, p_res->data);
       rstatus = buddy_getstatus(bud, p_res->data);
       rst_msg = buddy_getstatusmsg(bud, p_res->data);
       rst_time = buddy_getstatustime(bud, p_res->data);
-      rpgp = buddy_resource_pgp(bud, p_res->data);
 
       snprintf(buffer, 4095, "Resource: [%c] (%d) %s", imstatus2char[rstatus],
                rprio, (char*)p_res->data);
@@ -1974,6 +1972,8 @@ static void do_info(char *arg)
                                  0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
       }
 #ifdef HAVE_GPGME
+      struct pgp_data *rpgp = buddy_resource_pgp(bud, p_res->data);
+
       if (rpgp && rpgp->sign_keyid) {
         snprintf(buffer, 4095, "PGP key id: %s", rpgp->sign_keyid);
         scr_WriteIncomingMessage(bjid, buffer,

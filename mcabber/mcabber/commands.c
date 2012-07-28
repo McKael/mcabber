@@ -3251,16 +3251,18 @@ static void do_module(char *arg)
         ++name;
     }
 
-    if (!strcmp(args[0], "load"))
+    if (!strcmp(args[0], "load")) {
       error = module_load(name, TRUE, force);
-    else if (!strcmp(args[0], "unload"))
+      if (error)
+        scr_log_print(LPRINT_LOGNORM, "Module '%s' loading error: %s", name, error);
+    } else if (!strcmp(args[0], "unload")) {
       error = module_unload(name, TRUE, force);
-    else if (!strcmp(args[0], "info"))
+      if (error)
+        scr_log_print(LPRINT_LOGNORM, "Module '%s' unloading error: %s", name, error);
+    } else if (!strcmp(args[0], "info"))
       module_info_print(name);
     else
-      error = "Unknown subcommand";
-    if (error)
-      scr_LogPrint(LPRINT_LOGNORM, "Error: %s.",  error);
+      scr_log_print(LPRINT_LOGNORM, "Error: module: Unknown subcommand.");
   }
   free_arg_lst(args);
 #else

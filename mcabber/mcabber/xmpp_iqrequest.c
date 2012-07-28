@@ -54,12 +54,12 @@ static struct IqRequestHandlers
   const gchar *querytag;
   LmHandleMessageFunction handler;
 } iq_request_handlers[] = {
-  {NS_ROSTER, "query", &cb_roster},
-  {NS_VERSION,"query", &cb_version},
-  {NS_TIME,   "query", &cb_time},
-  {NS_LAST,   "query", &cb_last},
-  {NS_PING,   "ping",  &cb_ping},
-  {NS_VCARD,  "vCard", &cb_vcard},
+  {NS_ROSTER,   "query", &cb_roster},
+  {NS_VERSION,  "query", &cb_version},
+  {NS_XMPP_TIME,"time",  &cb_time},
+  {NS_LAST,     "query", &cb_last},
+  {NS_PING,     "ping",  &cb_ping},
+  {NS_VCARD,    "vCard", &cb_vcard},
   {NULL, NULL, NULL}
 };
 
@@ -146,7 +146,8 @@ void xmpp_iq_request(const char *fulljid, const char *xmlns)
 
   iq = lm_message_new_with_sub_type(fulljid, LM_MESSAGE_TYPE_IQ,
                                     LM_MESSAGE_SUB_TYPE_GET);
-  for (i = 0; strcmp(iq_request_handlers[i].xmlns, xmlns) != 0 ; ++i)
+  for (i = 0; iq_request_handlers[i].xmlns &&
+              strcmp(iq_request_handlers[i].xmlns, xmlns) != 0 ; ++i)
        ;
   query = lm_message_node_add_child(iq->node,
                                     iq_request_handlers[i].querytag,
@@ -288,7 +289,7 @@ static LmHandlerResult cb_time(LmMessageHandler *h, LmConnection *c,
   }
 
   // Check message contents
-  ansqry = lm_message_node_get_child(m->node, "query");
+  ansqry = lm_message_node_get_child(m->node, "time");
   if (!ansqry) {
     scr_LogPrint(LPRINT_LOGNORM, "Invalid IQ:time result from <%s>!", bjid);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
@@ -312,7 +313,7 @@ static LmHandlerResult cb_time(LmMessageHandler *h, LmConnection *c,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
-  p = lm_message_node_get_child_value(ansqry, "tz");
+  p = lm_message_node_get_child_value(ansqry, "tzo");
   if (p && *p) {
     buf = g_strdup_printf("TZ:   %s", p);
     scr_WriteIncomingMessage(bjid, buf,

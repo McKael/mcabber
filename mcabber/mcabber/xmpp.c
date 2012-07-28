@@ -242,7 +242,7 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
     xmlns = NS_VERSION;
     strreqtype = "version";
   } else if (reqtype == iqreq_time) {
-    xmlns = NS_TIME;
+    xmlns = NS_XMPP_TIME;
     strreqtype = "time";
   } else if (reqtype == iqreq_last) {
     xmlns = NS_LAST;

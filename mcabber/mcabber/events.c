@@ -2,7 +2,7 @@
  * events.c     -- Events fonctions
  *
  * Copyright (C) 2006-2010 Mikael Berthe <mikael@lilotux.net>
- * Copyrigth (C) 2010      Myhailo Danylenko <isbear@ukrposte.net>
+ * Copyright (C) 2010      Myhailo Danylenko <isbear@ukrpost.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

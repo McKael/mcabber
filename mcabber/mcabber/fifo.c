@@ -2,7 +2,7 @@
  * fifo.c       -- Read commands from a named pipe
  *
  * Copyright (C) 2008,2009 Mikael Berthe <mikael@lilotux.net>
- * Copyrigth (C) 2009      Myhailo Danylenko <isbear@ukrpost.net>
+ * Copyright (C) 2009      Myhailo Danylenko <isbear@ukrpost.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

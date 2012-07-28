@@ -2,7 +2,7 @@
  * help.c       -- Help command
  *
  * Copyright (C) 2006-2010 Mikael Berthe <mikael@lilotux.net>
- * Copyrigth (C) 2009      Myhailo Danylenko <isbear@ukrpost.net>
+ * Copyright (C) 2009      Myhailo Danylenko <isbear@ukrpost.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

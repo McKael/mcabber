@@ -1,3 +1,11 @@
+mcabber (0.10.2)
+
+ * The FIFO and url_regex systems have been modularized.
+   Load the appropriate modules if you want these features
+   (the sample configuration file has been updated).
+
+ -- Mikael, 2012-07-28
+
 mcabber (0.10.0)
 
  * MCabber now uses the Loudmouth library (version 1.4.3 or greater).

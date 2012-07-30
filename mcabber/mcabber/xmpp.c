@@ -2029,6 +2029,20 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
     // completely.
     const char *s_msg = msg;
 #endif
+
+    if (!recipient) {
+      // This is a global status, send presence to chatrooms
+#ifdef WITH_DEPRECATED_STATUS_INVISIBLE
+      if (st != invisible)
+#endif
+      {
+        struct T_presence room_presence;
+        room_presence.st = st;
+        room_presence.msg = msg;
+        foreach_buddy(ROSTER_TYPE_ROOM, &roompresence, &room_presence);
+      }
+    }
+
     m = lm_message_new_presence(st, recipient, s_msg);
     xmpp_insert_entity_capabilities(m->node, st); // Entity Caps (XEP-0115)
 #ifdef HAVE_GPGME
@@ -2049,19 +2063,6 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
 
   // If we didn't change our _global_ status, we are done
   if (recipient) return;
-
-  if (isonline) {
-    // Send presence to chatrooms
-#ifdef WITH_DEPRECATED_STATUS_INVISIBLE
-    if (st != invisible)
-#endif
-    {
-      struct T_presence room_presence;
-      room_presence.st = st;
-      room_presence.msg = msg;
-      foreach_buddy(ROSTER_TYPE_ROOM, &roompresence, &room_presence);
-    }
-  }
 
   if (isonline || !st) {
     // We'll have to update the roster if we switch to/from offline because

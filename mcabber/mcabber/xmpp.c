@@ -1317,7 +1317,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       if (jid) {
         const char *reason = lm_message_node_get_attribute(x, "reason");
         const char *password = lm_message_node_get_attribute(x, "password");
-        // FIXME we shouldn't send decline stanzas in this case
+        // We won't send decline stanzas as it is a Direct Invitation
         got_invite(from, jid, reason, password, FALSE);
       }
     }

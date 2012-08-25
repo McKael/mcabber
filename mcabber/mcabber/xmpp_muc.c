@@ -787,6 +787,13 @@ void got_invite(const char* from, const char *to, const char* reason,
       iel = iel -> next;
       if (!g_strcmp0(to, invitation->to) &&
           !g_strcmp0(passwd, invitation->passwd)) {
+        // found a previous invitation
+        // We keep the old one, unless the current one is better and allows us
+        // to send a reply.
+        if (!reply || invitation->reply) {
+          g_free(barejid);
+          return;
+        }
         scr_LogPrint(LPRINT_DEBUG, "Destroying previous invitation event %s.",
                      invitation->evid);
         evs_del(invitation->evid);

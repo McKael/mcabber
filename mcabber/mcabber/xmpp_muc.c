@@ -767,7 +767,7 @@ void got_invite(const char* from, const char *to, const char* reason,
   GSList *room_elt;
 
   sbuf = g_string_new("");
-  if (reason) {
+  if (reason && reason[0]) {
     g_string_printf(sbuf,
                     "Received an invitation to <%s>, from <%s>, reason: %s",
                     to, from, reason);
@@ -857,11 +857,11 @@ void got_muc_message(const char *from, LmMessageNode *x, time_t timestamp)
     const char *decline_from = lm_message_node_get_attribute(node, "from");
     const char *reason = lm_message_node_get_child_value(node, "reason");
     if (decline_from) {
-      if (reason)
-        scr_LogPrint(LPRINT_LOGNORM, "<%s> declines your invitation: %s.",
+      if (reason && reason[0])
+        scr_LogPrint(LPRINT_LOGNORM, "<%s> declined your invitation: %s.",
                      from, reason);
       else
-        scr_LogPrint(LPRINT_LOGNORM, "<%s> declines your invitation.", from);
+        scr_LogPrint(LPRINT_LOGNORM, "<%s> declined your invitation.", from);
     }
   }
 

@@ -242,7 +242,7 @@ static int find_color(const char *name)
 
   // Directly support 256-color values
   result = atoi(name);
-  if (result > 0 && result < COLORS)
+  if (result > 0 && (result < COLORS || !Curses))
     return result;
 
   scr_LogPrint(LPRINT_LOGNORM, "ERROR: Wrong color: %s", name);

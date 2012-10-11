@@ -61,7 +61,7 @@
 #include "xmpp.h"
 #include "main.h"
 
-#define get_color(col)  (COLOR_PAIR(col)|COLOR_ATTRIB[col])
+#define get_color(col)      (COLOR_PAIR(col)|COLOR_ATTRIB[col])
 #define compose_color(col)  (COLOR_PAIR(col->color_pair)|col->color_attrib)
 
 #define DEFAULT_LOG_WIN_HEIGHT (5+2)
@@ -432,6 +432,7 @@ static void parse_colors(void)
     "msgout",
     "msghl",
     "status",
+    "log",
     "roster",
     "rostersel",
     "rosterselmsg",
@@ -491,6 +492,10 @@ static void parse_colors(void)
       case COLOR_STATUS:
           init_pair(i+1, ((color) ? find_color(color) : COLOR_WHITE),
                     find_color(backstatus));
+          break;
+      case COLOR_LOG:
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_WHITE),
+                    find_color(background));
           break;
       case COLOR_ROSTER:
           init_pair(i+1, ((color) ? find_color(color) : COLOR_GREEN),
@@ -799,6 +804,7 @@ void scr_init_curses(void)
   settings_set_guard("color_msghl", scr_color_guard);
   settings_set_guard("color_bgstatus", scr_color_guard);
   settings_set_guard("color_status", scr_color_guard);
+  settings_set_guard("color_log", scr_color_guard);
   settings_set_guard("color_roster", scr_color_guard);
   settings_set_guard("color_bgrostersel", scr_color_guard);
   settings_set_guard("color_rostersel", scr_color_guard);
@@ -1624,6 +1630,8 @@ void scr_draw_main_window(unsigned int fullinit)
     wbkgd(logWnd,         get_color(COLOR_GENERAL));
     wbkgd(chatstatusWnd,  get_color(COLOR_STATUS));
     wbkgd(mainstatusWnd,  get_color(COLOR_STATUS));
+
+    wattrset(logWnd,      get_color(COLOR_LOG));
   } else {
     /* Resize/move windows */
     wresize(rosterWnd, CHAT_WIN_HEIGHT, Roster_Width);

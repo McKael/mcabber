@@ -391,6 +391,7 @@ set escdelay = 50
 # msghl:      text color in the chat window for highlighted messages (MUC)
 # bgstatus:   background color of the status lines
 # status:     text color of the status lines
+# log:        text color in the log window
 # roster:     text color of the roster (buddylist) normal items
 # bgrostersel: background color of the selected roster item
 # rostersel:   text color of the selected roster item
@@ -405,6 +406,7 @@ set escdelay = 50
 #set color_msghl        = yellow
 #set color_bgstatus     = blue
 #set color_status       = white
+#set color_log          = white
 #set color_roster       = green
 #set color_bgrostersel  = cyan
 #set color_rostersel    = blue

@@ -2187,7 +2187,8 @@ static void do_rename(char *arg)
       /* We do not rename the buddy right now because the server could reject
        * the request.  Let's wait for the server answer.
        */
-      xmpp_updatebuddy(bjid, (del_name ? NULL : name_utf8), group);
+      xmpp_updatebuddy(bjid, (del_name ? NULL : name_utf8),
+                       group && *group ? group : NULL);
     } else {
       // This is a local item, we rename it without adding to roster.
       buddy_setname(bud, (del_name ? (char*)bjid : name_utf8));

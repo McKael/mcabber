@@ -6,6 +6,7 @@
  /ROSTER item_lock|item_unlock|item_toggle_lock
  /ROSTER hide|show|toggle
  /ROSTER note [-|testo]
+ /ROSTER resource_lock|resource_unlock
 
 Il comando 'roster' manipola la lista dei contatti.
 Ecco i parametri disponibili.
@@ -57,3 +58,7 @@ Ecco i parametri disponibili.
  Imposta/aggiorna/cancella una annotazione
  Se "testo" non viene specificato, viene visualizzata l'annotazione dell'elemento corrente -- se ti trovi nel buffer di stato, vengono visualizzate tutte le note.
  Se "testo" e "-", la nota viene cancellata.
+/roster resource_lock [full jid|resource]
+ Set active resource for a buddy in roster. Accepts special jid "./resource" for current buddy, or just a resource name.
+/roster resource_unlock [jid]
+ Unset active resource for a buddy. Accepts special jid "." for current buddy.

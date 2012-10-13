@@ -6,6 +6,7 @@
  /ROSTER item_lock|item_unlock|item_toggle_lock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
+ /ROSTER resource_lock|resource_unlock
 
 Polecenie służy do zarządzania listą kontaktów.
 Dostępne parametry:
@@ -57,3 +58,7 @@ Dostępne parametry:
  Ustawia/aktualizuje/usuwa notatkę o użytkowniku.
  Jeśli nie podano "text", notka aktualnego elementu jest wyświetlana -- jeśli jesteś w "status buffer", wszystkie notatki są wyświetlane.
  Jeśli jako "text" podano "-", notatka jest kasowana.
+/roster resource_lock [full jid|resource]
+ Set active resource for a buddy in roster. Accepts special jid "./resource" for current buddy, or just a resource name.
+/roster resource_unlock [jid]
+ Unset active resource for a buddy. Accepts special jid "." for current buddy.

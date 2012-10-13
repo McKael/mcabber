@@ -6,6 +6,7 @@
  /ROSTER item_lock|item_unlock|item_toggle_lock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
+ /ROSTER resource_lock|resource_unlock
 
 Slouží k manipulaci se seznamem kontaktů (rosterem).
 
@@ -56,3 +57,7 @@ Slouží k manipulaci se seznamem kontaktů (rosterem).
  Nastaví, aktualizuje nebo vymaže poznámku.
  Není-li zadán 'text', zobrazí se aktuální poznámka k položce. Při spuštění ve stavovém okně se zobrazí všechny poznámky.
  Je-li místo textu znak '-', poznámka se vymaže.
+/roster resource_lock [full jid|resource]
+ Set active resource for a buddy in roster. Accepts special jid "./resource" for current buddy, or just a resource name.
+/roster resource_unlock [jid]
+ Unset active resource for a buddy. Accepts special jid "." for current buddy.

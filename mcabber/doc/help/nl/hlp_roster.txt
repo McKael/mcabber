@@ -6,6 +6,7 @@
  /ROSTER item_lock|item_unlock|item_toggle_lock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
+ /ROSTER resource_lock|resource_unlock
 
 Het 'roster' commando bewerkt het roster ofwel de buddy-lijst.
 Dit zijn de beschikbare parameters:
@@ -56,3 +57,7 @@ Dit zijn de beschikbare parameters:
  Instellen/aanpassen/verwijderen van een notitie.
  Indien geen "tekst" is meegegeven, wordt de notitie getoond die behoort bij de actieve jid -- wanneer je in de status buffer staat worden alle notities weergegeven.
  Indien de tekst "-" is, wordt de notitie gewist.
+/roster resource_lock [full jid|resource]
+ Set active resource for a buddy in roster. Accepts special jid "./resource" for current buddy, or just a resource name.
+/roster resource_unlock [jid]
+ Unset active resource for a buddy. Accepts special jid "." for current buddy.

@@ -6,6 +6,7 @@
  /ROSTER item_lock|item_unlock|item_toggle_lock
  /ROSTER hide|show|toggle
  /ROSTER note [-|text]
+ /ROSTER resource_lock|resource_unlock
 
 Cette commande permet de manipuler le roster (liste de contacts).
 
@@ -56,3 +57,7 @@ Cette commande permet de manipuler le roster (liste de contacts).
  Ajoute, modifie ou supprime une annotation.
  Si le texte n'est pas précisé, l'annotation actuelle de l'élément sélectionné est affichée -- si vous êtes dans la fenêtre d'état (status), toutes les notes seront affichées.
  Si le texte est "-", l'annotation est supprimée.
+/roster resource_lock [full jid|resource]
+ Définit la ressource active pour un contact donné du roster. Il est possible d'utiliser la syntaxe "./resource" pour le contact courant, ou bien uniquement un nom de ressource.
+/roster resource_unlock [jid]
+ Initialise la ressource active pour un contact. Il est possible d'utiliser "." pour le contact sélectionné.

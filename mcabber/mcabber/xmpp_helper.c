@@ -104,13 +104,6 @@ void xmpp_del_feature(const char *xmlns)
 }
 #endif
 
-// The caller must g_free this after use
-gchar *lm_get_uid ()
-{
-  static guint xmpp_uid = 0;
-  return g_strdup_printf ("mc%u", ++xmpp_uid);
-}
-
 const gchar* lm_message_node_get_child_value(LmMessageNode *node,
                                              const gchar *child)
 {

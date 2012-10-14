@@ -423,8 +423,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
     lm_message_node_set_attribute(lm_message_node_add_child(x->node, "request",
                                                             NULL),
                                   "xmlns", NS_RECEIPTS);
-    *xep184 = lm_get_uid ();
-    lm_message_node_set_attribute (x->node, "id", (const gchar *)*xep184);
+    *xep184 = g_strdup(lm_message_node_get_attribute(x->node, "id"));
   }
   g_free(barejid);
 
@@ -1356,7 +1355,7 @@ static LmHandlerResult cb_caps(LmMessageHandler *h, LmConnection *c,
                           lm_message_node_get_attribute(info, "xml:lang"));
         info = info->next;
     }
-    
+
     info = lm_message_node_get_child(query, "feature");
     while (info) {
       if (!g_strcmp0(info->name, "feature"))
@@ -1416,7 +1415,7 @@ static LmHandlerResult cb_caps(LmMessageHandler *h, LmConnection *c,
 
     if (caps_verify(ver, hash))
       caps_copy_to_persistent(ver, lm_message_node_to_string(query));
-    else 
+    else
       caps_move_to_local(ver, bjid);
   }
 
@@ -2188,7 +2187,7 @@ int xmpp_get_bookmark_autojoin(const char *bjid)
 
   if (!bookmarks || !bjid)
     return 0;
-  
+
   // Walk through the storage bookmark tags
   for (x = bookmarks->children ; x; x = x->next) {
     // If the node is a conference item, check the jid.

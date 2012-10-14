@@ -57,10 +57,10 @@
  Затвердити рядок.
 /iline iline_accept_down_hist
  Перейти до наступного рядка в історії, затвердивши поточний.
-/iline iline_insert text
- Insert text in the input line, at the current position.  Please note that quotes have to be escaped, and that the screen is not refreshed (use /screen_refresh).
+/iline iline_insert текст
+ Вставити вказаний текст у поточній позиції курсору.  Зауважте, що лапки у тексті мають бути знешкоджені за допомогою '\', а також, що екран не буде оновлено автоматично (скористайтеся /screen_refresh).
 /iline clear_history
- Clear the command line history
+ Спустошити історію командного рядка.
 /iline compl_do
  Доповнити поточне слово.
 /iline compl_cancel

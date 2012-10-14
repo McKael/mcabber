@@ -43,7 +43,7 @@
  Встановлює додаткові параметри для поточної кімнати
  print_status керує відображенням змін у статусі присутніх ("default", "none", "in_and_out", "all").
  auto_whois визначає, чи запитувати автоматично інформацію про новоприбульців до кімнати ("default", "off", "on").
- For flag_joins, the possible values are "default", "none", "joins", "all".
+ flag_joins вказує, чи потрібно підсвічувати кімнату, коли хтось входить чи виходить ("default", "none", "joins", "all").
  Коли встановлено "default", мають силу глобальні опції muc_print_status / muc_auto_whois / muc_flag_joins.
 /room bookmark [add|del] [+autojoin|-autojoin] [-|nick]
  Додати, потерти, або замінити закладку (якщо не вказано - додасть).

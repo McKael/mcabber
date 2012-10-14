@@ -30,7 +30,7 @@
 /buffer % n
  Перемещает на позицию %n в текущем буфере (истории переписки)
 /buffer readmark
- Jump to the readmark (first unread line), if there is one
+ Перемещает к разделителю непрочитанных сообщений (если он есть)
 /buffer search_backward text
  Ищет введенное значение [text] в текущем буфере (истории переписки) (от переводчика: до текущей позиции)
 /buffer search_forward text

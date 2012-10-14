@@ -57,10 +57,10 @@
  Закончить ввод, отправить строку текущему пользователю
 /iline iline_accept_down_hist
  Закончить ввод, отправить строку текущему пользователю, поместить следующую строку истории в строку ввода
-/iline iline_insert text
- Insert text in the input line, at the current position.  Please note that quotes have to be escaped, and that the screen is not refreshed (use /screen_refresh).
+/iline iline_insert текст
+ Вставить текст в текущей позиции курсора.  Заметьте, что кавычки в тексте необходимо обезвредить с помощью '\', а также, что экран не будет обновлен автоматически (используйте /screen_refresh)
 /iline clear_history
- Clear the command line history
+ Очистить историю команд
 /iline compl_do
  Завершить текущее слово в строке ввода
 /iline compl_cancel

@@ -30,7 +30,7 @@
 /buffer % процент
  Перейти до вказаної у процентах позиції.
 /buffer readmark
- Jump to the readmark (first unread line), if there is one
+ Перейти до розділювача непрочитаних повідомлень (якщо він є).
 /buffer search_backward текст
  Шукати текст, рухаючись до початку буфера.
 /buffer search_forward текст

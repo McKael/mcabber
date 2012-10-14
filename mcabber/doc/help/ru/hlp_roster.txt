@@ -59,6 +59,6 @@
  Если текст не задан, отображается текущий комментарий -- если Вы находитесь в истории переписки, все заметки отображаются.
  Если текст задан как "-", заметка стирается.
 /roster resource_lock [full jid|resource]
- Set active resource for a buddy in roster. Accepts special jid "./resource" for current buddy, or just a resource name.
+ Установить активный ресурс для указанного пользователя. Позволяет использовать формат "./resource" (или просто "resource") для указания текущего пользователя.
 /roster resource_unlock [jid]
- Unset active resource for a buddy. Accepts special jid "." for current buddy.
+ Отменить действие /roster resource_lock. Позволяет использовать "." для указания текущего пользователя.

@@ -29,6 +29,8 @@ void xmpp_add_feature (const char *xmlns);
 void xmpp_del_feature (const char *xmlns);
 #endif
 
+gchar *lm_get_uid (void);
+
 LmMessageNode *lm_message_node_new(const gchar *name, const gchar *xmlns);
 LmMessageNode *lm_message_node_find_xmlns(LmMessageNode *node,
                                           const char *xmlns);

@@ -50,7 +50,7 @@ GList *hbuf_search(GList *hbuf, int direction, const char *string);
 GList *hbuf_jump_date(GList *hbuf, time_t t);
 GList *hbuf_jump_percent(GList *hbuf, int pc);
 GList *hbuf_jump_readmark(GList *hbuf);
-gboolean hbuf_remove_receipt(GList *hbuf, gpointer xep184);
+gboolean hbuf_remove_receipt(GList *hbuf, gconstpointer xep184);
 void hbuf_set_readmark(GList *hbuf, gboolean action);
 void hbuf_remove_trailing_readmark(GList *hbuf);
 

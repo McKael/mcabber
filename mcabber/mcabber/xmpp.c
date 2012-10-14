@@ -295,15 +295,6 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
   g_slist_free(resources);
 }
 
-static LmHandlerResult cb_xep184(LmMessageHandler *h, LmConnection *c,
-                                 LmMessage *m, gpointer user_data)
-{
-  char *from = jidtodisp(lm_message_get_from(m));
-  scr_remove_receipt_flag(from, h);
-  g_free(from);
-  return LM_HANDLER_RESULT_REMOVE_MESSAGE;
-}
-
 //  xmpp_send_msg(jid, text, type, subject,
 //                otrinject, *encrypted, type_overwrite)
 // When encrypted is not NULL, the function set *encrypted to 1 if the
@@ -429,10 +420,11 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   if (sl_buddy && xep184 &&
       caps_has_feature(buddy_resource_getcaps(sl_buddy->data, rname),
                        NS_RECEIPTS, barejid)) {
-    lm_message_node_set_attribute
-            (lm_message_node_add_child(x->node, "request", NULL),
-             "xmlns", NS_RECEIPTS);
-    *xep184 = lm_message_handler_new(cb_xep184, NULL, NULL);
+    lm_message_node_set_attribute(lm_message_node_add_child(x->node, "request",
+                                                            NULL),
+                                  "xmlns", NS_RECEIPTS);
+    *xep184 = lm_get_uid ();
+    lm_message_node_set_attribute (x->node, "id", (const gchar *)*xep184);
   }
   g_free(barejid);
 
@@ -499,11 +491,7 @@ xmpp_send_msg_no_chatstates:
   if (mystatus != invisible)
 #endif
     update_last_use();
-  if (xep184 && *xep184) {
-    lm_connection_send_with_reply(lconnection, x, *xep184, NULL);
-    lm_message_handler_unref(*xep184);
-  } else
-    lm_connection_send(lconnection, x, NULL);
+  lm_connection_send(lconnection, x, NULL);
   lm_message_unref(x);
 }
 
@@ -1303,6 +1291,16 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     lm_message_node_set_attribute(y, "id", mid);
     lm_connection_send(connection, rcvd, NULL);
     lm_message_unref(rcvd);
+  }
+
+  { // xep184 receipt confirmation
+    LmMessageNode *received = lm_message_node_get_child(m->node, "received");
+    if (received && !g_strcmp0(lm_message_node_get_attribute(received, "xmlns"), NS_RECEIPTS)) {
+      char       *jid = jidtodisp(from);
+      const char *id  = lm_message_node_get_attribute(received, "id");
+      scr_remove_receipt_flag(jid, id);
+      g_free(jid);
+    }
   }
 
   if (from) {

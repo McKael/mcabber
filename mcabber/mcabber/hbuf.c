@@ -525,7 +525,7 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename)
 //  hbuf_remove_receipt(hbuf, xep184)
 // Remove the Receipt Flag for the message with the given xep184 id
 // Returns TRUE if it was found and removed, otherwise FALSE
-gboolean hbuf_remove_receipt(GList *hbuf, gpointer xep184)
+gboolean hbuf_remove_receipt(GList *hbuf, gconstpointer xep184)
 {
   hbuf_block *blk;
 
@@ -533,7 +533,8 @@ gboolean hbuf_remove_receipt(GList *hbuf, gpointer xep184)
 
   for ( ; hbuf; hbuf = g_list_previous(hbuf)) {
     blk = (hbuf_block*)(hbuf->data);
-    if (blk->prefix.xep184 == xep184) {
+    if (!g_strcmp0(blk->prefix.xep184, xep184)) {
+      g_free(blk->prefix.xep184);
       blk->prefix.xep184 = NULL;
       blk->prefix.flags ^= HBB_PREFIX_RECEIPT;
       return TRUE;

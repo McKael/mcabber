@@ -2247,7 +2247,7 @@ void scr_write_outgoing_message(const char *jidto, const char *text,
     scr_show_window(jidto, FALSE);
 }
 
-void scr_remove_receipt_flag(const char *bjid, gpointer xep184)
+void scr_remove_receipt_flag(const char *bjid, gconstpointer xep184)
 {
   winbuf *win_entry = scr_search_window(bjid, FALSE);
   if (win_entry) {

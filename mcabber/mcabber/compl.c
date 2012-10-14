@@ -97,10 +97,11 @@ void compl_init_system(void)
 // as it is likely to change in future.
 guint compl_new_category(void)
 {
+  const guint maxcat = 8 * sizeof (registered_cats);
   guint i = 0;
-  while ((registered_cats >> i) & 1)
+  while ((registered_cats >> i) & 1 && i < maxcat)
     i++;
-  if (i >= 8 * sizeof (registered_cats))
+  if (i >= maxcat)
     return 0;
   else {
     guint64 id = 1 << i;

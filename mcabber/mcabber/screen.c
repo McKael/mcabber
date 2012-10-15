@@ -2250,7 +2250,7 @@ void scr_write_outgoing_message(const char *jidto, const char *text,
 void scr_remove_receipt_flag(const char *bjid, gconstpointer xep184)
 {
   winbuf *win_entry = scr_search_window(bjid, FALSE);
-  if (win_entry) {
+  if (win_entry && xep184) {
     hbuf_remove_receipt(win_entry->bd->hbuf, xep184);
     if (chatmode && (buddy_search_jid(bjid) == current_buddy))
       scr_update_buddy_window();

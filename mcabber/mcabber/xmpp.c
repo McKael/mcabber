@@ -423,7 +423,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
     lm_message_node_set_attribute(lm_message_node_add_child(x->node, "request",
                                                             NULL),
                                   "xmlns", NS_RECEIPTS);
-    *xep184 = g_strdup(lm_message_node_get_attribute(x->node, "id"));
+    *xep184 = g_strdup(lm_message_get_id(x));
   }
   g_free(barejid);
 
@@ -1297,6 +1297,10 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     if (received && !g_strcmp0(lm_message_node_get_attribute(received, "xmlns"), NS_RECEIPTS)) {
       char       *jid = jidtodisp(from);
       const char *id  = lm_message_node_get_attribute(received, "id");
+      // This is for backward compatibility; if the remote client didn't add
+      // the id as an attribute of the 'received' tag, we use the message id:
+      if (!id)
+        id = lm_message_get_id(m);
       scr_remove_receipt_flag(jid, id);
       g_free(jid);
     }

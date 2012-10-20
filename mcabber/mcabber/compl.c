@@ -2,7 +2,7 @@
  * compl.c      -- Completion system
  *
  * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
- * Copyright (C) 2009,2010 Myhailo Danylenko <isbear@ukrpost.net>
+ * Copyright (C) 2009-2012 Myhailo Danylenko <isbear@ukrpost.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,82 +47,150 @@ typedef struct {
   GSList *next;         // pointer to next completion to try
 } compl;
 
+typedef GSList *(*compl_handler_t) (void); // XXX userdata? *dynlist?
+
 // Category structure
 typedef struct {
-  guint64 flag;
+  guint flags;
   GSList *words;
+  compl_handler_t dynamic;
 } category;
 
-static GSList *Categories;
+#define COMPL_CAT_BUILTIN   0x01
+#define COMPL_CAT_ACTIVE    0x02
+#define COMPL_CAT_DYNAMIC   0x04
+#define COMPL_CAT_REVERSE   0x10
+#define COMPL_CAT_NOSORT    0x20
+
+#define COMPL_CAT_USERFLAGS 0x30
+
 static compl *InputCompl;
+static category *Categories;
+static guint num_categories;
 
-#ifdef MODULES_ENABLE
-static guint64 registered_cats;
+// Dynamic completions callbacks
+static GSList *compl_dyn_group (void)
+{
+  return compl_list(ROSTER_TYPE_GROUP);
+}
 
-static inline void register_builtin_cat(guint c) {
-  registered_cats |= 1UL << (c-1);
+static GSList *compl_dyn_user (void)
+{
+  return compl_list(ROSTER_TYPE_USER);
+}
+
+static GSList *compl_dyn_resource (void)
+{
+  return buddy_getresources_locale(NULL);
+}
+
+static GSList *compl_dyn_events (void)
+{
+  GSList *compl = evs_geteventslist();
+  GSList *cel;
+  for (cel = compl; cel; cel = cel->next)
+    cel->data = g_strdup(cel->data);
+  compl = g_slist_append(compl, g_strdup("list"));
+  return compl;
+}
+
+static inline void register_builtin_cat(guint c, compl_handler_t dynamic) {
+  Categories[c-1].flags   = COMPL_CAT_BUILTIN | COMPL_CAT_ACTIVE;
+  Categories[c-1].words   = NULL;
+  Categories[c-1].dynamic = dynamic;
+  if (dynamic != NULL) {
+    Categories[c-1].flags |= COMPL_CAT_DYNAMIC;
+  }
 }
 
 void compl_init_system(void)
 {
+  num_categories = COMPL_MAX_ID;
+#ifdef MODULES_ENABLE
+  num_categories = ((num_categories / 16) + 1) * 16;
+#endif
+  Categories = g_new0(category, num_categories);
+
   // Builtin completion categories:
-  register_builtin_cat(COMPL_CMD);
-  register_builtin_cat(COMPL_JID);
-  register_builtin_cat(COMPL_URLJID);
-  register_builtin_cat(COMPL_NAME);
-  register_builtin_cat(COMPL_STATUS);
-  register_builtin_cat(COMPL_FILENAME);
-  register_builtin_cat(COMPL_ROSTER);
-  register_builtin_cat(COMPL_BUFFER);
-  register_builtin_cat(COMPL_GROUP);
-  register_builtin_cat(COMPL_GROUPNAME);
-  register_builtin_cat(COMPL_MULTILINE);
-  register_builtin_cat(COMPL_ROOM);
-  register_builtin_cat(COMPL_RESOURCE);
-  register_builtin_cat(COMPL_AUTH);
-  register_builtin_cat(COMPL_REQUEST);
-  register_builtin_cat(COMPL_EVENTS);
-  register_builtin_cat(COMPL_EVENTSID);
-  register_builtin_cat(COMPL_PGP);
-  register_builtin_cat(COMPL_COLOR);
-  register_builtin_cat(COMPL_OTR);
-  register_builtin_cat(COMPL_OTRPOLICY);
-  register_builtin_cat(COMPL_MODULE);
+  register_builtin_cat(COMPL_CMD, NULL);
+  register_builtin_cat(COMPL_JID, compl_dyn_user);
+  register_builtin_cat(COMPL_URLJID, NULL);
+  register_builtin_cat(COMPL_NAME, NULL);
+  register_builtin_cat(COMPL_STATUS, NULL);
+  register_builtin_cat(COMPL_FILENAME, NULL);
+  register_builtin_cat(COMPL_ROSTER, NULL);
+  register_builtin_cat(COMPL_BUFFER, NULL);
+  register_builtin_cat(COMPL_GROUP, NULL);
+  register_builtin_cat(COMPL_GROUPNAME, compl_dyn_group);
+  register_builtin_cat(COMPL_MULTILINE, NULL);
+  register_builtin_cat(COMPL_ROOM, NULL);
+  register_builtin_cat(COMPL_RESOURCE, compl_dyn_resource);
+  register_builtin_cat(COMPL_AUTH, NULL);
+  register_builtin_cat(COMPL_REQUEST, NULL);
+  register_builtin_cat(COMPL_EVENTS, NULL);
+  register_builtin_cat(COMPL_EVENTSID, compl_dyn_events);
+  register_builtin_cat(COMPL_PGP, NULL);
+  register_builtin_cat(COMPL_COLOR, NULL);
+  register_builtin_cat(COMPL_OTR, NULL);
+  register_builtin_cat(COMPL_OTRPOLICY, NULL);
+  register_builtin_cat(COMPL_MODULE, NULL);
 }
 
-//  compl_new_category()
+#ifdef MODULES_ENABLE
+//  compl_new_category(flags)
 // Reserves id for new completion category.
+// Flags determine word sorting order.
 // Returns 0, if no more categories can be allocated.
-// Note, that user should not make any assumptions about id nature,
-// as it is likely to change in future.
-guint compl_new_category(void)
+guint compl_new_category(guint flags)
 {
-  const guint maxcat = 8 * sizeof (registered_cats);
-  guint i = 0;
-  while ((registered_cats >> i) & 1 && i < maxcat)
-    i++;
-  if (i >= maxcat)
-    return 0;
-  else {
-    guint64 id = 1 << i;
-    registered_cats |= id;
-    return i+1;
+  guint i;
+  for (i = 0; i < num_categories; i++)
+    if (!(Categories[i].flags & COMPL_CAT_ACTIVE))
+      break;
+  if (i >= num_categories ) {
+    guint j;
+    if (num_categories > G_MAXUINT - 16) {
+      scr_log_print(LPRINT_LOGNORM, "Warning: Too many "
+                    "completion categories!");
+      return 0;
+    }
+    num_categories += 16;
+    Categories = g_renew(category, Categories, num_categories);
+    for (j = i+1; j < num_categories; j++)
+      Categories[j].flags = 0;
   }
+  Categories[i].flags = COMPL_CAT_ACTIVE | (flags & COMPL_CAT_USERFLAGS);
+  Categories[i].words = NULL;
+  return i+1;
 }
 
 //  compl_del_category(id)
 // Frees reserved id for category.
 // Note, that for now it not validates its input, so, be careful
 // and specify exactly what you get from compl_new_category.
-void compl_del_category(guint id)
+void compl_del_category(guint compl)
 {
-  if (!id) {
-    scr_log_print(LPRINT_LOGNORM, "Error: compl_del_category() - "
-                  "Invalid category.");
+  GSList *wel;
+
+  if (!compl) {
+    scr_log_print(LPRINT_DEBUG, "Error: compl_del_category() - "
+                                "Invalid category (0).");
     return;
   }
-  id--;
-  registered_cats &= ~(1<<id);
+
+  compl--;
+
+  if ((compl >= num_categories) ||
+      (Categories[compl].flags & COMPL_CAT_BUILTIN)) {
+    scr_log_print(LPRINT_DEBUG, "Error: compl_del_category() "
+                                "Invalid category.");
+    return;
+  }
+
+  Categories[compl].flags = 0;
+  for (wel = Categories[compl].words; wel; wel = g_slist_next (wel))
+    g_free (wel -> data);
+  g_slist_free (Categories[compl].words);
 }
 #endif
 
@@ -136,12 +204,15 @@ void compl_del_category(guint id)
 guint new_completion(const char *prefix, GSList *compl_cat, const gchar *suffix)
 {
   compl *c;
+  guint  ret_len = 0;
   GSList *sl_cat;
   gint (*cmp)(const char *s1, const char *s2, size_t n);
   size_t len = strlen(prefix);
 
   if (InputCompl) { // This should not happen, but hey...
-    cancel_completion();
+    scr_log_print(LPRINT_DEBUG, "Warning: new_completion() - "
+                                "Previous completion exists!");
+    done_completion();
   }
 
   if (settings_opt_get_int("completion_ignore_case"))
@@ -160,14 +231,15 @@ guint new_completion(const char *prefix, GSList *compl_cat, const gchar *suffix)
           compval = g_strdup_printf("%s%s", word+len, suffix);
         else
           compval = g_strdup(word+len);
-        c->list = g_slist_insert_sorted(c->list, compval,
-                                        (GCompareFunc)g_ascii_strcasecmp);
+        // for a bit of efficiency, will reverse order afterwards
+        c->list = g_slist_prepend(c->list, compval);
+        ret_len ++;
       }
     }
   }
-  c->next = c->list;
+  c->next = c->list = g_slist_reverse (c->list);
   InputCompl = c;
-  return g_slist_length(c->list);
+  return ret_len;
 }
 
 //  done_completion();
@@ -222,35 +294,46 @@ const char *complete()
 
 /* Categories functions */
 
+static gint compl_sort_forward(gconstpointer a, gconstpointer b)
+{
+  return g_ascii_strcasecmp((const gchar *)a, (const gchar *)b);
+}
+
+static gint compl_sort_reverse(gconstpointer a, gconstpointer b)
+{
+  return -g_ascii_strcasecmp((const gchar *)a, (const gchar *)b);
+}
+
+static gint compl_sort_append(gconstpointer a, gconstpointer b)
+{
+  return 1;
+}
+
+static gint compl_sort_prepend(gconstpointer a, gconstpointer b)
+{
+  return -1;
+}
+
 //  compl_add_category_word(categ, command)
 // Adds a keyword as a possible completion in category categ.
 void compl_add_category_word(guint categ, const gchar *word)
 {
-  guint64 catv;
-  GSList *sl_cat;
-  category *cat;
   char *nword;
 
   if (!categ) {
-    scr_log_print(LPRINT_LOGNORM, "Error: compl_add_category_word() - "
-                  "Invalid category.");
+    scr_log_print(LPRINT_DEBUG, "Error: compl_add_category_word() - "
+                  "Invalid category (0).");
     return;
   }
 
   categ--;
-  catv = 1UL << categ;
 
-  // Look for category
-  for (sl_cat=Categories; sl_cat; sl_cat = g_slist_next(sl_cat)) {
-    if (catv == ((category*)sl_cat->data)->flag)
-      break;
+  if ((categ >= num_categories) ||
+      !(Categories[categ].flags & COMPL_CAT_ACTIVE)) {
+    scr_log_print(LPRINT_DEBUG, "Error: compl_add_category_word() - "
+                  "Category does not exist.");
+    return;
   }
-  if (!sl_cat) {   // Category not found, let's create it
-    cat = g_new0(category, 1);
-    cat->flag = catv;
-    Categories = g_slist_append(Categories, cat);
-  } else
-    cat = (category*)sl_cat->data;
 
   // If word is not space-terminated, we add one trailing space
   for (nword = (char*)word; *nword; nword++)
@@ -262,59 +345,64 @@ void compl_add_category_word(guint categ, const gchar *word)
     nword = g_strdup(word);
   }
 
-  if (g_slist_find_custom(cat->words, nword, (GCompareFunc)g_strcmp0) != NULL)
-    return;
+  if (g_slist_find_custom(Categories[categ].words, nword,
+                          (GCompareFunc)g_strcmp0) == NULL) {
+    guint flags = Categories[categ].flags;
+    GCompareFunc comparator = compl_sort_forward;
+    if (flags & COMPL_CAT_NOSORT) {
+      if (flags & COMPL_CAT_REVERSE)
+        comparator = compl_sort_prepend;
+      else
+        comparator = compl_sort_append;
+    } else if (flags & COMPL_CAT_REVERSE)
+      comparator = compl_sort_reverse;
 
-  cat->words = g_slist_insert_sorted(cat->words, nword,
-                                     (GCompareFunc)g_ascii_strcasecmp);
+    Categories[categ].words = g_slist_insert_sorted
+                                  (Categories[categ].words, nword, comparator);
+  }
 }
 
 //  compl_del_category_word(categ, command)
 // Removes a keyword from category categ in completion list.
 void compl_del_category_word(guint categ, const gchar *word)
 {
-  guint64 catv;
-  GSList *sl_cat, *sl_elt;
-  category *cat;
+  GSList *wel;
   char *nword;
 
   if (!categ) {
-    scr_log_print(LPRINT_LOGNORM, "Error: compl_del_category_word() - "
-                  "Invalid category.");
+    scr_log_print(LPRINT_DEBUG, "Error: compl_del_category_word() - "
+                  "Invalid category (0).");
     return;
   }
 
   categ--;
-  catv = 1UL << categ;
 
-  // Look for category
-  for (sl_cat=Categories; sl_cat; sl_cat = g_slist_next(sl_cat)) {
-    if (catv == ((category*)sl_cat->data)->flag)
-      break;
+  if ((categ >= num_categories) ||
+      !(Categories[categ].flags & COMPL_CAT_ACTIVE)) {
+    scr_log_print(LPRINT_DEBUG, "Error: compl_del_category_word() - "
+                  "Category does not exist.");
+    return;
   }
-  if (!sl_cat) return;   // Category not found, finished!
-
-  cat = (category*)sl_cat->data;
 
   // If word is not space-terminated, we add one trailing space
   for (nword = (char*)word; *nword; nword++)
     ;
   if (nword > word) nword--;
-  if (*nword != ' ') {  // Add a space
-    nword = g_strdup_printf("%s ", word);
-  } else {              // word is fine
-    nword = g_strdup(word);
-  }
+  if (*nword != ' ')  // Add a space
+    word = nword = g_strdup_printf("%s ", word);
+  else
+    nword = NULL;
 
-  sl_elt = cat->words;
-  while (sl_elt) {
-    if (!strcasecmp((char*)sl_elt->data, nword)) {
-      g_free(sl_elt->data);
-      cat->words = g_slist_delete_link(cat->words, sl_elt);
+  for (wel = Categories[categ].words; wel; wel = g_slist_next (wel)) {
+    if (!strcasecmp((char*)wel->data, word)) {
+      g_free(wel->data);
+      Categories[categ].words = g_slist_delete_link
+                                (Categories[categ].words, wel);
       break; // Only remove first occurence
     }
-    sl_elt = g_slist_next(sl_elt);
   }
+
+  g_free (nword);
 }
 
 //  compl_get_category_list()
@@ -323,48 +411,28 @@ void compl_del_category_word(guint categ, const gchar *word)
 // whole list after use.
 GSList *compl_get_category_list(guint categ, guint *dynlist)
 {
-  guint64 cat_flags;
-  GSList *sl_cat;
-
   if (!categ) {
-    scr_log_print(LPRINT_LOGNORM, "Error: compl_get_category_list() - "
-                  "Invalid category.");
+    scr_log_print(LPRINT_DEBUG, "Error: compl_get_category_list() - "
+                  "Invalid category (0).");
     return NULL;
   }
 
-  *dynlist = FALSE;
-  cat_flags = 1UL << (categ - 1);
+  categ --;
 
-  // Look for the category
-  for (sl_cat=Categories; sl_cat; sl_cat = g_slist_next(sl_cat)) {
-    if (cat_flags == ((category*)sl_cat->data)->flag)
-      break;
-  }
-  if (sl_cat)       // Category was found, easy...
-    return ((category*)sl_cat->data)->words;
-
-  // Handle dynamic SLists
-  *dynlist = TRUE;
-  if (categ == COMPL_GROUPNAME) {
-    return compl_list(ROSTER_TYPE_GROUP);
-  }
-  if (categ == COMPL_JID) {
-    return compl_list(ROSTER_TYPE_USER);
-  }
-  if (categ == COMPL_RESOURCE) {
-    return buddy_getresources_locale(NULL);
-  }
-  if (categ == COMPL_EVENTSID) {
-    GSList *compl = evs_geteventslist();
-    GSList *cel;
-    for (cel = compl; cel; cel = cel->next)
-      cel->data = g_strdup(cel->data);
-    compl = g_slist_append(compl, g_strdup("list"));
-    return compl;
+  if ((categ > num_categories) ||
+      !(Categories[categ].flags & COMPL_CAT_ACTIVE)) {
+    scr_log_print(LPRINT_DEBUG, "Error: compl_get_category_list() - "
+                  "Category does not exist.");
+    return NULL;
   }
 
-  *dynlist = FALSE;
-  return NULL;
+  if (Categories[categ].flags & COMPL_CAT_DYNAMIC) {
+    *dynlist = TRUE;
+    return (*Categories[categ].dynamic) ();
+  } else {
+    *dynlist = FALSE;
+    return Categories[categ].words;
+  }
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0 sw=2 ts=2:  For Vim users... */

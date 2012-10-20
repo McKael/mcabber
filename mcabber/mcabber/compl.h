@@ -27,10 +27,18 @@
 #define COMPL_OTR         20
 #define COMPL_OTRPOLICY   21
 #define COMPL_MODULE      22
+/* private */
+#define COMPL_MAX_ID      22
+
+void compl_init_system(void); /* private */
 
 #ifdef MODULES_ENABLE
-void  compl_init_system(void);
-guint compl_new_category(void);
+#define COMPL_FLAGS_SORT     0x00
+#define COMPL_FLAGS_REVERSE  0x10
+#define COMPL_FLAGS_APPEND   0x20
+#define COMPL_FLAGS_PREPEND  0x30
+
+guint compl_new_category(guint flags);
 void  compl_del_category(guint id);
 #endif
 

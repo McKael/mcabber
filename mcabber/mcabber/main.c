@@ -364,13 +364,13 @@ int main(int argc, char **argv)
   }
 
   /* Initialize command system, roster and default key bindings */
+  compl_init_system();
   cmd_init();
   roster_init();
   settings_init();
   scr_init_bindings();
   caps_init();
 #ifdef MODULES_ENABLE
-  compl_init_system();
   modules_init();
 #endif
   /* Initialize charset */

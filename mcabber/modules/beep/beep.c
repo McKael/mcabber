@@ -89,7 +89,7 @@ static void do_beep(char *args)
 static void beep_init(void)
 {
   /* Create completions */
-  beep_cid = compl_new_category();
+  beep_cid = compl_new_category(COMPL_FLAGS_SORT);
   if (beep_cid) {
     compl_add_category_word(beep_cid, "enable");
     compl_add_category_word(beep_cid, "disable");

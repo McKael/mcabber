@@ -16,7 +16,8 @@ endif
 LDADD = $(GLIB_LIBS) $(LOUDMOUTH_LIBS) $(GPGME_LIBS) $(LIBOTR_LIBS) \
 				$(ENCHANT_LIBS) $(LIBIDN_LIBS)
 
-AM_CPPFLAGS = -I$(top_srcdir) $(GLIB_CFLAGS) $(LOUDMOUTH_CFLAGS) \
+AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir) \
+				$(GLIB_CFLAGS) $(LOUDMOUTH_CFLAGS) \
 				$(GPGME_CFLAGS) $(LIBOTR_CFLAGS) \
 				$(ENCHANT_CFLAGS) $(LIBIDN_CFLAGS)
 
@@ -26,7 +27,7 @@ if HGCSET
 BUILT_SOURCES = hgcset.h
 
 hgcset.h:
-	../hgcset.sh
+	$(top_srcdir)/hgcset.sh "$(top_srcdir)/mcabber" "$(top_builddir)/mcabber"
 
 .PHONY: hgcset.h
 endif
@@ -42,7 +43,7 @@ mcabberinclude_HEADERS = main.h roster.h events.h \
 			 xmpp_iq.h xmpp_iqrequest.h \
 			 xmpp_muc.h xmpp_s10n.h \
 			 caps.h fifo.h help.h modules.h api.h \
-			 $(top_srcdir)/include/config.h
+			 $(top_builddir)/include/config.h
 
 if OTR
 mcabberinclude_HEADERS += otr.h nohtml.h

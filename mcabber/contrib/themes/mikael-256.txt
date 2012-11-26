@@ -1,0 +1,40 @@
+# Sample color config.
+# Source this file from your ~/.mcabber/mcabberrc
+#
+# * NOTE: Your terminal MUST have 256 color support
+
+set color_background   = black
+set color_general      = white
+set color_info         = magenta
+set color_msgin        = 85
+set color_msgout       = 69
+set color_msghl        = yellow
+set color_bgstatus     = blue
+set color_status       = 82
+set color_log          = 244
+set color_roster       = 185
+set color_bgrostersel  = cyan
+set color_rostersel    = blue
+set color_rosterselmsg = red
+set color_rosternewmsg = red
+set color_readmark     = red
+
+
+# Reset dynamic colors
+color roster clear
+
+# Dynamic roster colors
+color roster f * yellow
+color roster o * green
+color roster d * 166
+color roster a * 140
+color roster n * 144
+color roster _ * 18
+
+
+# These colors will by used automatically:
+set nick_colors = green yellow white
+# This turns coloring of all mucs on:
+color muc * on
+
+# vim:set ft=conf:

@@ -1,6 +1,41 @@
 mcabber (0.10.2-dev)
 
- * 
+ * Update receipts handling according to recent XEP updates (Myhailo Danylenko)
+ * Update and modularize the FIFO system (Myhailo Danylenko)
+ * Modularize url_regex
+ * [UI] Add readmark support - a line is displayed afer the last read message
+ * New command /buffer readmark
+ * Add command /iline clear_history
+ * Add command /iline iline_insert (Hermitifier)
+ * Add command /room setopt flag_joins (Hermitifier)
+ * [MUC] Improve MUC support (Myhailo Danylenko)
+ * [MUC] Add support for XEP-0249 / Direct MUC Invitations (Myhailo Danylenko)
+ * [MUC] Refresh the roster when MUC bookmarks are received (Jan Zachorowski)
+ * [MUC] preserve bookmark when updating a non-joined room  (Jan Zachorowski)
+ * [MUC] Fix bookmarks losing autojoin attribute  (Hermitifier)
+ * [MUC] Display real JIDs in non-anonymous rooms (Hermitifier)
+ * [MUC] New option 'muc_bookmark_autoupdate' (Hermitifier)
+ * [MUC] Fix whois / auto_whois
+ * [UI] Remove deprecated invisible status
+ * [UI] Go back to the first buddy with /roster next_unread when there are
+        no more unread messages (Simon Jacquin)
+ * [UI] Add option 'roster_no_leading_space' to remove the extra space
+        before items in the roster (Simon Jacquin)
+ * [UI] Allow to select which buddy resource messages go to (issue #55)
+        with new commands /roster resource_lock|resource_unlock (Hermitifier)
+ * [UI] Do not warn when the configuration file contains 256-color values
+ * Add support for XEP-0115 Entity Capabilities,
+   with offline cache (Hermitifier)
+ * Fix segfault when spell checking is enabled and spell_lang is not set.
+ * Fix "/rename -" (Hermitifier)
+ * Do not add items to roster with commands /move and /rename (Hermitifier)
+ * [UI] Handle the Enter key on Maemo systems (diSabler)
+ * [UI] Add 'color_log' (text color in the log window)
+ * [UI] Add 'color_readmark' (readmark color in chat buffers)
+ * [UI] Use guards for colors (Myhailo Danylenko)
+ * Update color themes in contrib directory
+ * Documentation update
+ * Many misc. bugfixes and minor improvements
 
  -- Mikael, ?
 
@@ -672,4 +707,4 @@ mcabber (0.6.0)
 
  -- Mikael, 2005-06-07
 
-# vim:set encoding=utf-8:
+# vim:set fileencoding=utf-8:

@@ -1,16 +1,28 @@
+dev (24)
+
+ * Changeset 0cb8ea02e472
+ * completion-sorting patch
+ * Change compl_add_category() to accept flags arg
+ * Define MCABBER_API_HAVE_COMPL_FLAGS
+
+  -- Myhailo Danylenko, 2012-10-20
+
 dev (23)
+
  * Changeset 8dc418af3e72
    Add buddy_(get|set)activeresource() functions
 
   -- Hermitifier, 2012-03-01
 
 dev (22)
+
  * Changeset a73ce708c2c9
    Add xmpp_get_bookmark_autojoin() function
 
   -- Hermitifier, 2012-02-23
 
 dev (21)
+
  * Changeset 51f032d5ca22
    New and reworked caps_*() functions
 

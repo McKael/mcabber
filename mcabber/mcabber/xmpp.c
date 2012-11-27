@@ -1104,17 +1104,6 @@ static void gotmessage(LmMessageSubType type, const char *from,
     check_signature(bjid, rname, node_signed, decrypted_pgp);
 #endif
 
-#ifdef HAVE_LIBOTR
-  if (otr_enabled()) {
-    decrypted_otr = (char*)body;
-    otr_msg = otr_receive(&decrypted_otr, bjid, &free_msg);
-    if (!decrypted_otr) {
-      goto gotmessage_return;
-    }
-    body = decrypted_otr;
-  }
-#endif
-
   // Check for unexpected groupchat messages
   // If we receive a groupchat message from a room we're not a member of,
   // this is probably a server issue and the best we can do is to send
@@ -1162,6 +1151,17 @@ static void gotmessage(LmMessageSubType type, const char *from,
     }
     g_free(sbjid);
   }
+
+#ifdef HAVE_LIBOTR
+  if (otr_enabled()) {
+    decrypted_otr = (char*)body;
+    otr_msg = otr_receive(&decrypted_otr, bjid, &free_msg);
+    if (!decrypted_otr) {
+      goto gotmessage_return;
+    }
+    body = decrypted_otr;
+  }
+#endif
 
   { // format and pass message for further processing
     gchar *fullbody = NULL;

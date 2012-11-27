@@ -2455,18 +2455,13 @@ void scr_roster_up_down(int updown, unsigned int n)
   if (!current_buddy)
     return;
 
-  if (updown < 0) {
-    for (i = 0; i < n; i++) {
+  for (i = 0; i < n; i++) {
+    if (updown < 0)
       tmp_buddy = g_list_previous(new_buddy);
-      if (tmp_buddy)
-        new_buddy = tmp_buddy;
-    }
-  } else {
-    for (i = 0; i < n; i++) {
+    else
       tmp_buddy = g_list_next(new_buddy);
-      if (tmp_buddy)
-        new_buddy = tmp_buddy;
-    }
+    if (tmp_buddy)
+      new_buddy = tmp_buddy;
   }
   if (new_buddy == current_buddy)
     return;

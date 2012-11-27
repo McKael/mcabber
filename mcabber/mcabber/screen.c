@@ -2449,14 +2449,29 @@ void scr_roster_bottom(void)
 void scr_roster_up_down(int updown, unsigned int n)
 {
   unsigned int i;
+  GList *new_buddy = current_buddy;
+  GList *tmp_buddy;
+
+  if (!current_buddy)
+    return;
 
   if (updown < 0) {
-    for (i = 0; i < n; i++)
-      set_current_buddy(g_list_previous(current_buddy));
+    for (i = 0; i < n; i++) {
+      tmp_buddy = g_list_previous(new_buddy);
+      if (tmp_buddy)
+        new_buddy = tmp_buddy;
+    }
   } else {
-    for (i = 0; i < n; i++)
-      set_current_buddy(g_list_next(current_buddy));
+    for (i = 0; i < n; i++) {
+      tmp_buddy = g_list_next(new_buddy);
+      if (tmp_buddy)
+        new_buddy = tmp_buddy;
+    }
   }
+  if (new_buddy == current_buddy)
+    return;
+
+  set_current_buddy(new_buddy);
   if (chatmode) {
     last_activity_buddy = current_buddy;
     scr_show_buddy_window();

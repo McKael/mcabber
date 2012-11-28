@@ -676,6 +676,9 @@ char *ut_expand_tabs(const char *text)
   char *p, *q;
   guint n = 0, bc = 0;
 
+  if (!text)
+    return NULL;
+
   xtext = (char*)text;
   for (p=xtext; *p; p++)
     if (*p == '\t')

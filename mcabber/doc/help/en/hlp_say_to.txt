@@ -1,9 +1,10 @@
 
- /SAY_TO [-n|-h] [-q] [-f file] jid text
+ /SAY_TO [-n|-h] [-e] [-q] [-f file] jid text
 
 Send the "text" message to the specified jid.
-Please note that you'll have to use a full jid with a resource identifier if you want to specify exactly where the message should go.
+Please note that you will have to use a full jid with a resource identifier if you want to specify exactly where the message should go.
 You can send a message to a specific resource of the currently selected contact by using /say_to ./resourcename message.
 The "-n" flag turns the message to "normal" type, "-h" to "headline".  "--" can be used to send chat messages beginning with -n or -h.
 When "-q" is used, the message will be sent in the background and will not change the current active window.
+The option "-e" enables interpretation of the strings "\n" and "\t".  This flag has no effect if the text comes from a file with option "-f".
 A text file can be provided with the "-f" switch (in which case there's no need to pass a text argument after the jid, of course).

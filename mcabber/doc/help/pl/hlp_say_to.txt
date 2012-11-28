@@ -1,8 +1,9 @@
 
- /SAY_TO [-h|-h] [-q] [-f file] jid tekst
+ /SAY_TO [-h|-h] [-e] [-q] [-f file] jid tekst
 
 Wysyła wiadomość "tekst" do podanej osoby "jid".
 Polecenie nie ustawia domyślnego zasobu dla kontaktu, więc jeżeli chcesz wysłać kilka wiadomości do konkretnego zasobu, musisz użyć "/say_to" dla każdej z wiadomości.
 Flaga "-n"  oraz "-h" pozwala ustawić tryby: "normal" oraz "headline". "--" może zostać użyte gdy wiadomość zaczyna się od -n lub -h.
 Kiedy "-q" jest użyte, wiadomośc zostanie wysłana w tle i nie zmieni bieżącego aktywnego okna.
+The option "-e" enables interpretation of the strings "\n" and "\t".  This flag has no effect if the text comes from a file with option "-f".
 Plik zawierający tekst może być podany za pomocą przełącznika "-f" (w tym wypadku, oczywiście nie potrzeba podawać argumentu "tekst" po "jid")

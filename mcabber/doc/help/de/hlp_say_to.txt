@@ -1,9 +1,10 @@
 
- /SAY_TO [-n|-h] [-q] [-f file] jid text
+ /SAY_TO [-n|-h] [-e] [-q] [-f file] jid text
 
 Sendet die Nachricht "text" zu der jid.
 Beachte bitte, dass du die vollständige JID mit Resource angeben musst, wenn du genau festlegen willst, wohin die Nachricht gesendet werden soll.
 Du kannst zum abkürzen der vollständigen JID bei dem gerade ausgewählten Kontakt auch den Befehl /say_to ./resoucename benutzen.
 Mit den Schaltern -n und -h kann man den Typ der Nachricht setzen(normal und headline). "--" kann benutzt werden um Nachrichten die mit -n oder -h beginnen zu versenden.
 Um eine Nachricht im Hintergrund zu versenden, kann man den Schalter -q benutzen.
+The option "-e" enables interpretation of the strings "\n" and "\t".  This flag has no effect if the text comes from a file with option "-f".
 Mit -f kann man eine Textdatei angeben, aus der die Nachricht ausgelesen wird.

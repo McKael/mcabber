@@ -1,8 +1,9 @@
 
- /SAY_TO [-n|-h] [-q] [-f fichier] jid texte
+ /SAY_TO [-n|-h] [-e] [-q] [-f fichier] jid texte
 
 Envoie le message "texte" à l'utilisateur "jid".
 Notez que vous devrez utiliser un JID complet (avec identifiant de ressource) si vous désirez préciser où le message doit arriver exactement.
 Vous pouvez envoyer un message à une ressource spécifique du contact sélectionné en faisant /say_to ./resource message.
 Lorsque "-q" est utilisé, le message sera envoyé en arrière plan et la fenêtre active sera conservée.
+L'option "-e" permet l'interprétation des chaînes spéciales "\n" et "\t". Cette option est inopérante si le texte est issu d'un fichier via l'option "-f".
 Un fichier texte peut être fourni avec l'option "-f" (auquel cas il est inutile de préciser le paramètre texte).

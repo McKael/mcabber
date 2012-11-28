@@ -1633,11 +1633,14 @@ char *load_message_from_file(const char *filename)
 static void do_say_to(char *arg)
 {
   char **paramlst;
-  char *fjid, *msg;
+  char *fjid, *msg_utf8;
+  char *msg;
+  char *unescaped_msg = NULL;
   char *uncompletedfjid = NULL;
   char *file = NULL;
   LmMessageSubType msg_type = LM_MESSAGE_SUB_TYPE_NOT_SET;
   bool quiet = FALSE;
+  bool eval = FALSE;
 
   if (!xmpp_is_online()) {
     scr_LogPrint(LPRINT_NORMAL, "You are not connected.");
@@ -1660,6 +1663,11 @@ static void do_say_to(char *arg)
       paramlst = split_arg(*(oldparamlst+1), 2, 1); // jid, message
       free_arg_lst(oldparamlst);
       quiet = TRUE;
+    } else if (!strcmp(*paramlst, "-e")) {
+      char **oldparamlst = paramlst;
+      paramlst = split_arg(*(oldparamlst+1), 2, 1); // jid, message
+      free_arg_lst(oldparamlst);
+      eval = TRUE;
     } else if (!strcmp(*paramlst, "-f")) {
       char **oldparamlst = paramlst;
       paramlst = split_arg(*(oldparamlst+1), 2, 1); // filename, jid
@@ -1723,13 +1731,20 @@ static void do_say_to(char *arg)
   }
 
   if (!file) {
-    msg = to_utf8(msg);
+    msg_utf8 = to_utf8(msg);
+    if (eval) {
+      unescaped_msg = ut_unescape_tabs_cr(msg_utf8);
+      // We must not free() if the original string was returned
+      if (unescaped_msg == msg_utf8)
+        unescaped_msg = NULL;
+    }
+    msg = (unescaped_msg ? unescaped_msg : msg_utf8);
   } else {
     char *filename_xp;
     if (msg)
       scr_LogPrint(LPRINT_NORMAL, "say_to: extra parameter ignored.");
     filename_xp = expand_filename(file);
-    msg = load_message_from_file(filename_xp);
+    msg = msg_utf8 = load_message_from_file(filename_xp);
     g_free(filename_xp);
     g_free(file);
   }
@@ -1738,7 +1753,8 @@ static void do_say_to(char *arg)
 
   g_free(uncompletedfjid);
   g_free(fjid);
-  g_free(msg);
+  g_free(msg_utf8);
+  g_free(unescaped_msg);
   free_arg_lst(paramlst);
 }
 

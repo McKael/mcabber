@@ -706,6 +706,53 @@ char *ut_expand_tabs(const char *text)
   return xtext;
 }
 
+//  ut_unescape_tabs_cr(text)
+// Expand CR or TAB character sequences (\n, \t) in string text.
+// If there is no CR/TAB in text, then the original pointer is returned
+// (be careful _not_ to free the pointer in this case).
+// If there are some unescaped sequences, a new string with those chars
+// replaced with real newline/tab characters is allocated; in this case
+// this is up to the caller to free this string after use.
+char *ut_unescape_tabs_cr(const char *text)
+{
+  char *xtext, *linestart;
+  char *p, *q;
+
+  if (!text)
+    return NULL;
+
+  p = g_strstr_len(text, -1, "\\n");
+  if (!p) {
+    p = g_strstr_len(text, -1, "\\t");
+    if (!p)
+      return (char*)text;
+  }
+
+  xtext = g_new(char, strlen(text) + 1);
+  p = (char*)text;
+  q = linestart = xtext;
+  do {
+    if (*p == '\\') {
+      if (*(p+1) == '\\' && (*(p+2) == 'n' || *(p+2) == 't')) {
+        // This is an escaped CR sequence
+        *q++ = '\\';
+        *q++ = 'n';
+        p += 2;
+        continue;
+      }
+      if (*(p+1) == 'n' || *(p+1) == 't') {
+        // This is a CR sequence
+        p++;
+        *q++ = (*p == 'n' ? '\n' : '\t');
+        continue;
+      }
+    }
+    *q++ = *p;
+  } while (*p++);
+
+  return xtext;
+}
+
 
 /* Cygwin's newlib does not have strcasestr() */
 /* The author of the code before the endif is

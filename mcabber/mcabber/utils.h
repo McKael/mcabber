@@ -45,6 +45,7 @@ void free_arg_lst(char **arglst);
 
 void replace_nl_with_dots(char *bufstr);
 char *ut_expand_tabs(const char *text);
+char *ut_unescape_tabs_cr(const char *text);
 
 #if !defined (HAVE_STRCASESTR)
 char *strcasestr(const char *haystack, const char *needle);

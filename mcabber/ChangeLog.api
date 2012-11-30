@@ -1,3 +1,10 @@
+dev (25)
+
+ * MQ patch record_dev25_in_changelog.diff
+ * Add ut_unescape_tabs_cr() to utils.h
+
+  -- Mikael Berthe, 2012-11-28
+
 dev (24)
 
  * Changeset 0cb8ea02e472

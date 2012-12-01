@@ -43,7 +43,7 @@ Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
  Ändert die Einstellungen für den aktuellen MUC.
  Für "print_status" sind folgende Werte möglich: "default", "none", "in_and_out", "all".
  Bei "auto_whois" sind die Werte "default", "off" und "on" gültig.
- For flag_joins, the possible values are "default", "none", "joins", "all".
+ Für "flag_joins" sind folgende Werte möglich: "default", "none", "joins", "all".
  Wenn man die Einstellungen auf "default" setzt, so werden die Optionen muc_print_status / muc_auto_whois / muc_flag_joins benutzt.
 /room bookmark [add|del] [-autojoin|+autojoin] [-|nick]
  Zum Hinzufügen, Löschen und Ändern von Raum-Bookmarks.

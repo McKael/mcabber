@@ -56,6 +56,6 @@ Hier die möglichen Parameter:
 /roster note [-|text]
  Eine Notiz "text" zu dem aktuellen Eintrag im Roster hinzufügen. Dieser wird angezeigt, wenn gerade kein Chat mit demjenigen läuft. Alle Notizen werden im Status Puffer angezeigt. Um die Notiz zu löschen setzt man den Text auf "-".
 /roster resource_lock [full jid|resource]
- Set active resource for a buddy in roster. Accepts special jid "./resource" for current buddy, or just a resource name.
+ Setzt die aktive Resource für den Buddy im Roster. Akzeptiert "./resource" für den ausgewählten Buddy oder auch nur einen Resource Bezeichner.
 /roster resource_unlock [jid]
- Unset active resource for a buddy. Accepts special jid "." for current buddy.
+ Löscht die aktive Resource für den Buddy. Akzeptiert "." für den ausgewählten Buddy.

@@ -39,11 +39,9 @@ Befehle für die Eingabezeile
  Den ersten Buchstaben des Wortes unter dem Cursor groß, den Rest der
  Buchstaben klein machen
 /iline hist_beginning_search_bwd
- In der History rückwärts nach dem schon eingegebenen Anfang suchen (Der Cursor
- bleibt dabei an der gleichen Stelle)
+ In der Historie rückwärts nach dem schon eingegebenen Anfang suchen (Der Cursor bleibt dabei an der gleichen Stelle)
 /iline hist_beginning_search_fwd
- In der History vorwärts nach dem schon eingegebenen Anfang suchen (Der Cursor
- bleibt dabei an der gleichen Stelle)
+ In der Historie vorwärts nach dem schon eingegebenen Anfang suchen (Der Cursor bleibt dabei an der gleichen Stelle)
 /iline hist_prev
  Vorherige Zeile der History
 /iline hist_next
@@ -61,8 +59,9 @@ Befehle für die Eingabezeile
 /iline iline_accept_down_hist
  Zeile akzeptieren und die nächste Zeile aus der History in die Eingabezeile schreiben
 /iline iline_insert text
- Insert text in the input line, at the current position.  Please note that quotes have to be escaped, and that the screen is not refreshed (use /screen_refresh).
+ Fügt Text in der Eingabezeile an der aktuellen Position ein. Anführungszeichen müssen escaped werden. Der Bildschirm wird nicht aktualisiert (siehe /screen_refresh)
 /iline clear_history
+ Löscht die Befehlshistorie
  Clear the command line history
 /iline compl_do
  Das derzeitig ausgewählte Wort vervollständigen

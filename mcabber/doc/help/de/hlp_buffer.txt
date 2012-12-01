@@ -30,7 +30,7 @@ Befehl um den Puffer für den momentan ausgewählten Buddy zu verändern. Man ka
 /buffer % n
  Springe zur Position "n" im Chatpuffer
 /buffer readmark
- Jump to the readmark (first unread line), if there is one
+ Springe zur Lesemarkierung (erste ungelesene Zeile), wenn es eine gibt
 /buffer search_backward text
  Suche rückwärts im Puffer nach "text"
 /buffer search_forward text

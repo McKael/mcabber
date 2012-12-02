@@ -1,5 +1,6 @@
 dev (25)
 
+ * Stable api 0.10.2:1
  * Changeset 998feaa54ef0
  * Add ut_unescape_tabs_cr() to utils.h
 

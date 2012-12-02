@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([mcabber],[0.10.2-dev],[mcabber@lilotux.net])
+AC_INIT([mcabber],[0.10.2],[mcabber@lilotux.net])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([mcabber])
 AM_CONFIG_HEADER(mcabber/config.h)
@@ -272,7 +272,7 @@ AM_CONDITIONAL([OTR], [test x$libotr_found = xyes])
 AM_CONDITIONAL([INSTALL_HEADERS], [test x$enable_modules != xno])
 
 # Prepare some config.h variables
-AC_DEFINE([MCABBER_BRANCH], "dev", [Mcabber branch])
+AC_DEFINE([MCABBER_BRANCH], "0.10.2", [Mcabber branch])
 AC_DEFINE([MCABBER_VERSION], "AC_PACKAGE_VERSION", [Mcabber version string])
 
 # We need _GNU_SOURCE for strptime() and strcasestr()

@@ -4,10 +4,10 @@
 #include <glib.h>
 #include <mcabber/config.h> // For MCABBER_BRANCH
 
-#define MCABBER_API_VERSION 25
-#define MCABBER_API_MIN     24
+#define MCABBER_API_VERSION 1
+#define MCABBER_API_MIN     1
 
-#define MCABBER_BRANCH_DEV  1
+/* #define MCABBER_BRANCH_DEV  0 */
 
 // cmd_add returns gpointer id
 #define MCABBER_API_HAVE_CMD_ID 1

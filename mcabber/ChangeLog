@@ -1,4 +1,4 @@
-mcabber (0.10.2-dev)
+mcabber (0.10.2)
 
  * Update receipts handling according to recent XEP updates (Myhailo Danylenko)
  * Update and modularize the FIFO system (Myhailo Danylenko)
@@ -8,6 +8,7 @@ mcabber (0.10.2-dev)
  * Add command /iline clear_history
  * Add command /iline iline_insert (Hermitifier)
  * Add command /room setopt flag_joins (Hermitifier)
+ * The command /say_to has a new option '-e' so that "\n" can be used
  * [MUC] Improve MUC support (Myhailo Danylenko)
  * [MUC] Add support for XEP-0249 / Direct MUC Invitations (Myhailo Danylenko)
  * [MUC] Refresh the roster when MUC bookmarks are received (Jan Zachorowski)
@@ -37,7 +38,7 @@ mcabber (0.10.2-dev)
  * Documentation update
  * Many misc. bugfixes and minor improvements
 
- -- Mikael, ?
+ -- Mikael, 2012-12-02
 
 mcabber (0.10.1)
 

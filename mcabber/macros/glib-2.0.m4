@@ -2,8 +2,8 @@
 # Owen Taylor     1997-2001
 
 dnl AM_PATH_GLIB_2_0([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND [, MODULES]]]])
-dnl Test for GLIB, and define GLIB_CFLAGS and GLIB_LIBS, if gmodule, gobject or 
-dnl gthread is specified in MODULES, pass to pkg-config
+dnl Test for GLIB, and define GLIB_CFLAGS and GLIB_LIBS, if gmodule, gobject,
+dnl gthread, or gio is specified in MODULES, pass to pkg-config
 dnl
 AC_DEFUN([AM_PATH_GLIB_2_0],
 [dnl 
@@ -28,10 +28,13 @@ AC_ARG_ENABLE(glibtest, [  --disable-glibtest      do not try to compile and run
          gthread) 
              pkg_config_args="$pkg_config_args gthread-2.0"
          ;;
+         gio*) 
+             pkg_config_args="$pkg_config_args $module-2.0"
+         ;;
       esac
   done
 
-  PKG_PROG_PKG_CONFIG([0.7])
+  PKG_PROG_PKG_CONFIG([0.16])
 
   no_glib=""
 
@@ -61,6 +64,7 @@ AC_ARG_ENABLE(glibtest, [  --disable-glibtest      do not try to compile and run
     GLIB_GENMARSHAL=`$PKG_CONFIG --variable=glib_genmarshal glib-2.0`
     GOBJECT_QUERY=`$PKG_CONFIG --variable=gobject_query glib-2.0`
     GLIB_MKENUMS=`$PKG_CONFIG --variable=glib_mkenums glib-2.0`
+    GLIB_COMPILE_RESOURCES=`$PKG_CONFIG --variable=glib_compile_resources gio-2.0`
 
     GLIB_CFLAGS=`$PKG_CONFIG --cflags $pkg_config_args`
     GLIB_LIBS=`$PKG_CONFIG --libs $pkg_config_args`
@@ -88,14 +92,14 @@ dnl
 int 
 main ()
 {
-  int major, minor, micro;
+  unsigned int major, minor, micro;
   char *tmp_version;
 
-  system ("touch conf.glibtest");
+  fclose (fopen ("conf.glibtest", "w"));
 
   /* HP/UX 9 (%@#!) writes to sscanf strings */
   tmp_version = g_strdup("$min_glib_version");
-  if (sscanf(tmp_version, "%d.%d.%d", &major, &minor, &micro) != 3) {
+  if (sscanf(tmp_version, "%u.%u.%u", &major, &minor, &micro) != 3) {
      printf("%s, bad version string\n", "$min_glib_version");
      exit(1);
    }
@@ -134,9 +138,9 @@ main ()
        }
      else
       {
-        printf("\n*** An old version of GLIB (%d.%d.%d) was found.\n",
+        printf("\n*** An old version of GLIB (%u.%u.%u) was found.\n",
                glib_major_version, glib_minor_version, glib_micro_version);
-        printf("*** You need a version of GLIB newer than %d.%d.%d. The latest version of\n",
+        printf("*** You need a version of GLIB newer than %u.%u.%u. The latest version of\n",
 	       major, minor, micro);
         printf("*** GLIB is always available from ftp://ftp.gtk.org.\n");
         printf("***\n");
@@ -197,6 +201,7 @@ main ()
      GLIB_GENMARSHAL=""
      GOBJECT_QUERY=""
      GLIB_MKENUMS=""
+     GLIB_COMPILE_RESOURCES=""
      ifelse([$3], , :, [$3])
   fi
   AC_SUBST(GLIB_CFLAGS)
@@ -204,5 +209,6 @@ main ()
   AC_SUBST(GLIB_GENMARSHAL)
   AC_SUBST(GOBJECT_QUERY)
   AC_SUBST(GLIB_MKENUMS)
+  AC_SUBST(GLIB_COMPILE_RESOURCES)
   rm -f conf.glibtest
 ])

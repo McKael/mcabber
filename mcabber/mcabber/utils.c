@@ -91,6 +91,19 @@ char *jid_get_username(const char *fjid)
   return username;
 }
 
+char *get_servername(const char *username, const char *servername)
+{
+  char *ptr;
+  char *server;
+
+  if ((ptr = strchr(username, JID_DOMAIN_SEPARATOR)) != NULL) {
+    server = g_strdup(ptr+1);
+    return server;
+  }
+
+  return servername;
+}
+
 char *compose_jid(const char *username, const char *servername,
                   const char *resource)
 {

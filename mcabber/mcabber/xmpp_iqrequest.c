@@ -47,6 +47,9 @@ static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
                                LmMessage *m, gpointer user_data);
 static LmHandlerResult cb_vcard(LmMessageHandler *h, LmConnection *c,
                                LmMessage *m, gpointer user_data);
+static LmHandlerResult cb_disco_info(LmMessageHandler *h, LmConnection *c,
+                               LmMessage *m, gpointer user_data);
+
 
 static struct IqRequestHandlers
 {
@@ -60,6 +63,7 @@ static struct IqRequestHandlers
   {NS_LAST,     "query", &cb_last},
   {NS_PING,     "ping",  &cb_ping},
   {NS_VCARD,    "vCard", &cb_vcard},
+  {NS_DISCO_INFO, "query", &cb_disco_info},
   {NULL, NULL, NULL}
 };
 
@@ -74,6 +78,26 @@ enum vcard_attr {
   vcard_inet    = 1<<6,
   vcard_pref    = 1<<7,
 };
+
+static LmHandlerResult cb_disco_info(LmMessageHandler *h, LmConnection *c,
+                               LmMessage *m, gpointer user_data)
+{
+  LmMessageNode *ansqry;
+  LmMessageNode *feature;
+
+  ansqry = lm_message_node_get_child(m->node, "query");
+
+  feature = lm_message_node_get_child(ansqry, "feature");
+  for(;feature;feature = feature->next) {
+    const char *v = lm_message_node_get_attribute(feature, "var");
+
+    if (!g_strcmp0(v, NS_CARBONS_2)) {
+     scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "We have carbons!");       
+    }
+  }
+
+  return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+}
 
 static LmHandlerResult cb_ping(LmMessageHandler *h, LmConnection *c,
                                LmMessage *m, gpointer user_data)
@@ -159,6 +183,10 @@ void xmpp_iq_request(const char *fulljid, const char *xmlns)
     gettimeofday(now, NULL);
     data = (gpointer)now;
     notifier = g_free;
+  } else if (!g_strcmp0(xmlns, NS_DISCO_INFO)) {
+    gchar *servername = get_servername(settings_opt_get("jid"), settings_opt_get("server"));
+    lm_message_node_set_attribute(iq->node, "to", servername);
+    g_free(servername);
   }
 
   handler = lm_message_handler_new(iq_request_handlers[i].handler,

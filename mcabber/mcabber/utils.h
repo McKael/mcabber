@@ -16,6 +16,7 @@ extern const char *LocaleCharSet;
 
 char *jidtodisp(const char *fjid);
 char *jid_get_username(const char *fjid);
+char *get_servername(const char *username, const char *servername);
 char *compose_jid(const char *username, const char *servername,
                   const char *resource);
 gboolean jid_equal(const char *jid1, const char *jid2);

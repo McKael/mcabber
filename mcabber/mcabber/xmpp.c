@@ -852,6 +852,7 @@ static void connection_auth_cb(LmConnection *connection, gboolean success,
   if (success) {
 
     xmpp_iq_request(NULL, NS_ROSTER);
+    xmpp_iq_request(NULL, NS_DISCO_INFO);
     xmpp_request_storage("storage:bookmarks");
     xmpp_request_storage("storage:rosternotes");
 

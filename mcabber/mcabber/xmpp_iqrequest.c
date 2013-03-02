@@ -31,6 +31,7 @@
 #include "settings.h"
 #include "hooks.h"
 #include "hbuf.h"
+#include "carbons.h"
 
 extern LmMessageNode *bookmarks;
 extern LmMessageNode *rosternotes;
@@ -92,7 +93,7 @@ static LmHandlerResult cb_disco_info(LmMessageHandler *h, LmConnection *c,
     const char *v = lm_message_node_get_attribute(feature, "var");
 
     if (!g_strcmp0(v, NS_CARBONS_2)) {
-     scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "We have carbons!");       
+      carbons_available();
     }
   }
 

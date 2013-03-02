@@ -374,6 +374,7 @@ int main(int argc, char **argv)
   scr_init_bindings();
   scr_init_settings();
   caps_init();
+  carbons_init();
 #ifdef MODULES_ENABLE
   modules_init();
 #endif

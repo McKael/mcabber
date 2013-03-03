@@ -62,6 +62,5 @@ void carbons_disable()
 static LmHandlerResult cb_carbons_enable(LmMessageHandler *h, LmConnection *c,
                                          LmMessage *m, gpointer user_data)
 {
-  scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "We have a response! O Yeah!");
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }

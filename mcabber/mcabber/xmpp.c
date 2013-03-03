@@ -1273,7 +1273,42 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     handle_state_events(from, m->node);
   }
 
-  if (from && (body || subject))
+  // Check for carbons!
+  x = lm_message_node_find_xmlns(m->node, NS_CARBONS_2);
+  char carbons = 0;
+  if (x) {
+    carbons = 1;
+    // Parse a message that is send to one of our other resources
+    if (!g_strcmp0(x->name, "received")) {
+      // Go 1 level deeper to the forwarded message
+      x = lm_message_node_find_xmlns(x, "urn:xmpp:forward:0");
+      x = lm_message_node_get_child(x, "message");
+
+      from = lm_message_node_get_attribute(x, "from");
+      g_free(bjid);
+      bjid = g_strdup(from);
+      res = strchr(bjid, JID_RESOURCE_SEPARATOR);
+      if (res) *res++ = 0;
+      scr_WriteIncomingMessage(bjid, body, timestamp, HBB_PREFIX_IN, 0);
+
+      scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "carbon from:%s", lm_message_node_get_attribute(x, "from"));
+
+    } else if (!g_strcmp0(x->name, "sent")) {
+      x = lm_message_node_find_xmlns(x, "urn:xmpp:forward:0");
+      x = lm_message_node_get_child(x, "message");
+
+      const char *to= lm_message_node_get_attribute(x, "to");
+      g_free(bjid);
+      bjid = g_strdup(to);
+      res = strchr(bjid, JID_RESOURCE_SEPARATOR);
+      if (res) *res++ = 0;
+ 
+      scr_write_outgoing_message(bjid, body, 0, NULL);
+    }
+  }
+
+
+  if (from && (body || subject) && !carbons)
     gotmessage(mstype, from, body, enc, subject, timestamp,
                lm_message_node_find_xmlns(m->node, NS_SIGNED));
 

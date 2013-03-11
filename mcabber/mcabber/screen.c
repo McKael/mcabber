@@ -350,11 +350,15 @@ void scr_muc_nick_color(const char *nick, const char *color)
       g_free(mnick);
     } else {
       nickcolor *nc = g_new(nickcolor, 1);
+      nickcolor *oc;
       ensure_string_htable(&nickcolors, NULL);
       nc->manual = TRUE;
       nc->color = cl;
       // Free the struct, if any there already
-      g_free(g_hash_table_lookup(nickcolors, mnick));
+      if ((oc = g_hash_table_lookup(nickcolors, mnick))) {
+        g_free(oc -> color);
+        g_free(oc);
+      }
       // Save the new ones
       g_hash_table_replace(nickcolors, mnick, nc);
       g_hash_table_replace(nickcolors, snick, nc);

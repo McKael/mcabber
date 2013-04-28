@@ -64,7 +64,8 @@ typedef struct {
   int value;
   int utf8;
   enum {
-    MKEY_META = 1,
+    MKEY_NONE = 0,
+    MKEY_META,
     MKEY_EQUIV,
     MKEY_CTRL_PGUP,
     MKEY_CTRL_PGDOWN,

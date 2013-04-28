@@ -702,18 +702,15 @@ LmHandlerResult handle_iq_version(LmMessageHandler *h, LmConnection *c,
 {
   LmMessage *r;
   LmMessageNode *query;
-  char *os = NULL;
-  char *ver = mcabber_version();
 
   if (!settings_opt_get_int("iq_hide_requests")) {
     scr_LogPrint(LPRINT_LOGNORM, "Received an IQ version request from <%s>",
                  lm_message_get_from(m));
   }
-  if (!settings_opt_get_int("iq_version_hide_os")) {
-    struct utsname osinfo;
-    uname(&osinfo);
-    os = g_strdup_printf("%s %s %s", osinfo.sysname, osinfo.release,
-                         osinfo.machine);
+
+  if (settings_opt_get_int("iq_version_hide")) {
+    send_iq_error(c, m, XMPP_ERROR_SERVICE_UNAVAILABLE);
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
   r = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
@@ -722,13 +719,25 @@ LmHandlerResult handle_iq_version(LmMessageHandler *h, LmConnection *c,
   lm_message_node_set_attribute(query, "xmlns", NS_VERSION);
 
   lm_message_node_add_child(query, "name", PACKAGE_NAME);
-  lm_message_node_add_child(query, "version", ver);
-  if (os) {
+
+  // MCabber version
+  if (!settings_opt_get_int("iq_version_hide_version")) {
+    char *ver = mcabber_version();
+    lm_message_node_add_child(query, "version", ver);
+    g_free(ver);
+  }
+
+  // OS details
+  if (!settings_opt_get_int("iq_version_hide_os")) {
+    char *os;
+    struct utsname osinfo;
+    uname(&osinfo);
+    os = g_strdup_printf("%s %s %s", osinfo.sysname, osinfo.release,
+                         osinfo.machine);
     lm_message_node_add_child(query, "os", os);
     g_free(os);
   }
 
-  g_free(ver);
   lm_connection_send(c, r, NULL);
   lm_message_unref(r);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;

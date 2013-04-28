@@ -760,7 +760,7 @@ LmHandlerResult handle_iq_time(LmMessageHandler *h, LmConnection *c,
                  lm_message_get_from(m));
   }
 
-  if (settings_opt_get_int("iq_version_hide_time")) {
+  if (settings_opt_get_int("iq_time_hide")) {
     send_iq_error(c, m, XMPP_ERROR_SERVICE_UNAVAILABLE);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
@@ -815,7 +815,7 @@ LmHandlerResult handle_iq_time202(LmMessageHandler *h, LmConnection *c,
                  lm_message_get_from(m));
   }
 
-  if (settings_opt_get_int("iq_version_hide_time")) {
+  if (settings_opt_get_int("iq_time_hide")) {
     send_iq_error(c, m, XMPP_ERROR_SERVICE_UNAVAILABLE);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }

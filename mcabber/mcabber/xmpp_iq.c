@@ -751,6 +751,11 @@ LmHandlerResult handle_iq_time(LmMessageHandler *h, LmConnection *c,
                  lm_message_get_from(m));
   }
 
+  if (settings_opt_get_int("iq_version_hide_time")) {
+    send_iq_error(c, m, XMPP_ERROR_SERVICE_UNAVAILABLE);
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
+
   buf = g_new0(char, 512);
 
   r = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
@@ -799,6 +804,11 @@ LmHandlerResult handle_iq_time202(LmMessageHandler *h, LmConnection *c,
   if (!settings_opt_get_int("iq_hide_requests")) {
     scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>",
                  lm_message_get_from(m));
+  }
+
+  if (settings_opt_get_int("iq_version_hide_time")) {
+    send_iq_error(c, m, XMPP_ERROR_SERVICE_UNAVAILABLE);
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 
   buf = g_new0(char, 512);

@@ -186,6 +186,10 @@ set max_history_blocks = 8
 # your OS version.
 #set iq_version_hide_os = 0
 #
+# Set iq_version_hide_time to 1 if you do not want to allow people to retrieve
+# your OS time.
+#set iq_version_hide_time = 0
+#
 # Set iq_last_disable to 1 if you want to disable response to jabber:iq:last
 # queries (XEP-0012).  Set iq_last_disable_when_notavail to 1 if you want
 # to disable Last Activity reports only when the not-available status is set.

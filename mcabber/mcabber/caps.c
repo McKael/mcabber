@@ -447,13 +447,13 @@ void caps_copy_to_persistent(const char* hash, char* xml)
   int fd;
 
   g_free (xml);
-  
+
   c = g_hash_table_lookup (caps_cache, hash);
-  if (!c) 
+  if (!c)
     goto caps_copy_return;
 
   file = caps_get_filename (hash);
-  if (!file) 
+  if (!file)
     goto caps_copy_return;
 
   fd = open (file, O_WRONLY|O_CREAT|O_EXCL, S_IRUSR|S_IWUSR);
@@ -531,7 +531,7 @@ void caps_copy_to_persistent(const char* hash, char* xml)
 
             g_key_file_set_string_list (key_file, group, field->data,
                                         (const gchar**)string_list, i);
-            
+
             g_strfreev (string_list);
           }
         }

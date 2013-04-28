@@ -405,6 +405,7 @@ set escdelay = 50
 # rostersel:   text color of the selected roster item
 # rosterselmsg:text color of the selected roster item, if there is a new msg
 # rosternewmsg: text color of items with unread messages
+# readmark:   text color of the "read mark" line in buffers
 #
 #set color_background   = black
 #set color_general      = white

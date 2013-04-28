@@ -1,3 +1,12 @@
+dev (26)
+
+ * Changeset 69699ba3010f
+   Add 'iq_time_hide'
+ * Changeset 79659eb4f66f
+   Add 'iq_version_hide_version'
+
+  -- Mikael Berthe, 2013-04-28
+
 dev (25)
 
  * Stable api 0.10.2:1

@@ -1490,8 +1490,17 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   }
 
   p = lm_message_node_get_child_value(m->node, "priority");
-  if (p && *p) bpprio = (gchar)atoi(p);
-  else         bpprio = 0;
+  if (p && *p) {
+    int rawprio = atoi(p);
+    if (rawprio > 127)
+      bpprio = 127;
+    else if (rawprio < -128)
+      bpprio = -128;
+    else
+      bpprio = rawprio;
+  } else {
+    bpprio = 0;
+  }
 
   ust = available;
 

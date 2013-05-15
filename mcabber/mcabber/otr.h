@@ -5,6 +5,9 @@
 
 #ifdef HAVE_LIBOTR
 
+#ifndef HAVE_LIBOTR3
+# include <libotr/instag.h>
+#endif
 #include <libotr/proto.h>
 #include <libotr/message.h>
 #include <libotr/privkey.h>

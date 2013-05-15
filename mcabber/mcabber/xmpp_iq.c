@@ -79,7 +79,7 @@ const struct adhoc_status adhoc_status_list[] = {
   {"online", "Online", "avail"},
   {"chat", "Chat", "free"},
   {"dnd", "Do not disturb", "dnd"},
-  {"xd", "Extended away", "notavail"},
+  {"xa", "Extended away", "notavail"},
   {"away", "Away", "away"},
 #ifdef WITH_DEPRECATED_STATUS_INVISIBLE
   {"invisible", "Invisible", "invisible"},

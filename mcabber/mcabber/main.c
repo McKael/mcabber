@@ -118,6 +118,8 @@ void sig_handler(int signum)
     mcabber_terminate("Killed by SIGTERM");
   } else if (signum == SIGINT) {
     mcabber_terminate("Killed by SIGINT");
+  } else if (signum == SIGHUP) {
+    mcabber_terminate("Killed by SIGHUP");
 #ifdef USE_SIGWINCH
   } else if (signum == SIGWINCH) {
     if (scr_curses_status())
@@ -332,6 +334,7 @@ int main(int argc, char **argv)
 
   signal(SIGTERM, sig_handler);
   signal(SIGINT,  sig_handler);
+  signal(SIGHUP,  sig_handler);
   signal(SIGCHLD, sig_handler);
 #ifdef USE_SIGWINCH
   signal(SIGWINCH, sig_handler);

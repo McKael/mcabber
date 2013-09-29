@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.59)
 AC_INIT([mcabber],[0.10.3-dev],[mcabber@lilotux.net])
-AM_INIT_AUTOMAKE
+XC_AUTOMAKE
 AC_CONFIG_SRCDIR([mcabber])
 AM_CONFIG_HEADER(mcabber/config.h)
 AC_CONFIG_HEADER(include/config.h)

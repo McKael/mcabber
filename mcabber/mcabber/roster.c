@@ -1467,7 +1467,7 @@ const char *buddy_getactiveresource(gpointer rosterdata)
     if (!current_buddy) return NULL;
     roster_usr = BUDDATA(current_buddy);
   }
-  
+
   resource = roster_usr->active_resource;
   if (!resource) return NULL;
   return resource->name;

@@ -662,7 +662,7 @@ static void roster_resourcelock(char *jidres, gboolean lock) {
       resource = jidres;
     }
   }
-  
+
   if (bud && buddy_gettype(bud) & (ROSTER_TYPE_USER|ROSTER_TYPE_AGENT)) {
     if (lock) {
       GSList *resources, *p_res;

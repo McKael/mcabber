@@ -3453,7 +3453,7 @@ void readline_backward_kill_word(void)
 }
 
 //  readline_backward_word()
-// Move  back  to the start of the current or previous word
+// Move back to the start of the current or previous word
 void readline_backward_word(void)
 {
   int i = 0;

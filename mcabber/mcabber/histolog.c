@@ -229,6 +229,12 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
 
     while (1) {
       for (tail = data; *tail; tail++) ;
+      if (tail == data) {
+        // That would happen if the log file has NUL characters...
+        scr_LogPrint(LPRINT_LOGNORM, "Corrupted history file!  Trying to recover.");
+        err = 1;
+        break;
+      }
       noeol = (*(tail-1) != '\n');
       if (!noeol)
         break;

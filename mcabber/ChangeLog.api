@@ -1,3 +1,12 @@
+dev (27)
+
+ * Changeset 8da280d34b48
+   Rename the FIFO code file names (internal + module)
+ * Changeset 9fb1ccf291cc
+   Switch to libotr v4 API
+
+  -- Mikael Berthe, 2013-09-29
+
 dev (26)
 
  * Changeset 69699ba3010f

@@ -1,7 +1,9 @@
-
-/* Copyright 2009,2010 Myhailo Danylenko
+/*
+ *  Module "fifo"       -- Reads and executes command from FIFO pipe
  *
- * This file is part of mcabber
+ * Copyright 2009, 2010 Myhailo Danylenko
+ *
+ * This file is part of mcabber.
  *
  * mcabber is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

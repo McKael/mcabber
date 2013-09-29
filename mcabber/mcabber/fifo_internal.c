@@ -1,5 +1,5 @@
 /*
- * fifo.c       -- Read commands from a named pipe
+ * fifo_internal.c      -- Read commands from a named pipe
  *
  * Copyright (C) 2008,2009 Mikael Berthe <mikael@lilotux.net>
  * Copyright (C) 2009      Myhailo Danylenko <isbear@ukrpost.net>

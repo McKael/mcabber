@@ -55,7 +55,7 @@ endif
 
 mcabberincludedir = $(includedir)/mcabber
 else
-mcabber_SOURCES += fifo.c fifo.h
+mcabber_SOURCES += fifo_internal.c fifo.h
 endif
 
 #SUBDIRS =

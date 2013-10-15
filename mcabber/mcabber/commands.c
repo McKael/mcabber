@@ -39,6 +39,7 @@
 #include "settings.h"
 #include "events.h"
 #include "otr.h"
+#include "carbons.h"
 #include "utf8.h"
 #include "xmpp.h"
 #include "main.h"
@@ -94,6 +95,7 @@ static void do_otr(char *arg);
 static void do_otrpolicy(char *arg);
 static void do_echo(char *arg);
 static void do_module(char *arg);
+static void do_carbons(char *arg);
 
 static void room_bookmark(gpointer bud, char *arg);
 
@@ -190,6 +192,7 @@ void cmd_init(void)
   cmd_add("bind", "Add an key binding", 0, 0, &do_bind, NULL);
   cmd_add("buffer", "Manipulate current buddy's buffer (chat window)",
           COMPL_BUFFER, 0, &do_buffer, NULL);
+  cmd_add("carbons", "Mange carbons settings", COMPL_CARBONS, 0, &do_carbons, NULL);
   cmd_add("chat_disable", "Disable chat mode", 0, 0, &do_chat_disable, NULL);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear, NULL);
   cmd_add("color", "Set coloring options", COMPL_COLOR, 0, &do_color, NULL);
@@ -390,6 +393,11 @@ void cmd_init(void)
   compl_add_category_word(COMPL_MODULE, "load");
   compl_add_category_word(COMPL_MODULE, "unload");
 #endif
+
+  // Carbons category
+  compl_add_category_word(COMPL_CARBONS, "info");
+  compl_add_category_word(COMPL_CARBONS, "enable");
+  compl_add_category_word(COMPL_CARBONS, "disable");
 }
 
 //  expandalias(line)
@@ -4149,6 +4157,17 @@ static void do_echo(char *arg)
 {
   if (arg)
     scr_print_logwindow(arg);
+}
+
+static void do_carbons(char *arg)
+{
+  if (!strcasecmp(arg, "info")) {
+    carbons_info();
+  } else if (!strcasecmp(arg, "enable")) {
+
+  } else if (!strcasecmp(arg, "disable")) {
+
+  }
 }
 
 /* vim: set expandtab cindent cinoptions=>2\:2(0 sw=2 ts=2:  For Vim users... */

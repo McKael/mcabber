@@ -27,8 +27,9 @@
 #define COMPL_OTR         20
 #define COMPL_OTRPOLICY   21
 #define COMPL_MODULE      22
+#define COMPL_CARBONS     23
 /* private */
-#define COMPL_MAX_ID      22
+#define COMPL_MAX_ID      23
 
 void compl_init_system(void); /* private */
 

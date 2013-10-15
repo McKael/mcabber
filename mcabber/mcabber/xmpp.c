@@ -1291,7 +1291,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       if (res) *res++ = 0;
       scr_WriteIncomingMessage(bjid, body, timestamp, HBB_PREFIX_IN, 0);
 
-      scr_LogPrint(LPRINT_NORMAL|LPRINT_DEBUG, "carbon from:%s", lm_message_node_get_attribute(x, "from"));
+      scr_LogPrint(LPRINT_DEBUG, "carbon from:%s", lm_message_node_get_attribute(x, "from"));
 
     } else if (!g_strcmp0(x->name, "sent")) {
       x = lm_message_node_find_xmlns(x, "urn:xmpp:forward:0");

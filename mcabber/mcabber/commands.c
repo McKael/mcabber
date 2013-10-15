@@ -4164,9 +4164,9 @@ static void do_carbons(char *arg)
   if (!strcasecmp(arg, "info")) {
     carbons_info();
   } else if (!strcasecmp(arg, "enable")) {
-
+    carbons_enable();
   } else if (!strcasecmp(arg, "disable")) {
-
+    carbons_disable();
   }
 }
 

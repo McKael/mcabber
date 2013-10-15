@@ -12,11 +12,6 @@ static LmHandlerResult cb_carbons(LmMessageHandler *h, LmConnection *c,
                                   LmMessage *m, gpointer user_data);
 
 
-void carbons_init()
-{
-
-}
-
 void carbons_available()
 {
   int enable = 0;

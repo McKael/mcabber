@@ -1798,7 +1798,8 @@ static void lm_debug_handler (const gchar    *log_domain,
 // (no JID, no password, etc.)
 gint xmpp_connect(void)
 {
-  const char *userjid, *password, *resource, *servername, *ssl_fpr;
+  const char *userjid, *password, *resource, *servername;
+  const char *ssl_fpr, *ssl_ciphers;
   char *dynresource = NULL;
   char fpr[16];
   const char *proxy_host;
@@ -1813,12 +1814,13 @@ gint xmpp_connect(void)
 
   xmpp_disconnect();
 
-  servername = settings_opt_get("server");
-  userjid    = settings_opt_get("jid");
-  password   = settings_opt_get("password");
-  resource   = settings_opt_get("resource");
-  proxy_host = settings_opt_get("proxy_host");
-  ssl_fpr    = settings_opt_get("ssl_fingerprint");
+  servername  = settings_opt_get("server");
+  userjid     = settings_opt_get("jid");
+  password    = settings_opt_get("password");
+  resource    = settings_opt_get("resource");
+  proxy_host  = settings_opt_get("proxy_host");
+  ssl_fpr     = settings_opt_get("ssl_fingerprint");
+  ssl_ciphers = settings_opt_get("ssl_ciphers");
 
   if (!userjid) {
     scr_LogPrint(LPRINT_LOGNORM, "Your JID has not been specified!");
@@ -1955,6 +1957,7 @@ gint xmpp_connect(void)
   lssl = lm_ssl_new((ssl_fpr ? fpr : NULL), ssl_cb, NULL, NULL);
   if (lssl) {
     lm_ssl_use_starttls(lssl, !ssl, tls);
+    lm_ssl_set_cipher_list(lssl, ssl_ciphers);
     lm_connection_set_ssl(lconnection, lssl);
     lm_ssl_unref(lssl);
   } else if (ssl || tls) {

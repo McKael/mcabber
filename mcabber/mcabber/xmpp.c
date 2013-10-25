@@ -1957,7 +1957,9 @@ gint xmpp_connect(void)
   lssl = lm_ssl_new((ssl_fpr ? fpr : NULL), ssl_cb, NULL, NULL);
   if (lssl) {
     lm_ssl_use_starttls(lssl, !ssl, tls);
+#ifdef HAVE_LM_SSL_CIPHER_LIST
     lm_ssl_set_cipher_list(lssl, ssl_ciphers);
+#endif
     lm_connection_set_ssl(lconnection, lssl);
     lm_ssl_unref(lssl);
   } else if (ssl || tls) {

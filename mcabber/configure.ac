@@ -154,6 +154,13 @@ AM_PATH_GLIB_2_0(2.14.0,
 # Check for loudmouth
 PKG_CHECK_MODULES(LOUDMOUTH, loudmouth-1.0 >= 1.4.2)
 
+# Check for lm_ssl_set_cipher_list in loudmouth
+AC_CHECK_LIB(loudmouth-1, lm_ssl_set_cipher_list,
+              AC_DEFINE([HAVE_LM_SSL_CIPHER_LIST], 1,
+                        [Define that loudmouth has lm_ssl_cipher_list]
+                        )
+            )
+
 # Check for libidn
 AC_ARG_WITH(libidn, AC_HELP_STRING([--with-libidn=[DIR]],
                                    [Support IDN (needs GNU Libidn)]),

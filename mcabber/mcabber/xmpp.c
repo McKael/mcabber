@@ -1958,6 +1958,10 @@ gint xmpp_connect(void)
     const char *ssl_ciphers = settings_opt_get("ssl_ciphers");
     lm_ssl_set_cipher_list(lssl, ssl_ciphers);
 #endif
+#ifdef HAVE_LM_SSL_CA
+    const char *ssl_ca = settings_opt_get("ssl_ca");
+    lm_ssl_set_ca(lssl, ssl_ca);
+#endif
     lm_ssl_use_starttls(lssl, !ssl, tls);
     lm_connection_set_ssl(lconnection, lssl);
     lm_ssl_unref(lssl);

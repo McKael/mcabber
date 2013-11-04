@@ -160,6 +160,13 @@ AC_CHECK_LIB(loudmouth-1, lm_ssl_set_cipher_list,
                         [Define that loudmouth has lm_ssl_cipher_list]
                         )
             )
+# Check for lm_ssl_set_cipher_list in loudmouth
+AC_CHECK_LIB(loudmouth-1, lm_ssl_set_ca,
+              AC_DEFINE([HAVE_LM_SSL_CA], 1,
+                        [Define that loudmouth has lm_ssl_ca]
+                        )
+            )
+
 
 # Check for libidn
 AC_ARG_WITH(libidn, AC_HELP_STRING([--with-libidn=[DIR]],

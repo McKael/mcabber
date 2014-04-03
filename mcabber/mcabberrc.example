@@ -406,6 +406,7 @@ set escdelay = 50
 # rosterselmsg:text color of the selected roster item, if there is a new msg
 # rosternewmsg: text color of items with unread messages
 # readmark:   text color of the "read mark" line in buffers
+# timestamp:  text color in the chat window for delayed timestamps
 #
 #set color_background   = black
 #set color_general      = white
@@ -422,6 +423,7 @@ set escdelay = 50
 #set color_rosterselmsg = red
 #set color_rosternewmsg = red
 #set color_readmark     = red
+#set color_timestamp    = brightblue
 
 # You can color roster items by their status and JID.  For example, to have
 # all roster items white, just all contacts from jabber.org that are away,

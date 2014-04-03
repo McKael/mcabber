@@ -1220,6 +1220,9 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   res = strchr(bjid, JID_RESOURCE_SEPARATOR);
   if (res) *res++ = 0;
 
+  // Timestamp?
+  timestamp = lm_message_node_get_timestamp(m->node);
+
   p = lm_message_node_get_child_value(m->node, "subject");
   if (p != NULL) {
     if (mstype != LM_MESSAGE_SUB_TYPE_GROUPCHAT) {
@@ -1247,7 +1250,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
         else
           mbuf = g_strdup_printf("%s has cleared the topic", res);
       }
-      scr_WriteIncomingMessage(bjid, mbuf, 0,
+      scr_WriteIncomingMessage(bjid, mbuf, timestamp,
                                HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
       if (settings_opt_get_int("log_muc_conf"))
         hlog_write_message(bjid, 0, -1, mbuf);
@@ -1256,9 +1259,6 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       scr_update_chat_status(TRUE);
     }
   }
-
-  // Timestamp?
-  timestamp = lm_message_node_get_timestamp(m->node);
 
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     x = lm_message_node_get_child(m->node, "error");

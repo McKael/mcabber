@@ -440,6 +440,7 @@ static void parse_colors(void)
     "info",
     "msgin",
     "readmark",
+    "timestamp",
     NULL
   };
 
@@ -523,6 +524,10 @@ static void parse_colors(void)
           break;
       case COLOR_READMARK:
           init_pair(i+1, ((color) ? find_color(color) : COLOR_RED),
+                    find_color(background));
+          break;
+      case COLOR_TIMESTAMP:
+          init_pair(i+1, ((color) ? find_color(color) : COLOR_WHITE),
                     find_color(background));
           break;
     }
@@ -810,6 +815,7 @@ void scr_init_curses(void)
   settings_set_guard("color_rostersel", scr_color_guard);
   settings_set_guard("color_rosterselmsg", scr_color_guard);
   settings_set_guard("color_rosternewmsg", scr_color_guard);
+  settings_set_guard("color_timestamp", scr_color_guard);
 
   getmaxyx(stdscr, maxY, maxX);
   Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
@@ -1060,13 +1066,14 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
 //  scr_line_prefix(line, pref, preflen)
 // Use data from the hbb_line structure and write the prefix
 // to pref (not exceeding preflen, trailing null byte included).
-void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
+size_t scr_line_prefix(hbb_line *line, char *pref, guint preflen)
 {
   char date[64];
+  size_t timepreflen = 0;
 
   if (line->timestamp &&
       !(line->flags & (HBB_PREFIX_SPECIAL|HBB_PREFIX_CONT))) {
-    strftime(date, 30, gettprefix(), localtime(&line->timestamp));
+    timepreflen = strftime(date, 30, gettprefix(), localtime(&line->timestamp));
   } else
     strcpy(date, "           ");
 
@@ -1108,7 +1115,7 @@ void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
         receiptflag = '-';
       g_snprintf(pref, preflen, "%s%c%c> ", date, receiptflag, cryptflag);
     } else if (line->flags & HBB_PREFIX_SPECIAL) {
-      strftime(date, 30, getspectprefix(), localtime(&line->timestamp));
+      timepreflen = strftime(date, 30, getspectprefix(), localtime(&line->timestamp));
       g_snprintf(pref, preflen, "%s   ", date);
     } else {
       g_snprintf(pref, preflen, "%s    ", date);
@@ -1116,6 +1123,7 @@ void scr_line_prefix(hbb_line *line, char *pref, guint preflen)
   } else {
     g_snprintf(pref, preflen, "                ");
   }
+  return timepreflen;
 }
 
 //  scr_update_window()
@@ -1188,6 +1196,7 @@ static void scr_update_window(winbuf *win_entry)
 
   // Display the lines
   for (n = 0 ; n < CHAT_WIN_HEIGHT; n++) {
+    int timelen;
     int winy = n + mark_offset;
     wmove(win_entry->win, winy, 0);
     line = *(lines+n);
@@ -1210,8 +1219,20 @@ static void scr_update_window(winbuf *win_entry)
         wattrset(win_entry->win, get_color(color));
 
       // Generate the prefix area and display it
-      scr_line_prefix(line, pref, prefixwidth);
-      wprintw(win_entry->win, pref);
+
+      timelen = scr_line_prefix(line, pref, prefixwidth);
+      if (timelen && line->flags & HBB_PREFIX_DELAYED) {
+        char tmp;
+
+        tmp = pref[timelen];
+        pref[timelen] = '\0';
+        wattrset(win_entry->win, get_color(COLOR_TIMESTAMP));
+        wprintw(win_entry->win, pref);
+        pref[timelen] = tmp;
+        wattrset(win_entry->win, get_color(color));
+        wprintw(win_entry->win, pref+timelen);
+      } else
+        wprintw(win_entry->win, pref);
 
       // Make sure we are at the right position
       wmove(win_entry->win, winy, prefixwidth-1);
@@ -2208,7 +2229,10 @@ static void scr_write_message(const char *bjid, const char *text,
 {
   char *xtext;
 
-  if (!timestamp) timestamp = time(NULL);
+  if (!timestamp)
+    timestamp = time(NULL);
+  else
+    prefix_flags |= HBB_PREFIX_DELAYED;
 
   xtext = ut_expand_tabs(text); // Expand tabs and filter out some chars
 

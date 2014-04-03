@@ -51,6 +51,7 @@ enum colors {
   COLOR_INFO,
   COLOR_MSGIN,
   COLOR_READMARK,
+  COLOR_TIMESTAMP,
   COLOR_max
 };
 
@@ -129,7 +130,7 @@ guint scr_getprefixwidth(void);
 guint scr_gettextwidth(void);
 guint scr_gettextheight(void);
 guint scr_getlogwinheight(void);
-void  scr_line_prefix(hbb_line *line, char *prefix, guint preflen);
+size_t scr_line_prefix(hbb_line *line, char *prefix, guint preflen);
 
 void scr_beep(void);
 void scr_check_auto_away(int activity);

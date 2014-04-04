@@ -26,10 +26,10 @@ CLEANFILES = hgcset.h
 if HGCSET
 BUILT_SOURCES = hgcset.h
 
-hgcset.h:
+hgcset.h: remake_hgcset
 	$(top_srcdir)/hgcset.sh "$(top_srcdir)/mcabber" "$(top_builddir)/mcabber"
 
-.PHONY: hgcset.h
+.PHONY: remake_hgcset
 endif
 
 if INSTALL_HEADERS

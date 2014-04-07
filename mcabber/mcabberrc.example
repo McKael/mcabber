@@ -500,6 +500,14 @@ set escdelay = 50
 # Useful when your buddies are chatting from their non-highest priority
 # resources, forcing you to use /say_to command.
 #set roster_autolock_resource = 1
+#
+# Automatic locking of buffer when scrolled up, and unlocking when scrolled
+# to bottom.
+# Set 'buffer_smart_scrolling' to 1 to enable.
+# Note: manual command "/buffer scroll_lock" will not work when smart scrolling
+# is enabled. Command "/buffer scroll_unlock" will only work if there is a new
+# message received.
+#set buffer_smart_scrolling = 0
 
 # Contacts PGP information
 # You can provide a PGP key to be used for a given Jabber user, or

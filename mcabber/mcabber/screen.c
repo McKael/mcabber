@@ -1138,6 +1138,9 @@ static void scr_update_window(winbuf *win_entry)
   int color = COLOR_GENERAL;
   bool readmark = FALSE;
   bool skipline = FALSE;
+  int autolock;
+
+  autolock = settings_opt_get_int("buffer_smart_scrolling");
 
   prefixwidth = scr_getprefixwidth();
   prefixwidth = MIN(prefixwidth, sizeof pref);
@@ -1145,6 +1148,8 @@ static void scr_update_window(winbuf *win_entry)
   // Should the window be empty?
   if (win_entry->bd->cleared) {
     werase(win_entry->win);
+    if (autolock && win_entry->bd->lock)
+      scr_buffer_scroll_lock(0);
     return;
   }
 
@@ -1170,8 +1175,8 @@ static void scr_update_window(winbuf *win_entry)
   } else
     hbuf_head = win_entry->bd->top;
 
-  // Get the last CHAT_WIN_HEIGHT lines.
-  lines = hbuf_get_lines(hbuf_head, CHAT_WIN_HEIGHT);
+  // Get the last CHAT_WIN_HEIGHT lines, and one more to detect scroll.
+  lines = hbuf_get_lines(hbuf_head, CHAT_WIN_HEIGHT+1);
 
   if (CHAT_WIN_HEIGHT > 1) {
     // Do we have a read mark?
@@ -1327,6 +1332,19 @@ scr_update_window_skipline:
       break;
     }
   }
+  line = *(lines+CHAT_WIN_HEIGHT); //line is scrolled out and never written
+  if (line) {
+    if (autolock && !win_entry->bd->lock) {
+      if (!hbuf_jump_readmark(hbuf_head))
+        scr_buffer_readmark(TRUE);
+      scr_buffer_scroll_lock(1);
+    }
+    g_free(line->text);
+    g_free(line);
+  } else if (autolock && win_entry->bd->lock) {
+    scr_buffer_scroll_lock(0);
+  }
+
   g_free(lines);
 }
 
@@ -2907,6 +2925,7 @@ void scr_buffer_readmark(gchar action)
 {
   winbuf *win_entry;
   guint isspe;
+  int autolock;
 
   // Get win_entry
   if (!current_buddy) return;
@@ -2915,7 +2934,8 @@ void scr_buffer_readmark(gchar action)
   win_entry = scr_search_window(CURRENT_JID, isspe);
   if (!win_entry) return;
 
-  if (!win_entry->bd->lock) {
+  autolock = settings_opt_get_int("buffer_smart_scrolling");
+  if (!win_entry->bd->lock || autolock) {
     if (action >= 0)
       hbuf_set_readmark(win_entry->bd->hbuf, action);
     else

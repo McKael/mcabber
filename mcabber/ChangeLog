@@ -1,8 +1,20 @@
-mcabber (0.10.3-dev)
+mcabber (0.10.3)
 
- * 
+ * [UI] Add option 'iq_time_hide'
+ * [UI] Add 'iq_version_hide', 'iq_version_hide_version'
+ * Improved handling of damaged history log files
+ * Switch to libotr v4 API (Myhailo Danylenko)
+ * Add SSL options (Frank Zschockelt)
+   These options require a patched Loudmouth library.
+   - "ssl_ciphers" to define the allowed ciphers
+   - "ssl_ca" to set additional trusted certificates
+ * Fix compilation for old loudmouth libraries (Frank Zschockelt)
+ * Add 'color_timestamp' to highlight timestamp added by server (Hermitifier)
+ * New python based event script using OS X 10.8 notification center (Sharoon Thomas)
+ * Handle SIGHUP signal (Dominik George)
+ * Misc. bugfixes
 
- -- Mikael, ?
+ -- Mikael, 2014-05-08
 
 mcabber (0.10.2)
 

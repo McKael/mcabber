@@ -1,3 +1,14 @@
+dev (28)
+
+ * Changeset 88b6e9707e02
+   Add option 'ssl_ciphers'
+ * Changeset 91a8f3740a1a
+   Add option 'ssl_ca'
+ * Changeset 16b04d64ec88
+   Add 'color_timestamp' and HBB_PREFIX_DELAYED
+
+  -- Mikael Berthe, 2014-05-08
+
 dev (27)
 
  * Changeset 8da280d34b48

@@ -89,7 +89,7 @@ static LmHandlerResult cb_disco_info(LmMessageHandler *h, LmConnection *c,
   ansqry = lm_message_node_get_child(m->node, "query");
 
   feature = lm_message_node_get_child(ansqry, "feature");
-  for(;feature;feature = feature->next) {
+  for (; feature; feature = feature->next) {
     const char *v = lm_message_node_get_attribute(feature, "var");
 
     if (!g_strcmp0(v, NS_CARBONS_2)) {
@@ -185,7 +185,8 @@ void xmpp_iq_request(const char *fulljid, const char *xmlns)
     data = (gpointer)now;
     notifier = g_free;
   } else if (!g_strcmp0(xmlns, NS_DISCO_INFO)) {
-    gchar *servername = get_servername(settings_opt_get("jid"), settings_opt_get("server"));
+    gchar *servername = get_servername(settings_opt_get("jid"),
+                                       settings_opt_get("server"));
     lm_message_node_set_attribute(iq->node, "to", servername);
     g_free(servername);
   }

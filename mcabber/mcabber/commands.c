@@ -192,7 +192,8 @@ void cmd_init(void)
   cmd_add("bind", "Add an key binding", 0, 0, &do_bind, NULL);
   cmd_add("buffer", "Manipulate current buddy's buffer (chat window)",
           COMPL_BUFFER, 0, &do_buffer, NULL);
-  cmd_add("carbons", "Mange carbons settings", COMPL_CARBONS, 0, &do_carbons, NULL);
+  cmd_add("carbons", "Manage carbons settings", COMPL_CARBONS, 0,
+          &do_carbons, NULL);
   cmd_add("chat_disable", "Disable chat mode", 0, 0, &do_chat_disable, NULL);
   cmd_add("clear", "Clear the dialog window", 0, 0, &do_clear, NULL);
   cmd_add("color", "Set coloring options", COMPL_COLOR, 0, &do_color, NULL);

@@ -61,8 +61,7 @@
 #define NS_PING       "urn:xmpp:ping"
 #define NS_RECEIPTS   "urn:xmpp:receipts"
 
-//XEP-0280 (message carbons)
-#define NS_CARBONS_2 "urn:xmpp:carbons:2"
+#define NS_CARBONS_2  "urn:xmpp:carbons:2" // XEP-0280 (message carbons)
 
 #define NS_JABBERD_STOREDPRESENCE "http://jabberd.org/ns/storedpresence"
 #define NS_JABBERD_HISTORY "http://jabberd.org/ns/history"

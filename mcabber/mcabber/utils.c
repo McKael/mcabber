@@ -79,6 +79,7 @@ char *jidtodisp(const char *fjid)
   return alias;
 }
 
+// The caller must free the string after use.
 char *jid_get_username(const char *fjid)
 {
   char *ptr;
@@ -91,6 +92,7 @@ char *jid_get_username(const char *fjid)
   return username;
 }
 
+// The caller must free the string after use.
 char *get_servername(const char *username, const char *servername)
 {
   char *ptr;
@@ -101,9 +103,10 @@ char *get_servername(const char *username, const char *servername)
     return server;
   }
 
-  return servername;
+  return g_strdup(servername);
 }
 
+// The caller must free the string after use.
 char *compose_jid(const char *username, const char *servername,
                   const char *resource)
 {
@@ -209,6 +212,7 @@ static gboolean tracelog_create(void)
   return TRUE;
 }
 
+// The caller must free the string after use.
 static gchar *tracelog_level_guard(const gchar *key, const gchar *new_value)
 {
   int new_level = 0;
@@ -221,6 +225,7 @@ static gchar *tracelog_level_guard(const gchar *key, const gchar *new_value)
   return g_strdup(new_value);
 }
 
+// The caller must free the string after use.
 static gchar *tracelog_file_guard(const gchar *key, const gchar *new_value)
 {
   gchar *new_fname = NULL;
@@ -242,7 +247,7 @@ static gchar *tracelog_file_guard(const gchar *key, const gchar *new_value)
 }
 
 //  ut_init_debug()
-// Installs otpion guards before initial config file parsing.
+// Install option guards before initial config file parsing.
 void ut_init_debug(void)
 {
   DebugEnabled = 0;

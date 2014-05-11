@@ -1,3 +1,16 @@
+dev (30)
+
+ * Message carbons
+
+  -- Mikael Berthe, 2014-05-11
+
+dev (29)
+
+ * Changeset 113d3b96ae3e
+   Add option 'attention_char'
+
+  -- Mikael Berthe, 2014-05-11
+
 dev (28)
 
  * Stable api 0.10.3:1

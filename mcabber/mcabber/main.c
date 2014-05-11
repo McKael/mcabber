@@ -372,6 +372,7 @@ int main(int argc, char **argv)
   roster_init();
   settings_init();
   scr_init_bindings();
+  scr_init_settings();
   caps_init();
 #ifdef MODULES_ENABLE
   modules_init();

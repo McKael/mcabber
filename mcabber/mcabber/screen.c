@@ -1533,16 +1533,39 @@ static void scr_write_in_window(const char *winId, const char *text,
   }
 }
 
+static char *attention_sign_guard(const gchar *key, const gchar *new_value)
+{
+  update_roster = TRUE;
+  if (g_strcmp0(settings_opt_get(key), new_value)) {
+    guint sign;
+    char *c;
+    if (!new_value || !*new_value)
+      return NULL;
+    sign = get_char(new_value);
+    c = next_char((char*)new_value);
+    if (get_char_width(new_value) != 1 || !iswprint(sign) || *c) {
+      scr_log_print(LPRINT_NORMAL, "attention_char value is invalid.");
+      return NULL;
+    }
+    // The new value looks good (1-char  wide and printable)
+    return g_strdup(new_value);
+  }
+  return g_strdup(new_value);
+}
+
+//  scr_init_settings()
+// Create guards for UI settings
+void scr_init_settings(void)
+{
+  settings_set_guard("attention_char", attention_sign_guard);
+}
+
 static unsigned int attention_sign(void)
 {
-  guint sign;
   const char *as = settings_opt_get("attention_char");
   if (!as)
       return DEFAULT_ATTENTION_CHAR;
-  sign = get_char(as);
-  if (get_char_width(as) != 1 || !iswprint(sign)) // XXX Better use a guard
-      return DEFAULT_ATTENTION_CHAR;
-  return sign;
+  return get_char(as);
 }
 
 //  scr_update_main_status(forceupdate)

@@ -6,6 +6,7 @@ Makefile.in
 *.l[oa]
 .libs
 .deps
+.dirstamp
 mcabber/mcabber/hgcset.h
 mcabber/mcabber/mcabber
 mcabber/mcabber/mcabber.exe

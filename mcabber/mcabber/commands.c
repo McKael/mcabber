@@ -4162,12 +4162,14 @@ static void do_echo(char *arg)
 
 static void do_carbons(char *arg)
 {
-  if (!strcasecmp(arg, "info")) {
+  if (!strcasecmp(arg, "info") || !*arg) {
     carbons_info();
   } else if (!strcasecmp(arg, "enable")) {
     carbons_enable();
   } else if (!strcasecmp(arg, "disable")) {
     carbons_disable();
+  } else {
+      scr_log_print(LPRINT_NORMAL, "Unrecognized parameter!");
   }
 }
 

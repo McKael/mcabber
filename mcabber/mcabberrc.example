@@ -457,6 +457,10 @@ set escdelay = 50
 #set log_win_on_top = 0
 #set roster_win_on_right = 0
 #
+# The attention sign (default: '!') used when a private message is received
+# can be changed with the 'attention_char' option.
+#set attention_char = !
+#
 # By default, the displayed name of a contact in the roster window will
 # be the JID if no name has been specified.  You can use the following
 # option if you only want to see the username part.

@@ -68,6 +68,8 @@
 #define DEFAULT_ROSTER_WIDTH    24
 #define CHAT_WIN_HEIGHT (maxY-1-Log_Win_Height)
 
+#define DEFAULT_ATTENTION_CHAR '!'
+
 const char *LocaleCharSet = "C";
 
 static unsigned short int Log_Win_Height;
@@ -1531,6 +1533,18 @@ static void scr_write_in_window(const char *winId, const char *text,
   }
 }
 
+static unsigned int attention_sign(void)
+{
+  guint sign;
+  const char *as = settings_opt_get("attention_char");
+  if (!as)
+      return DEFAULT_ATTENTION_CHAR;
+  sign = get_char(as);
+  if (get_char_width(as) != 1 || !iswprint(sign)) // XXX Better use a guard
+      return DEFAULT_ATTENTION_CHAR;
+  return sign;
+}
+
 //  scr_update_main_status(forceupdate)
 // Redraw the main (bottom) status line.
 // You can set forceupdate to FALSE in order to optimize screen refresh
@@ -1541,7 +1555,7 @@ void scr_update_main_status(int forceupdate)
   const char *info = settings_opt_get("info");
   guint prio = 0;
   gpointer unread_ptr;
-  char unreadchar;
+  guint unreadchar;
 
   unread_ptr = unread_msg(NULL);
   if (unread_ptr) {
@@ -1554,7 +1568,7 @@ void scr_update_main_status(int forceupdate)
 
   // Status bar unread message flag
   if (prio >= ROSTER_UI_PRIO_MUC_HL_MESSAGE)
-    unreadchar = '!';
+    unreadchar = attention_sign();
   else if (prio > 0)
     unreadchar = '#';
   else
@@ -1563,12 +1577,12 @@ void scr_update_main_status(int forceupdate)
   werase(mainstatusWnd);
   if (info) {
     char *info_locale = from_utf8(info);
-    mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s %s", unreadchar,
+    mvwprintw(mainstatusWnd, 0, 0, "%lc[%c] %s %s", unreadchar,
               imstatus2char[xmpp_getstatus()],
               info_locale, (sm ? sm : ""));
     g_free(info_locale);
   } else
-    mvwprintw(mainstatusWnd, 0, 0, "%c[%c] %s", unreadchar,
+    mvwprintw(mainstatusWnd, 0, 0, "%lc[%c] %s", unreadchar,
               imstatus2char[xmpp_getstatus()], (sm ? sm : ""));
   if (forceupdate) {
     top_panel(inputPanel);
@@ -2001,7 +2015,7 @@ void scr_draw_roster(void)
   int i, n;
   int rOffset;
   int cursor_backup;
-  char status, pending;
+  guint status, pending;
   enum imstatus currentstatus = xmpp_getstatus();
   int x_pos;
   char *space;
@@ -2170,7 +2184,7 @@ void scr_draw_roster(void)
       // Attention sign?
       if ((ismuc && isurg >= ui_attn_sign_prio_level_muc) ||
           (!ismuc && isurg >= ui_attn_sign_prio_level))
-        pending = '!';
+        pending = attention_sign();
     }
 
     if (isgrp) {
@@ -2178,16 +2192,16 @@ void scr_draw_roster(void)
         int group_count = 0;
         foreach_group_member(BUDDATA(buddy), increment_if_buddy_not_filtered,
                              &group_count);
-        snprintf(rline, 4*Roster_Width, "%s%c+++ %s (%i)", space, pending, name,
-                 group_count);
+        snprintf(rline, 4*Roster_Width, "%s%lc+++ %s (%i)", space, pending,
+                 name, group_count);
         /* Do not display the item count if there isn't enough space */
         if (g_utf8_strlen(rline, 4*Roster_Width) >= Roster_Width)
-          snprintf(rline, 4*Roster_Width, "%s%c+++ %s", space, pending, name);
+          snprintf(rline, 4*Roster_Width, "%s%lc+++ %s", space, pending, name);
       }
       else
-        snprintf(rline, 4*Roster_Width, "%s%c--- %s", space, pending, name);
+        snprintf(rline, 4*Roster_Width, "%s%lc--- %s", space, pending, name);
     } else if (isspe) {
-      snprintf(rline, 4*Roster_Width, "%s%c%s", space, pending, name);
+      snprintf(rline, 4*Roster_Width, "%s%lc%s", space, pending, name);
     } else {
       char sepleft  = '[';
       char sepright = ']';
@@ -2200,8 +2214,8 @@ void scr_draw_roster(void)
           sepright = '}';
         }
       }
-      snprintf(rline, 4*Roster_Width,
-               "%s%c%c%c%c %s", space, pending, sepleft, status, sepright, name);
+      snprintf(rline, 4*Roster_Width, "%s%lc%c%c%c %s",
+               space, pending, sepleft, status, sepright, name);
     }
 
     rline_locale = from_utf8(rline);

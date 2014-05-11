@@ -1291,7 +1291,8 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       if (res) *res++ = 0;
       scr_WriteIncomingMessage(bjid, body, timestamp, HBB_PREFIX_IN, 0);
 
-      scr_LogPrint(LPRINT_DEBUG, "carbon from:%s", lm_message_node_get_attribute(x, "from"));
+      scr_LogPrint(LPRINT_DEBUG, "carbon from:%s",
+                   lm_message_node_get_attribute(x, "from"));
 
     } else if (!g_strcmp0(x->name, "sent")) {
       x = lm_message_node_find_xmlns(x, "urn:xmpp:forward:0");
@@ -1302,7 +1303,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       bjid = g_strdup(to);
       res = strchr(bjid, JID_RESOURCE_SEPARATOR);
       if (res) *res++ = 0;
- 
+
       scr_write_outgoing_message(bjid, body, 0, NULL);
     }
   }
@@ -1330,7 +1331,8 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
 
   { // xep184 receipt confirmation
     LmMessageNode *received = lm_message_node_get_child(m->node, "received");
-    if (received && !g_strcmp0(lm_message_node_get_attribute(received, "xmlns"), NS_RECEIPTS)) {
+    if (received && !g_strcmp0(lm_message_node_get_attribute(received, "xmlns"),
+                               NS_RECEIPTS)) {
       char       *jid = jidtodisp(from);
       const char *id  = lm_message_node_get_attribute(received, "id");
       // This is for backward compatibility; if the remote client didn't add

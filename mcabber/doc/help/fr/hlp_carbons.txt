@@ -1,0 +1,13 @@
+
+ /CARBONS info
+ /CARBONS enable
+ /CARBONS disable
+
+Gestion des "Message Carbons" (copies de messages).
+
+/carbons info
+ Affiche des informations sur l'état de carbons
+/carbons enable
+ Active carbons
+/carbons disable
+ Désactive carbons

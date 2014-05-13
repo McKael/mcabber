@@ -2939,6 +2939,14 @@ static void room_topic(gpointer bud, char *arg)
     arg = NULL;
 
   arg = to_utf8(arg);
+  // if arg is not NULL & option is set, unescape it 
+  if (arg && settings_opt_get_int("unescape_topic")) {
+    gchar *tmp;
+    tmp = g_strcompress(arg);
+    g_free(arg);
+    arg = tmp;
+  }
+
   // Set the topic
   xmpp_send_msg(buddy_getjid(bud), NULL, ROSTER_TYPE_ROOM, arg ? arg : "",
                 FALSE, NULL, LM_MESSAGE_SUB_TYPE_NOT_SET, NULL);

@@ -2074,10 +2074,12 @@ static void room_names(gpointer bud, char *arg)
   strncpy(buffer, "Room members:", 127);
   scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
 
+  int cnt = 0;
   resources = buddy_getresources(bud);
   for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
     enum imstatus rstatus;
     const char *rst_msg;
+    cnt++;
 
     rstatus = buddy_getstatus(bud, p_res->data);
     rst_msg = buddy_getstatusmsg(bud, p_res->data);
@@ -2124,6 +2126,12 @@ static void room_names(gpointer bud, char *arg)
     }
     g_free(p_res->data);
   }
+  
+  if (settings_opt_get_int("show_room_occupants_count")) {
+    snprintf(buffer, 4095, "Total: %d", cnt);
+    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
+  }
+  
   g_slist_free(resources);
   g_free(buffer);
 }

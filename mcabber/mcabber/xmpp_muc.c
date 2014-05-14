@@ -307,7 +307,7 @@ static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
                               const char **actorjid, const char **reason)
 {
   LmMessageNode *y, *z;
-  const char *p;
+  const char *p, *actornick;
 
   y = lm_message_node_find_child(xmldata, "item");
   if (!y)
@@ -337,10 +337,13 @@ static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
   // For kick/ban, there can be actor and reason tags
   z = lm_message_node_find_child(y, "actor");
   if (z) {
-    // prefer nick over jid
-    *actorjid = lm_message_node_get_attribute(z, "nick");
-    if (!*actorjid)
-      *actorjid = lm_message_node_get_attribute(z, "jid");
+    actornick = lm_message_node_get_attribute(z, "nick");
+    *actorjid = lm_message_node_get_attribute(z, "jid");
+    if (*actorjid) { // we have actor's jid, check if we also have nick.
+      *actorjid = (!actornick) ?  *actorjid : g_strdup_printf(
+                                    "%s <%s>", actornick, *actorjid
+                                  );
+    } else if (actornick)         *actorjid = actornick; // we have nick only.
   }
 
   *reason = lm_message_node_get_child_value(y, "reason");
@@ -627,11 +630,11 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
       gchar *reason_msg = NULL;
       // Forced leave
       if (actorjid) {
-        mbuf_end = g_strdup_printf("%s from %s by <%s>.",
+        mbuf_end = g_strdup_printf("%s from %s by %s",
                                    (how == ban ? "banned" : "kicked"),
                                    roomjid, actorjid);
       } else {
-        mbuf_end = g_strdup_printf("%s from %s.",
+        mbuf_end = g_strdup_printf("%s from %s",
                                    (how == ban ? "banned" : "kicked"),
                                    roomjid);
       }

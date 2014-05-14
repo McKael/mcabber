@@ -335,12 +335,17 @@ static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
   *mbjid = lm_message_node_get_attribute(y, "jid");
   *mbnick = lm_message_node_get_attribute(y, "nick");
   // For kick/ban, there can be actor and reason tags
+  z = lm_message_node_find_child(y, "actor");
+  if (z) {
+    // prefer nick over jid
+    *actorjid = lm_message_node_get_attribute(z, "nick");
+    if (!*actorjid)
+      *actorjid = lm_message_node_get_attribute(z, "jid");
+  }
+
   *reason = lm_message_node_get_child_value(y, "reason");
   if (*reason && !**reason)
     *reason = NULL;
-  z = lm_message_node_find_child(y, "actor");
-  if (z)
-    *actorjid = lm_message_node_get_attribute(z, "jid");
 }
 
 //  muc_handle_join(...)

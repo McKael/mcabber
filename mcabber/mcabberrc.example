@@ -493,10 +493,6 @@ set escdelay = 50
 # Values:  0: never  1: only connect/disconnect  2: all
 #set show_status_in_buffer = 1
 #
-# Displays total occupants count at the end of '/room names' list
-# Values: 0: disable (default) 1: enable
-#set show_room_occupants_count = 0
-#
 # Set 'log_display_sender' to 1 to display the message sender's JID in the
 # log window (default: 0, no)
 #set log_display_sender = 0

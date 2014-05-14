@@ -2127,10 +2127,8 @@ static void room_names(gpointer bud, char *arg)
     g_free(p_res->data);
   }
   
-  if (settings_opt_get_int("show_room_occupants_count")) {
-    snprintf(buffer, 4095, "Total: %d", cnt);
-    scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
-  }
+  snprintf(buffer, 4095, "Total: %d", cnt);
+  scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
   
   g_slist_free(resources);
   g_free(buffer);

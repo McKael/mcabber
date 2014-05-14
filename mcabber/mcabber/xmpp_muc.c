@@ -715,7 +715,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
       if (printstatus == status_all && !nickchange) {
         const char *old_ustmsg = buddy_getstatusmsg(room_elt->data, rname);
         if (old_ust != ust || g_strcmp0(old_ustmsg, ustmsg)) {
-          mbuf = g_strdup_printf("Member status has changed: %s [%c] %s", rname,
+          mbuf = g_strdup_printf("%s [%c>%c] %s", rname, imstatus2char[old_ust],
                                  imstatus2char[ust], ((ustmsg) ? ustmsg : ""));
           scr_WriteIncomingMessage(roomjid, mbuf, usttime,
                                  HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);

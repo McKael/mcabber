@@ -497,12 +497,6 @@ set escdelay = 50
 # Values: 0: disable (default) 1: enable
 #set show_room_occupants_count = 0
 #
-# To enable C-escape sequences support in /room topic
-# set 'unescape_topic' to 1
-# \n - new line`
-# \t - tab character
-#set unescape_topic = 0
-#
 # Set 'log_display_sender' to 1 to display the message sender's JID in the
 # log window (default: 0, no)
 #set log_display_sender = 0

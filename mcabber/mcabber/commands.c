@@ -2935,16 +2935,30 @@ static void room_topic(gpointer bud, char *arg)
   }
 
   // If arg is "-", let's clear the topic
-  if (!strcmp(arg, "-"))
+  if (!g_strcmp0(arg, "-"))
     arg = NULL;
 
   arg = to_utf8(arg);
   // if arg is not NULL & option is set, unescape it 
-  if (arg && settings_opt_get_int("unescape_topic")) {
-    gchar *tmp;
-    tmp = g_strcompress(arg);
-    g_free(arg);
-    arg = tmp;
+  if (arg) {
+    char *unescaped_topic = NULL;
+
+    if (!strncmp(arg, "-u ", 3)) {
+      char *tmp;
+      tmp = g_strdup(arg + 3);
+      g_free(arg);
+      arg = tmp;
+      unescaped_topic = ut_unescape_tabs_cr(arg);
+    }
+    
+    // We must not free() if the original string was returned
+    if (unescaped_topic == arg)
+      unescaped_topic = NULL;
+
+    if (unescaped_topic != NULL) {
+      free(arg);
+      arg = unescaped_topic;
+    }
   }
 
   // Set the topic

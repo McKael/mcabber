@@ -2954,7 +2954,7 @@ static void room_topic(gpointer bud, char *arg)
       unescaped_topic = NULL;
 
     if (unescaped_topic != NULL) {
-      free(arg);
+      g_free(arg);
       arg = unescaped_topic;
     }
   }

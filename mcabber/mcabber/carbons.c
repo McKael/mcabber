@@ -80,6 +80,12 @@ void carbons_enable()
   lm_message_unref(iq);
 }
 
+// Mark carbons as disabled (e.g. when a connection terminates)
+void carbons_reset()
+{
+  _carbons_enabled = 0;
+}
+
 void carbons_disable()
 {
   LmMessage *iq;

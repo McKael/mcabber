@@ -40,6 +40,7 @@
 #include "settings.h"
 #include "utils.h"
 #include "main.h"
+#include "carbons.h"
 
 #define RECONNECTION_TIMEOUT    60L
 
@@ -952,6 +953,8 @@ static void connection_close_cb(LmConnection *connection,
   if (rosternotes)
     lm_message_node_unref(rosternotes);
   rosternotes = NULL;
+  // Reset carbons
+  carbons_reset();
   // Update display
   update_roster = TRUE;
   scr_update_buddy_window();

@@ -589,13 +589,17 @@ void strip_arg_special_chars(char *s)
     if (*p == '"') {
       if (!escape) {
         instring = !instring;
-        strcpy(p, p+1);
+        //memmove(p, p+1, strlen(p));
+        for (char *t=p; *t; t++)
+          *t = *(t+1);
         p--;
       } else
         escape = FALSE;
     } else if (*p == '\\') {
       if (!escape) {
-        strcpy(p, p+1);
+        //memmove(p, p+1, strlen(p));
+        for (char *t=p; *t; t++)
+          *t = *(t+1);
         p--;
       }
       escape = !escape;

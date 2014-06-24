@@ -2048,6 +2048,7 @@ static void room_names(gpointer bud, char *arg)
   GSList *resources, *p_res;
   enum { style_normal = 0, style_detail, style_short,
          style_quiet, style_compact } style = 0;
+  int cnt = 0;
 
   if (*arg) {
     if (!strcasecmp(arg, "--short"))
@@ -2074,7 +2075,6 @@ static void room_names(gpointer bud, char *arg)
   strncpy(buffer, "Room members:", 127);
   scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
 
-  int cnt = 0;
   resources = buddy_getresources(bud);
   for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
     enum imstatus rstatus;
@@ -2127,7 +2127,7 @@ static void room_names(gpointer bud, char *arg)
     g_free(p_res->data);
   }
 
-  snprintf(buffer, 4095, "Total: %d", cnt);
+  snprintf(buffer, 4095, "Total: %d member%c", cnt, cnt > 1 ? 's' : '\0');
   scr_WriteIncomingMessage(bjid, buffer, 0, HBB_PREFIX_INFO, 0);
 
   g_slist_free(resources);

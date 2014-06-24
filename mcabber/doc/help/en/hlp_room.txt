@@ -18,8 +18,9 @@ The 'room' command handles Multi-User Chat room actions.
  Send private message "msg" to "nick"
 /room remove
  Remove the current room from the roster (you must have left this room before)
-/room topic -|newtopic
+/room topic [-u] -|newtopic
  Set topic for current room
+ When the option -u (unescape) is used, a string '\n' is expanded and sent as an actual newline character, and '\t' is expanded to a real tabulation.
  (The topic is cleared if newtopic is "-")
 /room unlock
  Unlock current room (if you are the owner)

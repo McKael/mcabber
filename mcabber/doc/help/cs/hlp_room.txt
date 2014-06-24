@@ -18,7 +18,7 @@ Slouží pro správu konferenčních místností MUC (Multi-User Chat).
  Pošle soukromou zprávu uživateli 'jméno'.
 /room remove
  Odstraní aktuální místnost ze seznamu kontaktů (rosteru). Místnost je nutné předtím opustit.
-/room topic -|nový_předmět
+/room topic [-u] -|nový_předmět
  Nastaví nový předmět pro aktuální místnost. Je-li zadán znak '-', předmět se vymaže.
 /room unlock
  Odemkne aktuální místnost (může provést pouze vlastník).

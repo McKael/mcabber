@@ -18,9 +18,10 @@ Cette commande permet de gérer les salons de discussions MUC (Multi-User Chat).
  Envoie un message privé "msg" au membre "pseudo"
 /room remove
  Supprime le salon sélectionné du roster (il faut avoir quitté ce salon d'abord)
-/room topic nouveau_sujet
+/room topic [-u] nouveau_sujet
  Change le sujet du salon de discussion
- (Si nouveau_sujet est «-», le sujet est effacé)
+ Lorsque le paramètre -u (unescape) est utilisé, une chaîne '\n' est envoyée comme un véritable retour chariot et '\t' comme une tabulation.
+ (Si nouveau_sujet est « - », le sujet est effacé)
 /room unlock
  Déverrouille le salon sélectionné (si vous en êtes le propriétaire)
 /room destroy [raison]

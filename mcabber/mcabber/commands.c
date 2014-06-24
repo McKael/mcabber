@@ -2942,20 +2942,18 @@ static void room_topic(gpointer bud, char *arg)
     char *unescaped_topic = NULL;
 
     if (!strncmp(arg, "-u ", 3)) {
-      char *tmp;
-      tmp = g_strdup(arg + 3);
-      g_free(arg);
-      arg = tmp;
+      char *tmp = arg;
+      arg = g_strdup(arg + 3);
+      g_free(tmp);
       unescaped_topic = ut_unescape_tabs_cr(arg);
-    }
 
-    // We must not free() if the original string was returned
-    if (unescaped_topic == arg)
-      unescaped_topic = NULL;
-
-    if (unescaped_topic != NULL) {
-      g_free(arg);
-      arg = unescaped_topic;
+      // We must not free() if the original string was returned
+      if (unescaped_topic == arg) {
+        unescaped_topic = NULL;
+      } else if (unescaped_topic != NULL) {
+        g_free(arg);
+        arg = unescaped_topic;
+      }
     }
   }
 

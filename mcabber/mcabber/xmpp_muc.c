@@ -307,7 +307,7 @@ static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
                               const char **actorjid, const char **reason)
 {
   LmMessageNode *y, *z;
-  const char *p;
+  const char *p, *actornick;
 
   y = lm_message_node_find_child(xmldata, "item");
   if (!y)
@@ -335,12 +335,20 @@ static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
   *mbjid = lm_message_node_get_attribute(y, "jid");
   *mbnick = lm_message_node_get_attribute(y, "nick");
   // For kick/ban, there can be actor and reason tags
+  z = lm_message_node_find_child(y, "actor");
+  if (z) {
+    actornick = lm_message_node_get_attribute(z, "nick");
+    *actorjid = lm_message_node_get_attribute(z, "jid");
+    if (*actorjid) { // we have actor's jid, check if we also have nick.
+      *actorjid = (!actornick) ?  *actorjid : g_strdup_printf(
+                                    "%s <%s>", actornick, *actorjid
+                                  );
+    } else if (actornick)         *actorjid = actornick; // we have nick only.
+  }
+
   *reason = lm_message_node_get_child_value(y, "reason");
   if (*reason && !**reason)
     *reason = NULL;
-  z = lm_message_node_find_child(y, "actor");
-  if (z)
-    *actorjid = lm_message_node_get_attribute(z, "jid");
 }
 
 //  muc_handle_join(...)
@@ -622,11 +630,11 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
       gchar *reason_msg = NULL;
       // Forced leave
       if (actorjid) {
-        mbuf_end = g_strdup_printf("%s from %s by <%s>.",
+        mbuf_end = g_strdup_printf("%s from %s by %s",
                                    (how == ban ? "banned" : "kicked"),
                                    roomjid, actorjid);
       } else {
-        mbuf_end = g_strdup_printf("%s from %s.",
+        mbuf_end = g_strdup_printf("%s from %s",
                                    (how == ban ? "banned" : "kicked"),
                                    roomjid);
       }
@@ -710,7 +718,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
       if (printstatus == status_all && !nickchange) {
         const char *old_ustmsg = buddy_getstatusmsg(room_elt->data, rname);
         if (old_ust != ust || g_strcmp0(old_ustmsg, ustmsg)) {
-          mbuf = g_strdup_printf("Member status has changed: %s [%c] %s", rname,
+          mbuf = g_strdup_printf("%s [%c>%c] %s", rname, imstatus2char[old_ust],
                                  imstatus2char[ust], ((ustmsg) ? ustmsg : ""));
           scr_WriteIncomingMessage(roomjid, mbuf, usttime,
                                  HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);

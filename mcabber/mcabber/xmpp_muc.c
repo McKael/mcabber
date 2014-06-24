@@ -301,13 +301,14 @@ void xmpp_room_destroy(const char *room, const char *venue, const char *reason)
 // Get room member's information from xmlndata.
 // The variables must be initialized before calling this function,
 // because they are not touched if the relevant information is missing.
+// Note that *actor should be freed by the caller.
 static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
                               enum imrole *mbrole, enum imaffiliation *mbaffil,
                               const char **mbjid, const char **mbnick,
-                              const char **actorjid, const char **reason)
+                              char **actor, const char **reason)
 {
   LmMessageNode *y, *z;
-  const char *p, *actornick;
+  const char *p, *actorjid, *actornick;
 
   y = lm_message_node_find_child(xmldata, "item");
   if (!y)
@@ -338,12 +339,18 @@ static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
   z = lm_message_node_find_child(y, "actor");
   if (z) {
     actornick = lm_message_node_get_attribute(z, "nick");
-    *actorjid = lm_message_node_get_attribute(z, "jid");
-    if (*actorjid) { // we have actor's jid, check if we also have nick.
-      *actorjid = (!actornick) ?  *actorjid : g_strdup_printf(
-                                    "%s <%s>", actornick, *actorjid
-                                  );
-    } else if (actornick)         *actorjid = actornick; // we have nick only.
+    actorjid  = lm_message_node_get_attribute(z, "jid");
+    if (actorjid) {
+      if (actornick) {
+        // We have both the actor's jid and nick
+        *actor = g_strdup_printf("%s <%s>", actornick, actorjid);
+      } else {
+        *actor = g_strdup(actorjid); // jid only
+      }
+    } else if (!actorjid && actornick) {
+      // We only have the nickname
+      *actor = g_strdup(actornick);
+    }
   }
 
   *reason = lm_message_node_get_child_value(y, "reason");
@@ -449,7 +456,8 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
   enum room_autowhois autowhois;
   enum room_flagjoins flagjoins;
   const char *mbjid = NULL, *mbnick = NULL;
-  const char *actorjid = NULL, *reason = NULL;
+  const char *reason = NULL;
+  char *actor = NULL;
   bool new_member = FALSE; // True if somebody else joins the room (not us)
   bool our_presence = FALSE; // True if this presence is from us (i.e. bears
                              // code 110)
@@ -476,7 +484,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
 
   // Get room member's information
   muc_get_item_info(from, xmldata, &mbrole, &mbaffil, &mbjid, &mbnick,
-                    &actorjid, &reason);
+                    &actor, &reason);
 
   // Get our room nickname
   ournick = buddy_getnickname(room_elt->data);
@@ -629,10 +637,10 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
       gchar *mbuf_end;
       gchar *reason_msg = NULL;
       // Forced leave
-      if (actorjid) {
+      if (actor) {
         mbuf_end = g_strdup_printf("%s from %s by %s",
                                    (how == ban ? "banned" : "kicked"),
-                                   roomjid, actorjid);
+                                   roomjid, actor);
       } else {
         mbuf_end = g_strdup_printf("%s from %s",
                                    (how == ban ? "banned" : "kicked"),
@@ -681,6 +689,8 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
         }
       }
     }
+
+    g_free(actor);
 
     // Display the mbuf message if we're concerned
     // or if the print_status isn't set to none.

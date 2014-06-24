@@ -581,7 +581,7 @@ void strip_arg_special_chars(char *s)
 {
   int instring = FALSE;
   int escape = FALSE;
-  char *p;
+  char *p, *t;
 
   if (!s) return;
 
@@ -590,7 +590,7 @@ void strip_arg_special_chars(char *s)
       if (!escape) {
         instring = !instring;
         //memmove(p, p+1, strlen(p));
-        for (char *t=p; *t; t++)
+        for (t=p; *t; t++)
           *t = *(t+1);
         p--;
       } else
@@ -598,7 +598,7 @@ void strip_arg_special_chars(char *s)
     } else if (*p == '\\') {
       if (!escape) {
         //memmove(p, p+1, strlen(p));
-        for (char *t=p; *t; t++)
+        for (t=p; *t; t++)
           *t = *(t+1);
         p--;
       }

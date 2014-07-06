@@ -2,7 +2,7 @@
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|whois|kick|ban|unban|role|affil
  /ROOM setopt print_status|auto_whois|flag_joins [hodnota]
- /ROOM bookmark [add|del] [-autojoin|+autojoin] [-|nick]
+ /ROOM bookmark [add|del] [-autojoin|+autojoin] [-|nick] [password]
 
 Slouží pro správu konferenčních místností MUC (Multi-User Chat).
 
@@ -44,7 +44,7 @@ Slouží pro správu konferenčních místností MUC (Multi-User Chat).
  Parametr 'auto_whois' definující, zda se při vstupu uživatele provede příkaz "/room whois" pro zobrazení informací o uživateli, má možnosti 'default' (výchozí), 'off' (vypnuto) nebo 'on' (zapnuto).
  For flag_joins, the possible values are "default", "none", "joins", "all".
  Pokud je hodnota 'default' (výchozí), použije se nastavení 'muc_print_status'/'muc_auto_whois'/'muc_flag_joins' z konfiguračního souboru.
-/room bookmark [add|del] [-autojoin|+autojoin] [-|nick]
+/room bookmark [add|del] [-autojoin|+autojoin] [-|nick] [password]
  Přidá ('add'), odstraní ('del') nebo zaktualizuje záložku. Výchozí je akce 'add'.
  Je-li nastaven parametr 'autojoin', dojde k automatickému vstupu do místnosti po připojení k serveru.
  K zobrazení přehledu záložek slouží příkaz "/room bookmark" spuštěný ve stavovém okně.

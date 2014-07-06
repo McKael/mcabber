@@ -2,7 +2,7 @@
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|whois|kick|ban|unban|role|affil
  /ROOM setopt print_status|auto_whois|flag_joins [waarde]
- /ROOM bookmark [add|del] [-autojoin|+autojoin] [-|nick]
+ /ROOM bookmark [add|del] [-autojoin|+autojoin] [-|nick] [password]
 
 Het 'room' commando verzorgt de Multi-User Chat (MUC) room acties.
 
@@ -45,7 +45,7 @@ Het 'room' commando verzorgt de Multi-User Chat (MUC) room acties.
  Voor auto_whois zijn de mogelijke waarden "default", "off", "on".
  Voor flag_joins zijn de mogelijke waarden "default", "none", "joins", "all".
  Indien de waarde gelijk is aan "default" worden de waarden gebruikt van de opties muc_print_status, muc_auto_whois en muc_flag_joins.
-/room bookmark [add|del] [-autojoin|+autojoin] [-|nick]
+/room bookmark [add|del] [-autojoin|+autojoin] [-|nick] [password]
  Toevoegen, verwijderen of aanpassen van een bookmark (standaard is toevoegen).
  Indien 'autojoin' actief is, zal mcabber automatisch de MUC chatroom betreden wanner het verbinding met de server heeft gemaakt.
  Om de list met bookmarks te zien, kan het commando `/room bookmark` in de status buffer worden gebruikt.

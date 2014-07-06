@@ -2,7 +2,7 @@
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|whois|kick|ban|unban|role|affil
  /ROOM setopt print_status|auto_whois|flag_joins [valeur]
- /ROOM bookmark [add|del] [-autojoin|+autojoin] [-|nick]
+ /ROOM bookmark [add|del] [-autojoin|+autojoin] [-|nick] [password]
 
 Cette commande permet de gérer les salons de discussions MUC (Multi-User Chat).
 
@@ -46,7 +46,8 @@ Cette commande permet de gérer les salons de discussions MUC (Multi-User Chat).
  Pour auto_whois, les valeurs possibles sont "default", "off", "on".
  Pour flag_joins, les valeurs possibles sont "default", "none", "joins", "all".
  Si la valeur est "default", la configuration utilisée sera celle des options muc_print_status, muc_auto_whois et muc_flag_joins.
-/room bookmark [add|del] [-autojoin|+autojoin] [-|nick]
+/room bookmark [add|del] [-autojoin|+autojoin] [-|nick] [password]
  Ajoute, supprime ou met à jour le signet (par défaut, ajoute).
+ S'il est précisé, le mot de passe du salon est enregistré dans le signet.
  Si "autojoin" est activé, mcabber entrera automatiquement dans la salle de conférence après s'être connecté au serveur.
  Pour visualiser la liste des signets, tapez /room bookmark dans la fenêtre d'état (status).

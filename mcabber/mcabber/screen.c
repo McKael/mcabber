@@ -1,7 +1,7 @@
 /*
  * screen.c     -- UI stuff
  *
- * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2014 Mikael Berthe <mikael@lilotux.net>
  * Parts of this file come from the Cabber project <cabber@ajmacias.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -2041,8 +2041,8 @@ void scr_draw_roster(void)
   guint status, pending;
   enum imstatus currentstatus = xmpp_getstatus();
   int x_pos;
-  char *space;
   int prefix_length;
+  char space[2] = " ";
 
   // We can reset update_roster
   update_roster = FALSE;
@@ -2099,12 +2099,10 @@ void scr_draw_roster(void)
   else
     x_pos = 0;
 
-  space = g_new0(char, 2);
   if (roster_no_leading_space) {
     space[0] = '\0';
     prefix_length = 6;
   } else {
-    space[0] = ' ';
     prefix_length = 7;
   }
 
@@ -2247,7 +2245,6 @@ void scr_draw_roster(void)
     i++;
   }
 
-  g_free(space);
   g_free(rline);
   g_free(name);
   top_panel(inputPanel);

@@ -2608,6 +2608,12 @@ static void room_join(gpointer bud, char *arg)
 
   pass_utf8 = to_utf8(pass);
 
+  if (!pass) {
+    const char *roompass = xmpp_get_bookmark_password(roomname);
+    if (roompass)
+      pass_utf8 = g_strdup(roompass);
+  }
+
   xmpp_room_join(roomname, nick, pass_utf8);
 
   scr_LogPrint(LPRINT_LOGNORM, "Sent a join request to <%s>...", roomname);

@@ -2243,6 +2243,27 @@ const char *xmpp_get_bookmark_nick(const char *bjid)
   return NULL;
 }
 
+//  xmpp_get_bookmark_password(roomjid)
+// Return the room password if it is present in a bookmark.
+const char *xmpp_get_bookmark_password(const char *bjid)
+{
+  LmMessageNode *x;
+
+  if (!bookmarks || !bjid)
+    return NULL;
+
+  // Walk through the storage bookmark tags
+  for (x = bookmarks->children ; x; x = x->next) {
+    // If the node is a conference item, check the jid.
+    if (x->name && !strcmp(x->name, "conference")) {
+      const char *fjid = lm_message_node_get_attribute(x, "jid");
+      if (fjid && !strcasecmp(bjid, fjid))
+        return lm_message_node_get_child_value(x, "password");
+    }
+  }
+  return NULL;
+}
+
 int xmpp_get_bookmark_autojoin(const char *bjid)
 {
   LmMessageNode *x;

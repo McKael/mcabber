@@ -4,7 +4,7 @@
 #include <glib.h>
 #include <mcabber/config.h> // For MCABBER_BRANCH
 
-#define MCABBER_API_VERSION 31
+#define MCABBER_API_VERSION 32
 #define MCABBER_API_MIN     27
 
 #define MCABBER_BRANCH_DEV  1

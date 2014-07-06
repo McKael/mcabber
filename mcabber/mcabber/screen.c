@@ -84,7 +84,7 @@ static inline void check_offset(int);
 static void scr_cancel_current_completion(void);
 static void scr_end_current_completion(void);
 static void scr_insert_text(const char*);
-static void scr_handle_tab(void);
+static void scr_handle_tab(gboolean fwd);
 
 #if defined XEP0022 || defined XEP0085
 static gboolean scr_chatstates_timeout();
@@ -3673,13 +3673,13 @@ void readline_cancel_completion(void)
   check_offset(-1);
 }
 
-void readline_do_completion(void)
+void readline_do_completion(gboolean fwd)
 {
   int i, n;
 
   if (multimode != 2) {
     // Not in verbatim multi-line mode
-    scr_handle_tab();
+    scr_handle_tab(fwd);
   } else {
     // Verbatim multi-line mode: expand tab
     char tabstr[9];
@@ -3888,7 +3888,8 @@ static void scr_cancel_current_completion(void);
 //  scr_handle_tab()
 // Function called when tab is pressed.
 // Initiate or continue a completion...
-static void scr_handle_tab(void)
+// If fwd is false, a backward-completion is requested.
+static void scr_handle_tab(gboolean fwd)
 {
   int nrow;
   const char *row;
@@ -3973,7 +3974,7 @@ static void scr_handle_tab(void)
         g_slist_free(list);
       }
       // Now complete
-      cchar = complete();
+      cchar = complete(fwd);
       if (cchar)
         scr_insert_text(cchar);
       completion_started = TRUE;
@@ -3981,7 +3982,7 @@ static void scr_handle_tab(void)
   } else {      // Completion already initialized
     scr_cancel_current_completion();
     // Now complete again
-    cchar = complete();
+    cchar = complete(fwd);
     if (cchar)
       scr_insert_text(cchar);
   }
@@ -4362,7 +4363,10 @@ void scr_process_key(keycode kcode)
     case ERR:
         break;
     case 9:     // Tab
-        readline_do_completion();
+        readline_do_completion(TRUE);   // Forward-completion
+        break;
+    case 353:   // Shift-Tab
+        readline_do_completion(FALSE);  // Backward-completion
         break;
     case 13:    // Enter
     case 343:   // Enter on Maemo
@@ -4423,7 +4427,7 @@ display:
     }
   }
 
-  if (completion_started && key != 9 && key != KEY_RESIZE)
+  if (completion_started && key != 9 && key != 353 && key != KEY_RESIZE)
     scr_end_current_completion();
   refresh_inputline();
 

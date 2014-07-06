@@ -4078,7 +4078,9 @@ static void do_iline(char *arg)
   } else if (!strcasecmp(arg, "compl_cancel")) {
     readline_cancel_completion();
   } else if (!strcasecmp(arg, "compl_do")) {
-    readline_do_completion();
+    readline_do_completion(TRUE);
+  } else if (!strcasecmp(arg, "compl_do_bwd")) {
+    readline_do_completion(FALSE);
   } else if (!strcasecmp(arg, "clear_history")) {
     readline_clear_history();
   } else {

@@ -51,7 +51,7 @@ guint   new_completion(const gchar *prefix, GSList *compl_cat,
                        const gchar *suffix);
 void    done_completion(void);
 guint   cancel_completion(void);
-const char *complete(void);
+const char *complete(gboolean fwd);
 
 #endif /* __MCABBER_COMPL_H__ */
 

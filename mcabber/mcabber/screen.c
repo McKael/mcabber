@@ -86,6 +86,9 @@ static void scr_end_current_completion(void);
 static void scr_insert_text(const char*);
 static void scr_handle_tab(gboolean fwd);
 
+static void scr_glog_print(const gchar *log_domain, GLogLevelFlags log_level,
+                           const gchar *message, gpointer user_data);
+
 #if defined XEP0022 || defined XEP0085
 static gboolean scr_chatstates_timeout();
 #endif
@@ -828,6 +831,8 @@ void scr_init_curses(void)
   ptr_inputline = inputLine;
 
   Curses = TRUE;
+
+  g_log_set_handler("GLib", G_LOG_LEVEL_MASK, scr_glog_print, NULL);
   return;
 }
 
@@ -991,6 +996,13 @@ void scr_log_print(unsigned int flag, const char *fmt, ...)
     g_free(buffer);
   }
   g_free(btext);
+}
+
+// This is a GLogFunc for Glib log messages
+static void scr_glog_print(const gchar *log_domain, GLogLevelFlags log_level,
+                           const gchar *message, gpointer user_data)
+{
+  scr_log_print(LPRINT_NORMAL, "[%s] %s", log_domain, message);
 }
 
 static winbuf *scr_search_window(const char *winId, int special)

@@ -2284,7 +2284,7 @@ GSList *xmpp_get_all_storage_bookmarks(void)
     // If the node is a conference item, let's add the note to our list.
     if (x->name && !strcmp(x->name, "conference")) {
       struct bookmark *bm_elt;
-      const char *autojoin, *name, *nick;
+      const char *autojoin, *name, *nick, *passwd;
       const char *fjid = lm_message_node_get_attribute(x, "jid");
       if (!fjid)
         continue;
@@ -2293,12 +2293,15 @@ GSList *xmpp_get_all_storage_bookmarks(void)
       autojoin = lm_message_node_get_attribute(x, "autojoin");
       nick = lm_message_node_get_child_value(x, "nick");
       name = lm_message_node_get_attribute(x, "name");
+      passwd = lm_message_node_get_child_value(x, "password");
       if (autojoin && (!strcmp(autojoin, "1") || !strcmp(autojoin, "true")))
         bm_elt->autojoin = 1;
       if (nick)
         bm_elt->nick = g_strdup(nick);
       if (name)
         bm_elt->name = g_strdup(name);
+      if (passwd)
+        bm_elt->password = g_strdup(passwd);
       sl_bookmarks = g_slist_append(sl_bookmarks, bm_elt);
     }
   }

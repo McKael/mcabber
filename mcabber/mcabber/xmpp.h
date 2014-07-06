@@ -24,6 +24,7 @@ struct bookmark {
   gchar *roomjid;
   gchar *name;
   gchar *nick;
+  gchar *password;
   guint autojoin;
   /* enum room_printstatus pstatus; */
   /* enum room_autowhois awhois; */

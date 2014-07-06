@@ -2887,7 +2887,7 @@ static void room_privmsg(gpointer bud, char *arg)
 
   nick_utf8 = to_utf8(nick);
   fjid_utf8 = g_strdup_printf("%s/%s", buddy_getjid(bud), nick_utf8);
-  g_free (nick_utf8);
+  g_free(nick_utf8);
   msg = to_utf8(arg);
   send_message_to(fjid_utf8, msg, NULL, LM_MESSAGE_SUB_TYPE_NOT_SET, FALSE);
   g_free(fjid_utf8);
@@ -3184,7 +3184,7 @@ void cmd_room_whois(gpointer bud, const char *usernick, guint interactive)
 static void room_bookmark(gpointer bud, char *arg)
 {
   const char *roomid;
-  const char *name = NULL, *nick = NULL, *group = NULL;
+  const char *name = NULL, *nick = NULL, *passwd = NULL, *group = NULL;
   char *tmpnick = NULL;
   enum room_autowhois autowhois = 0;
   enum room_flagjoins flagjoins = 0;
@@ -3198,7 +3198,8 @@ static void room_bookmark(gpointer bud, char *arg)
     char **paramlst;
     char **pp;
 
-    paramlst = split_arg(arg, 3, 0); // At most 3 parameters
+    paramlst = split_arg(arg, 4, 0); // At most 4 parameters
+
     for (pp = paramlst; *pp; pp++) {
       if (!strcasecmp(*pp, "add"))
         action = bm_add;
@@ -3211,11 +3212,13 @@ static void room_bookmark(gpointer bud, char *arg)
           || !strcasecmp(*pp, "autojoin")) {
         autojoin = 1;
         autojoin_set = 1;
-      } else if (!strcmp(*pp, "-"))
+      } else if (!strcmp(*pp, "-")) {
         nick_set = 1;
-      else {
+      } else if (nick_set == 0) {
         nick_set = 1;
         nick = tmpnick = to_utf8 (*pp);
+      } else if (nick_set == 1) {
+        passwd = to_utf8(*pp);
       }
     }
     free_arg_lst(paramlst);
@@ -3239,9 +3242,9 @@ static void room_bookmark(gpointer bud, char *arg)
     group       = buddy_getgroupname(bud);
   }
 
-  xmpp_set_storage_bookmark(roomid, name, nick, NULL, autojoin,
+  xmpp_set_storage_bookmark(roomid, name, nick, passwd, autojoin,
                             printstatus, autowhois, flagjoins, group);
-  g_free (tmpnick);
+  g_free(tmpnick);
 }
 
 static void display_all_bookmarks(void)
@@ -3266,11 +3269,14 @@ static void display_all_bookmarks(void)
                     (bm_elt->autojoin ? '*' : ' '), bm_elt->roomjid);
     if (bm_elt->nick)
       g_string_append_printf(sbuf, " (%s)", bm_elt->nick);
+    if (bm_elt->password) /* replace password for security reasons */
+      g_string_append_printf(sbuf, " (*****)");
     if (bm_elt->name)
       g_string_append_printf(sbuf, " %s", bm_elt->name);
     g_free(bm_elt->roomjid);
     g_free(bm_elt->name);
     g_free(bm_elt->nick);
+    g_free(bm_elt->password);
     g_free(bm_elt);
     scr_WriteIncomingMessage(NULL, sbuf->str,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);

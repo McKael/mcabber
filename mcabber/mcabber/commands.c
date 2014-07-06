@@ -4077,7 +4077,7 @@ static void do_iline(char *arg)
     retval_for_cmds = readline_accept_line(TRUE);
   } else if (!strcasecmp(arg, "compl_cancel")) {
     readline_cancel_completion();
-  } else if (!strcasecmp(arg, "compl_do")) {
+  } else if (!strcasecmp(arg, "compl_do_fwd")) {
     readline_do_completion(TRUE);
   } else if (!strcasecmp(arg, "compl_do_bwd")) {
     readline_do_completion(FALSE);

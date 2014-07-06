@@ -1,3 +1,27 @@
+dev (33)
+
+ * Changeset 2f294c2b6778
+   Change readline_do_completion() prototype
+ * Changesets 2f294c2b6778, d3348deb32bd
+   Add iline compl_do_fwd, iline compl_do_bwd
+   Remove iline compl_do
+
+  -- Mikael Berthe, 2014-07-06
+
+dev (32)
+
+   Add "hook-mdr-received" hook
+ * Changeset e702073612de
+
+  -- Mikael Berthe, 2014-07-06
+
+dev (31)
+
+   Add xmpp_get_bookmark_password()
+ * Changeset f063e36425a2
+
+  -- Mikael Berthe, 2014-07-06
+
 dev (30)
 
  * Message carbons

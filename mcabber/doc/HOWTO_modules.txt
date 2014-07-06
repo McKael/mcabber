@@ -215,6 +215,8 @@ Currently the following events exist:
  - hook-message-out (HOOK_MESSAGE_OUT) with parameters
    * jid - recipient of the outgoing message
    * message - message body, converted to locale charset
+ - hook-mdr-received (HOOK_MDR_RECEIVED) with parameter
+   * jid - recipient of the outgoing message
  - hook-status-change (HOOK_STATUS_CHANGE) with
    parameters
    * jid - buddy, whose status has changed

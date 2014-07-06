@@ -17,6 +17,7 @@
 #define HOOK_PRE_MESSAGE_IN     "hook-pre-message-in"
 #define HOOK_POST_MESSAGE_IN    "hook-post-message-in"
 #define HOOK_MESSAGE_OUT        "hook-message-out"
+#define HOOK_MDR_RECEIVED       "hook-mdr-received"
 #define HOOK_STATUS_CHANGE      "hook-status-change"
 #define HOOK_MY_STATUS_CHANGE   "hook-my-status-change"
 #define HOOK_POST_CONNECT       "hook-post-connect"

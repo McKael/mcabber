@@ -1344,6 +1344,16 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
         id = lm_message_get_id(m);
       scr_remove_receipt_flag(jid, id);
       g_free(jid);
+
+#ifdef MODULES_ENABLE
+      {
+        hk_arg_t args[] = {
+          { "jid", from },
+          { NULL, NULL },
+        };
+        hk_run_handlers("hook-mdr-received", args);
+      }
+#endif
     }
   }
 

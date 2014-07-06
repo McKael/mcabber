@@ -1,7 +1,7 @@
 /*
  * main.c
  *
- * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2014 Mikael Berthe <mikael@lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -397,21 +397,6 @@ int main(int argc, char **argv)
       scr_log_print(LPRINT_NORMAL, "Server: %s", p);
     if ((p = settings_opt_get("jid")) != NULL) {
       scr_log_print(LPRINT_NORMAL, "User JID: %s", p);
-    } else if (settings_opt_get("username")) {
-      /* TODO: remove after 0.10.2/3 */
-      scr_log_print(LPRINT_NORMAL, "** ERROR: The JID is missing, but "
-                    "the variable 'username' is defined in your "
-                    "configuration file.\n"
-                    "** Please update your configuration file and set "
-                    "the 'jid' variable.");
-    }
-
-    if (settings_opt_get("ssl_verify")) {  // Deprecated option
-      /* TODO: remove after 0.10.2/3 */
-      scr_log_print(LPRINT_NORMAL,
-                    "** ERROR: The option ssl_verify is deprecated.\n"
-                    "** Please update your configuration file and use "
-                    "the 'ssl_ignore_checks' variable.");
     }
   }
 

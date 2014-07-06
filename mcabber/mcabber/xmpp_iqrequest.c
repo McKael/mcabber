@@ -2,7 +2,7 @@
  * xmpp_iqrequest.c -- Jabber IQ request handling
  *
  * Copyright (C) 2008-2010 Frank Zschockelt <mcabber@freakysoft.de>
- * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2014 Mikael Berthe <mikael@lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

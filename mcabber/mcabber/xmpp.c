@@ -1,8 +1,8 @@
 /*
  * xmpp.c       -- Jabber protocol handling
  *
- * Copyright (C) 2008-2010 Frank Zschockelt <mcabber@freakysoft.de>
- * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2008-2014 Frank Zschockelt <mcabber@freakysoft.de>
+ * Copyright (C) 2005-2014 Mikael Berthe <mikael@lilotux.net>
  * Parts come from the centericq project:
  * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
  *

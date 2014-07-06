@@ -1,8 +1,8 @@
 /*
  * compl.c      -- Completion system
  *
- * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
- * Copyright (C) 2009-2012 Myhailo Danylenko <isbear@ukrpost.net>
+ * Copyright (C) 2005-2014 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2009-2014 Myhailo Danylenko <isbear@ukrpost.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

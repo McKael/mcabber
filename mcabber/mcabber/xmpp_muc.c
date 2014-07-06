@@ -2,7 +2,7 @@
  * xmpp_muc.c   -- Jabber MUC protocol handling
  *
  * Copyright (C) 2008-2010 Frank Zschockelt <mcabber@freakysoft.de>
- * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2014 Mikael Berthe <mikael@lilotux.net>
  * Copyright (C) 2010      Myhailo Danylenko <isbear@ukrpost.net>
  *
  * This program is free software; you can redistribute it and/or modify

@@ -8,7 +8,7 @@
  /ILINE iline_accept|iline_accept_down_hist
  /ILINE iline_insert
  /ILINE clear_history
- /ILINE compl_do|compl_cancel
+ /ILINE compl_do_fwd|compl_do_bwd|compl_cancel
  /ILINE send_multiline
 
 Befehle für die Eingabezeile
@@ -63,7 +63,7 @@ Befehle für die Eingabezeile
 /iline clear_history
  Löscht die Befehlshistorie
  Clear the command line history
-/iline compl_do
+/iline compl_do_fwd|compl_do_bwd
  Das derzeitig ausgewählte Wort vervollständigen
 /iline compl_cancel
  Vervollständigen abbrechen

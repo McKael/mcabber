@@ -8,7 +8,7 @@
  /ILINE iline_accept|iline_accept_down_hist
  /ILINE iline_insert
  /ILINE clear_history
- /ILINE compl_do|compl_cancel
+ /ILINE compl_do_fwd|compl_do_bwd|compl_cancel
  /ILINE send_multiline
 
 Cette commande permet de manipuler la ligne de commandes. En général elle sera utilisée par l'intermédiaire de la commande "bind".
@@ -61,8 +61,8 @@ Cette commande permet de manipuler la ligne de commandes. En général elle sera
  Insérer le texte dans la ligne de commande, à la position du curseur. Notez que les guillemets doivent être protégés (\"), et que l'écran n'est pas rafraîchi (cf. /screen_refresh).
 /iline clear_history
  Efface l'historique de la ligne de commande
-/iline compl_do
- Compléter le mot actuel dans la ligne de commande
+/iline compl_do_fwd|compl_do_bwd
+ Compléter le mot actuel, en avant (fwd) ou en arrière (bwd), dans la ligne de commande
 /iline compl_cancel
  Annuler le complètement du mot
 /iline send_multiline

@@ -8,7 +8,7 @@
  /ILINE iline_accept|iline_accept_down_hist
  /ILINE iline_insert
  /ILINE clear_history
- /ILINE compl_do|compl_cancel
+ /ILINE compl_do_fwd|compl_do_bwd|compl_cancel
  /ILINE send_multiline
 
 Команди редагування рядка.
@@ -61,7 +61,7 @@
  Вставити вказаний текст у поточній позиції курсору.  Зауважте, що лапки у тексті мають бути знешкоджені за допомогою '\', а також, що екран не буде оновлено автоматично (скористайтеся /screen_refresh).
 /iline clear_history
  Спустошити історію командного рядка.
-/iline compl_do
+/iline compl_do_fwd|compl_do_bwd
  Доповнити поточне слово.
 /iline compl_cancel
  Скасувати попереднє доповнення.

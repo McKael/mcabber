@@ -8,7 +8,7 @@
  /ILINE iline_accept|iline_accept_down_hist
  /ILINE iline_insert
  /ILINE clear_history
- /ILINE compl_do|compl_cancel
+ /ILINE compl_do_fwd|compl_do_bwd|compl_cancel
  /ILINE send_multiline
 
 Input line commands
@@ -61,8 +61,8 @@ Input line commands
  Insert some text in the input line, at the current position.  Please note that quotes have to be escaped, and that the screen is not refreshed (use /screen_refresh).
 /iline clear_history
  Clear the command line history
-/iline compl_do
- Complete current word, in the input line
+/iline compl_do_fwd|compl_do_bwd
+ Complete (forward or backward) current word, in the input line
 /iline compl_cancel
  Cancel completion
 /iline send_multiline

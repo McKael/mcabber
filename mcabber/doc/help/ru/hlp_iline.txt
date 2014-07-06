@@ -8,7 +8,7 @@
  /ILINE iline_accept|iline_accept_down_hist
  /ILINE iline_insert
  /ILINE clear_history
- /ILINE compl_do|compl_cancel
+ /ILINE compl_do_fwd|compl_do_bwd|compl_cancel
  /ILINE send_multiline
 
 Команды строки ввода.
@@ -61,7 +61,7 @@
  Вставить текст в текущей позиции курсора.  Заметьте, что кавычки в тексте необходимо обезвредить с помощью '\', а также, что экран не будет обновлен автоматически (используйте /screen_refresh)
 /iline clear_history
  Очистить историю команд
-/iline compl_do
+/iline compl_do_fwd|compl_do_bwd
  Завершить текущее слово в строке ввода
 /iline compl_cancel
  Отменить завершение слова

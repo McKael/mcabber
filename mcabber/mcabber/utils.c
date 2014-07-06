@@ -187,7 +187,7 @@ static gboolean tracelog_create(void)
 
   fp = fopen(FName, "a");
   if (!fp) {
-    scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot open tracelog file: %s!",
+    scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot open tracelog file: %s",
                  strerror(errno));
     return FALSE;
   }
@@ -196,13 +196,17 @@ static gboolean tracelog_create(void)
   if (err || buf.st_uid != geteuid()) {
     fclose(fp);
     if (err)
-      scr_LogPrint(LPRINT_NORMAL, "ERROR: cannot stat the tracelog file: %s!",
+      scr_LogPrint(LPRINT_NORMAL, "ERROR: cannot stat the tracelog file: %s",
                    strerror(errno));
     else
       scr_LogPrint(LPRINT_NORMAL, "ERROR: tracelog file does not belong to you!");
     return FALSE;
   }
-  fchmod(fileno(fp), S_IRUSR|S_IWUSR);
+
+  if (fchmod(fileno(fp), S_IRUSR|S_IWUSR)) {
+    scr_LogPrint(LPRINT_NORMAL, "WARNING: Cannot set tracelog file permissions: %s",
+                 strerror(errno));
+  }
 
   v = mcabber_version();
   fprintf(fp, "New trace log started.  MCabber version %s\n"
@@ -268,6 +272,10 @@ void ut_write_log(unsigned int flag, const char *data)
                    strerror(errno));
       return;
     }
+
+    // Check file permissions again (it could be a new file)
+    fchmod(fileno(fp), S_IRUSR|S_IWUSR);
+
     if (fputs(data, fp) == EOF)
       scr_LogPrint(LPRINT_NORMAL, "ERROR: Cannot write to tracelog file.");
     fclose(fp);

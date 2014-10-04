@@ -1315,8 +1315,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
         skip_process = TRUE;
 
       // Try to handle forwarded chat state messages
-      if (!skip_process)
-        handle_state_events(from, x);
+      handle_state_events(from, x);
 
       scr_LogPrint(LPRINT_DEBUG, "Received incoming carbon from <%s>", from);
 

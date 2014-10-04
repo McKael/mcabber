@@ -1,6 +1,14 @@
+dev (35)
+
+ * Change prototype of hk_message_in()
+ * Min API 35
+ * Changeset 443d05b24762
+
+  -- Mikael Berthe, 2014-10-04
+
 dev (34)
 
-   Add carbons_enabled()
+ * Add carbons_enabled()
  * Changeset 2ce6dd6861ea
 
   -- Mikael Berthe, 2014-10-04

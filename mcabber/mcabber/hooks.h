@@ -47,7 +47,7 @@ guint hk_run_handlers(const gchar *hookname, hk_arg_t *args);
 
 void hk_message_in(const char *bjid, const char *resname,
                    time_t timestamp, const char *msg, LmMessageSubType type,
-                   guint encrypted);
+                   guint encrypted, gboolean carbon);
 void hk_message_out(const char *bjid, const char *nickname,
                     time_t timestamp, const char *msg,
                     guint encrypted,  gpointer xep184);

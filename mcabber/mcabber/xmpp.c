@@ -1191,8 +1191,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
         fullbody = g_strdup_printf("[%s]\n", subject);
       body = fullbody;
     }
-    // XXX/TODO: pass the carbon status (Mikael)
-    hk_message_in(bjid, rname, timestamp, body, type, encrypted);
+    hk_message_in(bjid, rname, timestamp, body, type, encrypted, carbon);
     g_free(fullbody);
   }
 

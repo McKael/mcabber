@@ -183,7 +183,7 @@ static const char *COMMAND_ME = "/me ";
 
 void hk_message_in(const char *bjid, const char *resname,
                    time_t timestamp, const char *msg, LmMessageSubType type,
-                   guint encrypted)
+                   guint encrypted, gboolean carbon)
 {
   int new_guy = FALSE;
   int is_groupchat = FALSE; // groupchat message
@@ -251,6 +251,7 @@ void hk_message_in(const char *bjid, const char *resname,
       { "groupchat", is_groupchat ? "true" : "false" },
       { "delayed", strdelay },
       { "error", error_msg_subtype ? "true" : "false" },
+      { "carbon", carbon ? "true" : "false" },
       { NULL, NULL },
     };
     h_result = hk_run_handlers(HOOK_PRE_MESSAGE_IN, args);
@@ -405,6 +406,7 @@ void hk_message_in(const char *bjid, const char *resname,
       { "attention", attention ? "true" : "false" },
       { "delayed", strdelay },
       { "error", error_msg_subtype ? "true" : "false" },
+      { "carbon", carbon ? "true" : "false" },
       { NULL, NULL },
     };
     hk_run_handlers(HOOK_POST_MESSAGE_IN, args);

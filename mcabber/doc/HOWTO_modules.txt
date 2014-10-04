@@ -201,6 +201,7 @@ Currently the following events exist:
    * delayed - message timestamp (ISO-8601 string) or empty string if
      the message wasn't delayed
    * error - "true" if this is an error message
+   * carbon - "true" if this is a message carbon (cf. XEP-0280)
  - hook-post-message-in (HOOK_POST_MESSAGE_IN) with parameters
    * jid - sender of the incoming message
    * resource - resource of the incoming message
@@ -212,6 +213,7 @@ Currently the following events exist:
    * delayed - message timestamp (ISO-8601 string) or empty string if
      the message wasn't delayed
    * error - "true" if this is an error message
+   * carbon - "true" if this is a message carbon (cf. XEP-0280)
  - hook-message-out (HOOK_MESSAGE_OUT) with parameters
    * jid - recipient of the outgoing message
    * message - message body, converted to locale charset

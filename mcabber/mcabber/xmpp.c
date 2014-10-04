@@ -1082,8 +1082,9 @@ static void handle_state_events(const char *from, LmMessageNode *node)
 }
 
 static void gotmessage(LmMessageSubType type, const char *from,
-                       const char *body, const char *enc, const char *subject,
-                       time_t timestamp, LmMessageNode *node_signed)
+                       const char *body, const char *enc,
+                       const char *subject, time_t timestamp,
+                       LmMessageNode *node_signed, gboolean carbon)
 {
   char *bjid;
   const char *rname;
@@ -1185,6 +1186,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
         fullbody = g_strdup_printf("[%s]\n", subject);
       body = fullbody;
     }
+    // XXX/TODO: pass the carbon status (Mikael)
     hk_message_in(bjid, rname, timestamp, body, type, encrypted);
     g_free(fullbody);
   }
@@ -1210,6 +1212,8 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   const char *subject = NULL;
   time_t timestamp = 0L;
   LmMessageSubType mstype;
+  gboolean skip_process = FALSE;
+  LmMessageNode *ns_signed = NULL;
 
   mstype = lm_message_get_sub_type(m);
 
@@ -1278,9 +1282,9 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
 
   // Check for carbons!
   x = lm_message_node_find_xmlns(m->node, NS_CARBONS_2);
-  char carbons = 0;
+  gboolean carbons = FALSE;
   if (x) {
-    carbons = 1;
+    carbons = TRUE;
     // Parse a message that is send to one of our other resources
     if (!g_strcmp0(x->name, "received")) {
       // Go 1 level deeper to the forwarded message
@@ -1288,33 +1292,64 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       x = lm_message_node_get_child(x, "message");
 
       from = lm_message_node_get_attribute(x, "from");
+      if (!from) {
+        scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy!");
+        goto handle_messages_return;
+      }
       g_free(bjid);
       bjid = g_strdup(from);
       res = strchr(bjid, JID_RESOURCE_SEPARATOR);
       if (res) *res++ = 0;
-      scr_WriteIncomingMessage(bjid, body, timestamp, HBB_PREFIX_IN, 0);
 
-      scr_LogPrint(LPRINT_DEBUG, "carbon from:%s",
-                   lm_message_node_get_attribute(x, "from"));
+      if (body && *body && !subject && !enc)
+        ns_signed = lm_message_node_find_xmlns(x, NS_SIGNED);
+      else
+        skip_process = TRUE;
+
+      // We (probably) cannot handle encrypted forwarded messages
+      if (lm_message_node_find_xmlns(x, NS_ENCRYPTED))
+        skip_process = TRUE;
+
+      // Try to handle forwarded chat state messages
+      if (!skip_process)
+        handle_state_events(from, x);
+
+      scr_LogPrint(LPRINT_DEBUG, "Received incoming carbon from <%s>", from);
 
     } else if (!g_strcmp0(x->name, "sent")) {
       x = lm_message_node_find_xmlns(x, "urn:xmpp:forward:0");
       x = lm_message_node_get_child(x, "message");
 
       const char *to= lm_message_node_get_attribute(x, "to");
+      if (!to) {
+        scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy!");
+        goto handle_messages_return;
+      }
       g_free(bjid);
-      bjid = g_strdup(to);
-      res = strchr(bjid, JID_RESOURCE_SEPARATOR);
-      if (res) *res++ = 0;
+      bjid = jidtodisp(to);
 
-      scr_write_outgoing_message(bjid, body, 0, NULL);
+      if (body && *body)
+        hk_message_out(bjid, NULL, timestamp, body, 0, NULL);
+
+      scr_LogPrint(LPRINT_DEBUG, "Received outgoing carbon for <%s>", to);
+      goto handle_messages_return;
     }
+  } else { // Not a Carbon
+    ns_signed = lm_message_node_find_xmlns(m->node, NS_SIGNED);
   }
 
+  // Do not process the message if some fields are missing
+  if (!from || (!body && !subject))
+    skip_process = TRUE;
 
-  if (from && (body || subject) && !carbons)
+  if (!skip_process) {
     gotmessage(mstype, from, body, enc, subject, timestamp,
-               lm_message_node_find_xmlns(m->node, NS_SIGNED));
+               ns_signed, carbons);
+  }
+
+  // We're done if it was a Carbon forwarded message
+  if (carbons)
+    goto handle_messages_return;
 
   // Report received message if message delivery receipt was requested
   if (lm_message_node_get_child(m->node, "request") &&
@@ -1375,6 +1410,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     }
   }
 
+handle_messages_return:
   g_free(bjid);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }

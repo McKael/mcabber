@@ -45,6 +45,11 @@ void carbons_available()
   }
 }
 
+gboolean carbons_enabled()
+{
+  return (_carbons_enabled != 0);
+}
+
 void carbons_enable()
 {
   LmMessage *iq;

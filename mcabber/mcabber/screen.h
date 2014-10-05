@@ -148,6 +148,7 @@ void scr_roster_jump_jid(char *);
 void scr_roster_jump_alternate(void);
 void scr_roster_unread_message(int);
 void scr_roster_display(const char *);
+void scr_roster_next_open_buffer(void);
 
 void scr_buffer_top_bottom(int topbottom);
 void scr_buffer_clear(void);

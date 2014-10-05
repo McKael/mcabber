@@ -878,6 +878,8 @@ static void do_roster(char *arg)
     scr_roster_unread_message(0);
   } else if (!strcasecmp(subcmd, "unread_next")) {
     scr_roster_unread_message(1);
+  } else if (!strcasecmp(subcmd, "next_open_buffer")) {
+    scr_roster_next_open_buffer();
   } else if (!strcasecmp(subcmd, "alternate")) {
     scr_roster_jump_alternate();
   } else if (!strncasecmp(subcmd, "search", 6)) {

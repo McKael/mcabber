@@ -2678,6 +2678,41 @@ void scr_roster_unread_message(int next)
     scr_LogPrint(LPRINT_LOGNORM, "Error: nbuddy == NULL"); // should not happen
 }
 
+//  scr_roster_next_open_buffer()
+// Jump to the next open buffer (experimental XXX)
+// This implementation ignores the hidden entries (folded groups).
+void scr_roster_next_open_buffer(void)
+{
+  GList *bud = current_buddy;
+
+  if (!current_buddy) return;
+
+  for (;;) {
+    guint budtype;
+    bud = g_list_next(bud);
+    // End of list: jump to the first entry
+    if (!bud)
+      bud = buddylist;
+    // Check if we're back to the initial position
+    if (bud == current_buddy)
+      break;
+    // Ignore the special buffer(s), groups
+    budtype = buddy_gettype(BUDDATA(bud));
+    if (budtype & (ROSTER_TYPE_GROUP | ROSTER_TYPE_SPECIAL))
+      continue;
+
+    // Check if a buffer/window exists
+    if (scr_search_window(buddy_getjid(BUDDATA(bud)), 0)) {
+      set_current_buddy(bud);
+      if (chatmode) {
+        last_activity_buddy = current_buddy;
+        scr_show_buddy_window();
+      }
+      break;
+    }
+  }
+}
+
 //  scr_roster_jump_alternate()
 // Try to jump to alternate (== previous) buddy
 void scr_roster_jump_alternate(void)

@@ -311,16 +311,13 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   int otr_msg = 0;
 #endif
   char *barejid;
-#if defined HAVE_GPGME || defined XEP0022 || defined XEP0085
+#if defined HAVE_GPGME || defined XEP0085
   char *rname;
   GSList *sl_buddy;
 #endif
-#if defined XEP0022 || defined XEP0085
+#ifdef XEP0085
   LmMessageNode *event;
   struct xep0085 *xep85 = NULL;
-#if defined XEP0022
-  guint use_xep85 = 0;
-#endif
 #endif
   gchar *enc = NULL;
 
@@ -343,8 +340,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   }
 
   barejid = jidtodisp(fjid);
-#if defined HAVE_GPGME || defined HAVE_LIBOTR || \
-    defined XEP0022 || defined XEP0085
+#if defined HAVE_GPGME || defined HAVE_LIBOTR || defined XEP0085
   rname = strchr(fjid, JID_RESOURCE_SEPARATOR);
   sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
 
@@ -399,7 +395,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   }
 #endif // HAVE_GPGME
 
-#endif // HAVE_GPGME || defined XEP0022 || defined XEP0085
+#endif // HAVE_GPGME || defined XEP0085
 
   x = lm_message_new_with_sub_type(fjid, LM_MESSAGE_TYPE_MESSAGE, subtype);
   lm_message_node_add_child(x->node, "body",
@@ -433,16 +429,14 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   }
   g_free(barejid);
 
-#if defined XEP0022 || defined XEP0085
+#ifdef XEP0085
   // If typing notifications are disabled, we can skip all this stuff...
   if (chatstates_disabled || type == ROSTER_TYPE_ROOM)
     goto xmpp_send_msg_no_chatstates;
 
   if (sl_buddy)
     xep85 = buddy_resource_xep85(sl_buddy->data, rname);
-#endif
 
-#ifdef XEP0085
   /* XEP-0085 5.1
    * "Until receiving a reply to the initial content message (or a standalone
    * notification) from the Contact, the User MUST NOT send subsequent chat
@@ -456,38 +450,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
     lm_message_node_set_attribute(event, "xmlns", NS_CHATSTATES);
     if (xep85->support == CHATSTATES_SUPPORT_UNKNOWN)
       xep85->support = CHATSTATES_SUPPORT_PROBED;
-#ifdef XEP0022
-    else
-      use_xep85 = 1;
-#endif
     xep85->last_state_sent = ROSTER_EVENT_ACTIVE;
-  }
-#endif
-#ifdef XEP0022
-  /* XEP-22
-   * If the Contact supports XEP-0085, we do not use XEP-0022.
-   * If not, we try to fall back to XEP-0022.
-   */
-  if (!use_xep85) {
-    struct xep0022 *xep22 = NULL;
-    event = lm_message_node_add_child(x->node, "x", NULL);
-    lm_message_node_set_attribute(event, "xmlns", NS_EVENT);
-    lm_message_node_add_child(event, "composing", NULL);
-
-    if (sl_buddy)
-      xep22 = buddy_resource_xep22(sl_buddy->data, rname);
-    if (xep22)
-      xep22->last_state_sent = ROSTER_EVENT_ACTIVE;
-
-    // An id is mandatory when using XEP-0022.
-    if (text || subject) {
-      const gchar *msgid = lm_message_get_id(x);
-      // Let's update last_msgid_sent
-      if (xep22) {
-        g_free(xep22->last_msgid_sent);
-        xep22->last_msgid_sent = g_strdup(msgid);
-      }
-    }
   }
 #endif
 
@@ -559,93 +522,21 @@ static void xmpp_send_xep85_chatstate(const char *bjid, const char *resname,
 }
 #endif
 
-#ifdef XEP0022
-//  xmpp_send_xep22_event()
-// Send a XEP-22 message event (delivered, composing...).
-static void xmpp_send_xep22_event(const char *fjid, guint type)
-{
-  LmMessage *x;
-  LmMessageNode *event;
-  const char *msgid;
-  char *rname, *barejid;
-  GSList *sl_buddy;
-  struct xep0022 *xep22 = NULL;
-  guint xep22_state;
-
-  if (!xmpp_is_online())
-    return;
-
-  rname = strchr(fjid, JID_RESOURCE_SEPARATOR);
-  barejid = jidtodisp(fjid);
-  sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
-  g_free(barejid);
-
-  // If we can get a resource name, we use it.  Else we use NULL,
-  // which hopefully will give us the most likely resource.
-  if (rname)
-    rname++;
-  if (sl_buddy)
-    xep22 = buddy_resource_xep22(sl_buddy->data, rname);
-
-  if (!xep22)
-    return; // XXX Maybe we could try harder (other resources?)
-
-  msgid = xep22->last_msgid_rcvd;
-
-  // For composing events (composing, active, inactive, paused...),
-  // XEP22 only has 2 states; we'll use composing and active.
-  if (type == ROSTER_EVENT_COMPOSING)
-    xep22_state = ROSTER_EVENT_COMPOSING;
-  else if (type == ROSTER_EVENT_ACTIVE ||
-           type == ROSTER_EVENT_PAUSED)
-    xep22_state = ROSTER_EVENT_ACTIVE;
-  else
-    xep22_state = 0; // ROSTER_EVENT_NONE
-
-  if (xep22_state) {
-    // Do not re-send a same event
-    if (xep22_state == xep22->last_state_sent)
-      return;
-    xep22->last_state_sent = xep22_state;
-  }
-
-  x = lm_message_new_with_sub_type(fjid, LM_MESSAGE_TYPE_MESSAGE,
-                                   LM_MESSAGE_SUB_TYPE_CHAT);
-
-  event = lm_message_node_add_child(x->node, "x", NULL);
-  lm_message_node_set_attribute(event, "xmlns", NS_EVENT);
-  if (type == ROSTER_EVENT_DELIVERED)
-    lm_message_node_add_child(event, "delivered", NULL);
-  else if (type == ROSTER_EVENT_COMPOSING)
-    lm_message_node_add_child(event, "composing", NULL);
-  lm_message_node_add_child(event, "id", msgid);
-
-  lm_connection_send(lconnection, x, NULL);
-  lm_message_unref(x);
-}
-#endif
-
 //  xmpp_send_chatstate(buddy, state)
 // Send a chatstate or event (XEP-22/85) according to the buddy's capabilities.
 // The message is sent to one of the resources with the highest priority.
-#if defined XEP0022 || defined XEP0085
+#if defined XEP0085
 void xmpp_send_chatstate(gpointer buddy, guint chatstate)
 {
   const char *bjid;
   const char *activeres;
-#ifdef XEP0085
   GSList *resources, *p_res, *p_next;
   struct xep0085 *xep85 = NULL;
-#endif
-#ifdef XEP0022
-  struct xep0022 *xep22;
-#endif
 
   bjid = buddy_getjid(buddy);
   if (!bjid) return;
   activeres = buddy_getactiveresource(buddy);
 
-#ifdef XEP0085
   /* Send the chatstate to the last resource (which should have the highest
      priority).
      If chatstate is "active", send an "active" state to all resources
@@ -671,13 +562,6 @@ void xmpp_send_chatstate(gpointer buddy, guint chatstate)
   // we don't want to send a XEP22 event.
   if (xep85 && xep85->support == CHATSTATES_SUPPORT_OK)
     return;
-#endif
-#ifdef XEP0022
-  xep22 = buddy_resource_xep22(buddy, activeres);
-  if (xep22 && xep22->support == CHATSTATES_SUPPORT_OK) {
-    xmpp_send_xep22_event(bjid, chatstate);
-  }
-#endif
 }
 #endif
 
@@ -685,13 +569,12 @@ void xmpp_send_chatstate(gpointer buddy, guint chatstate)
 //  chatstates_reset_probed(fulljid)
 // If the XEP has been probed for this contact, set it back to unknown so
 // that we probe it again.  The parameter must be a full jid (w/ resource).
-#if defined XEP0022 || defined XEP0085
+#if defined XEP0085
 static void chatstates_reset_probed(const char *fulljid)
 {
   char *rname, *barejid;
   GSList *sl_buddy;
   struct xep0085 *xep85;
-  struct xep0022 *xep22;
 
   rname = strchr(fulljid, JID_RESOURCE_SEPARATOR);
   if (!rname++)
@@ -705,12 +588,9 @@ static void chatstates_reset_probed(const char *fulljid)
     return;
 
   xep85 = buddy_resource_xep85(sl_buddy->data, rname);
-  xep22 = buddy_resource_xep22(sl_buddy->data, rname);
 
   if (xep85 && xep85->support == CHATSTATES_SUPPORT_PROBED)
     xep85->support = CHATSTATES_SUPPORT_UNKNOWN;
-  if (xep22 && xep22->support == CHATSTATES_SUPPORT_PROBED)
-    xep22->support = CHATSTATES_SUPPORT_UNKNOWN;
 }
 #endif
 
@@ -974,18 +854,11 @@ static void connection_close_cb(LmConnection *connection,
 
 static void handle_state_events(const char *from, LmMessageNode *node)
 {
-#if defined XEP0022 || defined XEP0085
+#if defined XEP0085
   LmMessageNode *state_ns = NULL;
   char *rname, *bjid;
   GSList *sl_buddy;
-  guint events;
-  struct xep0022 *xep22 = NULL;
   struct xep0085 *xep85 = NULL;
-  enum {
-    XEP_none,
-    XEP_85,
-    XEP_22
-  } which_xep = XEP_none;
 
   rname = strchr(from, JID_RESOURCE_SEPARATOR);
   if (rname)
@@ -996,92 +869,34 @@ static void handle_state_events(const char *from, LmMessageNode *node)
   sl_buddy = roster_find(bjid, jidsearch, ROSTER_TYPE_USER);
   g_free(bjid);
 
-  /* XXX Actually that's wrong, since it filters out server "offline"
-     messages (for XEP-0022).  This XEP is (almost) deprecated so
-     we don't really care. */
   if (!sl_buddy) {
     return;
   }
 
-  /* Let's see chich XEP the contact uses.  If possible, we'll use
-     XEP-85, if not we'll look for XEP-22 support. */
-  events = buddy_resource_getevents(sl_buddy->data, rname);
-
+  /* Let's see whether the contact supports XEP0085 */
   xep85 = buddy_resource_xep85(sl_buddy->data, rname);
-  if (xep85) {
+  if (xep85)
     state_ns = lm_message_node_find_xmlns(node, NS_CHATSTATES);
-    if (state_ns)
-      which_xep = XEP_85;
-  }
 
-  if (which_xep != XEP_85) { /* Fall back to XEP-0022 */
-    xep22 = buddy_resource_xep22(sl_buddy->data, rname);
-    if (xep22) {
-      state_ns = lm_message_node_find_xmlns(node, NS_EVENT);
-      if (state_ns)
-        which_xep = XEP_22;
-    }
-  }
-
-  if (!which_xep) { /* Sender does not use chat states */
+  if (!state_ns) { /* Sender does not use chat states */
     return;
   }
 
-  if (which_xep == XEP_85) { /* XEP-0085 */
-    xep85->support = CHATSTATES_SUPPORT_OK;
+  xep85->support = CHATSTATES_SUPPORT_OK;
 
-    if (!strcmp(state_ns->name, "composing")) {
-      xep85->last_state_rcvd = ROSTER_EVENT_COMPOSING;
-    } else if (!strcmp(state_ns->name, "active")) {
-      xep85->last_state_rcvd = ROSTER_EVENT_ACTIVE;
-    } else if (!strcmp(state_ns->name, "paused")) {
-      xep85->last_state_rcvd = ROSTER_EVENT_PAUSED;
-    } else if (!strcmp(state_ns->name, "inactive")) {
-      xep85->last_state_rcvd = ROSTER_EVENT_INACTIVE;
-    } else if (!strcmp(state_ns->name, "gone")) {
-      xep85->last_state_rcvd = ROSTER_EVENT_GONE;
-    }
-    events = xep85->last_state_rcvd;
-  } else {              /* XEP-0022 */
-#ifdef XEP0022
-    const char *body = lm_message_node_get_child_value(node, "body");
-    const char *msgid;
-    xep22->support = CHATSTATES_SUPPORT_OK;
-    xep22->last_state_rcvd = ROSTER_EVENT_NONE;
-
-    msgid = lm_message_node_get_attribute(node, "id");
-
-    if (lm_message_node_get_child(state_ns, "composing")) {
-      // Clear composing if the message contains a body
-      if (body)
-        events &= ~ROSTER_EVENT_COMPOSING;
-      else
-        events |= ROSTER_EVENT_COMPOSING;
-      xep22->last_state_rcvd |= ROSTER_EVENT_COMPOSING;
-
-    } else {
-      events &= ~ROSTER_EVENT_COMPOSING;
-    }
-
-    // Cache the message id
-    g_free(xep22->last_msgid_rcvd);
-    if (msgid)
-      xep22->last_msgid_rcvd = g_strdup(msgid);
-    else
-      xep22->last_msgid_rcvd = NULL;
-
-    if (lm_message_node_get_child(state_ns, "delivered")) {
-      xep22->last_state_rcvd |= ROSTER_EVENT_DELIVERED;
-
-      // Do we have to send back an ACK?
-      if (body)
-        xmpp_send_xep22_event(from, ROSTER_EVENT_DELIVERED);
-    }
-#endif
+  if (!strcmp(state_ns->name, "composing")) {
+    xep85->last_state_rcvd = ROSTER_EVENT_COMPOSING;
+  } else if (!strcmp(state_ns->name, "active")) {
+    xep85->last_state_rcvd = ROSTER_EVENT_ACTIVE;
+  } else if (!strcmp(state_ns->name, "paused")) {
+    xep85->last_state_rcvd = ROSTER_EVENT_PAUSED;
+  } else if (!strcmp(state_ns->name, "inactive")) {
+    xep85->last_state_rcvd = ROSTER_EVENT_INACTIVE;
+  } else if (!strcmp(state_ns->name, "gone")) {
+    xep85->last_state_rcvd = ROSTER_EVENT_GONE;
   }
 
-  buddy_resource_setevents(sl_buddy->data, rname, events);
-
+  buddy_resource_setevents(sl_buddy->data, rname, xep85->last_state_rcvd);
   update_roster = TRUE;
 #endif
 }
@@ -1275,7 +1090,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     x = lm_message_node_get_child(m->node, "error");
     display_server_error(x, from);
-#if defined XEP0022 || defined XEP0085
+#ifdef XEP0085
     // If the XEP85/22 support is probed, set it back to unknown so that
     // we probe it again.
     chatstates_reset_probed(from);

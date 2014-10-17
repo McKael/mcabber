@@ -75,9 +75,6 @@ typedef struct {
   gchar *realjid;       /* for chatrooms, if buddy's real jid is known */
   guint events;
   char *caps;
-#ifdef XEP0022
-  struct xep0022 xep22;
-#endif
 #ifdef XEP0085
   struct xep0085 xep85;
 #endif
@@ -155,10 +152,6 @@ static inline void free_resource_data(res *p_res)
   g_free((gchar*)p_res->status_msg);
   g_free((gchar*)p_res->name);
   g_free((gchar*)p_res->realjid);
-#ifdef XEP0022
-  g_free(p_res->xep22.last_msgid_sent);
-  g_free(p_res->xep22.last_msgid_rcvd);
-#endif
 #ifdef HAVE_GPGME
   g_free(p_res->pgpdata.sign_keyid);
 #endif
@@ -1355,17 +1348,6 @@ void buddy_resource_setcaps(gpointer rosterdata, const char *resname,
     g_free(p_res->caps);
     p_res->caps = g_strdup(caps);
   }
-}
-
-struct xep0022 *buddy_resource_xep22(gpointer rosterdata, const char *resname)
-{
-#ifdef XEP0022
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
-  if (p_res)
-    return &p_res->xep22;
-#endif
-  return NULL;
 }
 
 struct xep0085 *buddy_resource_xep85(gpointer rosterdata, const char *resname)

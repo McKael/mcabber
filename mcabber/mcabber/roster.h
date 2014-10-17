@@ -121,16 +121,8 @@ struct role_affil {
 #define ROSTER_FLAG_USRLOCK (1U<<3) // Node should not be removed from buddylist
 // ROSTER_FLAG_LOCAL   (1U<<4) // Buddy not on server's roster  (??)
 
-// #define XEP0022 (Officially obsoleted by XMPP Council)
 #define XEP0085
 
-struct xep0022 {
-  guint support;
-  guint last_state_sent;
-  gchar *last_msgid_sent;
-  guint last_state_rcvd;
-  gchar *last_msgid_rcvd;
-};
 struct xep0085 {
   guint support;
   guint last_state_sent;
@@ -153,17 +145,12 @@ struct pgp_data {
 
 /* Message event and chat state flags */
 #define ROSTER_EVENT_NONE      0U
-/* XEP-22 Message Events */
-#define ROSTER_EVENT_OFFLINE   (1U<<0)
-#define ROSTER_EVENT_DELIVERED (1U<<1)
-#define ROSTER_EVENT_DISPLAYED (1U<<2)
-/* XEP-22 & XEP-85 */
-#define ROSTER_EVENT_COMPOSING (1U<<3)
 /* XEP-85 Chat State Notifications */
-#define ROSTER_EVENT_ACTIVE    (1U<<4)
-#define ROSTER_EVENT_PAUSED    (1U<<5)
-#define ROSTER_EVENT_INACTIVE  (1U<<6)
-#define ROSTER_EVENT_GONE      (1U<<7)
+#define ROSTER_EVENT_COMPOSING (1U<<0)
+#define ROSTER_EVENT_ACTIVE    (1U<<1)
+#define ROSTER_EVENT_PAUSED    (1U<<2)
+#define ROSTER_EVENT_INACTIVE  (1U<<3)
+#define ROSTER_EVENT_GONE      (1U<<4)
 
 extern GList *buddylist;
 extern GList *current_buddy;
@@ -248,7 +235,6 @@ guint   buddy_resource_getevents(gpointer rosterdata, const char *resname);
 void    buddy_resource_setcaps(gpointer rosterdata, const char *resname,
                                const char *caps);
 char   *buddy_resource_getcaps(gpointer rosterdata, const char *resname);
-struct xep0022 *buddy_resource_xep22(gpointer rosterdata, const char *resname);
 struct xep0085 *buddy_resource_xep85(gpointer rosterdata, const char *resname);
 struct pgp_data *buddy_resource_pgp(gpointer rosterdata, const char *resname);
 enum imrole buddy_getrole(gpointer rosterdata, const char *resname);

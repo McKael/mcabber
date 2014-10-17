@@ -89,7 +89,7 @@ static void scr_handle_tab(gboolean fwd);
 static void scr_glog_print(const gchar *log_domain, GLogLevelFlags log_level,
                            const gchar *message, gpointer user_data);
 
-#if defined XEP0022 || defined XEP0085
+#ifdef XEP0085
 static gboolean scr_chatstates_timeout();
 #endif
 
@@ -2380,7 +2380,7 @@ static inline void set_autoaway(bool setaway)
 // If the chat state has changed, call xmpp_send_chatstate()
 static void set_chatstate(int state)
 {
-#if defined XEP0022 || defined XEP0085
+#ifdef XEP0085
   if (chatstates_disabled)
     return;
   if (!chatmode)
@@ -2409,7 +2409,7 @@ static void set_chatstate(int state)
 #endif
 }
 
-#if defined XEP0022 || defined XEP0085
+#ifdef XEP0085
 static gboolean scr_chatstates_timeout(void)
 {
   time_t now;

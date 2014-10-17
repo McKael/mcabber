@@ -254,14 +254,6 @@ fi
 # Export $libexecdir to the source tree
 AC_DEFINE_DIR(PKGLIB_DIR, "${libdir}/${PACKAGE}", [Modules directory])
 
-AC_ARG_ENABLE(xep0022,
-              AC_HELP_STRING([--enable-xep0022],
-                             [enable obsolete Message Events (XEP-0022)]),
-              xep0022=$enableval)
-if test "${xep0022}" = "yes"; then
-    AC_DEFINE([XEP0022], 1, [Define if you want obsolete Message Events])
-fi
-
 AC_ARG_ENABLE(debug,
     AC_HELP_STRING([--enable-debug], [add development compilation options]),
     debug=$enableval, debug="")

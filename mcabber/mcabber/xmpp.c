@@ -1101,7 +1101,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     // Parse a message that is send to one of our other resources
     if (!g_strcmp0(x->name, "received")) {
       // Go 1 level deeper to the forwarded message
-      x = lm_message_node_find_xmlns(x, "urn:xmpp:forward:0");
+      x = lm_message_node_find_xmlns(x, NS_FORWARD);
       x = lm_message_node_get_child(x, "message");
 
       from = lm_message_node_get_attribute(x, "from");
@@ -1125,7 +1125,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       scr_LogPrint(LPRINT_DEBUG, "Received incoming carbon from <%s>", from);
 
     } else if (!g_strcmp0(x->name, "sent")) {
-      x = lm_message_node_find_xmlns(x, "urn:xmpp:forward:0");
+      x = lm_message_node_find_xmlns(x, NS_FORWARD);
       x = lm_message_node_get_child(x, "message");
 
       const char *to= lm_message_node_get_attribute(x, "to");

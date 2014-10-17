@@ -55,9 +55,6 @@
 # define IMSTATUS_INVISIBLE      "invisible"
 #endif
 
-// Return value container for the following functions
-static int retval_for_cmds;
-
 // Commands callbacks
 static void do_roster(char *arg);
 static void do_status(char *arg);
@@ -78,6 +75,7 @@ static void do_alias(char *arg);
 static void do_bind(char *arg);
 static void do_connect(char *arg);
 static void do_disconnect(char *arg);
+static void do_quit(char *arg);
 static void do_rawxml(char *arg);
 static void do_room(char *arg);
 static void do_authorization(char *arg);
@@ -218,7 +216,7 @@ void cmd_init(void)
   cmd_add("otrpolicy", "Manage OTR policies", COMPL_JID, COMPL_OTRPOLICY,
           &do_otrpolicy, NULL);
   cmd_add("pgp", "Manage PGP settings", COMPL_PGP, COMPL_JID, &do_pgp, NULL);
-  cmd_add("quit", "Exit the software", 0, 0, NULL, NULL);
+  cmd_add("quit", "Exit the software", 0, 0, &do_quit, NULL);
   cmd_add("rawxml", "Send a raw XML string", 0, 0, &do_rawxml, NULL);
   cmd_add("rename", "Rename the current buddy", 0, 0, &do_rename, NULL);
   cmd_add("request", "Send a Jabber IQ request", COMPL_REQUEST, COMPL_JID,
@@ -464,15 +462,14 @@ cmd *cmd_get(const char *command)
 // Process a command line.
 // If iscmd is TRUE, process the command even if verbatim mmode is set;
 // it is intended to be used for key bindings.
-// Return 255 if this is the /quit command, and 0 for the other commands.
-int process_command(const char *line, guint iscmd)
+void process_command(const char *line, guint iscmd)
 {
   char *p;
   char *xpline;
   cmd *curcmd;
 
   if (!line)
-    return 0;
+    return;
 
   // We do alias expansion here
   if (iscmd || scr_get_multimode() != 2)
@@ -490,28 +487,13 @@ int process_command(const char *line, guint iscmd)
   for (p-- ; p>xpline && (*p == ' ') ; p--)
     *p = 0;
 
-  // Command "quit"?
-  if ((iscmd || scr_get_multimode() != 2)
-      && (!strncasecmp(xpline, mkcmdstr("quit"), strlen(mkcmdstr("quit"))))) {
-    if (!xpline[5] || xpline[5] == ' ') {
-      g_free(xpline);
-      return 255;
-    }
-  } else if (iscmd && !strncasecmp(xpline, "quit", 4) &&
-             (!xpline[4] || xpline[4] == ' ')) {
-    // If iscmd is true we can have the command without the command prefix
-    // character (usually '/').
-    g_free(xpline);
-    return 255;
-  }
-
   // If verbatim multi-line mode, we check if another /msay command is typed
   if (!iscmd && scr_get_multimode() == 2
       && (strncasecmp(xpline, mkcmdstr("msay "), strlen(mkcmdstr("msay "))))) {
     // It isn't an /msay command
     scr_append_multiline(xpline);
     g_free(xpline);
-    return 0;
+    return;
   }
 
   // Commands handling
@@ -521,13 +503,13 @@ int process_command(const char *line, guint iscmd)
     scr_LogPrint(LPRINT_NORMAL, "Unrecognized command.  "
                  "Please see the manual for a list of known commands.");
     g_free(xpline);
-    return 0;
+    return;
   }
   if (!curcmd->func) {
     scr_LogPrint(LPRINT_NORMAL,
                  "This functionality is not yet implemented, sorry.");
     g_free(xpline);
-    return 0;
+    return;
   }
   // Lets go to the command parameters
   for (p = xpline+1; *p && (*p != ' ') ; p++)
@@ -536,7 +518,6 @@ int process_command(const char *line, guint iscmd)
   while (*p && (*p == ' '))
     p++;
   // Call command-specific function
-  retval_for_cmds = 0;
 #ifdef MODULES_ENABLE
   if (curcmd->userdata)
     (*(void (*)(char *p, gpointer u))curcmd->func)(p, curcmd->userdata);
@@ -546,20 +527,18 @@ int process_command(const char *line, guint iscmd)
   (*curcmd->func)(p);
 #endif
   g_free(xpline);
-  return retval_for_cmds;
 }
 
 //  process_line(line)
 // Process a command/message line.
 // If this isn't a command, this is a message and it is sent to the
 // currently selected buddy.
-// Return 255 if the line is the /quit command, or 0.
-int process_line(const char *line)
+void process_line(const char *line)
 {
   if (!*line) { // User only pressed enter
     if (scr_get_multimode()) {
       scr_append_multiline("");
-      return 0;
+      return;
     }
     if (current_buddy) {
       if (buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_GROUP)
@@ -570,7 +549,7 @@ int process_line(const char *line)
         scr_show_buddy_window();
       }
     }
-    return 0;
+    return;
   }
 
   if (*line != COMMAND_CHAR) {
@@ -579,11 +558,11 @@ int process_line(const char *line)
       scr_append_multiline(line);
     else
       say_cmd((char*)line, 0);
-    return 0;
+    return;
   }
 
   /* It is _probably_ a command -- except for verbatim multi-line mode */
-  return process_command(line, FALSE);
+  process_command(line, FALSE);
 }
 
 // Helper routine for buffer item_{lock,unlock,toggle_lock}
@@ -2483,6 +2462,11 @@ static void do_bind(char *arg)
   g_free(k_code);
 }
 
+static void do_quit(char *arg)
+{
+  mcabber_set_terminate_ui();
+}
+
 static void do_rawxml(char *arg)
 {
   char **paramlst;
@@ -4074,9 +4058,9 @@ static void do_iline(char *arg)
   } else if (!strcasecmp(arg, "send_multiline")) {
     readline_send_multiline();
   } else if (!strcasecmp(arg, "iline_accept")) {
-    retval_for_cmds = readline_accept_line(FALSE);
+    readline_accept_line(FALSE);
   } else if (!strcasecmp(arg, "iline_accept_down_hist")) {
-    retval_for_cmds = readline_accept_line(TRUE);
+    readline_accept_line(TRUE);
   } else if (!strcasecmp(arg, "compl_cancel")) {
     readline_cancel_completion();
   } else if (!strcasecmp(arg, "compl_do_fwd")) {

@@ -3680,12 +3680,11 @@ void readline_forward_char(void)
 //  readline_accept_line(down_history)
 // Validate current command line.
 // If down_history is true, load the next history line.
-int readline_accept_line(int down_history)
+void readline_accept_line(int down_history)
 {
   scr_check_auto_away(TRUE);
   last_activity_buddy = current_buddy;
-  if (process_line(inputLine))
-    return 255;
+  process_line(inputLine);
   // Add line to history
   scr_cmdhisto_addline(inputLine);
   // Reset the line
@@ -3703,7 +3702,6 @@ int readline_accept_line(int down_history)
     // Reset history line pointer
     cmdhisto_cur = NULL;
   }
-  return 0;
 }
 
 //  readline_clear_history()
@@ -4335,7 +4333,7 @@ void scr_do_update(void)
   doupdate();
 }
 
-static int bindcommand(keycode kcode)
+static void bindcommand(keycode kcode)
 {
   gchar asciikey[16], asciicode[16];
   const gchar *boundcmd;
@@ -4359,10 +4357,9 @@ static int bindcommand(keycode kcode)
   if (boundcmd) {
     gchar *cmdline = from_utf8(boundcmd);
     scr_check_auto_away(TRUE);
-    if (process_command(cmdline, TRUE))
-      return 255; // Quit
+    process_command(cmdline, TRUE);
     g_free(cmdline);
-    return 0;
+    return;
   }
 
   scr_LogPrint(LPRINT_NORMAL, "Unknown key=%s", asciikey);
@@ -4371,7 +4368,6 @@ static int bindcommand(keycode kcode)
     scr_LogPrint(LPRINT_NORMAL,
                  "WARNING: Compiled without full UTF-8 support!");
 #endif
-  return -1;
 }
 
 //  scr_process_key(key)
@@ -4392,10 +4388,7 @@ void scr_process_key(keycode kcode)
         break;
     case MKEY_META:
     default:
-        if (bindcommand(kcode) == 255) {
-          mcabber_set_terminate_ui();
-          return;
-        }
+        bindcommand(kcode);
         key = ERR; // Do not process any further
   }
 
@@ -4417,10 +4410,7 @@ void scr_process_key(keycode kcode)
         break;
     case 13:    // Enter
     case 343:   // Enter on Maemo
-        if (readline_accept_line(FALSE) == 255) {
-          mcabber_set_terminate_ui();
-          return;
-        }
+        readline_accept_line(FALSE);
         break;
     case 3:     // Ctrl-C
         scr_handle_CtrlC();
@@ -4467,10 +4457,8 @@ display:
       check_offset(1);
     } else {
       // Look for a key binding.
-      if (!kcode.utf8 && (bindcommand(kcode) == 255)) {
-          mcabber_set_terminate_ui();
-          return;
-        }
+      if (!kcode.utf8)
+        bindcommand(kcode);
     }
   }
 

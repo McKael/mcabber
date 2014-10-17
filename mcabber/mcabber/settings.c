@@ -203,8 +203,7 @@ int cfg_read_file(char *filename, guint mainfile)
     // Set the leading COMMAND_CHAR to build a command line
     // and process the command
     *(--line) = COMMAND_CHAR;
-    if (process_command(line, TRUE) == 255)
-      mcabber_set_terminate_ui();
+    process_command(line, TRUE);
   }
   g_free(buf);
   fclose(fp);

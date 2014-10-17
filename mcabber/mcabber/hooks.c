@@ -634,8 +634,7 @@ void hk_postconnect(void)
   scr_LogPrint(LPRINT_LOGNORM, "Running hook-post-connect...");
 
   cmdline = from_utf8(hook_command);
-  if (process_command(cmdline, TRUE) == 255)
-    mcabber_set_terminate_ui();
+  process_command(cmdline, TRUE);
 
   g_free(cmdline);
 }
@@ -661,8 +660,7 @@ void hk_predisconnect(void)
   scr_LogPrint(LPRINT_LOGNORM, "Running hook-pre-disconnect...");
 
   cmdline = from_utf8(hook_command);
-  if (process_command(cmdline, TRUE) == 255)
-    mcabber_set_terminate_ui();
+  process_command(cmdline, TRUE);
 
   g_free(cmdline);
 }

@@ -72,8 +72,7 @@ static guint fifo_callback(GIOChannel *channel,
       scr_LogPrint(logflag, "%s FIFO command: %s",
                    (fifo_ignore ? "Ignoring" : "Executing"), buf);
       if (!fifo_ignore) {
-        if (process_command(buf, TRUE) == 255)
-          mcabber_set_terminate_ui();
+        process_command(buf, TRUE);
       }
 
       g_free(buf);

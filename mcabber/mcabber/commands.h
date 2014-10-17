@@ -16,8 +16,8 @@ typedef struct {
 
 void cmd_init(void);
 cmd *cmd_get(const char *command);
-int  process_line(const char *line);
-int  process_command(const char *line, guint iscmd);
+void process_line(const char *line);
+void process_command(const char *line, guint iscmd);
 char *expandalias(const char *line);
 #ifdef MODULES_ENABLE
 gpointer cmd_del(gpointer id);

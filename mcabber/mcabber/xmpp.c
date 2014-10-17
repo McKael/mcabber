@@ -852,29 +852,23 @@ static void connection_close_cb(LmConnection *connection,
   xmpp_setstatus(offline, NULL, mystatusmsg, TRUE);
 }
 
-static void handle_state_events(const char *from, LmMessageNode *node)
+static void handle_state_events(const char *bjid,
+                                const char *resource,
+                                LmMessageNode *node)
 {
 #if defined XEP0085
   LmMessageNode *state_ns = NULL;
-  char *rname, *bjid;
   GSList *sl_buddy;
   struct xep0085 *xep85 = NULL;
 
-  rname = strchr(from, JID_RESOURCE_SEPARATOR);
-  if (rname)
-    ++rname;
-  else
-    rname = (char *)from + strlen(from);
-  bjid  = jidtodisp(from);
   sl_buddy = roster_find(bjid, jidsearch, ROSTER_TYPE_USER);
-  g_free(bjid);
 
   if (!sl_buddy) {
     return;
   }
 
   /* Let's see whether the contact supports XEP0085 */
-  xep85 = buddy_resource_xep85(sl_buddy->data, rname);
+  xep85 = buddy_resource_xep85(sl_buddy->data, resource);
   if (xep85)
     state_ns = lm_message_node_find_xmlns(node, NS_CHATSTATES);
 
@@ -896,7 +890,7 @@ static void handle_state_events(const char *from, LmMessageNode *node)
     xep85->last_state_rcvd = ROSTER_EVENT_GONE;
   }
 
-  buddy_resource_setevents(sl_buddy->data, rname, xep85->last_state_rcvd);
+  buddy_resource_setevents(sl_buddy->data, resource, xep85->last_state_rcvd);
   update_roster = TRUE;
 #endif
 }
@@ -1096,7 +1090,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     chatstates_reset_probed(from);
 #endif
   } else {
-    handle_state_events(from, m->node);
+    handle_state_events(bjid, res, m->node);
   }
 
   // Check for carbons!
@@ -1126,7 +1120,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
         skip_process = TRUE;
 
       // Try to handle forwarded chat state messages
-      handle_state_events(from, x);
+      handle_state_events(from, res, x);
 
       scr_LogPrint(LPRINT_DEBUG, "Received incoming carbon from <%s>", from);
 

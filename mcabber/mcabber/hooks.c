@@ -551,8 +551,8 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
       (st_in_buf == 1 && (status == offline || oldstat == offline))) {
     // Write the status change in the buddy's buffer, only if it already exists
     if (scr_buddy_buffer_exists(bjid)) {
-      bn = g_strdup_printf("Buddy status has changed: [%c>%c] %s",
-                           imstatus2char[oldstat], imstatus2char[status],
+      bn = g_strdup_printf("Buddy status has changed: [%c>%c] [%s] %s",
+                           imstatus2char[oldstat], imstatus2char[status], rn,
                            ((status_msg) ? status_msg : ""));
       scr_write_incoming_message(bjid, bn, timestamp,
                                  HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);

@@ -1310,10 +1310,6 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       else
         skip_process = TRUE;
 
-      // We (probably) cannot handle encrypted forwarded messages
-      if (lm_message_node_find_xmlns(x, NS_ENCRYPTED))
-        skip_process = TRUE;
-
       // Try to handle forwarded chat state messages
       handle_state_events(from, x);
 

@@ -62,7 +62,7 @@
 /iline clear_history
  Спустошити історію командного рядка.
 /iline compl_do_fwd|compl_do_bwd
- Доповнити поточне слово.
+ Спробувати доповнити поточне слово (у прямому чи зворотньому порядку).
 /iline compl_cancel
  Скасувати попереднє доповнення.
 /iline send_multiline

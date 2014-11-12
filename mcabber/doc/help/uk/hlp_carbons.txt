@@ -3,9 +3,11 @@
  /CARBONS enable
  /CARBONS disable
 
+Вмикає чи вимикає копіювання повідомлень, направлених до інших ресурсів (якщо сервер це підтримує).
+
 /carbons info
- Print information about the current state of carbons
+ Показує чи ввімкнено зараз копіювання повідомлень.
 /carbons enable
- Enable carbons
+ Вмикає копіювання повідомлень.
 /carbons disable
- Disable carbons
+ Вимикає копіювання повідомлень.

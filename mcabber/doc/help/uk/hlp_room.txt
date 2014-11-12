@@ -2,7 +2,7 @@
  /ROOM join|leave|names|nick|remove|topic|unlock|destroy
  /ROOM privmsg|invite|whois|kick|ban|unban|role|affil
  /ROOM setopt print_status|auto_whois|flag_joins [значення]
- /ROOM bookmark [add|del] [+autojoin|-autojoin] [-|nick] [password]
+ /ROOM bookmark [add|del] [+autojoin|-autojoin] [-|прізвисько] [пароль]
 
 Команда, відповідальна за дії при багатокористувацькій розмові.
 
@@ -20,6 +20,7 @@
  Потерти поточну кімнату зі списку контактів (ви повинні спочатку вийти).
 /room topic [-u] -|тема
  Встановити тему обговорення у поточній кімнаті.
+ Якщо застосувати перемикач -u (unescape), послідовності символів '\n' та '\t' будуть замінені на розрив рядка та табуляцію відповідно.
  Щоб очистити тему, вкажіть замість неї -.
 /room unlock
  Відкрити поточну кімнату (якщо ви її власник).
@@ -45,7 +46,7 @@
  auto_whois визначає, чи запитувати автоматично інформацію про новоприбульців до кімнати ("default", "off", "on").
  flag_joins вказує, чи потрібно підсвічувати кімнату, коли хтось входить чи виходить ("default", "none", "joins", "all").
  Коли встановлено "default", мають силу глобальні опції muc_print_status / muc_auto_whois / muc_flag_joins.
-/room bookmark [add|del] [+autojoin|-autojoin] [-|nick] [password]
+/room bookmark [add|del] [+autojoin|-autojoin] [-|прізвисько] [пароль]
  Додати, потерти, або замінити закладку (якщо не вказано - додасть).
  Якщо встановити автовхід, mcabber буде заходити в цю кімнату після з'єднання з сервером.
  Переглянути наявні закладки можна за допомогою /room bookmark у буфері стану.

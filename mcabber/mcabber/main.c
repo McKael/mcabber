@@ -45,13 +45,13 @@
 #include "xmpp.h"
 #include "help.h"
 #include "events.h"
+#include "compl.h"
 
 #ifndef MODULES_ENABLE
 # include "fifo.h"
 #endif
 
 #ifdef MODULES_ENABLE
-# include "compl.h"
 # include "modules.h"
 #endif
 

@@ -429,7 +429,8 @@ time_t from_iso8601(const char *timestamp, int utc)
       int tzhrs, tzmins;
 
       if (*c == '.') /* dealing with precision we don't care about */
-        c += 4;
+        while (isdigit(*++c))
+          ;
 
       if ((*c == '+' || *c == '-') &&
           sscanf(c+1, "%02d:%02d", &tzhrs, &tzmins)) {

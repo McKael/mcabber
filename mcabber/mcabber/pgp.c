@@ -262,19 +262,26 @@ char *gpg_verify(const char *gpg_data, const char *text,
       if (!err) {
         gpgme_verify_result_t vr = gpgme_op_verify_result(ctx);
         if (vr && vr->signatures) {
-          char *r = vr->signatures->fpr;
-          // Found the fingerprint.  Let's try to get the key id.
-          if (!gpgme_get_key(ctx, r, &key, 0) && key) {
-            r = key->subkeys->keyid;
-            gpgme_key_release(key);
-          }
-          // r is a static variable, let's copy it.
-          verified_key = g_strdup(r);
-          *sigsum = vr->signatures->summary;
-          // For some reason summary could be 0 when status is 0 too,
-          // which means the signature is valid...
-          if (!*sigsum && !vr->signatures->status)
-            *sigsum = GPGME_SIGSUM_GREEN;
+            gpgme_signature_t s = NULL;
+            // check all signatures and stop if the first could be verified
+            for (s = vr->signatures;
+                 (s != NULL) && (verified_key != NULL);
+                 s = s->next) {
+                // Found the fingerprint.  Let's try to get the key id.
+                if (NULL != s->fpr) {
+                    if (!gpgme_get_key(ctx, s->fpr, &key, 0)) {
+                        if (key) {
+                            verified_key = g_strdup(key->subkeys->keyid);
+                            gpgme_key_release(key);
+                        }
+                    }
+                }
+                *sigsum = s->summary;
+                // For some reason summary could be 0 when status is 0 too,
+                // which means the signature is valid...
+                if ((!*sigsum) && (!s->status))
+                    *sigsum = GPGME_SIGSUM_GREEN;
+            }
         }
       }
       gpgme_data_release(data_text);

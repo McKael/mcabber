@@ -110,7 +110,7 @@ set tls = 1
 # checking with the following options (you can't change them once mcabber is
 # running).
 #set spell_enable = 1
-#set spell_lang = en_US
+#set spell_lang = en_US ru_RU
 #set spell_encoding = iso8859-1
 #set spell_encoding = UTF-8
 

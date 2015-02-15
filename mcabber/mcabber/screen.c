@@ -186,14 +186,19 @@ inline void scr_set_chatmode(int enable);
 
 #define SPELLBADCHAR 5
 
+#if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
+typedef struct {
 #ifdef WITH_ENCHANT
-EnchantBroker *spell_broker;
-EnchantDict *spell_checker;
+  EnchantBroker *broker;
+  EnchantDict *checker;
 #endif
-
 #ifdef WITH_ASPELL
-AspellConfig *spell_config;
-AspellSpeller *spell_checker;
+  AspellConfig *config;
+  AspellSpeller *checker;
+#endif
+} spell_checker;
+
+GSList* spell_checkers = NULL;
 #endif
 
 typedef struct {
@@ -4480,35 +4485,65 @@ display:
 }
 
 #if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
+static void spell_checker_free(gpointer data)
+{
+  spell_checker* sc = data;
+#ifdef WITH_ENCHANT
+  enchant_broker_free_dict(sc->broker, sc->checker);
+  enchant_broker_free(sc->broker);
+#endif
+#ifdef WITH_ASPELL
+  delete_aspell_speller(sc->checker);
+  delete_aspell_config(sc->config);
+#endif
+  g_free(sc);
+}
+
+static spell_checker* new_spell_checker(const char* spell_lang)
+{
+  spell_checker* sc = g_new(spell_checker, 1);
+#ifdef WITH_ASPELL
+  const char *spell_encoding = settings_opt_get("spell_encoding");
+  AspellCanHaveError *possible_err;
+  sc->config = new_aspell_config();
+  if (spell_encoding)
+    aspell_config_replace(sc->config, "encoding", spell_encoding);
+  aspell_config_replace(sc->config, "lang", spell_lang);
+  possible_err = new_aspell_speller(sc->config);
+
+  if (aspell_error_number(possible_err) != 0) {
+    delete_aspell_config(sc->config);
+    g_free(sc);
+    sc = NULL;
+  } else {
+    sc->checker = to_aspell_speller(possible_err);
+  }
+#endif
+#ifdef WITH_ENCHANT
+  sc->broker = enchant_broker_init();
+  sc->checker = enchant_broker_request_dict(sc->broker, spell_lang);
+  if (!sc->checker) {
+    enchant_broker_free(sc->broker);
+    g_free(sc);
+    sc = NULL;
+  }
+#endif
+  return sc;
+}
+
 // initialization
 void spellcheck_init(void)
 {
   int spell_enable            = settings_opt_get_int("spell_enable");
   const char *spell_lang     = settings_opt_get("spell_lang");
-#ifdef WITH_ASPELL
-  const char *spell_encoding = settings_opt_get("spell_encoding");
-  AspellCanHaveError *possible_err;
-#endif
+  gchar** langs;
+  gchar** lang_iter;
+  spell_checker* sc;
 
   if (!spell_enable)
     return;
 
-#ifdef WITH_ENCHANT
-  if (spell_checker) {
-     enchant_broker_free_dict(spell_broker, spell_checker);
-     enchant_broker_free(spell_broker);
-     spell_checker = NULL;
-     spell_broker = NULL;
-  }
-#endif
-#ifdef WITH_ASPELL
-  if (spell_checker) {
-    delete_aspell_speller(spell_checker);
-    delete_aspell_config(spell_config);
-    spell_checker = NULL;
-    spell_config = NULL;
-  }
-#endif
+  spellcheck_deinit();
 
   if (!spell_lang) { // Cannot initialize: language not specified
     scr_LogPrint(LPRINT_LOGNORM, "Error: Cannot initialize spell checker, language not specified.");
@@ -4516,53 +4551,43 @@ void spellcheck_init(void)
     return;
   }
 
-#ifdef WITH_ENCHANT
-  spell_broker = enchant_broker_init();
-  spell_checker = enchant_broker_request_dict(spell_broker, spell_lang);
-#endif
-
-#ifdef WITH_ASPELL
-  spell_config = new_aspell_config();
-  if (spell_encoding)
-    aspell_config_replace(spell_config, "encoding", spell_encoding);
-  aspell_config_replace(spell_config, "lang", spell_lang);
-  possible_err = new_aspell_speller(spell_config);
-
-  if (aspell_error_number(possible_err) != 0) {
-    spell_checker = NULL;
-    delete_aspell_config(spell_config);
-    spell_config = NULL;
-  } else {
-    spell_checker = to_aspell_speller(possible_err);
+  langs = g_strsplit(spell_lang, " ", -1);
+  for (lang_iter = langs; *lang_iter; ++lang_iter) {
+    if (**lang_iter) { // Skip empty strings
+      sc = new_spell_checker(*lang_iter);
+      if (sc) {
+        spell_checkers = g_slist_append(spell_checkers, sc);
+      }
+    }
   }
-#endif
+  g_strfreev(langs);
 }
 
 // Deinitialization of spellchecker
 void spellcheck_deinit(void)
 {
-  if (spell_checker) {
-#ifdef WITH_ENCHANT
-    enchant_broker_free_dict(spell_broker, spell_checker);
-#endif
-#ifdef WITH_ASPELL
-    delete_aspell_speller(spell_checker);
-#endif
-    spell_checker = NULL;
-  }
+  g_slist_free_full(spell_checkers, spell_checker_free);
+  spell_checkers = NULL;
+}
 
+typedef struct {
+  const char* str;
+  int len;
+} spell_substring;
+
+static int spellcheckword(gconstpointer sc_ptr, gconstpointer substr_ptr)
+{
+  spell_checker* sc = (spell_checker*) sc_ptr;
+  spell_substring* substr = (spell_substring*) substr_ptr;
 #ifdef WITH_ENCHANT
-  if (spell_broker) {
-    enchant_broker_free(spell_broker);
-    spell_broker = NULL;
-  }
+  // enchant_dict_check will return 0 on good word
+  return enchant_dict_check(sc->checker, substr->str, substr->len);
 #endif
 #ifdef WITH_ASPELL
-  if (spell_config) {
-    delete_aspell_config(spell_config);
-    spell_config = NULL;
-  }
+  // aspell_speller_check will return 1 on good word, so we need to make it 0
+  return aspell_speller_check(sc->checker, substr->str, substr->len) - 1;
 #endif
+  return 0; // Keep compiler happy
 }
 
 #define spell_isalpha(c) (utf8_mode ? iswalpha(get_char(c)) : isalpha(*c))
@@ -4571,6 +4596,7 @@ void spellcheck_deinit(void)
 static void spellcheck(char *line, char *checked)
 {
   const char *start, *line_start;
+  spell_substring substr;
 
   if (inputLine[0] == 0 || inputLine[0] == COMMAND_CHAR)
     return;
@@ -4607,14 +4633,9 @@ static void spellcheck(char *line, char *checked)
     while (spell_isalpha(line))
       line = next_char(line);
 
-    if (spell_checker &&
-#ifdef WITH_ENCHANT
-        enchant_dict_check(spell_checker, start, line - start) != 0
-#endif
-#ifdef WITH_ASPELL
-        aspell_speller_check(spell_checker, start, line - start) == 0
-#endif
-    )
+    substr.str = start;
+    substr.len = line - start;
+    if (!g_slist_find_custom(spell_checkers, &substr, spellcheckword))
       memset(&checked[start - line_start], SPELLBADCHAR, line - start);
   }
 }

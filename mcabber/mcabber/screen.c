@@ -4557,6 +4557,10 @@ void spellcheck_init(void)
       sc = new_spell_checker(*lang_iter);
       if (sc) {
         spell_checkers = g_slist_append(spell_checkers, sc);
+      } else {
+        scr_LogPrint(LPRINT_LOGNORM,
+                     "Warning: Could not load spell checker language '%s'.",
+                     *lang_iter);
       }
     }
   }
@@ -4599,6 +4603,10 @@ static void spellcheck(char *line, char *checked)
   spell_substring substr;
 
   if (inputLine[0] == 0 || inputLine[0] == COMMAND_CHAR)
+    return;
+
+  // Give up early if not languages are loaded
+  if (!spell_checkers)
     return;
 
   line_start = line;

@@ -19,7 +19,7 @@ filename=$4
 # Note that the 4th argument is only provided for incoming messages
 # and when 'event_log_files' is set.
 
-if [ $event = "MSG" ]; then
+if [ "$event" = "MSG" ]; then
   case "$arg1" in
     IN)
       # Incoming message from buddy $arg2
@@ -40,10 +40,10 @@ if [ $event = "MSG" ]; then
       # Outgoing message for buddy $arg2
       ;;
   esac
-elif [ $event = "STATUS" ]; then
+elif [ "$event" = "STATUS" ]; then
   # Buddy $arg2 status is $arg1 (_, O, I, F, D, N, A)
   echo > /dev/null
-elif [ $event = "UNREAD" ]; then
+elif [ "$event" = "UNREAD" ]; then
   # $arg1 contains 4 numbers separated with space chars:
   # Nr of unread buffers, nr of unread buffers with attention sign,
   # nr of MUC unread buffers, nr of MUC unread buffers with attention sign.

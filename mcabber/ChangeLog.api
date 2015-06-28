@@ -1,5 +1,6 @@
 dev (35)
 
+ * Stable api 1.0.0:1
  * Change prototype of hk_message_in()
  * Min API 35
  * Changeset 443d05b24762

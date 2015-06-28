@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([mcabber],[0.10.4-dev],[mcabber@lilotux.net])
+AC_INIT([mcabber],[1.0.0],[mcabber@lilotux.net])
 XC_AUTOMAKE
 AC_CONFIG_SRCDIR([mcabber])
 AC_CONFIG_HEADERS([mcabber/config.h])

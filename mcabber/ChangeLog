@@ -1,4 +1,4 @@
-mcabber (0.10.4-dev)
+mcabber (1.0.0)
 
  * Message Carbons support / XEP-0280 (Roeland Jago Douma)
  * Support for using external password managers (Christian Burkert)
@@ -17,7 +17,7 @@ mcabber (0.10.4-dev)
  * Remove support for obsolete XEP 22 (Frank Zschockelt)
  * Misc. bugfixes and minor improvements
 
- -- Mikael, ?
+ -- Mikael, 2015-06-28
 
 mcabber (0.10.3)
 

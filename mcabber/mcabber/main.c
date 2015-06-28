@@ -166,6 +166,45 @@ static char *ask_password(const char *what)
   return password;
 }
 
+//  password_eval(command, *status)
+// Get password from a system command.
+// The string must be freed after use.
+static char *password_eval(const char *command, int *status)
+{
+#define MAX_PWD 100
+  char *pwd;
+  FILE *outfp = popen(command, "r");
+  if (outfp == NULL) {
+    scr_log_print(LPRINT_NORMAL, "** ERROR: Failed to execute password_eval command.");
+    *status = -1;
+    return NULL;
+  }
+
+  pwd = g_new0(char, MAX_PWD);
+  if (fgets(pwd, MAX_PWD, outfp) == NULL) {
+    scr_log_print(LPRINT_NORMAL, "** ERROR: Failed to read from password_eval command.");
+    g_free(pwd);
+    *status = -1;
+    return NULL;
+  }
+
+  int res = pclose(outfp);
+  if (res != 0) {
+    scr_log_print(LPRINT_NORMAL, "** ERROR: Password evaluation command exited with error %d.", res);
+    g_free(pwd);
+    *status = res;
+    return NULL;
+  }
+
+  // Strip trailing whitespaces and newlines
+  size_t i = strlen(pwd);
+  while (i && isspace(pwd[i-1])) {
+    i--;
+  }
+  pwd[i] = '\0';
+  return pwd;
+}
+
 static void credits(void)
 {
   const char *v_fmt = "MCabber %s -- Email: mcabber [at] lilotux [dot] net\n";
@@ -403,34 +442,17 @@ int main(int argc, char **argv)
   /* If no password is stored, we ask for it before entering
      ncurses mode -- unless the username is unknown. */
   if (settings_opt_get("jid") && !settings_opt_get("password")) {
-    if (settings_opt_get("password_eval")) {
-      FILE *outfp = popen(settings_opt_get("password_eval"), "r");
-      if (outfp == NULL) {
-        scr_log_print(LPRINT_NORMAL, "** ERROR: Failed to execute password_eval command.");
-        exit(EXIT_FAILURE);
+    const char *pass_eval = settings_opt_get("password_eval");
+    if (pass_eval) {
+      int status = 0;
+      char *pwd = password_eval(pass_eval, &status);
+      if (status == 0 && pwd) {
+        settings_set(SETTINGS_TYPE_OPTION, "password", pwd);
       }
-#define MAX_PWD 100
-      char pwd[MAX_PWD+1];
-      char *read_pwd = fgets(pwd, MAX_PWD, outfp);
-      if (read_pwd == NULL) {
-        scr_log_print(LPRINT_NORMAL, "** ERROR: Failed to read from password_eval command.");
-        exit(EXIT_FAILURE);
-      }
-      int res = pclose(outfp);
-      if (res != 0) {
-        scr_log_print(LPRINT_NORMAL, "** ERROR: Password evaluation command exited with error %d.", res);
-        exit(EXIT_FAILURE);
-      }
-
-      // strip trailing whitespaces and newlines
-      size_t i = 0;
-      while (i < MAX_PWD && !isspace(pwd[i])) {
-        i++;
-      }
-      pwd[i] = '\0';
-
-      settings_set(SETTINGS_TYPE_OPTION, "password", pwd);
-    } else {
+      g_free(pwd);
+    }
+    // If the password is still unset, ask the user...
+    if (!settings_opt_get("password")) {
       char *pwd = ask_password("your Jabber password");
       settings_set(SETTINGS_TYPE_OPTION, "password", pwd);
       g_free(pwd);

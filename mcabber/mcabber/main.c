@@ -403,9 +403,38 @@ int main(int argc, char **argv)
   /* If no password is stored, we ask for it before entering
      ncurses mode -- unless the username is unknown. */
   if (settings_opt_get("jid") && !settings_opt_get("password")) {
-    char *pwd = ask_password("your Jabber password");
-    settings_set(SETTINGS_TYPE_OPTION, "password", pwd);
-    g_free(pwd);
+    if (settings_opt_get("password_eval")) {
+      FILE *outfp = popen(settings_opt_get("password_eval"), "r");
+      if (outfp == NULL) {
+        scr_log_print(LPRINT_NORMAL, "** ERROR: Failed to execute password_eval command.");
+        exit(EXIT_FAILURE);
+      }
+#define MAX_PWD 100
+      char pwd[MAX_PWD+1];
+      char *read_pwd = fgets(pwd, MAX_PWD, outfp);
+      if (read_pwd == NULL) {
+        scr_log_print(LPRINT_NORMAL, "** ERROR: Failed to read from password_eval command.");
+        exit(EXIT_FAILURE);
+      }
+      int res = pclose(outfp);
+      if (res != 0) {
+        scr_log_print(LPRINT_NORMAL, "** ERROR: Password evaluation command exited with error %d.", res);
+        exit(EXIT_FAILURE);
+      }
+
+      // strip trailing whitespaces and newlines
+      size_t i = 0;
+      while (i < MAX_PWD && !isspace(pwd[i])) {
+        i++;
+      }
+      pwd[i] = '\0';
+
+      settings_set(SETTINGS_TYPE_OPTION, "password", pwd);
+    } else {
+      char *pwd = ask_password("your Jabber password");
+      settings_set(SETTINGS_TYPE_OPTION, "password", pwd);
+      g_free(pwd);
+    }
   }
 
   /* Initialize PGP system

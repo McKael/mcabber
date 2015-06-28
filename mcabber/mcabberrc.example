@@ -12,6 +12,11 @@ set jid = yourusername@domain
 # enclose it with quotes: set password = " example password "
 #set password = yourpassword
 
+# Read password from output of the given command.
+# This is a way to use password managers like 'pass' in order
+# to avoid writing plain passwords into config files.
+#set password_eval = "your command"
+
 # You can provide a server name if you want mcabber to connect
 # to a specific server.
 #set server = your.jabber.server

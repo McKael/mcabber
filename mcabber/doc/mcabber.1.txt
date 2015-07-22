@@ -63,8 +63,9 @@ is the "chat status line" and shows the status of the currently selected
 buddy.
 
 To display buddies chat buffers, you will have to enter 'chat mode'.
-You can enter chat mode by pressing enter, and leave chat mode with the ESC
-key.  Simply sending a message will also enable chat mode.
+You can enter chat mode by pressing enter (unless 'vi mode' is enabled), and
+leave chat mode with the ESC key.  Simply sending a message will also enable
+chat mode (unless 'vi mode' is enabled).
 
 There are several advantages to the two-mode implementation: first, it allows
 accurate "unread" message functionality, as described in the next section;
@@ -114,6 +115,50 @@ Ctrl-o::        Accept line and put the next history line in the input line (acc
 
 Additional key bindings may be specified using the '/bind' command described
 in the COMMANDS section.
+
+VI MODE
+-------
+If the 'vi_mode' option is set to 1, `mcabber(1)` accepts a few commands
+loosely based on those available in `vi(1)`'s normal mode.  In this case, chat
+mode is not entered by pressing enter, and messages cannot be composed outside
+of the chat mode.  The following commands are accepted:
+
+A::             Call "/roster unread_first".
+a::             Call "/roster unread_next".
+F::             Call "/roster group_prev".
+f::             Call "/roster group_next".
+G::             Call "/roster bottom".
+gg::            Call "/roster top".
+i::             Enter chat mode.
+['n']j::        Call "/roster down ['n']".
+['n']k::        Call "/roster up ['n']".
+n::             Repeat the previous search (if any).
+O::             Call "/roster unread_first" and open chat window.
+o::             Call "/roster unread_next" and open chat window.
+ZZ::            Call "/quit".
+zM::            Call "/group fold" for all groups.
+zR::            Call "/group unfold" for all groups.
+\''::           Call "/roster alternate".
+!::             Toggle attention flag for current buddy.
+#::             Toggle unread messages flag for current buddy.
+<Space>::       Call "/group toggle" for the current group.
+
+A leading slash enables search mode:
+
+/'string'::     Call "/roster search 'string'".
+
+A leading colon enabled command-line mode:
+
+:q::            Call "/quit".
+:'n'::          Jump to line 'n' in the roster.
+:'cmd-line'::   Call "/'cmd-line'" (unless the 'cmd-line' matches one of the
+                above commands).
+
+Commands entered with a leading colon and searches are either submitted by
+pressing enter or aborted by hitting escape.  In either case, `mcabber(1)`
+returns to the normal (non-chat) mode.  History editing is supported in
+command-line mode and in search mode.  In command-line mode, tab completion is
+supported as well.
 
 MCABBER'S ROSTER
 ----------------

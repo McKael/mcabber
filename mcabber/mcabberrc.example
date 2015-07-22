@@ -142,6 +142,10 @@ set tls = 1
 # (default: 0, unlimited).
 set cmdhistory_lines = 250
 
+# Let MCabber accept some vi(1)-like "normal mode" commands by setting the
+# option 'vi_mode' to 1 (default: 0).
+#set vi_mode = 1
+
 # You can set up a mask to filter buddies and display them according to
 # their status.  The mask should contain the shortcut letters of the
 # status you want to see ([o]nline, [f]ree_for_chat, [d]o_not_disturb,

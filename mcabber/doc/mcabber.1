@@ -186,7 +186,7 @@ The mcabber(1) screen is divided into 4 regions\&. The \fIroster\fR, alias \fIbu
 .sp
 Two status lines surround the log window\&. The bottom status line is the "main status line" and reflects mcabber general status\&. The other line is the "chat status line" and shows the status of the currently selected buddy\&.
 .sp
-To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter, and leave chat mode with the ESC key\&. Simply sending a message will also enable chat mode\&.
+To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter (unless \fIvi_mode\fR is enabled), and leave chat mode with the ESC key\&. Simply sending a message will also enable chat mode (unless \fIvi_mode\fR is enabled)\&.
 .sp
 There are several advantages to the two\-mode implementation: first, it allows accurate "unread" message functionality, as described in the next section; without this, merely scrolling to a specific buddy will "read" the new messages of all buddies in\-between\&. Second, it allows quickly hiding the conversation with a single keystroke\&. Third, it allows jumping between the few buddies with whom you are conversing with the \fI/roster alternate\fR command described in another section, without having to manually scroll back and forth\&.
 .SH "KEYS"
@@ -292,6 +292,130 @@ Accept line and put the next history line in the input line (accept\-line\-and\-
 .RE
 .sp
 Additional key bindings may be specified using the \fI/bind\fR command described in the COMMANDS section\&.
+.SH "VI MODE"
+.sp
+If the \fIvi_mode\fR option is set to \fI1\fR, MCabber accepts a few commands loosely based on those available in \fBvi\fR(1)'s normal mode\&. In this case, chat mode can \fInot\fR be entered by pressing enter, and messages cannot be composed outside of the chat mode\&. The following commands are accepted:
+.PP
+A
+.RS 4
+Call "/roster unread_first"\&.
+.RE
+.PP
+a
+.RS 4
+Call "/roster unread_next"\&.
+.RE
+.PP
+F
+.RS 4
+Call "/roster group_prev"\&.
+.RE
+.PP
+f
+.RS 4
+Call "/roster group_next"\&.
+.RE
+.PP
+G
+.RS 4
+Call "/roster bottom"\&.
+.RE
+.PP
+gg
+.RS 4
+Call "/roster top"\&.
+.RE
+.PP
+i
+.RS 4
+Enter chat mode\&.
+.RE
+.PP
+[\fIn\fR]j
+.RS 4
+Call "/roster down [\fIn\fR]"\&.
+.RE
+.PP
+[\fIn\fR]k
+.RS 4
+Call "/roster up [\fIn\fR]"\&.
+.RE
+.PP
+n
+.RS 4
+Repeat the previous search (if any)\&.
+.RE
+.PP
+O
+.RS 4
+Call "/roster unread_first" and open chat window\&.
+.RE
+.PP
+o
+.RS 4
+Call "/roster unread_next" and open chat window\&.
+.RE
+.PP
+ZZ
+.RS 4
+Call "/quit"\&.
+.RE
+.PP
+zM
+.RS 4
+Call "/group fold" for all groups\&.
+.RE
+.PP
+zR
+.RS 4
+Call "/group unfold" for all groups\&.
+.RE
+.PP
+\&''
+.RS 4
+Call "/roster alternate"\&.
+.RE
+.PP
+!
+.RS 4
+Toggle attention flag for current buddy\&.
+.RE
+.PP
+#
+.RS 4
+Toggle unread messages flag for current buddy\&.
+.RE
+.PP
+<Space>
+.RS 4
+Call "/group toggle" for the current group\&.
+.RE
+.PP
+A leading slash enables search mode:
+.PP
+/\fIstring\fR
+.RS 4
+Call "/roster search \fIstring\fR"\&.
+.RE
+.PP
+A leading colon enabled command-line mode:
+.PP
+:q
+.RS 4
+Call "/quit"\&.
+.RE
+.PP
+:\fIn\fR
+.RS 4
+Jump to line \fIn\fR in the roster\&.
+.RE
+.PP
+:\fIcommand-line\fR
+.RS 4
+Call "/\fIcommand-line\fR" (unless the \fIcommand-line\fR matches one of the above commands)\&.
+.RE
+.PP
+Commands entered with a leading colon and searches are either submitted by pressing enter or aborted by hitting escape\&. In either case, MCabber returns to the normal (non-chat) mode\&. History editing is supported in command-line mode and in search mode\&. In command-line mode, tab completion is supported as well\&.
 .SH "MCABBER\(cqS ROSTER"
 .sp
 The first listed item on the roster is \fI[status]\fR, which keeps a log of everything that appears in the short log window below the main chat area\&. While the log window was designed for showing the latest few elements, the dedicated \fI[status]\fR buffer allows more comfortable viewing of the log, as well as scrolling it in a standard manner\&.

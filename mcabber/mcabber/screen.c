@@ -1543,9 +1543,7 @@ static void scr_write_in_window(const char *winId, const char *text,
     setmsgflg = TRUE;
   }
   if (setmsgflg && !special) {
-    if (special && !winId)
-      winId = SPECIAL_BUFFER_STATUS_ID;
-    roster_msg_setflag(winId, special, TRUE);
+    roster_msg_setflag(winId, FALSE, TRUE);
     update_roster = TRUE;
   }
 }

@@ -1468,6 +1468,7 @@ static void scr_write_in_window(const char *winId, const char *text,
   int special;
   guint num_history_blocks;
   bool setmsgflg = FALSE;
+  bool clearmsgflg = FALSE;
   char *nicktmp, *nicklocaltmp;
 
   // Look for the window entry.
@@ -1539,12 +1540,21 @@ static void scr_write_in_window(const char *winId, const char *text,
     scr_update_window(win_entry);
     top_panel(inputPanel);
     update_panels();
+  } else if (settings_opt_get_int("clear_unread_on_carbon") &&
+             prefix_flags & HBB_PREFIX_OUT &&
+             prefix_flags & HBB_PREFIX_CARBON) {
+    clearmsgflg = TRUE;
   } else if (!(prefix_flags & HBB_PREFIX_NOFLAG)) {
     setmsgflg = TRUE;
   }
-  if (setmsgflg && !special) {
-    roster_msg_setflag(winId, FALSE, TRUE);
-    update_roster = TRUE;
+  if (!special) {
+    if (clearmsgflg) {
+      roster_msg_setflag(winId, FALSE, FALSE);
+      update_roster = TRUE;
+    } else if (setmsgflg) {
+      roster_msg_setflag(winId, FALSE, TRUE);
+      update_roster = TRUE;
+    }
   }
 }
 
@@ -2317,7 +2327,7 @@ void scr_write_incoming_message(const char *jidfrom, const char *text,
 {
   if (!(prefix &
         ~HBB_PREFIX_NOFLAG & ~HBB_PREFIX_HLIGHT & ~HBB_PREFIX_HLIGHT_OUT &
-        ~HBB_PREFIX_PGPCRYPT & ~HBB_PREFIX_OTRCRYPT))
+        ~HBB_PREFIX_PGPCRYPT & ~HBB_PREFIX_OTRCRYPT & ~HBB_PREFIX_CARBON))
     prefix |= HBB_PREFIX_IN;
 
   scr_write_message(jidfrom, text, timestamp, prefix, mucnicklen, NULL);

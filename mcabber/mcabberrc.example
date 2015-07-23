@@ -147,6 +147,11 @@ set cmdhistory_lines = 250
 # supports them), set the 'carbons' option to 1.  Default is 0.
 #set carbons = 1
 
+# Set the 'clear_unread_on_carbon' option to 1 if the unread messages flag
+# should be cleared when an outgoing copy of a message sent to that contact
+# is received from another client.
+#set clear_unread_on_carbon = 1
+
 # Typing notifications, Chat States, Events (XEP-22/85)
 # Set disable_chatstates to 1 if you don't want to use typing notifications.
 # Note: changing this option once mcabber is running has no effect.

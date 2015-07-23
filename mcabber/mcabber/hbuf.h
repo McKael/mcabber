@@ -31,6 +31,7 @@
 #define HBB_PREFIX_RECEIPT    (1U<<14)
 #define HBB_PREFIX_READMARK   (1U<<15)
 #define HBB_PREFIX_DELAYED    (1U<<16)
+#define HBB_PREFIX_CARBON     (1U<<17)
 
 typedef struct {
   time_t timestamp;

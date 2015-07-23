@@ -212,6 +212,9 @@ void hk_message_in(const char *bjid, const char *resname,
   else if (encrypted == ENCRYPTED_OTR)
     message_flags |= HBB_PREFIX_OTRCRYPT;
 
+  if (carbon)
+    message_flags |= HBB_PREFIX_CARBON;
+
   if (type == LM_MESSAGE_SUB_TYPE_GROUPCHAT) {
     rtype = ROSTER_TYPE_ROOM;
     is_groupchat = TRUE;
@@ -447,10 +450,10 @@ void hk_message_in(const char *bjid, const char *resname,
 // normal messages.
 void hk_message_out(const char *bjid, const char *nick,
                     time_t timestamp, const char *msg,
-                    guint encrypted, gpointer xep184)
+                    guint encrypted, gboolean carbon, gpointer xep184)
 {
   char *wmsg = NULL, *bmsg = NULL, *mmsg = NULL;
-  guint cryptflag = 0;
+  guint message_flags = 0;
 
   if (nick) {
     wmsg = bmsg = g_strdup_printf("PRIV#<%s> %s", nick, msg);
@@ -474,10 +477,14 @@ void hk_message_out(const char *bjid, const char *nick,
   // cases scr_write_outgoing_message() will load the history and we'd
   // have the message twice...
   if (encrypted == ENCRYPTED_PGP)
-    cryptflag = HBB_PREFIX_PGPCRYPT;
+    message_flags |= HBB_PREFIX_PGPCRYPT;
   else if (encrypted == ENCRYPTED_OTR)
-    cryptflag = HBB_PREFIX_OTRCRYPT;
-  scr_write_outgoing_message(bjid, wmsg, cryptflag, xep184);
+    message_flags |= HBB_PREFIX_OTRCRYPT;
+
+  if (carbon)
+    message_flags |= HBB_PREFIX_CARBON;
+
+  scr_write_outgoing_message(bjid, wmsg, message_flags, xep184);
 
   // We don't log private messages
   if (!nick)

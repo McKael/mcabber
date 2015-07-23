@@ -50,7 +50,7 @@ void hk_message_in(const char *bjid, const char *resname,
                    guint encrypted, gboolean carbon);
 void hk_message_out(const char *bjid, const char *nickname,
                     time_t timestamp, const char *msg,
-                    guint encrypted,  gpointer xep184);
+                    guint encrypted, gboolean carbon, gpointer xep184);
 void hk_statuschange(const char *bjid, const char *resname, gchar prio,
                      time_t timestamp, enum imstatus status,
                      char const *status_msg);

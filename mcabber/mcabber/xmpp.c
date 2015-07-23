@@ -1169,7 +1169,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
 #endif
 
       if (body && *body)
-        hk_message_out(bjid, NULL, timestamp, body, encrypted, NULL);
+        hk_message_out(bjid, NULL, timestamp, body, encrypted, TRUE, NULL);
 
       scr_LogPrint(LPRINT_DEBUG, "Received outgoing carbon for <%s>", to);
       g_free(decrypted_pgp);

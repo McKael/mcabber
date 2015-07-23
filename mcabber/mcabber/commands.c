@@ -1333,7 +1333,7 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
 
   // Hook
   if (!isroom)
-    hk_message_out(bare_jid, rp, 0, hmsg, crypted, xep184);
+    hk_message_out(bare_jid, rp, 0, hmsg, crypted, FALSE, xep184);
 
 send_message_to_return:
   if (hmsg != msg) g_free(hmsg);

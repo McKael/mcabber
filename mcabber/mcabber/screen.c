@@ -3807,8 +3807,11 @@ void readline_refresh_screen(void)
 void readline_disable_chat_mode(guint show_roster)
 {
   scr_check_auto_away(TRUE);
-  if (chatmode)
+  if (chatmode) {
     scr_buffer_readmark(TRUE);
+    if (settings_opt_get_int("vi_mode"))
+      clear_inputline();
+  }
   currentWindow = NULL;
   chatmode = FALSE;
   if (current_buddy)

@@ -4476,6 +4476,7 @@ void scr_process_key(keycode kcode)
   int key = kcode.value;
   int display_char = FALSE;
   int vi_completion = FALSE;
+  int vi_search = FALSE;
   static int ex_or_search_mode = FALSE;
 
   lock_chatstate = FALSE;
@@ -4509,9 +4510,14 @@ void scr_process_key(keycode kcode)
             break;
         case 9:     // Tab
         case 353:   // Shift-Tab
-            if (inputLine[0] == ':') {
-              inputLine[0] = '/';
-              vi_completion = TRUE;
+            switch (inputLine[0]) {
+              case ':':
+                  inputLine[0] = '/';
+                  vi_completion = TRUE;
+                  break;
+              case '/':
+                  vi_search = TRUE;
+                  break;
             }
             break;
         case 13:    // Enter
@@ -4751,10 +4757,12 @@ void scr_process_key(keycode kcode)
     case ERR:
         break;
     case 9:     // Tab
-        readline_do_completion(TRUE);   // Forward-completion
+        if (!vi_search)
+          readline_do_completion(TRUE);   // Forward-completion
         break;
     case 353:   // Shift-Tab
-        readline_do_completion(FALSE);  // Backward-completion
+        if (!vi_search)
+          readline_do_completion(FALSE);  // Backward-completion
         break;
     case 13:    // Enter
     case 343:   // Enter on Maemo

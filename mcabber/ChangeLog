@@ -17,7 +17,7 @@ mcabber (1.0.0)
  * [UI] Try to display the GLib warnings in the log window
  * [UI] Display the number of occupants in MUC rooms (shizeeque)
  * [UI] New option switch /room topic -u to unescape the topic (shizeeque)
- * [MUC] Support for storing MUC room passwords (Nico Golde)
+ * [MUC] Support for storing MUC room passwords (Nico Golde)
  * [MUC] Use bookmarked password (if any) when using "/room join"
  * [Hooks] New "hook-mdr-received" hook
  * Remove support for obsolete XEP 22 (Frank Zschockelt)

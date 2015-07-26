@@ -4562,7 +4562,13 @@ void scr_process_key(keycode kcode)
                   scr_cmdhisto_addline(search_cmd);
                   break;
               case 0:
-                  open_chat_window();
+                  {
+                    if (buddy_gettype(BUDDATA(current_buddy)) ==
+                        ROSTER_TYPE_GROUP)
+                      process_command(mkcmdstr("group toggle"), TRUE);
+                    else
+                      open_chat_window();
+                  }
                   break;
             }
             ex_or_search_mode = FALSE;
@@ -4737,8 +4743,12 @@ void scr_process_key(keycode kcode)
             break;
         case 13:    // Enter
         case 343:   // Enter on Maemo
-            if (inputLine[0] == 0)
-              open_chat_window();
+            if (inputLine[0] == 0) {
+              if (buddy_gettype(BUDDATA(current_buddy)) == ROSTER_TYPE_GROUP)
+                process_command(mkcmdstr("group toggle"), TRUE);
+              else
+                open_chat_window();
+            }
             break;
         default:
             unrecognized = TRUE;

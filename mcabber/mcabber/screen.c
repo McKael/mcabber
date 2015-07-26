@@ -4561,6 +4561,9 @@ void scr_process_key(keycode kcode)
                   process_command(search_cmd, TRUE);
                   scr_cmdhisto_addline(search_cmd);
                   break;
+              case 0:
+                  open_chat_window();
+                  break;
             }
             ex_or_search_mode = FALSE;
             break;
@@ -4734,6 +4737,8 @@ void scr_process_key(keycode kcode)
             break;
         case 13:    // Enter
         case 343:   // Enter on Maemo
+            if (inputLine[0] == 0)
+              open_chat_window();
             break;
         default:
             unrecognized = TRUE;

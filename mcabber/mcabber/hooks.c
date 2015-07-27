@@ -482,7 +482,7 @@ void hk_message_out(const char *bjid, const char *nick,
     message_flags |= HBB_PREFIX_OTRCRYPT;
 
   if (carbon)
-    message_flags |= HBB_PREFIX_CARBON;
+    message_flags |= HBB_PREFIX_CARBON | HBB_PREFIX_NOFLAG;
 
   scr_write_outgoing_message(bjid, wmsg, message_flags, xep184);
 

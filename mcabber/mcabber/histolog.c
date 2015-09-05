@@ -227,7 +227,7 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
       break;
     ln++;
 
-    while (1) {
+    while (!feof(fp)) {
       for (tail = data; *tail; tail++) ;
       if (tail == data) {
         // That would happen if the log file has NUL characters...

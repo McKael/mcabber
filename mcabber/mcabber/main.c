@@ -197,7 +197,7 @@ static char *password_eval(const char *command, int *status)
                   "** ERROR: Password evaluation command exited with error %d.",
                   res);
     if (res == -1) {
-    scr_log_print(LPRINT_NORMAL, "   errno=%d", errno);
+      scr_log_print(LPRINT_NORMAL, "   errno=%d", errno);
     }
     g_free(pwd);
     *status = res;

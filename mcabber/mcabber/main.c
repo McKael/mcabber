@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <config.h>
 #include <poll.h>
+#include <errno.h>
 
 #include "caps.h"
 #include "screen.h"
@@ -175,22 +176,29 @@ static char *password_eval(const char *command, int *status)
   char *pwd;
   FILE *outfp = popen(command, "r");
   if (outfp == NULL) {
-    scr_log_print(LPRINT_NORMAL, "** ERROR: Failed to execute password_eval command.");
+    scr_log_print(LPRINT_NORMAL,
+                  "** ERROR: Failed to execute password_eval command.");
     *status = -1;
     return NULL;
   }
 
   pwd = g_new0(char, MAX_PWD);
   if (fgets(pwd, MAX_PWD, outfp) == NULL) {
-    scr_log_print(LPRINT_NORMAL, "** ERROR: Failed to read from password_eval command.");
+    scr_log_print(LPRINT_NORMAL,
+                  "** ERROR: Failed to read from password_eval command.");
     g_free(pwd);
     *status = -1;
     return NULL;
   }
 
   int res = pclose(outfp);
-  if (res != 0) {
-    scr_log_print(LPRINT_NORMAL, "** ERROR: Password evaluation command exited with error %d.", res);
+  if (res != 0 && errno != ECHILD) {
+    scr_log_print(LPRINT_NORMAL,
+                  "** ERROR: Password evaluation command exited with error %d.",
+                  res);
+    if (res == -1) {
+    scr_log_print(LPRINT_NORMAL, "   errno=%d", errno);
+    }
     g_free(pwd);
     *status = res;
     return NULL;

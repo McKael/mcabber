@@ -1690,13 +1690,23 @@ static void do_say_to(char *arg)
     if (fjid[1] == '\0') {
       fjid = g_strdup(cjid);
     } else if (fjid[1] == JID_RESOURCE_SEPARATOR) {
-      char *res_utf8 = to_utf8(fjid+2);
-      fjid = g_strdup_printf("%s%c%s", cjid, JID_RESOURCE_SEPARATOR, res_utf8);
-      g_free(res_utf8);
+      if (!cjid) {
+        fjid = NULL;
+      } else {
+        char *res_utf8 = to_utf8(fjid+2);
+        fjid = g_strdup_printf("%s%c%s", cjid, JID_RESOURCE_SEPARATOR, res_utf8);
+        g_free(res_utf8);
+      }
     } else
       fjid = to_utf8(fjid);
   } else
     fjid = to_utf8(fjid);
+
+  if (!fjid) {
+    scr_LogPrint(LPRINT_NORMAL, "The Jabber ID is invalid.");
+    free_arg_lst(paramlst);
+    return;
+  }
 
   if (!strchr(fjid, JID_DOMAIN_SEPARATOR)) {
     const gchar *append_server = settings_opt_get("default_server");

@@ -16,7 +16,7 @@ char *gpg_verify(const char *gpg_data, const char *text,
                  gpgme_sigsum_t *sigsum);
 char *gpg_sign(const char *gpg_data);
 char *gpg_decrypt(const char *gpg_data);
-char *gpg_encrypt(const char *gpg_data, const char *keyid);
+char *gpg_encrypt(const char *gpg_data, const char *keyid[], size_t n);
 
 int   gpg_test_passphrase(void);
 

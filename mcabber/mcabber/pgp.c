@@ -1,7 +1,7 @@
 /*
  * pgp.c        -- PGP utility functions
  *
- * Copyright (C) 2006-2009 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2006-2015 Mikael Berthe <mikael@lilotux.net>
  * Some parts inspired by centericq (impgp.cc)
  *
  * This program is free software; you can redistribute it and/or modify
@@ -381,20 +381,25 @@ char *gpg_decrypt(const char *gpg_data)
   return decrypted_data;
 }
 
-//  gpg_encrypt(gpg_data, keyid)
-// Return encrypted gpg_data with the key keyid (or NULL).
+//  gpg_encrypt(gpg_data, keyids[], n)
+// Return encrypted gpg_data with the n keys from the keyids array (or NULL).
 // The returned string must be freed with g_free() after use.
-char *gpg_encrypt(const char *gpg_data, const char *keyid)
+char *gpg_encrypt(const char *gpg_data, const char *keyids[], size_t nkeys)
 {
   gpgme_ctx_t ctx;
   gpgme_data_t in, out;
   char *encrypted_data = NULL, *edata;
   size_t nread;
-  gpgme_key_t key;
+  gpgme_key_t *keys;
   gpgme_error_t err;
+  unsigned i;
 
   if (!gpg.enabled)
     return NULL;
+
+  if (!keyids || !nkeys) {
+    return NULL;
+  }
 
   err = gpgme_new(&ctx);
   if (err) {
@@ -407,9 +412,21 @@ char *gpg_encrypt(const char *gpg_data, const char *keyid)
   gpgme_set_textmode(ctx, 0);
   gpgme_set_armor(ctx, 1);
 
-  err = gpgme_get_key(ctx, keyid, &key, 0);
-  if (!err && key) {
-    gpgme_key_t keys[] = { key, 0 };
+  keys = g_new0(gpgme_key_t, 1+nkeys);
+
+  for (i = 0; i < nkeys; i++) {
+    err = gpgme_get_key(ctx, keyids[i], &keys[i], 0);
+    if (err || !keys[i]) {
+      scr_LogPrint(LPRINT_LOGNORM, "GPGME encryption error: cannot use key %s",
+                   keyids[i]);
+      // We need to have err not null to ensure we won't try to encrypt
+      // without this key.
+      if (!err) err = GPG_ERR_UNKNOWN_ERRNO;
+      break;
+    }
+  }
+
+  if (!err) {
     err = gpgme_data_new_from_mem(&in, gpg_data, strlen(gpg_data), 0);
     if (!err) {
       err = gpgme_data_new(&out);
@@ -422,14 +439,16 @@ char *gpg_encrypt(const char *gpg_data, const char *keyid)
       }
       gpgme_data_release(in);
     }
-    gpgme_key_release(key);
-  } else {
-    scr_LogPrint(LPRINT_LOGNORM, "GPGME encryption error: key not found");
-    err = 0;
+
+    if (err && err != GPG_ERR_CANCELED) {
+      scr_LogPrint(LPRINT_LOGNORM|LPRINT_NOTUTF8,
+                   "GPGME encryption error: %s", gpgme_strerror(err));
+    }
   }
-  if (err && err != GPG_ERR_CANCELED)
-    scr_LogPrint(LPRINT_LOGNORM|LPRINT_NOTUTF8,
-                 "GPGME encryption error: %s", gpgme_strerror(err));
+
+  for (i = 0; keys[i]; i++)
+    gpgme_key_release(keys[i]);
+  g_free(keys);
   gpgme_release(ctx);
   edata = strip_header_footer(encrypted_data);
   if (encrypted_data)

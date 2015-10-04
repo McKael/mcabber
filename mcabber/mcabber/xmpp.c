@@ -382,8 +382,10 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
         key = settings_pgp_getkeyid(barejid);
         if (!key && res_pgpdata)
           key = res_pgpdata->sign_keyid;
-        if (key)
-          enc = gpg_encrypt(text, key);
+        if (key) {
+          const char *keys[] = { key };
+          enc = gpg_encrypt(text, keys, 1);
+        }
         if (!enc && force) {
           if (encrypted)
             *encrypted = -1;

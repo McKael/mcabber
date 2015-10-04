@@ -422,7 +422,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 
   // We probably don't want Carbons for encrypted messages, since the other
   // resources won't be able to decrypt them.
-  if (enc && carbons_enabled())
+  if (otr_msg && carbons_enabled())
     lm_message_node_add_child(x->node, "private", NS_CARBONS_2);
 
   // XEP-0184: Message Receipts

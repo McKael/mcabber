@@ -383,8 +383,13 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
         if (!key && res_pgpdata)
           key = res_pgpdata->sign_keyid;
         if (key) {
-          const char *keys[] = { key };
-          enc = gpg_encrypt(text, keys, 1);
+          int nkeys = 1;
+          const char *keys[] = { key, 0 };
+          if (carbons_enabled()) {
+            keys[1] = gpg_get_private_key_id();
+            nkeys++;
+          }
+          enc = gpg_encrypt(text, keys, nkeys);
         }
         if (!enc && force) {
           if (encrypted)

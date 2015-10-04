@@ -118,6 +118,13 @@ void gpg_set_private_key(const char *priv_keyid)
     gpg.private_key = NULL;
 }
 
+//  gpg_get_private_key_id()
+// Return the current private key id (static string).
+const char *gpg_get_private_key_id(void)
+{
+  return gpg.private_key;
+}
+
 //  strip_header_footer(data)
 // Remove PGP header & footer from data.
 // Return a new string, or NULL.

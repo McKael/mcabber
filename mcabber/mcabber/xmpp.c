@@ -2,7 +2,7 @@
  * xmpp.c       -- Jabber protocol handling
  *
  * Copyright (C) 2008-2014 Frank Zschockelt <mcabber@freakysoft.de>
- * Copyright (C) 2005-2014 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2015 Mikael Berthe <mikael@lilotux.net>
  * Parts come from the centericq project:
  * Copyright (C) 2002-2005 by Konstantin Klyagin <konst@konst.org.ua>
  *
@@ -919,15 +919,16 @@ static void gotmessage(LmMessageSubType type, const char *from,
   if (rname) rname++;
 
 #ifdef HAVE_GPGME
-  if (enc && gpg_enabled()) {
-    decrypted_pgp = gpg_decrypt(enc);
-    if (decrypted_pgp) {
-      body = decrypted_pgp;
+  if (gpg_enabled()) {
+    if (enc) {
+      decrypted_pgp = gpg_decrypt(enc);
+      if (decrypted_pgp)
+        body = decrypted_pgp;
     }
+    // Check signature of the unencrypted/decrypted message
+    if (node_signed)
+      check_signature(bjid, rname, node_signed, body);
   }
-  // Check signature of an unencrypted message
-  if (node_signed && gpg_enabled())
-    check_signature(bjid, rname, node_signed, decrypted_pgp);
 #endif
 
   // Check for unexpected groupchat messages
@@ -1104,13 +1105,24 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   x = lm_message_node_find_xmlns(m->node, NS_CARBONS_2);
   gboolean carbons = FALSE;
   if (x) {
+    LmMessageNode *xenc;
+    const char *carbon_name = x->name;
     carbons = TRUE;
-    // Parse a message that is send to one of our other resources
-    if (!g_strcmp0(x->name, "received")) {
-      // Go 1 level deeper to the forwarded message
-      x = lm_message_node_find_xmlns(x, NS_FORWARD);
-      x = lm_message_node_get_child(x, "message");
+    // Go 1 level deeper to the forwarded message
+    x = lm_message_node_find_xmlns(x, NS_FORWARD);
+    x = lm_message_node_get_child(x, "message");
 
+    xenc = lm_message_node_find_xmlns(x, NS_ENCRYPTED);
+    if (xenc && (p = lm_message_node_get_value(xenc)) != NULL)
+      enc = p;
+
+    if (body && *body && !subject)
+      ns_signed = lm_message_node_find_xmlns(x, NS_SIGNED);
+    else
+      skip_process = TRUE;
+
+    // Parse a message that is send to one of our other resources
+    if (!g_strcmp0(carbon_name, "received")) {
       from = lm_message_node_get_attribute(x, "from");
       if (!from) {
         scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy!");
@@ -1121,20 +1133,14 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       res = strchr(bjid, JID_RESOURCE_SEPARATOR);
       if (res) *res++ = 0;
 
-      if (body && *body && !subject && !enc)
-        ns_signed = lm_message_node_find_xmlns(x, NS_SIGNED);
-      else
-        skip_process = TRUE;
-
       // Try to handle forwarded chat state messages
       handle_state_events(from, res, x);
 
       scr_LogPrint(LPRINT_DEBUG, "Received incoming carbon from <%s>", from);
 
-    } else if (!g_strcmp0(x->name, "sent")) {
-      x = lm_message_node_find_xmlns(x, NS_FORWARD);
-      x = lm_message_node_get_child(x, "message");
-
+    } else if (!g_strcmp0(carbon_name, "sent")) {
+      guint encrypted = 0;
+      char *decrypted_pgp = NULL;
       const char *to= lm_message_node_get_attribute(x, "to");
       if (!to) {
         scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy!");
@@ -1143,10 +1149,30 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       g_free(bjid);
       bjid = jidtodisp(to);
 
+#ifdef HAVE_GPGME
+      if (gpg_enabled()) {
+        if (enc) {
+          decrypted_pgp = gpg_decrypt(enc);
+          if (decrypted_pgp) {
+            body = decrypted_pgp;
+            encrypted = ENCRYPTED_PGP;
+          }
+        }
+        /*
+        // Check messsage signature
+        // This won't work here, since check_signature wasn't intended
+        // to be used to check our own messages.
+        if (ns_signed)
+          check_signature(ME, NULL, ns_signed, body);
+        */
+      }
+#endif
+
       if (body && *body)
-        hk_message_out(bjid, NULL, timestamp, body, 0, NULL);
+        hk_message_out(bjid, NULL, timestamp, body, encrypted, NULL);
 
       scr_LogPrint(LPRINT_DEBUG, "Received outgoing carbon for <%s>", to);
+      g_free(decrypted_pgp);
       goto handle_messages_return;
     }
   } else { // Not a Carbon

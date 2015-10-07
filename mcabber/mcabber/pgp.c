@@ -420,6 +420,10 @@ char *gpg_encrypt(const char *gpg_data, const char *keyids[], size_t nkeys)
   gpgme_set_armor(ctx, 1);
 
   keys = g_new0(gpgme_key_t, 1+nkeys);
+  if (!keys) {
+    gpgme_release(ctx);
+    return NULL;
+  }
 
   for (i = 0; i < nkeys; i++) {
     err = gpgme_get_key(ctx, keyids[i], &keys[i], 0);

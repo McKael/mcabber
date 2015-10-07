@@ -385,10 +385,8 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
         if (key) {
           int nkeys = 1;
           const char *keys[] = { key, 0 };
-          if (carbons_enabled()) {
-            keys[1] = gpg_get_private_key_id();
-            nkeys++;
-          }
+          if (carbons_enabled())
+            keys[nkeys++] = gpg_get_private_key_id();
           enc = gpg_encrypt(text, keys, nkeys);
         }
         if (!enc && force) {
@@ -1141,8 +1139,10 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       scr_LogPrint(LPRINT_DEBUG, "Received incoming carbon from <%s>", from);
 
     } else if (!g_strcmp0(carbon_name, "sent")) {
-      guint encrypted = 0;
+#ifdef HAVE_GPGME
       char *decrypted_pgp = NULL;
+#endif
+      guint encrypted = 0;
       const char *to= lm_message_node_get_attribute(x, "to");
       if (!to) {
         scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy!");
@@ -1174,7 +1174,9 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
         hk_message_out(bjid, NULL, timestamp, body, encrypted, TRUE, NULL);
 
       scr_LogPrint(LPRINT_DEBUG, "Received outgoing carbon for <%s>", to);
+#ifdef HAVE_GPGME
       g_free(decrypted_pgp);
+#endif
       goto handle_messages_return;
     }
   } else { // Not a Carbon

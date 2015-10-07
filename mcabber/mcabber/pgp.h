@@ -9,6 +9,7 @@
 #include <gpgme.h>
 
 int   gpg_init(const char *priv_key, const char *passphrase);
+int   gpg_is_version1(void);
 void  gpg_terminate(void);
 void  gpg_set_passphrase(const char *passphrase);
 void  gpg_set_private_key(const char *priv_keyid);

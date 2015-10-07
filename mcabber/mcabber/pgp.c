@@ -38,7 +38,8 @@
 
 static struct gpg_struct
 {
-  int enabled;
+  int   enabled;
+  int   version1;
   char *private_key;
   char *passphrase;
 } gpg;
@@ -52,6 +53,9 @@ static struct gpg_struct
 int gpg_init(const char *priv_key, const char *passphrase)
 {
   gpgme_error_t err;
+
+  gpgme_ctx_t ctx;
+  gpgme_engine_info_t info;
 
   // Check for version and OpenPGP protocol support.
   if (!gpgme_check_version(MIN_GPGME_VERSION)) {
@@ -75,8 +79,36 @@ int gpg_init(const char *priv_key, const char *passphrase)
   gpg_set_private_key(priv_key);
   gpg_set_passphrase(passphrase);
 
+  err = gpgme_new(&ctx);
+  if (err) return -1;
+
+  // Check OpenPGP engine version; with version 2+ the agent is mandatory
+  // and we do not manage the passphrase.
+  gpgme_set_protocol(ctx, GPGME_PROTOCOL_OpenPGP);
+  if (err) return -1;
+
+  err = gpgme_get_engine_info (&info);
+  if (!err) {
+    while (info && info->protocol != gpgme_get_protocol (ctx))
+      info = info->next;
+
+    if (info && info->version) {
+      if (!strncmp(info->version, "1.", 2))
+        gpg.version1 = TRUE;
+      scr_log_print(LPRINT_DEBUG, "GPGME: Engine version is '%s'.",
+                    info->version);
+    }
+  }
+
   gpg.enabled = 1;
   return 0;
+}
+
+//  gpg_is_version1()
+// Return TRUE if the GnuPG OpenPGP engine version is 1.x
+int gpg_is_version1(void)
+{
+  return gpg.version1;
 }
 
 //  gpg_terminate()
@@ -264,7 +296,6 @@ char *gpg_sign(const char *gpg_data)
 {
   gpgme_ctx_t ctx;
   gpgme_data_t in, out;
-  char *p;
   char *signed_data = NULL;
   size_t nread;
   gpgme_key_t key;
@@ -284,9 +315,12 @@ char *gpg_sign(const char *gpg_data)
   gpgme_set_textmode(ctx, 0);
   gpgme_set_armor(ctx, 1);
 
-  p = getenv("GPG_AGENT_INFO");
-  if (!(p && strchr(p, ':')))
-    gpgme_set_passphrase_cb(ctx, passphrase_cb, 0);
+  if (gpg.version1) {
+    // GPG_AGENT_INFO isn't used by GnuPG version 2+
+    char *p = getenv("GPG_AGENT_INFO");
+    if (!(p && strchr(p, ':')))
+      gpgme_set_passphrase_cb(ctx, passphrase_cb, 0);
+  }
 
   err = gpgme_get_key(ctx, gpg.private_key, &key, 1);
   if (err || !key) {
@@ -332,7 +366,7 @@ char *gpg_decrypt(const char *gpg_data)
 {
   gpgme_ctx_t ctx;
   gpgme_data_t in, out;
-  char *p, *data;
+  char *data;
   char *decrypted_data = NULL;
   size_t nread;
   gpgme_error_t err;
@@ -351,9 +385,12 @@ char *gpg_decrypt(const char *gpg_data)
 
   gpgme_set_protocol(ctx, GPGME_PROTOCOL_OpenPGP);
 
-  p = getenv("GPG_AGENT_INFO");
-  if (!(p && strchr(p, ':')))
-    gpgme_set_passphrase_cb(ctx, passphrase_cb, 0);
+  if (gpg.version1) {
+    // GPG_AGENT_INFO isn't used by GnuPG version 2+
+    char *p = getenv("GPG_AGENT_INFO");
+    if (!(p && strchr(p, ':')))
+      gpgme_set_passphrase_cb(ctx, passphrase_cb, 0);
+  }
 
   // Surround the given data with the prefix & suffix
   data = g_new(char, sizeof(prefix) + sizeof(suffix) + strlen(gpg_data));

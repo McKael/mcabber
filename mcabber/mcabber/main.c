@@ -262,25 +262,39 @@ static void main_init_pgp(void)
   bool pgp_agent;
   int retries;
 
+  pk = settings_opt_get("pgp_private_key");
+
+  if (!pk)
+    scr_LogPrint(LPRINT_LOGNORM, "WARNING: unknown PGP private key");
+
+  if (gpg_init(pk, NULL)) {
+    scr_LogPrint(LPRINT_LOGNORM, "WARNING: Could not initialize PGP.");
+    return;
+  }
+
+  // We're done if the PGP engine version is > 1
+  // since the agent is mandatory and password mechanism is external.
+  if (!gpg_is_version1())
+    return;
+
+
   p = getenv("GPG_AGENT_INFO");
   pgp_agent = (p && strchr(p, ':'));
-
-  pk = settings_opt_get("pgp_private_key");
-  pp = settings_opt_get("pgp_passphrase");
 
   if (settings_opt_get("pgp_passphrase_retries"))
     retries = settings_opt_get_int("pgp_passphrase_retries");
   else
     retries = 2;
 
+  pp = settings_opt_get("pgp_passphrase");
+
   if (!pk) {
-    scr_LogPrint(LPRINT_LOGNORM, "WARNING: unknown PGP private key");
     pgp_invalid = TRUE;
   } else if (!(pp || pgp_agent)) {
     // Request PGP passphrase
     pp = typed_passwd = ask_password("your PGP passphrase");
   }
-  gpg_init(pk, pp);
+  gpg_set_passphrase(pp);
   // Erase password from the settings array
   if (pp) {
     memset((char*)pp, 0, strlen(pp));

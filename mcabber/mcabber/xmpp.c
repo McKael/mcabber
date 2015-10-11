@@ -741,8 +741,15 @@ static LmSSLResponse ssl_cb(LmSSL *ssl, LmSSLStatus status, gpointer ud)
 static void connection_auth_cb(LmConnection *connection, gboolean success,
                                gpointer user_data)
 {
-  if (success) {
+  LmSSL *lssl;
+  if ((lssl = lm_connection_get_ssl(connection)) != NULL) {
+    char fpr[49] = {0};
+    fingerprint_to_hex(lm_ssl_get_fingerprint(lssl), fpr);
+    scr_LogPrint(LPRINT_LOGNORM, "Connection established.\n"
+                 "Remote fingerprint: %s", fpr);
+  }
 
+  if (success) {
     xmpp_iq_request(NULL, NS_ROSTER);
     xmpp_iq_request(NULL, NS_DISCO_INFO);
     xmpp_request_storage("storage:bookmarks");

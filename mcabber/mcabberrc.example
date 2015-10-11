@@ -37,7 +37,8 @@ set jid = yourusername@domain
 #set priority_away = 0
 
 # Set 'ignore_self_presence' to 1 if you do not want to see your own
-# presence in your roster (default: 0).
+# presence in your roster (default: 0).  Other resources will still be
+# displayed.
 set ignore_self_presence = 1
 
 # SSL/TLS options:

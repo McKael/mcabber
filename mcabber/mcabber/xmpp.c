@@ -715,8 +715,7 @@ static LmSSLResponse ssl_cb(LmSSL *ssl, LmSSLStatus status, gpointer ud)
     break;
   case LM_SSL_STATUS_CERT_FINGERPRINT_MISMATCH: {
       char fpr[49] = {0};
-      fingerprint_to_hex((const unsigned char*)lm_ssl_get_fingerprint(ssl),
-                         fpr);
+      fingerprint_to_hex(lm_ssl_get_fingerprint(ssl), fpr);
       scr_LogPrint(LPRINT_LOGNORM,
                 "Certificate fingerprint does not match expected fingerprint!");
       scr_LogPrint(LPRINT_LOGNORM, "Remote fingerprint: %s", fpr);

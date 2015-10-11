@@ -155,9 +155,10 @@ char *expand_filename(const char *fname)
   return g_strdup(fname);
 }
 
-void fingerprint_to_hex(const unsigned char *fpr, char hex[48])
+void fingerprint_to_hex(const char *fprstr, char hex[48])
 {
   int i;
+  const unsigned char *fpr = (const unsigned char *)fprstr;
   char *p;
 
   hex[0] = 0;

@@ -155,26 +155,35 @@ char *expand_filename(const char *fname)
   return g_strdup(fname);
 }
 
-void fingerprint_to_hex(const unsigned char *fpr, char hex[49])
+void fingerprint_to_hex(const unsigned char *fpr, char hex[48])
 {
   int i;
   char *p;
+
+  hex[0] = 0;
+  if (!fpr) return;
 
   for (p = hex, i = 0; i < 15; i++, p+=3)
-    g_sprintf(p, "%02X:", fpr[i]);
-  g_sprintf(p, "%02X", fpr[i]);
-  hex[48] = '\0';
+    g_snprintf(p, 4, "%02X:", fpr[i]);
+  g_snprintf(p, 3, "%02X", fpr[i]);
 }
 
-gboolean hex_to_fingerprint(const char *hex, char fpr[16])
+gboolean hex_to_fingerprint(const char *hex, char fpr[17])
 {
   int i;
-  char *p;
+  const char *p;
 
+  fpr[0] = 0;
   if (strlen(hex) != 47)
     return FALSE;
-  for (i = 0, p = (char*)hex; *p && *(p+1); i++, p += 3)
-    fpr[i] = (char) g_ascii_strtoull (p, NULL, 16);
+  for (i = 0, p = hex; *p && *(p+1); i++, p += 3) {
+    if (*(p+2) && (*(p+2) != ':')) {
+      fpr[i] = 0;
+      return FALSE;
+    }
+    fpr[i] = (char)g_ascii_strtoull(p, NULL, 16);
+  }
+  fpr[i] = 0;
   return TRUE;
 }
 

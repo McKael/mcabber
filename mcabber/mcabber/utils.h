@@ -21,8 +21,8 @@ char *compose_jid(const char *username, const char *servername,
                   const char *resource);
 gboolean jid_equal(const char *jid1, const char *jid2);
 
-void fingerprint_to_hex(const unsigned char *fpr, char hex[49]);
-gboolean hex_to_fingerprint(const char * hex, char fpr[16]);
+void fingerprint_to_hex(const unsigned char *fpr, char hex[48]);
+gboolean hex_to_fingerprint(const char *hex, char fpr[17]);
 
 void ut_init_debug(void);
 void ut_write_log(unsigned int flag, const char *data);

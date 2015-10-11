@@ -714,19 +714,19 @@ static LmSSLResponse ssl_cb(LmSSL *ssl, LmSSLStatus status, gpointer ud)
                  "Certificate hostname does not match expected hostname!");
     break;
   case LM_SSL_STATUS_CERT_FINGERPRINT_MISMATCH: {
-    char fpr[49];
-    fingerprint_to_hex((const unsigned char*)lm_ssl_get_fingerprint(ssl),
-                       fpr);
-    scr_LogPrint(LPRINT_LOGNORM,
-              "Certificate fingerprint does not match expected fingerprint!");
-    scr_LogPrint(LPRINT_LOGNORM, "Remote fingerprint: %s", fpr);
+      char fpr[49] = {0};
+      fingerprint_to_hex((const unsigned char*)lm_ssl_get_fingerprint(ssl),
+                         fpr);
+      scr_LogPrint(LPRINT_LOGNORM,
+                "Certificate fingerprint does not match expected fingerprint!");
+      scr_LogPrint(LPRINT_LOGNORM, "Remote fingerprint: %s", fpr);
 
-    scr_LogPrint(LPRINT_LOGNORM, "Expected fingerprint: %s",
-                 settings_opt_get("ssl_fingerprint"));
+      scr_LogPrint(LPRINT_LOGNORM, "Expected fingerprint: %s",
+                   settings_opt_get("ssl_fingerprint"));
 
-    return LM_SSL_RESPONSE_STOP;
+      return LM_SSL_RESPONSE_STOP;
+    }
     break;
-  }
   case LM_SSL_STATUS_GENERIC_ERROR:
     scr_LogPrint(LPRINT_LOGNORM, "Generic SSL error!");
     break;
@@ -1732,14 +1732,14 @@ gint xmpp_connect(void)
 {
   const char *userjid, *password, *resource, *servername, *ssl_fpr;
   char *dynresource = NULL;
-  char fpr[16];
+  char fpr[17] = {0};
   const char *proxy_host;
   const char *resource_prefix = PACKAGE_NAME;
   char *fjid;
   int ssl, tls;
   LmSSL *lssl;
   unsigned int port;
-  unsigned int ping;
+  unsigned int ping = 40;
   LmMessageHandler *handler;
   GError *error = NULL;
 
@@ -1765,7 +1765,6 @@ gint xmpp_connect(void)
 
   g_log_set_handler("LM", LM_LOG_LEVEL_ALL, lm_debug_handler, NULL);
 
-  ping = 40;
   if (settings_opt_get("pinginterval"))
     ping = (unsigned int) settings_opt_get_int("pinginterval");
   lm_connection_set_keep_alive_rate(lconnection, ping);

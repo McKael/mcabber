@@ -155,36 +155,48 @@ char *expand_filename(const char *fname)
   return g_strdup(fname);
 }
 
-void fingerprint_to_hex(const char *fprstr, char hex[48])
+//  fingerprint_to_hex(fprstr, hex, fpr_len)
+// Convert the binary fingerprint fprstr (which is fpr_len bytes long)
+// to a NULL-terminated hexadecimal string hex.
+// The destination array hex should have been preallocated by the caller,
+// and should be big enough (i.e. >= 3*fpr_len bytes).
+void fingerprint_to_hex(const char *fprstr, char *hex, size_t fpr_len)
 {
-  int i;
+  unsigned int i;
   const unsigned char *fpr = (const unsigned char *)fprstr;
   char *p;
 
   hex[0] = 0;
-  if (!fpr) return;
+  if (!fpr || fpr_len < 16) return;
 
-  for (p = hex, i = 0; i < 15; i++, p+=3)
+  for (p = hex, i = 0; i < fpr_len - 1; i++, p+=3)
     g_snprintf(p, 4, "%02X:", fpr[i]);
   g_snprintf(p, 3, "%02X", fpr[i]);
 }
 
-gboolean hex_to_fingerprint(const char *hex, char fpr[17])
+//  hex_to_fingerprint(hex, fpr, fpr_len)
+// Convert the hexadecimal fingerprint hex to a byte array fpr[].
+// The fpr array should have been preallocated  with a size >= fpr_len.
+gboolean hex_to_fingerprint(const char *hex, char *fpr, size_t fpr_len)
 {
-  int i;
+  unsigned int i;
   const char *p;
 
+  if (fpr_len < 16) return FALSE;
+
   fpr[0] = 0;
-  if (strlen(hex) != 47)
+
+  if (strlen(hex) != fpr_len*3 - 1)
     return FALSE;
-  for (i = 0, p = hex; *p && *(p+1); i++, p += 3) {
-    if (*(p+2) && (*(p+2) != ':')) {
-      fpr[i] = 0;
+
+  for (i = 0, p = hex; i < fpr_len && *p && *(p+1); i++, p += 3) {
+    // Check we have two hex digits followed by a colon (or end of string)
+    if (!isxdigit(*p) || !isxdigit(*(p+1)))
       return FALSE;
-    }
+    if (*(p+2) && (*(p+2) != ':'))
+      return FALSE;
     fpr[i] = (char)g_ascii_strtoull(p, NULL, 16);
   }
-  fpr[i] = 0;
   return TRUE;
 }
 

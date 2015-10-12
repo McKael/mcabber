@@ -344,7 +344,9 @@ char *gpg_sign(const char *gpg_data)
     err = gpgme_data_new(&out);
     if (!err) {
       err = gpgme_op_sign(ctx, in, out, GPGME_SIG_MODE_DETACH);
-      if (!err) {
+      if (err) {
+        gpgme_data_release(out);
+      } else {
         signed_data = gpgme_data_release_and_get_mem(out, &nread);
         if (signed_data) {
           // We need to add a trailing NULL
@@ -353,8 +355,6 @@ char *gpg_sign(const char *gpg_data)
           signed_data = strip_header_footer(dd);
           g_free(dd);
         }
-      } else {
-        gpgme_data_release(out);
       }
     }
     gpgme_data_release(in);
@@ -410,7 +410,9 @@ char *gpg_decrypt(const char *gpg_data)
     err = gpgme_data_new(&out);
     if (!err) {
       err = gpgme_op_decrypt(ctx, in, out);
-      if (!err) {
+      if (err) {
+        gpgme_data_release(out);
+      } else {
         decrypted_data = gpgme_data_release_and_get_mem(out, &nread);
         if (decrypted_data) {
           // We need to add a trailing NULL
@@ -418,8 +420,6 @@ char *gpg_decrypt(const char *gpg_data)
           free(decrypted_data);
           decrypted_data = dd;
         }
-      } else {
-        gpgme_data_release(out);
       }
     }
     gpgme_data_release(in);
@@ -487,10 +487,17 @@ char *gpg_encrypt(const char *gpg_data, const char *keyids[], size_t nkeys)
       err = gpgme_data_new(&out);
       if (!err) {
         err = gpgme_op_encrypt(ctx, keys, GPGME_ENCRYPT_ALWAYS_TRUST, in, out);
-        if (!err)
-          encrypted_data = gpgme_data_release_and_get_mem(out, &nread);
-        else
+        if (err) {
           gpgme_data_release(out);
+        } else {
+          encrypted_data = gpgme_data_release_and_get_mem(out, &nread);
+          if (encrypted_data) {
+            // We need to add a trailing NULL
+            char *dd = g_strndup(encrypted_data, nread);
+            free(encrypted_data);
+            encrypted_data = dd;
+          }
+        }
       }
       gpgme_data_release(in);
     }

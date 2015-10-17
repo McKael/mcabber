@@ -1,3 +1,17 @@
+dev (40)
+
+ * Add settings_get_mcabber_config_dir()
+ * Changeset ccd4ffa41a1b
+
+  -- Mikael Berthe, 2015-10-17
+
+dev (39)
+
+ * Add gpg_is_version1()
+ * Changeset 8811fe9d6ef0
+
+  -- Mikael Berthe, 2015-10-07
+
 dev (38)
 
  * Change prototype of hk_message_out()

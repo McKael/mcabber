@@ -358,7 +358,8 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
 }
 
 //  hlog_enable()
-// Enable logging to files.  If root_dir is NULL, then $HOME/.mcabber is used.
+// Enable logging to files.  If root_dir is NULL, then the subdirectory "histo"
+// in mcabber configuration directory is used.
 // If loadfiles is TRUE, we will try to load buddies history logs from file.
 void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
 {
@@ -383,9 +384,9 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
         g_free(xp_root_dir);
       }
     } else {
-      char *home = getenv("HOME");
-      const char *dir = "/.mcabber/histo/";
-      RootDir = g_strdup_printf("%s%s", home, dir);
+      const char *cfgdir = settings_get_mcabber_config_dir();
+      const char *hdir = "/histo/";
+      RootDir = g_strdup_printf("%s%s", cfgdir, hdir);
     }
     // Check directory permissions (should not be readable by group/others)
     if (checkset_perm(RootDir, TRUE) == -1) {

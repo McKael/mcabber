@@ -164,7 +164,8 @@ set cmdhistory_lines = 250
 # (and status messages) to the log files (default: 0).
 # You can load (read) the messages history: set load_logs = 1
 # If you enable load_logs, you can use the 'max_history_age' setting below.
-# Default logging directory (logging_dir) is $HOME/.mcabber/histo/
+# The default logging directory (logging_dir) is $HOME/.mcabber/histo/
+# (or $XDG_CONFIG_HOME/mcabber/histo/).
 # Defaults for logging, load_logs are 0 (disabled)
 # Note: the logging directory must exist if you enable logging, mcabber
 #       will not create it.

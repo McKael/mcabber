@@ -1,7 +1,7 @@
 /*
  * settings.c   -- Configuration stuff
  *
- * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2015 Mikael Berthe <mikael@lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "config.h"
 #include "settings.h"
@@ -87,6 +88,83 @@ void settings_init(void)
 #endif
 }
 
+//  settings_get_mcabber_config_dir()
+// Returns the mcabber configuration directory.
+// The directory is looked up for only once (and the string is never freed,
+// but we might change this later).
+const gchar *settings_get_mcabber_config_dir(void)
+{
+  static char *config_dir;
+  char *home_dir;
+  GString *sfilename;
+  FILE *fp;
+
+  if (config_dir)
+    return config_dir;
+
+  home_dir = getenv("HOME");
+  if (!home_dir) {
+    scr_log_print(LPRINT_LOG, "Can't find home dir!");
+    fprintf(stderr, "Can't find home dir!\n");
+    return NULL;
+  }
+
+  sfilename = g_string_new("");
+
+  // First try: $HOME/.mcabber/mcabberrc
+  g_string_printf(sfilename, "%s/.mcabber/mcabberrc", home_dir);
+  if ((fp = fopen(sfilename->str, "r")) != NULL) {
+    fclose(fp);
+    config_dir = g_strdup_printf("%s/.mcabber", home_dir);
+  }
+
+  // Second guess: Try to use the XDG standard configuration directory
+  if (!config_dir) {
+    char *xdg_config_dir = g_strdup(getenv("XDG_CONFIG_HOME"));
+    if (!xdg_config_dir || !*xdg_config_dir) {
+      // Free the string if it is non-null but empty
+      if (xdg_config_dir) g_free(xdg_config_dir);
+      xdg_config_dir = g_strdup_printf("%s/.config", home_dir);
+    }
+
+    if (xdg_config_dir) {
+      int fd = -1;
+      struct stat statbuf;
+
+      if (*xdg_config_dir)
+        fd = stat(xdg_config_dir, &statbuf);
+
+      // If the XDG configuration directory exists, see if we can find a
+      // configuration file for mcabber inside.
+      if (fd != -1) {
+        char *xdg_mcabber_dir = g_strdup_printf("%s/mcabber", xdg_config_dir);
+        g_string_printf(sfilename, "%s/mcabberrc", xdg_mcabber_dir);
+        if ((fp = fopen(sfilename->str, "r")) != NULL) {
+          fclose(fp);
+          config_dir = xdg_mcabber_dir;
+        } else {
+          g_free(xdg_mcabber_dir);
+        }
+      }
+      g_free(xdg_config_dir);
+    }
+  }
+
+  // Last guess: home directory itself...
+  if (!config_dir) {
+    g_string_printf(sfilename, "%s/.mcabberrc", home_dir);
+    if ((fp = fopen(sfilename->str, "r")) != NULL) {
+      fclose(fp);
+      config_dir = g_strdup(home_dir);
+    } else {
+      scr_log_print(LPRINT_NORMAL, "Cannot find/open any configuration file!\n");
+    }
+  }
+
+  g_string_free(sfilename, TRUE);
+  return config_dir;
+}
+
 //  cfg_read_file(filename, mainfile)
 // Read and parse config file "filename".  If filename is NULL,
 // try to open the configuration file at the default locations.
@@ -104,42 +182,32 @@ int cfg_read_file(char *filename, guint mainfile)
   int err = 0;
 
   if (!filename) {
-    // Use default config file locations
-    char *home;
-    GString *sfilename;
+    const gchar *mcabber_conf_dir;
+    gchar *def_filename;
 
     if (!mainfile) {
       scr_LogPrint(LPRINT_LOGNORM, "No file name provided");
       return -1;
     }
 
-    home = getenv("HOME");
-    if (!home) {
-      scr_LogPrint(LPRINT_LOG, "Can't find home dir!");
-      fprintf(stderr, "Can't find home dir!\n");
+    mcabber_conf_dir = settings_get_mcabber_config_dir();
+    if (!mcabber_conf_dir)
+      return -1;
+
+    def_filename = g_strdup_printf("%s/mcabberrc", mcabber_conf_dir);
+    if ((fp = fopen(def_filename, "r")) == NULL) {
+      fprintf(stderr, "Cannot open config file!\n");
+      g_free(def_filename);
       err = -1;
       goto cfg_read_file_return;
     }
-    sfilename = g_string_new("");
-    g_string_printf(sfilename, "%s/.mcabber/mcabberrc", home);
-    if ((fp = fopen(sfilename->str, "r")) == NULL) {
-      // 2nd try...
-      g_string_printf(sfilename, "%s/.mcabberrc", home);
-      if ((fp = fopen(sfilename->str, "r")) == NULL) {
-        fprintf(stderr, "Cannot open config file!\n");
-        g_string_free(sfilename, TRUE);
-        err = -1;
-        goto cfg_read_file_return;
-      }
-    }
     // Check configuration file permissions
     // As it could contain sensitive data, we make it user-readable only.
-    checkset_perm(sfilename->str, TRUE);
-    scr_LogPrint(LPRINT_LOGNORM, "Reading %s", sfilename->str);
+    checkset_perm(def_filename, TRUE);
+    scr_log_print(LPRINT_LOGNORM, "Reading %s", def_filename);
     // Check mcabber dir.  Here we just warn, we don't change the modes.
-    g_string_printf(sfilename, "%s/.mcabber/", home);
-    checkset_perm(sfilename->str, FALSE);
-    g_string_free(sfilename, TRUE);
+    checkset_perm(mcabber_conf_dir, FALSE);
+    g_free(def_filename);
   } else {
     // filename was specified
     if ((fp = fopen(filename, "r")) == NULL) {

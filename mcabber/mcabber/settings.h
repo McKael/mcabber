@@ -30,6 +30,7 @@
 typedef gchar *(*settings_guard_t)(const gchar *key, const gchar *new_value);
 
 void    settings_init(void);
+const gchar *settings_get_mcabber_config_dir(void);
 int     cfg_read_file(char *filename, guint mainfile);
 guint   parse_assigment(gchar *assignment, gchar **pkey, gchar **pval);
 gboolean settings_set_guard(const gchar *key, settings_guard_t guard);

@@ -264,9 +264,7 @@ char *gpg_verify(const char *gpg_data, const char *text,
         if (vr && vr->signatures) {
             gpgme_signature_t s = NULL;
             // check all signatures and stop if the first could be verified
-            for (s = vr->signatures;
-                 (s != NULL) && (verified_key != NULL);
-                 s = s->next) {
+            for (s = vr->signatures; s && !verified_key; s = s->next) {
                 // Found the fingerprint.  Let's try to get the key id.
                 if (NULL != s->fpr) {
                     if (!gpgme_get_key(ctx, s->fpr, &key, 0)) {

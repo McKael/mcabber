@@ -265,6 +265,8 @@ LmMessageNode *lm_message_node_find_xmlns(LmMessageNode *node,
   LmMessageNode *x;
   const char *p;
 
+  if (!node) return NULL;
+
   for (x = node->children ; x; x = x->next) {
     if ((p = lm_message_node_get_attribute(x, "xmlns")) && !strcmp(p, xmlns))
       break;

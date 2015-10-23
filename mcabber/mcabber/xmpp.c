@@ -1112,13 +1112,20 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   // Check for carbons!
   x = lm_message_node_find_xmlns(m->node, NS_CARBONS_2);
   gboolean carbons = FALSE;
-  if (x) {
+  if (x && (!g_strcmp0(x->name, "received") || !g_strcmp0(x->name, "sent"))) {
     LmMessageNode *xenc;
     const char *carbon_name = x->name;
     carbons = TRUE;
     // Go 1 level deeper to the forwarded message
     x = lm_message_node_find_xmlns(x, NS_FORWARD);
-    x = lm_message_node_get_child(x, "message");
+    if (x)
+      x = lm_message_node_get_child(x, "message");
+
+    if (!x) {
+      scr_LogPrint(LPRINT_LOGNORM,
+                   "Could not read carbon message!  Please fill a bug.");
+      goto handle_messages_return;
+    }
 
     xenc = lm_message_node_find_xmlns(x, NS_ENCRYPTED);
     if (xenc && (p = lm_message_node_get_value(xenc)) != NULL)

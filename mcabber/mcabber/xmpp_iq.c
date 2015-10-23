@@ -103,6 +103,8 @@ static LmMessage *lm_message_new_iq_error(LmMessage *m, guint error)
   LmMessageNode *err;
   int i;
 
+  if (G_UNLIKELY(!m)) return NULL;
+
   for (i = 0; xmpp_errors[i].code; ++i)
     if (xmpp_errors[i].code == error)
       break;
@@ -124,8 +126,10 @@ void send_iq_error(LmConnection *c, LmMessage *m, guint error)
 {
   LmMessage *r;
   r = lm_message_new_iq_error(m, error);
-  lm_connection_send(c, r, NULL);
-  lm_message_unref(r);
+  if (r) {
+    lm_connection_send(c, r, NULL);
+    lm_message_unref(r);
+  }
 }
 
 static void lm_message_node_add_dataform_result(LmMessageNode *node,
@@ -337,6 +341,9 @@ static LmHandlerResult handle_iq_command_leave_groupchats(LmMessageHandler *h,
   LmMessageNode *command, *x;
 
   x = lm_message_node_get_child(m->node, "command");
+  if (!x)
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+
   action = lm_message_node_get_attribute(x, "action");
   node = lm_message_node_get_attribute(x, "node");
   sessionid = (char*)lm_message_node_get_attribute(x, "sessionid");
@@ -436,6 +443,10 @@ LmHandlerResult handle_iq_commands(LmMessageHandler *h,
   requester_jid = lm_message_get_from(m);
 
   cmd = lm_message_node_get_child(m->node, "command");
+  if (!cmd) {
+    //send_iq_error(c, m, XMPP_ERROR_BAD_REQUEST);
+    return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+  }
   if (jid_equal(lm_connection_get_jid(c), requester_jid)) {
     const char *action, *node;
     action = lm_message_node_get_attribute(cmd, "action");
@@ -454,12 +465,14 @@ LmHandlerResult handle_iq_commands(LmMessageHandler *h,
       LmMessage *r;
       LmMessageNode *err;
       r = lm_message_new_iq_error(m, XMPP_ERROR_BAD_REQUEST);
-      err = lm_message_node_get_child(r->node, "error");
-      lm_message_node_set_attribute
-              (lm_message_node_add_child(err, "malformed-action", NULL),
-               "xmlns", NS_COMMANDS);
-      lm_connection_send(c, r, NULL);
-      lm_message_unref(r);
+      if (r) {
+        err = lm_message_node_get_child(r->node, "error");
+        lm_message_node_set_attribute
+          (lm_message_node_add_child(err, "malformed-action", NULL),
+           "xmlns", NS_COMMANDS);
+        lm_connection_send(c, r, NULL);
+        lm_message_unref(r);
+      }
     }
   } else {
     send_iq_error(c, m, XMPP_ERROR_FORBIDDEN);
@@ -473,9 +486,10 @@ LmHandlerResult handle_iq_disco_items(LmMessageHandler *h,
                                       LmMessage *m, gpointer ud)
 {
   LmMessageNode *query;
-  const char *node;
+  const char *node = NULL;
   query = lm_message_node_get_child(m->node, "query");
-  node = lm_message_node_get_attribute(query, "node");
+  if (query)
+    node = lm_message_node_get_attribute(query, "node");
   if (node) {
     if (!strcmp(node, NS_COMMANDS)) {
       return handle_iq_commands_list(NULL, c, m, ud);

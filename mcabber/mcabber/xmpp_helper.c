@@ -108,6 +108,9 @@ const gchar* lm_message_node_get_child_value(LmMessageNode *node,
                                              const gchar *child)
 {
   LmMessageNode *tmp;
+
+  if (G_UNLIKELY(!node || !child)) return NULL;
+
   tmp = lm_message_node_find_child(node, child);
   if (tmp) {
     const gchar *val = lm_message_node_get_value(tmp);
@@ -142,6 +145,8 @@ LmMessageNode *lm_message_node_new(const gchar *name, const gchar *xmlns)
   LmMessageNode *node;
 
   node = g_new0 (LmMessageNode, 1);
+  if (G_UNLIKELY(!node)) return NULL;
+
   node->name       = g_strdup (name);
   node->value      = NULL;
   node->raw_mode   = FALSE;
@@ -160,6 +165,7 @@ void lm_message_node_insert_childnode(LmMessageNode *node,
                                       LmMessageNode *child)
 {
   LmMessageNode *x;
+  if (G_UNLIKELY(!node)) return;
   lm_message_node_deep_ref(child);
 
   if (node->children == NULL)
@@ -173,8 +179,7 @@ void lm_message_node_insert_childnode(LmMessageNode *node,
 
 void lm_message_node_deep_ref(LmMessageNode *node)
 {
-  if (node == NULL)
-    return;
+  if (G_UNLIKELY(!node)) return;
   lm_message_node_ref(node);
   lm_message_node_deep_ref(node->next);
   lm_message_node_deep_ref(node->children);
@@ -265,7 +270,7 @@ LmMessageNode *lm_message_node_find_xmlns(LmMessageNode *node,
   LmMessageNode *x;
   const char *p;
 
-  if (!node) return NULL;
+  if (G_UNLIKELY(!node)) return NULL;
 
   for (x = node->children ; x; x = x->next) {
     if ((p = lm_message_node_get_attribute(x, "xmlns")) && !strcmp(p, xmlns))
@@ -387,7 +392,6 @@ void display_server_error(LmMessageNode *x, const char *from)
 
   // And sometimes there is a text message
   s = lm_message_node_get_child_value(x, "text");
-
   if (s && *s) desc = s;
 
   // If we still have no description, let's give up

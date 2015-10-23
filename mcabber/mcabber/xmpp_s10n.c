@@ -30,6 +30,10 @@
 // Send a s10n message with the passed subtype
 void xmpp_send_s10n(const char *bjid, LmMessageSubType type)
 {
+  if (G_UNLIKELY(!bjid || !*bjid)) {
+    scr_LogPrint(LPRINT_LOGNORM, "Empty JID.");
+    return;
+  }
   LmMessage *x = lm_message_new_with_sub_type(bjid,
                                               LM_MESSAGE_TYPE_PRESENCE,
                                               type);

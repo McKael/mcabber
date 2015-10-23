@@ -1292,7 +1292,7 @@ static LmHandlerResult cb_caps(LmMessageHandler *h, LmConnection *c,
     LmMessageNode *info;
     LmMessageNode *query = lm_message_node_get_child(m->node, "query");
 
-    if (caps_has_hash(ver, bjid))
+    if (caps_has_hash(ver, bjid) || !query)
       goto caps_callback_return;
 
     caps_add(ver);

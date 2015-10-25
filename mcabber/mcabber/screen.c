@@ -3753,6 +3753,7 @@ void readline_do_completion(gboolean fwd)
 void readline_refresh_screen(void)
 {
   scr_check_auto_away(TRUE);
+  keypad(inputWnd, TRUE);
   parse_colors();
   scr_Resize();
   redrawwin(stdscr);

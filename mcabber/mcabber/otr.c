@@ -546,9 +546,9 @@ static void cb_handle_msg_event(void *opdata, OtrlMessageEvent event,
 
 #endif /* HAVE_LIBOTR3 */
 
-/*
- * returns whether a otr_message was received
- * sets *otr_data to NULL, when it was an internal otr message
+/*  otr_receive
+ * Returns whether a otr_message was received.
+ * Sets *otr_data to NULL, when it was an internal otr message.
  */
 int otr_receive(char **otr_data, const char *buddy, int *free_msg)
 {
@@ -598,6 +598,14 @@ int otr_receive(char **otr_data, const char *buddy, int *free_msg)
   return 0;
 }
 
+/*  otr_send
+ * Returns a newly allocated string, or NULL if no message should be sent.
+ * Sets *encryption_status to 1 if "the otr context is encrypted or otr tries
+ * to establish a session before the message is sent".
+ * (If the session isn't established, but the user choose "otr required", then
+ * the string just contains the "initiate session" message, not the message of
+ * the user.)
+ */
 char *otr_send(const char *msg, const char *buddy, int *encryption_status)
 {
   gcry_error_t err;
@@ -645,9 +653,9 @@ char *otr_send(const char *msg, const char *buddy, int *encryption_status)
 
   if (!newmessage) {
     if (*encryption_status == 1)
-      return NULL;  // This message should have been encrypted
+      return NULL;  /* This message should have been encrypted */
 
-    // If not, the encryption was not required - send the original message
+    /* If not, the encryption was not required - send the original message */
     return g_strdup(msg);
   }
 

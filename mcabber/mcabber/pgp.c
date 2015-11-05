@@ -100,6 +100,7 @@ int gpg_init(const char *priv_key, const char *passphrase)
     }
   }
 
+  gpgme_release(ctx);
   gpg.enabled = 1;
   return 0;
 }

@@ -1547,6 +1547,7 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
 {
   int i;
   const char *xmlns = NULL;
+  char *nodestr;
   LmMessageNode *x;
   LmMessageSubType mstype = lm_message_get_sub_type(m);
 
@@ -1557,8 +1558,9 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
   }
 
   if (mstype == LM_MESSAGE_SUB_TYPE_RESULT) {
-    scr_LogPrint(LPRINT_DEBUG, "Unhandled IQ result? %s",
-                 lm_message_node_to_string(m->node));
+    nodestr = lm_message_node_to_string(m->node);
+    scr_LogPrint(LPRINT_DEBUG, "Unhandled IQ result? %s", nodestr);
+    g_free(nodestr);
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   }
 
@@ -1575,8 +1577,9 @@ static LmHandlerResult handle_iq(LmMessageHandler *handler,
       (mstype == LM_MESSAGE_SUB_TYPE_GET))
     send_iq_error(connection, m, XMPP_ERROR_NOT_IMPLEMENTED);
 
-  scr_LogPrint(LPRINT_DEBUG, "Unhandled IQ: %s",
-               lm_message_node_to_string(m->node));
+  nodestr = lm_message_node_to_string(m->node);
+  scr_LogPrint(LPRINT_DEBUG, "Unhandled IQ: %s", nodestr);
+  g_free(nodestr);
 
   scr_LogPrint(LPRINT_NORMAL, "Received unhandled IQ request from <%s>.",
                lm_message_get_from(m));

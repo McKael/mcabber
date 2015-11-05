@@ -613,9 +613,12 @@ char *otr_send(const char *msg, const char *buddy, int *encryption_status)
   char *htmlmsg, *rmsg;
   ConnContext *ctx = otr_get_context(buddy);
 
+  if (!encryption_status)
+    return NULL;
+
   *encryption_status = 0;
 
-  if (!msg || !buddy || !*encryption_status)
+  if (!buddy || !msg || !msg[0])
     return NULL;
 
   if (ctx->msgstate == OTRL_MSGSTATE_PLAINTEXT)
@@ -660,7 +663,7 @@ char *otr_send(const char *msg, const char *buddy, int *encryption_status)
   }
 
   /* Check the new message is not empty */
-  if (newmessage[0] || !msg[0]) {
+  if (newmessage[0]) {
     rmsg = g_strdup(newmessage);
   } else {
     rmsg = NULL;

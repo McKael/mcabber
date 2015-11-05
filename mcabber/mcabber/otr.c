@@ -598,26 +598,31 @@ int otr_receive(char **otr_data, const char *buddy, int *free_msg)
   return 0;
 }
 
-int otr_send(char **msg, const char *buddy)
+char *otr_send(const char *msg, const char *buddy, int *encryption_status)
 {
   gcry_error_t err;
   char *newmessage = NULL;
-  char *htmlmsg;
+  char *htmlmsg, *rmsg;
   ConnContext *ctx = otr_get_context(buddy);
+
+  *encryption_status = 0;
+
+  if (!msg || !buddy || !encryption_status)
+    return NULL;
 
   if (ctx->msgstate == OTRL_MSGSTATE_PLAINTEXT)
     err = otrl_message_sending(userstate, &ops, NULL, ctx->accountname,
 #ifdef HAVE_LIBOTR3
-                               ctx->protocol, ctx->username, *msg, NULL,
+                               ctx->protocol, ctx->username, msg, NULL,
                                &newmessage, NULL, NULL);
 #else
                                // INSTAG XXX
                                ctx->protocol, ctx->username, OTRL_INSTAG_BEST,
-                               *msg, NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP,
+                               msg, NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP,
                                NULL, NULL, NULL);
 #endif
   else {
-    htmlmsg = html_escape(*msg);
+    htmlmsg = html_escape(msg);
     err = otrl_message_sending(userstate, &ops, NULL, ctx->accountname,
 #ifdef HAVE_LIBOTR3
                                ctx->protocol, ctx->username, htmlmsg, NULL,
@@ -631,17 +636,23 @@ int otr_send(char **msg, const char *buddy)
     g_free(htmlmsg);
   }
 
-  if (err)
-    *msg = NULL; /*something went wrong, don't send the plain-message! */
+  if (err || !newmessage)
+    return NULL; /* something went wrong, don't send the plain-message! */
 
-  if (!err && newmessage) {
-    *msg = g_strdup(newmessage);
-    otrl_message_free(newmessage);
-    if (cb_policy(NULL, ctx) & OTRL_POLICY_REQUIRE_ENCRYPTION ||
-        ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED)
-      return 1;
+  if (cb_policy(NULL, ctx) & OTRL_POLICY_REQUIRE_ENCRYPTION ||
+      ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED)
+    *encryption_status = 1;
+
+  /* Check the new message is not empty */
+  if (newmessage[0] || !msg[0]) {
+    rmsg = g_strdup(newmessage);
+  } else {
+    rmsg = NULL;
+    *encryption_status = 0;
   }
-  return 0;
+
+  otrl_message_free(newmessage);
+  return rmsg;
 }
 
 /* Prints OTR connection state */

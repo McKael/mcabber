@@ -33,8 +33,8 @@ void otr_smp_abort  (const char * buddy);
 
 void otr_key        (void);
 
-int  otr_receive    (char **otr_data, const char * buddy, int * free_msg);
-int  otr_send       (char **msg, const char *buddy);
+int   otr_receive   (char **otr_data,  const char * buddy, int * free_msg);
+char *otr_send      (const char * msg, const char * buddy, int * status);
 
 #endif /* HAVE_LIBOTR */
 

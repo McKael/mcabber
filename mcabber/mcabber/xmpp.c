@@ -299,10 +299,12 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
 }
 
 //  xmpp_send_msg(jid, text, type, subject,
-//                otrinject, *encrypted, type_overwrite)
+//                otrinject, *encrypted, type_overwrite, *xep184)
 // When encrypted is not NULL, the function set *encrypted to 1 if the
-// message has been PGP-encrypted.  If encryption enforcement is set and
-// encryption fails, *encrypted is set to -1.
+// message has been PGP (or OTR) -encrypted.  If encryption enforcement is set
+// and encryption fails, *encrypted is set to -1.
+// otrinject should be set to FALSE (unless the message already has an OTR
+// payload, i.e. if the function is called from an otr.c routine).
 void xmpp_send_msg(const char *fjid, const char *text, int type,
                    const char *subject, gboolean otrinject, gint *encrypted,
                    LmMessageSubType type_overwrite, gpointer *xep184)
@@ -311,6 +313,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
   LmMessageSubType subtype;
 #ifdef HAVE_LIBOTR
   int otr_msg = 0;
+  char *otr_msg_string = NULL;
 #endif
   char *barejid;
 #if defined HAVE_GPGME || defined XEP0085
@@ -354,13 +357,13 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 #ifdef HAVE_LIBOTR
   if (otr_enabled() && !otrinject) {
     if (type == ROSTER_TYPE_USER) {
-      otr_msg = otr_send((char **)&text, barejid);
-      if (!text) {
-        g_free(barejid);
+      otr_msg_string = otr_send(text, barejid, &otr_msg);
+      if (!otr_msg_string) {
         if (encrypted)
           *encrypted = -1;
-        return;
+        goto xmpp_send_msg_return;
       }
+      text = otr_msg_string;
     }
     if (otr_msg && encrypted)
       *encrypted = ENCRYPTED_OTR;
@@ -394,8 +397,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
         if (!enc && force) {
           if (encrypted)
             *encrypted = -1;
-          g_free(barejid);
-          return;
+          goto xmpp_send_msg_return;
         }
       }
     }
@@ -436,7 +438,6 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
                                   "xmlns", NS_RECEIPTS);
     *xep184 = g_strdup(lm_message_get_id(x));
   }
-  g_free(barejid);
 
 #ifdef XEP0085
   // If typing notifications are disabled, we can skip all this stuff...
@@ -470,6 +471,12 @@ xmpp_send_msg_no_chatstates:
     update_last_use();
   lm_connection_send(lconnection, x, NULL);
   lm_message_unref(x);
+
+xmpp_send_msg_return:
+#ifdef HAVE_LIBOTR
+  g_free(otr_msg_string);
+#endif
+  g_free(barejid);
 }
 
 #ifdef XEP0085

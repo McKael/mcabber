@@ -636,12 +636,20 @@ char *otr_send(const char *msg, const char *buddy, int *encryption_status)
     g_free(htmlmsg);
   }
 
-  if (err || !newmessage)
+  if (err)
     return NULL; /* something went wrong, don't send the plain-message! */
 
   if (cb_policy(NULL, ctx) & OTRL_POLICY_REQUIRE_ENCRYPTION ||
       ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED)
     *encryption_status = 1;
+
+  if (!newmessage) {
+    if (*encryption_status == 1)
+      return NULL;  // This message should have been encrypted
+
+    // If not, the encryption was not required - send the original message
+    return g_strdup(msg);
+  }
 
   /* Check the new message is not empty */
   if (newmessage[0] || !msg[0]) {

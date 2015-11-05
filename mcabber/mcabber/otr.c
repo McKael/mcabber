@@ -607,7 +607,7 @@ char *otr_send(const char *msg, const char *buddy, int *encryption_status)
 
   *encryption_status = 0;
 
-  if (!msg || !buddy || !encryption_status)
+  if (!msg || !buddy || !*encryption_status)
     return NULL;
 
   if (ctx->msgstate == OTRL_MSGSTATE_PLAINTEXT)

@@ -1,3 +1,10 @@
+dev (41)
+
+ * Change prototype of otr_send()
+ * Changeset 0c78d31c753d
+
+  -- Mikael Berthe, 2015-11-05
+
 dev (40)
 
  * Add settings_get_mcabber_config_dir()

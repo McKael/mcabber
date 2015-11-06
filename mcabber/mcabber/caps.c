@@ -98,7 +98,7 @@ void caps_add(const char *hash)
   if (!hash)
     return;
   caps *c = g_new0(caps, 1);
-  c->features = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+  c->features = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
   c->identities = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, identity_destroy);
   c->forms = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, form_destroy);
   g_hash_table_replace(caps_cache, g_strdup(hash), c);

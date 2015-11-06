@@ -1709,7 +1709,8 @@ void scr_draw_main_window(unsigned int fullinit)
 
   if (fullinit) {
     if (!winbufhash)
-      winbufhash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+      winbufhash = g_hash_table_new_full(g_str_hash, g_str_equal,
+                                         g_free, g_free);
     /* Create windows */
     rosterWnd = newwin(CHAT_WIN_HEIGHT, Roster_Width, chat_y_pos, roster_x_pos);
     chatWnd   = newwin(CHAT_WIN_HEIGHT, maxX - Roster_Width, chat_y_pos,
@@ -2858,6 +2859,7 @@ void scr_buffer_clear(void)
 // value: winbuf structure
 // data: int, set to 1 if the buffer should be closed.
 // NOTE: does not work for special buffers.
+// Returns TRUE IFF the win_entry can be closed and freed.
 static gboolean buffer_purge(gpointer key, gpointer value, gpointer data)
 {
   int *p_closebuf = data;
@@ -2888,13 +2890,15 @@ void scr_buffer_purge(int closebuf, const char *jid)
 {
   winbuf *win_entry;
   guint isspe;
-  guint *p_closebuf;
   const char *cjid;
+  char *ljid = NULL;
   guint hold_chatmode = FALSE;
 
   if (jid) {
-    cjid = jid;
     isspe = FALSE;
+    ljid = g_strdup(jid);
+    mc_strtolower(ljid);
+    cjid = ljid;
     // If closebuf is TRUE, it's probably better not to leave chat mode
     // if the change isn't related to the current buffer.
     if (closebuf && current_buddy) {
@@ -2909,15 +2913,15 @@ void scr_buffer_purge(int closebuf, const char *jid)
     isspe = buddy_gettype(BUDDATA(current_buddy)) & ROSTER_TYPE_SPECIAL;
   }
   win_entry = scr_search_window(cjid, isspe);
-  if (!win_entry) return;
+  if (!win_entry) {
+    g_free(ljid);
+    return;
+  }
 
   if (!isspe) {
-    p_closebuf = g_new(guint, 1);
-    *p_closebuf = closebuf;
-    if(buffer_purge((gpointer)cjid, win_entry, p_closebuf))
+    if (buffer_purge((gpointer)cjid, win_entry, &closebuf))
       g_hash_table_remove(winbufhash, cjid);
     roster_msg_setflag(cjid, FALSE, FALSE);
-    g_free(p_closebuf);
     if (closebuf && !hold_chatmode) {
       scr_set_chatmode(FALSE);
       currentWindow = NULL;
@@ -2941,6 +2945,8 @@ void scr_buffer_purge(int closebuf, const char *jid)
 
   // Finished :)
   update_panels();
+
+  g_free(ljid);
 }
 
 //  scr_buffer_purge_all(closebuf)
@@ -2948,12 +2954,7 @@ void scr_buffer_purge(int closebuf, const char *jid)
 // If closebuf is 1, the buffers are closed.
 void scr_buffer_purge_all(int closebuf)
 {
-  guint *p_closebuf;
-  p_closebuf = g_new(guint, 1);
-
-  *p_closebuf = closebuf;
-  g_hash_table_foreach_remove(winbufhash, buffer_purge, p_closebuf);
-  g_free(p_closebuf);
+  g_hash_table_foreach_remove(winbufhash, buffer_purge, &closebuf);
 
   if (closebuf) {
     scr_set_chatmode(FALSE);

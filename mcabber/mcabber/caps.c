@@ -283,7 +283,7 @@ const char *caps_generate(void)
   caps *old_caps, *c;
   gpointer key;
 
-  if (!g_hash_table_lookup_extended(caps_cache, "", &key, &c))
+  if (!g_hash_table_lookup_extended(caps_cache, "", &key, (gpointer *)&c))
     return NULL;
 
   g_hash_table_steal(caps_cache, "");

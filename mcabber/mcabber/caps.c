@@ -280,10 +280,15 @@ const char *caps_generate(void)
   guint8 digest[20];
   gsize digest_size = 20;
   gchar *hash, *old_hash = NULL;
-  caps *old_caps;
-  caps *c = g_hash_table_lookup(caps_cache, "");
+  caps *old_caps, *c;
+  gpointer key;
+
+  if (!g_hash_table_lookup_extended(caps_cache, "", &key, &c))
+    return NULL;
 
   g_hash_table_steal(caps_cache, "");
+  g_free(key);
+
   sha1 = g_checksum_new(G_CHECKSUM_SHA1);
 
   langs = g_hash_table_get_keys(c->identities);

@@ -1,7 +1,7 @@
 /*
  * histolog.c   -- File history handling
  *
- * Copyright (C) 2005-2010 Mikael Berthe <mikael@lilotux.net>
+ * Copyright (C) 2005-2015 Mikael Berthe <mikael@lilotux.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +68,9 @@ static char *user_histo_file(const char *bjid)
   return filename;
 }
 
+//  hlog_get_log_jid(bare_jid)
+// Returns the real JID used for a symlinked history log file,
+// or NULL if there's no symbolic link.
 char *hlog_get_log_jid(const char *bjid)
 {
   struct stat bufstat;
@@ -84,8 +87,9 @@ char *hlog_get_log_jid(const char *bjid)
       if (readlink(path, log_jid, bufstat.st_size) < 0) return NULL;
       g_free(path);
       path = user_histo_file(log_jid);
-    } else
+    } else {
       break;
+    }
   }
 
   g_free(path);

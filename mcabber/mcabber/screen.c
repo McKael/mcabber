@@ -100,10 +100,12 @@ static void spellcheck(char *, char *);
 static GHashTable *winbufhash;
 
 typedef struct {
-  GList  *hbuf;
-  GList  *top;     // If top is NULL, we'll display the last lines
-  char    cleared; // For ex, user has issued a /clear command...
-  char    lock;
+  GList    *hbuf;
+  GList    *top;      // If top is NULL, we'll display the last lines
+  char      cleared;  // For ex, user has issued a /clear command...
+  char      lock;
+  char      refcount; // refcount > 0 if there are other users of this struct
+                      // e.g. with symlinked history
 } buffdata;
 
 typedef struct {
@@ -1038,6 +1040,7 @@ int scr_buddy_buffer_exists(const char *bjid)
 static winbuf *scr_new_buddy(const char *title, int dont_show)
 {
   winbuf *tmp;
+  char *id;
 
   tmp = g_new0(winbuf, 1);
 
@@ -1055,30 +1058,34 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
   update_panels();
 
   // If title is NULL, this is a special buffer
-  if (title) {
-    char *id;
-    id = hlog_get_log_jid(title);
-    if (id) {
-      winbuf *wb = scr_search_window(id, FALSE);
-      if (!wb)
-        wb = scr_new_buddy(id, TRUE);
-      tmp->bd=wb->bd;
-      g_free(id);
-    } else {  // Load buddy history from file (if enabled)
-      tmp->bd = g_new0(buffdata, 1);
-      hlog_read_history(title, &tmp->bd->hbuf,
-                        maxX - Roster_Width - scr_getprefixwidth());
-
-      // Set a readmark to separate new content
-      hbuf_set_readmark(tmp->bd->hbuf, TRUE);
-    }
-
-    id = g_strdup(title);
-    mc_strtolower(id);
-    g_hash_table_insert(winbufhash, id, tmp);
-  } else {
+  if (!title) {
     tmp->bd = g_new0(buffdata, 1);
+    return tmp;
   }
+
+  id = hlog_get_log_jid(title);
+  if (id) {
+    // This is a symlinked history log file.
+    // Let's check if the target JID buffer has already been created.
+    winbuf *wb = scr_search_window(id, FALSE);
+    if (!wb)
+      wb = scr_new_buddy(id, TRUE);
+    tmp->bd = wb->bd;
+    tmp->bd->refcount++;
+    g_free(id);
+  } else {  // Load buddy history from file (if enabled)
+    tmp->bd = g_new0(buffdata, 1);
+    hlog_read_history(title, &tmp->bd->hbuf,
+                      maxX - Roster_Width - scr_getprefixwidth());
+
+    // Set a readmark to separate new content
+    hbuf_set_readmark(tmp->bd->hbuf, TRUE);
+  }
+
+  id = g_strdup(title);
+  mc_strtolower(id);
+  g_hash_table_insert(winbufhash, id, tmp);
+
   return tmp;
 }
 
@@ -2867,7 +2874,9 @@ static gboolean buffer_purge(gpointer key, gpointer value, gpointer data)
   gboolean retval = FALSE;
 
   // Delete the current hbuf
-  hbuf_free(&win_entry->bd->hbuf);
+  // unless we close the buffer *and* this is a shared bd structure
+  if (!(*p_closebuf && win_entry->bd->refcount))
+    hbuf_free(&win_entry->bd->hbuf);
 
   if (*p_closebuf) {
     GSList *roster_elt;
@@ -2876,6 +2885,12 @@ static gboolean buffer_purge(gpointer key, gpointer value, gpointer data)
         ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
     if (roster_elt)
       buddy_setactiveresource(roster_elt->data, NULL);
+    if (win_entry->bd->refcount) {
+      win_entry->bd->refcount--;
+    } else {
+      g_free(win_entry->bd);
+      win_entry->bd = NULL;
+    }
   } else {
     win_entry->bd->cleared = FALSE;
     win_entry->bd->top = NULL;

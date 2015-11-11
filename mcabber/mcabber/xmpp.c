@@ -1941,6 +1941,8 @@ void xmpp_insert_entity_capabilities(LmMessageNode *x, enum imstatus status)
 {
   LmMessageNode *y;
   const char *ver = entity_version(status);
+  if (!ver)
+    return;
 
   y = lm_message_node_add_child(x, "c", NULL);
   lm_message_node_set_attribute(y, "xmlns", NS_CAPS);

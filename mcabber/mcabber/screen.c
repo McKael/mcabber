@@ -1864,11 +1864,11 @@ static void resize_win_buffer(gpointer key, gpointer value, gpointer data)
     hbuf_rebuild(&wbp->bd->hbuf, new_chatwidth);
 }
 
-//  scr_Resize()
+//  scr_resize()
 // Function called when the window is resized.
 // - Resize windows
 // - Rewrap lines in each buddy buffer
-void scr_Resize(void)
+void scr_resize(void)
 {
   struct dimensions dim;
 
@@ -1902,6 +1902,16 @@ void scr_Resize(void)
   if (chatmode)
     scr_show_buddy_window();
 }
+
+#ifdef USE_SIGWINCH
+void sigwinch_resize(void)
+{
+  struct winsize size;
+  if (ioctl(STDIN_FILENO, TIOCGWINSZ, &size) != -1)
+    resizeterm(size.ws_row, size.ws_col);
+  scr_resize();
+}
+#endif
 
 //  scr_update_chat_status(forceupdate)
 // Redraw the buddy status bar.
@@ -2307,7 +2317,7 @@ void scr_roster_visibility(int status)
 
   if (roster_hidden != old_roster_status) {
     // Recalculate windows size and redraw
-    scr_Resize();
+    scr_resize();
     redrawwin(stdscr);
   }
 }
@@ -3775,7 +3785,7 @@ void readline_refresh_screen(void)
   scr_check_auto_away(TRUE);
   keypad(inputWnd, TRUE);
   parse_colors();
-  scr_Resize();
+  scr_resize();
   redrawwin(stdscr);
 }
 
@@ -4450,14 +4460,7 @@ void scr_process_key(keycode kcode)
         scr_handle_CtrlC();
         break;
     case KEY_RESIZE:
-#ifdef USE_SIGWINCH
-        {
-          struct winsize size;
-          if (ioctl(STDIN_FILENO, TIOCGWINSZ, &size) != -1)
-            resizeterm(size.ws_row, size.ws_col);
-        }
-#endif
-        scr_Resize();
+        scr_resize();
         break;
     default:
         display_char = TRUE;

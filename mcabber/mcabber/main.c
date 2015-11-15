@@ -63,7 +63,12 @@
 # define WAIT_ANY -1
 #endif
 
-static unsigned int terminate_ui;
+#ifdef USE_SIGWINCH
+void sigwinch_resize(void);
+static bool sigwinch;
+#endif
+
+static bool terminate_ui;
 GMainContext *main_context;
 
 static struct termios *backup_termios;
@@ -123,8 +128,7 @@ void sig_handler(int signum)
     mcabber_terminate("Killed by SIGHUP");
 #ifdef USE_SIGWINCH
   } else if (signum == SIGWINCH) {
-    if (scr_curses_status())
-      ungetch(KEY_RESIZE);
+    sigwinch = TRUE;
 #endif
   } else {
     scr_LogPrint(LPRINT_LOGNORM, "Caught signal: %d", signum);
@@ -555,6 +559,12 @@ int main(int argc, char **argv)
     while(!terminate_ui) {
       if (g_main_context_iteration(main_context, TRUE) == FALSE)
         keyboard_activity();
+#ifdef USE_SIGWINCH
+      if (sigwinch) {
+        sigwinch_resize();
+        sigwinch = FALSE;
+      }
+#endif
       if (update_roster)
         scr_draw_roster();
       scr_do_update();

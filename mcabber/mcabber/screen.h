@@ -107,6 +107,7 @@ void scr_init_curses(void);
 void scr_init_settings(void);
 void scr_terminate_curses(void);
 gboolean scr_curses_status(void);
+void scr_resize(void);
 void scr_draw_main_window(unsigned int fullinit);
 void scr_draw_roster(void);
 void scr_update_main_status(int forceupdate);

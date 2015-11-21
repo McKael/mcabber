@@ -33,6 +33,7 @@
 
 #include "pgp.h"
 #include "settings.h"
+#include "utils.h"
 #include "logprint.h"
 
 #define MIN_GPGME_VERSION "1.1.0"

@@ -1,6 +1,18 @@
 mcabber (1.0.1-dev)
 
- * 
+ * [PGP] Improved PGP-encryption support
+ * [PGP] Improved support for GnuPG v2+
+ * [PGP] Encrypt messages with our own PGP key when carbons are enabled
+ * [PGP] New PGP options: 'gpg_path' and 'gpg_home' (Holger Weiß)
+ * Improved Carbons support (Holger Weiß)
+ * New option: 'clear_unread_on_carbon' (Holger Weiß)
+ * Display the server SSL fingerprint when we connect
+ * Use XDG configuration directory if it contains a configuration file
+ * Fix a few memory leaks
+ * Fix external password support (especially on OS X)
+ * Fix resizing when mcabber is built with --enable-sigwinch
+ * Fix reading of history log files w/o LF character (Sam Whited)
+ * Other misc. bugfixes
 
  -- Mikael, ?
 

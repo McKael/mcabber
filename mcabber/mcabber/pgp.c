@@ -32,9 +32,10 @@
 #include <glib.h>
 
 #include "pgp.h"
+#include "settings.h"
 #include "logprint.h"
 
-#define MIN_GPGME_VERSION "1.0.0"
+#define MIN_GPGME_VERSION "1.1.0"
 
 static struct gpg_struct
 {
@@ -56,6 +57,7 @@ int gpg_init(const char *priv_key, const char *passphrase)
 
   gpgme_ctx_t ctx;
   gpgme_engine_info_t info;
+  const char *gpg_path;
 
   // Check for version and OpenPGP protocol support.
   if (!gpgme_check_version(MIN_GPGME_VERSION)) {
@@ -74,6 +76,14 @@ int gpg_init(const char *priv_key, const char *passphrase)
   // Set the locale information.
   gpgme_set_locale(NULL, LC_CTYPE, setlocale(LC_CTYPE, NULL));
   gpgme_set_locale(NULL, LC_MESSAGES, setlocale(LC_MESSAGES, NULL));
+
+  // The path to the gpg binary can be specified in order to force
+  // version 1, for example.
+  gpg_path = settings_opt_get("gpg_path");
+  if (gpg_path) {
+    err = gpgme_set_engine_info(GPGME_PROTOCOL_OpenPGP, gpg_path, NULL);
+    if (err) return -1;
+  }
 
   // Store private data.
   gpg_set_private_key(priv_key);

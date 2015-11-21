@@ -75,6 +75,10 @@ set tls = 1
 # can change it here.  If this number is < 0, mcabber will keep asking
 # until the passphrase is good.
 #set pgp_passphrase_retries = 2
+#
+# You can specify the path to the gpg binary, e.g. to force the use of
+# GnuPG version 1 on systems which have both versions installed.
+#set gpg_path = /usr/bin/gpg
 
 # Conference nickname
 # This nickname is used when joining a room, when no nick is explicitly

@@ -101,9 +101,9 @@ int gpg_init(const char *priv_key, const char *passphrase)
   gpgme_set_protocol(ctx, GPGME_PROTOCOL_OpenPGP);
   if (err) return -1;
 
-  err = gpgme_get_engine_info (&info);
+  err = gpgme_get_engine_info(&info);
   if (!err) {
-    while (info && info->protocol != gpgme_get_protocol (ctx))
+    while (info && info->protocol != gpgme_get_protocol(ctx))
       info = info->next;
 
     if (info && info->version) {

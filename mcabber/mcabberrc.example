@@ -79,6 +79,10 @@ set tls = 1
 # You can specify the path to the gpg binary, e.g. to force the use of
 # GnuPG version 1 on systems which have both versions installed.
 #set gpg_path = /usr/bin/gpg
+#
+# If GnuPG should use a custom configuration directory, you can set
+# 'gpg_home' to the desired path.
+#set gpg_home = ~/.mcabber/gpg
 
 # Conference nickname
 # This nickname is used when joining a room, when no nick is explicitly

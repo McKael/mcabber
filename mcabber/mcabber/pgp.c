@@ -57,7 +57,7 @@ int gpg_init(const char *priv_key, const char *passphrase)
 
   gpgme_ctx_t ctx;
   gpgme_engine_info_t info;
-  const char *gpg_path;
+  const char *gpg_path, *gpg_home;
 
   // Check for version and OpenPGP protocol support.
   if (!gpgme_check_version(MIN_GPGME_VERSION)) {
@@ -80,8 +80,11 @@ int gpg_init(const char *priv_key, const char *passphrase)
   // The path to the gpg binary can be specified in order to force
   // version 1, for example.
   gpg_path = settings_opt_get("gpg_path");
-  if (gpg_path) {
-    err = gpgme_set_engine_info(GPGME_PROTOCOL_OpenPGP, gpg_path, NULL);
+  gpg_home = settings_opt_get("gpg_home");
+  if (gpg_path || gpg_home) {
+    char *xp_gpg_home = expand_filename(gpg_home);
+    err = gpgme_set_engine_info(GPGME_PROTOCOL_OpenPGP, gpg_path, xp_gpg_home);
+    g_free(xp_gpg_home);
     if (err) return -1;
   }
 

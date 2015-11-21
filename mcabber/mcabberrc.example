@@ -158,7 +158,7 @@ set cmdhistory_lines = 250
 
 # Set the 'clear_unread_on_carbon' option to 1 if the unread messages flag
 # should be cleared when an outgoing copy of a message sent to that contact
-# is received from another client.
+# is received from another client. Default is 0.
 #set clear_unread_on_carbon = 1
 
 # Typing notifications, Chat States, Events (XEP-22/85)

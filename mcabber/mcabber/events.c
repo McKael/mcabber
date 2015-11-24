@@ -93,7 +93,9 @@ const char *evs_new(const char *desc, const char *id, time_t timeout, evs_callba
   event->notify      = notify;
 
   if (timeout)
-    g_timeout_add_seconds(timeout, evs_check_timeout, event);
+    event->source = g_timeout_add_seconds(timeout, evs_check_timeout, event);
+  else
+    event->source = 0;
 
   evs_list = g_slist_append(evs_list, event);
   return stridn;

@@ -1916,7 +1916,10 @@ gint xmpp_connect(void)
 #endif
 #ifdef HAVE_LM_SSL_CA
     const char *ssl_ca = settings_opt_get("ssl_ca");
+    char *ssl_ca_xp;
+    ssl_ca_xp = expand_filename(ssl_ca);
     lm_ssl_set_ca(lssl, ssl_ca);
+    g_free(ssl_ca_xp);
 #endif
     lm_ssl_use_starttls(lssl, !ssl, tls);
     lm_connection_set_ssl(lconnection, lssl);

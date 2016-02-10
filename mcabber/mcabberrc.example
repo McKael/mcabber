@@ -48,6 +48,15 @@ set ignore_self_presence = 1
 # ssl to 1.  It's not possible to use old-style SSL and TLS together.
 #set ssl = 0
 set tls = 1
+# It is possible to set the allowed ciphers which openssl/gnutls can use for
+# the encrypted connection.
+# openssl (get the name of the available ciphers via 'openssl ciphers'):
+#set ssl_ciphers = ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384
+# gnutls (check the priorities option of 'man gnutls_priority_init'):
+#set ssl_ciphers = PFS
+# If you'd like to explicitly specify trusted certificates, set the ssl_ca
+# option to a certificate file or path.
+#set ssl_ca = ~/.mcabber/trusted_cert.pem
 # Moreover, it's possible to check whether the fingerprint of the
 # ssl certificate matches ssl_fingerprint.
 # You can get the fingerprint of your server either with gnutls or openssl:

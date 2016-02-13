@@ -2832,7 +2832,7 @@ static void room_kick(gpointer bud, char *arg)
   }
 
   ra.type = type_role;
-  ra.val.affil = role_none;
+  ra.val.role = role_none;
 
   nick_utf8 = to_utf8(nick);
   reason_utf8 = to_utf8(arg);

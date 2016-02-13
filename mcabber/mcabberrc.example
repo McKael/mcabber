@@ -61,9 +61,9 @@ set tls = 1
 # ssl certificate matches ssl_fingerprint.
 # You can get the fingerprint of your server either with gnutls or openssl:
 # 1. gnutls-cli -p 5223 $your_server
-# 2. openssl s_client -connect $your_server:5223 | \
-#    openssl x509 -fingerprint -md5 -noout
-#set ssl_fingerprint = 97:5C:00:3F:1D:77:45:25:E2:C5:70:EC:83:C8:87:EE
+# 2. openssl s_client -starttls xmpp -connect $yourserver:5222 | \
+#    openssl x509 -fingerprint -sha256 -noout
+#set ssl_fingerprint = SHA256:647d2eef7f972001d4fe8b6bedb3007d095dcd982ebb6773c6fb74adb8cc27c0
 # Set ssl_ignore_checks to 1 to disable all certificate checks except the
 # fingerprint check.
 #set ssl_ignore_checks = 0

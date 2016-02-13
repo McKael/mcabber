@@ -155,6 +155,7 @@ char *expand_filename(const char *fname)
   return g_strdup(fname);
 }
 
+#ifndef LOUDMOUTH_USES_SHA256
 //  fingerprint_to_hex(fprstr, hex, fpr_len)
 // Convert the binary fingerprint fprstr (which is fpr_len bytes long)
 // to a NULL-terminated hexadecimal string hex.
@@ -199,6 +200,7 @@ gboolean hex_to_fingerprint(const char *hex, char *fpr, size_t fpr_len)
   }
   return TRUE;
 }
+#endif
 
 static gboolean tracelog_create(void)
 {

@@ -44,7 +44,9 @@
 
 #define RECONNECTION_TIMEOUT    60L
 
-#define FINGERPRINT_LENGTH      16  //  Currently Loudmouth only supports MD5
+#ifndef LOUDMOUTH_USES_SHA256
+#define FINGERPRINT_LENGTH      16  // old loudmouth still uses MD5 :(
+#endif
 
 LmConnection* lconnection = NULL;
 static guint AutoConnection;
@@ -723,13 +725,19 @@ static LmSSLResponse ssl_cb(LmSSL *ssl, LmSSLStatus status, gpointer ud)
                  "Certificate hostname does not match expected hostname!");
     break;
   case LM_SSL_STATUS_CERT_FINGERPRINT_MISMATCH: {
+#ifndef LOUDMOUTH_USES_SHA256
       char fpr[3*FINGERPRINT_LENGTH] = {0};
       fingerprint_to_hex(lm_ssl_get_fingerprint(ssl), fpr, FINGERPRINT_LENGTH);
+#endif
       scr_LogPrint(LPRINT_LOGNORM,
                 "Certificate fingerprint does not match expected fingerprint!");
+#ifndef LOUDMOUTH_USES_SHA256
       scr_LogPrint(LPRINT_LOGNORM, "Remote fingerprint: %s", fpr);
+#else
+      scr_LogPrint(LPRINT_LOGNORM, "Remote fingerprint: %s", lm_ssl_get_fingerprint(ssl));
+#endif
 
-      scr_LogPrint(LPRINT_LOGNORM, "Expected fingerprint: %s",
+      scr_LogPrint(LPRINT_LOGNORM, "Expect fingerprint: %s",
                    settings_opt_get("ssl_fingerprint"));
 
       return LM_SSL_RESPONSE_STOP;
@@ -752,10 +760,15 @@ static void connection_auth_cb(LmConnection *connection, gboolean success,
 {
   LmSSL *lssl;
   if ((lssl = lm_connection_get_ssl(connection)) != NULL) {
+#ifndef LOUDMOUTH_USES_SHA256
     char fpr[3*FINGERPRINT_LENGTH] = {0};
     fingerprint_to_hex(lm_ssl_get_fingerprint(lssl), fpr, FINGERPRINT_LENGTH);
     scr_LogPrint(LPRINT_LOGNORM, "Connection established.\n"
                  "Remote fingerprint: %s", fpr);
+#else
+    scr_LogPrint(LPRINT_LOGNORM, "Connection established.\n"
+                 "Remote fingerprint: %s", lm_ssl_get_fingerprint(lssl));
+#endif
   }
 
   if (success) {
@@ -1757,7 +1770,9 @@ gint xmpp_connect(void)
 {
   const char *userjid, *password, *resource, *servername, *ssl_fpr;
   char *dynresource = NULL;
+#ifndef LOUDMOUTH_USES_SHA256
   char fpr[FINGERPRINT_LENGTH] = {0};
+#endif
   const char *proxy_host;
   const char *resource_prefix = PACKAGE_NAME;
   char *fjid;
@@ -1902,6 +1917,7 @@ gint xmpp_connect(void)
     port = (ssl ? LM_CONNECTION_DEFAULT_PORT_SSL : LM_CONNECTION_DEFAULT_PORT);
   lm_connection_set_port(lconnection, port);
 
+#ifndef LOUDMOUTH_USES_SHA256
   if (ssl_fpr && (!hex_to_fingerprint(ssl_fpr, fpr, FINGERPRINT_LENGTH))) {
     scr_LogPrint(LPRINT_LOGNORM, "** Please set the fingerprint in the format "
                  "97:5C:00:3F:1D:77:45:25:E2:C5:70:EC:83:C8:87:EE");
@@ -1909,6 +1925,9 @@ gint xmpp_connect(void)
   }
 
   lssl = lm_ssl_new((ssl_fpr ? fpr : NULL), ssl_cb, NULL, NULL);
+#else
+  lssl = lm_ssl_new(ssl_fpr, ssl_cb, NULL, NULL);
+#endif
   if (lssl) {
 #ifdef HAVE_LM_SSL_CIPHER_LIST
     const char *ssl_ciphers = settings_opt_get("ssl_ciphers");

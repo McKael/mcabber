@@ -21,8 +21,10 @@ char *compose_jid(const char *username, const char *servername,
                   const char *resource);
 gboolean jid_equal(const char *jid1, const char *jid2);
 
+#ifndef LOUDMOUTH_USES_SHA256
 void fingerprint_to_hex(const char *fpr,     char *hex, size_t fpr_len);
 gboolean hex_to_fingerprint(const char *hex, char *fpr, size_t fpr_len);
+#endif
 
 void ut_init_debug(void);
 void ut_write_log(unsigned int flag, const char *data);

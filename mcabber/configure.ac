@@ -156,6 +156,12 @@ AM_PATH_GLIB_2_0(2.14.0,
 
 # Check for loudmouth
 PKG_CHECK_MODULES(LOUDMOUTH, loudmouth-1.0 >= 1.4.2)
+PKG_CHECK_MODULES(LOUDMOUTH_SHA256, [loudmouth-1.0 >= 1.5.3],
+                  AC_DEFINE([LOUDMOUTH_USES_SHA256], 1,
+                           [loudmouth is now using a new digest]
+                           ),
+                  []
+                 ) 
 
 # Check for lm_ssl_set_cipher_list in loudmouth
 AC_CHECK_LIB(loudmouth-1, lm_ssl_set_cipher_list,

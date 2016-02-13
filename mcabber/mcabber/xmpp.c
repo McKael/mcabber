@@ -713,6 +713,9 @@ static LmSSLResponse ssl_cb(LmSSL *ssl, LmSSLStatus status, gpointer ud)
     break;
   case LM_SSL_STATUS_UNTRUSTED_CERT:
     scr_LogPrint(LPRINT_LOGNORM, "Certificate is not trusted!");
+    // The user specified a fingerprint, let's wait for lm to check that
+    if (settings_opt_get("ssl_fingerprint"))
+      return LM_SSL_RESPONSE_CONTINUE;
     break;
   case LM_SSL_STATUS_CERT_EXPIRED:
     scr_LogPrint(LPRINT_LOGNORM, "Certificate has expired!");

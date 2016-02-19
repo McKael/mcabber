@@ -610,7 +610,7 @@ char *otr_send(const char *msg, const char *buddy, int *encryption_status)
 {
   gcry_error_t err;
   char *newmessage = NULL;
-  char *htmlmsg, *rmsg;
+  char *rmsg;
   ConnContext *ctx = otr_get_context(buddy);
 
   if (!encryption_status)
@@ -633,18 +633,16 @@ char *otr_send(const char *msg, const char *buddy, int *encryption_status)
                                NULL, NULL, NULL);
 #endif
   else {
-    htmlmsg = html_escape(msg);
     err = otrl_message_sending(userstate, &ops, NULL, ctx->accountname,
 #ifdef HAVE_LIBOTR3
-                               ctx->protocol, ctx->username, htmlmsg, NULL,
+                               ctx->protocol, ctx->username, msg, NULL,
                                &newmessage, NULL, NULL);
 #else
                                // INSTAG XXX
                                ctx->protocol, ctx->username, OTRL_INSTAG_BEST,
-                               htmlmsg, NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP,
+                               msg, NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP,
                                NULL, NULL, NULL);
 #endif
-    g_free(htmlmsg);
   }
 
   if (err)

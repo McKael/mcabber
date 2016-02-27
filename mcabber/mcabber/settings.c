@@ -95,7 +95,7 @@ void settings_init(void)
 const gchar *settings_get_mcabber_config_dir(void)
 {
   static char *config_dir;
-  char *home_dir;
+  const char *home_dir;
   GString *sfilename;
   FILE *fp;
 
@@ -150,16 +150,8 @@ const gchar *settings_get_mcabber_config_dir(void)
     }
   }
 
-  // Last guess: home directory itself...
-  if (!config_dir) {
-    g_string_printf(sfilename, "%s/.mcabberrc", home_dir);
-    if ((fp = fopen(sfilename->str, "r")) != NULL) {
-      fclose(fp);
-      config_dir = g_strdup(home_dir);
-    } else {
-      scr_log_print(LPRINT_NORMAL, "Cannot find/open any configuration file!\n");
-    }
-  }
+  if (!config_dir)
+      scr_log_print(LPRINT_NORMAL, "Cannot find configuration directory!\n");
 
   g_string_free(sfilename, TRUE);
   return config_dir;
@@ -191,10 +183,19 @@ int cfg_read_file(char *filename, guint mainfile)
     }
 
     mcabber_conf_dir = settings_get_mcabber_config_dir();
-    if (!mcabber_conf_dir)
-      return -1;
+    if (!mcabber_conf_dir) {
+      // Try home directory
+      const char *home_dir = getenv("HOME");
+      if (!home_dir) {
+        scr_log_print(LPRINT_NORMAL, "Cannot find any configuration file!\n");
+        err = -1;
+        goto cfg_read_file_return;
+      }
+      def_filename = g_strdup_printf("%s/.mcabberrc", home_dir);
+    } else {
+      def_filename = g_strdup_printf("%s/mcabberrc", mcabber_conf_dir);
+    }
 
-    def_filename = g_strdup_printf("%s/mcabberrc", mcabber_conf_dir);
     if ((fp = fopen(def_filename, "r")) == NULL) {
       fprintf(stderr, "Cannot open config file!\n");
       g_free(def_filename);
@@ -205,8 +206,12 @@ int cfg_read_file(char *filename, guint mainfile)
     // As it could contain sensitive data, we make it user-readable only.
     checkset_perm(def_filename, TRUE);
     scr_log_print(LPRINT_LOGNORM, "Reading %s", def_filename);
-    // Check mcabber dir.  Here we just warn, we don't change the modes.
-    checkset_perm(mcabber_conf_dir, FALSE);
+
+    // Check mcabber directory permissions.
+    // Here we just warn, we don't change the mode.
+    if (mcabber_conf_dir)
+      checkset_perm(mcabber_conf_dir, FALSE);
+
     g_free(def_filename);
   } else {
     // filename was specified

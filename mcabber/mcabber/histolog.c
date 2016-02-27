@@ -397,6 +397,12 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
   } else {
     const char *cfgdir = settings_get_mcabber_config_dir();
     const char *hdir = "/histo/";
+    if (!cfgdir) {
+      scr_LogPrint(LPRINT_LOGNORM, "ERROR: Cannot find out "
+                   "history log directory; logging DISABLED");
+      UseFileLogging = FileLoadLogs = FALSE;
+      return;
+    }
     RootDir = g_strdup_printf("%s%s", cfgdir, hdir);
   }
 
@@ -406,7 +412,7 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
     g_free(RootDir);
     RootDir = NULL;
     scr_LogPrint(LPRINT_LOGNORM, "ERROR: Cannot access "
-                 "history log directory, logging DISABLED");
+                 "history log directory; logging DISABLED");
     UseFileLogging = FileLoadLogs = FALSE;
   }
 }

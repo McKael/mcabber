@@ -372,40 +372,42 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
   UseFileLogging = enable;
   FileLoadLogs = loadfiles;
 
-  if (enable || loadfiles) {
-    if (root_dir) {
-      char *xp_root_dir;
-      int l = strlen(root_dir);
-      if (l < 1) {
-        scr_LogPrint(LPRINT_LOGNORM, "Error: logging dir name too short");
-        UseFileLogging = FileLoadLogs = FALSE;
-        return;
-      }
-      xp_root_dir = expand_filename(root_dir);
-      // RootDir must be slash-terminated
-      if (root_dir[l-1] == '/') {
-        RootDir = xp_root_dir;
-      } else {
-        RootDir = g_strdup_printf("%s/", xp_root_dir);
-        g_free(xp_root_dir);
-      }
-    } else {
-      const char *cfgdir = settings_get_mcabber_config_dir();
-      const char *hdir = "/histo/";
-      RootDir = g_strdup_printf("%s%s", cfgdir, hdir);
-    }
-    // Check directory permissions (should not be readable by group/others)
-    if (checkset_perm(RootDir, TRUE) == -1) {
-      // The directory does not actually exists
-      g_free(RootDir);
-      RootDir = NULL;
-      scr_LogPrint(LPRINT_LOGNORM, "ERROR: Cannot access "
-                   "history log directory, logging DISABLED");
+  g_free(RootDir);
+  RootDir = NULL;
+
+  if (!enable && !loadfiles)
+    return;
+
+  if (root_dir) {
+    char *xp_root_dir;
+    int l = strlen(root_dir);
+    if (l < 1) {
+      scr_LogPrint(LPRINT_LOGNORM, "Error: logging dir name too short");
       UseFileLogging = FileLoadLogs = FALSE;
+      return;
     }
-  } else {  // Disable history logging
+    xp_root_dir = expand_filename(root_dir);
+    // RootDir must be slash-terminated
+    if (root_dir[l-1] == '/') {
+      RootDir = xp_root_dir;
+    } else {
+      RootDir = g_strdup_printf("%s/", xp_root_dir);
+      g_free(xp_root_dir);
+    }
+  } else {
+    const char *cfgdir = settings_get_mcabber_config_dir();
+    const char *hdir = "/histo/";
+    RootDir = g_strdup_printf("%s%s", cfgdir, hdir);
+  }
+
+  // Check directory permissions (should not be readable by group/others)
+  if (checkset_perm(RootDir, TRUE) == -1) {
+    // The directory does not actually exists
     g_free(RootDir);
     RootDir = NULL;
+    scr_LogPrint(LPRINT_LOGNORM, "ERROR: Cannot access "
+                 "history log directory, logging DISABLED");
+    UseFileLogging = FileLoadLogs = FALSE;
   }
 }
 

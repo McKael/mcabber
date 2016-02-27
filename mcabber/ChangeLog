@@ -1,8 +1,13 @@
-mcabber (1.0.2-dev)
+mcabber (1.0.2)
 
- * 
+ * Compatible with Loudmouth >=1.5.3 with SHA256 support (Frank Zschockelt)
+ * Ignore the untrusted certificate warning when user sets a fingerprint
+   (Frank Zschockelt)
+ * Stop HTML-escaping OTR messages - only strip known tags (Frank Zschockelt)
+ * Read $HOME/.mcabberrc if there is no mcabber configuration directory
+ * Minor documentation updates
 
- -- Mikael, ?
+ -- Mikael, 2016-02-27
 
 mcabber (1.0.1)
 
@@ -11,7 +16,8 @@ mcabber (1.0.1)
  * [PGP] Encrypt messages with our own PGP key and decrypt our own
    encrypted messages when Carbons are enabled
  * [PGP] New PGP options: 'gpg_path' and 'gpg_home' (Holger Weiß)
- * [PGP] Check all signatures and stop immediately if one could be verified (Sven Gaerner)
+ * [PGP] Check all signatures and stop immediately if one could be verified
+   (Sven Gaerner)
  * Improved Carbons support (Holger Weiß)
  * New option: 'clear_unread_on_carbon' (Holger Weiß)
  * Improve SSL fingerprint management;
@@ -59,7 +65,8 @@ mcabber (0.10.3)
    - "ssl_ca" to set additional trusted certificates
  * Fix compilation for old loudmouth libraries (Frank Zschockelt)
  * Add 'color_timestamp' to highlight timestamp added by server (Hermitifier)
- * New python based event script using OS X 10.8 notification center (Sharoon Thomas)
+ * New python based event script using OS X 10.8 notification center (Sharoon
+   Thomas)
  * Handle SIGHUP signal (Dominik George)
  * Misc. bugfixes
 

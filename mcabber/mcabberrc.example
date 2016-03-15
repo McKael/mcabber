@@ -184,8 +184,7 @@ set cmdhistory_lines = 250
 # The default logging directory (logging_dir) is $HOME/.mcabber/histo/
 # (or $XDG_CONFIG_HOME/mcabber/histo/).
 # Defaults for logging, load_logs are 0 (disabled)
-# Note: the logging directory must exist if you enable logging, mcabber
-#       will not create it.
+# Note: the logging directory path is created if absent.
 # Note: these options, except 'max_history_age' and 'max_history_blocks',
 # are used at startup time.
 #set logging = 1

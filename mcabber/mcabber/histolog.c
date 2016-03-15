@@ -406,9 +406,10 @@ void hlog_enable(guint enable, const char *root_dir, guint loadfiles)
     RootDir = g_strdup_printf("%s%s", cfgdir, hdir);
   }
 
+  // Create full directory path in case it is absent.
   // Check directory permissions (should not be readable by group/others)
-  if (checkset_perm(RootDir, TRUE) == -1) {
-    // The directory does not actually exists
+  if (g_mkdir_with_parents(RootDir, S_IRUSR | S_IWUSR | S_IXUSR) ||
+      checkset_perm(RootDir, TRUE) == -1) {
     g_free(RootDir);
     RootDir = NULL;
     scr_LogPrint(LPRINT_LOGNORM, "ERROR: Cannot access "

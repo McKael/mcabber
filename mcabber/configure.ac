@@ -261,7 +261,8 @@ if test x"${datadir}" != x""; then
 fi
 
 # Export $libexecdir to the source tree
-AC_DEFINE_DIR(PKGLIB_DIR, "${libdir}/${PACKAGE}", [Modules directory])
+pkglibdir=${libdir}/${PACKAGE}
+AC_DEFINE_DIR(PKGLIB_DIR, pkglibdir, [Modules directory])
 
 AC_ARG_ENABLE(debug,
     AC_HELP_STRING([--enable-debug], [add development compilation options]),

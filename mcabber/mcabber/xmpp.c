@@ -1940,7 +1940,7 @@ gint xmpp_connect(void)
     const char *ssl_ca = settings_opt_get("ssl_ca");
     char *ssl_ca_xp;
     ssl_ca_xp = expand_filename(ssl_ca);
-    lm_ssl_set_ca(lssl, ssl_ca);
+    lm_ssl_set_ca(lssl, ssl_ca_xp);
     g_free(ssl_ca_xp);
 #endif
     lm_ssl_use_starttls(lssl, !ssl, tls);

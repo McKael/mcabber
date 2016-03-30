@@ -883,7 +883,7 @@ static void cb_inject_message(void *opdata, const char *accountname,
                               const char *message)
 {
   if (roster_gettype(recipient) == ROSTER_TYPE_USER)
-    xmpp_send_msg(recipient, message, ROSTER_TYPE_USER, "", TRUE, NULL,
+    xmpp_send_msg(recipient, message, ROSTER_TYPE_USER, NULL, TRUE, NULL,
                   LM_MESSAGE_SUB_TYPE_NOT_SET, NULL);
 }
 

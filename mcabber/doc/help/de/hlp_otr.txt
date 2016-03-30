@@ -8,7 +8,7 @@
 Man kann auch "." anstatt einer jid benutzen, wenn man den gerade ausgewählten Buddy meint.
 
 /otr key
- Zeigt den Fingerprint deines privaten Schlüssels im Status Buffer an.
+ Zeigt den Fingerprint deines öffentlichen Schlüssels im Status Buffer an.
 /otr start [jid]
  Öffnet einen OTR Kanal zu der angegebenen JID(oder dem gerade ausgewähltem Buddy).
 /otr stop [jid]

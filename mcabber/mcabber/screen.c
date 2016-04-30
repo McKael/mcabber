@@ -204,8 +204,8 @@ GSList* spell_checkers = NULL;
 #endif
 
 typedef struct {
-	int color_pair;
-	int color_attrib;
+  int color_pair;
+  int color_attrib;
 } ccolor;
 
 typedef struct {
@@ -350,15 +350,11 @@ void scr_muc_nick_color(const char *nick, const char *color)
       g_free(mnick);
     } else {
       nickcolor *nc = g_new(nickcolor, 1);
-      nickcolor *oc;
       ensure_string_htable(&nickcolors, NULL);
       nc->manual = TRUE;
       nc->color = cl;
       // Free the struct, if any there already
-      if ((oc = g_hash_table_lookup(nickcolors, mnick))) {
-        g_free(oc -> color);
-        g_free(oc);
-      }
+      g_free(g_hash_table_lookup(nickcolors, mnick));
       // Save the new ones
       g_hash_table_replace(nickcolors, mnick, nc);
       g_hash_table_replace(nickcolors, snick, nc);
@@ -426,7 +422,7 @@ bool scr_roster_color(const char *status, const char *wildcard,
     }
     if (found) {
       rostercolor *rc = found->data;
-			g_free(rc->color);
+      g_free(rc->color);
       rc->color = cl;
     } else {
       rostercolor *rc = g_new(rostercolor, 1);
@@ -583,8 +579,8 @@ static void parse_colors(void)
     }
     if (!nickcols) { // Fallback to have something
       nickcolcount = 1;
-			nickcols = g_new(ccolor*, 1);
-			*nickcols = g_new(ccolor, 1);
+      nickcols = g_new(ccolor*, 1);
+      *nickcols = g_new(ccolor, 1);
       (*nickcols)->color_pair = COLOR_GENERAL;
       (*nickcols)->color_attrib = A_NORMAL;
     }

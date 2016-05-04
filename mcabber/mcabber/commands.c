@@ -2341,7 +2341,8 @@ static void do_set(char *arg)
       format = g_strdup_printf("%%-%us = [%%s]", (unsigned)max);
       for (lel = list; lel; lel = lel->next) {
         const gchar *key = lel->data;
-        scr_LogPrint(LPRINT_NORMAL, format, key, settings_opt_get(key));
+        if (g_ascii_strncasecmp(key, "password", 8) != 0)
+          scr_LogPrint(LPRINT_NORMAL, format, key, settings_opt_get(key));
       }
       g_free(format);
       scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
@@ -2361,11 +2362,14 @@ static void do_set(char *arg)
   option_utf8 = to_utf8(option);
   g_free(option);
   if (!assign) {  // This is a query
-    const char *val = settings_opt_get(option_utf8);
-    if (val)
+    const gchar *val = settings_opt_get(option_utf8);
+    if (val) {
+      if (g_ascii_strncasecmp(option_utf8, "password", 8) == 0)
+        val = NULL;
       scr_LogPrint(LPRINT_NORMAL, "%s = [%s]", option_utf8, val);
-    else
+    } else {
       scr_LogPrint(LPRINT_NORMAL, "Option %s is not set", option_utf8);
+    }
     g_free(option_utf8);
     return;
   }

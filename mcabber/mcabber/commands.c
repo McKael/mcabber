@@ -2303,7 +2303,7 @@ static void do_move(char *arg)
 
 static void list_option_cb(char *k, char *v, void *f)
 {
-  if (strcmp(k, "password")) {
+  if (strncmp(k, "password", 8) && strcmp(k, "pgp_passphrase")) {
     GSList **list = f;
     *list = g_slist_insert_sorted(*list, k, (GCompareFunc)strcmp);
   }
@@ -2316,41 +2316,40 @@ static void do_set(char *arg)
   gchar *option_utf8;
 
   if (!*arg) {
-    // list all set options
+    // List all set options
+    gsize max = 0;
+    gsize maxmax = scr_gettextwidth() / 3;
+    GSList *lel;
+    gchar *format;
     GSList *list = NULL;
     // Get sorted list of keys
     settings_foreach(SETTINGS_TYPE_OPTION, list_option_cb, &list);
-    if (list) {
-      gsize max = 0;
-      gsize maxmax = scr_gettextwidth() / 3;
-      GSList *lel;
-      gchar *format;
-      // Find out maximum key length
-      for (lel = list; lel; lel = lel->next) {
-        const gchar *key = lel->data;
-        gsize len = strlen(key);
-        if (len > max) {
-          max = len;
-          if (max > maxmax) {
-            max = maxmax;
-            break;
-          }
+    if (!list) {
+      scr_LogPrint(LPRINT_NORMAL, "No options found.");
+      return;
+    }
+    // Find out maximum key length
+    for (lel = list; lel; lel = lel->next) {
+      const gchar *key = lel->data;
+      gsize len = strlen(key);
+      if (len > max) {
+        max = len;
+        if (max > maxmax) {
+          max = maxmax;
+          break;
         }
       }
-      // Print out list of options
-      format = g_strdup_printf("%%-%us = [%%s]", (unsigned)max);
-      for (lel = list; lel; lel = lel->next) {
-        const gchar *key = lel->data;
-        if (g_ascii_strncasecmp(key, "password", 8) != 0)
-          scr_LogPrint(LPRINT_NORMAL, format, key, settings_opt_get(key));
-      }
-      g_free(format);
-      scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
-      scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
-                                 ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
-    } else {
-      scr_LogPrint(LPRINT_NORMAL, "No options found.");
     }
+    // Print out list of options
+    format = g_strdup_printf("%%-%us = [%%s]", (unsigned)max);
+    for (lel = list; lel; lel = lel->next) {
+      const gchar *key = lel->data;
+      scr_LogPrint(LPRINT_NORMAL, format, key, settings_opt_get(key));
+    }
+    g_free(format);
+    scr_setmsgflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE);
+    scr_setattentionflag_if_needed(SPECIAL_BUFFER_STATUS_ID, TRUE,
+                               ROSTER_UI_PRIO_STATUS_WIN_MESSAGE, prio_max);
     return;
   }
 
@@ -2364,8 +2363,9 @@ static void do_set(char *arg)
   if (!assign) {  // This is a query
     const gchar *val = settings_opt_get(option_utf8);
     if (val) {
-      if (g_ascii_strncasecmp(option_utf8, "password", 8) == 0)
-        val = NULL;
+      if (g_ascii_strncasecmp(option_utf8, "password", 8) == 0 ||
+          g_ascii_strcasecmp(option_utf8, "pgp_passphrase") == 0)
+        val = "***";
       scr_LogPrint(LPRINT_NORMAL, "%s = [%s]", option_utf8, val);
     } else {
       scr_LogPrint(LPRINT_NORMAL, "Option %s is not set", option_utf8);

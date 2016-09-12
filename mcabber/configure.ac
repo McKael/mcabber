@@ -99,6 +99,9 @@ AC_CHECK_FUNC(initscr,,
     done
     AC_CHECK_LIB($cf_ncurses, initscr,
         [LIBS="$LIBS -l$cf_ncurses"
+
+         AC_CHECK_LIB(tinfo, tgetent, [LIBS="$LIBS -ltinfo"])
+
          if test "$cf_ncurses" = ncursesw; then
             AC_CHECK_HEADERS([ncursesw/ncurses.h ncursesw/panel.h],,
                  [AC_CHECK_HEADERS([ncurses.h panel.h],,
@@ -161,7 +164,7 @@ PKG_CHECK_MODULES(LOUDMOUTH_SHA256, [loudmouth-1.0 >= 1.5.3],
                            [loudmouth is now using a new digest]
                            ),
                   []
-                 ) 
+                 )
 
 # Check for lm_ssl_set_cipher_list in loudmouth
 AC_CHECK_LIB(loudmouth-1, lm_ssl_set_cipher_list,

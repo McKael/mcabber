@@ -36,8 +36,8 @@ The 'room' command handles Multi-User Chat room actions.
  Invite jid to the current room
 /room kick nick [reason]
  Kick "nick" from the current room
-/room role jid role [reason]
- Change jid's role (role can be "none", "visitor", "participant", "moderator")
+/room role nick role [reason]
+ Change nick's role (role can be "none", "visitor", "participant", "moderator")
 /room affil jid affil [reason]
  Change jid's affiliation (affil can be "none", "member", "admin", "owner")
 /room setopt print_status|auto_whois|flag_joins [value]

@@ -36,8 +36,8 @@ Cette commande permet de gérer les salons de discussions MUC (Multi-User Chat).
  Invite l'utilisateur jid dans le salon
 /room kick pseudo [raison]
  Chasse le membre "pseudo" du salon
-/room role jid role [raison]
- Change le rôle de jid (role peut être "none", "visitor", "participant", "moderator")
+/room role pseudo role [raison]
+ Change le rôle de "pseudo" (role peut être "none", "visitor", "participant", "moderator")
 /room affil jid affil [raison]
  Change l'affiliation de jid (affil peut être "none", "member", "admin", "owner")
 /room setopt print_status|auto_whois|flag_joins [valeur]

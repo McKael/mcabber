@@ -36,8 +36,8 @@
  Надіслати jid запрошення до поточної кімнати.
 /room kick прізвисько [причина]
  Кікнути "прізвисько" з кімнати.
-/room role jid роль [причина]
- Змінити роль jid у комнаті ("none", "visitor", "participant", "moderator")
+/room role прізвисько роль [причина]
+ Змінити роль "прізвисько" у комнаті ("none", "visitor", "participant", "moderator")
 /room affil jid ступінь [причина]
  Змінити ступінь довіри для jid ("none", "member", "admin", "owner").
 /room setopt print_status|auto_whois|flag_joins [значення]

@@ -34,8 +34,8 @@ Slouží pro správu konferenčních místností MUC (Multi-User Chat).
  Pozve uživatele 'jid' do aktuální místnosti s možností udání důvodu.
 /room kick jméno [důvod]
  Vyhodí (vykopne) uživatele 'jméno' z aktuální místnosti s možností udání důvodu.
-/room role jid role [důvod]
- Změní roli uživateli 'jid'. Role může být 'none' (žádná), 'visitor' (návštěvník), 'participant' (účastník) nebo 'moderator' (moderátor).
+/room role jméno role [důvod]
+ Změní roli uživateli 'jméno'. Role může být 'none' (žádná), 'visitor' (návštěvník), 'participant' (účastník) nebo 'moderator' (moderátor).
 /room affil jid vztah [důvod]
  Změní uživateli 'jid' vztah k místnosti. Vztah může být 'none' (žádný), 'member' (člen), 'admin' (správce) nebo 'owner' (vlastník).
 /room setopt print_status|auto_whois|flag_joins [hodnota]

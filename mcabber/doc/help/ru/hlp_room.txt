@@ -35,8 +35,8 @@
  Пригласить пользователя "jid" в текущую конференцию
 /room kick nick [reason]
  Исключить пользователя "jid" из текущей конференции
-/room role jid role [reason]
- Изменить статус  пользователя "jid" (статус может быть "none", "visitor", "participant", "moderator")
+/room role nick role [reason]
+ Изменить статус пользователя "nick" (статус может быть "none", "visitor", "participant", "moderator")
 /room affil jid affil [reason]
  Принять пользователя "jid" в члены конференции (члены могут быть "none", "member", "admin", "owner")
 /room setopt print_status|auto_whois|flag_joins [value]

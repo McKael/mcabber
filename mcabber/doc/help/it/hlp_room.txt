@@ -35,8 +35,8 @@ Il comando 'room' gestisce le azioni per le stanze di chat multi-utente.
  Invita jid nella stanza corrente
 /room kick nick [motivo]
  Caccia "nick" dalla stanza corrente
-/room role jid role [motivo]
- Cambia il ruolo di jid (il ruolo può essere "none", "visitor", "participant", "moderator")
+/room role nick role [motivo]
+ Cambia il ruolo di nick (il ruolo può essere "none", "visitor", "participant", "moderator")
 /room affil jid affil [motivo]
  Cambia l'affiliazione di jid (l'affiliazione può essere "none", "member", "admin", "owner")
 /room setopt print_status|auto_whois|flag_joins [value]

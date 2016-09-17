@@ -35,8 +35,8 @@ Der "room" Befehl umfasst die Multi-User Chat (kurz MUC) Befehle.
  Lädt die jid [mit einem Grund] in den gerade aktiven MUC ein
 /room kick nick [grund]
  Wirft den User "nick" aus dem Raum
-/room role jid rolle [grund]
- Ändert die Rolle der jid (rolle kann "none", "visitor", "participant" oder "moderator" sein)
+/room role nick rolle [grund]
+ Ändert die Rolle der nick (rolle kann "none", "visitor", "participant" oder "moderator" sein)
 /room affil jid zugeh [grund]
  Ändert die Zugehörigkeit der jid zum Raum. (zugeh kann "none", "member", "admin" oder "owner" sein)
 /room setopt print_status|auto_whois|flag_joins [wert]

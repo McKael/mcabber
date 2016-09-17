@@ -35,8 +35,8 @@ Het 'room' commando verzorgt de Multi-User Chat (MUC) room acties.
  Nodig jid uit in de huidige chatroom
 /room kick nick [reden]
  Schop "nick" uit de huidige chatroom
-/room role jid role [reden]
- Verander jid's rol (rol kan zijn: "none", "visitor", "participant", "moderator")
+/room role nick role [reden]
+ Verander nick's rol (rol kan zijn: "none", "visitor", "participant", "moderator")
 /room affil jid affil [reden]
  Verander jid's verbintenis (affil kan zijn: "none", "member", "admin", "owner")
 /room setopt print_status|auto_whois|flag_joins [waarde]

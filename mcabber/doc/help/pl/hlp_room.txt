@@ -35,8 +35,8 @@ Polecenie 'room' służy do obsługi wieloużytkownikowych chat-room'ów.
  Zaprasza osobę jid do aktualnego pokoju z powodu "powód" (opcjonalnie)
 /room kick nick [powód]
  Wyrzucenie osoby "nick" z aktualnego pokoju z powodu "powód" (opcjonalnie)
-/room role jid role [powód]
- Zmienia rolę użytkownika jid (może być: "none", "visitor", "participant", "moderator")
+/room role nick role [powód]
+ Zmienia rolę użytkownika nick (może być: "none", "visitor", "participant", "moderator")
 /room affil jid affil [powód]
  Zmienia przynależność jid'a (może być: "none", "member", "admin", "owner")
 /room setopt print_status|auto_whois|flag_joins [warotść]

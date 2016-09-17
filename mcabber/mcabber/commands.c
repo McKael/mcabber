@@ -2701,17 +2701,17 @@ static void room_affil(gpointer bud, char *arg)
 static void room_role(gpointer bud, char *arg)
 {
   char **paramlst;
-  gchar *fjid, *rolename;
+  gchar *nick, *rolename;
   struct role_affil ra;
   const char *roomid = buddy_getjid(bud);
 
-  paramlst = split_arg(arg, 3, 1); // jid, new_role, [reason]
-  fjid = *paramlst;
+  paramlst = split_arg(arg, 3, 1); // nick, new_role, [reason]
+  nick = *paramlst;
   rolename = *(paramlst+1);
   arg = *(paramlst+2);
 
-  if (!fjid || !*fjid || !rolename || !*rolename) {
-    scr_LogPrint(LPRINT_NORMAL, "Please specify both a Jabber ID and a role.");
+  if (!nick || !*nick || !rolename || !*rolename) {
+    scr_LogPrint(LPRINT_NORMAL, "Please specify both a nickname and a role.");
     free_arg_lst(paramlst);
     return;
   }
@@ -2723,11 +2723,11 @@ static void room_role(gpointer bud, char *arg)
       break;
 
   if (ra.val.role < imrole_size) {
-    gchar *jid_utf8, *reason_utf8;
-    jid_utf8 = to_utf8(fjid);
+    gchar *nick_utf8, *reason_utf8;
+    nick_utf8 = to_utf8(nick);
     reason_utf8 = to_utf8(arg);
-    xmpp_room_setattrib(roomid, jid_utf8, NULL, ra, reason_utf8);
-    g_free(jid_utf8);
+    xmpp_room_setattrib(roomid, NULL, nick_utf8, ra, reason_utf8);
+    g_free(nick_utf8);
     g_free(reason_utf8);
   } else {
     scr_LogPrint(LPRINT_NORMAL, "Wrong role parameter.");

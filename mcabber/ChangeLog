@@ -1,6 +1,12 @@
 mcabber (1.0.3-dev)
 
- * 
+ * Link with the tinfo library
+ * Fix default modules directory on OpenBSD (Tim van der Molen)
+ * Create history log dir if it doesn't exist (Andrey Utkin)
+ * [OTR] Do not send empty subjects when using otr (franky)
+ * [UI] /set does not display password values anymore (Egor Kovetskiy)
+ * [MUC] Use nick to set the role
+ * Misc help/documentation updates
 
  -- Mikael, ?
 

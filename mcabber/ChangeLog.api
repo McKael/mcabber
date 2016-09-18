@@ -1,5 +1,6 @@
 dev (41)
 
+ * Stable api 1.0.3:1
  * Stable api 1.0.2:1
  * Stable api 1.0.1:1
  * Change prototype of otr_send()

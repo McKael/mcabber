@@ -296,7 +296,7 @@ void xmpp_room_destroy(const char *room, const char *venue, const char *reason)
 }
 
 //  muc_get_item_info(...)
-// Get room member's information from xmlndata.
+// Get room member's information from xmldata.
 // The variables must be initialized before calling this function,
 // because they are not touched if the relevant information is missing.
 // Note that *actor should be freed by the caller.
@@ -697,7 +697,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
       flagjoins = buddy_getflagjoins(room_elt->data);
       if (flagjoins == flagjoins_default &&
           settings_opt_get_int("muc_flag_joins") == 2)
-	flagjoins = flagjoins_all;
+        flagjoins = flagjoins_all;
       if (!our_presence && flagjoins != flagjoins_all)
         msgflags |= HBB_PREFIX_NOFLAG;
       //silent message if someone else joins, and we care about noone

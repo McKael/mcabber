@@ -494,7 +494,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
     scr_WriteIncomingMessage(roomjid, msg, 0, HBB_PREFIX_INFO, 0);
     // Send back an unavailable packet
     xmpp_setstatus(offline, roomjid, "", TRUE);
-    scr_draw_roster();
+    update_roster = TRUE;
     return;
   }
 
@@ -748,7 +748,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
     cmd_room_whois(room_elt->data, rname, FALSE);
   }
 
-  scr_draw_roster();
+  update_roster = TRUE;
 }
 
 void roompresence(gpointer room, void *presencedata)

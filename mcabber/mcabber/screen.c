@@ -2158,7 +2158,6 @@ void scr_draw_roster(void)
     unsigned short ismsg, isgrp, ismuc, ishid, isspe;
     guint isurg;
     gchar *rline_locale;
-    GSList *resources, *p_res;
 
     bflags = buddy_getflags(BUDDATA(buddy));
     btype = buddy_gettype(BUDDATA(buddy));
@@ -2178,17 +2177,22 @@ void scr_draw_roster(void)
     status = '?';
     pending = ' ';
 
-    resources = buddy_getresources(BUDDATA(buddy));
-    for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
-      guint events = buddy_resource_getevents(BUDDATA(buddy),
-                                              p_res ? p_res->data : "");
-      if ((events & ROSTER_EVENT_PAUSED) && pending != '+')
-        pending = '.';
-      if (events & ROSTER_EVENT_COMPOSING)
-        pending = '+';
-      g_free(p_res->data);
+    if (!ismuc) {
+      // There is currently no chat state support for MUC
+      GSList *resources = buddy_getresources(BUDDATA(buddy));
+      GSList *p_res;
+
+      for (p_res = resources ; p_res ; p_res = g_slist_next(p_res)) {
+        guint events = buddy_resource_getevents(BUDDATA(buddy),
+                                                p_res ? p_res->data : "");
+        if ((events & ROSTER_EVENT_PAUSED) && pending != '+')
+          pending = '.';
+        if (events & ROSTER_EVENT_COMPOSING)
+          pending = '+';
+        g_free(p_res->data);
+      }
+      g_slist_free(resources);
     }
-    g_slist_free(resources);
 
     // Display message notice if there is a message flag, but not
     // for unfolded groups.

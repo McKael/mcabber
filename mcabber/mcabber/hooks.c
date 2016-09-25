@@ -44,6 +44,8 @@ typedef struct {
   guint     hid;
 } hook_list_data_t;
 
+extern int build_buddylist;
+
 static GHashTable *hk_handler_hash = NULL;
 
 //  _new_hook_id()
@@ -567,8 +569,7 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
 
   roster_setstatus(bjid, rn, prio, status, status_msg, timestamp,
                    role_none, affil_none, NULL);
-  buddylist_build();
-  update_roster = TRUE;
+  build_buddylist = TRUE;
   hlog_write_status(bjid, timestamp, status, status_msg);
 
 #ifdef MODULES_ENABLE

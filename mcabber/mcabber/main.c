@@ -28,6 +28,7 @@
 #include <glib.h>
 #include <config.h>
 #include <poll.h>
+#include <time.h>
 #include <errno.h>
 
 #include "caps.h"
@@ -66,8 +67,11 @@ void sigwinch_resize(void);
 static bool sigwinch;
 #endif
 
+extern int build_buddylist;
+
 static bool terminate_ui;
 GMainContext *main_context;
+static guint refresh_timeout_id;
 
 static struct termios *backup_termios;
 
@@ -377,6 +381,13 @@ static gboolean mcabber_source_dispatch(GSource *source, GSourceFunc callback,
   return keyboard_activity();
 }
 
+static gboolean refresh_timeout_cb(gpointer data) {
+   // Only called once, to trigger a refresh if needed
+   // so reset ID and return false.
+  refresh_timeout_id = 0;
+  return FALSE;
+}
+
 static GSourceFuncs mcabber_source_funcs = {
   mcabber_source_prepare,
   mcabber_source_check,
@@ -483,6 +494,10 @@ int main(int argc, char **argv)
     }
   }
 
+  /* Initialize buddylist update timestamp */
+  struct timespec last_ui_update;
+  clock_gettime(CLOCK_MONOTONIC, &last_ui_update);
+
   /* Initialize PGP system
      We do it before ncurses initialization because we may need to request
      a passphrase. */
@@ -555,6 +570,9 @@ int main(int argc, char **argv)
     scr_LogPrint(LPRINT_DEBUG, "Entering into main loop...");
 
     while(!terminate_ui) {
+      int64_t timediff;
+      struct timespec now;
+
       if (g_main_context_iteration(main_context, TRUE) == FALSE)
         keyboard_activity();
 #ifdef USE_SIGWINCH
@@ -563,9 +581,36 @@ int main(int argc, char **argv)
         sigwinch = FALSE;
       }
 #endif
-      if (update_roster)
-        scr_draw_roster();
-      scr_do_update();
+
+      // Compute time in ms since last buddylist/screen update
+      clock_gettime(CLOCK_MONOTONIC, &now);
+      timediff = (((now.tv_sec - last_ui_update.tv_sec)  * 1.0e9) +
+                  (now.tv_nsec - last_ui_update.tv_nsec)) / 1.0e6;
+
+      if (timediff <= 200) {
+        // Trigger a timeout in 1s to make sure no refresh will be missed
+        if (!refresh_timeout_id) {
+          refresh_timeout_id = g_timeout_add_seconds_full(G_PRIORITY_DEFAULT,
+                                     1, refresh_timeout_cb, NULL, NULL);
+        }
+      } else if ((build_buddylist || update_roster)) {
+        // More than 200ms
+        if (build_buddylist || update_roster) {
+          if (build_buddylist) {
+            buddylist_build();
+            update_roster = TRUE;
+          }
+          if (update_roster) {
+            scr_draw_roster();
+            scr_do_update();
+            last_ui_update = now;
+          }
+        } else {
+          // No roster change; minimum screen update
+          update_panels();
+          doupdate();
+        }
+      }
     }
 
     g_source_destroy(mc_source);

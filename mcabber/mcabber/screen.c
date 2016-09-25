@@ -68,6 +68,8 @@
 
 #define DEFAULT_ATTENTION_CHAR '!'
 
+extern int build_buddylist;
+
 const char *LocaleCharSet = "C";
 
 static unsigned short int Log_Win_Height;
@@ -2538,7 +2540,7 @@ static void set_current_buddy(GList *newbuddy)
   }
   // We should rebuild the buddylist but not everytime
   if (!(buddylist_get_filter() & 1<<prev_st))
-    buddylist_build();
+    build_buddylist = TRUE;
   update_roster = TRUE;
 }
 

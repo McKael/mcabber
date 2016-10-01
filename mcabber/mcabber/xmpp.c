@@ -2119,7 +2119,7 @@ void xmpp_setprevstatus(void)
 
 //  send_storage(store)
 // Send the node "store" to update the server.
-// Note: the sender should check we're online.
+// Note: the caller should check we're online.
 void send_storage(LmMessageNode *store)
 {
   LmMessage *iq;
@@ -2333,17 +2333,18 @@ void xmpp_set_storage_bookmark(const char *roomid, const char *name,
     if (group && *group)
       lm_message_node_add_child(x, "group", group);
     changed = TRUE;
-    scr_LogPrint(LPRINT_LOGNORM, "Updating bookmarks...");
   }
 
   if (!changed)
     return;
 
-  if (xmpp_is_online())
+  if (xmpp_is_online()) {
     send_storage(bookmarks);
-  else
+    scr_LogPrint(LPRINT_LOGNORM, "Bookmarks updated.");
+  } else {
     scr_LogPrint(LPRINT_LOGNORM,
                  "Warning: you're not connected to the server.");
+  }
 }
 
 static struct annotation *parse_storage_rosternote(LmMessageNode *notenode)

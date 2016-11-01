@@ -568,7 +568,6 @@ void process_line(const char *line)
 static void roster_buddylock(char *bjid, int lock)
 {
   gpointer bud = NULL;
-  bool may_need_refresh = FALSE;
 
   // Allow special jid "" or "." (current buddy)
   if (bjid && (!*bjid || !strcmp(bjid, ".")))
@@ -588,7 +587,6 @@ static void roster_buddylock(char *bjid, int lock)
         bud = roster_elt->data;
       else
         scr_LogPrint(LPRINT_NORMAL, "This jid isn't in the roster.");
-      may_need_refresh = TRUE;
     }
   } else {
     // Use the current buddy
@@ -601,10 +599,8 @@ static void roster_buddylock(char *bjid, int lock)
     if (lock == -1)
       lock = !(buddy_getflags(bud) & ROSTER_FLAG_USRLOCK);
     buddy_setflags(bud, ROSTER_FLAG_USRLOCK, lock);
-    if (may_need_refresh) {
-      buddylist_defer_build();
-      update_roster = TRUE;
-    }
+    buddylist_defer_build();
+    scr_update_roster();
   }
 }
 
@@ -820,10 +816,8 @@ static void do_roster(char *arg)
 
   if (!strcasecmp(subcmd, "top")) {
     scr_roster_top();
-    update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "bottom")) {
     scr_roster_bottom();
-    update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "hide")) {
     scr_roster_visibility(0);
   } else if (!strcasecmp(subcmd, "show")) {
@@ -832,17 +826,13 @@ static void do_roster(char *arg)
     scr_roster_visibility(-1);
   } else if (!strcasecmp(subcmd, "hide_offline")) {
     buddylist_set_hide_offline_buddies(TRUE);
-    if (current_buddy)
-      buddylist_defer_build();
-    update_roster = TRUE;
+    scr_update_roster();
   } else if (!strcasecmp(subcmd, "show_offline")) {
     buddylist_set_hide_offline_buddies(FALSE);
-    buddylist_defer_build();
-    update_roster = TRUE;
+    scr_update_roster();
   } else if (!strcasecmp(subcmd, "toggle_offline")) {
     buddylist_set_hide_offline_buddies(-1);
-    buddylist_defer_build();
-    update_roster = TRUE;
+    scr_update_roster();
   } else if (!strcasecmp(subcmd, "display")) {
     scr_roster_display(arg);
   } else if (!strcasecmp(subcmd, "item_lock")) {
@@ -867,7 +857,6 @@ static void do_roster(char *arg)
       return;
     }
     scr_roster_search(arg);
-    update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "up")) {
     roster_updown(-1, arg);
   } else if (!strcasecmp(subcmd, "down")) {
@@ -913,13 +902,11 @@ void do_color(char *arg)
 
     if (status && !strcmp(status, "clear")) { // Not a color command, clear all
       scr_roster_clear_color();
-      update_roster = TRUE;
     } else {
       if (!status || !*status || !wildcard || !*wildcard || !color || !*color) {
         scr_LogPrint(LPRINT_NORMAL, "Missing argument");
       } else {
-        update_roster = scr_roster_color(status, wildcard, color) ||
-                        update_roster;
+        scr_roster_color(status, wildcard, color);
       }
     }
     free_arg_lst(arglist);
@@ -1258,7 +1245,7 @@ static void do_group(char *arg)
   buddy_hide_group(group, group_state);
 
   buddylist_defer_build();
-  update_roster = TRUE;
+  scr_update_roster();
 
 do_group_return:
   free_arg_lst(paramlst);
@@ -2227,7 +2214,7 @@ static void do_rename(char *arg)
 
   g_free(name_utf8);
   g_free(newname);
-  update_roster = TRUE;
+  scr_update_roster();
 }
 
 static void do_move(char *arg)
@@ -2296,7 +2283,7 @@ static void do_move(char *arg)
 
   g_free(group_utf8);
   g_free(newgroupname);
-  update_roster = TRUE;
+  scr_update_roster();
 }
 
 static void list_option_cb(char *k, char *v, void *f)
@@ -2402,7 +2389,7 @@ static void do_alias(char *arg)
   assign = parse_assigment(arg, &alias, &value);
   if (!alias) {
     settings_foreach(SETTINGS_TYPE_ALIAS, &dump_alias, NULL);
-    update_roster = TRUE;
+    scr_update_roster();
     return;
   }
   if (!assign) {  // This is a query
@@ -2628,7 +2615,7 @@ static void room_join(gpointer bud, char *arg)
   g_free(nick);
   g_free(pass_utf8);
   buddylist_defer_build();
-  update_roster = TRUE;
+  scr_update_roster();
   free_arg_lst(paramlst);
 }
 
@@ -2927,7 +2914,7 @@ static void room_remove(gpointer bud, char *arg)
   roster_del_user(buddy_getjid(bud));
   scr_update_buddy_window();
   buddylist_defer_build();
-  update_roster = TRUE;
+  scr_update_roster();
 }
 
 static void room_topic(gpointer bud, char *arg)

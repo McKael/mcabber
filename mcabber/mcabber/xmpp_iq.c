@@ -669,7 +669,7 @@ LmHandlerResult handle_iq_roster(LmMessageHandler *h, LmConnection *c,
   }
 
   buddylist_defer_build();
-  update_roster = TRUE;
+  scr_update_roster();
   if (need_refresh)
     scr_update_buddy_window();
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;

@@ -57,7 +57,6 @@ enum colors {
 
 int COLOR_ATTRIB[COLOR_max];
 
-extern int update_roster;
 extern gboolean chatstates_disabled;
 extern gboolean Autoaway;
 
@@ -110,6 +109,7 @@ gboolean scr_curses_status(void);
 void scr_resize(void);
 void scr_draw_main_window(unsigned int fullinit);
 void scr_draw_roster(void);
+void scr_update_roster(void);
 void scr_update_main_status(int forceupdate);
 void scr_update_chat_status(int forceupdate);
 void scr_roster_visibility(int status);

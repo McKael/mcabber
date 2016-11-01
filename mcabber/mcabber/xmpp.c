@@ -143,8 +143,7 @@ void xmpp_addbuddy(const char *bjid, const char *name, const char *group)
   roster_add_user(cleanjid, name, group, ROSTER_TYPE_USER, sub_pending, -1);
   g_free(cleanjid);
   buddylist_defer_build();
-
-  update_roster = TRUE;
+  scr_update_roster();
 }
 
 void xmpp_updatebuddy(const char *bjid, const char *name, const char *group)
@@ -231,7 +230,7 @@ void xmpp_delbuddy(const char *bjid)
   g_free(cleanjid);
   buddylist_defer_build();
 
-  update_roster = TRUE;
+  scr_update_roster();
 }
 
 void xmpp_request(const char *fjid, enum iqreq_type reqtype)
@@ -877,7 +876,7 @@ static void connection_close_cb(LmConnection *connection,
   // Reset carbons
   carbons_reset();
   // Update display
-  update_roster = TRUE;
+  scr_update_roster();
   scr_update_buddy_window();
 
   if (!reason)
@@ -927,7 +926,7 @@ static void handle_state_events(const char *bjid,
   }
 
   buddy_resource_setevents(sl_buddy->data, resource, xep85->last_state_rcvd);
-  update_roster = TRUE;
+  scr_update_roster();
 #endif
 }
 
@@ -987,7 +986,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
     }
 
     buddylist_defer_build();
-    scr_draw_roster();
+    scr_update_roster();
     goto gotmessage_return;
   }
 
@@ -1694,7 +1693,7 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
     /* The subscription request has been denied or a previously-granted
        subscription has been cancelled */
     roster_unsubscribed(from);
-    update_roster = TRUE;
+    scr_update_roster();
     buf = g_strdup_printf("<%s> has cancelled your subscription to "
                           "their presence updates", from);
     scr_WriteIncomingMessage(r, buf, 0, HBB_PREFIX_INFO, 0);
@@ -1706,7 +1705,7 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
   }
 
   if (newbuddy)
-    update_roster = TRUE;
+    scr_update_roster();
   g_free(r);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
@@ -2067,7 +2066,7 @@ void xmpp_setstatus(enum imstatus st, const char *recipient, const char *msg,
     // We'll have to update the roster if we switch to/from offline because
     // we don't know the presences of buddies when offline...
     if (mystatus == offline || st == offline)
-      update_roster = TRUE;
+      scr_update_roster();
 
     if (isonline || mystatus || st)
 #ifdef WITH_DEPRECATED_STATUS_INVISIBLE

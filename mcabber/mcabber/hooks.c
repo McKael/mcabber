@@ -436,7 +436,7 @@ void hk_message_in(const char *bjid, const char *resname,
       (buddy_getstatus(roster_usr->data, NULL) == offline &&
        buddylist_isset_filter()))
   {
-    update_roster = TRUE;
+    scr_update_roster();
   }
 
   g_free(bmsg);
@@ -568,7 +568,7 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
   roster_setstatus(bjid, rn, prio, status, status_msg, timestamp,
                    role_none, affil_none, NULL);
   buddylist_defer_build();
-  update_roster = TRUE;
+  scr_update_roster();
   hlog_write_status(bjid, timestamp, status, status_msg);
 
 #ifdef MODULES_ENABLE

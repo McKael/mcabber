@@ -563,8 +563,7 @@ int main(int argc, char **argv)
         sigwinch = FALSE;
       }
 #endif
-      if (update_roster)
-        scr_draw_roster();
+      scr_draw_roster();
       scr_do_update();
     }
 

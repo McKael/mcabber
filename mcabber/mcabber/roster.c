@@ -928,6 +928,7 @@ void buddylist_set_hide_offline_buddies(int hide)
   } else {                      // TRUE  (hide -- andfo)
     display_filter = DFILTER_ONLINE;
   }
+  buddylist_defer_build();
 }
 
 int buddylist_isset_filter(void)

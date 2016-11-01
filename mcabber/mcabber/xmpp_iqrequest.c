@@ -670,7 +670,7 @@ static void storage_bookmarks_parse_conference(LmMessageNode *node)
   }
   g_free(bjid);
 
-  buddylist_build();
+  buddylist_defer_build();
   update_roster = TRUE;
 }
 

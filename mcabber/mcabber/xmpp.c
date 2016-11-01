@@ -142,7 +142,7 @@ void xmpp_addbuddy(const char *bjid, const char *name, const char *group)
 
   roster_add_user(cleanjid, name, group, ROSTER_TYPE_USER, sub_pending, -1);
   g_free(cleanjid);
-  buddylist_build();
+  buddylist_defer_build();
 
   update_roster = TRUE;
 }
@@ -229,7 +229,7 @@ void xmpp_delbuddy(const char *bjid)
 
   roster_del_user(cleanjid);
   g_free(cleanjid);
-  buddylist_build();
+  buddylist_defer_build();
 
   update_roster = TRUE;
 }
@@ -986,7 +986,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
       buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
     }
 
-    buddylist_build();
+    buddylist_defer_build();
     scr_draw_roster();
     goto gotmessage_return;
   }

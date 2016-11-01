@@ -567,7 +567,7 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
 
   roster_setstatus(bjid, rn, prio, status, status_msg, timestamp,
                    role_none, affil_none, NULL);
-  buddylist_build();
+  buddylist_defer_build();
   update_roster = TRUE;
   hlog_write_status(bjid, timestamp, status, status_msg);
 

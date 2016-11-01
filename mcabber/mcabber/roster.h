@@ -190,6 +190,7 @@ guint   roster_gettype(const char *jid);
 guint   roster_getsubscription(const char *jid);
 void    roster_unsubscribed(const char *jid);
 
+void    buddylist_defer_build(void);
 void    buddylist_build(void);
 void    buddy_hide_group(gpointer rosterdata, int hide);
 void    buddylist_set_hide_offline_buddies(int hide);

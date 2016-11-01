@@ -1795,7 +1795,7 @@ void scr_draw_main_window(unsigned int fullinit)
 
     // Build the buddylist at least once, to make sure the special buffer
     // is added
-    buddylist_build();
+    buddylist_defer_build();
 
     // Init prev_chatwidth; this variable will be used to prevent us
     // from rewrapping buffers when the width doesn't change.
@@ -2087,6 +2087,8 @@ void scr_draw_roster(void)
 
   // We can reset update_roster
   update_roster = FALSE;
+
+  buddylist_build();
 
   getmaxyx(rosterWnd, maxy, maxx);
   maxx--;  // Last char is for vertical border
@@ -2538,7 +2540,7 @@ static void set_current_buddy(GList *newbuddy)
   }
   // We should rebuild the buddylist but not everytime
   if (!(buddylist_get_filter() & 1<<prev_st))
-    buddylist_build();
+    buddylist_defer_build();
   update_roster = TRUE;
 }
 
@@ -2662,7 +2664,7 @@ void scr_roster_jump_jid(char *barejid)
                                  sub_none, -1);
   // Set a lock to see it in the buddylist
   buddy_setflags(BUDDATA(roster_elt), ROSTER_FLAG_LOCK, TRUE);
-  buddylist_build();
+  buddylist_defer_build();
   // Jump to the buddy
   set_current_buddy(buddy_search_jid(barejid));
   if (chatmode) {
@@ -2699,7 +2701,7 @@ void scr_roster_unread_message(int next)
     ngroup = buddy_getgroup(unread_ptr);
     if (buddy_getflags(ngroup) & ROSTER_FLAG_HIDE) {
       buddy_setflags(ngroup, ROSTER_FLAG_HIDE, FALSE);
-      buddylist_build();
+      buddylist_defer_build();
     }
   }
 
@@ -2776,7 +2778,7 @@ void scr_roster_display(const char *filter)
       if (strchr(filter, imstatus2char[budstate]) || show_all)
         status |= 1<<budstate;
     buddylist_set_filter(status);
-    buddylist_build();
+    buddylist_defer_build();
     update_roster = TRUE;
     return;
   }

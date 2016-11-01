@@ -602,7 +602,7 @@ static void roster_buddylock(char *bjid, int lock)
       lock = !(buddy_getflags(bud) & ROSTER_FLAG_USRLOCK);
     buddy_setflags(bud, ROSTER_FLAG_USRLOCK, lock);
     if (may_need_refresh) {
-      buddylist_build();
+      buddylist_defer_build();
       update_roster = TRUE;
     }
   }
@@ -833,15 +833,15 @@ static void do_roster(char *arg)
   } else if (!strcasecmp(subcmd, "hide_offline")) {
     buddylist_set_hide_offline_buddies(TRUE);
     if (current_buddy)
-      buddylist_build();
+      buddylist_defer_build();
     update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "show_offline")) {
     buddylist_set_hide_offline_buddies(FALSE);
-    buddylist_build();
+    buddylist_defer_build();
     update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "toggle_offline")) {
     buddylist_set_hide_offline_buddies(-1);
-    buddylist_build();
+    buddylist_defer_build();
     update_roster = TRUE;
   } else if (!strcasecmp(subcmd, "display")) {
     scr_roster_display(arg);
@@ -1257,7 +1257,7 @@ static void do_group(char *arg)
 
   buddy_hide_group(group, group_state);
 
-  buddylist_build();
+  buddylist_defer_build();
   update_roster = TRUE;
 
 do_group_return:
@@ -2627,7 +2627,7 @@ static void room_join(gpointer bud, char *arg)
   g_free(roomname_tmp);
   g_free(nick);
   g_free(pass_utf8);
-  buddylist_build();
+  buddylist_defer_build();
   update_roster = TRUE;
   free_arg_lst(paramlst);
 }
@@ -2926,7 +2926,7 @@ static void room_remove(gpointer bud, char *arg)
   // Delete the room
   roster_del_user(buddy_getjid(bud));
   scr_update_buddy_window();
-  buddylist_build();
+  buddylist_defer_build();
   update_roster = TRUE;
 }
 

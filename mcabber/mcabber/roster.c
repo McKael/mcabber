@@ -121,6 +121,7 @@ static GSList *groups;
 static GSList *unread_list;
 static GHashTable *unread_jids;
 GList *buddylist;
+static gboolean _rebuild_buddylist = FALSE;
 GList *current_buddy;
 GList *alternate_buddy;
 GList *last_activity_buddy;
@@ -472,7 +473,7 @@ void roster_del_user(const char *jid)
 
   // We need to rebuild the list
   if (current_buddy)
-    buddylist_build();
+    buddylist_defer_build();
   // TODO What we could do, too, is to check if the deleted node is
   // current_buddy, in which case we could move current_buddy to the
   // previous (or next) node.
@@ -518,7 +519,7 @@ void roster_free(void)
     groups = NULL;
     // Update (i.e. free) buddylist
     if (buddylist)
-      buddylist_build();
+      buddylist_defer_build();
   }
 }
 
@@ -718,7 +719,7 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
   }
 
   if (buddylist && (new_roster_item || !g_list_find(buddylist, roster_usr)))
-    buddylist_build();
+    buddylist_defer_build();
 
 roster_msg_setflag_return:
   if (unread_list_modified) {
@@ -949,6 +950,11 @@ guchar buddylist_get_filter(void)
   return display_filter;
 }
 
+void buddylist_defer_build(void)
+{
+  _rebuild_buddylist = TRUE;
+}
+
 //  buddylist_build()
 // Creates the buddylist from the roster entries.
 void buddylist_build(void)
@@ -959,6 +965,10 @@ void buddylist_build(void)
   roster *roster_alternate_buddy = NULL;
   roster *roster_last_activity_buddy = NULL;
   int shrunk_group;
+
+  if (_rebuild_buddylist == FALSE)
+    return;
+  _rebuild_buddylist = FALSE;
 
   // We need to remember which buddy is selected.
   if (current_buddy)
@@ -1094,7 +1104,7 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   my_newgroup->list = g_slist_insert_sorted(my_newgroup->list, roster_usr,
                                             (GCompareFunc)&roster_compare_name);
 
-  buddylist_build();
+  buddylist_defer_build();
 }
 
 void buddy_setname(gpointer rosterdata, char *newname)
@@ -1118,7 +1128,7 @@ void buddy_setname(gpointer rosterdata, char *newname)
   sl_group = &((roster*)((GSList*)roster_usr->list)->data)->list;
   *sl_group = g_slist_sort(*sl_group, (GCompareFunc)&roster_compare_name);
 
-  buddylist_build();
+  buddylist_defer_build();
 }
 
 const char *buddy_getname(gpointer rosterdata)
@@ -1552,6 +1562,7 @@ GList *buddy_search_jid(const char *jid)
   GList *buddy;
   roster *roster_usr;
 
+  buddylist_build();
   if (!buddylist) return NULL;
 
   for (buddy = buddylist; buddy; buddy = g_list_next(buddy)) {
@@ -1570,6 +1581,7 @@ GList *buddy_search(char *string)
 {
   GList *buddy = current_buddy;
   roster *roster_usr;
+  buddylist_build();
   if (!buddylist || !current_buddy) return NULL;
   for (;;) {
     gchar *jid_locale, *name_locale;

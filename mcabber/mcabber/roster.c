@@ -1762,29 +1762,16 @@ static int unread_jid_del(const char *jid)
   return g_hash_table_remove(unread_jids, jid);
 }
 
-// Helper function for unread_jid_get_list()
-static void add_to_unreadjids(gpointer key, gpointer value, gpointer udata)
-{
-  GList **listp = udata;
-  *listp = g_list_append(*listp, key);
-}
-
 //  unread_jid_get_list()
 // Return the JID list.
 // The content of the list should not be modified or freed.
 // The caller should call g_list_free() after use.
 GList *unread_jid_get_list(void)
 {
-  GList *list = NULL;
-
   if (!unread_jids)
     return NULL;
 
-  // g_hash_table_get_keys() is only in glib >= 2.14
-  //return g_hash_table_get_keys(unread_jids);
-
-  g_hash_table_foreach(unread_jids, add_to_unreadjids, &list);
-  return list;
+  return g_hash_table_get_keys(unread_jids);
 }
 
 /* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

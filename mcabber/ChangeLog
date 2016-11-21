@@ -1,8 +1,16 @@
-mcabber (1.0.4-dev)
+mcabber (1.0.5-dev)
 
  * 
 
  -- Mikael, ?
+
+mcabber (1.0.4)
+
+ * Bugfix: Check the origin of roster pushes
+   Cf. Gajim's CVE-2015-8688 and
+   https://gultsch.de/gajim_roster_push_and_message_interception.html
+
+ -- Mikael, 2016-11-21
 
 mcabber (1.0.3)
 

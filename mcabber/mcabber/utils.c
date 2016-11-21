@@ -96,6 +96,9 @@ char *get_servername(const char *username, const char *servername)
   char *ptr;
   char *server;
 
+  if (!username) {
+    return NULL;
+  }
   if ((ptr = strchr(username, JID_DOMAIN_SEPARATOR)) != NULL) {
     server = g_strdup(ptr+1);
     return server;

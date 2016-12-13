@@ -23,8 +23,6 @@
 #include "utils.h"
 #include "hooks.h"
 
-int build_buddylist;
-
 extern void hlog_save_state(void);
 
 char *strrole[] = {   /* Should match enum in roster.h */
@@ -1034,8 +1032,6 @@ void buddylist_build(void)
   // current_buddy initialization
   if (!current_buddy || (g_list_position(buddylist, current_buddy) == -1))
     current_buddy = g_list_first(buddylist);
-
-  build_buddylist = FALSE;
 }
 
 //  buddy_hide_group(roster, hide)

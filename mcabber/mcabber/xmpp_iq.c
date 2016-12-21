@@ -585,15 +585,15 @@ LmHandlerResult handle_iq_roster(LmMessageHandler *h, LmConnection *c,
   const gchar *from = lm_message_get_from(m);
 
   if (from) {
-    gchar *self_bjid = jidtodisp(lm_connection_get_jid(c));
-    gchar *servername = get_servername(self_bjid, "");
-    if ((!jid_equal(self_bjid, from)) &&
+    const gchar *self_jid = lm_connection_get_jid(c);
+    gchar *servername = get_servername(self_jid, "");
+    if ((!jid_equal(self_jid, from)) &&
        (!servername || strcasecmp(from, servername))) {
       scr_LogPrint(LPRINT_LOGNORM, "Received invalid roster IQ request");
-      g_free(self_bjid);
+      g_free(servername);
       return LM_HANDLER_RESULT_REMOVE_MESSAGE;
     }
-    g_free(self_bjid);
+    g_free(servername);
   }
 
   y = lm_message_node_find_child(lm_message_node_find_xmlns(m->node, NS_ROSTER),

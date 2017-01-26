@@ -1158,6 +1158,15 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
 
     // Parse a message that is send to one of our other resources
     if (!g_strcmp0(carbon_name, "received")) {
+      // Check envelope JID for carbon messages
+      gchar *self_bjid = jidtodisp(lm_connection_get_jid(lconnection));
+      if (g_strcmp0(self_bjid, bjid)) {
+        scr_LogPrint(LPRINT_LOGNORM, "Received invalid carbon copy!");
+        g_free(self_bjid);
+        goto handle_messages_return;
+      }
+      g_free(self_bjid);
+
       from = lm_message_node_get_attribute(x, "from");
       if (!from) {
         scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy!");

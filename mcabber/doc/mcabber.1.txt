@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v1.0.5, January 2017
+v1.0.6-dev, January 2017
 
 NAME
 ----
@@ -543,7 +543,7 @@ xmpp:mcabber@conf.lilotux.net[MCabber MUC room]
 
 COPYING
 -------
-Copyright \(C) 2005-2016 Mikael Berthe and others. +
+Copyright \(C) 2005-2017 Mikael Berthe and others. +
 
 Free use of this software is granted under the terms of the GNU General Public
 License (GPL).

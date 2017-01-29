@@ -1136,6 +1136,13 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     LmMessageNode *xenc;
     const char *carbon_name = x->name;
     carbons = TRUE;
+
+    // Check envelope JID for carbon messages
+    if (!jid_equal(lm_connection_get_jid(lconnection), bjid)) {
+      scr_LogPrint(LPRINT_LOGNORM, "Received invalid carbon copy from %s.", bjid);
+      goto handle_messages_return;
+    }
+
     // Go 1 level deeper to the forwarded message
     x = lm_message_node_find_xmlns(x, NS_FORWARD);
     if (x)
@@ -1158,15 +1165,6 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
 
     // Parse a message that is send to one of our other resources
     if (!g_strcmp0(carbon_name, "received")) {
-      // Check envelope JID for carbon messages
-      gchar *self_bjid = jidtodisp(lm_connection_get_jid(lconnection));
-      if (g_strcmp0(self_bjid, bjid)) {
-        scr_LogPrint(LPRINT_LOGNORM, "Received invalid carbon copy!");
-        g_free(self_bjid);
-        goto handle_messages_return;
-      }
-      g_free(self_bjid);
-
       from = lm_message_node_get_attribute(x, "from");
       if (!from) {
         scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy!");

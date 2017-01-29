@@ -1,8 +1,11 @@
-mcabber (1.0.5-dev)
+mcabber (1.0.5)
 
- * 
+ * Much better performances with huge rosters (Frank Zschockelt)
+ * Fix issue with carbons
+ * Fix small memory leak
+ * contrib/vim: Support reloading filetype detection
 
- -- Mikael, ?
+ -- Mikael, 2017-01-29
 
 mcabber (1.0.4)
 

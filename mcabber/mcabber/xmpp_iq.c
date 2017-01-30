@@ -556,7 +556,7 @@ LmHandlerResult handle_iq_disco_info(LmMessageHandler *h,
   r = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
   query = lm_message_node_add_child(r->node, "query", NULL);
   lm_message_node_set_attribute(query, "xmlns", NS_DISCO_INFO);
-  tmp = lm_message_node_find_child(m->node, "query");
+  tmp = lm_message_node_get_child(m->node, "query");
   if (tmp) {
     node = lm_message_node_get_attribute(tmp, "node");
     param = node+strlen(MCABBER_CAPS_NODE)+1;
@@ -596,7 +596,7 @@ LmHandlerResult handle_iq_roster(LmMessageHandler *h, LmConnection *c,
     g_free(servername);
   }
 
-  y = lm_message_node_find_child(lm_message_node_find_xmlns(m->node, NS_ROSTER),
+  y = lm_message_node_get_child(lm_message_node_find_xmlns(m->node, NS_ROSTER),
                                  "item");
   for ( ; y; y = y->next) {
     char *name_tmp = NULL;
@@ -606,8 +606,8 @@ LmHandlerResult handle_iq_roster(LmMessageHandler *h, LmConnection *c,
     sub = lm_message_node_get_attribute(y, "subscription");
     ask = lm_message_node_get_attribute(y, "ask");
 
-    if (lm_message_node_find_child(y, "group"))
-      group = lm_message_node_get_value(lm_message_node_find_child(y, "group"));
+    if (lm_message_node_get_child(y, "group"))
+      group = lm_message_node_get_value(lm_message_node_get_child(y, "group"));
     else
       group = NULL;
 

@@ -1158,6 +1158,8 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     if (xenc && (p = lm_message_node_get_value(xenc)) != NULL)
       enc = p;
 
+    body = lm_message_node_get_child_value(x, "body");
+    subject = lm_message_node_get_child_value(x, "subject");
     if (body && *body && !subject)
       ns_signed = lm_message_node_find_xmlns(x, NS_SIGNED);
     else
@@ -1445,7 +1447,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     LmMessageNode *x;
     scr_LogPrint(LPRINT_LOGNORM, "Error presence packet from <%s>", bjid);
-    x = lm_message_node_find_child(m->node, "error");
+    x = lm_message_node_get_child(m->node, "error");
     display_server_error(x, from);
     // Let's check it isn't a nickname conflict.
     // XXX Note: We should handle the <conflict/> string condition.

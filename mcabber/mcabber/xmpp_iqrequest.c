@@ -214,7 +214,7 @@ static LmHandlerResult cb_roster(LmMessageHandler *h, LmConnection *c,
   if (lm_message_get_sub_type(m) != LM_MESSAGE_SUB_TYPE_RESULT)
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
 
-  x = lm_message_node_find_child(m->node, "query");
+  x = lm_message_node_get_child(m->node, "query");
   if (!x)
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
 

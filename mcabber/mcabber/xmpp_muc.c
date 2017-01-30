@@ -308,7 +308,7 @@ static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
   LmMessageNode *y, *z;
   const char *p, *actorjid, *actornick;
 
-  y = lm_message_node_find_child(xmldata, "item");
+  y = lm_message_node_get_child(xmldata, "item");
   if (!y)
     return;
 
@@ -334,7 +334,7 @@ static void muc_get_item_info(const char *from, LmMessageNode *xmldata,
   *mbjid = lm_message_node_get_attribute(y, "jid");
   *mbnick = lm_message_node_get_attribute(y, "nick");
   // For kick/ban, there can be actor and reason tags
-  z = lm_message_node_find_child(y, "actor");
+  z = lm_message_node_get_child(y, "actor");
   if (z) {
     actornick = lm_message_node_get_attribute(z, "nick");
     actorjid  = lm_message_node_get_attribute(z, "jid");
@@ -658,7 +658,7 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
     } else {
       // Natural leave
       if (our_presence) {
-        LmMessageNode *destroynode = lm_message_node_find_child(xmldata,
+        LmMessageNode *destroynode = lm_message_node_get_child(xmldata,
                                                                 "destroy");
         if (destroynode) {
           reason = lm_message_node_get_child_value(destroynode, "reason");

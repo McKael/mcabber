@@ -109,7 +109,7 @@ const gchar* lm_message_node_get_child_value(LmMessageNode *node,
 
   if (G_UNLIKELY(!node || !child)) return NULL;
 
-  tmp = lm_message_node_find_child(node, child);
+  tmp = lm_message_node_get_child(node, child);
   if (tmp) {
     const gchar *val = lm_message_node_get_value(tmp);
     return (val ? val : "");

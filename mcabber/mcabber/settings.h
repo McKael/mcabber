@@ -19,13 +19,14 @@
 #define SETTINGS_TYPE_OTR       4
 #endif
 
-#define COMMAND_CHAR    '/'
-#define COMMAND_CHARSTR "/"
-
 #define settings_opt_get(k)     settings_get(SETTINGS_TYPE_OPTION, k)
 #define settings_opt_get_int(k) settings_get_int(SETTINGS_TYPE_OPTION, k)
 
-#define mkcmdstr(cmd) COMMAND_CHARSTR cmd
+#define COMMAND_CHAR    (vi_mode ? ':' : '/')
+#define COMMAND_CHARSTR (vi_mode ? ":" : "/")
+#define VI_SEARCH_COMMAND_CHAR  '/'
+
+extern gboolean vi_mode;
 
 typedef gchar *(*settings_guard_t)(const gchar *key, const gchar *new_value);
 

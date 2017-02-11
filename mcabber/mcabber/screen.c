@@ -783,6 +783,16 @@ gboolean scr_curses_status(void)
   return Curses;
 }
 
+static gchar *scr_vi_mode_guard(const gchar *key, const gchar *new_value)
+{
+  int new_mode = 0;
+  if (new_value)
+    new_mode = atoi(new_value);
+  if (new_mode == 0 || new_mode == 1)
+    vi_mode = new_mode;
+  return g_strdup(new_value);
+}
+
 static gchar *scr_color_guard(const gchar *key, const gchar *new_value)
 {
   if (g_strcmp0(settings_opt_get(key), new_value))
@@ -814,6 +824,9 @@ void scr_init_curses(void)
     scr_LogPrint(LPRINT_LOGNORM, "ERROR: no ESCDELAY support.");
 #endif
   }
+
+  // Set up vi_mode guard
+  settings_set_guard("vi_mode", scr_vi_mode_guard);
 
   parse_colors();
 
@@ -3809,7 +3822,7 @@ void readline_disable_chat_mode(guint show_roster)
   scr_check_auto_away(TRUE);
   if (chatmode) {
     scr_buffer_readmark(TRUE);
-    if (settings_opt_get_int("vi_mode"))
+    if (vi_mode)
       clear_inputline();
   }
   currentWindow = NULL;
@@ -4181,8 +4194,7 @@ static inline void print_checked_line(void)
 static inline void refresh_inputline(void)
 {
 #if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
-  if (settings_opt_get_int("spell_enable") &&
-      (chatmode || !settings_opt_get_int("vi_mode"))) {
+  if (settings_opt_get_int("spell_enable") && (chatmode || !vi_mode)) {
     memset(maskLine, 0, INPUTLINE_LENGTH+1);
     spellcheck(inputLine, maskLine);
   }
@@ -4436,40 +4448,47 @@ static void bindcommand(keycode kcode)
 static void scr_process_vi_arrow_key(int key)
 {
   const char *l;
-  char mask[INPUTLINE_LENGTH+1] = "/roster search ";
+  char mask[INPUTLINE_LENGTH+1];
   size_t cmd_len = strlen(mask);
   size_t str_len = strlen(inputLine) - 1;
 
-  switch (inputLine[0]) {
-    case ':':
-        inputLine[0] = '/';
-        if (key == KEY_UP)
-          l = scr_cmdhisto_prev(inputLine, ptr_inputline - inputLine);
-        else
-          l = scr_cmdhisto_next(inputLine, ptr_inputline - inputLine);
-        if (l)
-          strcpy(inputLine, l);
-        inputLine[0] = ':';
-        break;
-    case '/':
-        if (cmd_len + str_len > INPUTLINE_LENGTH)
-          return;
+  strncpy(mask, mkcmdstr("roster search "), INPUTLINE_LENGTH);
 
-        memcpy(mask + cmd_len, inputLine + 1, str_len + 1);
-        if (key == KEY_UP)
-          l = scr_cmdhisto_prev(mask, ptr_inputline - inputLine + cmd_len - 1);
-        else
-          l = scr_cmdhisto_next(mask, ptr_inputline - inputLine + cmd_len - 1);
-        if (l)
-          strcpy(inputLine + 1, l + cmd_len);
-        break;
-    default:
-        if (key == KEY_UP)
-          process_command(mkcmdstr("roster up"), TRUE);
-        else
-          process_command(mkcmdstr("roster down"), TRUE);
-        break;
+  if  (inputLine[0] == COMMAND_CHAR) {
+    if (!chatmode) { // Command mode
+      if (key == KEY_UP)
+        l = scr_cmdhisto_prev(inputLine, ptr_inputline - inputLine);
+      else
+        l = scr_cmdhisto_next(inputLine, ptr_inputline - inputLine);
+      if (l)
+        strcpy(inputLine, l);
+
+      return;
+    }
+
+    // Chat mode
+
+    if (cmd_len + str_len > INPUTLINE_LENGTH)
+      return;
+
+    memcpy(mask + cmd_len, inputLine + 1, str_len + 1);
+    if (key == KEY_UP)
+      l = scr_cmdhisto_prev(mask, ptr_inputline - inputLine + cmd_len - 1);
+    else
+      l = scr_cmdhisto_next(mask, ptr_inputline - inputLine + cmd_len - 1);
+    if (l)
+      strcpy(inputLine + 1, l + cmd_len);
+
+    return;
   }
+
+  if  (inputLine[0] == VI_SEARCH_COMMAND_CHAR)
+    return;
+
+  if (key == KEY_UP)
+    process_command(mkcmdstr("roster up"), TRUE);
+  else if (key == KEY_DOWN)
+    process_command(mkcmdstr("roster down"), TRUE);
 }
 
 //  scr_process_key(key)
@@ -4478,7 +4497,6 @@ void scr_process_key(keycode kcode)
 {
   int key = kcode.value;
   int display_char = FALSE;
-  int vi_completion = FALSE;
   int vi_search = FALSE;
   static int ex_or_search_mode = FALSE;
 
@@ -4497,10 +4515,10 @@ void scr_process_key(keycode kcode)
         key = ERR; // Do not process any further
   }
 
-  if (settings_opt_get_int("vi_mode") && !chatmode) {
+  if (vi_mode && !chatmode) {
     int got_cmd_prefix = FALSE;
     int unrecognized = FALSE;
-    static char search_cmd[INPUTLINE_LENGTH+1] = "/roster search ";
+    static char search_cmd[INPUTLINE_LENGTH+1] = "";
 
     if (key == KEY_UP || key == KEY_DOWN) {
       scr_process_vi_arrow_key(key);
@@ -4513,75 +4531,61 @@ void scr_process_key(keycode kcode)
             break;
         case 9:     // Tab
         case 353:   // Shift-Tab
-            switch (inputLine[0]) {
-              case ':':
-                  inputLine[0] = '/';
-                  vi_completion = TRUE;
-                  break;
-              case '/':
-                  vi_search = TRUE;
-                  break;
-            }
+            if (inputLine[0] == VI_SEARCH_COMMAND_CHAR)
+              vi_search = TRUE;
             break;
         case 13:    // Enter
         case 343:   // Enter on Maemo
-            switch (inputLine[0]) {
-              case ':':
-                  {
-                    char *p = strchr(inputLine, 0);
+            if (inputLine[0] == COMMAND_CHAR) {
+              {
+                char *p = strchr(inputLine, 0);
 
-                    while (*--p == ' ' && p > inputLine)
-                      *p = 0;
-                  }
-                  if (!strcmp(inputLine, ":x") ||
-                      !strcmp(inputLine, ":q") ||
-                      !strcmp(inputLine, ":wq"))
-                    strcpy(inputLine, ":quit");
-                  if (isdigit((int)(unsigned char)inputLine[1]) &&
-                      strlen(inputLine) <= 9) {
-                    process_command(mkcmdstr("roster top"), TRUE);
-                    memcpy(inputLine + 13, inputLine + 1, 10);
-                    memcpy(inputLine + 1, "roster down ", 12);
-                  }
-                  inputLine[0] = '/';
-                  process_command(inputLine, TRUE);
-                  scr_cmdhisto_addline(inputLine);
-                  break;
-              case '/':
-                  {
-                    size_t cmd_len = sizeof("/roster search ") - 1;
-                    size_t str_len = strlen(inputLine) - 1;
+                while (*--p == ' ' && p > inputLine)
+                  *p = 0;
+              }
+              if (!strcmp(inputLine, mkcmdstr("x")) ||
+                  !strcmp(inputLine, mkcmdstr("q")) ||
+                  !strcmp(inputLine, mkcmdstr("wq")))
+                strcpy(inputLine, mkcmdstr("quit"));
+              if (isdigit((int)(unsigned char)inputLine[1]) &&
+                  strlen(inputLine) <= 9) {
+                process_command(mkcmdstr("roster top"), TRUE);
+                memcpy(inputLine + 13, inputLine + 1, 10);
+                memcpy(inputLine + 1, "roster down ", 12);
+              }
+              inputLine[0] = COMMAND_CHAR;
+              process_command(inputLine, TRUE);
+              scr_cmdhisto_addline(inputLine);
+            } else if (inputLine[0] == VI_SEARCH_COMMAND_CHAR) {
+              size_t cmd_len;
+              size_t str_len = strlen(inputLine) - 1;
 
-                    if (cmd_len + str_len > INPUTLINE_LENGTH)
-                      return;
+              strncpy(search_cmd, mkcmdstr("roster search "), INPUTLINE_LENGTH);
+              cmd_len = strlen(search_cmd);
 
-                    memcpy(search_cmd + cmd_len, inputLine + 1,
-                           str_len + 1);
-                  }
-                  process_command(search_cmd, TRUE);
-                  scr_cmdhisto_addline(search_cmd);
-                  break;
-              case 0:
-                  {
-                    if (buddy_gettype(BUDDATA(current_buddy)) ==
-                        ROSTER_TYPE_GROUP)
-                      process_command(mkcmdstr("group toggle"), TRUE);
-                    else
-                      open_chat_window();
-                  }
-                  break;
+              if (cmd_len + str_len > INPUTLINE_LENGTH)
+                return;
+
+              memcpy(search_cmd + cmd_len, inputLine + 1, str_len + 1);
+
+              process_command(search_cmd, TRUE);
+              scr_cmdhisto_addline(search_cmd);
+            } else if (inputLine[0] == 0) {
+              if (buddy_gettype(BUDDATA(current_buddy)) ==
+                  ROSTER_TYPE_GROUP)
+                process_command(mkcmdstr("group toggle"), TRUE);
+              else
+                open_chat_window();
             }
             ex_or_search_mode = FALSE;
-            break;
       }
     } else if (key >= '0' && key <= '9') {
       got_cmd_prefix = TRUE;
+    } else if (key == COMMAND_CHAR || key == VI_SEARCH_COMMAND_CHAR) {
+      ex_or_search_mode = TRUE;
+      cmdhisto_cur = NULL;
     } else {
       switch (key) {
-        case '/':
-        case ':':
-            ex_or_search_mode = TRUE;
-            break;
         case ' ':
             process_command(mkcmdstr("group toggle"), TRUE);
             break;
@@ -4661,9 +4665,9 @@ void scr_process_key(keycode kcode)
         case 'j':
             if (isdigit((int)(unsigned char)inputLine[0]) &&
                 strlen(inputLine) <= 9) {
-              char down_cmd[32] = "/roster down ";
-
-              strcat(down_cmd, inputLine);
+              char down_cmd[32];
+              strncpy(down_cmd, mkcmdstr("roster down "), 32);
+              strncat(down_cmd, inputLine, 16);
               process_command(down_cmd, TRUE);
             } else
               process_command(mkcmdstr("roster down"), TRUE);
@@ -4671,9 +4675,9 @@ void scr_process_key(keycode kcode)
         case 'k':
             if (isdigit((int)(unsigned char)inputLine[0]) &&
                 strlen(inputLine) <= 9) {
-              char up_cmd[32] = "/roster up ";
-
-              strcat(up_cmd, inputLine);
+              char up_cmd[32];
+              strncpy(up_cmd, mkcmdstr("roster up "), 32);
+              strncat(up_cmd, inputLine, 16);
               process_command(up_cmd, TRUE);
             } else
               process_command(mkcmdstr("roster up "), TRUE);
@@ -4684,9 +4688,12 @@ void scr_process_key(keycode kcode)
               GSList *g;
 
               for (g = groups; g; g = g_slist_next(g)) {
-                char fold_cmd[128] = "/group fold ";
-                size_t cmd_len = strlen(fold_cmd);
-                size_t grp_len = strlen(g->data);
+                char fold_cmd[256];
+                size_t cmd_len, grp_len;
+
+                strncpy(fold_cmd, mkcmdstr("group fold "), 32);
+                cmd_len = strlen(fold_cmd);
+                grp_len = strlen(g->data);
 
                 if (cmd_len + grp_len + 1 > sizeof(fold_cmd))
                   continue;
@@ -4715,9 +4722,12 @@ void scr_process_key(keycode kcode)
               GSList *g;
 
               for (g = groups; g; g = g_slist_next(g)) {
-                char fold_cmd[128] = "/group unfold ";
-                size_t cmd_len = strlen(fold_cmd);
-                size_t grp_len = strlen(g->data);
+                char fold_cmd[256];
+                size_t cmd_len, grp_len;
+
+                strncpy(fold_cmd, mkcmdstr("group unfold "), 32);
+                cmd_len = strlen(fold_cmd);
+                grp_len = strlen(g->data);
 
                 if (cmd_len + grp_len + 1 > sizeof(fold_cmd))
                   continue;
@@ -4831,11 +4841,10 @@ display:
 
   if (completion_started && key != 9 && key != 353 && key != KEY_RESIZE)
     scr_end_current_completion();
-  else if (vi_completion)
-    inputLine[0] = ':';
   refresh_inputline();
 
-  if (ex_or_search_mode && inputLine[0] != ':' && inputLine[0] != '/')
+  if (ex_or_search_mode &&
+      inputLine[0] != COMMAND_CHAR && inputLine[0] != VI_SEARCH_COMMAND_CHAR)
     ex_or_search_mode = FALSE;
 
   if (!lock_chatstate) {

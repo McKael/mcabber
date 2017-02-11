@@ -16,6 +16,8 @@
 # include <panel.h>
 #endif
 
+gboolean vi_mode;
+
 #if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
 void spellcheck_init(void);
 void spellcheck_deinit(void);

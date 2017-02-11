@@ -56,6 +56,8 @@ char *strcasestr(const char *haystack, const char *needle);
 
 int startswith(const char *str, const char *word, guint ignore_case);
 
+const char *mkcmdstr(const char *cmd);
+
 #endif // __MCABBER_UTILS_H__
 
 /* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

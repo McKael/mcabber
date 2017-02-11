@@ -51,6 +51,7 @@ static char idnprep[1024];
 #include "logprint.h"
 #include "settings.h"
 #include "main.h"
+#include "screen.h"
 
 static int DebugEnabled;
 static char *FName;
@@ -935,6 +936,19 @@ int startswith(const char *str, const char *word, guint ignore_case)
   else if (!ignore_case && !strncmp(str, word, strlen(word)))
     return TRUE;
   return FALSE;
+}
+
+//  mkcmdstr(cmd) returns a pointer to a const string with the command
+//  prefixed with COMMAND_CHAR.
+const char *mkcmdstr(const char *cmd)
+{
+  static char fcmd[INPUTLINE_LENGTH+1];
+
+  fcmd[0] = COMMAND_CHAR;
+  fcmd[1] = 0;
+
+  strncat(fcmd+1, cmd, INPUTLINE_LENGTH-1);
+  return fcmd;
 }
 
 /* vim: set et cindent cinoptions=>2\:2(0 ts=2 sw=2:  For Vim users... */

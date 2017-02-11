@@ -550,17 +550,22 @@ void process_line(const char *line)
     return;
   }
 
-  if (*line != COMMAND_CHAR) {
-    // This isn't a command
-    if (scr_get_multimode())
-      scr_append_multiline(line);
-    else
-      say_cmd((char*)line, 0);
-    return;
+  if (*line == COMMAND_CHAR && scr_get_multimode() != 2) {
+    if (*(line+1) != COMMAND_CHAR) {
+      /* It is a command */
+      process_command(line, FALSE);
+      return;
+    } else {
+      /* Skip the first COMMAND_CHAR */
+      line++;
+    }
   }
 
-  /* It is _probably_ a command -- except for verbatim multi-line mode */
-  process_command(line, FALSE);
+  // This isn't a command
+  if (scr_get_multimode())
+    scr_append_multiline(line);
+  else
+    say_cmd((char*)line, 0);
 }
 
 // Helper routine for buffer item_{lock,unlock,toggle_lock}

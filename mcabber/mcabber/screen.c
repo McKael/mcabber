@@ -827,6 +827,8 @@ void scr_init_curses(void)
 
   // Set up vi_mode guard
   settings_set_guard("vi_mode", scr_vi_mode_guard);
+  if (settings_opt_get_int("vi_mode") == 1)
+    vi_mode = true;
 
   parse_colors();
 

@@ -2918,7 +2918,6 @@ static void room_remove(gpointer bud, char *arg)
   // Delete the room
   roster_del_user(buddy_getjid(bud));
   scr_update_buddy_window();
-  buddylist_defer_build();
   scr_update_roster();
 }
 

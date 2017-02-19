@@ -668,7 +668,6 @@ LmHandlerResult handle_iq_roster(LmMessageHandler *h, LmConnection *c,
     lm_message_unref(result);
   }
 
-  buddylist_defer_build();
   scr_update_roster();
   if (need_refresh)
     scr_update_buddy_window();

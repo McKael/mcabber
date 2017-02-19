@@ -438,6 +438,7 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
   // #4 Insert node (sorted)
   my_group->list = g_slist_insert_sorted(my_group->list, roster_usr,
                                          (GCompareFunc)&roster_compare_name);
+  buddylist_defer_build();
   return roster_find(jid, jidsearch, type);
 }
 

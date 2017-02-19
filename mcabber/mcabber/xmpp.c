@@ -228,7 +228,6 @@ void xmpp_delbuddy(const char *bjid)
 
   roster_del_user(cleanjid);
   g_free(cleanjid);
-  buddylist_defer_build();
 
   scr_update_roster();
 }

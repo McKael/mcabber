@@ -1443,6 +1443,7 @@ void scr_show_buddy_window(void)
 {
   const gchar *bjid;
 
+  buddylist_build();
   if (!current_buddy) {
     bjid = NULL;
   } else {
@@ -2735,6 +2736,7 @@ void scr_roster_unread_message(int next)
     }
   }
 
+  buddylist_build();
   nbuddy = g_list_find(buddylist, unread_ptr);
   if (nbuddy) {
     set_current_buddy(nbuddy);

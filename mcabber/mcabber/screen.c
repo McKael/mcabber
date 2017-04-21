@@ -4950,7 +4950,8 @@ void spellcheck_init(void)
 // Deinitialization of spellchecker
 void spellcheck_deinit(void)
 {
-  g_slist_free_full(spell_checkers, spell_checker_free);
+  g_slist_foreach (spell_checkers, (GFunc) spell_checker_free, NULL);
+  g_slist_free (spell_checkers);
   spell_checkers = NULL;
 }
 

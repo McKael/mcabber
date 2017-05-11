@@ -1543,7 +1543,7 @@ char *load_message_from_file(const char *filename)
   struct stat buf;
   char *msgbuf, *msgbuf_utf8;
   char *p;
-  char *next_utf8_char;
+  gboolean valid;
   size_t len;
 
   fd = fopen(filename, "r");
@@ -1565,28 +1565,30 @@ char *load_message_from_file(const char *filename)
   len = fread(msgbuf, 1, HBB_BLOCKSIZE-1, fd);
   fclose(fd);
 
-  next_utf8_char = msgbuf;
-
   // Check there is no binary data.  It must be a *message* file!
-  for (p = msgbuf ; *p ; p++) {
-    if (utf8_mode) {
-      if (p == next_utf8_char) {
-        if (!iswprint(get_char(p)) && *p != '\n' && *p != '\t')
+  valid = TRUE;
+  if (utf8_mode) {
+    valid = g_utf8_validate(msgbuf, len, (const gchar **)&p);
+  } else { // Non-UTF8
+    for (p = msgbuf ; *p; p++) {
+      if (!utf8_mode) {
+        unsigned char sc = *p;
+        if (!iswprint(sc) && sc != '\n' && sc != '\t') {
+          valid = FALSE;
           break;
-        next_utf8_char = next_char(p);
+        }
       }
-    } else {
-      unsigned char sc = *p;
-      if (!iswprint(sc) && sc != '\n' && sc != '\t')
-        break;
     }
   }
 
-  if (*p || (size_t)(p-msgbuf) != len) { // We're not at the End Of Line...
-    scr_LogPrint(LPRINT_LOGNORM, "Message file contains "
-                 "invalid characters (%s)", filename);
-    g_free(msgbuf);
-    return NULL;
+  if (valid && (*p || p != len+msgbuf)) {
+    valid = FALSE; // We're not at the End Of Line...
+  }
+  if (!valid) {
+      scr_LogPrint(LPRINT_LOGNORM, "Message file contains "
+                   "invalid characters (%s)", filename);
+      g_free(msgbuf);
+      return NULL;
   }
 
   // p is now at the EOL

@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: mcabber
-.\"    Author: [see the "AUTHOR" section]
-.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 09/18/2016
+.\"    Author: Mikael BERTHE <mcabber@lilotux.net>
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: May 2017
 .\"    Manual: \ \&
 .\"    Source: \ \& 1.0.6-dev
 .\"  Language: English
 .\"
-.TH "MCABBER" "1" "09/18/2016" "v1\&.0\&.6\-dev"
+.TH "MCABBER" "1" "May 2017" "\ \& 1\&.0\&.6\-dev" "\ \&"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -48,7 +48,6 @@ Here are some of the features of mcabber:
 .sp -1
 .IP \(bu 2.3
 .\}
-
 \fISASL/SSL/TLS support\fR\&.
 .RE
 .sp
@@ -60,7 +59,6 @@ Here are some of the features of mcabber:
 .sp -1
 .IP \(bu 2.3
 .\}
-
 \fIMUC support\fR
 (Multi\-User Chat)\&.
 .RE
@@ -73,7 +71,6 @@ Here are some of the features of mcabber:
 .sp -1
 .IP \(bu 2.3
 .\}
-
 \fIPGP, OTR support\fR
 .RE
 .sp
@@ -85,7 +82,6 @@ Here are some of the features of mcabber:
 .sp -1
 .IP \(bu 2.3
 .\}
-
 \fIChat States\fR
 support (typing notifications)
 .RE
@@ -98,7 +94,6 @@ support (typing notifications)
 .sp -1
 .IP \(bu 2.3
 .\}
-
 \fIHistory logging:\fR
 If enabled (see the CONFIGURATION FILE section),
 mcabber
@@ -113,7 +108,6 @@ can save discussions to text history log files\&.
 .sp -1
 .IP \(bu 2.3
 .\}
-
 \fICommands completion:\fR
 If possible,
 mcabber
@@ -128,7 +122,6 @@ will try to complete your command line if you hit the Tab key\&.
 .sp -1
 .IP \(bu 2.3
 .\}
-
 \fIInput line history:\fR
 Any message or command entered is in the input line history and can be reused easily\&.
 .RE
@@ -141,7 +134,6 @@ Any message or command entered is in the input line history and can be reused ea
 .sp -1
 .IP \(bu 2.3
 .\}
-
 \fIExternal actions:\fR
 Some events (like receiving a message) can trigger an external action such as a shell script if you enable it in your configuration file\&. A sample events script ("eventcmd") is provided with
 mcabber
@@ -156,9 +148,7 @@ source code, in the contrib directory\&.
 .sp -1
 .IP \(bu 2.3
 .\}
-
-\fIModules:\fR
-mcabber
+\fIModules:\fRmcabber
 can load modules (a\&.k\&.a\&. plugins) at runtime that extend its features\&.
 .RE
 .SH "OPTIONS"
@@ -186,7 +176,7 @@ The mcabber(1) screen is divided into 4 regions\&. The \fIroster\fR, alias \fIbu
 .sp
 Two status lines surround the log window\&. The bottom status line is the "main status line" and reflects mcabber general status\&. The other line is the "chat status line" and shows the status of the currently selected buddy\&.
 .sp
-To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter (unless \fIvi_mode\fR is enabled), and leave chat mode with the ESC key\&. Simply sending a message will also enable chat mode (unless \fIvi_mode\fR is enabled)\&.
+To display buddies chat buffers, you will have to enter \fIchat mode\fR\&. You can enter chat mode by pressing enter (unless \fIvi mode\fR is enabled), and leave chat mode with the ESC key\&. Simply sending a message will also enable chat mode (unless \fIvi mode\fR is enabled)\&.
 .sp
 There are several advantages to the two\-mode implementation: first, it allows accurate "unread" message functionality, as described in the next section; without this, merely scrolling to a specific buddy will "read" the new messages of all buddies in\-between\&. Second, it allows quickly hiding the conversation with a single keystroke\&. Third, it allows jumping between the few buddies with whom you are conversing with the \fI/roster alternate\fR command described in another section, without having to manually scroll back and forth\&.
 .SH "KEYS"
@@ -294,7 +284,7 @@ Accept line and put the next history line in the input line (accept\-line\-and\-
 Additional key bindings may be specified using the \fI/bind\fR command described in the COMMANDS section\&.
 .SH "VI MODE"
 .sp
-If the \fIvi_mode\fR option is set to \fI1\fR, MCabber accepts a few commands loosely based on those available in \fBvi\fR(1)'s normal mode\&. In this case, chat mode can \fInot\fR be entered by pressing enter, and messages cannot be composed outside of the chat mode\&. The following commands are accepted:
+If the "vi_mode" option is set to 1, mcabber(1) accepts a few commands loosely based on those available in vi(1)\*(Aqs normal mode\&. In this case, chat mode is not entered by pressing enter, and messages cannot be composed outside of the chat mode\&. The following commands are accepted:
 .PP
 A
 .RS 4
@@ -331,14 +321,14 @@ i
 Enter chat mode\&.
 .RE
 .PP
-[\fIn\fR]j
+[N]j
 .RS 4
-Call "/roster down [\fIn\fR]"\&.
+Call "/roster down [N]"\&.
 .RE
 .PP
-[\fIn\fR]k
+[N]k
 .RS 4
-Call "/roster up [\fIn\fR]"\&.
+Call "/roster up [N]"\&.
 .RE
 .PP
 n
@@ -371,7 +361,7 @@ zR
 Call "/group unfold" for all groups\&.
 .RE
 .PP
-\&''
+\*(Aq\*(Aq
 .RS 4
 Call "/roster alternate"\&.
 .RE
@@ -390,32 +380,27 @@ Toggle unread messages flag for current buddy\&.
 .RS 4
 Call "/group toggle" for the current group\&.
 .RE
-.PP
+.sp
 A leading slash enables search mode:
 .PP
-/\fIstring\fR
+/string
 .RS 4
-Call "/roster search \fIstring\fR"\&.
+Call "/roster search string"\&.
 .RE
-.PP
-A leading colon enabled command-line mode:
-.PP
-:q
+.sp
+A leading colon enabled command\-line mode:
+.sp
+.if n \{\
 .RS 4
-Call "/quit"\&.
+.\}
+.nf
+above commands)\&.
+.fi
+.if n \{\
 .RE
-.PP
-:\fIn\fR
-.RS 4
-Jump to line \fIn\fR in the roster\&.
-.RE
-.PP
-:\fIcommand-line\fR
-.RS 4
-Call "/\fIcommand-line\fR" (unless the \fIcommand-line\fR matches one of the above commands)\&.
-.RE
-.PP
-Commands entered with a leading colon and searches are either submitted by pressing enter or aborted by hitting escape\&. In either case, MCabber returns to the normal (non-chat) mode\&. History editing is supported in command-line mode and in search mode\&. In command-line mode, tab completion is supported as well\&.
+.\}
+.sp
+Commands entered with a leading colon and searches are either submitted by pressing enter or aborted by hitting escape\&. In either case, mcabber(1) returns to the normal (non\-chat) mode\&. History editing is supported in command\-line mode and in search mode\&. In command\-line mode, tab completion is supported as well\&.
 .SH "MCABBER\(cqS ROSTER"
 .sp
 The first listed item on the roster is \fI[status]\fR, which keeps a log of everything that appears in the short log window below the main chat area\&. While the log window was designed for showing the latest few elements, the dedicated \fI[status]\fR buffer allows more comfortable viewing of the log, as well as scrolling it in a standard manner\&.
@@ -479,7 +464,7 @@ When there are unread messages from a buddy which you have not looked at, a hash
 .sp
 Examples:
 .PP
-\fI\-\-\- Buds\fR
+\*(Aq \-\-\- Buds\*(Aq
 .RS 4
 This is a group named
 \fIBuds\fR
@@ -490,12 +475,12 @@ This is a group named
 John is online, can see your status, and sent you a message that you did not read yet
 .RE
 .PP
-\fI{?} Sally\fR
+\*(Aq {?} Sally\*(Aq
 .RS 4
 Neither you nor Sally have authorized each other to see your online status
 .RE
 .PP
-\fI{a} Jane\fR
+\*(Aq {a} Jane\*(Aq
 .RS 4
 Jane is away, but she cannot see your online status
 .RE
@@ -1451,7 +1436,7 @@ Send the "text" message to the specified jid\&.
 
 Please note that this command doesn\(cqt set the default resource for a contact, so if you want to send several messages to a specific resource you will have to use "/say_to" for each message\&.
 
-You can send a message to a specific resource of the currently selected contact by using /say_to ./resourcename message\&.
+You can send a message to a specific resource of the currently selected contact by using /say_to \&./resourcename message\&.
 
 The "\-n" flag turns the message to "normal" type, "\-h" to "headline"\&. "\-\-" can be used to send chat messages beginning with \-n or \-h\&.
 
@@ -1519,6 +1504,7 @@ The following files can be used by mcabber(1):
 .\}
 .nf
 $HOME/\&.mcabber/mcabberrc    Default configuration file
+$HOME/\&.config/mcabber/mcabberrc Alternate location (can use XDG_CONFIG_HOME)
 $HOME/\&.mcabberrc            Configuration file used if no other has been found
 $HOME/\&.mcabber/histo/       Default directory for storing chat history files, if enabled
 /usr/share/mcabber/help/    Default directory for online help files
@@ -1545,6 +1531,12 @@ Written by \m[blue]\fBMikael BERTHE\fR\m[]\&\s-2\u[1]\d\s+2 and others (see AUTH
 Copyright (C) 2005\-2017 Mikael Berthe and others\&.
 .sp
 Free use of this software is granted under the terms of the GNU General Public License (GPL)\&.
+.SH "AUTHOR"
+.PP
+\fBMikael BERTHE\fR <\&mcabber@lilotux\&.net\&>
+.RS 4
+Author.
+.RE
 .SH "NOTES"
 .IP " 1." 4
 Mikael BERTHE

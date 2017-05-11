@@ -1,7 +1,7 @@
 MCABBER(1)
 ===========
 Mikael BERTHE <mcabber@lilotux.net>
-v1.0.6-dev, January 2017
+v1.0.6-dev, May 2017
 
 NAME
 ----
@@ -118,7 +118,7 @@ in the COMMANDS section.
 
 VI MODE
 -------
-If the 'vi_mode' option is set to 1, `mcabber(1)` accepts a few commands
+If the "vi_mode" option is set to 1, `mcabber(1)` accepts a few commands
 loosely based on those available in `vi(1)`'s normal mode.  In this case, chat
 mode is not entered by pressing enter, and messages cannot be composed outside
 of the chat mode.  The following commands are accepted:
@@ -130,28 +130,28 @@ f::             Call "/roster group_next".
 G::             Call "/roster bottom".
 gg::            Call "/roster top".
 i::             Enter chat mode.
-['n']j::        Call "/roster down ['n']".
-['n']k::        Call "/roster up ['n']".
+[N]j::          Call "/roster down [N]".
+[N]k::          Call "/roster up [N]".
 n::             Repeat the previous search (if any).
 O::             Call "/roster unread_first" and open chat window.
 o::             Call "/roster unread_next" and open chat window.
 ZZ::            Call "/quit".
 zM::            Call "/group fold" for all groups.
 zR::            Call "/group unfold" for all groups.
-\''::           Call "/roster alternate".
+''::           Call "/roster alternate".
 !::             Toggle attention flag for current buddy.
 #::             Toggle unread messages flag for current buddy.
 <Space>::       Call "/group toggle" for the current group.
 
 A leading slash enables search mode:
 
-/'string'::     Call "/roster search 'string'".
+/string::     Call "/roster search string".
 
 A leading colon enabled command-line mode:
 
 :q::            Call "/quit".
-:'n'::          Jump to line 'n' in the roster.
-:'cmd-line'::   Call "/'cmd-line'" (unless the 'cmd-line' matches one of the
+:N::            Jump to line N in the roster.
+:CMD-LINE::     Call "/CMD-LINE" (unless the CMD-LINE matches one of the
                 above commands).
 
 Commands entered with a leading colon and searches are either submitted by
@@ -565,6 +565,7 @@ FILES
 The following files can be used by `mcabber(1)`:
 
     $HOME/.mcabber/mcabberrc    Default configuration file
+    $HOME/.config/mcabber/mcabberrc Alternate location (can use XDG_CONFIG_HOME)
     $HOME/.mcabberrc            Configuration file used if no other has been found
     $HOME/.mcabber/histo/       Default directory for storing chat history files, if enabled
     /usr/share/mcabber/help/    Default directory for online help files

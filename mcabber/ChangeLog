@@ -1,8 +1,12 @@
-mcabber (1.0.6-dev)
+mcabber (1.1.0)
 
- * 
+ * New "VI" mode (option 'vi_mode') (Holger Weiß)
+ * Fix issues in buddylist rebuild (franky)
+ * Do not use g_slist_free_full() which requires glib2 2.28.0 (Frank Bergmann)
+ * Use UTF-8 validation of file content when sending a message from a file
+ * Documentation updates
 
- -- Mikael, ?
+ -- Mikael, 2017-06-04
 
 mcabber (1.0.5)
 

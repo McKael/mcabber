@@ -1332,7 +1332,7 @@ static LmHandlerResult cb_caps(LmMessageHandler *h, LmConnection *c,
                           lm_message_node_get_attribute(info, "name"),
                           lm_message_node_get_attribute(info, "type"),
                           lm_message_node_get_attribute(info, "xml:lang"));
-        info = info->next;
+      info = info->next;
     }
 
     info = lm_message_node_get_child(query, "feature");

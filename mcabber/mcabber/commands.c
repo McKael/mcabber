@@ -550,12 +550,12 @@ void process_line(const char *line)
     return;
   }
 
-  if (*line == COMMAND_CHAR && scr_get_multimode() != 2) {
+  if (*line == COMMAND_CHAR) {
     if (*(line+1) != COMMAND_CHAR) {
       /* It is a command */
       process_command(line, FALSE);
       return;
-    } else {
+    } else if (scr_get_multimode() != 2) {
       /* Skip the first COMMAND_CHAR */
       line++;
     }

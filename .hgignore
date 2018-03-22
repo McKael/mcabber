@@ -26,10 +26,17 @@ mcabber/mcabber/stamp-h1
 mcabber/include/stamp-h2
 mcabber/compile
 
-config.h*
-config.{log,cache,guess,status,sub}
+mcabber/config.*
+mcabber/include/config.h
+mcabber/mcabber/config.*
 
-mcabber/doc/guide/guide.{aux,bbl,blg,log,out,pdf,toc}
+mcabber/mcabber/doc/guide/guide.aux
+mcabber/mcabber/doc/guide/guide.bbl
+mcabber/mcabber/doc/guide/guide.blg
+mcabber/mcabber/doc/guide/guide.log
+mcabber/mcabber/doc/guide/guide.out
+mcabber/mcabber/doc/guide/guide.pdf
+mcabber/mcabber/doc/guide/guide.toc
 
 *.sw?
 cscope.out

@@ -510,6 +510,10 @@ set escdelay = 50
 # - 3: "name" (if the name is the same as the JID, use <jid/res>)
 #set buddy_format = 2
 #
+# Set 'roster_show_unread_count' to 1 if you want the number of unread messages,
+# if there are any, to be displayed for every roster entry (default: 0).
+#set roster_show_unread_count = 0
+#
 # Time format:
 # - 0: (default) Date and time
 # - 1: Time only

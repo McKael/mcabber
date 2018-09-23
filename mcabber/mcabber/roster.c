@@ -108,6 +108,7 @@ typedef struct {
   /* Flag used for the UI */
   guint flags;
   guint ui_prio;  // Boolean, positive if "attention" is requested
+  guint unread;
 
   // list: user -> points to his group; group -> points to its users list
   GSList *list;
@@ -727,6 +728,27 @@ roster_msg_setflag_return:
     hlog_save_state();
     roster_unread_check();
   }
+}
+
+//  roster_msg_update_unread()
+// If increment is true, increment the unread messages count for jid by 1.
+// If increment is false, reset the unread messages count for jid to 0.
+void roster_msg_update_unread(const char *jid, gboolean increment)
+{
+  GSList *sl_user;
+  roster *roster_usr;
+
+  sl_user = roster_find(jid, jidsearch,
+                        ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
+  if (!sl_user)
+    return;
+
+  roster_usr = (roster*)sl_user->data;
+
+  if (increment)
+    roster_usr->unread++;
+  else
+    roster_usr->unread = 0;
 }
 
 //  roster_setuiprio(jid, special, prio_value, action)
@@ -1539,6 +1561,12 @@ guint buddy_getuiprio(gpointer rosterdata)
 {
   roster *roster_usr = rosterdata;
   return roster_usr->ui_prio;
+}
+
+guint buddy_getunread(gpointer rosterdata)
+{
+  roster *roster_usr = rosterdata;
+  return roster_usr->unread;
 }
 
 //  buddy_setonserverflag()

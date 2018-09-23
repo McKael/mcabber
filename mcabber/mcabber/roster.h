@@ -177,6 +177,7 @@ void    roster_setstatus(const char *jid, const char *resname, gchar prio,
                          const char *realjid);
 void    roster_setflags(const char *jid, guint flags, guint value);
 void    roster_msg_setflag(const char *jid, guint special, guint value);
+void    roster_msg_update_unread(const char *jid, gboolean increment);
 void    roster_setuiprio(const char *jid, guint special, guint value,
                          enum setuiprio_ops action);
 guint   roster_getuiprio(const char *jid, guint special);
@@ -245,6 +246,7 @@ void    buddy_del_all_resources(gpointer rosterdata);
 void    buddy_setflags(gpointer rosterdata, guint flags, guint value);
 guint   buddy_getflags(gpointer rosterdata);
 guint   buddy_getuiprio(gpointer rosterdata);
+guint   buddy_getunread(gpointer rosterdata);
 void    buddy_setonserverflag(gpointer rosterdata, guint onserver);
 guint   buddy_getonserverflag(gpointer rosterdata);
 GList  *buddy_search_jid(const char *jid);

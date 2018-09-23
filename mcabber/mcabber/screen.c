@@ -1461,6 +1461,7 @@ void scr_show_buddy_window(void)
     return;
   }
 
+  roster_msg_update_unread(bjid, FALSE);
   scr_show_window(bjid, FALSE);
 }
 
@@ -1576,9 +1577,11 @@ static void scr_write_in_window(const char *winId, const char *text,
   }
   if (!special) {
     if (clearmsgflg) {
+      roster_msg_update_unread(winId, FALSE);
       roster_msg_setflag(winId, FALSE, FALSE);
       scr_update_roster();
     } else if (setmsgflg) {
+      roster_msg_update_unread(winId, TRUE);
       roster_msg_setflag(winId, FALSE, TRUE);
       scr_update_roster();
     }
@@ -2095,7 +2098,7 @@ void increment_if_buddy_not_filtered(gpointer rosterdata, void *param)
 void scr_draw_roster(void)
 {
   static int offset = 0;
-  char *name, *rline;
+  char *name, *rline, *unread;
   int maxx, maxy;
   GList *buddy;
   int i, n;
@@ -2174,6 +2177,7 @@ void scr_draw_roster(void)
   }
 
   name = g_new0(char, 4*Roster_Width);
+  unread = g_new0(char, Roster_Width+1);;
   rline = g_new0(char, 4*Roster_Width+1);
 
   buddy = buddylist;
@@ -2267,10 +2271,18 @@ void scr_draw_roster(void)
       }
     }
 
-    if (Roster_Width > prefix_length)
+    name[0] = 0;
+    unread[0] = 0;
+    if (Roster_Width > prefix_length) {
       g_utf8_strncpy(name, buddy_getname(BUDDATA(buddy)), Roster_Width-prefix_length);
-    else
-      name[0] = 0;
+      if (settings_opt_get_int("roster_show_unread_count")) {
+        guint unread_count = buddy_getunread(BUDDATA(buddy));
+        glong name_length = g_utf8_strlen(name, 4*Roster_Width);
+        if (unread_count > 0 && Roster_Width > prefix_length + name_length) {
+          snprintf(unread, Roster_Width-(prefix_length+name_length)+1, " (%u)", unread_count);
+        }
+      }
+    }
 
     if (pending == '#') {
       // Attention sign?
@@ -2306,8 +2318,8 @@ void scr_draw_roster(void)
           sepright = '}';
         }
       }
-      snprintf(rline, 4*Roster_Width, "%s%lc%c%c%c %s",
-               space, pending, sepleft, status, sepright, name);
+      snprintf(rline, 4*Roster_Width, "%s%lc%c%c%c %s%s",
+               space, pending, sepleft, status, sepright, name, unread);
     }
 
     rline_locale = from_utf8(rline);
@@ -2317,6 +2329,7 @@ void scr_draw_roster(void)
   }
 
   g_free(rline);
+  g_free(unread);
   g_free(name);
   top_panel(inputPanel);
   update_panels();

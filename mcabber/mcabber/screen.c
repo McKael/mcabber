@@ -917,7 +917,8 @@ guint scr_getprefixwidth(void)
 
 guint scr_gettextwidth(void)
 {
-  return maxX - Roster_Width - scr_getprefixwidth();
+  int used_width = Roster_Width + scr_getprefixwidth();
+  return maxX > used_width ? maxX - used_width : 0;
 }
 
 guint scr_gettextheight(void)
@@ -1094,8 +1095,7 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
     g_free(id);
   } else {  // Load buddy history from file (if enabled)
     tmp->bd = g_new0(buffdata, 1);
-    hlog_read_history(title, &tmp->bd->hbuf,
-                      maxX - Roster_Width - scr_getprefixwidth());
+    hlog_read_history(title, &tmp->bd->hbuf, scr_gettextwidth());
 
     // Set a readmark to separate new content
     hbuf_set_readmark(tmp->bd->hbuf, TRUE);
@@ -1536,8 +1536,7 @@ static void scr_write_in_window(const char *winId, const char *text,
     g_free(nicktmp);
   }
   hbuf_add_line(&win_entry->bd->hbuf, text_locale, timestamp, prefix_flags,
-                maxX - Roster_Width - scr_getprefixwidth(), num_history_blocks,
-                mucnicklen, xep184);
+                scr_gettextwidth(), num_history_blocks, mucnicklen, xep184);
   g_free(text_locale);
 
   if (win_entry->bd->cleared) {

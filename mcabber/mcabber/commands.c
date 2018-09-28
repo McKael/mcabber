@@ -621,13 +621,10 @@ static void roster_resourcelock(char *jidres, gboolean lock) {
   if (jidres[0] == '.' &&
       (jidres[1] == '\0' || jidres[1] == JID_RESOURCE_SEPARATOR)) {
     //Special jid: . or ./resource
-    switch (jidres[1]) {
-      case JID_RESOURCE_SEPARATOR:
-        resource = jidres+2;
-      case '\0':
-        if (current_buddy)
-          bud = BUDDATA(current_buddy);
-    }
+    if (current_buddy)
+      bud = BUDDATA(current_buddy);
+    if (jidres[1] == JID_RESOURCE_SEPARATOR)
+      resource = jidres+2;
   } else {
     char *tmp;
     if (!check_jid_syntax(jidres) &&
@@ -3607,6 +3604,7 @@ static void do_request(char *arg)
               g_free(bjid);
             }
           }
+          /* FALLTHRU */
       case iqreq_version:
       case iqreq_time:
       case iqreq_last:

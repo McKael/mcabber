@@ -4681,9 +4681,9 @@ void scr_process_key(keycode kcode)
         case 'j':
             if (isdigit((int)(unsigned char)inputLine[0]) &&
                 strlen(inputLine) <= 9) {
-              char down_cmd[32];
-              strncpy(down_cmd, mkcmdstr("roster down "), 32);
-              strncat(down_cmd, inputLine, 16);
+              char down_cmd[24];
+              snprintf (down_cmd, sizeof(down_cmd), "%.13s%.9s",
+                        mkcmdstr("roster down "), inputLine);
               process_command(down_cmd, TRUE);
             } else
               process_command(mkcmdstr("roster down"), TRUE);
@@ -4691,9 +4691,9 @@ void scr_process_key(keycode kcode)
         case 'k':
             if (isdigit((int)(unsigned char)inputLine[0]) &&
                 strlen(inputLine) <= 9) {
-              char up_cmd[32];
-              strncpy(up_cmd, mkcmdstr("roster up "), 32);
-              strncat(up_cmd, inputLine, 16);
+              char up_cmd[24];
+              snprintf (up_cmd, sizeof(up_cmd), "%.11s%.9s",
+                        mkcmdstr("roster up "), inputLine);
               process_command(up_cmd, TRUE);
             } else
               process_command(mkcmdstr("roster up "), TRUE);

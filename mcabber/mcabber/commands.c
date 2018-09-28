@@ -1982,7 +1982,7 @@ static void do_info(char *arg)
         char tbuf[128];
 
         strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
-        snprintf(buffer, 127, "Status timestamp: %s", tbuf);
+        snprintf(buffer, 4095, "Status timestamp: %s", tbuf);
         scr_WriteIncomingMessage(bjid, buffer,
                                  0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
       }
@@ -3166,7 +3166,7 @@ void cmd_room_whois(gpointer bud, const char *usernick, guint interactive)
     char tbuf[128];
 
     strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&rst_time));
-    snprintf(buffer, 127, "Timestamp: %s", tbuf);
+    snprintf(buffer, 4095, "Timestamp: %s", tbuf);
     scr_WriteIncomingMessage(bjid, buffer, 0, msg_flag | HBB_PREFIX_CONT, 0);
   }
 

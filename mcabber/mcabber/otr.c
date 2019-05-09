@@ -552,36 +552,34 @@ int otr_receive(char **otr_data, const char *buddy, int *free_msg)
 {
   int ignore_message;
   char *newmessage = NULL;
-#ifdef HAVE_LIBOTR3
   OtrlTLV *tlvs = NULL;
   OtrlTLV *tlv = NULL;
-#endif
   ConnContext *ctx;
 
   ctx = otr_get_context(buddy);
   *free_msg = 0;
+
+  if (!ctx)
+    return 0;
+
   ignore_message = otrl_message_receiving(userstate, &ops, NULL,
                                           ctx->accountname, ctx->protocol,
                                           ctx->username, *otr_data,
 #ifdef HAVE_LIBOTR3
                                           &newmessage, &tlvs, NULL, NULL);
+  otr_handle_smp_tlvs(tlvs, ctx);
+#else
+                                          &newmessage, &tlvs, NULL, NULL, NULL);
+#endif
 
   tlv = otrl_tlv_find(tlvs, OTRL_TLV_DISCONNECTED);
   if (tlv) {
     /* Notify the user that the other side disconnected. */
-    if (ctx) {
-      cb_gone_insecure(NULL, ctx);
-      otr_disconnect(ctx->username);
-    }
+    cb_gone_insecure(NULL, ctx);
+    otr_disconnect(ctx->username);
   }
 
-  otr_handle_smp_tlvs(tlvs, ctx);
-
-  if (tlvs != NULL)
-    otrl_tlv_free(tlvs);
-#else
-                                          &newmessage, NULL, NULL, NULL, NULL);
-#endif
+  otrl_tlv_free(tlvs);
 
   if (ignore_message)
     *otr_data = NULL;

@@ -1266,7 +1266,7 @@ static void scr_update_window(winbuf *win_entry)
         color = COLOR_GENERAL;
 
       if (color != COLOR_GENERAL)
-        wattrset(win_entry->win, get_color(color));
+        wbkgdset(win_entry->win, get_color(color));
 
       // Generate the prefix area and display it
 
@@ -1276,10 +1276,10 @@ static void scr_update_window(winbuf *win_entry)
 
         tmp = pref[timelen];
         pref[timelen] = '\0';
-        wattrset(win_entry->win, get_color(COLOR_TIMESTAMP));
+        wbkgdset(win_entry->win, get_color(COLOR_TIMESTAMP));
         wprintw(win_entry->win, pref);
         pref[timelen] = tmp;
-        wattrset(win_entry->win, get_color(color));
+        wbkgdset(win_entry->win, get_color(color));
         wprintw(win_entry->win, pref+timelen);
       } else
         wprintw(win_entry->win, pref);
@@ -1334,17 +1334,21 @@ static void scr_update_window(winbuf *win_entry)
         if (actual && ((type == MC_ALL) || (actual->manual))
             && (line->flags & HBB_PREFIX_IN) &&
            (!(line->flags & HBB_PREFIX_HLIGHT_OUT)))
-          wattrset(win_entry->win, compose_color(actual->color));
+          wbkgdset(win_entry->win, compose_color(actual->color));
         wprintw(win_entry->win, "%s", line->text);
         // Return the char
         line->text[line->mucnicklen] = tmp;
         // Return the color back
-        wattrset(win_entry->win, get_color(color));
+        wbkgdset(win_entry->win, get_color(color));
       }
 
       // Display text line
       wprintw(win_entry->win, "%s", line->text+line->mucnicklen);
       wclrtoeol(win_entry->win);
+
+      // Restore default ("general") color
+      if (color != COLOR_GENERAL)
+        wbkgdset(win_entry->win, get_color(COLOR_GENERAL));
 
 scr_update_window_skipline:
       skipline = FALSE;
@@ -1355,21 +1359,15 @@ scr_update_window_skipline:
         // Display the mark
         winy = n + mark_offset;
         wmove(win_entry->win, winy, 0);
-        color = COLOR_READMARK;
-        wattrset(win_entry->win, get_color(color));
+        wbkgdset(win_entry->win, get_color(COLOR_READMARK));
         g_snprintf(pref, prefixwidth, "             == ");
         wprintw(win_entry->win, pref);
         w = scr_gettextwidth() / 3;
         for (i=0; i<w; i++)
           wprintw(win_entry->win, "== ");
         wclrtoeol(win_entry->win);
-        wattrset(win_entry->win, get_color(COLOR_GENERAL));
+        wbkgdset(win_entry->win, get_color(COLOR_GENERAL));
       }
-
-      // Restore default ("general") color
-      if (color != COLOR_GENERAL)
-        wattrset(win_entry->win, get_color(COLOR_GENERAL));
-
       g_free(line->text);
       g_free(line);
     } else {
@@ -1758,11 +1756,9 @@ void scr_draw_main_window(unsigned int fullinit)
     wbkgd(rosterWnd,      get_color(COLOR_GENERAL));
     wbkgd(chatWnd,        get_color(COLOR_GENERAL));
     wbkgd(activechatWnd,  get_color(COLOR_GENERAL));
-    wbkgd(logWnd,         get_color(COLOR_GENERAL));
+    wbkgd(logWnd,         get_color(COLOR_LOG));
     wbkgd(chatstatusWnd,  get_color(COLOR_STATUS));
     wbkgd(mainstatusWnd,  get_color(COLOR_STATUS));
-
-    wattrset(logWnd,      get_color(COLOR_LOG));
   } else {
     /* Resize/move windows */
     wresize(rosterWnd, CHAT_WIN_HEIGHT, Roster_Width);
@@ -2127,12 +2123,12 @@ void scr_draw_roster(void)
     scr_update_chat_status(FALSE);
 
   // Cleanup of roster window
+  wbkgdset(rosterWnd, get_color(COLOR_GENERAL)); // clear background color
   werase(rosterWnd);
 
   if (Roster_Width) {
     int line_x_pos = roster_win_on_right ? 0 : Roster_Width-1;
     // Redraw the vertical line (not very good...)
-    wattrset(rosterWnd, get_color(COLOR_GENERAL));
     for (i=0 ; i < CHAT_WIN_HEIGHT ; i++)
       mvwaddch(rosterWnd, i, line_x_pos, ACS_VLINE);
   }
@@ -2242,16 +2238,16 @@ void scr_draw_roster(void)
     }
     if (buddy == current_buddy) {
       if (pending == '#')
-        wattrset(rosterWnd, get_color(COLOR_ROSTERSELNMSG));
+        wbkgdset(rosterWnd, get_color(COLOR_ROSTERSELNMSG));
       else
-        wattrset(rosterWnd, get_color(COLOR_ROSTERSEL));
+        wbkgdset(rosterWnd, get_color(COLOR_ROSTERSEL));
       // The 3 following lines aim at coloring the whole line
       wmove(rosterWnd, i, x_pos);
       for (n = 0; n < maxx; n++)
         waddch(rosterWnd, ' ');
     } else {
       if (pending == '#')
-        wattrset(rosterWnd, get_color(COLOR_ROSTERNMSG));
+        wbkgdset(rosterWnd, get_color(COLOR_ROSTERNMSG));
       else {
         int color = get_color(COLOR_ROSTER);
         if ((!isspe) && (!isgrp)) { // Look for color rules
@@ -2266,7 +2262,7 @@ void scr_draw_roster(void)
             }
           }
         }
-        wattrset(rosterWnd, color);
+        wbkgdset(rosterWnd, color);
       }
     }
 

@@ -1855,7 +1855,7 @@ gint xmpp_connect(void)
   // Initialize pseudo-random seed
   srandom(time(NULL));
 
-  if (!settings_opt_get("disable_random_resource")) {
+  if (!settings_opt_get_int("disable_random_resource")) {
 #if HAVE_ARC4RANDOM
     dynresource = g_strdup_printf("%s.%08x", resource, arc4random());
 #else

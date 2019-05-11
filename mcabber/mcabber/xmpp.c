@@ -1149,7 +1149,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
 
     if (!x) {
       scr_LogPrint(LPRINT_LOGNORM,
-                   "Could not read carbon message!  Please fill a bug.");
+                   "Could not read carbon message!  Please file a bug.");
       goto handle_messages_return;
     }
 

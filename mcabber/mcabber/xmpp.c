@@ -989,6 +989,36 @@ static void gotmessage(LmMessageSubType type, const char *from,
     goto gotmessage_return;
   }
 
+  if (subject && LM_MESSAGE_SUB_TYPE_GROUPCHAT == type) {
+    // Room topic
+    GSList *roombuddy;
+    gchar *mbuf;
+    // Set the new topic
+    roombuddy = roster_find(bjid, jidsearch, 0);
+    if (roombuddy)
+      buddy_settopic(roombuddy->data, subject);
+    // Display inside the room window
+    if (!rname) {
+      // No specific resource (this is certainly history)
+      if (*subject)
+        mbuf = g_strdup_printf("The topic has been set to: %s", subject);
+      else
+        mbuf = g_strdup_printf("The topic has been cleared");
+    } else {
+      if (*subject)
+        mbuf = g_strdup_printf("%s has set the topic to: %s", rname, subject);
+      else
+        mbuf = g_strdup_printf("%s has cleared the topic", rname);
+    }
+    scr_WriteIncomingMessage(bjid, mbuf, timestamp,
+                             HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
+    if (settings_opt_get_int("log_muc_conf"))
+      hlog_write_message(bjid, 0, -1, mbuf);
+    g_free(mbuf);
+    // The topic is displayed in the chat status line, so refresh now.
+    scr_update_chat_status(TRUE);
+  }
+
   // We don't call the message_in hook if 'block_unsubscribed' is true and
   // this is a regular message from an unsubscribed user.
   // System messages (from our server) are allowed.
@@ -1052,7 +1082,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
                                        LmConnection *connection,
                                        LmMessage *m, gpointer user_data)
 {
-  const char *p, *from=lm_message_get_from(m);
+  const char *from = lm_message_get_from(m);
   char *bjid, *res;
   LmMessageNode *x;
   const char *body = NULL;
@@ -1060,61 +1090,20 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   const char *subject = NULL;
   time_t timestamp = 0L;
   LmMessageSubType mstype;
-  gboolean skip_process = FALSE;
   LmMessageNode *ns_signed = NULL;
 
-  mstype = lm_message_get_sub_type(m);
-
-  body = lm_message_node_get_child_value(m->node, "body");
-
-  x = lm_message_node_find_xmlns(m->node, NS_ENCRYPTED);
-  if (x && (p = lm_message_node_get_value(x)) != NULL)
-    enc = p;
-
+  if (!from) {
+    scr_LogPrint(LPRINT_DEBUG, "handle_messages: message with missing from attribute");
+    return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
+  }
   // Get the bare-JID/room (bjid) and the resource/nickname (res)
-  bjid = g_strdup(lm_message_get_from(m));
+  bjid = g_strdup(from);
   res = strchr(bjid, JID_RESOURCE_SEPARATOR);
   if (res) *res++ = 0;
 
+  mstype = lm_message_get_sub_type(m);
   // Timestamp?
   timestamp = lm_message_node_get_timestamp(m->node);
-
-  p = lm_message_node_get_child_value(m->node, "subject");
-  if (p != NULL) {
-    if (mstype != LM_MESSAGE_SUB_TYPE_GROUPCHAT) {
-      // Chat message
-      subject = p;
-    } else {
-      // Room topic
-      GSList *roombuddy;
-      gchar *mbuf;
-      const gchar *subj = p;
-      // Set the new topic
-      roombuddy = roster_find(bjid, jidsearch, 0);
-      if (roombuddy)
-        buddy_settopic(roombuddy->data, subj);
-      // Display inside the room window
-      if (!res) {
-        // No specific resource (this is certainly history)
-        if (*subj)
-          mbuf = g_strdup_printf("The topic has been set to: %s", subj);
-        else
-          mbuf = g_strdup_printf("The topic has been cleared");
-      } else {
-        if (*subj)
-          mbuf = g_strdup_printf("%s has set the topic to: %s", res, subj);
-        else
-          mbuf = g_strdup_printf("%s has cleared the topic", res);
-      }
-      scr_WriteIncomingMessage(bjid, mbuf, timestamp,
-                               HBB_PREFIX_INFO|HBB_PREFIX_NOFLAG, 0);
-      if (settings_opt_get_int("log_muc_conf"))
-        hlog_write_message(bjid, 0, -1, mbuf);
-      g_free(mbuf);
-      // The topic is displayed in the chat status line, so refresh now.
-      scr_update_chat_status(TRUE);
-    }
-  }
 
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
     x = lm_message_node_get_child(m->node, "error");
@@ -1154,15 +1143,12 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     }
 
     xenc = lm_message_node_find_xmlns(x, NS_ENCRYPTED);
-    if (xenc && (p = lm_message_node_get_value(xenc)) != NULL)
-      enc = p;
+    if (xenc)
+      enc = lm_message_node_get_value(xenc);
 
     body = lm_message_node_get_child_value(x, "body");
     subject = lm_message_node_get_child_value(x, "subject");
-    if (body && *body && !subject)
-      ns_signed = lm_message_node_find_xmlns(x, NS_SIGNED);
-    else
-      skip_process = TRUE;
+    ns_signed = lm_message_node_find_xmlns(x, NS_SIGNED);
 
     // Parse a message that is send to one of our other resources
     if (!g_strcmp0(carbon_name, "received")) {
@@ -1186,7 +1172,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       char *decrypted_pgp = NULL;
 #endif
       guint encrypted = 0;
-      const char *to= lm_message_node_get_attribute(x, "to");
+      const char *to = lm_message_node_get_attribute(x, "to");
       if (!to) {
         scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy!");
         goto handle_messages_return;
@@ -1223,75 +1209,74 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       goto handle_messages_return;
     }
   } else { // Not a Carbon
+    subject = lm_message_node_get_child_value(m->node, "subject");
+    body = lm_message_node_get_child_value(m->node, "body");
+    x = lm_message_node_find_xmlns(m->node, NS_ENCRYPTED);
+    if (x)
+      enc = lm_message_node_get_value(x);
     ns_signed = lm_message_node_find_xmlns(m->node, NS_SIGNED);
   }
 
-  // Do not process the message if some fields are missing
-  if (!from || (!body && !subject))
-    skip_process = TRUE;
-
-  if (!skip_process) {
+  // Only process messages that have a body or a subject
+  if (body || subject) {
     gotmessage(mstype, from, body, enc, subject, timestamp,
                ns_signed, carbons);
   }
 
-  // We're done if it was a Carbon forwarded message
-  if (carbons)
-    goto handle_messages_return;
-
-  // Report received message if message delivery receipt was requested
-  if (lm_message_node_get_child(m->node, "request") &&
-      (roster_getsubscription(bjid) & sub_from)) {
-    const gchar *mid;
-    LmMessageNode *y;
-    LmMessage *rcvd = lm_message_new(from, LM_MESSAGE_TYPE_MESSAGE);
-    mid = lm_message_get_id(m);
-    // For backward compatibility (XEP184 < v.1.1):
-    lm_message_node_set_attribute(rcvd->node, "id", mid);
-    y = lm_message_node_add_child(rcvd->node, "received", NULL);
-    lm_message_node_set_attribute(y, "xmlns", NS_RECEIPTS);
-    lm_message_node_set_attribute(y, "id", mid);
-    lm_connection_send(connection, rcvd, NULL);
-    lm_message_unref(rcvd);
-  }
-
-  { // xep184 receipt confirmation
-    LmMessageNode *received = lm_message_node_get_child(m->node, "received");
-    if (received && !g_strcmp0(lm_message_node_get_attribute(received, "xmlns"),
-                               NS_RECEIPTS)) {
-      char       *jid = jidtodisp(from);
-      const char *id  = lm_message_node_get_attribute(received, "id");
-      // This is for backward compatibility; if the remote client didn't add
-      // the id as an attribute of the 'received' tag, we use the message id:
-      if (!id)
-        id = lm_message_get_id(m);
-      scr_remove_receipt_flag(jid, id);
-      g_free(jid);
+  // Handle XEP 184
+  {
+    LmMessageNode *xep184 = lm_message_node_find_xmlns(m->node, NS_RECEIPTS);
+    if (xep184) {
+      if(!g_strcmp0("request", xep184->name) &&
+         (roster_getsubscription(bjid) & sub_from)) {
+        // Report received message if message delivery receipt was requested
+        const gchar *mid;
+        LmMessageNode *y;
+        LmMessage *rcvd = lm_message_new(from, LM_MESSAGE_TYPE_MESSAGE);
+        mid = lm_message_get_id(m);
+        // For backward compatibility (XEP184 < v.1.1):
+        lm_message_node_set_attribute(rcvd->node, "id", mid);
+        y = lm_message_node_add_child(rcvd->node, "received", NULL);
+        lm_message_node_set_attribute(y, "xmlns", NS_RECEIPTS);
+        lm_message_node_set_attribute(y, "id", mid);
+        lm_connection_send(connection, rcvd, NULL);
+        lm_message_unref(rcvd);
+      } else if(!g_strcmp0("received", xep184->name)) {
+        // receipt acknowledged
+        const char *id  = lm_message_node_get_attribute(xep184, "id");
+        // This is for backward compatibility; if the remote client didn't add
+        // the id as an attribute of the 'received' tag, we use the message id:
+        if (!id)
+          id = lm_message_get_id(m);
+        scr_remove_receipt_flag(bjid, id);
 
 #ifdef MODULES_ENABLE
-      {
-        hk_arg_t args[] = {
-          { "jid", from },
-          { NULL, NULL },
-        };
-        hk_run_handlers("hook-mdr-received", args);
-      }
+        {
+          hk_arg_t args[] = {
+            { "jid", from },
+            { NULL, NULL },
+          };
+          hk_run_handlers("hook-mdr-received", args);
+        }
 #endif
+      }
     }
   }
 
-  if (from) {
-    x = lm_message_node_find_xmlns(m->node, NS_MUC_USER);
-    if (x && !strcmp(x->name, "x"))
-      got_muc_message(from, x, timestamp);
+  {
+    LmMessageNode *muc_message = lm_message_node_find_xmlns(m->node, NS_MUC_USER);
+    if (muc_message && !strcmp(muc_message->name, "x"))
+      got_muc_message(from, muc_message, timestamp);
+  }
 
-    x = lm_message_node_find_xmlns(m->node, NS_X_CONFERENCE);
+  {
+    LmMessageNode *muc_invite = lm_message_node_find_xmlns(m->node, NS_X_CONFERENCE);
 
-    if (x && !strcmp(x->name, "x")) {
-      const char *jid = lm_message_node_get_attribute(x, "jid");
+    if (muc_invite && !strcmp(muc_invite->name, "x")) {
+      const char *jid = lm_message_node_get_attribute(muc_invite, "jid");
       if (jid) {
-        const char *reason = lm_message_node_get_attribute(x, "reason");
-        const char *password = lm_message_node_get_attribute(x, "password");
+        const char *reason = lm_message_node_get_attribute(muc_invite, "reason");
+        const char *password = lm_message_node_get_attribute(muc_invite, "password");
         // We won't send decline stanzas as it is a Direct Invitation
         got_invite(from, jid, reason, password, FALSE);
       }

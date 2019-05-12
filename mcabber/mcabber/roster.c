@@ -79,9 +79,9 @@ typedef struct {
 #ifdef HAVE_GPGME
   struct pgp_data pgpdata;
 #endif
-} res;
+} res_t;
 
-/* This is a private structure type for the roster */
+/* This is a private structure type for the roster_t */
 
 typedef struct {
   gchar *name;
@@ -89,7 +89,7 @@ typedef struct {
   guint type;
   enum subscr subscription;
   GSList *resource;
-  res *active_resource;
+  res_t *active_resource;
 
   /* For groupchats */
   gchar *nickname;
@@ -112,7 +112,7 @@ typedef struct {
 
   // list: user -> points to his group; group -> points to its users list
   GSList *list;
-} roster;
+} roster_t;
 
 
 /* ### Variables ### */
@@ -127,7 +127,7 @@ GList *current_buddy;
 GList *alternate_buddy;
 GList *last_activity_buddy;
 
-static roster roster_special;
+static roster_t roster_special;
 
 static int  unread_jid_del(const char *jid);
 
@@ -145,7 +145,7 @@ void roster_init(void)
 
 /* ### Resources functions ### */
 
-static inline void free_resource_data(res *p_res)
+static inline void free_resource_data(res_t *p_res)
 {
   if (!p_res)
     return;
@@ -164,14 +164,14 @@ static void free_all_resources(GSList **reslist)
   GSList *lip;
 
   for (lip = *reslist; lip ; lip = g_slist_next(lip))
-    free_resource_data((res*)lip->data);
+    free_resource_data((res_t *)lip->data);
   // Free all nodes but the first (which is static)
   g_slist_free(*reslist);
   *reslist = NULL;
 }
 
 // Resources are sorted in ascending order
-static gint resource_compare_prio(res *a, res *b) {
+static gint resource_compare_prio(res_t *a, res_t *b) {
   if (a->prio < b->prio) return -1;
   else                   return 1;
 }
@@ -184,10 +184,10 @@ static gint resource_compare_prio(res *a, res *b) {
 //   This could change in the future, because we should return the best one
 //   (priority? last used? and fall back to the first resource)
 //
-static res *get_resource(roster *rost, const char *resname)
+static res_t *get_resource(roster_t *rost, const char *resname)
 {
   GSList *p;
-  res *r = NULL;
+  res_t *r = NULL;
 
   for (p = rost->resource; p; p = g_slist_next(p)) {
     r = p->data;
@@ -206,15 +206,15 @@ static res *get_resource(roster *rost, const char *resname)
 //   on this resource
 // - if not, add the resource, set the name, and return a pointer on this
 //   new resource
-static res *get_or_add_resource(roster *rost, const char *resname, gchar prio)
+static res_t *get_or_add_resource(roster_t *rost, const char *resname, gchar prio)
 {
   GSList *p;
-  res *nres;
+  res_t *nres;
 
   if (!resname) return NULL;
 
   for (p = rost->resource; p; p = g_slist_next(p)) {
-    res *r = p->data;
+    res_t *r = p->data;
     if (!strcmp(r->name, resname)) {
       if (prio != r->prio) {
         r->prio = prio;
@@ -226,7 +226,7 @@ static res *get_or_add_resource(roster *rost, const char *resname, gchar prio)
   }
 
   // Resource not found
-  nres = g_new0(res, 1);
+  nres = g_new0(res_t, 1);
   nres->name = g_strdup(resname);
   nres->prio = prio;
   rost->resource = g_slist_insert_sorted(rost->resource, nres,
@@ -234,16 +234,16 @@ static res *get_or_add_resource(roster *rost, const char *resname, gchar prio)
   return nres;
 }
 
-static void del_resource(roster *rost, const char *resname)
+static void del_resource(roster_t *rost, const char *resname)
 {
   GSList *p;
   GSList *p_res_elt = NULL;
-  res *p_res;
+  res_t *p_res;
 
   if (!resname) return;
 
   for (p = rost->resource; p; p = g_slist_next(p)) {
-    res *r = p->data;
+    res_t *r = p->data;
     if (!strcmp(r->name, resname))
       p_res_elt = p;
   }
@@ -271,7 +271,7 @@ static void del_resource(roster *rost, const char *resname)
 
 /* ### Roster functions ### */
 
-static inline void free_roster_user_data(roster *roster_usr)
+static inline void free_roster_user_data(roster_t *roster_usr)
 {
   if (!roster_usr)
     return;
@@ -286,21 +286,21 @@ static inline void free_roster_user_data(roster *roster_usr)
 }
 
 // Comparison function used to search in the roster (compares jids and types)
-static gint roster_compare_jid_type(roster *a, roster *b) {
+static gint roster_compare_jid_type(roster_t *a, roster_t *b) {
   if (! (a->type & b->type))
     return -1; // arbitrary (but should be != 0, of course)
   return strcasecmp(a->jid, b->jid);
 }
 
 // Comparison function used to search in the roster (compares names and types)
-static gint roster_compare_name_type(roster *a, roster *b) {
+static gint roster_compare_name_type(roster_t *a, roster_t *b) {
   if (! (a->type & b->type))
     return -1; // arbitrary (but should be != 0, of course)
   return strcmp(a->name, b->name);
 }
 
 // Comparison function used to sort the roster (by name)
-static gint roster_compare_name(roster *a, roster *b) {
+static gint roster_compare_name(roster_t *a, roster_t *b) {
   return strcmp(a->name, b->name);
 }
 
@@ -311,7 +311,7 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
 {
   GSList *sl_roster_elt = groups;
   GSList *resource;
-  roster sample;
+  roster_t sample;
   GCompareFunc comp;
 
   if (!jidname) return NULL;
@@ -331,7 +331,7 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
     return NULL;    // Should not happen...
 
   while (sl_roster_elt) {
-    roster *roster_elt = (roster*)sl_roster_elt->data;
+    roster_t *roster_elt = (roster_t *)sl_roster_elt->data;
     if (roster_type & ROSTER_TYPE_GROUP) {
       if ((type == namesearch) && !strcmp(jidname, roster_elt->name))
         return sl_roster_elt;
@@ -346,14 +346,14 @@ GSList *roster_find(const char *jidname, enum findwhat type, guint roster_type)
 // Returns pointer to new group, or existing group with that name
 GSList *roster_add_group(const char *name)
 {
-  roster *roster_grp;
+  roster_t *roster_grp;
   GSList *p_group;
 
   // #1 Check name doesn't already exist
   p_group = roster_find(name, namesearch, ROSTER_TYPE_GROUP);
   if (!p_group) {
     // #2 Create the group node
-    roster_grp = g_new0(roster, 1);
+    roster_grp = g_new0(roster_t, 1);
     roster_grp->name = g_strdup(name);
     roster_grp->type = ROSTER_TYPE_GROUP;
     // #3 Insert (sorted)
@@ -365,7 +365,7 @@ GSList *roster_add_group(const char *name)
 }
 
 // Comparison function used to sort the unread list by ui (attn) priority
-static gint _roster_compare_uiprio(roster *a, roster *b) {
+static gint _roster_compare_uiprio(roster_t *a, roster_t *b) {
   return (b->ui_prio - a->ui_prio);
 }
 
@@ -374,8 +374,8 @@ static gint _roster_compare_uiprio(roster *a, roster *b) {
 GSList *roster_add_user(const char *jid, const char *name, const char *group,
                         guint type, enum subscr esub, gint onserver)
 {
-  roster *roster_usr;
-  roster *my_group;
+  roster_t *roster_usr;
+  roster_t *my_group;
   GSList *slist;
 
   if ((type != ROSTER_TYPE_USER) &&
@@ -400,7 +400,7 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
     if (name)
       buddy_setname(slist->data, (char*)name);
     // Let's check if the group name has changed
-    oldgroupname = ((roster*)((GSList*)roster_usr->list)->data)->name;
+    oldgroupname = ((roster_t *)((GSList*)roster_usr->list)->data)->name;
     if (group && strcmp(oldgroupname, group)) {
       buddy_setgroup(slist->data, (char*)group);
       // Note: buddy_setgroup() updates the user lists so we cannot
@@ -412,9 +412,9 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
   // #2 add group if necessary
   slist = roster_add_group(group);
   if (!slist) return NULL;
-  my_group = (roster*)slist->data;
+  my_group = (roster_t *)slist->data;
   // #3 Create user node
-  roster_usr = g_new0(roster, 1);
+  roster_usr = g_new0(roster_t, 1);
   roster_usr->jid   = g_strdup(jid);
   if (name) {
     roster_usr->name  = g_strdup(name);
@@ -448,14 +448,14 @@ void roster_del_user(const char *jid)
 {
   GSList *sl_user, *sl_group;
   GSList **sl_group_listptr;
-  roster *roster_usr;
+  roster_t *roster_usr;
   GSList *node;
 
   sl_user = roster_find(jid, jidsearch,
                         ROSTER_TYPE_USER|ROSTER_TYPE_AGENT|ROSTER_TYPE_ROOM);
   if (sl_user == NULL)
     return;
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
 
   // Remove (if present) from unread messages list
   node = g_slist_find(unread_list, roster_usr);
@@ -470,7 +470,7 @@ void roster_del_user(const char *jid)
   free_roster_user_data(roster_usr);
 
   // That's a little complex, we need to dereference twice
-  sl_group_listptr = &((roster*)(sl_group->data))->list;
+  sl_group_listptr = &((roster_t *)(sl_group->data))->list;
   *sl_group_listptr = g_slist_delete_link(*sl_group_listptr, sl_user);
 
   // We need to rebuild the list
@@ -494,11 +494,11 @@ void roster_free(void)
 
   // Walk through groups
   while (sl_grp) {
-    roster *roster_grp = (roster*)sl_grp->data;
+    roster_t *roster_grp = (roster_t *)sl_grp->data;
     GSList *sl_usr = roster_grp->list;
     // Walk through this group users
     while (sl_usr) {
-      roster *roster_usr = (roster*)sl_usr->data;
+      roster_t *roster_usr = (roster_t *)sl_usr->data;
       // If there is a pending unread message, keep track of it
       if (roster_usr->flags & ROSTER_FLAG_MSG)
         unread_jid_add(roster_usr->jid);
@@ -534,8 +534,8 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
                       const char *realjid)
 {
   GSList *sl_user;
-  roster *roster_usr;
-  res *p_res;
+  roster_t *roster_usr;
+  res_t *p_res;
 
   sl_user = roster_find(jid, jidsearch,
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
@@ -547,7 +547,7 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
   // If there is no resource name, we can leave now
   if (!resname) return;
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
 
   // New or updated resource
   p_res = get_or_add_resource(roster_usr, resname, prio);
@@ -584,14 +584,14 @@ void roster_setstatus(const char *jid, const char *resname, gchar prio,
 void roster_setflags(const char *jid, guint flags, guint value)
 {
   GSList *sl_user;
-  roster *roster_usr;
+  roster_t *roster_usr;
 
   sl_user = roster_find(jid, jidsearch,
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return;
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   if (value)
     roster_usr->flags |= flags;
   else
@@ -635,14 +635,14 @@ static void roster_unread_check(void)
 void roster_msg_setflag(const char *jid, guint special, guint value)
 {
   GSList *sl_user;
-  roster *roster_usr, *roster_grp;
+  roster_t *roster_usr, *roster_grp;
   int new_roster_item = FALSE;
   guint unread_list_modified = FALSE;
 
   if (special) {
     //sl_user = roster_find(jid, namesearch, ROSTER_TYPE_SPECIAL);
     //if (!sl_user) return;
-    //roster_usr = (roster*)sl_user->data;
+    //roster_usr = (roster_t *)sl_user->data;
     roster_usr = &roster_special;
     if (value) {
       if (!(roster_usr->flags & ROSTER_FLAG_MSG))
@@ -674,8 +674,8 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
     new_roster_item = TRUE;
   }
 
-  roster_usr = (roster*)sl_user->data;
-  roster_grp = (roster*)roster_usr->list->data;
+  roster_usr = (roster_t *)sl_user->data;
+  roster_grp = (roster_t *)roster_usr->list->data;
   if (value) {
     if (!(roster_usr->flags & ROSTER_FLAG_MSG))
       unread_list_modified = TRUE;
@@ -705,7 +705,7 @@ void roster_msg_setflag(const char *jid, guint special, guint value)
     // anymore.
     sl_user = roster_grp->list;
     while (sl_user) {
-      roster_usr = (roster*)sl_user->data;
+      roster_usr = (roster_t *)sl_user->data;
       if (roster_usr->flags & ROSTER_FLAG_MSG) {
         msg = TRUE;
         break;
@@ -736,14 +736,14 @@ roster_msg_setflag_return:
 void roster_msg_update_unread(const char *jid, gboolean increment)
 {
   GSList *sl_user;
-  roster *roster_usr;
+  roster_t *roster_usr;
 
   sl_user = roster_find(jid, jidsearch,
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   if (!sl_user)
     return;
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
 
   if (increment)
     roster_usr->unread++;
@@ -758,7 +758,7 @@ void roster_setuiprio(const char *jid, guint special, guint value,
                       enum setuiprio_ops action)
 {
   guint oldval, newval;
-  roster *roster_usr;
+  roster_t *roster_usr;
 
   if (special) {
     roster_usr = &roster_special;
@@ -768,7 +768,7 @@ void roster_setuiprio(const char *jid, guint special, guint value,
     if (!sl_user)
       return;
 
-    roster_usr = (roster*)sl_user->data;
+    roster_usr = (roster_t *)sl_user->data;
   }
   oldval = roster_usr->ui_prio;
 
@@ -787,7 +787,7 @@ void roster_setuiprio(const char *jid, guint special, guint value,
 
 guint roster_getuiprio(const char *jid, guint special)
 {
-  roster *roster_usr;
+  roster_t *roster_usr;
   GSList *sl_user;
 
   if (special) {
@@ -799,61 +799,61 @@ guint roster_getuiprio(const char *jid, guint special)
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   if (!sl_user)
     return 0;
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   return roster_usr->ui_prio;
 }
 
 const char *roster_getname(const char *jid)
 {
   GSList *sl_user;
-  roster *roster_usr;
+  roster_t *roster_usr;
 
   sl_user = roster_find(jid, jidsearch,
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return NULL; // Not in the roster...
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   return roster_usr->name;
 }
 
 const char *roster_getnickname(const char *jid)
 {
   GSList *sl_user;
-  roster *roster_usr;
+  roster_t *roster_usr;
 
   sl_user = roster_find(jid, jidsearch,
                         ROSTER_TYPE_USER|ROSTER_TYPE_ROOM|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return NULL; // Not in the roster...
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   return roster_usr->nickname;
 }
 
 void roster_settype(const char *jid, guint type)
 {
   GSList *sl_user;
-  roster *roster_usr;
+  roster_t *roster_usr;
 
   if ((sl_user = roster_find(jid, jidsearch, 0)) == NULL)
     return;
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   roster_usr->type = type;
 }
 
 enum imstatus roster_getstatus(const char *jid, const char *resname)
 {
   GSList *sl_user;
-  roster *roster_usr;
-  res *p_res;
+  roster_t *roster_usr;
+  res_t *p_res;
 
   sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return offline; // Not in the roster, anyway...
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->status;
@@ -863,14 +863,14 @@ enum imstatus roster_getstatus(const char *jid, const char *resname)
 const char *roster_getstatusmsg(const char *jid, const char *resname)
 {
   GSList *sl_user;
-  roster *roster_usr;
-  res *p_res;
+  roster_t *roster_usr;
+  res_t *p_res;
 
   sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return NULL; // Not in the roster, anyway...
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->status_msg;
@@ -880,14 +880,14 @@ const char *roster_getstatusmsg(const char *jid, const char *resname)
 char roster_getprio(const char *jid, const char *resname)
 {
   GSList *sl_user;
-  roster *roster_usr;
-  res *p_res;
+  roster_t *roster_usr;
+  res_t *p_res;
 
   sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return offline; // Not in the roster, anyway...
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->prio;
@@ -897,24 +897,24 @@ char roster_getprio(const char *jid, const char *resname)
 guint roster_gettype(const char *jid)
 {
   GSList *sl_user;
-  roster *roster_usr;
+  roster_t *roster_usr;
 
   if ((sl_user = roster_find(jid, jidsearch, 0)) == NULL)
     return 0;
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   return roster_usr->type;
 }
 
 guint roster_getsubscription(const char *jid)
 {
   GSList *sl_user;
-  roster *roster_usr;
+  roster_t *roster_usr;
 
   if ((sl_user = roster_find(jid, jidsearch, 0)) == NULL)
     return 0;
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   return roster_usr->subscription;
 }
 
@@ -924,13 +924,13 @@ guint roster_getsubscription(const char *jid)
 void roster_unsubscribed(const char *jid)
 {
   GSList *sl_user;
-  roster *roster_usr;
+  roster_t *roster_usr;
 
   sl_user = roster_find(jid, jidsearch, ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
   if (sl_user == NULL)
     return;
 
-  roster_usr = (roster*)sl_user->data;
+  roster_usr = (roster_t *)sl_user->data;
   free_all_resources(&roster_usr->resource);
 }
 
@@ -984,10 +984,10 @@ void buddylist_defer_build(void)
 void buddylist_build(void)
 {
   GSList *sl_roster_elt = groups;
-  roster *roster_elt;
-  roster *roster_current_buddy = NULL;
-  roster *roster_alternate_buddy = NULL;
-  roster *roster_last_activity_buddy = NULL;
+  roster_t *roster_elt;
+  roster_t *roster_current_buddy = NULL;
+  roster_t *roster_alternate_buddy = NULL;
+  roster_t *roster_last_activity_buddy = NULL;
   int shrunk_group;
 
   if (_rebuild_buddylist == FALSE)
@@ -1016,15 +1016,15 @@ void buddylist_build(void)
   // Create the new list
   while (sl_roster_elt) {
     GSList *sl_roster_usrelt;
-    roster *roster_usrelt;
+    roster_t *roster_usrelt;
     guint pending_group = TRUE;
-    roster_elt = (roster*) sl_roster_elt->data;
+    roster_elt = (roster_t *) sl_roster_elt->data;
 
     shrunk_group = roster_elt->flags & ROSTER_FLAG_HIDE;
 
     sl_roster_usrelt = roster_elt->list;
     while (sl_roster_usrelt) {
-      roster_usrelt = (roster*) sl_roster_usrelt->data;
+      roster_usrelt = (roster_t *) sl_roster_usrelt->data;
 
       // Buddy will be added if either:
       // - buddy's status matches the display_filter
@@ -1072,7 +1072,7 @@ void buddylist_build(void)
 // "hide" values: 1=hide 0=show_all -1=invert
 void buddy_hide_group(gpointer rosterdata, int hide)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   if (hide > 0)                     // TRUE   (hide)
     roster_usr->flags |= ROSTER_FLAG_HIDE;
   else if (hide < 0)                // NEG    (invert)
@@ -1083,7 +1083,7 @@ void buddy_hide_group(gpointer rosterdata, int hide)
 
 const char *buddy_getjid(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   if (!rosterdata)
     return NULL;
   return roster_usr->jid;
@@ -1096,10 +1096,10 @@ const char *buddy_getjid(gpointer rosterdata)
 //
 void buddy_setgroup(gpointer rosterdata, char *newgroupname)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   GSList **sl_group;
   GSList *sl_newgroup;
-  roster *my_newgroup;
+  roster_t *my_newgroup;
 
   // A group has no group :)
   if (roster_usr->type & ROSTER_TYPE_GROUP) return;
@@ -1108,15 +1108,15 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
   if (!newgroupname)  newgroupname = "";
   sl_newgroup = roster_add_group(newgroupname);
   if (!sl_newgroup) return;
-  my_newgroup = (roster*)sl_newgroup->data;
+  my_newgroup = (roster_t *)sl_newgroup->data;
 
   // Remove the buddy from current group
-  sl_group = &((roster*)((GSList*)roster_usr->list)->data)->list;
+  sl_group = &((roster_t *)((GSList*)roster_usr->list)->data)->list;
   *sl_group = g_slist_remove(*sl_group, rosterdata);
 
   // Remove old group if it is empty
   if (!*sl_group) {
-    roster *roster_grp = (roster*)((GSList*)roster_usr->list)->data;
+    roster_t *roster_grp = (roster_t *)((GSList*)roster_usr->list)->data;
     g_free((gchar*)roster_grp->jid);
     g_free((gchar*)roster_grp->name);
     g_free(roster_grp);
@@ -1133,7 +1133,7 @@ void buddy_setgroup(gpointer rosterdata, char *newgroupname)
 
 void buddy_setname(gpointer rosterdata, char *newname)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   GSList **sl_group;
 
   // TODO For groups, we need to check for unicity
@@ -1149,7 +1149,7 @@ void buddy_setname(gpointer rosterdata, char *newname)
     roster_usr->name = g_strdup(newname);
 
   // We need to resort the group list
-  sl_group = &((roster*)((GSList*)roster_usr->list)->data)->list;
+  sl_group = &((roster_t *)((GSList*)roster_usr->list)->data)->list;
   *sl_group = g_slist_sort(*sl_group, (GCompareFunc)&roster_compare_name);
 
   buddylist_defer_build();
@@ -1157,7 +1157,7 @@ void buddy_setname(gpointer rosterdata, char *newname)
 
 const char *buddy_getname(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->name;
 }
 
@@ -1165,7 +1165,7 @@ const char *buddy_getname(gpointer rosterdata)
 // Only for chatrooms
 void buddy_setnickname(gpointer rosterdata, const char *newname)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
 
   if (!(roster_usr->type & ROSTER_TYPE_ROOM)) return; // XXX Error message?
 
@@ -1179,7 +1179,7 @@ void buddy_setnickname(gpointer rosterdata, const char *newname)
 
 const char *buddy_getnickname(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->nickname;
 }
 
@@ -1187,7 +1187,7 @@ const char *buddy_getnickname(gpointer rosterdata)
 // Only for chatrooms
 void buddy_setinsideroom(gpointer rosterdata, guint inside)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
 
   if (!(roster_usr->type & ROSTER_TYPE_ROOM)) return;
 
@@ -1196,7 +1196,7 @@ void buddy_setinsideroom(gpointer rosterdata, guint inside)
 
 guint buddy_getinsideroom(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->inside_room;
 }
 
@@ -1204,7 +1204,7 @@ guint buddy_getinsideroom(gpointer rosterdata)
 // Only for chatrooms
 void buddy_settopic(gpointer rosterdata, const char *newtopic)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
 
   if (!(roster_usr->type & ROSTER_TYPE_ROOM)) return;
 
@@ -1218,43 +1218,43 @@ void buddy_settopic(gpointer rosterdata, const char *newtopic)
 
 const char *buddy_gettopic(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->topic;
 }
 
 void buddy_setprintstatus(gpointer rosterdata, enum room_printstatus pstatus)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   roster_usr->print_status = pstatus;
 }
 
 enum room_printstatus buddy_getprintstatus(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->print_status;
 }
 
 void buddy_setautowhois(gpointer rosterdata, enum room_autowhois awhois)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   roster_usr->auto_whois = awhois;
 }
 
 enum room_autowhois buddy_getautowhois(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->auto_whois;
 }
 
 void buddy_setflagjoins(gpointer rosterdata, enum room_flagjoins fjoins)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   roster_usr->flag_joins = fjoins;
 }
 
 enum room_flagjoins buddy_getflagjoins(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->flag_joins;
 }
 
@@ -1262,7 +1262,7 @@ enum room_flagjoins buddy_getflagjoins(gpointer rosterdata)
 // Returns a pointer on buddy's group name.
 const char *buddy_getgroupname(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
 
   if (roster_usr->type & ROSTER_TYPE_GROUP)
     return roster_usr->name;
@@ -1271,14 +1271,14 @@ const char *buddy_getgroupname(gpointer rosterdata)
     return NULL;
 
   // This is a user
-  return ((roster*)((GSList*)roster_usr->list)->data)->name;
+  return ((roster_t *)((GSList*)roster_usr->list)->data)->name;
 }
 
 //  buddy_getgroup()
 // Returns a pointer on buddy's group.
 gpointer buddy_getgroup(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
 
   if (roster_usr->type & ROSTER_TYPE_GROUP)
     return rosterdata;
@@ -1292,26 +1292,26 @@ gpointer buddy_getgroup(gpointer rosterdata)
 
 void buddy_settype(gpointer rosterdata, guint type)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   roster_usr->type = type;
 }
 
 guint buddy_gettype(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->type;
 }
 
 guint buddy_getsubscription(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->subscription;
 }
 
 enum imstatus buddy_getstatus(gpointer rosterdata, const char *resname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->status;
   return offline;
@@ -1319,8 +1319,8 @@ enum imstatus buddy_getstatus(gpointer rosterdata, const char *resname)
 
 const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->status_msg;
   return roster_usr->offline_status_message;
@@ -1328,8 +1328,8 @@ const char *buddy_getstatusmsg(gpointer rosterdata, const char *resname)
 
 time_t buddy_getstatustime(gpointer rosterdata, const char *resname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->status_timestamp;
   return 0;
@@ -1337,8 +1337,8 @@ time_t buddy_getstatustime(gpointer rosterdata, const char *resname)
 
 gchar buddy_getresourceprio(gpointer rosterdata, const char *resname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->prio;
   return 0;
@@ -1346,8 +1346,8 @@ gchar buddy_getresourceprio(gpointer rosterdata, const char *resname)
 
 guint buddy_resource_getevents(gpointer rosterdata, const char *resname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->events;
   return ROSTER_EVENT_NONE;
@@ -1356,16 +1356,16 @@ guint buddy_resource_getevents(gpointer rosterdata, const char *resname)
 void buddy_resource_setevents(gpointer rosterdata, const char *resname,
                               guint events)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     p_res->events = events;
 }
 
 char *buddy_resource_getcaps(gpointer rosterdata, const char *resname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->caps;
   return NULL;
@@ -1374,8 +1374,8 @@ char *buddy_resource_getcaps(gpointer rosterdata, const char *resname)
 void buddy_resource_setcaps(gpointer rosterdata, const char *resname,
                             const char *caps)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res) {
     g_free(p_res->caps);
     p_res->caps = g_strdup(caps);
@@ -1385,8 +1385,8 @@ void buddy_resource_setcaps(gpointer rosterdata, const char *resname,
 struct xep0085 *buddy_resource_xep85(gpointer rosterdata, const char *resname)
 {
 #ifdef XEP0085
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return &p_res->xep85;
 #endif
@@ -1396,8 +1396,8 @@ struct xep0085 *buddy_resource_xep85(gpointer rosterdata, const char *resname)
 struct pgp_data *buddy_resource_pgp(gpointer rosterdata, const char *resname)
 {
 #ifdef HAVE_GPGME
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return &p_res->pgpdata;
 #endif
@@ -1406,8 +1406,8 @@ struct pgp_data *buddy_resource_pgp(gpointer rosterdata, const char *resname)
 
 enum imrole buddy_getrole(gpointer rosterdata, const char *resname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->role;
   return role_none;
@@ -1415,8 +1415,8 @@ enum imrole buddy_getrole(gpointer rosterdata, const char *resname)
 
 enum imaffiliation buddy_getaffil(gpointer rosterdata, const char *resname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->affil;
   return affil_none;
@@ -1424,8 +1424,8 @@ enum imaffiliation buddy_getaffil(gpointer rosterdata, const char *resname)
 
 const char *buddy_getrjid(gpointer rosterdata, const char *resname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res)
     return p_res->realjid;
   return NULL;
@@ -1437,7 +1437,7 @@ const char *buddy_getrjid(gpointer rosterdata, const char *resname)
 // If roster_data is null, the current buddy is selected
 GSList *buddy_getresources(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   GSList *reslist = NULL, *lp;
 
   if (!roster_usr) {
@@ -1445,7 +1445,7 @@ GSList *buddy_getresources(gpointer rosterdata)
     roster_usr = BUDDATA(current_buddy);
   }
   for (lp = roster_usr->resource; lp; lp = g_slist_next(lp))
-    reslist = g_slist_append(reslist, g_strdup(((res*)lp->data)->name));
+    reslist = g_slist_append(reslist, g_strdup(((res_t *)lp->data)->name));
 
   return reslist;
 }
@@ -1474,8 +1474,8 @@ GSList *buddy_getresources_locale(gpointer rosterdata)
 // Returns name of active (selected for chat) resource
 const char *buddy_getactiveresource(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
-  res *resource;
+  roster_t *roster_usr = rosterdata;
+  res_t *resource;
 
   if (!roster_usr) {
     if (!current_buddy) return NULL;
@@ -1489,8 +1489,8 @@ const char *buddy_getactiveresource(gpointer rosterdata)
 
 void buddy_setactiveresource(gpointer rosterdata, const char *resname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = NULL;
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = NULL;
   if (resname)
     p_res = get_resource(roster_usr, resname);
   roster_usr->active_resource = p_res;
@@ -1502,7 +1502,7 @@ void buddy_setactiveresource(gpointer rosterdata, const char *resname)
 // (which means, for a room, that it isn't empty)
 int buddy_isresource(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   if (!roster_usr)
     return FALSE;
   if (roster_usr->resource)
@@ -1516,8 +1516,8 @@ int buddy_isresource(gpointer rosterdata)
 void buddy_resource_setname(gpointer rosterdata, const char *resname,
                             const char *newname)
 {
-  roster *roster_usr = rosterdata;
-  res *p_res = get_resource(roster_usr, resname);
+  roster_t *roster_usr = rosterdata;
+  res_t *p_res = get_resource(roster_usr, resname);
   if (p_res) {
     if (p_res->name) {
       g_free((gchar*)p_res->name);
@@ -1532,10 +1532,10 @@ void buddy_resource_setname(gpointer rosterdata, const char *resname,
 // Remove all resources from the specified buddy
 void buddy_del_all_resources(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
 
   while (roster_usr->resource) {
-    res *r = roster_usr->resource->data;
+    res_t *r = roster_usr->resource->data;
     del_resource(roster_usr, r->name);
   }
 }
@@ -1544,7 +1544,7 @@ void buddy_del_all_resources(gpointer rosterdata)
 // Set one or several flags to value (TRUE/FALSE)
 void buddy_setflags(gpointer rosterdata, guint flags, guint value)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   if (value)
     roster_usr->flags |= flags;
   else
@@ -1553,19 +1553,19 @@ void buddy_setflags(gpointer rosterdata, guint flags, guint value)
 
 guint buddy_getflags(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->flags;
 }
 
 guint buddy_getuiprio(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->ui_prio;
 }
 
 guint buddy_getunread(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->unread;
 }
 
@@ -1573,13 +1573,13 @@ guint buddy_getunread(gpointer rosterdata)
 // Set the on_server flag
 void buddy_setonserverflag(gpointer rosterdata, guint onserver)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   roster_usr->on_server = onserver;
 }
 
 guint buddy_getonserverflag(gpointer rosterdata)
 {
-  roster *roster_usr = rosterdata;
+  roster_t *roster_usr = rosterdata;
   return roster_usr->on_server;
 }
 
@@ -1590,13 +1590,13 @@ guint buddy_getonserverflag(gpointer rosterdata)
 GList *buddy_search_jid(const char *jid)
 {
   GList *buddy;
-  roster *roster_usr;
+  roster_t *roster_usr;
 
   buddylist_build();
   if (!buddylist) return NULL;
 
   for (buddy = buddylist; buddy; buddy = g_list_next(buddy)) {
-    roster_usr = (roster*)buddy->data;
+    roster_usr = (roster_t *)buddy->data;
     if (roster_usr->jid && !strcasecmp(roster_usr->jid, jid))
       return buddy;
   }
@@ -1610,7 +1610,7 @@ GList *buddy_search_jid(const char *jid)
 GList *buddy_search(char *string)
 {
   GList *buddy = current_buddy;
-  roster *roster_usr;
+  roster_t *roster_usr;
   buddylist_build();
   if (!buddylist || !current_buddy) return NULL;
   for (;;) {
@@ -1621,7 +1621,7 @@ GList *buddy_search(char *string)
     if (!buddy)
       buddy = buddylist;
 
-    roster_usr = (roster*)buddy->data;
+    roster_usr = (roster_t *)buddy->data;
 
     jid_locale = from_utf8(roster_usr->jid);
     if (jid_locale) {
@@ -1651,17 +1651,17 @@ void foreach_buddy(guint roster_type,
                    void *param)
 {
   GSList *sl_roster_elt = groups;
-  roster *roster_elt;
+  roster_t *roster_elt;
   GSList *sl_roster_usrelt;
-  roster *roster_usrelt;
+  roster_t *roster_usrelt;
 
   while (sl_roster_elt) {       // group list loop
-    roster_elt = (roster*) sl_roster_elt->data;
+    roster_elt = (roster_t *) sl_roster_elt->data;
     if (roster_elt->type & ROSTER_TYPE_SPECIAL)
       continue; // Skip special items
     sl_roster_usrelt = roster_elt->list;
     while (sl_roster_usrelt) {  // user list loop
-      roster_usrelt = (roster*) sl_roster_usrelt->data;
+      roster_usrelt = (roster_t *) sl_roster_usrelt->data;
 
       if (roster_usrelt->type & roster_type)
         pfunc(roster_usrelt, param);
@@ -1678,9 +1678,9 @@ void foreach_group_member(gpointer groupdata,
                    void (*pfunc)(gpointer rosterdata, void *param),
                    void *param)
 {
-  roster *roster_elt;
+  roster_t *roster_elt;
   GSList *sl_roster_usrelt;
-  roster *roster_usrelt;
+  roster_t *roster_usrelt;
 
   roster_elt = groupdata;
 
@@ -1690,7 +1690,7 @@ void foreach_group_member(gpointer groupdata,
   sl_roster_usrelt = roster_elt->list;
   while (sl_roster_usrelt) {  // user list loop
     GSList *next_sl_usrelt;
-    roster_usrelt = (roster*) sl_roster_usrelt->data;
+    roster_usrelt = (roster_t *) sl_roster_usrelt->data;
 
     next_sl_usrelt = g_slist_next(sl_roster_usrelt);
     pfunc(roster_usrelt, param);
@@ -1706,12 +1706,12 @@ GSList *compl_list(guint type)
 {
   GSList *list = NULL;
   GSList *sl_roster_elt = groups;
-  roster *roster_elt;
+  roster_t *roster_elt;
   GSList *sl_roster_usrelt;
-  roster *roster_usrelt;
+  roster_t *roster_usrelt;
 
   while (sl_roster_elt) {       // group list loop
-    roster_elt = (roster*) sl_roster_elt->data;
+    roster_elt = (roster_t *) sl_roster_elt->data;
 
     if (roster_elt->type & ROSTER_TYPE_SPECIAL)
       continue; // Skip special items
@@ -1722,7 +1722,7 @@ GSList *compl_list(guint type)
     } else { // ROSTER_TYPE_USER (jid) (or agent, or chatroom...)
       sl_roster_usrelt = roster_elt->list;
       while (sl_roster_usrelt) {  // user list loop
-        roster_usrelt = (roster*) sl_roster_usrelt->data;
+        roster_usrelt = (roster_t *) sl_roster_usrelt->data;
 
         if (roster_usrelt->jid)
           list = g_slist_append(list, from_utf8(roster_usrelt->jid));

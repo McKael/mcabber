@@ -47,7 +47,7 @@ typedef struct {
   gchar *pgp_keyid;   /* KeyId the contact is supposed to use */
   guint pgp_disabled; /* If TRUE, PGP is disabled for outgoing messages */
   guint pgp_force;    /* If TRUE, PGP is used w/o negotiation */
-} T_pgpopt;
+} pgpopt_t;
 #endif
 
 typedef struct {
@@ -517,13 +517,13 @@ char *default_muc_nickname(const char *roomid)
 void settings_pgp_setdisabled(const char *bjid, guint value)
 {
 #ifdef HAVE_GPGME
-  T_pgpopt *pgpdata;
+  pgpopt_t *pgpdata;
   pgpdata = g_hash_table_lookup(pgpopt, bjid);
   if (!pgpdata) {
     // If value is 0, we do not need to create a structure (that's
     // the default value).
     if (value) {
-      pgpdata = g_new0(T_pgpopt, 1);
+      pgpdata = g_new0(pgpopt_t, 1);
       pgpdata->pgp_disabled = value;
       g_hash_table_insert(pgpopt, g_strdup(bjid), pgpdata);
     }
@@ -540,7 +540,7 @@ void settings_pgp_setdisabled(const char *bjid, guint value)
 guint settings_pgp_getdisabled(const char *bjid)
 {
 #ifdef HAVE_GPGME
-  T_pgpopt *pgpdata;
+  pgpopt_t *pgpdata;
   pgpdata = g_hash_table_lookup(pgpopt, bjid);
   if (pgpdata)
     return pgpdata->pgp_disabled;
@@ -557,13 +557,13 @@ guint settings_pgp_getdisabled(const char *bjid)
 void settings_pgp_setforce(const char *bjid, guint value)
 {
 #ifdef HAVE_GPGME
-  T_pgpopt *pgpdata;
+  pgpopt_t *pgpdata;
   pgpdata = g_hash_table_lookup(pgpopt, bjid);
   if (!pgpdata) {
     // If value is 0, we do not need to create a structure (that's
     // the default value).
     if (value) {
-      pgpdata = g_new0(T_pgpopt, 1);
+      pgpdata = g_new0(pgpopt_t, 1);
       pgpdata->pgp_force = value;
       g_hash_table_insert(pgpopt, g_strdup(bjid), pgpdata);
     }
@@ -580,7 +580,7 @@ void settings_pgp_setforce(const char *bjid, guint value)
 guint settings_pgp_getforce(const char *bjid)
 {
 #ifdef HAVE_GPGME
-  T_pgpopt *pgpdata;
+  pgpopt_t *pgpdata;
   pgpdata = g_hash_table_lookup(pgpopt, bjid);
   if (pgpdata)
     return pgpdata->pgp_force;
@@ -597,13 +597,13 @@ guint settings_pgp_getforce(const char *bjid)
 void settings_pgp_setkeyid(const char *bjid, const char *keyid)
 {
 #ifdef HAVE_GPGME
-  T_pgpopt *pgpdata;
+  pgpopt_t *pgpdata;
   pgpdata = g_hash_table_lookup(pgpopt, bjid);
   if (!pgpdata) {
     // If keyid is NULL, we do not need to create a structure (that's
     // the default value).
     if (keyid) {
-      pgpdata = g_new0(T_pgpopt, 1);
+      pgpdata = g_new0(pgpopt_t, 1);
       pgpdata->pgp_keyid = g_strdup(keyid);
       g_hash_table_insert(pgpopt, g_strdup(bjid), pgpdata);
     }
@@ -624,7 +624,7 @@ void settings_pgp_setkeyid(const char *bjid, const char *keyid)
 const char *settings_pgp_getkeyid(const char *bjid)
 {
 #ifdef HAVE_GPGME
-  T_pgpopt *pgpdata;
+  pgpopt_t *pgpdata;
   pgpdata = g_hash_table_lookup(pgpopt, bjid);
   if (pgpdata)
     return pgpdata->pgp_keyid;

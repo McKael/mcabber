@@ -40,7 +40,7 @@ extern gchar *mystatusmsg;
 
 static GSList *invitations = NULL;
 
-static void decline_invitation(event_muc_invitation *invitation, const char *reason)
+static void decline_invitation(event_muc_invitation_t *invitation, const char *reason)
 {
   // cut and paste from xmpp_room_invite
   LmMessage *m;
@@ -64,7 +64,7 @@ static void decline_invitation(event_muc_invitation *invitation, const char *rea
   lm_message_unref(m);
 }
 
-void destroy_event_muc_invitation(event_muc_invitation *invitation)
+void destroy_event_muc_invitation(event_muc_invitation_t *invitation)
 {
   invitations = g_slist_remove(invitations, invitation);
   g_free(invitation->to);
@@ -80,7 +80,7 @@ void destroy_event_muc_invitation(event_muc_invitation *invitation)
 // destroy them? (need invitation registry list for that)
 static gboolean evscallback_invitation(guint evcontext, const char *arg, gpointer userdata)
 {
-  event_muc_invitation *invitation = userdata;
+  event_muc_invitation_t *invitation = userdata;
 
   // Sanity check
   if (G_UNLIKELY(!invitation)) {
@@ -799,7 +799,7 @@ void got_invite(const char* from, const char *to, const char* reason,
   { // remove any equal older invites
     GSList *iel = invitations;
     while (iel) {
-      event_muc_invitation *invitation = iel->data;
+      event_muc_invitation_t *invitation = iel->data;
       iel = iel -> next;
       if (!g_strcmp0(to, invitation->to) &&
           !g_strcmp0(passwd, invitation->passwd)) {
@@ -820,9 +820,9 @@ void got_invite(const char* from, const char *to, const char* reason,
   { // create event
     const char *id;
     char *desc = g_strdup_printf("<%s> invites you to %s", from, to);
-    event_muc_invitation *invitation;
+    event_muc_invitation_t *invitation;
 
-    invitation = g_new(event_muc_invitation, 1);
+    invitation = g_new(event_muc_invitation_t, 1);
     invitation->to = g_strdup(to);
     invitation->from = g_strdup(from);
     invitation->passwd = g_strdup(passwd);

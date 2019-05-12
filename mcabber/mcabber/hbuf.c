@@ -44,7 +44,7 @@ typedef struct {
     guint  flags;
     gpointer xep184;
   } prefix;
-} hbuf_block;
+} hbuf_block_t;
 
 
 //  do_wrap(p_hbuf, first_hbuf_elt, width)
@@ -61,7 +61,7 @@ static inline void do_wrap(GList **p_hbuf, GList *first_hbuf_elt,
   // - If there are '\n' in the string
   // - If length > width (and width != 0)
   while (curr_elt) {
-    hbuf_block *hbuf_b_curr, *hbuf_b_prev;
+    hbuf_block_t *hbuf_b_curr, *hbuf_b_prev;
     char *c, *end;
     char *br = NULL; // break pointer
     char *cr = NULL; // CR pointer
@@ -69,7 +69,7 @@ static inline void do_wrap(GList **p_hbuf, GList *first_hbuf_elt,
 
     // We want to break where we can find a space char or a CR
 
-    hbuf_b_curr = (hbuf_block*)(curr_elt->data);
+    hbuf_b_curr = (hbuf_block_t*)(curr_elt->data);
     hbuf_b_prev = hbuf_b_curr;
     c = hbuf_b_curr->ptr;
 
@@ -93,7 +93,7 @@ static inline void do_wrap(GList **p_hbuf, GList *first_hbuf_elt,
       end = hbuf_b_curr->ptr_end;
       hbuf_b_curr->ptr_end = br;
       // Create another block
-      hbuf_b_curr = g_new0(hbuf_block, 1);
+      hbuf_b_curr = g_new0(hbuf_block_t, 1);
       // The block must be persistent after a CR
       if (cr) {
         hbuf_b_curr->ptr    = hbuf_b_prev->ptr_end + 1; // == cr+1
@@ -127,7 +127,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   GList *curr_elt;
   char *line;
   guint hbb_blocksize, textlen;
-  hbuf_block *hbuf_block_elt;
+  hbuf_block_t *hbuf_block_elt;
 
   if (!text) return;
 
@@ -136,7 +136,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
   textlen = strlen(text);
   hbb_blocksize = MAX(textlen+1, HBB_BLOCKSIZE);
 
-  hbuf_block_elt = g_new0(hbuf_block, 1);
+  hbuf_block_elt = g_new0(hbuf_block_t, 1);
   hbuf_block_elt->prefix.timestamp  = timestamp;
   hbuf_block_elt->prefix.flags      = prefix_flags;
   hbuf_block_elt->prefix.mucnicklen = mucnicklen;
@@ -150,7 +150,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
     hbuf_block_elt->flags  = HBB_FLAG_ALLOC | HBB_FLAG_PERSISTENT;
     hbuf_block_elt->ptr_end_alloc = hbuf_block_elt->ptr + hbb_blocksize;
   } else {
-    hbuf_block *hbuf_b_prev;
+    hbuf_block_t *hbuf_b_prev;
     // Set p_hbuf to the end of the list, to speed up history loading
     // (or CPU time will be used by g_list_last() for each line)
     *p_hbuf = g_list_last(*p_hbuf);
@@ -172,7 +172,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
       // XXX We should check the return value.
     } else {
       GList *hbuf_head, *hbuf_elt;
-      hbuf_block *hbuf_b_elt;
+      hbuf_block_t *hbuf_b_elt;
       guint n = 0;
       hbuf_head = g_list_first(*p_hbuf);
       // We need at least 2 allocated blocks
@@ -180,7 +180,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
         maxhbufblocks = 2;
       // Let's count the number of allocated areas
       for (hbuf_elt = hbuf_head; hbuf_elt; hbuf_elt = g_list_next(hbuf_elt)) {
-        hbuf_b_elt = (hbuf_block*)(hbuf_elt->data);
+        hbuf_b_elt = (hbuf_block_t*)(hbuf_elt->data);
         if (hbuf_b_elt->flags & HBB_FLAG_ALLOC)
           n++;
       }
@@ -195,7 +195,7 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
         while (n >= maxhbufblocks) {
           int start_of_block = 1;
           for (hbuf_elt = hbuf_head; hbuf_elt; hbuf_elt = hbuf_head) {
-            hbuf_b_elt = (hbuf_block*)(hbuf_elt->data);
+            hbuf_b_elt = (hbuf_block_t*)(hbuf_elt->data);
             if (hbuf_b_elt->flags & HBB_FLAG_ALLOC) {
               if (start_of_block-- == 0)
                 break;
@@ -234,12 +234,12 @@ void hbuf_add_line(GList **p_hbuf, const char *text, time_t timestamp,
 // Destroys all hbuf list.
 void hbuf_free(GList **p_hbuf)
 {
-  hbuf_block *hbuf_b_elt;
+  hbuf_block_t *hbuf_b_elt;
   GList *hbuf_elt;
   GList *first_elt = g_list_first(*p_hbuf);
 
   for (hbuf_elt = first_elt; hbuf_elt; hbuf_elt = g_list_next(hbuf_elt)) {
-    hbuf_b_elt = (hbuf_block*)(hbuf_elt->data);
+    hbuf_b_elt = (hbuf_block_t*)(hbuf_elt->data);
     if (hbuf_b_elt->flags & HBB_FLAG_ALLOC) {
       g_free(hbuf_b_elt->ptr);
     }
@@ -256,7 +256,7 @@ void hbuf_free(GList **p_hbuf)
 void hbuf_rebuild(GList **p_hbuf, unsigned int width)
 {
   GList *first_elt, *curr_elt, *next_elt;
-  hbuf_block *hbuf_b_curr, *hbuf_b_next;
+  hbuf_block_t *hbuf_b_curr, *hbuf_b_next;
 
   // *p_hbuf needs to be the head of the list
   first_elt = *p_hbuf = g_list_first(*p_hbuf);
@@ -268,8 +268,8 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
     // Last element?
     if (!next_elt)
       break;
-    hbuf_b_curr = (hbuf_block*)(curr_elt->data);
-    hbuf_b_next = (hbuf_block*)(next_elt->data);
+    hbuf_b_curr = (hbuf_block_t*)(curr_elt->data);
+    hbuf_b_next = (hbuf_block_t*)(next_elt->data);
     // Is next line not-persistent?
     if (!(hbuf_b_next->flags & HBB_FLAG_PERSISTENT)) {
       hbuf_b_curr->ptr_end = hbuf_b_next->ptr_end;
@@ -291,10 +291,10 @@ void hbuf_rebuild(GList **p_hbuf, unsigned int width)
 // line...
 GList *hbuf_previous_persistent(GList *l_line)
 {
-  hbuf_block *hbuf_b_elt;
+  hbuf_block_t *hbuf_b_elt;
 
   while (l_line) {
-    hbuf_b_elt = (hbuf_block*)l_line->data;
+    hbuf_b_elt = (hbuf_block_t*)l_line->data;
     if (hbuf_b_elt->flags & HBB_FLAG_PERSISTENT &&
         (hbuf_b_elt->flags & ~HBB_PREFIX_READMARK))
       return l_line;
@@ -312,7 +312,7 @@ GList *hbuf_previous_persistent(GList *l_line)
 hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
 {
   unsigned int i;
-  hbuf_block *blk;
+  hbuf_block_t *blk;
   guint last_persist_prefixflags = 0;
   GList *last_persist;  // last persistent flags
   hbb_line **array, **array_elt;
@@ -324,7 +324,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
   // somewhere in the message.
   last_persist = hbuf_previous_persistent(hbuf);
   while (last_persist) {
-    blk = (hbuf_block*)last_persist->data;
+    blk = (hbuf_block_t*)last_persist->data;
     if ((blk->flags & HBB_FLAG_PERSISTENT) && blk->prefix.flags) {
       // This can be either the beginning of the message,
       // or a persistent line with a readmark flag (or both).
@@ -345,7 +345,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
     if (hbuf) {
       int maxlen;
 
-      blk = (hbuf_block*)(hbuf->data);
+      blk = (hbuf_block_t*)(hbuf->data);
       maxlen = blk->ptr_end - blk->ptr;
       *array_elt = (hbb_line*)g_new(hbb_line, 1);
       (*array_elt)->timestamp  = blk->prefix.timestamp;
@@ -393,7 +393,7 @@ hbb_line **hbuf_get_lines(GList *hbuf, unsigned int n)
 // Search starts at hbuf, and goes forward if direction == 1, backward if -1
 GList *hbuf_search(GList *hbuf, int direction, const char *string)
 {
-  hbuf_block *blk;
+  hbuf_block_t *blk;
 
   for (;;) {
     if (direction > 0)
@@ -403,7 +403,7 @@ GList *hbuf_search(GList *hbuf, int direction, const char *string)
 
     if (!hbuf) break;
 
-    blk = (hbuf_block*)(hbuf->data);
+    blk = (hbuf_block_t*)(hbuf->data);
     // XXX blk->ptr is (maybe) not really correct, because the match should
     // not be after ptr_end.  We should check that...
     if (strcasestr(blk->ptr, string))
@@ -417,12 +417,12 @@ GList *hbuf_search(GList *hbuf, int direction, const char *string)
 // Return a pointer to the first line after date t in the history buffer
 GList *hbuf_jump_date(GList *hbuf, time_t t)
 {
-  hbuf_block *blk;
+  hbuf_block_t *blk;
 
   hbuf = g_list_first(hbuf);
 
   for ( ; hbuf && g_list_next(hbuf); hbuf = g_list_next(hbuf)) {
-    blk = (hbuf_block*)(hbuf->data);
+    blk = (hbuf_block_t*)(hbuf->data);
     if (blk->prefix.timestamp >= t) break;
   }
 
@@ -446,12 +446,12 @@ GList *hbuf_jump_percent(GList *hbuf, int pc)
 // or NULL if no mark was found.
 GList *hbuf_jump_readmark(GList *hbuf)
 {
-  hbuf_block *blk;
+  hbuf_block_t *blk;
   GList *r = NULL;
 
   hbuf = g_list_last(hbuf);
   for ( ; hbuf; hbuf = g_list_previous(hbuf)) {
-    blk = (hbuf_block*)(hbuf->data);
+    blk = (hbuf_block_t*)(hbuf->data);
     if (blk->prefix.flags & HBB_PREFIX_READMARK)
       return r;
     if ((blk->flags & HBB_FLAG_PERSISTENT) &&
@@ -466,7 +466,7 @@ GList *hbuf_jump_readmark(GList *hbuf)
 // Save the buffer to a file.
 void hbuf_dump_to_file(GList *hbuf, const char *filename)
 {
-  hbuf_block *blk;
+  hbuf_block_t *blk;
   hbb_line line;
   guint last_persist_prefixflags = 0;
   guint prefixwidth;
@@ -490,7 +490,7 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename)
   for (hbuf = g_list_first(hbuf); hbuf; hbuf = g_list_next(hbuf)) {
     int maxlen;
 
-    blk = (hbuf_block*)(hbuf->data);
+    blk = (hbuf_block_t*)(hbuf->data);
     maxlen = blk->ptr_end - blk->ptr;
 
     memset(&line, 0, sizeof(line));
@@ -525,12 +525,12 @@ void hbuf_dump_to_file(GList *hbuf, const char *filename)
 // Returns TRUE if it was found and removed, otherwise FALSE
 gboolean hbuf_remove_receipt(GList *hbuf, gconstpointer xep184)
 {
-  hbuf_block *blk;
+  hbuf_block_t *blk;
 
   hbuf = g_list_last(hbuf);
 
   for ( ; hbuf; hbuf = g_list_previous(hbuf)) {
-    blk = (hbuf_block*)(hbuf->data);
+    blk = (hbuf_block_t*)(hbuf->data);
     if (!g_strcmp0(blk->prefix.xep184, xep184)) {
       g_free(blk->prefix.xep184);
       blk->prefix.xep184 = NULL;
@@ -547,7 +547,7 @@ gboolean hbuf_remove_receipt(GList *hbuf, gconstpointer xep184)
 // if action is FALSE, remove a previous readmark flag.
 void hbuf_set_readmark(GList *hbuf, gboolean action)
 {
-  hbuf_block *blk;
+  hbuf_block_t *blk;
 
   if (!hbuf) return;
 
@@ -555,7 +555,7 @@ void hbuf_set_readmark(GList *hbuf, gboolean action)
 
   if (action) {
     // Add a readmark flag
-    blk = (hbuf_block*)(hbuf->data);
+    blk = (hbuf_block_t*)(hbuf->data);
     blk->prefix.flags |= HBB_PREFIX_READMARK;
 
     // Shift hbuf in order to remove previous flags
@@ -566,7 +566,7 @@ void hbuf_set_readmark(GList *hbuf, gboolean action)
 
   // Remove old mark
   for ( ; hbuf; hbuf = g_list_previous(hbuf)) {
-    blk = (hbuf_block*)(hbuf->data);
+    blk = (hbuf_block_t*)(hbuf->data);
     if (blk->prefix.flags & HBB_PREFIX_READMARK) {
       blk->prefix.flags &= ~HBB_PREFIX_READMARK;
       break;
@@ -578,24 +578,24 @@ void hbuf_set_readmark(GList *hbuf, gboolean action)
 // Unset the buffer readmark if it is on the last line
 void hbuf_remove_trailing_readmark(GList *hbuf)
 {
-  hbuf_block *blk;
+  hbuf_block_t *blk;
 
   if (!hbuf) return;
 
   hbuf = g_list_last(hbuf);
-  blk = (hbuf_block*)(hbuf->data);
+  blk = (hbuf_block_t*)(hbuf->data);
   blk->prefix.flags &= ~HBB_PREFIX_READMARK;
 }
 
 //  hbuf_get_blocks_number()
-// Returns the number of allocated hbuf_block's.
+// Returns the number of allocated hbuf_block_t's.
 guint hbuf_get_blocks_number(GList *hbuf)
 {
-  hbuf_block *hbuf_b_elt;
+  hbuf_block_t *hbuf_b_elt;
   guint count = 0U;
 
   for (hbuf = g_list_first(hbuf); hbuf; hbuf = g_list_next(hbuf)) {
-    hbuf_b_elt = (hbuf_block*)(hbuf->data);
+    hbuf_b_elt = (hbuf_block_t*)(hbuf->data);
     if (hbuf_b_elt->flags & HBB_FLAG_ALLOC)
       count++;
   }

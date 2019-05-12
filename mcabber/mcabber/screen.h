@@ -83,14 +83,14 @@ typedef struct {
     MKEY_CTRL_SHIFT_END,
     MKEY_MOUSE
   } mcode;
-} keycode;
+} keycode_t;
 
 typedef enum {
   MC_ALL,
   MC_PRESET,
   MC_OFF,
   MC_REMOVE
-} muccoltype;
+} muccol_t;
 
 
 void scr_write_incoming_message(const char *jidfrom, const char *text,
@@ -99,8 +99,8 @@ void scr_write_incoming_message(const char *jidfrom, const char *text,
 void scr_write_outgoing_message(const char *jidto,   const char *text,
                                 guint prefix, gpointer xep184);
 
-void scr_getch(keycode *kcode);
-void scr_process_key(keycode kcode);
+void scr_getch(keycode_t *kcode);
+void scr_process_key(keycode_t kcode);
 
 void scr_init_bindings(void);
 void scr_init_locale_charset(void);
@@ -170,7 +170,7 @@ void scr_buffer_jump_readmark(void);
 bool scr_roster_color(const char *status, const char *wildcard,
                       const char *color);
 void scr_roster_clear_color(void);
-void scr_muc_color(const char *muc, muccoltype type);
+void scr_muc_color(const char *muc, muccol_t type);
 void scr_muc_nick_color(const char *nick, const char *color);
 
 void readline_transpose_chars(void);

@@ -30,23 +30,23 @@ typedef struct {
   char *category;
   char *type;
   char *name;
-} identity;
+} identity_t;
 
 typedef struct {
   GHashTable *fields;
-} dataform;
+} dataform_t;
 
 typedef struct {
   GHashTable *identities;
   GHashTable *features;
   GHashTable *forms;
-} caps;
+} caps_t;
 
 static GHashTable *caps_cache = NULL;
 
 void caps_destroy(gpointer data)
 {
-  caps *c = data;
+  caps_t *c = data;
   g_hash_table_destroy(c->identities);
   g_hash_table_destroy(c->features);
   g_hash_table_destroy(c->forms);
@@ -55,7 +55,7 @@ void caps_destroy(gpointer data)
 
 void identity_destroy(gpointer data)
 {
-  identity *i = data;
+  identity_t *i = data;
   g_free(i->category);
   g_free(i->type);
   g_free(i->name);
@@ -64,7 +64,7 @@ void identity_destroy(gpointer data)
 
 void form_destroy(gpointer data)
 {
-  dataform *f = data;
+  dataform_t *f = data;
   g_hash_table_destroy(f->fields);
   g_free(f);
 }
@@ -95,7 +95,7 @@ void caps_add(const char *hash)
 {
   if (!hash)
     return;
-  caps *c = g_new0(caps, 1);
+  caps_t *c = g_new0(caps_t, 1);
   c->features = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
   c->identities = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, identity_destroy);
   c->forms = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, form_destroy);
@@ -113,7 +113,7 @@ void caps_remove(const char *hash)
 void caps_move_to_local(char *hash, char *bjid)
 {
   char *orig_hash;
-  caps *c = NULL;
+  caps_t *c = NULL;
   if (!hash || !bjid)
     return;
   g_hash_table_lookup_extended(caps_cache, hash, (gpointer*)&orig_hash, (gpointer*)&c);
@@ -130,7 +130,7 @@ void caps_move_to_local(char *hash, char *bjid)
 /*if bjid is NULL, it will check only verified hashes */
 int caps_has_hash(const char *hash, const char *bjid)
 {
-  caps *c = NULL;
+  caps_t *c = NULL;
   if (!hash)
     return 0;
   c = g_hash_table_lookup(caps_cache, hash);
@@ -148,7 +148,7 @@ void caps_add_identity(const char *hash,
                        const char *type,
                        const char *lang)
 {
-  caps *c;
+  caps_t *c;
   if (!hash || !category || !type)
     return;
   if (!lang)
@@ -156,7 +156,7 @@ void caps_add_identity(const char *hash,
 
   c = g_hash_table_lookup(caps_cache, hash);
   if (c) {
-    identity *i = g_new0(identity, 1);
+    identity_t *i = g_new0(identity_t, 1);
 
     i->category = g_strdup(category);
     i->name = g_strdup(name);
@@ -175,12 +175,12 @@ void caps_set_identity(char *hash,
 
 void caps_add_dataform(const char *hash, const char *formtype)
 {
-  caps *c;
+  caps_t *c;
   if (!formtype)
     return;
   c = g_hash_table_lookup(caps_cache, hash);
   if (c) {
-    dataform *d = g_new0(dataform, 1);
+    dataform_t *d = g_new0(dataform_t, 1);
     char *f = g_strdup(formtype);
 
     d->fields = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, field_destroy);
@@ -196,12 +196,12 @@ gint _strcmp_sort(gconstpointer a, gconstpointer b)
 void caps_add_dataform_field(const char *hash, const char *formtype,
                              const char *field, const char *value)
 {
-  caps *c;
+  caps_t *c;
   if (!formtype || !field || !value)
     return;
   c = g_hash_table_lookup(caps_cache, hash);
   if (c) {
-    dataform *d;
+    dataform_t *d;
     d = g_hash_table_lookup(c->forms, formtype);
     if (d) {
       gpointer key, val;
@@ -221,7 +221,7 @@ void caps_add_dataform_field(const char *hash, const char *formtype,
 
 void caps_add_feature(const char *hash, const char *feature)
 {
-  caps *c;
+  caps_t *c;
   if (!hash || !feature)
     return;
   c = g_hash_table_lookup(caps_cache, hash);
@@ -236,7 +236,7 @@ void caps_add_feature(const char *hash, const char *feature)
  * then local storage for that jid will be checked */
 int caps_has_feature(const char *hash, char *feature, char *bjid)
 {
-  caps *c = NULL;
+  caps_t *c = NULL;
   if (!hash || !feature)
     return 0;
   c = g_hash_table_lookup(caps_cache, hash);
@@ -260,7 +260,7 @@ void _caps_foreach_helper(gpointer key, gpointer value, gpointer user_data)
 
 void caps_foreach_feature(const char *hash, GFunc func, gpointer user_data)
 {
-  caps *c;
+  caps_t *c;
   if (!hash)
     return;
   c = g_hash_table_lookup(caps_cache, hash);
@@ -278,7 +278,7 @@ const char *caps_generate(void)
   guint8 digest[20];
   gsize digest_size = 20;
   gchar *hash, *old_hash = NULL;
-  caps *old_caps, *c;
+  caps_t *old_caps, *c;
   gpointer key;
 
   if (!g_hash_table_lookup_extended(caps_cache, "", &key, (gpointer *)&c))
@@ -292,7 +292,7 @@ const char *caps_generate(void)
   langs = g_hash_table_get_keys(c->identities);
   langs = g_list_sort(langs, _strcmp_sort);
   {
-    identity *i;
+    identity_t *i;
     GList *lang;
     char *identity_S;
     for (lang=langs; lang; lang=lang->next) {
@@ -336,7 +336,7 @@ gboolean caps_verify(const char *hash, char *function)
   gsize digest_size = 20;
   gchar *local_hash;
   gboolean match = FALSE;
-  caps *c = g_hash_table_lookup(caps_cache, hash);
+  caps_t *c = g_hash_table_lookup(caps_cache, hash);
 
   if (!g_strcmp0(function, "sha-1")) {
     checksum = g_checksum_new(G_CHECKSUM_SHA1);
@@ -349,7 +349,7 @@ gboolean caps_verify(const char *hash, char *function)
   langs = g_hash_table_get_keys(c->identities);
   langs = g_list_sort(langs, _strcmp_sort);
   {
-    identity *i;
+    identity_t *i;
     GList *lang;
     char *identity_S;
     for (lang=langs; lang; lang=lang->next) {
@@ -376,7 +376,7 @@ gboolean caps_verify(const char *hash, char *function)
   forms = g_hash_table_get_keys(c->forms);
   forms = g_list_sort(forms, _strcmp_sort);
   {
-    dataform *d;
+    dataform_t *d;
     GList *form, *fields;
     for (form=forms; form; form=form->next) {
       d = g_hash_table_lookup(c->forms, form->data);
@@ -446,7 +446,7 @@ void caps_copy_to_persistent(const char* hash, char* xml)
   gchar *file;
   GList *features, *langs, *forms;
   GKeyFile *key_file;
-  caps *c;
+  caps_t *c;
   int fd;
 
   g_free (xml);
@@ -470,7 +470,7 @@ void caps_copy_to_persistent(const char* hash, char* xml)
 
   langs = g_hash_table_get_keys (c->identities);
   {
-    identity *i;
+    identity_t *i;
     GList *lang;
     gchar *group;
     for (lang=langs; lang; lang=lang->next) {
@@ -507,7 +507,7 @@ void caps_copy_to_persistent(const char* hash, char* xml)
 
   forms = g_hash_table_get_keys(c->forms);
   {
-    dataform *d;
+    dataform_t *d;
     GList *form, *fields;
     gchar *group;
     for (form=forms; form; form=form->next) {

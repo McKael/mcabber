@@ -8,9 +8,9 @@ typedef struct {
   char *reason;
   char *evid;
   gboolean reply;
-} event_muc_invitation;
+} event_muc_invitation_t;
 
-void destroy_event_muc_invitation(event_muc_invitation *invitation);
+void destroy_event_muc_invitation(event_muc_invitation_t *invitation);
 void roompresence(gpointer room, void *presencedata);
 void got_invite(const char* from, const char *to, const char* reason,
                 const char* passwd, gboolean reply);

@@ -8,6 +8,7 @@ existing style, and read the following points.
 - Avoid lines longer than 80 characters;
 - Indentation is 2 spaces (ok, maybe it isn't a good idea but it's the
   current style);
+- Defined types shall end with _t
 - Put a space after non-functions statements (e.g. if, while...)
 - Put the opening brace last on the same line, and put the closing brace first
   except for functions, where the opening brace should be alone on a new line.

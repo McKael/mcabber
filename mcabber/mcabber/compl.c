@@ -43,7 +43,7 @@ typedef struct {
   guint len_prefix;     // length of text already typed by the user
   guint len_compl;      // length of the last completion
   GList *next;          // pointer to next completion to try
-} compl;
+} compl_t;
 
 typedef GSList *(*compl_handler_t) (void); // XXX userdata? *dynlist?
 
@@ -52,7 +52,7 @@ typedef struct {
   guint flags;
   GSList *words;
   compl_handler_t dynamic;
-} category;
+} category_t;
 
 #define COMPL_CAT_BUILTIN   0x01
 #define COMPL_CAT_ACTIVE    0x02
@@ -62,8 +62,8 @@ typedef struct {
 
 #define COMPL_CAT_USERFLAGS 0x30
 
-static compl *InputCompl;
-static category *Categories;
+static compl_t *InputCompl;
+static category_t *Categories;
 static guint num_categories;
 
 // Dynamic completions callbacks
@@ -107,7 +107,7 @@ void compl_init_system(void)
 #ifdef MODULES_ENABLE
   num_categories = ((num_categories / 16) + 1) * 16;
 #endif
-  Categories = g_new0(category, num_categories);
+  Categories = g_new0(category_t, num_categories);
 
   // Builtin completion categories:
   register_builtin_cat(COMPL_CMD, NULL);
@@ -154,7 +154,7 @@ guint compl_new_category(guint flags)
       return 0;
     }
     num_categories += 16;
-    Categories = g_renew(category, Categories, num_categories);
+    Categories = g_renew(category_t, Categories, num_categories);
     for (j = i+1; j < num_categories; j++)
       Categories[j].flags = 0;
   }
@@ -202,7 +202,7 @@ void compl_del_category(guint compl)
 // Returns the number of possible completions.
 guint new_completion(const char *prefix, GSList *compl_cat, const gchar *suffix)
 {
-  compl *c;
+  compl_t *c;
   guint  ret_len = 0;
   GSList *sl_cat;
   gint (*cmp)(const char *s1, const char *s2, size_t n);
@@ -219,7 +219,7 @@ guint new_completion(const char *prefix, GSList *compl_cat, const gchar *suffix)
   else
     cmp = &strncmp;
 
-  c = g_new0(compl, 1);
+  c = g_new0(compl_t, 1);
   // Build the list of matches
   for (sl_cat = compl_cat; sl_cat; sl_cat = g_slist_next(sl_cat)) {
     char *word = sl_cat->data;
@@ -268,7 +268,7 @@ guint cancel_completion(void)
 // Returns pointer to text to insert, NULL if no completion.
 const char *complete(gboolean fwd)
 {
-  compl* c = InputCompl;
+  compl_t *c = InputCompl;
   char *r;
 
   if (!InputCompl)  return NULL;

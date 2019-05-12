@@ -109,13 +109,13 @@ typedef struct {
   char      lock;
   char      refcount; // refcount > 0 if there are other users of this struct
                       // e.g. with symlinked history
-} buffdata;
+} buffdata_t;
 
 typedef struct {
   WINDOW *win;
   PANEL  *panel;
-  buffdata *bd;
-} winbuf;
+  buffdata_t *bd;
+} winbuf_t;
 
 struct dimensions {
   int l;
@@ -129,8 +129,8 @@ static PANEL *mainstatusPanel, *chatstatusPanel;
 static PANEL *logPanel;
 static int maxY, maxX;
 static int prev_chatwidth;
-static winbuf *statusWindow;
-static winbuf *currentWindow;
+static winbuf_t *statusWindow;
+static winbuf_t *currentWindow;
 static GList  *statushbuf;
 
 static int roster_hidden;
@@ -174,7 +174,7 @@ typedef struct {
   char *seqstr;
   guint mkeycode;
   gint  value;
-} keyseq;
+} keyseq_t;
 
 GSList *keyseqlist;
 static void add_keyseq(char *seqstr, guint mkeycode, gint value);
@@ -203,7 +203,7 @@ typedef struct {
   AspellConfig *config;
   AspellSpeller *checker;
 #endif
-} spell_checker;
+} spell_checker_t;
 
 GSList* spell_checkers = NULL;
 #endif
@@ -211,13 +211,13 @@ GSList* spell_checkers = NULL;
 typedef struct {
   int color_pair;
   int color_attrib;
-} ccolor;
+} ccolor_t;
 
 typedef struct {
   char *status, *wildcard;
-  ccolor *color;
+  ccolor_t *color;
   GPatternSpec *compiled;
-} rostercolor;
+} rostercolor_t;
 
 static GSList *rostercolrules = NULL;
 
@@ -225,12 +225,12 @@ static GHashTable *muccolors = NULL, *nickcolors = NULL;
 
 typedef struct {
   bool manual; // Manually set?
-  ccolor *color;
-} nickcolor;
+  ccolor_t *color;
+} nickcolor_t;
 
 static int nickcolcount = 0;
-static ccolor ** nickcols = NULL;
-static muccoltype glob_muccol = MC_OFF;
+static ccolor_t ** nickcols = NULL;
+static muccol_t glob_muccol = MC_OFF;
 
 /* Functions */
 
@@ -266,11 +266,11 @@ static int find_color(const char *name)
   return -1;
 }
 
-static ccolor *get_user_color(const char *color)
+static ccolor_t *get_user_color(const char *color)
 {
   bool isbright = FALSE;
   int cl;
-  ccolor *ccol;
+  ccolor_t *ccol;
   if (!strncmp(color, "bright", 6)) {
     isbright = TRUE;
     color += 6;
@@ -278,7 +278,7 @@ static ccolor *get_user_color(const char *color)
   cl = find_color(color);
   if (cl < 0)
     return NULL;
-  ccol = g_new0(ccolor, 1);
+  ccol = g_new0(ccolor_t, 1);
   ccol->color_attrib = isbright ? A_BOLD : A_NORMAL;
   ccol->color_pair = cl + COLOR_max; // User colors come after the internal ones
   return ccol;
@@ -297,7 +297,7 @@ static void ensure_string_htable(GHashTable **table,
 // The MUC room does not need to be in the roster at that time
 // muc - the JID of room
 // type - the new type
-void scr_muc_color(const char *muc, muccoltype type)
+void scr_muc_color(const char *muc, muccol_t type)
 {
   gchar *muclow = g_utf8_strdown(muc, -1);
   if (type == MC_REMOVE) { // Remove it
@@ -310,7 +310,7 @@ void scr_muc_color(const char *muc, muccoltype type)
     g_free(muclow);
   } else { // Add or overwrite
     if (strcmp(muc, "*")) {
-      muccoltype *value = g_new(muccoltype, 1);
+      muccol_t *value = g_new(muccol_t, 1);
       *value = type;
       ensure_string_htable(&muccolors, g_free);
       g_hash_table_replace(muccolors, muclow, value);
@@ -336,7 +336,7 @@ void scr_muc_nick_color(const char *nick, const char *color)
   mnick = g_strdup_printf("*%s ", nick);
   if (!strcmp(color, "-")) { // Remove the color
     if (nickcolors) {
-      nickcolor *nc = g_hash_table_lookup(nickcolors, snick);
+      nickcolor_t *nc = g_hash_table_lookup(nickcolors, snick);
       if (nc) { // Have this nick already
         nc->manual = FALSE;
         nc = g_hash_table_lookup(nickcolors, mnick);
@@ -348,13 +348,13 @@ void scr_muc_nick_color(const char *nick, const char *color)
     g_free(mnick);
     need_update = TRUE;
   } else {
-    ccolor *cl = get_user_color(color);
+    ccolor_t *cl = get_user_color(color);
     if (!cl) {
       scr_LogPrint(LPRINT_NORMAL, "No such color name");
       g_free(snick);
       g_free(mnick);
     } else {
-      nickcolor *nc = g_new(nickcolor, 1);
+      nickcolor_t *nc = g_new(nickcolor_t, 1);
       ensure_string_htable(&nickcolors, NULL);
       nc->manual = TRUE;
       nc->color = cl;
@@ -371,7 +371,7 @@ void scr_muc_nick_color(const char *nick, const char *color)
     scr_update_buddy_window();
 }
 
-static void free_rostercolrule(rostercolor *col)
+static void free_rostercolrule(rostercolor_t *col)
 {
   g_free(col->status);
   g_free(col->wildcard);
@@ -405,7 +405,7 @@ bool scr_roster_color(const char *status, const char *wildcard,
   GSList *head;
   GSList *found = NULL;
   for (head = rostercolrules; head; head = g_slist_next(head)) {
-    rostercolor *rc = head->data;
+    rostercolor_t *rc = head->data;
     if ((!strcmp(status, rc->status)) && (!strcmp(wildcard, rc->wildcard))) {
       found = head;
       break;
@@ -422,17 +422,17 @@ bool scr_roster_color(const char *status, const char *wildcard,
       return FALSE;
     }
   } else {
-    ccolor *cl = get_user_color(color);
+    ccolor_t *cl = get_user_color(color);
     if (!cl) {
       scr_LogPrint(LPRINT_NORMAL, "No such color name");
       return FALSE;
     }
     if (found) {
-      rostercolor *rc = found->data;
+      rostercolor_t *rc = found->data;
       g_free(rc->color);
       rc->color = cl;
     } else {
-      rostercolor *rc = g_new(rostercolor, 1);
+      rostercolor_t *rc = g_new(rostercolor_t, 1);
       rc->status = g_strdup(status);
       rc->wildcard = g_strdup(wildcard);
       rc->compiled = g_pattern_spec_new(wildcard);
@@ -569,7 +569,7 @@ static void parse_colors(void)
           ncolors++;
         } else {
           char *end = ncolors;
-          ccolor *cl;
+          ccolor_t *cl;
           while (*end && (*end != ' ') && (*end != '\t'))
             end++;
           *end = '\0';
@@ -587,8 +587,8 @@ static void parse_colors(void)
     }
     if (!nickcols) { // Fallback to have something
       nickcolcount = 1;
-      nickcols = g_new(ccolor*, 1);
-      *nickcols = g_new(ccolor, 1);
+      nickcols = g_new(ccolor_t*, 1);
+      *nickcols = g_new(ccolor_t, 1);
       (*nickcols)->color_pair = COLOR_GENERAL;
       (*nickcols)->color_attrib = A_NORMAL;
     }
@@ -1036,10 +1036,10 @@ static void scr_glog_print(const gchar *log_domain, GLogLevelFlags log_level,
   scr_log_print(LPRINT_NORMAL, "[%s] %s", log_domain, message);
 }
 
-static winbuf *scr_search_window(const char *winId, int special)
+static winbuf_t *scr_search_window(const char *winId, int special)
 {
   char *id;
-  winbuf *wbp;
+  winbuf_t *wbp;
 
   if (special)
     return statusWindow; // Only one special window atm.
@@ -1061,12 +1061,12 @@ int scr_buddy_buffer_exists(const char *bjid)
 
 //  scr_new_buddy(title, dontshow)
 // Note: title (aka winId/jid) can be NULL for special buffers
-static winbuf *scr_new_buddy(const char *title, int dont_show)
+static winbuf_t *scr_new_buddy(const char *title, int dont_show)
 {
-  winbuf *tmp;
+  winbuf_t *tmp;
   char *id;
 
-  tmp = g_new0(winbuf, 1);
+  tmp = g_new0(winbuf_t, 1);
 
   tmp->win = activechatWnd;
   tmp->panel = activechatPanel;
@@ -1083,7 +1083,7 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
 
   // If title is NULL, this is a special buffer
   if (!title) {
-    tmp->bd = g_new0(buffdata, 1);
+    tmp->bd = g_new0(buffdata_t, 1);
     return tmp;
   }
 
@@ -1091,14 +1091,14 @@ static winbuf *scr_new_buddy(const char *title, int dont_show)
   if (id) {
     // This is a symlinked history log file.
     // Let's check if the target JID buffer has already been created.
-    winbuf *wb = scr_search_window(id, FALSE);
+    winbuf_t *wb = scr_search_window(id, FALSE);
     if (!wb)
       wb = scr_new_buddy(id, TRUE);
     tmp->bd = wb->bd;
     tmp->bd->refcount++;
     g_free(id);
   } else {  // Load buddy history from file (if enabled)
-    tmp->bd = g_new0(buffdata, 1);
+    tmp->bd = g_new0(buffdata_t, 1);
     hlog_read_history(title, &tmp->bd->hbuf, scr_gettextwidth());
 
     // Set a readmark to separate new content
@@ -1177,7 +1177,7 @@ size_t scr_line_prefix(hbb_line *line, char *pref, guint preflen)
 
 //  scr_update_window()
 // (Re-)Display the given chat window.
-static void scr_update_window(winbuf *win_entry)
+static void scr_update_window(winbuf_t *win_entry)
 {
   int n, mark_offset = 0;
   guint prefixwidth;
@@ -1295,8 +1295,8 @@ static void scr_update_window(winbuf *win_entry)
       if (line->mucnicklen) {
         char *mucjid;
         char tmp;
-        nickcolor *actual = NULL;
-        muccoltype type, *typetmp;
+        nickcolor_t *actual = NULL;
+        muccol_t type, *typetmp;
 
         // Store the char after the nick
         tmp = line->text[line->mucnicklen];
@@ -1314,12 +1314,12 @@ static void scr_update_window(winbuf *win_entry)
         if ((type == MC_ALL) && (!nickcolors ||
             !g_hash_table_lookup(nickcolors, line->text))) {
           char *snick, *mnick;
-          nickcolor *nc;
+          nickcolor_t *nc;
           const char *p = line->text;
           unsigned int nicksum = 0;
           snick = g_strdup(line->text);
           mnick = g_strdup(line->text);
-          nc = g_new(nickcolor, 1);
+          nc = g_new(nickcolor_t, 1);
           ensure_string_htable(&nickcolors, NULL);
           while (*p)
             nicksum += *p++;
@@ -1395,7 +1395,7 @@ scr_update_window_skipline:
   g_free(lines);
 }
 
-static winbuf *scr_create_window(const char *winId, int special, int dont_show)
+static winbuf_t *scr_create_window(const char *winId, int special, int dont_show)
 {
   if (special) {
     if (!statusWindow) {
@@ -1413,7 +1413,7 @@ static winbuf *scr_create_window(const char *winId, int special, int dont_show)
 // "special" must be true if this is a special buffer window.
 static void scr_show_window(const char *winId, int special)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
 
   win_entry = scr_search_window(winId, special);
 
@@ -1492,7 +1492,7 @@ static void scr_write_in_window(const char *winId, const char *text,
                                 int force_show, unsigned mucnicklen,
                                 gpointer xep184)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   char *text_locale;
   int dont_show = FALSE;
   int special;
@@ -1849,7 +1849,7 @@ void scr_draw_main_window(unsigned int fullinit)
 
 static void resize_win_buffer(gpointer key, gpointer value, gpointer data)
 {
-  winbuf *wbp = value;
+  winbuf_t *wbp = value;
   struct dimensions *dim = data;
   int chat_x_pos, chat_y_pos;
   int new_chatwidth;
@@ -1989,7 +1989,7 @@ void scr_update_chat_status(int forceupdate)
   }
 
   if (chatmode && !isgrp) {
-    winbuf *win_entry;
+    winbuf_t *win_entry;
     win_entry = scr_search_window(buddy_getjid(BUDDATA(current_buddy)), isspe);
     if (win_entry && win_entry->bd->lock)
       mvwprintw(chatstatusWnd, 0, 0, "*");
@@ -2258,7 +2258,7 @@ void scr_draw_roster(void)
           GSList *head;
           const char *bjid = buddy_getjid(BUDDATA(buddy));
           for (head = rostercolrules; head; head = g_slist_next(head)) {
-            rostercolor *rc = head->data;
+            rostercolor_t *rc = head->data;
             if (g_pattern_match_string(rc->compiled, bjid) &&
                 (!strcmp("*", rc->status) || strchr(rc->status, status))) {
               color = compose_color(rc->color);
@@ -2414,7 +2414,7 @@ void scr_write_outgoing_message(const char *jidto, const char *text,
 
 void scr_remove_receipt_flag(const char *bjid, gconstpointer xep184)
 {
-  winbuf *win_entry = scr_search_window(bjid, FALSE);
+  winbuf_t *win_entry = scr_search_window(bjid, FALSE);
   if (win_entry && xep184) {
     hbuf_remove_receipt(win_entry->bd->hbuf, xep184);
     if (chatmode && (buddy_search_jid(bjid) == current_buddy))
@@ -2843,7 +2843,7 @@ void scr_roster_display(const char *filter)
 // - up if updown == -1, down if updown == 1
 void scr_buffer_scroll_up_down(int updown, unsigned int nblines)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   int n, nbl;
   GList *hbuf_top;
   guint isspe;
@@ -2900,7 +2900,7 @@ void scr_buffer_scroll_up_down(int updown, unsigned int nblines)
 // Clear the current buddy window (used for the /clear command)
 void scr_buffer_clear(void)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   guint isspe;
 
   // Get win_entry
@@ -2921,14 +2921,14 @@ void scr_buffer_clear(void)
 
 //  buffer_purge()
 // key: winId/jid
-// value: winbuf structure
+// value: winbuf_t structure
 // data: int, set to 1 if the buffer should be closed.
 // NOTE: does not work for special buffers.
 // Returns TRUE IFF the win_entry can be closed and freed.
 static gboolean buffer_purge(gpointer key, gpointer value, gpointer data)
 {
   int *p_closebuf = data;
-  winbuf *win_entry = value;
+  winbuf_t *win_entry = value;
   gboolean retval = FALSE;
 
   // Delete the current hbuf
@@ -2961,7 +2961,7 @@ static gboolean buffer_purge(gpointer key, gpointer value, gpointer data)
 // If closebuf is 1, close the buffer.
 void scr_buffer_purge(int closebuf, const char *jid)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   guint isspe;
   const char *cjid;
   char *ljid = NULL;
@@ -3048,7 +3048,7 @@ void scr_buffer_purge_all(int closebuf)
 // lock = -1: toggle lock status
 void scr_buffer_scroll_lock(int lock)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   guint isspe;
 
   // Get win_entry
@@ -3091,7 +3091,7 @@ void scr_buffer_scroll_lock(int lock)
 // If action = -1, remove the readmark flag iff it is on the last line
 void scr_buffer_readmark(gchar action)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   guint isspe;
   int autolock;
 
@@ -3117,7 +3117,7 @@ void scr_buffer_readmark(gchar action)
 // (top if topbottom == -1, bottom topbottom == 1)
 void scr_buffer_top_bottom(int topbottom)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   guint isspe;
 
   // Get win_entry
@@ -3144,7 +3144,7 @@ void scr_buffer_top_bottom(int topbottom)
 // (backward search if direction == -1, forward if topbottom == 1)
 void scr_buffer_search(int direction, const char *text)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   GList *current_line, *search_res;
   guint isspe;
 
@@ -3178,7 +3178,7 @@ void scr_buffer_search(int direction, const char *text)
 // Jump to the specified position in the buffer, in %
 void scr_buffer_percent(int pc)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   GList *search_res;
   guint isspe;
 
@@ -3210,7 +3210,7 @@ void scr_buffer_percent(int pc)
 // t is a date in seconds since `00:00:00 1970-01-01 UTC'
 void scr_buffer_date(time_t t)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   GList *search_res;
   guint isspe;
 
@@ -3239,7 +3239,7 @@ void scr_buffer_date(time_t t)
 // Jump to the buffer readmark, if there's one
 void scr_buffer_jump_readmark(void)
 {
-  winbuf *win_entry;
+  winbuf_t *win_entry;
   GList *search_res;
   guint isspe;
 
@@ -3290,12 +3290,12 @@ void scr_buffer_dump(const char *file)
 
 //  buffer_list()
 // key: winId/jid
-// value: winbuf structure
+// value: winbuf_t structure
 // data: none.
 static void buffer_list(gpointer key, gpointer value, gpointer data)
 {
   GList *head;
-  winbuf *win_entry = value;
+  winbuf_t *win_entry = value;
 
   head = g_list_first(win_entry->bd->hbuf);
 
@@ -3355,7 +3355,7 @@ void scr_setmsgflag_if_needed(const char *bjid, int special)
     else
       current_id = buddy_getjid(BUDDATA(current_buddy));
     if (current_id) {
-      winbuf *win_entry = scr_search_window(current_id, special);
+      winbuf_t *win_entry = scr_search_window(current_id, special);
       if (!win_entry) return;
       iscurrentlocked = win_entry->bd->lock;
     }
@@ -3375,7 +3375,7 @@ void scr_setattentionflag_if_needed(const char *bjid, int special,
                                     guint value, enum setuiprio_ops action)
 {
   const char *current_id;
-  winbuf *wb;
+  winbuf_t *wb;
   bool iscurrentlocked = FALSE;
 
   if (!bjid)
@@ -3391,7 +3391,7 @@ void scr_setattentionflag_if_needed(const char *bjid, int special,
     else
       current_id = buddy_getjid(BUDDATA(current_buddy));
     if (current_id) {
-      winbuf *win_entry = scr_search_window(current_id, special);
+      winbuf_t *win_entry = scr_search_window(current_id, special);
       if (!win_entry) return;
       iscurrentlocked = win_entry->bd->lock;
     }
@@ -4252,7 +4252,7 @@ void scr_handle_CtrlC(void)
 
 static void add_keyseq(char *seqstr, guint mkeycode, gint value)
 {
-  keyseq *ks;
+  keyseq_t *ks;
 
   // Let's make sure the length is correct
   if (strlen(seqstr) > MAX_KEYSEQ_LENGTH) {
@@ -4260,7 +4260,7 @@ static void add_keyseq(char *seqstr, guint mkeycode, gint value)
     return;
   }
 
-  ks = g_new0(keyseq, 1);
+  ks = g_new0(keyseq_t, 1);
   ks->seqstr = g_strdup(seqstr);
   ks->mkeycode = mkeycode;
   ks->value = value;
@@ -4274,10 +4274,10 @@ static void add_keyseq(char *seqstr, guint mkeycode, gint value)
 //  0  if "seq" could match 1 or more known sequences
 // >0  if "seq" matches a key sequence; the mkey code is returned
 //     and *ret is set to the matching keyseq structure.
-static inline gint match_keyseq(int *iseq, keyseq **ret)
+static inline gint match_keyseq(int *iseq, keyseq_t **ret)
 {
   GSList *ksl;
-  keyseq *ksp;
+  keyseq_t *ksp;
   char *p, c;
   int *i;
   int needmore = FALSE;
@@ -4332,13 +4332,13 @@ static inline int match_utf8_keyseq(int *iseq)
   return c;
 }
 
-void scr_getch(keycode *kcode)
+void scr_getch(keycode_t *kcode)
 {
-  keyseq *mks = NULL;
+  keyseq_t *mks = NULL;
   int  ks[MAX_KEYSEQ_LENGTH+1];
   int i;
 
-  memset(kcode, 0, sizeof(keycode));
+  memset(kcode, 0, sizeof(keycode_t));
   memset(ks,  0, sizeof(ks));
 
   kcode->value = wgetch(inputWnd);
@@ -4424,7 +4424,7 @@ void scr_do_update(void)
   doupdate();
 }
 
-static void bindcommand(keycode kcode)
+static void bindcommand(keycode_t kcode)
 {
   gchar asciikey[16], asciicode[16];
   const gchar *boundcmd;
@@ -4509,7 +4509,7 @@ static void scr_process_vi_arrow_key(int key)
 
 //  scr_process_key(key)
 // Handle the pressed key, in the command line (bottom).
-void scr_process_key(keycode kcode)
+void scr_process_key(keycode_t kcode)
 {
   int key = kcode.value;
   int display_char = FALSE;
@@ -4879,7 +4879,7 @@ display:
 #if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
 static void spell_checker_free(gpointer data)
 {
-  spell_checker* sc = data;
+  spell_checker_t *sc = data;
 #ifdef WITH_ENCHANT
   enchant_broker_free_dict(sc->broker, sc->checker);
   enchant_broker_free(sc->broker);
@@ -4891,9 +4891,9 @@ static void spell_checker_free(gpointer data)
   g_free(sc);
 }
 
-static spell_checker* new_spell_checker(const char* spell_lang)
+static spell_checker_t* new_spell_checker(const char* spell_lang)
 {
-  spell_checker* sc = g_new(spell_checker, 1);
+  spell_checker_t *sc = g_new(spell_checker_t, 1);
 #ifdef WITH_ASPELL
   const char *spell_encoding = settings_opt_get("spell_encoding");
   AspellCanHaveError *possible_err;
@@ -4928,9 +4928,9 @@ void spellcheck_init(void)
 {
   int spell_enable            = settings_opt_get_int("spell_enable");
   const char *spell_lang     = settings_opt_get("spell_lang");
-  gchar** langs;
-  gchar** lang_iter;
-  spell_checker* sc;
+  gchar **langs;
+  gchar **lang_iter;
+  spell_checker_t *sc;
 
   if (!spell_enable)
     return;
@@ -4970,12 +4970,12 @@ void spellcheck_deinit(void)
 typedef struct {
   const char* str;
   int len;
-} spell_substring;
+} spell_substring_t;
 
 static int spellcheckword(gconstpointer sc_ptr, gconstpointer substr_ptr)
 {
-  spell_checker* sc = (spell_checker*) sc_ptr;
-  spell_substring* substr = (spell_substring*) substr_ptr;
+  spell_checker_t *sc = (spell_checker_t*) sc_ptr;
+  spell_substring_t *substr = (spell_substring_t*) substr_ptr;
 #ifdef WITH_ENCHANT
   // enchant_dict_check will return 0 on good word
   return enchant_dict_check(sc->checker, substr->str, substr->len);
@@ -4993,7 +4993,7 @@ static int spellcheckword(gconstpointer sc_ptr, gconstpointer substr_ptr)
 static void spellcheck(char *line, char *checked)
 {
   const char *start, *line_start;
-  spell_substring substr;
+  spell_substring_t substr;
 
   if (inputLine[0] == 0 || inputLine[0] == COMMAND_CHAR)
     return;

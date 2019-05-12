@@ -355,7 +355,7 @@ static gboolean mcabber_source_check(GSource *source)
 
 static gboolean keyboard_activity(void)
 {
-  keycode kcode;
+  keycode_t kcode;
 
   if (terminate_ui) {
     return FALSE;

@@ -421,8 +421,8 @@ guint hlog_is_enabled(void)
   return UseFileLogging;
 }
 
-inline void hlog_write_message(const char *bjid, time_t timestamp, int sent,
-        const char *msg)
+void hlog_write_message(const char *bjid, time_t timestamp, int sent,
+                        const char *msg)
 {
   guchar info;
   /* sent=1   message sent by mcabber
@@ -438,8 +438,8 @@ inline void hlog_write_message(const char *bjid, time_t timestamp, int sent,
   write_histo_line(bjid, timestamp, 'M', info, msg);
 }
 
-inline void hlog_write_status(const char *bjid, time_t timestamp,
-        enum imstatus status, const char *status_msg)
+void hlog_write_status(const char *bjid, time_t timestamp,
+                       enum imstatus status, const char *status_msg)
 {
   // XXX Check status value?
   write_histo_line(bjid, timestamp, 'S', toupper(imstatus2char[status]),

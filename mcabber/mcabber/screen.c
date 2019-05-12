@@ -188,8 +188,8 @@ static void scr_write_message(const char *bjid, const char *text,
                               time_t timestamp, guint prefix_flags,
                               unsigned mucnicklen, gpointer xep184);
 
-inline void scr_update_buddy_window(void);
-inline void scr_set_chatmode(int enable);
+void scr_update_buddy_window(void);
+void scr_set_chatmode(int enable);
 
 #define SPELLBADCHAR 5
 
@@ -1471,7 +1471,7 @@ void scr_show_buddy_window(void)
 // (Re)Display the current window.
 // If chatmode is enabled, call scr_show_buddy_window(),
 // else display the chat window.
-inline void scr_update_buddy_window(void)
+void scr_update_buddy_window(void)
 {
   if (chatmode) {
     scr_show_buddy_window();
@@ -3316,7 +3316,7 @@ void scr_buffer_list(void)
 
 //  scr_set_chatmode()
 // Public function to (un)set chatmode...
-inline void scr_set_chatmode(int enable)
+void scr_set_chatmode(int enable)
 {
   gboolean enter_chatmode = enable && chatmode == FALSE;
   chatmode = enable;
@@ -3327,14 +3327,14 @@ inline void scr_set_chatmode(int enable)
 
 //  scr_get_chatmode()
 // Public function to get chatmode state.
-inline int scr_get_chatmode(void)
+int scr_get_chatmode(void)
 {
   return chatmode;
 }
 
 //  scr_get_multimode()
 // Public function to get multimode status...
-inline int scr_get_multimode(void)
+int scr_get_multimode(void)
 {
   return multimode;
 }

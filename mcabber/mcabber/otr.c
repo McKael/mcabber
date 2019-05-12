@@ -38,6 +38,8 @@ static OtrlUserState userstate = NULL;
 static char *account = NULL;
 static char *keyfile = NULL;
 static char *fprfile = NULL;
+static char *tagfile = NULL;
+static guint otr_timer_source = 0;
 
 static int otr_is_enabled = FALSE;
 
@@ -67,30 +69,6 @@ static void       cb_still_secure       (void *opdata, ConnContext *context,
                                          int is_reply);
 static int        cb_max_message_size   (void *opdata, ConnContext *context);
 
-#ifdef HAVE_LIBOTR3
-static void       cb_notify             (void *opdata,
-                                         OtrlNotifyLevel level,
-                                         const char *accountname,
-                                         const char *protocol,
-                                         const char *username,
-                                         const char *title,
-                                         const char *primary,
-                                         const char *secondary);
-static int        cb_display_otr_message(void *opdata,
-                                         const char *accountname,
-                                         const char *protocol,
-                                         const char *username,
-                                         const char *msg);
-static const char *cb_protocol_name     (void *opdata, const char *protocol);
-static void       cb_protocol_name_free (void *opdata,
-                                         const char *protocol_name);
-static void       cb_log_message        (void *opdata, const char *message);
-
-static void       otr_handle_smp_tlvs   (OtrlTLV *tlvs, ConnContext *ctx);
-#else /* HAVE_LIBOTR3 */
-static char *tagfile = NULL;
-static guint otr_timer_source = 0;
-
 static void       cb_handle_smp_event   (void *opdata, OtrlSMPEvent event,
                                          ConnContext *context, unsigned short percent,
                                          char *question);
@@ -100,7 +78,6 @@ static void       cb_handle_msg_event   (void *opdata, OtrlMessageEvent event,
 static void       cb_create_instag      (void *opdata, const char *accountname,
                                          const char *protocol);
 static void       cb_timer_control      (void *opdata, unsigned int interval);
-#endif /* HAVE_LIBOTR3 */
 
 static OtrlMessageAppOps ops =
 {
@@ -108,27 +85,15 @@ static OtrlMessageAppOps ops =
   cb_create_privkey,
   cb_is_logged_in,
   cb_inject_message,
-#ifdef HAVE_LIBOTR3
-  cb_notify,
-  cb_display_otr_message,
-#endif
   cb_update_context_list,
-#ifdef HAVE_LIBOTR3
-  cb_protocol_name,
-  cb_protocol_name_free,
-#endif
   cb_new_fingerprint,
   cb_write_fingerprints,
   cb_gone_secure,
   cb_gone_insecure,
   cb_still_secure,
-#ifdef HAVE_LIBOTR3
-  cb_log_message,
-#endif
   cb_max_message_size,
   NULL, /* account_name */
   NULL, /* account_name_free */
-#ifndef HAVE_LIBOTR3
   NULL, /* received_symkey */
   NULL, /* otr_error_message */
   NULL, /* otr_error_message_free */
@@ -140,7 +105,6 @@ static OtrlMessageAppOps ops =
   NULL, /* convert_msg */
   NULL, /* convert_free */
   cb_timer_control,
-#endif
 };
 
 static void otr_message_disconnect(ConnContext *ctx);
@@ -174,17 +138,18 @@ void otr_init(const char *fjid)
     scr_LogPrint(LPRINT_LOGNORM, "Could not read OTR key from %s", keyfile);
     cb_create_privkey(NULL, account, OTR_PROTOCOL_NAME);
   }
+
   if (otrl_privkey_read_fingerprints(userstate, fprfile, NULL, NULL)){
     scr_LogPrint(LPRINT_LOGNORM, "Could not read OTR fingerprints from %s",
                  fprfile);
   }
-#ifndef HAVE_LIBOTR3
+
   tagfile = g_strdup_printf("%s%s.tag", root, account);
   if (otrl_instag_read(userstate, tagfile)) {
     scr_LogPrint(LPRINT_LOGNORM, "Could not read OTR instance tag from %s", tagfile);
     cb_create_instag(NULL, account, OTR_PROTOCOL_NAME);
   }
-#endif
+
   g_free(root);
 }
 
@@ -195,12 +160,10 @@ void otr_terminate(void)
   if (!otr_is_enabled)
     return;
 
-#ifndef HAVE_LIBOTR3
   if (otr_timer_source > 0) {
     g_source_remove (otr_timer_source);
     otr_timer_source = 0;
   }
-#endif
 
   for (ctx = userstate->context_root; ctx; ctx = ctx->next)
     if (ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED)
@@ -225,10 +188,8 @@ void otr_terminate(void)
   keyfile = NULL;
   g_free(fprfile);
   fprfile = NULL;
-#ifndef HAVE_LIBOTR3
   g_free(tagfile);
   tagfile = NULL;
-#endif
 }
 
 static char *otr_get_dir(void)
@@ -260,12 +221,8 @@ static ConnContext *otr_get_context(const char *buddy)
 
   mc_strtolower(lowcasebuddy);
   ctx = otrl_context_find(userstate, lowcasebuddy, account, OTR_PROTOCOL_NAME,
-#ifdef HAVE_LIBOTR3
-                          1, &null, NULL, NULL);
-#else
                           // INSTAG XXX
                           OTRL_INSTAG_BEST, 1, &null, NULL, NULL);
-#endif
   g_free(lowcasebuddy);
   return ctx;
 }
@@ -275,12 +232,8 @@ static void otr_message_disconnect(ConnContext *ctx)
   if (ctx->msgstate == OTRL_MSGSTATE_ENCRYPTED)
     cb_gone_insecure(NULL, ctx);
   otrl_message_disconnect(userstate, &ops, NULL, ctx->accountname,
-#ifdef HAVE_LIBOTR3
-                          ctx->protocol, ctx->username);
-#else
                           // INSTAG XXX
                           ctx->protocol, ctx->username, OTRL_INSTAG_BEST);
-#endif
 }
 
 static void otr_startstop(const char *buddy, int start)
@@ -346,81 +299,6 @@ void otr_fingerprint(const char *buddy, const char *trust)
                tr && *tr ?  "trusted" : "untrusted");
   cb_write_fingerprints(NULL);
 }
-
-#ifdef HAVE_LIBOTR3
-
-static void otr_handle_smp_tlvs(OtrlTLV *tlvs, ConnContext *ctx)
-{
-  OtrlTLV *tlv = NULL;
-  char *sbuf = NULL;
-  NextExpectedSMP nextMsg = ctx->smstate->nextExpected;
-
-  tlv = otrl_tlv_find(tlvs, OTRL_TLV_SMP1);
-  if (tlv) {
-    if (nextMsg != OTRL_SMP_EXPECT1)
-      otr_smp_abort(ctx->username);
-    else {
-      sbuf = g_strdup_printf("OTR: Received SMP Initiation. "
-                             "Answer with /otr smpr %s $secret",
-                             ctx->username);
-    }
-  }
-  tlv = otrl_tlv_find(tlvs, OTRL_TLV_SMP2);
-  if (tlv) {
-    if (nextMsg != OTRL_SMP_EXPECT2)
-      otr_smp_abort(ctx->username);
-    else {
-      sbuf = g_strdup("OTR: Received SMP Response.");
-      /* If we received TLV2, we will send TLV3 and expect TLV4 */
-      ctx->smstate->nextExpected = OTRL_SMP_EXPECT4;
-    }
-  }
-  tlv = otrl_tlv_find(tlvs, OTRL_TLV_SMP3);
-  if (tlv) {
-    if (nextMsg != OTRL_SMP_EXPECT3)
-      otr_smp_abort(ctx->username);
-    else {
-      /* If we received TLV3, we will send TLV4
-       * We will not expect more messages, so prepare for next SMP */
-      ctx->smstate->nextExpected = OTRL_SMP_EXPECT1;
-      /* Report result to user */
-      if (ctx->active_fingerprint && ctx->active_fingerprint->trust &&
-         *ctx->active_fingerprint->trust != '\0')
-        sbuf = g_strdup("OTR: SMP succeeded");
-      else
-        sbuf = g_strdup("OTR: SMP failed");
-    }
-  }
-  tlv = otrl_tlv_find(tlvs, OTRL_TLV_SMP4);
-  if (tlv) {
-    if (nextMsg != OTRL_SMP_EXPECT4)
-      otr_smp_abort(ctx->username);
-    else {
-      /* We will not expect more messages, so prepare for next SMP */
-      ctx->smstate->nextExpected = OTRL_SMP_EXPECT1;
-      /* Report result to user */
-      if (ctx->active_fingerprint && ctx->active_fingerprint->trust &&
-         *ctx->active_fingerprint->trust != '\0')
-        sbuf = g_strdup("OTR: SMP succeeded");
-      else
-        sbuf = g_strdup("OTR: SMP failed");
-    }
-  }
-  tlv = otrl_tlv_find(tlvs, OTRL_TLV_SMP_ABORT);
-  if (tlv) {
-    /* The message we are waiting for will not arrive, so reset
-     * and prepare for the next SMP */
-    sbuf = g_strdup("OTR: SMP aborted by your buddy");
-    ctx->smstate->nextExpected = OTRL_SMP_EXPECT1;
-  }
-
-  if (sbuf) {
-    scr_WriteIncomingMessage(ctx->username, sbuf, 0, HBB_PREFIX_INFO, 0);
-    g_free(sbuf);
-  }
-}
-
-#else /* HAVE_LIBOTR3 */
 
 static void cb_handle_smp_event(void *opdata, OtrlSMPEvent event,
                                 ConnContext *context, unsigned short percent,
@@ -542,7 +420,6 @@ static void cb_handle_msg_event(void *opdata, OtrlMessageEvent event,
   }
 }
 
-#endif /* HAVE_LIBOTR3 */
 
 /*  otr_receive
  * Returns whether a otr_message was received.
@@ -565,12 +442,7 @@ int otr_receive(char **otr_data, const char *buddy, int *free_msg)
   ignore_message = otrl_message_receiving(userstate, &ops, NULL,
                                           ctx->accountname, ctx->protocol,
                                           ctx->username, *otr_data,
-#ifdef HAVE_LIBOTR3
-                                          &newmessage, &tlvs, NULL, NULL);
-  otr_handle_smp_tlvs(tlvs, ctx);
-#else
                                           &newmessage, &tlvs, NULL, NULL, NULL);
-#endif
 
   tlv = otrl_tlv_find(tlvs, OTRL_TLV_DISCONNECTED);
   if (tlv) {
@@ -619,26 +491,16 @@ char *otr_send(const char *msg, const char *buddy, int *encryption_status)
 
   if (ctx->msgstate == OTRL_MSGSTATE_PLAINTEXT)
     err = otrl_message_sending(userstate, &ops, NULL, ctx->accountname,
-#ifdef HAVE_LIBOTR3
-                               ctx->protocol, ctx->username, msg, NULL,
-                               &newmessage, NULL, NULL);
-#else
                                // INSTAG XXX
                                ctx->protocol, ctx->username, OTRL_INSTAG_BEST,
                                msg, NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP,
                                NULL, NULL, NULL);
-#endif
   else {
     err = otrl_message_sending(userstate, &ops, NULL, ctx->accountname,
-#ifdef HAVE_LIBOTR3
-                               ctx->protocol, ctx->username, msg, NULL,
-                               &newmessage, NULL, NULL);
-#else
                                // INSTAG XXX
                                ctx->protocol, ctx->username, OTRL_INSTAG_BEST,
                                msg, NULL, &newmessage, OTRL_FRAGMENT_SEND_SKIP,
                                NULL, NULL, NULL);
-#endif
   }
 
   if (err)
@@ -934,65 +796,6 @@ static void cb_still_secure(void *opdata, ConnContext *context, int is_reply)
                            HBB_PREFIX_INFO, 0);
 }
 
-#ifdef HAVE_LIBOTR3
-
-/* Display a notification message for a particular
- * accountname / protocol / username conversation. */
-static void cb_notify(void *opdata, OtrlNotifyLevel level,
-                      const char *accountname, const char *protocol,
-                      const char *username, const char *title,
-                      const char *primary, const char *secondary)
-{
-  char *type;
-  char *sbuf = NULL;
-  switch (level) {
-    case OTRL_NOTIFY_ERROR:   type = "error";   break;
-    case OTRL_NOTIFY_WARNING: type = "warning"; break;
-    case OTRL_NOTIFY_INFO:    type = "info";    break;
-    default:                  type = "unknown";
-  }
-  sbuf = g_strdup_printf("OTR %s:%s\n%s\n%s",type,title, primary, secondary);
-  scr_WriteIncomingMessage(username, sbuf, 0, HBB_PREFIX_INFO, 0);
-  g_free(sbuf);
-}
-
-/* Display an OTR control message for a particular
- * accountname / protocol / username conversation.  Return 0 if you are able
- * to successfully display it.  If you return non-0 (or if this
- * function is NULL), the control message will be displayed inline,
- * as a received message, or else by using the above notify()
- * callback. */
-static int cb_display_otr_message(void *opdata, const char *accountname,
-                                  const char *protocol, const char *username,
-                                  const char *msg)
-{
-  char *strippedmsg = html_strip(msg);
-  scr_WriteIncomingMessage(username, strippedmsg, 0, HBB_PREFIX_INFO, 0);
-  g_free(strippedmsg);
-  return 0;
-}
-
-/* Return a newly allocated string containing a human-friendly name
- * for the given protocol id */
-static const char *cb_protocol_name(void *opdata, const char *protocol)
-{
-  return protocol;
-}
-
-/* Deallocate a string allocated by protocol_name */
-static void cb_protocol_name_free (void *opdata, const char *protocol_name)
-{
-  /* We didn't allocated memory, so we don't have to free anything :p */
-}
-
-/* Log a message.  The passed message will end in "\n". */
-static void cb_log_message(void *opdata, const char *message)
-{
-  scr_LogPrint(LPRINT_DEBUG, "OTR: %s", message);
-}
-
-#else /* HAVE_LIBOTR3 */
-
 /* Generate unique instance tag for account. */
 static void cb_create_instag(void *opdata, const char *accountname,
                              const char *protocol)
@@ -1017,8 +820,6 @@ static void cb_timer_control(void *opdata, unsigned int interval)
   if (interval > 0)
     otr_timer_source = g_timeout_add_seconds(interval, otr_timer_cb, opdata);
 }
-
-#endif /* HAVE_LIBOTR3 */
 
 /* Find the maximum message size supported by this protocol. */
 static int cb_max_message_size(void *opdata, ConnContext *context)

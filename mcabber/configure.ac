@@ -219,12 +219,7 @@ if test "x$enable_otr" = "xyes"; then
     AM_PATH_LIBOTR(4.0.0, [
         AC_DEFINE([HAVE_LIBOTR], 1, [Define if you use libotr])
     ], [
-        AM_PATH_LIBOTR(3.1.0, [
-            AC_DEFINE([HAVE_LIBOTR], 1, [Define if you use libotr])
-            AC_DEFINE([HAVE_LIBOTR3], 1, [Define if you use libotr v3])
-        ], [
-            AC_MSG_ERROR(libotr 3.1.0 or newer is required.)
-        ])
+        AC_MSG_ERROR(libotr 4.0.0 or newer is required.)
     ])
 fi
 

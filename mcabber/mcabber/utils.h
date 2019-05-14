@@ -20,6 +20,7 @@ char *get_servername(const char *username, const char *servername);
 char *compose_jid(const char *username, const char *servername,
                   const char *resource);
 gboolean jid_equal(const char *jid1, const char *jid2);
+const char *jid_get_resource_name(const char *fjid);
 
 #ifndef LOUDMOUTH_USES_SHA256
 void fingerprint_to_hex(const char *fpr,     char *hex, size_t fpr_len);

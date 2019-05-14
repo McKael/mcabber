@@ -375,11 +375,12 @@ static bool muc_handle_join(const GSList *room_elt, const char *rname,
 
   printjid = settings_opt_get_int("muc_print_jid");
   if (mbjid && autowhois == autowhois_off && printjid) {
-    if (printjid == 1)
-      tmp = strchr(mbjid, JID_RESOURCE_SEPARATOR);
-    if (tmp) *tmp = '\0';
-    nickjid = g_strdup_printf("%s <%s>", rname, mbjid);
-    if (tmp) *tmp = JID_RESOURCE_SEPARATOR;
+    if (printjid == 1) // print nick + barejid
+      tmp = jidtodisp(mbjid);
+    if (printjid == 2) // print nick + full jid
+      tmp = g_strdup(mbjid);
+    nickjid = g_strdup_printf("%s <%s>", rname, tmp);
+    g_free(tmp);
   } else {
     nickjid = g_strdup(rname);
   }

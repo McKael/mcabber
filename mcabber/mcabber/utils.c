@@ -142,6 +142,17 @@ gboolean jid_equal(const char *jid1, const char *jid2)
   return (ret == 0) ? TRUE : FALSE;
 }
 
+const char *jid_get_resource_name(const char *fjid)
+{
+  const char * resource_name = NULL;
+  if (fjid) {
+    resource_name = strchr(fjid, JID_RESOURCE_SEPARATOR);
+    if (resource_name)
+      resource_name++;
+  }
+  return resource_name;
+}
+
 //  expand_filename(filename)
 // Expand "~/" with the $HOME env. variable in a file name.
 // The caller must free the string after use.

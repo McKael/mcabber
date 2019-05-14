@@ -262,7 +262,7 @@ void xmpp_request(const char *fjid, enum iqreq_type reqtype)
   vcard2user = (reqtype == iqreq_vcard &&
                 !roster_find(fjid, jidsearch, ROSTER_TYPE_ROOM));
 
-  if (strchr(fjid, JID_RESOURCE_SEPARATOR) || vcard2user) {
+  if (g_utf8_strchr(fjid, -1, JID_RESOURCE_SEPARATOR) || vcard2user) {
     // This is a full JID or a vCard request to a contact
     xmpp_iq_request(fjid, xmlns);
     scr_LogPrint(LPRINT_NORMAL, "Sent %s request to <%s>", strreqtype, fjid);
@@ -315,7 +315,7 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 #endif
   char *barejid;
 #if defined HAVE_GPGME || defined XEP0085
-  char *rname;
+  const char *rname;
   GSList *sl_buddy;
 #endif
 #ifdef XEP0085
@@ -344,13 +344,8 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 
   barejid = jidtodisp(fjid);
 #if defined HAVE_GPGME || defined HAVE_LIBOTR || defined XEP0085
-  rname = strchr(fjid, JID_RESOURCE_SEPARATOR);
+  rname = jid_get_resource_name(fjid);
   sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
-
-  // If we can get a resource name, we use it.  Else we use NULL,
-  // which hopefully will give us the most likely resource.
-  if (rname)
-    rname++;
 
 #ifdef HAVE_LIBOTR
   if (otr_enabled() && !otrinject) {
@@ -584,24 +579,19 @@ void xmpp_send_chatstate(gpointer buddy, guint chatstate)
 // If the XEP has been probed for this contact, set it back to unknown so
 // that we probe it again.  The parameter must be a full jid (w/ resource).
 #if defined XEP0085
-static void chatstates_reset_probed(const char *fulljid)
+static void chatstates_reset_probed(const char *bare_jid,
+                                    const char *resource_name)
 {
-  char *rname, *barejid;
   GSList *sl_buddy;
   struct xep0085 *xep85;
 
-  rname = strchr(fulljid, JID_RESOURCE_SEPARATOR);
-  if (!rname++)
+  sl_buddy = roster_find(bare_jid, jidsearch, ROSTER_TYPE_USER);
+
+  // only reset if we found the buddy and it has a resource
+  if (!sl_buddy || !resource_name)
     return;
 
-  barejid = jidtodisp(fulljid);
-  sl_buddy = roster_find(barejid, jidsearch, ROSTER_TYPE_USER);
-  g_free(barejid);
-
-  if (!sl_buddy)
-    return;
-
-  xep85 = buddy_resource_xep85(sl_buddy->data, rname);
+  xep85 = buddy_resource_xep85(sl_buddy->data, resource_name);
 
   if (xep85 && xep85->support == CHATSTATES_SUPPORT_PROBED)
     xep85->support = CHATSTATES_SUPPORT_UNKNOWN;
@@ -816,10 +806,7 @@ static void connection_open_cb(LmConnection *connection, gboolean success,
     char *username;
     username   = jid_get_username(settings_opt_get("jid"));
     password   = settings_opt_get("password");
-    resource   = strchr(lm_connection_get_jid(connection),
-                        JID_RESOURCE_SEPARATOR);
-    if (resource)
-      resource++;
+    resource   = jid_get_resource_name(lm_connection_get_jid(connection));
 
     if (!lm_connection_authenticate(lconnection, username, password, resource,
                                     connection_auth_cb, NULL, FALSE, &error)) {
@@ -941,9 +928,7 @@ static void gotmessage(LmMessageSubType type, const char *from,
   int otr_msg = 0, free_msg = 0;
 
   bjid = jidtodisp(from);
-
-  rname = strchr(from, JID_RESOURCE_SEPARATOR);
-  if (rname) rname++;
+  rname = jid_get_resource_name(from);
 
 #ifdef HAVE_GPGME
   if (gpg_enabled()) {
@@ -1083,7 +1068,8 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
                                        LmMessage *m, gpointer user_data)
 {
   const char *from = lm_message_get_from(m);
-  char *bjid, *res;
+  char *bjid;
+  const char *res;
   LmMessageNode *x;
   const char *body = NULL;
   const char *enc = NULL;
@@ -1097,9 +1083,8 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   }
   // Get the bare-JID/room (bjid) and the resource/nickname (res)
-  bjid = g_strdup(from);
-  res = strchr(bjid, JID_RESOURCE_SEPARATOR);
-  if (res) *res++ = 0;
+  bjid = jidtodisp(from);
+  res = jid_get_resource_name(from);
 
   mstype = lm_message_get_sub_type(m);
   // Timestamp?
@@ -1111,7 +1096,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
 #ifdef XEP0085
     // If the XEP85/22 support is probed, set it back to unknown so that
     // we probe it again.
-    chatstates_reset_probed(from);
+    chatstates_reset_probed(bjid, res);
 #endif
   } else {
     handle_state_events(bjid, res, m->node);
@@ -1158,9 +1143,8 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
         goto handle_messages_return;
       }
       g_free(bjid);
-      bjid = g_strdup(from);
-      res = strchr(bjid, JID_RESOURCE_SEPARATOR);
-      if (res) *res++ = 0;
+      bjid = jidtodisp(from);
+      res = jid_get_resource_name(from);
 
       // Try to handle forwarded chat state messages
       handle_state_events(from, res, x);
@@ -1416,8 +1400,7 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   }
 
-  rname = strchr(from, JID_RESOURCE_SEPARATOR);
-  if (rname) rname++;
+  rname = jid_get_resource_name(from);
 
   if (settings_opt_get_int("ignore_self_presence")) {
     const char *self_fjid = lm_connection_get_jid(connection);

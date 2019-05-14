@@ -419,11 +419,7 @@ GSList *roster_add_user(const char *jid, const char *name, const char *group,
   if (name) {
     roster_usr->name  = g_strdup(name);
   } else {
-    gchar *p, *str = g_strdup(jid);
-    p = strchr(str, JID_RESOURCE_SEPARATOR);
-    if (p)  *p = '\0';
-    roster_usr->name = g_strdup(str);
-    g_free(str);
+    roster_usr->name = jidtodisp(jid);
   }
   if (unread_jid_del(jid)) {
     roster_usr->flags |= ROSTER_FLAG_MSG;

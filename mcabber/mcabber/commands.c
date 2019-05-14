@@ -626,18 +626,16 @@ static void roster_resourcelock(char *jidres, gboolean lock) {
     if (jidres[1] == JID_RESOURCE_SEPARATOR)
       resource = jidres+2;
   } else {
-    char *tmp;
     if (!check_jid_syntax(jidres) &&
-        (tmp = strchr(jidres, JID_RESOURCE_SEPARATOR))) {
+        jid_get_resource_name(jidres)) {
       //Any other valid full jid
-      *tmp = '\0'; // for roster search by bare jid;
-      resource = tmp+1;
+      char * bare_jid = jidtodisp(jidres);
       GSList *roster_elt;
-      roster_elt = roster_find(jidres, jidsearch,
+      roster_elt = roster_find(bare_jid, jidsearch,
           ROSTER_TYPE_USER|ROSTER_TYPE_AGENT);
       if (roster_elt)
         bud = roster_elt->data;
-      *tmp = JID_RESOURCE_SEPARATOR;
+      g_free(bare_jid);
     }
     if (!bud) {
       //Resource for current buddy
@@ -1256,7 +1254,8 @@ do_group_return:
 static int send_message_to(const char *fjid, const char *msg, const char *subj,
                            LmMessageSubType type_overwrite, bool quiet)
 {
-  char *bare_jid, *rp;
+  char *bare_jid;
+  const char *muc_nick;
   char *hmsg;
   gint crypted;
   gint retval = 0;
@@ -1282,11 +1281,7 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
   }
 
   // We must use the bare jid in hk_message_out()
-  rp = strchr(fjid, JID_RESOURCE_SEPARATOR);
-  if (rp)
-    bare_jid = g_strndup(fjid, rp - fjid);
-  else
-    bare_jid = (char*)fjid;
+  bare_jid = jidtodisp(fjid);
 
   if (!quiet) {
     // Jump to window, create one if needed
@@ -1294,13 +1289,9 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
   }
 
   // Check if we're sending a message to a conference room
-  // If not, we must make sure rp is NULL, for hk_message_out()
   isroom = !!roster_find(bare_jid, jidsearch, ROSTER_TYPE_ROOM);
-  if (rp) {
-    if (isroom) rp++;
-    else rp = NULL;
-  }
-  isroom = isroom && (!rp || !*rp);
+  muc_nick = jid_get_resource_name(fjid);
+  isroom = isroom && !muc_nick;
 
   // local part (UI, logging, etc.)
   if (subj)
@@ -1320,11 +1311,11 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
 
   // Hook
   if (!isroom)
-    hk_message_out(bare_jid, rp, 0, hmsg, crypted, FALSE, xep184);
+    hk_message_out(bare_jid, muc_nick, 0, hmsg, crypted, FALSE, xep184);
 
 send_message_to_return:
   if (hmsg != msg) g_free(hmsg);
-  if (rp) g_free(bare_jid);
+  g_free(bare_jid);
   return retval;
 }
 
@@ -1705,14 +1696,14 @@ static void do_say_to(char *arg)
   if (!strchr(fjid, JID_DOMAIN_SEPARATOR)) {
     const gchar *append_server = settings_opt_get("default_server");
     if (append_server) {
-      gchar *res = strchr(fjid, JID_RESOURCE_SEPARATOR);
-      uncompletedfjid = fjid;
+      const char *res = jid_get_resource_name(fjid);
+      uncompletedfjid = jidtodisp(fjid);
+      g_free(fjid);
       if (res) {
-        *res++ = '\0';
-        fjid = g_strdup_printf("%s%c%s%c%s", fjid, JID_DOMAIN_SEPARATOR,
+        fjid = g_strdup_printf("%s%c%s%c%s", uncompletedfjid, JID_DOMAIN_SEPARATOR,
                                append_server, JID_RESOURCE_SEPARATOR, res);
       } else {
-        fjid = g_strdup_printf("%s%c%s", fjid, JID_DOMAIN_SEPARATOR,
+        fjid = g_strdup_printf("%s%c%s", uncompletedfjid, JID_DOMAIN_SEPARATOR,
                                append_server);
       }
     }
@@ -3593,27 +3584,20 @@ static void do_request(char *arg)
   }
 
   if (fjid) {
-    switch (numtype) {
-      case iqreq_vcard:
-          { // vCards requests are sent to the bare jid, except in MUC rooms
-            gchar *tmp = strchr(fjid, JID_RESOURCE_SEPARATOR);
-            if (tmp) {
-              gchar *bjid = jidtodisp(fjid);
-              if (!roster_find(bjid, jidsearch, ROSTER_TYPE_ROOM))
-                *tmp = '\0';
-              g_free(bjid);
-            }
-          }
-          /* FALLTHRU */
-      case iqreq_version:
-      case iqreq_time:
-      case iqreq_last:
-      case iqreq_ping:
-          xmpp_request(fjid, numtype);
-          break;
-      default:
-          break;
+    if (iqreq_vcard == numtype) {
+      // vCards requests are sent to the bare jid, except in MUC rooms
+      const char *resource_name = jid_get_resource_name(fjid);
+      if (resource_name) {
+        char *bare_jid = jidtodisp(fjid);
+        if (!roster_find(bare_jid, jidsearch, ROSTER_TYPE_ROOM)) {
+          g_free(jid_utf8);
+          fjid = jid_utf8 = bare_jid;
+        } else {
+          g_free(bare_jid);
+        }
+      }
     }
+    xmpp_request(fjid, numtype);
   }
   g_free(jid_utf8);
   free_arg_lst(paramlst);

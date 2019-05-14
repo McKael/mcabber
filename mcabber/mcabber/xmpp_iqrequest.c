@@ -233,7 +233,8 @@ static LmHandlerResult cb_version(LmMessageHandler *h, LmConnection *c,
 {
   LmMessageNode *ansqry;
   const char *p, *bjid;
-  char *buf, *tmp;
+  char *bare_jid;
+  char *buf;
 
   // Check IQ result sender
   bjid = lm_message_get_from(m);
@@ -262,34 +263,34 @@ static LmHandlerResult cb_version(LmMessageHandler *h, LmConnection *c,
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
 
   // bjid should now really be the "bare JID", let's strip the resource
-  tmp = strchr(bjid, JID_RESOURCE_SEPARATOR);
-  if (tmp) *tmp = '\0';
+  bare_jid = jidtodisp(bjid);
 
-  scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO, 0);
+  scr_WriteIncomingMessage(bare_jid, buf, 0, HBB_PREFIX_INFO, 0);
   g_free(buf);
 
   // Get result data...
   p = lm_message_node_get_child_value(ansqry, "name");
   if (p && *p) {
     buf = g_strdup_printf("Name:    %s", p);
-    scr_WriteIncomingMessage(bjid, buf,
+    scr_WriteIncomingMessage(bare_jid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = lm_message_node_get_child_value(ansqry, "version");
   if (p && *p) {
     buf = g_strdup_printf("Version: %s", p);
-    scr_WriteIncomingMessage(bjid, buf,
+    scr_WriteIncomingMessage(bare_jid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = lm_message_node_get_child_value(ansqry, "os");
   if (p && *p) {
     buf = g_strdup_printf("OS:      %s", p);
-    scr_WriteIncomingMessage(bjid, buf,
+    scr_WriteIncomingMessage(bare_jid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
+  g_free(bare_jid);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
@@ -298,7 +299,8 @@ static LmHandlerResult cb_time(LmMessageHandler *h, LmConnection *c,
 {
   LmMessageNode *ansqry;
   const char *p, *bjid;
-  char *buf, *tmp;
+  char *bare_jid;
+  char *buf;
 
   // Check IQ result sender
   bjid = lm_message_get_from(m);
@@ -327,34 +329,34 @@ static LmHandlerResult cb_time(LmMessageHandler *h, LmConnection *c,
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
 
   // bjid should now really be the "bare JID", let's strip the resource
-  tmp = strchr(bjid, JID_RESOURCE_SEPARATOR);
-  if (tmp) *tmp = '\0';
+  bare_jid = jidtodisp(bjid);
 
-  scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO, 0);
+  scr_WriteIncomingMessage(bare_jid, buf, 0, HBB_PREFIX_INFO, 0);
   g_free(buf);
 
   // Get result data...
   p = lm_message_node_get_child_value(ansqry, "utc");
   if (p && *p) {
     buf = g_strdup_printf("UTC:  %s", p);
-    scr_WriteIncomingMessage(bjid, buf,
+    scr_WriteIncomingMessage(bare_jid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = lm_message_node_get_child_value(ansqry, "tzo");
   if (p && *p) {
     buf = g_strdup_printf("TZ:   %s", p);
-    scr_WriteIncomingMessage(bjid, buf,
+    scr_WriteIncomingMessage(bare_jid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
   p = lm_message_node_get_child_value(ansqry, "display");
   if (p && *p) {
     buf = g_strdup_printf("Time: %s", p);
-    scr_WriteIncomingMessage(bjid, buf,
+    scr_WriteIncomingMessage(bare_jid, buf,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_free(buf);
   }
+  g_free(bare_jid);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
@@ -363,7 +365,8 @@ static LmHandlerResult cb_last(LmMessageHandler *h, LmConnection *c,
 {
   LmMessageNode *ansqry;
   const char *p, *bjid;
-  char *buf, *tmp;
+  char *bare_jid;
+  char *buf;
 
   // Check IQ result sender
   bjid = lm_message_get_from(m);
@@ -392,10 +395,9 @@ static LmHandlerResult cb_last(LmMessageHandler *h, LmConnection *c,
   scr_LogPrint(LPRINT_LOGNORM, "%s", buf);
 
   // bjid should now really be the "bare JID", let's strip the resource
-  tmp = strchr(bjid, JID_RESOURCE_SEPARATOR);
-  if (tmp) *tmp = '\0';
+  bare_jid = jidtodisp(bjid);
 
-  scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO, 0);
+  scr_WriteIncomingMessage(bare_jid, buf, 0, HBB_PREFIX_INFO, 0);
   g_free(buf);
 
   // Get result data...
@@ -414,19 +416,20 @@ static LmHandlerResult cb_last(LmMessageHandler *h, LmConnection *c,
     g_string_append_printf(sbuf, "%02ld:", s/3600L);
     s %= 3600L;
     g_string_append_printf(sbuf, "%02ld:%02ld", s/60L, s%60L);
-    scr_WriteIncomingMessage(bjid, sbuf->str,
+    scr_WriteIncomingMessage(bare_jid, sbuf->str,
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
     g_string_free(sbuf, TRUE);
   } else {
-    scr_WriteIncomingMessage(bjid, "No idle time reported.",
+    scr_WriteIncomingMessage(bare_jid, "No idle time reported.",
                              0, HBB_PREFIX_INFO | HBB_PREFIX_CONT, 0);
   }
   p = lm_message_node_get_value(ansqry);
   if (p) {
     buf = g_strdup_printf("Status message: %s", p);
-    scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO, 0);
+    scr_WriteIncomingMessage(bare_jid, buf, 0, HBB_PREFIX_INFO, 0);
     g_free(buf);
   }
+  g_free(bare_jid);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 
@@ -546,7 +549,8 @@ static LmHandlerResult cb_vcard(LmMessageHandler *h, LmConnection *c,
 {
   LmMessageNode *ansqry;
   const char *bjid;
-  char *buf, *tmp;
+  char *bare_jid;
+  char *buf;
 
   // Check IQ result sender
   bjid = lm_message_get_from(m);
@@ -576,14 +580,14 @@ static LmHandlerResult cb_vcard(LmMessageHandler *h, LmConnection *c,
   }
 
   // bjid should really be the "bare JID", let's strip the resource
-  tmp = strchr(bjid, JID_RESOURCE_SEPARATOR);
-  if (tmp) *tmp = '\0';
+  bare_jid = jidtodisp(bjid);
 
-  scr_WriteIncomingMessage(bjid, buf, 0, HBB_PREFIX_INFO, 0);
+  scr_WriteIncomingMessage(bare_jid, buf, 0, HBB_PREFIX_INFO, 0);
   g_free(buf);
 
   // Get result data...
-  handle_vcard_node(bjid, ansqry);
+  handle_vcard_node(bare_jid, ansqry);
+  g_free(bare_jid);
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
 

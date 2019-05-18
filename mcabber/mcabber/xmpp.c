@@ -1385,9 +1385,6 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
   LmMessageNode *muc_packet, *caps;
   LmMessageSubType mstype = lm_message_get_sub_type(m);
 
-  // Check for MUC presence packet
-  muc_packet = lm_message_node_find_xmlns(m->node, NS_MUC_USER);
-
   from = lm_message_get_from(m);
   if (!from) {
     scr_LogPrint(LPRINT_LOGNORM, "Unexpected presence packet!");
@@ -1399,8 +1396,6 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
     }
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   }
-
-  rname = jid_get_resource_name(from);
 
   if (settings_opt_get_int("ignore_self_presence")) {
     const char *self_fjid = lm_connection_get_jid(connection);
@@ -1464,6 +1459,9 @@ static LmHandlerResult handle_presence(LmMessageHandler *handler,
 
   // Timestamp?
   timestamp = lm_message_node_get_timestamp(m->node);
+  // Check for MUC presence packet
+  muc_packet = lm_message_node_find_xmlns(m->node, NS_MUC_USER);
+  rname = jid_get_resource_name(from);
 
   if (muc_packet) {
     // This is a MUC presence message
@@ -1596,8 +1594,7 @@ static LmHandlerResult handle_s10n(LmMessageHandler *handler,
   const char *msg = lm_message_node_get_child_value(m->node, "status");
 
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
-    display_server_error(lm_message_node_get_child(m->node, "error"),
-                         lm_message_get_from(m));
+    display_server_error(lm_message_node_get_child(m->node, "error"), from);
     return LM_HANDLER_RESULT_REMOVE_MESSAGE;
   }
 

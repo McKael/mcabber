@@ -122,9 +122,8 @@ void xmpp_room_join(const char *room, const char *nickname, const char *passwd)
   gchar *roomid;
   GSList *room_elt;
 
-  if (!xmpp_is_online() || !room)
+  if (!xmpp_is_online() || !room || !nickname)
     return;
-  if (!nickname)        return;
 
   roomid = g_strdup_printf("%s/%s", room, nickname);
   if (check_jid_syntax(roomid)) {

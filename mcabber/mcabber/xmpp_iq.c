@@ -739,7 +739,6 @@ LmHandlerResult handle_iq_version(LmMessageHandler *h, LmConnection *c,
   }
 
   r = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
-
   query = lm_message_node_add_child(r->node, "query", NULL);
   lm_message_node_set_attribute(query, "xmlns", NS_VERSION);
 
@@ -778,8 +777,6 @@ LmHandlerResult handle_iq_time(LmMessageHandler *h, LmConnection *c,
   time_t now_t;
   struct tm *now;
 
-  time(&now_t);
-
   if (!settings_opt_get_int("iq_hide_requests")) {
     scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>",
                  lm_message_get_from(m));
@@ -796,6 +793,7 @@ LmHandlerResult handle_iq_time(LmMessageHandler *h, LmConnection *c,
   query = lm_message_node_add_child(r->node, "query", NULL);
   lm_message_node_set_attribute(query, "xmlns", NS_TIME);
 
+  time(&now_t);
   now = gmtime(&now_t);
 
   strftime(buf, 512, "%Y%m%dT%T", now);
@@ -833,8 +831,6 @@ LmHandlerResult handle_iq_time202(LmMessageHandler *h, LmConnection *c,
   char const *sign;
   int diff = 0;
 
-  time(&now_t);
-
   if (!settings_opt_get_int("iq_hide_requests")) {
     scr_LogPrint(LPRINT_LOGNORM, "Received an IQ time request from <%s>",
                  lm_message_get_from(m));
@@ -851,6 +847,7 @@ LmHandlerResult handle_iq_time202(LmMessageHandler *h, LmConnection *c,
   query = lm_message_node_add_child(r->node, "time", NULL);
   lm_message_node_set_attribute(query, "xmlns", NS_XMPP_TIME);
 
+  time(&now_t);
   now = localtime(&now_t);
 
   if (now->tm_isdst >= 0) {

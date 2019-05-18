@@ -595,6 +595,7 @@ int main(int argc, char **argv)
   /* Save pending message state */
   hlog_save_state();
   caps_free();
+  settings_free();
 
   printf("\n\nThanks for using mcabber!\n");
 

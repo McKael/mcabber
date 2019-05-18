@@ -31,6 +31,7 @@ extern gboolean vi_mode;
 typedef gchar *(*settings_guard_t)(const gchar *key, const gchar *new_value);
 
 void    settings_init(void);
+void    settings_free(void);
 const gchar *settings_get_mcabber_config_dir(void);
 int     cfg_read_file(char *filename, guint mainfile);
 guint   parse_assigment(gchar *assignment, gchar **pkey, gchar **pval);

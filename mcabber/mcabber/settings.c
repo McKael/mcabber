@@ -86,6 +86,20 @@ void settings_init(void)
 #endif
 }
 
+void settings_free(void)
+{
+  g_hash_table_destroy(option);
+  g_hash_table_destroy(alias);
+  g_hash_table_destroy(binding);
+  g_hash_table_destroy(guards);
+#ifdef HAVE_GPGME
+  g_hash_table_destroy(pgpopt);
+#endif
+#ifdef HAVE_LIBOTR
+  g_hash_table_destroy(otrpolicy);
+#endif
+}
+
 //  settings_get_mcabber_config_dir()
 // Returns the mcabber configuration directory.
 // The directory is looked up for only once (and the string is never freed,

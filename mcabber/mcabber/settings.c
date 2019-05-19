@@ -48,6 +48,13 @@ typedef struct {
   guint pgp_disabled; /* If TRUE, PGP is disabled for outgoing messages */
   guint pgp_force;    /* If TRUE, PGP is used w/o negotiation */
 } pgpopt_t;
+
+void pgpopt_free(gpointer data)
+{
+  pgpopt_t *opt = (pgpopt_t *)data;
+  g_free(opt->pgp_keyid);
+  g_free(opt);
+}
 #endif
 
 typedef struct {
@@ -79,10 +86,10 @@ void settings_init(void)
   binding = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
   guards  = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
 #ifdef HAVE_GPGME
-  pgpopt = g_hash_table_new(&g_str_hash, &g_str_equal);
+  pgpopt = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &pgpopt_free);
 #endif
 #ifdef HAVE_LIBOTR
-  otrpolicy = g_hash_table_new(&g_str_hash, &g_str_equal);
+  otrpolicy = g_hash_table_new_full(&g_str_hash, &g_str_equal, &g_free, &g_free);
 #endif
 }
 
@@ -652,7 +659,6 @@ const char *settings_pgp_getkeyid(const char *bjid)
 static void remove_default_policies(char *k, char *policy, void *defaultp)
 {
   if (*(enum otr_policy *)policy == *(enum otr_policy *)defaultp) {
-    g_free((enum otr_policy *) policy);
     g_hash_table_remove(otrpolicy, k);
   }
 }
@@ -674,7 +680,6 @@ void settings_otr_setpolicy(const char *bjid, guint value)
 
   if (value == default_policy) {
     if (otrdata) {
-      g_free(otrdata);
       g_hash_table_remove(otrpolicy, bjid);
     }
   } else if (otrdata) {

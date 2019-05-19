@@ -655,39 +655,23 @@ const char *settings_pgp_getkeyid(const char *bjid)
 
 /* otr settings */
 
-#ifdef HAVE_LIBOTR
-static void remove_default_policies(char *k, char *policy, void *defaultp)
-{
-  if (*(enum otr_policy *)policy == *(enum otr_policy *)defaultp) {
-    g_hash_table_remove(otrpolicy, k);
-  }
-}
-#endif
-
 void settings_otr_setpolicy(const char *bjid, guint value)
 {
 #ifdef HAVE_LIBOTR
   enum otr_policy *otrdata;
 
-  if (!bjid) {
+  if (!bjid) { // no jid -> default policy
     default_policy = value;
-    /* refresh hash */
-    settings_foreach(SETTINGS_TYPE_OTR, &remove_default_policies, &value);
-    return;
-  }
+  } else { //policy for some specific jid
+    otrdata = g_hash_table_lookup(otrpolicy, bjid);
 
-  otrdata = g_hash_table_lookup(otrpolicy, bjid);
-
-  if (value == default_policy) {
     if (otrdata) {
-      g_hash_table_remove(otrpolicy, bjid);
+      *otrdata = value;
+    } else {
+      otrdata = g_new(enum otr_policy, 1);
+      *otrdata = value;
+      g_hash_table_insert(otrpolicy, g_strdup(bjid), otrdata);
     }
-  } else if (otrdata) {
-    *otrdata = value;
-  } else {
-    otrdata = g_new(enum otr_policy, 1);
-    *otrdata = value;
-    g_hash_table_insert(otrpolicy, g_strdup(bjid), otrdata);
   }
 #endif
 }

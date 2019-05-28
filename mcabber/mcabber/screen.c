@@ -64,9 +64,9 @@ int COLOR_ATTRIB[COLOR_max];
 #define get_color(col)      (COLOR_PAIR(col)|COLOR_ATTRIB[col])
 #define compose_color(col)  (COLOR_PAIR(col->color_pair)|col->color_attrib)
 
-#define DEFAULT_LOG_WIN_HEIGHT (5+2)
+#define DEFAULT_LOG_WIN_HEIGHT (5)
 #define DEFAULT_ROSTER_WIDTH    24
-#define CHAT_WIN_HEIGHT (maxY-1-Log_Win_Height)
+#define CHAT_WIN_HEIGHT (maxY-2-1-Log_Win_Height)
 
 #define DEFAULT_ATTENTION_CHAR '!'
 
@@ -933,9 +933,7 @@ guint scr_gettextheight(void)
 
 guint scr_getlogwinheight(void)
 {
-  if (Log_Win_Height >= 2)
-    return Log_Win_Height - 2;
-  return 0;
+  return Log_Win_Height;
 }
 
 //  scr_print_logwindow(string)
@@ -1689,19 +1687,19 @@ void scr_draw_main_window(unsigned int fullinit)
   requested_size = settings_opt_get_int("log_win_height");
   if (requested_size > 0) {
     if (maxY > requested_size + 3)
-      Log_Win_Height = requested_size + 2;
+      Log_Win_Height = requested_size;
     else
-      Log_Win_Height = ((maxY > 5) ? (maxY - 2) : 3);
+      Log_Win_Height = ((maxY > 5) ? (maxY - 4) : 1);
   } else if (requested_size < 0) {
-    Log_Win_Height = 3;
+    Log_Win_Height = 1;
   }
 
-  if (maxY < Log_Win_Height+2) {
+  if (maxY < Log_Win_Height+4) {
     if (maxY < 5) {
-      Log_Win_Height = 3;
-      maxY = Log_Win_Height+2;
+      Log_Win_Height = 1;
+      maxY = 5;
     } else {
-      Log_Win_Height = maxY - 2;
+      Log_Win_Height = maxY - 4;
     }
   }
 
@@ -1721,13 +1719,13 @@ void scr_draw_main_window(unsigned int fullinit)
   roster_win_on_right = (settings_opt_get_int("roster_win_on_right") == 1);
 
   if (log_win_on_top) {
-    chat_y_pos = Log_Win_Height-1;
     log_y_pos = 0;
-    chatstatus_y_pos = Log_Win_Height-2;
+    chatstatus_y_pos = Log_Win_Height;
+    chat_y_pos = Log_Win_Height + 1;
   } else {
     chat_y_pos = 0;
-    log_y_pos = CHAT_WIN_HEIGHT+1;
     chatstatus_y_pos = CHAT_WIN_HEIGHT;
+    log_y_pos = CHAT_WIN_HEIGHT + 1;
   }
 
   if (roster_win_on_right) {
@@ -1748,7 +1746,7 @@ void scr_draw_main_window(unsigned int fullinit)
                        chat_x_pos);
     activechatWnd = newwin(CHAT_WIN_HEIGHT, maxX - Roster_Width, chat_y_pos,
                            chat_x_pos);
-    logWnd    = newwin(Log_Win_Height-2, maxX, log_y_pos, 0);
+    logWnd    = newwin(Log_Win_Height, maxX, log_y_pos, 0);
     chatstatusWnd = newwin(1, maxX, chatstatus_y_pos, 0);
     mainstatusWnd = newwin(1, maxX, maxY-2, 0);
     inputWnd  = newwin(1, maxX, maxY-1, 0);
@@ -1767,7 +1765,7 @@ void scr_draw_main_window(unsigned int fullinit)
     /* Resize/move windows */
     wresize(rosterWnd, CHAT_WIN_HEIGHT, Roster_Width);
     wresize(chatWnd, CHAT_WIN_HEIGHT, maxX - Roster_Width);
-    wresize(logWnd, Log_Win_Height-2, maxX);
+    wresize(logWnd, Log_Win_Height, maxX);
 
     mvwin(chatWnd, chat_y_pos, chat_x_pos);
     mvwin(rosterWnd, chat_y_pos, roster_x_pos);
@@ -1858,7 +1856,7 @@ static void resize_win_buffer(gpointer key, gpointer value, gpointer data)
     return;
 
   if (log_win_on_top)
-    chat_y_pos = Log_Win_Height-1;
+    chat_y_pos = Log_Win_Height + 1;
   else
     chat_y_pos = 0;
 

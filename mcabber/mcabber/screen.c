@@ -1683,15 +1683,17 @@ void scr_draw_main_window(unsigned int fullinit)
 
   roster_no_leading_space = settings_opt_get_int("roster_no_leading_space");
 
-  Log_Win_Height = DEFAULT_LOG_WIN_HEIGHT;
-  requested_size = settings_opt_get_int("log_win_height");
+  if (NULL == settings_opt_get("log_win_height"))
+    requested_size = DEFAULT_LOG_WIN_HEIGHT;
+  else
+    requested_size = settings_opt_get_int("log_win_height");
   if (requested_size > 0) {
     if (maxY > requested_size + 3)
       Log_Win_Height = requested_size;
     else
       Log_Win_Height = ((maxY > 5) ? (maxY - 4) : 1);
-  } else if (requested_size < 0) {
-    Log_Win_Height = 1;
+  } else if (requested_size <= 0) {
+    Log_Win_Height = 0;
   }
 
   if (maxY < Log_Win_Height+4) {
@@ -1838,6 +1840,12 @@ void scr_draw_main_window(unsigned int fullinit)
     replace_panel(chatstatusPanel, chatstatusWnd);
     replace_panel(mainstatusPanel, mainstatusWnd);
     replace_panel(inputPanel, inputWnd);
+  }
+
+  if (0 == Log_Win_Height) {
+    hide_panel(logPanel);
+  } else {
+    show_panel(logPanel);
   }
 
   // We'll need to redraw the roster

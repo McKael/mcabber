@@ -137,7 +137,6 @@ static int roster_hidden;
 static int chatmode;
 static int multimode;
 static char *multiline, *multimode_subj;
-static int roster_no_leading_space;
 
 static bool Curses;
 static bool log_win_on_top;
@@ -1681,26 +1680,19 @@ void scr_draw_main_window(unsigned int fullinit)
   int chat_y_pos, chatstatus_y_pos, log_y_pos;
   int roster_x_pos, chat_x_pos;
 
-  roster_no_leading_space = settings_opt_get_int("roster_no_leading_space");
+  if (maxY < 4)
+    maxY = 4;
 
   if (NULL == settings_opt_get("log_win_height"))
     requested_size = DEFAULT_LOG_WIN_HEIGHT;
   else
     requested_size = settings_opt_get_int("log_win_height");
-  if (requested_size > 0) {
-    if (maxY > requested_size + 3)
-      Log_Win_Height = requested_size;
-    else
-      Log_Win_Height = ((maxY > 5) ? (maxY - 4) : 1);
-  } else if (requested_size <= 0) {
+  if (requested_size <= 0) {
     Log_Win_Height = 0;
-  }
-
-  if (maxY < Log_Win_Height+4) {
-    if (maxY < 5) {
-      Log_Win_Height = 1;
-      maxY = 5;
-    } else {
+  } else {
+    if (maxY >= requested_size + 4)
+      Log_Win_Height = requested_size;
+    else {
       Log_Win_Height = maxY - 4;
     }
   }
@@ -2174,7 +2166,7 @@ void scr_draw_roster(void)
   else
     x_pos = 0;
 
-  if (roster_no_leading_space) {
+  if (settings_opt_get_int("roster_no_leading_space") == 1) {
     space[0] = '\0';
     prefix_length = 6;
   } else {

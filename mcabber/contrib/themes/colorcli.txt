@@ -1,0 +1,21 @@
+# Custom Color Settings - Colorcli
+# https://github.com/jonasjacek/colorcli
+# * NOTE: Your terminal MUST have 256 color support
+set color_background   = default
+set color_general      = 24
+set color_info         = 59
+set color_msgin        = black
+set color_msgout       = 59
+set color_msghl        = 208
+set color_bgstatus     = 24
+set color_status       = 15
+set color_log          = 24
+set color_roster       = 59
+set color_bgrostersel  = 254
+set color_rostersel    = 31
+set color_rosterselmsg = 226
+set color_rosternewmsg = 226
+set color_readmark     = 160
+
+# Reset dynamic colors
+color roster clear

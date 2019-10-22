@@ -480,6 +480,11 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
     buddy_settype(room_elt->data, ROSTER_TYPE_ROOM);
   }
 
+  // We're not interested in presence from the bare room JID (used for MUC
+  // avatars, for example)
+  if (!rname || rname[0] == '\0')
+    return;
+
   // Get room member's information
   muc_get_item_info(from, xmldata, &mbrole, &mbaffil, &mbjid, &mbnick,
                     &actor, &reason);
@@ -735,10 +740,6 @@ void handle_muc_presence(const char *from, LmMessageNode *xmldata,
       }
     }
   }
-
-  // Sanity check, shouldn't happen...
-  if (!rname)
-    return;
 
   // Update room member status
   roster_setstatus(roomjid, rname, bpprio, ust, ustmsg, usttime,

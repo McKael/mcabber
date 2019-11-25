@@ -100,13 +100,13 @@ AC_CHECK_FUNC(initscr,,
     AC_CHECK_LIB($cf_ncurses, initscr,
         [LIBS="$LIBS -l$cf_ncurses"
 
-         AC_CHECK_LIB(tinfo, tgetent, [LIBS="$LIBS -ltinfo"])
-
          if test "$cf_ncurses" = ncursesw; then
-            AC_CHECK_HEADERS([ncursesw/ncurses.h ncursesw/panel.h],,
+             AC_CHECK_LIB(tinfow, tgetent, [LIBS="$LIBS -ltinfow"])
+             AC_CHECK_HEADERS([ncursesw/ncurses.h ncursesw/panel.h],,
                  [AC_CHECK_HEADERS([ncurses.h panel.h],,
                                    AC_MSG_ERROR([Missing header file]))])
          else
+             AC_CHECK_LIB(tinfo, tgetent, [LIBS="$LIBS -ltinfo"])
              AC_CHECK_HEADERS([ncurses/ncurses.h ncurses/panel.h],,
                  [AC_CHECK_HEADERS([ncurses.h panel.h],,
                                    AC_MSG_ERROR([Missing header file]))])

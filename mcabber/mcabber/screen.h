@@ -57,7 +57,7 @@ enum colors {
   COLOR_max
 };
 
-int COLOR_ATTRIB[COLOR_max];
+extern int COLOR_ATTRIB[COLOR_max];
 
 extern gboolean chatstates_disabled;
 extern gboolean Autoaway;

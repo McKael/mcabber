@@ -59,6 +59,8 @@
 #include "xmpp.h"
 #include "main.h"
 
+int COLOR_ATTRIB[COLOR_max];
+
 #define get_color(col)      (COLOR_PAIR(col)|COLOR_ATTRIB[col])
 #define compose_color(col)  (COLOR_PAIR(col->color_pair)|col->color_attrib)
 

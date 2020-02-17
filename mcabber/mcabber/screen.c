@@ -166,6 +166,8 @@ int utf8_mode;
 gboolean chatstates_disabled;
 gboolean Autoaway;
 
+gboolean vi_mode;
+
 #define MAX_KEYSEQ_LENGTH 8
 
 typedef struct {

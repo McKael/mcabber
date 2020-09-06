@@ -1071,6 +1071,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   char *bjid;
   const char *res;
   LmMessageNode *x;
+  LmMessageNode *message_node = m->node;
   const char *body = NULL;
   const char *enc = NULL;
   const char *subject = NULL;
@@ -1082,16 +1083,17 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     scr_LogPrint(LPRINT_DEBUG, "handle_messages: message with missing from attribute");
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   }
+
   // Get the bare-JID/room (bjid) and the resource/nickname (res)
   bjid = jidtodisp(from);
   res = jid_get_resource_name(from);
 
   mstype = lm_message_get_sub_type(m);
   // Timestamp?
-  timestamp = lm_message_node_get_timestamp(m->node);
+  timestamp = lm_message_node_get_timestamp(message_node);
 
   if (mstype == LM_MESSAGE_SUB_TYPE_ERROR) {
-    x = lm_message_node_get_child(m->node, "error");
+    x = lm_message_node_get_child(message_node, "error");
     display_server_error(x, from);
 #ifdef XEP0085
     // If the XEP85/22 support is probed, set it back to unknown so that
@@ -1099,11 +1101,11 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
     chatstates_reset_probed(bjid, res);
 #endif
   } else {
-    handle_state_events(bjid, res, m->node);
+    handle_state_events(bjid, res, message_node);
   }
 
   // Check for carbons!
-  x = lm_message_node_find_xmlns(m->node, NS_CARBONS_2);
+  x = lm_message_node_find_xmlns(message_node, NS_CARBONS_2);
   gboolean carbons = FALSE;
   if (x && (!g_strcmp0(x->name, "received") || !g_strcmp0(x->name, "sent"))) {
     LmMessageNode *xenc;
@@ -1127,27 +1129,35 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       goto handle_messages_return;
     }
 
-    xenc = lm_message_node_find_xmlns(x, NS_ENCRYPTED);
+    // We should now consider the forwarded node...
+    message_node = x;
+
+    xenc = lm_message_node_find_xmlns(message_node, NS_ENCRYPTED);
     if (xenc)
       enc = lm_message_node_get_value(xenc);
 
-    body = lm_message_node_get_child_value(x, "body");
-    subject = lm_message_node_get_child_value(x, "subject");
-    ns_signed = lm_message_node_find_xmlns(x, NS_SIGNED);
+    body = lm_message_node_get_child_value(message_node, "body");
+    subject = lm_message_node_get_child_value(message_node, "subject");
+    ns_signed = lm_message_node_find_xmlns(message_node, NS_SIGNED);
+    const char *to = lm_message_node_get_attribute(message_node, "to");
+    from = lm_message_node_get_attribute(message_node, "from");
+    if (!from) {
+      scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy (missing 'from' attribute).");
+      goto handle_messages_return;
+    }
+    if (!to) {
+      scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy (missing 'to' attribute).");
+      goto handle_messages_return;
+    }
 
-    // Parse a message that is send to one of our other resources
+    // Parse a message that is sent to one of our other resources
     if (!g_strcmp0(carbon_name, "received")) {
-      from = lm_message_node_get_attribute(x, "from");
-      if (!from) {
-        scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy!");
-        goto handle_messages_return;
-      }
       g_free(bjid);
       bjid = jidtodisp(from);
       res = jid_get_resource_name(from);
 
       // Try to handle forwarded chat state messages
-      handle_state_events(from, res, x);
+      handle_state_events(from, res, message_node);
 
       scr_LogPrint(LPRINT_DEBUG, "Received incoming carbon from <%s>", from);
 
@@ -1156,11 +1166,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       char *decrypted_pgp = NULL;
 #endif
       guint encrypted = 0;
-      const char *to = lm_message_node_get_attribute(x, "to");
-      if (!to) {
-        scr_LogPrint(LPRINT_LOGNORM, "Malformed carbon copy!");
-        goto handle_messages_return;
-      }
+
       g_free(bjid);
       bjid = jidtodisp(to);
 
@@ -1193,12 +1199,12 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
       goto handle_messages_return;
     }
   } else { // Not a Carbon
-    subject = lm_message_node_get_child_value(m->node, "subject");
-    body = lm_message_node_get_child_value(m->node, "body");
-    x = lm_message_node_find_xmlns(m->node, NS_ENCRYPTED);
+    subject = lm_message_node_get_child_value(message_node, "subject");
+    body = lm_message_node_get_child_value(message_node, "body");
+    x = lm_message_node_find_xmlns(message_node, NS_ENCRYPTED);
     if (x)
       enc = lm_message_node_get_value(x);
-    ns_signed = lm_message_node_find_xmlns(m->node, NS_SIGNED);
+    ns_signed = lm_message_node_find_xmlns(message_node, NS_SIGNED);
   }
 
   // Only process messages that have a body or a subject
@@ -1209,15 +1215,16 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
 
   // Handle XEP 184
   {
-    LmMessageNode *xep184 = lm_message_node_find_xmlns(m->node, NS_RECEIPTS);
+    LmMessageNode *xep184 = lm_message_node_find_xmlns(message_node, NS_RECEIPTS);
     if (xep184) {
-      if(!g_strcmp0("request", xep184->name) &&
-         (roster_getsubscription(bjid) & sub_from)) {
+      if(!g_strcmp0("request", xep184->name)
+         && !jid_equal(lm_connection_get_jid(lconnection), from)
+         && (roster_getsubscription(bjid) & sub_from)) {
         // Report received message if message delivery receipt was requested
         const gchar *mid;
         LmMessageNode *y;
         LmMessage *rcvd = lm_message_new(from, LM_MESSAGE_TYPE_MESSAGE);
-        mid = lm_message_get_id(m);
+        mid = lm_message_node_get_attribute(message_node, "id");
         // For backward compatibility (XEP184 < v.1.1):
         lm_message_node_set_attribute(rcvd->node, "id", mid);
         y = lm_message_node_add_child(rcvd->node, "received", NULL);
@@ -1231,7 +1238,7 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
         // This is for backward compatibility; if the remote client didn't add
         // the id as an attribute of the 'received' tag, we use the message id:
         if (!id)
-          id = lm_message_get_id(m);
+          id = lm_message_node_get_attribute(message_node, "id");
         scr_remove_receipt_flag(bjid, id);
 
 #ifdef MODULES_ENABLE
@@ -1248,13 +1255,13 @@ static LmHandlerResult handle_messages(LmMessageHandler *handler,
   }
 
   {
-    LmMessageNode *muc_message = lm_message_node_find_xmlns(m->node, NS_MUC_USER);
+    LmMessageNode *muc_message = lm_message_node_find_xmlns(message_node, NS_MUC_USER);
     if (muc_message && !strcmp(muc_message->name, "x"))
       got_muc_message(from, muc_message, timestamp);
   }
 
   {
-    LmMessageNode *muc_invite = lm_message_node_find_xmlns(m->node, NS_X_CONFERENCE);
+    LmMessageNode *muc_invite = lm_message_node_find_xmlns(message_node, NS_X_CONFERENCE);
 
     if (muc_invite && !strcmp(muc_invite->name, "x")) {
       const char *jid = lm_message_node_get_attribute(muc_invite, "jid");

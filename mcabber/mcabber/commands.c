@@ -1289,9 +1289,13 @@ static int send_message_to(const char *fjid, const char *msg, const char *subj,
   }
 
   // Check if we're sending a message to a conference room
-  isroom = !!roster_find(bare_jid, jidsearch, ROSTER_TYPE_ROOM);
-  muc_nick = jid_get_resource_name(fjid);
-  isroom = isroom && !muc_nick;
+  if (NULL != roster_find(bare_jid, jidsearch, ROSTER_TYPE_ROOM)) {
+    muc_nick = jid_get_resource_name(fjid);
+    isroom = !muc_nick; // if a resource is specified, then it's a muc private message, not a room
+  } else {
+    isroom = false;
+    muc_nick = NULL;
+  }
 
   // local part (UI, logging, etc.)
   if (subj)

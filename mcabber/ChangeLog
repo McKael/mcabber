@@ -1,8 +1,8 @@
-mcabber (1.1.2-dev)
+mcabber (1.1.2)
 
- * 
+ * Fix display when sending message to a full JID (Frank Zschockelt)
 
- -- Mikael, ?
+ -- Mikael, 2020-09-19
 
 mcabber (1.1.1)
 

@@ -173,7 +173,7 @@ static LmHandlerResult handle_iq_commands_list(LmMessageHandler *h,
 
   iq = lm_message_new_iq_from_query(m, LM_MESSAGE_SUB_TYPE_RESULT);
   query = lm_message_node_add_child(iq->node, "query", NULL);
-  lm_message_node_set_attribute(query, "xmlns", NS_COMMANDS);
+  lm_message_node_set_attribute(query, "xmlns", NS_DISCO_ITEMS);
   node = lm_message_node_get_attribute
           (lm_message_node_get_child(m->node, "query"),
            "node");

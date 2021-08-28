@@ -400,8 +400,10 @@ void xmpp_send_msg(const char *fjid, const char *text, int type,
 #endif // HAVE_GPGME || defined XEP0085
 
   x = lm_message_new_with_sub_type(fjid, LM_MESSAGE_TYPE_MESSAGE, subtype);
-  lm_message_node_add_child(x->node, "body",
-                            enc ? "This message is PGP-encrypted." : text);
+  if (text) {
+    lm_message_node_add_child(x->node, "body",
+                              enc ? "This message is PGP-encrypted." : text);
+  }
 
   if (subject)
     lm_message_node_add_child(x->node, "subject", subject);

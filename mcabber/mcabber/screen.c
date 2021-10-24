@@ -1278,12 +1278,12 @@ static void scr_update_window(winbuf_t *win_entry)
         tmp = pref[timelen];
         pref[timelen] = '\0';
         wbkgdset(win_entry->win, get_color(COLOR_TIMESTAMP));
-        wprintw(win_entry->win, pref);
+        wprintw(win_entry->win, "%s", pref);
         pref[timelen] = tmp;
         wbkgdset(win_entry->win, get_color(color));
-        wprintw(win_entry->win, pref+timelen);
+        wprintw(win_entry->win, "%s", pref+timelen);
       } else
-        wprintw(win_entry->win, pref);
+        wprintw(win_entry->win, "%s", pref);
 
       // Make sure we are at the right position
       wmove(win_entry->win, winy, prefixwidth-1);
@@ -1362,7 +1362,7 @@ scr_update_window_skipline:
         wmove(win_entry->win, winy, 0);
         wbkgdset(win_entry->win, get_color(COLOR_READMARK));
         g_snprintf(pref, prefixwidth, "             == ");
-        wprintw(win_entry->win, pref);
+        wprintw(win_entry->win, "%s", pref);
         w = scr_gettextwidth() / 3;
         for (i=0; i<w; i++)
           wprintw(win_entry->win, "== ");
@@ -1782,7 +1782,7 @@ void scr_draw_main_window(unsigned int fullinit)
 
   ver = mcabber_version();
   message = g_strdup_printf("MCabber version %s.\n", ver);
-  mvwprintw(chatWnd, 0, 0, message);
+  mvwprintw(chatWnd, 0, 0, "%s", message);
   mvwprintw(chatWnd, 1, 0, "http://mcabber.com/");
   g_free(ver);
   g_free(message);

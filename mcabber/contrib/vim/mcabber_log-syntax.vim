@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:	MCabber log file
 " Maintainer:	Mikael BERTHE <mikael.berthe@lilotux.net>
-" URL:		Included in mcabber source package <http://mcabber.com>
+" URL:		Included in mcabber source package <https://mcabber.com>
 " Last Change:	2010-04-02
 
 " Save this file as ~/.vim/syntax/mcabber_log.vim

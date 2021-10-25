@@ -1783,7 +1783,7 @@ void scr_draw_main_window(unsigned int fullinit)
   ver = mcabber_version();
   message = g_strdup_printf("MCabber version %s.\n", ver);
   mvwprintw(chatWnd, 0, 0, "%s", message);
-  mvwprintw(chatWnd, 1, 0, "http://mcabber.com/");
+  mvwprintw(chatWnd, 1, 0, "https://mcabber.com/");
   g_free(ver);
   g_free(message);
 

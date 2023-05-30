@@ -233,7 +233,7 @@ AC_ARG_ENABLE(aspell,
               enable_aspell=$enableval, aspell="")
 
 if test "x$enable_enchant" = "xyes"; then
- PKG_CHECK_MODULES(ENCHANT, [enchant],
+ PKG_CHECK_MODULES(ENCHANT, [enchant-2],
    AC_DEFINE(WITH_ENCHANT, 1, [Define if you want enchant support])
  )
 else

@@ -1,14 +1,14 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.59)
+AC_PREREQ([2.71])
 AC_INIT([mcabber],[1.1.3-dev],[mcabber@lilotux.net])
 XC_AUTOMAKE
 AC_CONFIG_SRCDIR([mcabber])
 AC_CONFIG_HEADERS([mcabber/config.h])
 AC_CONFIG_HEADERS([include/config.h])
 
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PROG_RANLIB
 
 # Checks for programs.
@@ -35,7 +35,7 @@ AC_SYS_LARGEFILE
 PKG_PROG_PKG_CONFIG
 
 # Checks for header files.
-AC_HEADER_STDC
+
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h locale.h netdb.h netinet/in.h stddef.h \
                   stdlib.h string.h strings.h sys/socket.h sys/time.h \
                   syslog.h termios.h wchar.h wctype.h localcharset.h])
@@ -47,7 +47,8 @@ AC_HEADER_STDBOOL
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
-AC_HEADER_TIME
+AC_CHECK_HEADERS_ONCE([sys/time.h])
+
 AC_STRUCT_TM
 
 # Checks for library functions.
@@ -56,7 +57,9 @@ AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_FUNC_REALLOC
 AC_FUNC_SELECT_ARGTYPES
-AC_TYPE_SIGNAL
+AC_DEFINE_UNQUOTED([RETSIGTYPE],[$ac_cv_type_signal],[Define as the return type of signal handlers
+		    (`int' or `void').])
+
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm arc4random bzero gethostbyname gethostname inet_ntoa \
@@ -75,7 +78,7 @@ MC_TM_GMTOFF
 # Check if we must provide a SIGWINCH handler
 AC_MSG_CHECKING([if we use our own SIGWINCH handler])
 AC_ARG_ENABLE(sigwinch,
-        AC_HELP_STRING([--enable-sigwinch], [compile with SIGWINCH handler]),
+        AS_HELP_STRING([--enable-sigwinch],[compile with SIGWINCH handler]),
         [with_sigwinch=$enableval],
         [with_sigwinch=$with_ext_funcs])
 if test "$with_sigwinch" = yes; then
@@ -127,12 +130,10 @@ fi
 
 AC_CACHE_CHECK([for ESCDELAY variable],
                [mc_cv_ncurses_escdelay],
-               [AC_TRY_LINK([], [
+               [AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[
                             extern int ESCDELAY;
                             ESCDELAY = 0;
-                            ],
-                            [mc_cv_ncurses_escdelay=yes],
-                            [mc_cv_ncurses_escdelay=no])
+                            ]])],[mc_cv_ncurses_escdelay=yes],[mc_cv_ncurses_escdelay=no])
                ])
 if test "$mc_cv_ncurses_escdelay" = yes; then
     AC_DEFINE([HAVE_ESCDELAY], 1,

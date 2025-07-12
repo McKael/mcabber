@@ -90,7 +90,7 @@ static void scr_glog_print(const gchar *log_domain, GLogLevelFlags log_level,
                            const gchar *message, gpointer user_data);
 
 #ifdef XEP0085
-static gboolean scr_chatstates_timeout();
+static gboolean scr_chatstates_timeout(void *);
 #endif
 
 #if defined(WITH_ENCHANT) || defined(WITH_ASPELL)
@@ -2485,7 +2485,7 @@ static void set_chatstate(int state)
 }
 
 #ifdef XEP0085
-static gboolean scr_chatstates_timeout(void)
+static gboolean scr_chatstates_timeout(void *dummy)
 {
   time_t now;
   time(&now);

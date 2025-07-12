@@ -50,7 +50,7 @@ LmConnection* lconnection = NULL;
 static guint AutoConnection;
 
 inline void update_last_use(void);
-inline gboolean xmpp_reconnect();
+inline gboolean xmpp_reconnect(void *);
 
 enum imstatus mystatus = offline;
 static enum imstatus mywantedstatus = available;
@@ -783,7 +783,7 @@ static void connection_auth_cb(LmConnection *connection, gboolean success,
     scr_LogPrint(LPRINT_LOGNORM, "Authentication failed");
 }
 
-gboolean xmpp_reconnect()
+gboolean xmpp_reconnect(void *dummy)
 {
   if (!lconnection)
     xmpp_connect();

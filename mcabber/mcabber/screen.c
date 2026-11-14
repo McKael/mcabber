@@ -4463,10 +4463,11 @@ static void scr_process_vi_arrow_key(int key)
 {
   const char *l;
   char mask[INPUTLINE_LENGTH+1];
-  size_t cmd_len = strlen(mask);
-  size_t str_len = strlen(inputLine) - 1;
+  size_t cmd_len, str_len;
 
   strncpy(mask, mkcmdstr("roster search "), INPUTLINE_LENGTH);
+  cmd_len = strlen(mask);
+  str_len = strlen(inputLine) - 1;
 
   if  (inputLine[0] == COMMAND_CHAR) {
     if (!chatmode) { // Command mode

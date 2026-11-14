@@ -149,12 +149,12 @@ static char *ask_password(const char *what)
   backup_termios = &orig;
 
   new = orig;
-  new.c_lflag &= ~ECHO;
+  new.c_lflag &= (unsigned int) ~ECHO;
   if (tcsetattr(fileno(stdin), TCSAFLUSH, &new) != 0) return NULL;
 
   /* Read the password. */
   printf("Please enter %s: ", what);
-  if (fgets(password, passsize, stdin) == NULL) return NULL;
+  if (fgets(password, (int)passsize, stdin) == NULL) return NULL;
 
   /* Restore terminal. */
   tcsetattr(fileno(stdin), TCSAFLUSH, &orig);

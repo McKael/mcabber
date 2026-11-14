@@ -31,7 +31,7 @@ static LmHandlerResult cb_carbons(LmMessageHandler *h, LmConnection *c,
                                   LmMessage *m, gpointer user_data);
 
 
-void carbons_available()
+void carbons_available(void)
 {
   int enable = 0;
   _carbons_available = 1;
@@ -43,12 +43,12 @@ void carbons_available()
   }
 }
 
-gboolean carbons_enabled()
+gboolean carbons_enabled(void)
 {
   return (_carbons_enabled != 0);
 }
 
-void carbons_enable()
+void carbons_enable(void)
 {
   LmMessage *iq;
   LmMessageNode *enable;
@@ -84,12 +84,12 @@ void carbons_enable()
 }
 
 // Mark carbons as disabled (e.g. when a connection terminates)
-void carbons_reset()
+void carbons_reset(void)
 {
   _carbons_enabled = 0;
 }
 
-void carbons_disable()
+void carbons_disable(void)
 {
   LmMessage *iq;
   LmMessageNode *disable;
@@ -125,7 +125,7 @@ void carbons_disable()
 
 }
 
-void carbons_info()
+void carbons_info(void)
 {
   if (_carbons_enabled) {
     scr_log_print(LPRINT_NORMAL, "Carbons enabled.");

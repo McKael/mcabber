@@ -45,7 +45,7 @@ char *next_char(char *str)
 
 unsigned get_char(const char *str)
 {
-  unsigned char *strp = (unsigned char *)str;
+  const unsigned char *strp = (const unsigned char *)str;
   unsigned c = *strp++;
   unsigned mask = 0x80;
   int len = -1;
@@ -73,7 +73,7 @@ no_utf8:
 
 char *put_char(char *str, unsigned c)
 {
-  int mask = 0xffffffc0;
+  unsigned mask = 0xffffffc0;
   int i = 4;
   char code[5];
   if (!utf8_mode || c < 128) {

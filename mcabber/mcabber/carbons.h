@@ -3,11 +3,11 @@
 
 #include <glib.h>
 
-void carbons_available();
-void carbons_enable();
-void carbons_disable();
-void carbons_info();
-void carbons_reset();
-gboolean carbons_enabled();
+void carbons_available(void);
+void carbons_enable(void);
+void carbons_disable(void);
+void carbons_info(void);
+void carbons_reset(void);
+gboolean carbons_enabled(void);
 
 #endif //__MCABBER_CARBONS_H__

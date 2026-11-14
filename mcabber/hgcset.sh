@@ -21,4 +21,15 @@ if which hg > /dev/null 2>&1; then
   fi
 fi
 
+if which git > /dev/null 2>&1 && [ "$(git rev-parse --is-inside-work-tree)" = "true" ]; then
+  v=$(git rev-parse --short HEAD 2>/dev/null || echo unknown)
+  if [ "$v" != unknown ] && [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+      v="$v-dirty"
+  else
+      v=$(git describe --tags --exact-match 2>/dev/null || echo "$v")
+  fi
+  echo "#define HGCSET \"g$v\"" > "$builddir/hgcset.h"
+  exit
+fi
+
 echo > "$builddir/hgcset.h"

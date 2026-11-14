@@ -535,10 +535,11 @@ void otr_print_info(const char *buddy)
 {
   const char *state, *auth, *policy;
   ConnContext *ctx = otr_get_context(buddy);
-  OtrlPolicy p = cb_policy(ctx->app_data, ctx);
 
   if (!userstate || !ctx)
     return;
+
+  OtrlPolicy p = cb_policy(ctx->app_data, ctx);
 
   switch (ctx->msgstate) {
     case OTRL_MSGSTATE_PLAINTEXT: state = "plaintext"; break;

@@ -573,8 +573,8 @@ void hk_statuschange(const char *bjid, const char *resname, gchar prio,
 
 #ifdef MODULES_ENABLE
   {
-    char os[2] = " \0";
-    char ns[2] = " \0";
+    char os[2] = { ' ', '\0' };
+    char ns[2] = { ' ', '\0' };
     hk_arg_t args[] = {
       { "jid", bjid },
       { "resource", rn },
@@ -603,7 +603,7 @@ void hk_mystatuschange(time_t timestamp, enum imstatus old_status,
 
 #ifdef MODULES_ENABLE
   {
-    char ns[2] = " \0";
+    char ns[2] = { ' ', '\0' };
     hk_arg_t args[] = {
       { "new_status", ns },
       { "message", msg ? msg : "" },

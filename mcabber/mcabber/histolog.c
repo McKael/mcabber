@@ -157,6 +157,17 @@ static void write_histo_line(const char *bjid,
   }
 }
 
+//  skip_histo_line(fp)
+// Read and discard bytes from fp until the end of the line or EOF.
+static void skip_histo_line(FILE *fp)
+{
+  int c;
+
+  do {
+    c = fgetc(fp);
+  } while (c != EOF && c != '\n');
+}
+
 //  hlog_read_history()
 // Reads the jid's history logfile
 void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
@@ -224,6 +235,7 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
   while (!feof(fp)) {
     guint dataoffset = 25;
     guint noeol;
+    gboolean truncated = FALSE;
 
     if (fgets(data, data_size-1, fp) == NULL)
       break;
@@ -259,6 +271,9 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
         } else {
           scr_LogPrint(LPRINT_LOGNORM, "Line too long in history file!");
           ln--;
+          // Discard the rest of the line, so that the next line
+          // is parsed as a header again.
+          skip_histo_line(fp);
           break;
         }
       }
@@ -318,8 +333,16 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
           // Update the tail pointer, as the data may have been moved.
           tail = data + toffset;
         } else {
-          // There will probably be a parse error on next read, because
-          // this message hasn't been read entirely.
+          // This message hasn't been read entirely: discard the rest
+          // of the line so that the next line is parsed as a header.
+          truncated = TRUE;
+          if (noeol)
+            skip_histo_line(fp);
+          // Discard the remaining lines of this message, so that
+          // parsing can resume on a proper header line.
+          while (len--)
+            skip_histo_line(fp);
+          len = 0;
           scr_LogPrint(LPRINT_LOGNORM, "Message too big in history file!");
         }
       }
@@ -336,7 +359,9 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
         continue;
     }
 
-    if (type == 'M') {
+    err = 0;
+
+    if (type == 'M' && !truncated) {
       char *converted;
       if (info == 'S') {
         prefix_flags = HBB_PREFIX_OUT | HBB_PREFIX_HLIGHT_OUT;
@@ -354,7 +379,6 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
           g_free(xtext);
         g_free(converted);
       }
-      err = 0;
     }
   }
   fclose(fp);

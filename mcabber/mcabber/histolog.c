@@ -222,13 +222,15 @@ void hlog_read_history(const char *bjid, GList **p_buddyhbuf, guint width)
   max_num_of_blocks = get_max_history_blocks();
 
   starttime = 0L;
-  if (settings_opt_get_int("max_history_age") > 0) {
+  {
     int maxdays = settings_opt_get_int("max_history_age");
-    time(&starttime);
-    if (maxdays >= starttime/86400L)
-      starttime = 0L;
-    else
-      starttime -= maxdays * 86400L;
+    if (maxdays > 0) {
+      time(&starttime);
+      if (maxdays >= starttime/86400L)
+        starttime = 0L;
+      else
+        starttime -= maxdays * 86400L;
+    }
   }
 
   /* See write_histo_line() for line format... */

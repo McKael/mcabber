@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.71])
+AC_PREREQ([2.72])
 AC_INIT([mcabber],[1.1.3-dev],[mcabber@lilotux.net])
 XC_AUTOMAKE
 AC_CONFIG_SRCDIR([mcabber])
@@ -140,8 +140,7 @@ if test "$mc_cv_ncurses_escdelay" = yes; then
               [Define if ncurses has ESCDELAY variable])
 fi
 
-AC_ARG_ENABLE(modules, AC_HELP_STRING([--disable-modules],
-                                      [disable dynamic modules loading]),
+AC_ARG_ENABLE(modules, AS_HELP_STRING([--disable-modules],[disable dynamic modules loading]),
               enable_modules=$enableval)
 if test "x$enable_modules" != "xno"; then
   AC_DEFINE(MODULES_ENABLE, 1, [Define if you want dynamic modules loading])
@@ -182,8 +181,7 @@ AC_CHECK_LIB(loudmouth-1, lm_ssl_set_ca,
 
 
 # Check for libidn
-AC_ARG_WITH(libidn, AC_HELP_STRING([--with-libidn=[DIR]],
-                                   [Support IDN (needs GNU Libidn)]),
+AC_ARG_WITH(libidn, AS_HELP_STRING([--with-libidn=[DIR]],[Support IDN (needs GNU Libidn)]),
             libidn=$withval, libidn=yes)
 if test "$libidn" != "no" ; then
   PKG_CHECK_MODULES(LIBIDN, libidn >= 0.0.0, [libidn=yes], [libidn=no])
@@ -198,7 +196,7 @@ fi
 
 # Check for gpgme
 AC_ARG_ENABLE(gpgme,
-    AC_HELP_STRING([--disable-gpgme], [disable GPGME support]),
+    AS_HELP_STRING([--disable-gpgme],[disable GPGME support]),
     [ if test x"$enableval" = x"no"; then
         enable_gpgme=no
       fi
@@ -211,8 +209,7 @@ fi
 
 # Check for otr
 AC_ARG_ENABLE(otr,
-    AC_HELP_STRING([--enable-otr],
-                   [enable OTR (Off-the-Record) messaging support]),
+    AS_HELP_STRING([--enable-otr],[enable OTR (Off-the-Record) messaging support]),
     enable_otr=$enableval,
     otr="")
 if test "x$enable_otr" = "xyes"; then
@@ -226,11 +223,11 @@ fi
 
 # Check for Enchant stuff
 AC_ARG_ENABLE(enchant,
-              AC_HELP_STRING([--enable-enchant], [enable enchant support]),
+              AS_HELP_STRING([--enable-enchant],[enable enchant support]),
               enable_enchant=$enableval, enchant="")
 # Check for Aspell stuff
 AC_ARG_ENABLE(aspell,
-              AC_HELP_STRING([--enable-aspell], [enable aspell support]),
+              AS_HELP_STRING([--enable-aspell],[enable aspell support]),
               enable_aspell=$enableval, aspell="")
 
 if test "x$enable_enchant" = "xyes"; then
@@ -264,7 +261,7 @@ pkglibdir=${libdir}/${PACKAGE}
 AC_DEFINE_DIR(PKGLIB_DIR, pkglibdir, [Modules directory])
 
 AC_ARG_ENABLE(debug,
-    AC_HELP_STRING([--enable-debug], [add development compilation options]),
+    AS_HELP_STRING([--enable-debug],[add development compilation options]),
     debug=$enableval, debug="")
 if test x"${debug}" = x"yes"; then
     AC_DEFINE_UNQUOTED([ENABLE_DEBUG],[1],[Devel compilation options])
@@ -282,7 +279,7 @@ else
 fi
 
 AC_ARG_ENABLE(hgcset,
-    AC_HELP_STRING([--disable-hgcset], [do not use Mercurial changeset value]),
+    AS_HELP_STRING([--disable-hgcset],[do not use Mercurial changeset value]),
     hgcset=$enableval, hgcset="yes")
 AM_CONDITIONAL(HGCSET, [test x$hgcset = xyes])
 if test "${hgcset}" = "yes"; then

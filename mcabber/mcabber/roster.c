@@ -206,6 +206,11 @@ static res_t *get_resource(roster_t *rost, const char *resname)
 //   on this resource
 // - if not, add the resource, set the name, and return a pointer on this
 //   new resource
+// Maximum number of resources kept per buddy, to prevent a remote contact
+// from exhausting the client's memory by sending presences with an
+// ever-growing number of distinct resource names.
+#define MAX_BUDDY_RESOURCES 32
+
 static res_t *get_or_add_resource(roster_t *rost, const char *resname, gchar prio)
 {
   GSList *p;
@@ -223,6 +228,21 @@ static res_t *get_or_add_resource(roster_t *rost, const char *resname, gchar pri
       }
       return r;
     }
+  }
+
+  // Resource not found; if we already have the maximum number of
+  // resources, drop the lowest-priority one instead of allocating a
+  // new one (the list is sorted by ascending priority).
+  if (g_slist_length(rost->resource) >= MAX_BUDDY_RESOURCES) {
+    GSList *lowest = rost->resource;
+    res_t *lres;
+    if (!lowest)
+      return NULL;
+    lres = lowest->data;
+    if (lres == rost->active_resource)
+      rost->active_resource = NULL;
+    free_resource_data(lres);
+    rost->resource = g_slist_delete_link(rost->resource, lowest);
   }
 
   // Resource not found

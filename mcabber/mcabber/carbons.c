@@ -19,7 +19,6 @@
 
 #include "carbons.h"
 #include "settings.h"
-#include "xmpp_helper.h"
 #include "xmpp_defines.h"
 #include "logprint.h"
 #include "xmpp.h"

@@ -23,7 +23,6 @@
 #include <unistd.h>
 
 #include "hbuf.h"
-#include "utils.h"
 #include "utf8.h"
 #include "screen.h"
 

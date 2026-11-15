@@ -26,7 +26,6 @@
 #include "xmpp_iq.h"
 #include "xmpp_muc.h"
 #include "events.h"
-#include "hooks.h"
 #include "screen.h"
 #include "hbuf.h"
 #include "roster.h"

@@ -1,6 +1,9 @@
 #ifndef __MCABBER_XMPP_MUC_H__
 #define __MCABBER_XMPP_MUC_H__ 1
 
+#include <glib.h>
+#include <loudmouth/loudmouth.h>
+
 typedef struct {
   char *to;
   char *from;

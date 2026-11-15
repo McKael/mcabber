@@ -18,11 +18,13 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "xmpp_helper.h"
+#include <loudmouth/loudmouth.h>
+
 #include "events.h"
 #include "screen.h"
 #include "hbuf.h"
 #include "settings.h"
+#include "xmpp.h"
 
 //  xmpp_send_s10n(jid, subtype)
 // Send a s10n message with the passed subtype

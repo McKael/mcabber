@@ -32,7 +32,6 @@
 #include "utils.h"
 #include "utf8.h"
 #include "commands.h"
-#include "main.h"
 
 #ifdef MODULES_ENABLE
 #include <glib.h>

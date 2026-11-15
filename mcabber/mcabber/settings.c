@@ -29,7 +29,6 @@
 #include "otr.h"
 #include "utils.h"
 #include "xmpp.h"
-#include "main.h"
 
 // Maximum line length
 // (probably best to use the same value as INPUTLINE_LENGTH)

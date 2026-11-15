@@ -1,6 +1,8 @@
 #ifndef __MCABBER_EVENTS_H__
 #define __MCABBER_EVENTS_H__ 1
 
+#include <glib.h>
+
 #include <mcabber/config.h>
 
 #define EVS_DEFAULT_TIMEOUT 90

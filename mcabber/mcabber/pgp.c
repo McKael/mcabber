@@ -176,7 +176,7 @@ const char *gpg_get_private_key_id(void)
 // The string must be freed by the caller with g_free() when no longer needed.
 static char *strip_header_footer(const char *data)
 {
-  char *p, *q;
+  const char *p, *q;
 
   if (!data)
     return NULL;

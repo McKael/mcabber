@@ -1,6 +1,8 @@
 #ifndef __MCABBER_UTILS_H__
 #define __MCABBER_UTILS_H__ 1
 
+#include <loudmouth/loudmouth.h>
+
 #include <mcabber/config.h>
 
 extern const char *LocaleCharSet;

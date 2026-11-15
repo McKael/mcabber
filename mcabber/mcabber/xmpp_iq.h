@@ -1,6 +1,8 @@
 #ifndef __MCABBER_XMPP_IQ_H__
 #define __MCABBER_XMPP_IQ_H__ 1
 
+#include <loudmouth/loudmouth.h>
+
 LmHandlerResult handle_iq_dummy(LmMessageHandler *h,
                                 LmConnection *c,
                                 LmMessage *m, gpointer ud);

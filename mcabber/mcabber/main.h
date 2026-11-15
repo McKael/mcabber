@@ -1,6 +1,8 @@
 #ifndef __MCABBER_MAIN_H__
 #define __MCABBER_MAIN_H__ 1
 
+#include <glib.h>
+
 extern GMainContext *main_context;
 
 void mcabber_set_terminate_ui(void);
